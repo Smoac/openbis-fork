@@ -104,8 +104,7 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.addFetchedField(SampleType.class, "type", "Sample type", SampleTypeFetchOptions.class);
-        // TODO: project samples
-        // gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
+        gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
         addSpace(gen);
         addExperiment(gen);
         addProperties(gen);
@@ -445,9 +444,8 @@ public class Generator extends AbstractGenerator
         gen.addPluralFetchedField("List<Experiment>", List.class.getName(), "experiments", "Experiments", ExperimentFetchOptions.class)
                 .withInterface(IExperimentsHolder.class);
         gen.addClassForImport(Experiment.class);
-        // TODO: project samples
-        // gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
-        // gen.addClassForImport(Sample.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
+        gen.addClassForImport(Sample.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 

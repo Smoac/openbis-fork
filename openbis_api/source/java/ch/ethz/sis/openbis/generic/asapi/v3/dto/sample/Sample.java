@@ -15,6 +15,16 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -35,8 +45,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
@@ -44,20 +53,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IExperimentHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IExperimentHolder, IMaterialPropertiesHolder,
+        IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder,
+        IRegistratorHolder, ISpaceHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -81,6 +84,9 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     @JsonProperty
     private SampleType type;
+
+    @JsonProperty
+    private Project project;
 
     @JsonProperty
     private Space space;
@@ -213,8 +219,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Sample type has not been fetched.");
         }
@@ -228,14 +233,32 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    public Project getProject()
+    {
+        if (getFetchOptions().hasProject())
+        {
+            return project;
+        } else
+        {
+            throw new NotFetchedException("Project has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setProject(Project project)
+    {
+        this.project = project;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     @Override
     public Space getSpace()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Space has not been fetched.");
         }
@@ -255,8 +278,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasExperiment())
         {
             return experiment;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Experiment has not been fetched.");
         }
@@ -276,8 +298,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
             return properties;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Properties have not been fetched.");
         }
@@ -298,8 +319,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Material Properties have not been fetched.");
         }
@@ -320,8 +340,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parents;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Parents have not been fetched.");
         }
@@ -341,8 +360,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return children;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Children have not been fetched.");
         }
@@ -361,8 +379,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasContainer())
         {
             return container;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Container sample has not been fetched.");
         }
@@ -381,8 +398,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasComponents())
         {
             return components;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Component samples have not been fetched.");
         }
@@ -402,8 +418,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasDataSets())
         {
             return dataSets;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Data sets have not been fetched.");
         }
@@ -422,8 +437,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("History have not been fetched.");
         }
@@ -443,8 +457,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Tags have not been fetched.");
         }
@@ -464,8 +477,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Registrator has not been fetched.");
         }
@@ -485,8 +497,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Modifier has not been fetched.");
         }
@@ -506,8 +517,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Attachments have not been fetched.");
         }

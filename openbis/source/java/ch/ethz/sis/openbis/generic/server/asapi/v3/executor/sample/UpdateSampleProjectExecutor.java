@@ -65,9 +65,7 @@ public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelati
     @Override
     protected FieldUpdateValue<IProjectId> getRelatedUpdate(SampleUpdate update)
     {
-        // TODO: project samples
-        // return update.getProjectId();
-        return null;
+        return update.getProjectId();
     }
 
     @Override

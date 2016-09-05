@@ -51,9 +51,7 @@ public class SetSampleProjectExecutor extends AbstractSetEntityToOneRelationExec
     @Override
     protected IProjectId getRelatedId(SampleCreation creation)
     {
-        // TODO: project samples
-        // return creation.getProjectId();
-        return null;
+        return creation.getProjectId();
     }
 
     @Override

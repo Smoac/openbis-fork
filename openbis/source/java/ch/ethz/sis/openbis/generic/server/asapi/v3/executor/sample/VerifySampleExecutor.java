@@ -34,9 +34,8 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     @Autowired
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
 
-    // TODO: project samples
-    // @Autowired
-    // private IVerifySampleProjectExecutor verifySampleProjectExecutor;
+    @Autowired
+    private IVerifySampleProjectExecutor verifySampleProjectExecutor;
 
     @Autowired
     private IVerifySampleExperimentExecutor verifySampleExperimentExecutor;
@@ -52,8 +51,7 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     {
         verifyEntityPropertyExecutor.verify(context, batch);
         verifySampleExperimentExecutor.verify(context, batch);
-        // TODO: project samples
-        // verifySampleProjectExecutor.verify(context, samples);
+        verifySampleProjectExecutor.verify(context, batch);
         verifySampleContainerExecutor.verify(context, batch);
         verifySampleParentsExecutor.verify(context, batch);
     }

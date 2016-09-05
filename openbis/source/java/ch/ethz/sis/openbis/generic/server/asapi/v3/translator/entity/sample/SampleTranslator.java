@@ -53,9 +53,8 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
     @Autowired
     private ISampleSpaceTranslator spaceTranslator;
 
-    // TODO: project samples
-    // @Autowired
-    // private ISampleProjectTranslator projectTranslator;
+    @Autowired
+    private ISampleProjectTranslator projectTranslator;
 
     @Autowired
     private ISamplePropertyTranslator propertyTranslator;
@@ -127,11 +126,10 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             relations.put(ISampleSpaceTranslator.class, spaceTranslator.translate(context, sampleIds, fetchOptions.withSpace()));
         }
 
-        // TODO: project samples
-        // if (fetchOptions.hasProject())
-        // {
-        // relations.put(ISampleProjectTranslator.class, projectTranslator.translate(context, sampleIds, fetchOptions.withProject()));
-        // }
+        if (fetchOptions.hasProject())
+        {
+            relations.put(ISampleProjectTranslator.class, projectTranslator.translate(context, sampleIds, fetchOptions.withProject()));
+        }
 
         if (fetchOptions.hasProperties())
         {
@@ -210,10 +208,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
 
         result.setPermId(new SamplePermId(baseRecord.permId));
         result.setCode(baseRecord.code);
-        // TODO: project samples
-        // result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode,
-        // baseRecord.containerCode, baseRecord.code));
-        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode,
+        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode,
                 baseRecord.containerCode, baseRecord.code));
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
@@ -230,12 +225,11 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
 
-        // TODO: project samples
-        // if (fetchOptions.hasProject())
-        // {
-        // result.setProject(relations.get(ISampleProjectTranslator.class, sampleId));
-        // result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
-        // }
+        if (fetchOptions.hasProject())
+        {
+            result.setProject(relations.get(ISampleProjectTranslator.class, sampleId));
+            result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
+        }
 
         if (fetchOptions.hasProperties())
         {

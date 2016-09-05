@@ -22,6 +22,7 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.annotation.Resource;
 
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
@@ -343,10 +345,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        // TODO: project samples
-        // Properties serviceProperties = configurer.getResolvedProps();
-        // boolean projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
-        boolean projectSamplesEnabled = false;
+        Properties serviceProperties = configurer.getResolvedProps();
+        boolean projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
         Connection connection = null;
         try
         {

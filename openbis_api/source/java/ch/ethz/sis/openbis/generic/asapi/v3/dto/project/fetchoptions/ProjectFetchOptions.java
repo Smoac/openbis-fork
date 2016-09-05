@@ -15,6 +15,10 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
@@ -22,10 +26,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -37,6 +40,9 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
 
     @JsonProperty
     private ExperimentFetchOptions experiments;
+
+    @JsonProperty
+    private SampleFetchOptions samples;
 
     @JsonProperty
     private HistoryEntryFetchOptions history;
@@ -79,6 +85,27 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     public boolean hasExperiments()
     {
         return experiments != null;
+    }
+
+    public SampleFetchOptions withSamples()
+    {
+        if (samples == null)
+        {
+            samples = new SampleFetchOptions();
+        }
+        return samples;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public SampleFetchOptions withSamplesUsing(SampleFetchOptions fetchOptions)
+    {
+        return samples = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSamples()
+    {
+        return samples != null;
     }
 
     // Method automatically generated with DtoGenerator
@@ -230,6 +257,7 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
