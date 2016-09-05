@@ -32,6 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 
+/**
+ * @author Ganime Betul Akin
+ */
 public class ResourceListParserData
 {
     public Map<String, ProjectWithConnections> projectsToCreate = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
@@ -122,13 +125,6 @@ public class ResourceListParserData
 
         private final Date lastModificationDate;
 
-        public String getPermIdInDataSource()
-        {
-            return permIdInDataSource;
-        }
-
-        private final String permIdInDataSource;
-
         public NewExperiment getExperiment()
         {
             return experiment;
@@ -141,11 +137,10 @@ public class ResourceListParserData
 
         private List<Connection> connections = new ArrayList<Connection>();
 
-        ExperimentWithConnections(NewExperiment exp, Date lastModDate, String permIdInDataSource)
+        ExperimentWithConnections(NewExperiment exp, Date lastModDate)
         {
             this.experiment = exp;
             this.lastModificationDate = lastModDate;
-            this.permIdInDataSource = permIdInDataSource;
         }
 
         public Date getLastModificationDate()

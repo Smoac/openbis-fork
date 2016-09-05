@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//TODO implement db table for data source experiment perm id to harvester perm_id
 //TODO try to implement sample relationship sync like DS rel. sync
 //TODO check if already loaded harvesterEntityGraph can be used in most cases
 //TODO check if harvesterEntityGraph can be partially loaded as required
@@ -21,8 +20,7 @@
 //TODO different last sync timestamp files for different plugins - 
 //this is actually handled by setting up different harvester plugins with different files
 //TODO when deleting make sure we are not emptying all the trash but just the ones we synchronized
-//TODO checksums for data set files
-//TODO check why the material modification date is not during after material sync
+//TODO checksum checkss for data set files
 package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import java.io.ByteArrayInputStream;
@@ -64,7 +62,6 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BasicAuthentication;
 import org.eclipse.jetty.http.HttpStatus;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -153,6 +150,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
+/**
+ * @author Ganime Betul Akin
+ */
 public class DataSetRegistrationTask<T extends DataSetInformation> implements IMaintenanceTask
 {
     protected static final Logger operationLog =
@@ -534,34 +534,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
     }
 
-    private Map<String, String> retrievePermIdMappings(String entityKind)
-    {
-        final Map<String, String> mappings = new HashMap<String, String>();
-        List<Map<String, Object>> rows =
-                jdbcTemplate.query("select source_perm_id, destination_perm_id from synced_entities where source_prefix = '" + dataSourcePrefix
-                        + "' AND entity_kind = '"
-                        + entityKind + "'",
-                        new ColumnMapRowMapper());
-        for (Map<String, Object> row : rows)
-        {
-            mappings.put(row.get("source_perm_id").toString(), row.get("destination_perm_id").toString());
-        }
-
-        return mappings;
-    }
-
     @Override
     public void execute()
     {
         try
         {
-
-            Map<String, String> expMapHarvesterToDataSource = retrievePermIdMappings("EXPERIMENT");
-
             operationLog.info(this.getClass() + " started.");
             operationLog.info("Start synchronization from data source: " + dataSourceOpenbisURL + " space:" + dataSourceSpace);
 
-            operationLog.info("register master data");
+            // operationLog.info("register master data");
             registerMasterData();
 
             if (lastSyncTimestampFile.exists())
@@ -594,7 +575,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 throw new RuntimeException("Space " + harvesterSpace + " does not exist");
             }
             
-            // parse the resource list, this sends back all projects,
+            // Parse the resource list: This sends back all projects,
             // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
             operationLog.info("parsing the resource list xml document");
             ResourceListParser parser = ResourceListParser.create(harvesterSpace, lastSyncTimestamp);
@@ -616,7 +597,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     
             processProjects(projectsToProcess, experimentsToProcess, builder, harvesterEntityGraph);
         
-            processExperiments(expMapHarvesterToDataSource, experimentsToProcess, samplesToProcess, dataSetsToProcess, builder, harvesterEntityGraph);
+            processExperiments(experimentsToProcess, samplesToProcess, dataSetsToProcess, builder, harvesterEntityGraph);
 
             processSamples(samplesToProcess, builder, harvesterEntityGraph);
 
@@ -911,7 +892,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
-    private void processExperiments(Map<String, String> expMapHarvesterToDataSource, Map<String, ExperimentWithConnections> experimentsToProcess,
+    private void processExperiments(Map<String, ExperimentWithConnections> experimentsToProcess,
             Map<String, SampleWithConnections> samplesToProcess, Map<String, DataSetWithConnections> dataSetsToProcess,
             AtomicEntityOperationDetailsBuilder builder, EntityGraph<Node<?>> harvesterEntityGraph)
     {
@@ -921,7 +902,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             NewExperiment newIncomingExp = exp.getExperiment();
             if (exp.getLastModificationDate().after(lastSyncTimestamp)) {
                 Node<?> experimentInHarvesterGraph =
-                        harvesterEntityGraph.getNodeWithPermId(expMapHarvesterToDataSource.get(exp.getPermIdInDataSource()));
+                        harvesterEntityGraph.getNodeWithPermId(newIncomingExp.getPermID());
                 if (experimentInHarvesterGraph == null)
                 {
                     // ADD EXPERIMENT
@@ -929,7 +910,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 }
                 else {
                     // UPDATE EXPERIMENT
-                    Experiment experiment = service.tryGetExperimentByPermId(expMapHarvesterToDataSource.get(exp.getPermIdInDataSource()));
+                    Experiment experiment = service.tryGetExperimentByPermId(newIncomingExp.getPermID());
                     ExperimentUpdatesDTO expUpdate = new ExperimentUpdatesDTO();
                     expUpdate.setProjectIdentifier(ExperimentIdentifierFactory.parse(newIncomingExp.getIdentifier()));
                     expUpdate.setVersion(experiment.getVersion());

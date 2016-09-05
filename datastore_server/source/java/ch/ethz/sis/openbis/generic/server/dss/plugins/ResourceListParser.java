@@ -67,6 +67,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
+/**
+ * @author Ganime Betul Akin
+ */
 public class ResourceListParser
 {
     private final ResourceListParserData data;
@@ -314,8 +317,10 @@ public class ResourceListParser
 
         String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
         String desc = xdNode.getAttributes().getNamedItem("desc").getTextContent();
+        NewProject newProject = new NewProject("/" + destSpaceCode + "/" + code, desc);
+        newProject.setPermID(permId);
         ProjectWithConnections newPrjWithConns =
-                data.new ProjectWithConnections(new NewProject("/" + destSpaceCode + "/" + code, desc), lastModificationDate);
+                data.new ProjectWithConnections(newProject, lastModificationDate);
         data.projectsToCreate.put(permId, newPrjWithConns);
         newPrjWithConns.setConnections(parseConnections(xpath, xdNode));
     }
@@ -411,7 +416,8 @@ public class ResourceListParser
         String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
         String project = xdNode.getAttributes().getNamedItem("project").getTextContent();
         NewExperiment newExp = new NewExperiment("/" + destSpaceCode + "/" + project + "/" + code, type);
-        ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate, permId);
+        newExp.setPermID(permId);
+        ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
         data.experimentsToCreate.put(permId, newExpWithConns);
         newExpWithConns.setConnections(parseConnections(xpath, xdNode));
         newExp.setProperties(parseProperties(xpath, xdNode));
@@ -428,6 +434,7 @@ public class ResourceListParser
         NewSample newSample = new NewSample("/" + destSpaceCode + "/" + code, sampleType, null, null,
                 experiment.trim().equals("") ? null : experiment, null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>());
+        newSample.setPermID(permId);
         SampleWithConnections newSampleWithConns = data.new SampleWithConnections(newSample, lastModificationDate);
         data.samplesToCreate.put(permId, newSampleWithConns);
         newSampleWithConns.setConnections(parseConnections(xpath, xdNode));

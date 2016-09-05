@@ -21,6 +21,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IRequestHandle
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
+/**
+ * @author Ganime Betul Akin
+ */
 public class ResourceSyncRequestHandler extends JythonBasedRequestHandler
 {
     private static final String V3_ENTITY_RETRIEVER_VARIABLE_NAME = "v3EntityRetriever";
