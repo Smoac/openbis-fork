@@ -52,7 +52,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		
 		var owner = dataSetFormModel.sampleOrExperiment.identifier;
-		var ownerLabel = (owner.split("/").length === 3)?"Sample":"Experiment";
+		var ownerLabel = (owner.split("/").length === 3) ? entityTypes.sample : entityTypes.experiment;
 		$dataSetTypeFieldSet.append(FormUtil.getFieldForTextWithLabel(owner, ownerLabel));
 		
 		//
