@@ -8,35 +8,55 @@ public class SortableNumberBridgeUtils
     private static int LUCENE_INTEGER_PADDING = 19; // On the UI a integer field can't have more than 18 characters, a long can have 19 taking out the
                                                     // minus sign
 
+    private static final String NaN = "NaN";
+
+    /*
+     * Returns True for Integers, Reals and NaN value
+     */
     public static boolean isValidNumber(String number)
     {
-        return getNumberForLucene(number) != null;
+        try
+        {
+            getNumberForLucene(Long.valueOf(number));
+        } catch (Exception ex)
+        {
+            try
+            {
+                getNumberForLucene(Double.valueOf(number));
+            } catch (Exception ex2)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static String getNumberForLucene(String number)
     {
         try
         {
-            return getNumberForLucene(Long.parseLong(number));
+            return getNumberForLucene(Long.valueOf(number));
         } catch (Exception ex)
         {
             try
             {
-                return getNumberForLucene(Double.parseDouble(number));
+                return getNumberForLucene(Double.valueOf(number));
             } catch (Exception ex2)
             {
-                return null;
+                return NaN; // Returns NaN for non numbers, this method can potentially be called by the indexer with non number values
             }
         }
     }
 
     public static String getNumberForLucene(Number number)
     {
-        if (number instanceof Integer || number instanceof Long)
+        if (number.toString().equals(NaN))
+        {
+            return NaN;
+        } else if (number instanceof Integer || number instanceof Long)
         {
             return getIntegerAsStringForLucene(number) + ".0";
-        }
-        if (number instanceof Float || number instanceof Double)
+        } else if (number instanceof Float || number instanceof Double)
         {
             String rawReal = number.toString();
             int indexOfDot = rawReal.indexOf('.');
