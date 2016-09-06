@@ -2,7 +2,7 @@
  * @author pkupczyk
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation", "as/dto/space/search/SpaceSearchCriteria",
-		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria",
+		"as/dto/project/search/ProjectSearchCriteria", "as/dto/project/search/NoProjectSearchCriteria", "as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria",
 		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/SampleTypeSearchCriteria" ], 
 		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
 
@@ -18,6 +18,14 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			var SpaceSearchCriteria = require("as/dto/space/search/SpaceSearchCriteria");
 			return this.addCriteria(new SpaceSearchCriteria());
 		};
+		prototype.withProject = function() {
+			var ProjectSearchCriteria = require("as/dto/project/search/ProjectSearchCriteria");
+			return this.addCriteria(new ProjectSearchCriteria());
+		};
+		prototype.withoutProject = function() {
+			var NoProjectSearchCriteria = require("as/dto/project/search/NoProjectSearchCriteria");
+			return this.addCriteria(new NoProjectSearchCriteria());
+		};		
 		prototype.withExperiment = function() {
 			var ExperimentSearchCriteria = require("as/dto/experiment/search/ExperimentSearchCriteria");
 			return this.addCriteria(new ExperimentSearchCriteria());

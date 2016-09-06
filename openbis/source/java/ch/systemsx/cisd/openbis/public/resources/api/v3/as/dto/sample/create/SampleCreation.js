@@ -10,6 +10,7 @@ define([ "stjs" ], function(stjs) {
 		constructor.serialVersionUID = 1;
 		prototype.typeId = null;
 		prototype.experimentId = null;
+		prototype.projectId = null;		
 		prototype.spaceId = null;
 		prototype.code = null;
 		prototype.tagIds = null;
@@ -31,6 +32,12 @@ define([ "stjs" ], function(stjs) {
 		};
 		prototype.setExperimentId = function(experimentId) {
 			this.experimentId = experimentId;
+		};
+		prototype.getProjectId = function() {
+			return this.projectId;
+		};
+		prototype.setProjectId = function(projectId) {
+			this.projectId = projectId;
 		};
 		prototype.getSpaceId = function() {
 			return this.spaceId;
@@ -107,6 +114,7 @@ define([ "stjs" ], function(stjs) {
 	}, {
 		typeId : "IEntityTypeId",
 		experimentId : "IExperimentId",
+		projectId : "IProjectId",
 		spaceId : "ISpaceId",
 		tagIds : {
 			name : "List",
