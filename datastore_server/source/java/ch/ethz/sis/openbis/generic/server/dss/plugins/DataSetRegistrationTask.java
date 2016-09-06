@@ -145,7 +145,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -530,8 +529,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         extractDataSourceProperties(properties);
         extractHarvesterProperties(properties);
 
-        dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
-        jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
+        // dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
+        // jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
     }
 
     @Override
@@ -796,19 +795,19 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         Set<String> sampleWithUpdatedParents = new HashSet<String>();
         for (SampleWithConnections sample : samplesToProcess.values())
         {
-            NewSample newSmp = sample.getSample();
+            NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp)) {
-                SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSmp);
-                Node<?> sampleInHarvesterGraph = harvesterEntityGraph.getNodeForIdentifier(sampleIdentifier.toString());
+                SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
+                Node<?> sampleInHarvesterGraph = harvesterEntityGraph.getNodeWithPermId(incomingSample.getPermID());
                 if (sampleInHarvesterGraph == null)
                 {
                     // ADD SAMPLE
-                    builder.sample(newSmp);
+                    builder.sample(incomingSample);
                 }
                 else
                 {
                     // defer creation of sample update objects until all samples have been gone through;
-                    samplesToUpdate.put(sampleIdentifier, newSmp);
+                    samplesToUpdate.put(sampleIdentifier, incomingSample);
                     List<EdgeNodePair> edgesExistingOnHarvester =
                             harvesterEntityGraph.getNeighboursForEntityWithIdentifier(sampleIdentifier.toString(), null);
                     for (EdgeNodePair edgeNodePair : edgesExistingOnHarvester)
@@ -837,7 +836,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 if (conn.getType().equals("Component"))
                 {
                     NewSample containedSample = samplesToProcess.get(conn.getToPermId()).getSample();
-                    containedSample.setContainerIdentifier(newSmp.getIdentifier());
+                    containedSample.setContainerIdentifier(incomingSample.getIdentifier());
                 }
                 else if (conn.getType().equals("Child"))
                 {
@@ -852,7 +851,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     {
                         parentIds = new ArrayList<String>(Arrays.asList(parents));
                     }
-                    parentIds.add(newSmp.getIdentifier());
+                    parentIds.add(incomingSample.getIdentifier());
                     childSample.setParentsOrNull(parentIds.toArray(new String[parentIds.size()]));
                 }
                 // TODO how about Connection Type
@@ -946,8 +945,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             NewProject incomingProject = prj.getProject();
             if (prj.getLastModificationDate().after(lastSyncTimestamp))
             {
-                Project project = service.tryGetProject(ProjectIdentifierFactory.parse(incomingProject.getIdentifier()));
-                
+                Project project = service.tryGetProjectByPermId(incomingProject.getPermID());
                 if (project == null)
                 {
                     // ADD PROJECT
@@ -1001,7 +999,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 }
                 else
                 {
-                    // TODO This means the XML contains the connection but not the connected entitiy.
+                    // TODO This means the XML contains the connection but not the connected entity.
                     // These sort of problems maybe recorded in a separate synchronization log?
                     // ???????????????
                     operationLog.info("Connected experiment with permid : " + connectedExpPermId + " is missing");

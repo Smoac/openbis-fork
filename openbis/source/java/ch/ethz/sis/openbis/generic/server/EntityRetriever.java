@@ -21,8 +21,10 @@ import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CONNECTION;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,6 +72,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
@@ -96,7 +102,7 @@ public class EntityRetriever
         IApplicationServerApi v3Api = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
 
         EntityRetriever me = new EntityRetriever(v3Api, v3Api.login("admin", "aa"));
-        String spaceId = "SOURCE";
+        String spaceId = "SRC";
         me.getEntityGraph(spaceId);
         graph.printGraph(spaceId);
     }
@@ -127,6 +133,16 @@ public class EntityRetriever
         buildEntityGraph(spaceId);
         graph.printGraph(spaceId);
         return graph;
+    }
+
+    public boolean spaceExists(String spaceId)
+    {
+        SpacePermId spacePermId = new SpacePermId(spaceId);
+        Map<ISpaceId, Space> map =
+                v3Api.getSpaces(sessionToken,
+                        Arrays.asList(spacePermId),
+                        new SpaceFetchOptions());
+        return map.get(spacePermId) != null;
     }
 
     public void buildEntityGraph(String spaceId)
