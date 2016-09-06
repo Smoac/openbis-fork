@@ -150,10 +150,10 @@ def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, voca
     if propertyCode in propertiesCache:
         property = propertiesCache[propertyCode];
     else:
-        property = createProperty(tr, propertyCode, dataType);
+        property = createProperty(tr, propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode);
     
-    property.setDescription(propertyDescription);
     property.setLabel(propertyLabel);
+    property.setDescription(propertyDescription);
     if dataType == DataType.CONTROLLEDVOCABULARY:
         property.setVocabulary(vocabulariesCache[vocabularyCode]);
         
@@ -171,9 +171,18 @@ def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, voca
         propertyAssignment.setShownEdit(False);
         propertyAssignment.setScriptName(dynamicScript);
 
-def createProperty(tr, propertyCode, dataType):
+def createProperty(tr, propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode):
     property = tr.getOrCreateNewPropertyType(propertyCode, dataType);
     propertiesCache[propertyCode] = property;
+    
+    if propertyLabel is not None:
+        property.setLabel(propertyLabel);
+    if propertyDescription is not None:
+        property.setDescription(propertyDescription);
+    if vocabularyCode is not None:
+        if dataType == DataType.CONTROLLEDVOCABULARY:
+            property.setVocabulary(vocabulariesCache[vocabularyCode]);
+    
     return property;
 
 def getAnnotationsScript(tr, sampleTypeCode):
