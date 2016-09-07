@@ -55,6 +55,10 @@ public class Parameters
 
     private static final String DESTINATION_FOLDER = "destination-folder";
     
+    private static final String RSYNC_BINARY = "rsync-binary";
+
+    private static final String RSYNC_FLAGS = "rsync-flags";
+    
     private final String openbisUser;
 
     private final String openbisPassword;
@@ -80,6 +84,10 @@ public class Parameters
     private final String dataSetTypeList;
     
     private final String destinationFolder;
+    
+    private final String rsyncBinary;
+    
+    private final String rsyncFlags;
 
     public Parameters(Properties props)
     {
@@ -96,6 +104,8 @@ public class Parameters
         this.oldDataSetBacklogNumber = PropertyUtils.getInt(props, OLD_DATA_SET_BACKLOG_NUMBER, 0);
         this.dataSetTypeList = PropertyUtils.getProperty(props, DATA_SET_TYPE_LIST);
         this.destinationFolder= PropertyUtils.getProperty(props, DESTINATION_FOLDER);
+        this.rsyncBinary = PropertyUtils.getProperty(props, RSYNC_BINARY);
+        this.rsyncFlags = PropertyUtils.getProperty(props, RSYNC_FLAGS);
     }
 
     public String getOpenbisUser()
@@ -161,5 +171,15 @@ public class Parameters
     public String getDestinationFolder()
     {
     	return destinationFolder;
+    }
+    
+    public String getRsyncBinary()
+    {
+    	return rsyncBinary;
+    }
+    
+    public String getRsyncFlags()
+    {
+    	return rsyncFlags;
     }
 }

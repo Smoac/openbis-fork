@@ -47,7 +47,7 @@ public class LogUtils
     public static void notify(Throwable ex)
     {
         String fullMsg =
-                "An unexpected exception occured why trying to send emails with changes.\n"
+                "An unexpected exception occured while trying to send emails with changes.\n"
                         + "Error details: " + ex.getMessage();
         notify(ex, fullMsg);
     }

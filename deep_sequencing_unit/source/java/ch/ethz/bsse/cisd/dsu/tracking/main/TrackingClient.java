@@ -71,6 +71,10 @@ public class TrackingClient
 
     public static final String CL_PARAMETER_CHANGED_LANES = "changed_lanes";
 
+    public static final String CL_PARAMETER_COPY_DATA_SETS = "copy_data_sets";
+    
+    public static final String CL_PARAMETER_REMOVE_LANES = "remove";
+
     public static void main(String[] args)
     {
         try
@@ -98,11 +102,22 @@ public class TrackingClient
                 .create(CL_PARAMETER_LANES);
         lanes.setArgs(Option.UNLIMITED_VALUES);
         // Option all = new Option(CL_PARAMETER_ALL, "track all lanes, only for testing, never use in production!");
+        
         Option new_lanes = new Option(CL_PARAMETER_CHANGED_LANES, "only list lanes which have new datasets");
+        
+        Option copy_data_sets = new Option(CL_PARAMETER_COPY_DATA_SETS, "also copy the corresponding data sets to an extra"
+        		+ " folder. Only in combination with parameter \"" + CL_PARAMETER_LANES + "\"");
+        
+        Option remove = OptionBuilder.withArgName(CL_PARAMETER_REMOVE_LANES)
+        		.hasArg()
+        		.withDescription("remove lanes from tracking list and do not send an email")
+        		.create(CL_PARAMETER_REMOVE_LANES);
 
         options.addOption(lanes);
         // options.addOption(all);
         options.addOption(new_lanes);
+        options.addOption(copy_data_sets);
+        options.addOption(remove);
 
         // automatically generate the help statement
         HelpFormatter formatter = new HelpFormatter();
@@ -130,9 +145,19 @@ public class TrackingClient
             {
                 commandLineMap.put(CL_PARAMETER_CHANGED_LANES, null);
             }
+            if (line.hasOption(CL_PARAMETER_COPY_DATA_SETS))
+            {
+            	commandLineMap.put(CL_PARAMETER_COPY_DATA_SETS, null);
+            }
+            if (line.hasOption(CL_PARAMETER_REMOVE_LANES))
+            {
+                commandLineMap.put(CL_PARAMETER_REMOVE_LANES, line.getOptionValues(CL_PARAMETER_REMOVE_LANES));
+            }
         } catch (ParseException exp)
         {
             LogUtils.environmentError("Parsing of command line parameters failed.", exp.getMessage());
+            System.out.println("Parsing of command line parameters failed. " + exp.getMessage());
+            System.exit(1);
         }
         return commandLineMap;
     }

@@ -96,9 +96,19 @@ public class TrackingBO
         
         if (commandLineMap.get(TrackingClient.CL_PARAMETER_LANES) != null)
         {
+        	String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_LANES);
             changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
-                    commandLineMap.get(TrackingClient.CL_PARAMETER_LANES), session);
+                    commandLineMap, laneCodeList, session);
+        }
+        
+        else if (commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES) != null)
+        {
+            sendEmails = false;
+        	String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES);
+        	changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
+                    commandLineMap, laneCodeList, session);
         } 
+
         
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
         {
@@ -106,7 +116,7 @@ public class TrackingBO
             System.out.println("This function is deactivated");
         }
         
-        // just list the potential chnaged lanes
+        // just list the potential changed lanes
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
         {
             Map<String, String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, params, session);
@@ -282,24 +292,6 @@ public class TrackingBO
             }
         }
         
-        
-        
-//    	Properties properties = new Properties();        	
-//    	File storeRoot = null;
-//
-//    	DataSetCopier dsc = new DataSetCopier(properties, storeRoot);
-//		dsc.process(description, context);
-
-//    	PhysicalDataSet pds = d.tryGetAsDataSet();
-//    	
-//    	DataSetProcessingContext context = null;
-//    	
-//    	DatasetDescription description = new DatasetDescription();
-//        description.setDataSetCode(d.getCode());
-//        description.setDatasetTypeCode(d.getDataSetType().getCode());
-//        description.setDataSetLocation(d.tryGetAsDataSet().getDataSetLocation());
-        
-        
         Set<Map.Entry<String, String>> entrySet = changedLanesMap.entrySet();
         for (Entry<String, String> entry : entrySet)
         {
@@ -311,9 +303,11 @@ public class TrackingBO
     }
 
     private static TrackedEntities fetchChangedDataSets(TrackingStateDTO trackingState,
-            ITrackingServer trackingServer,  Parameters params, String[] laneCodeList, SessionContextDTO session)
+            ITrackingServer trackingServer,  Parameters params, final HashMap<String, String[]> commandLineMap,
+            String[] laneCodeList, SessionContextDTO session)
     {
     	long usableDataSetId = getUsableDataSetId(trackingState, params);
+    	
         List<String> spaceWhiteList = Arrays.asList(params.getSpaceWhitelist().split("\\s*,\\s*"));
         List<String> datasetTypeList = Arrays.asList(params.getdataSetTypeList().split("\\s*,\\s*"));
        
@@ -361,29 +355,34 @@ public class TrackingBO
                 		}
                 	}
                 }
-                System.out.println("Sending Email for " + newDataSetID + " which is part of " + d.getSampleCode());
+//                System.out.println("Sending Email for Data Set with permID " + d.getPermId() + " which is part of " + d.getSampleCode());
                 addDataSetTo(changedTrackingMap, d);
         }
         
-        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which are to be transferred to an extra folder");
+        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which could be transferred to an extra folder");
+       
         
-
-        
-        //TODO: extract and make robust       
-        File rsyncBinary = new File("/opt/local/bin/rsync");
-        File destination = new File(params.getDestinationFolder());
-        RsyncCopier copier = new RsyncCopier(rsyncBinary, null, "-a");
-        
-        for (AbstractExternalData ds : dataSets) {
-        	File source = new File(ds.tryGetAsDataSet().getFullLocation());
-        	copier.copy(source, destination, null, null);
-        	LogUtils.info("Copying " + ds.getCode() + " to " + params.getDestinationFolder());
-        	
+        if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_COPY_DATA_SETS))
+        {
+            extraDataSetCopy(params, toTransferDataSets);
         }
 
         LogUtils.info("Found " + filteredDataSets.size() + " data sets which are connected to samples in " + filterList.toString());
         return gatherTrackedEntities(trackingState, trackingServer, session, filteredDataSets, changedTrackingMap);
     }
+    
+        
+	private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets) {
+		File rsyncBinary = new File(params.getRsyncBinary());
+		File destination = new File(params.getDestinationFolder());
+		RsyncCopier copier = new RsyncCopier(rsyncBinary, null, params.getRsyncFlags());
+		
+		for (AbstractExternalData ds : dataSets) {
+			File source = new File(ds.tryGetAsDataSet().getFullLocation());
+			copier.copy(source, destination, null, null);
+			LogUtils.info("Copying " + ds.getCode() + " from " + source + " to " + params.getDestinationFolder());            	
+		}
+	}
 
     private static long getMaxDataSetId(TrackingStateDTO trackingState)
     {
@@ -440,7 +439,7 @@ public class TrackingBO
         Sample currentLane = dataSet.getSample();
         String lanePermId = currentLane.getPermId();
 
-        LogUtils.info("Found lane with permId: " + lanePermId + " with new DS techId " + dataSet.getId() + " and DS permId " + dataSet.getPermId());
+        LogUtils.info("Found lane " + currentLane.getCode() + " with permId: " + lanePermId + " with new DS techId " + dataSet.getId() + " and DS permId " + dataSet.getPermId());
         ArrayList<Long> existingList = changedTrackingMap.get(lanePermId);
         if (existingList == null)
         {
