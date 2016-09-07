@@ -178,7 +178,7 @@ public class EntityRetriever
         criteria.withProject().withSpace().withCode().thatEquals(prjNode.getEntity().getSpace().getCode());
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withProperties();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withSpace();
         fetchOptions.withType();
         fetchOptions.withAttachments();
 

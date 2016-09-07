@@ -110,6 +110,9 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
 
     public String getSpaceOrNull()
     {
+        if(entity instanceof Experiment) {
+           return  ((Experiment)entity).getProject().getSpace().getCode();
+        }
         if (ISpaceHolder.class.isAssignableFrom(entity.getClass()) == false)
         {
             return null;

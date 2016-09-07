@@ -47,6 +47,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -62,7 +63,6 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BasicAuthentication;
 import org.eclipse.jetty.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -88,6 +88,7 @@ import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
@@ -99,7 +100,6 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
-import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTask;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
@@ -169,7 +169,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private static final String DATA_SOURCE_DSS_URL_PROPERTY_NAME = "dss-url";
 
-    private static final String DATA_SOURCE_SPACE_PROPERTY_NAME = "space";
+    private static final String DATA_SOURCE_SPACES_PROPERTY_NAME = "spaces";
 
     private static final String DATA_SOURCE_PREFIX_PROPERTY_NAME = "prefix";
 
@@ -181,7 +181,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private static final String HARVESTER_SECTION_NAME = "harvester";
 
-    private static final String HARVESTER_SPACE_PROPERTY_NAME = "space";
+    private static final String HARVESTER_SPACES_PROPERTY_NAME = "spaces";
 
     private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "tmp-dir";
 
@@ -206,6 +206,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private String dataSourceSpace;
 
+    private HashMap<String, String> spaceMappings = new HashMap<String, String>();
+
     private String dataSourcePrefix;
 
     private String harvesterSpace;
@@ -222,9 +224,9 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private Date lastSyncTimestamp;
 
-    private SimpleDatabaseConfigurationContext dbConfigurationContext;
-
-    private JdbcTemplate jdbcTemplate;
+    // private SimpleDatabaseConfigurationContext dbConfigurationContext;
+    //
+    // private JdbcTemplate jdbcTemplate;
 
     private void initializePluginProperties()
     {
@@ -271,13 +273,37 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         SectionProperties harvesterSectionProperties =
                 PropertyParametersUtil.extractSingleSectionProperties(properties,
                         HARVESTER_SECTION_NAME, false);
-        harvesterSpace = harvesterSectionProperties.getProperties().getProperty(HARVESTER_SPACE_PROPERTY_NAME);
+        String harvesterSpaces = harvesterSectionProperties.getProperties().getProperty(HARVESTER_SPACES_PROPERTY_NAME);
+        extractHarvesterSpaces(harvesterSpaces);
         harvesterTempDir = harvesterSectionProperties.getProperties().getProperty(HARVESTER_TEMP_DIR_PROPERTY_NAME);
         String fileName =
                 properties.getProperty(HARVESTER_LAST_SYNC_TIMESTAMP_FILE,
                         DEFAULT_LAST_SYNC_TIMESTAMP_FILE);
         lastSyncTimestampFile = new File(fileName);
         newLastSyncTimeStampFile = new File(fileName + ".new");
+    }
+
+    private void extractHarvesterSpaces(String harvesterSpaces)
+    {
+        StringTokenizer st = new StringTokenizer(harvesterSpaces, ",");
+        if (st.countTokens() != spaceMappings.keySet().size())
+        {
+            throw new ConfigurationFailureException("Please specify a harvester space for each data source spacespecified.");
+        }
+        
+        List<String> harvesterSpaceList =  new ArrayList<String>();
+        while(st.hasMoreElements()) {
+            harvesterSpaceList.add(st.nextToken());
+        }
+        LinkedList<String> dataSourceSpaceList = new LinkedList<String>(spaceMappings.keySet());
+        for (int i = 0; i < dataSourceSpaceList.size(); i++)
+        {
+            spaceMappings.put(dataSourceSpaceList.get(i), harvesterSpaceList.get(i));
+        }
+        operationLog.info("Syncing the following spaces:");
+        for(String s: spaceMappings.keySet()) {
+            System.out.println(s + " : " + spaceMappings.get(s));
+        }
     }
 
     private void extractDataSourceProperties(Properties properties)
@@ -291,8 +317,18 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         realm = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_REALM_PROPERTY_NAME);
         user = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_USER_PROPERTY_NAME);
         pass = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_PASS_PROPERTY_NAME);
-        dataSourceSpace = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_SPACE_PROPERTY_NAME);
+        String dataSourceSpaces = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_SPACES_PROPERTY_NAME);
+        extractDataSourceSpaces(dataSourceSpaces);
         dataSourcePrefix = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_PREFIX_PROPERTY_NAME);
+    }
+
+    private void extractDataSourceSpaces(String dataSourceSpaces)
+    {
+        StringTokenizer st = new StringTokenizer(dataSourceSpaces, ",");
+        while (st.hasMoreElements())
+        {
+            spaceMappings.put(st.nextToken(), null);
+        }
     }
 
     private Document getResourceListAsXMLDoc() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
