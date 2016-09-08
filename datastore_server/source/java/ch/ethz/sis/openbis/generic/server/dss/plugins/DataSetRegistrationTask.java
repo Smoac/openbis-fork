@@ -76,16 +76,12 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.EntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.DataSetWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.ExperimentWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.SampleWithConnections;
-import ch.ethz.sis.openbis.generic.shared.entitygraph.EdgeNodePair;
-import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
-import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -121,6 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -204,13 +201,9 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private String pass;
 
-    private String dataSourceSpace;
-
     private HashMap<String, String> spaceMappings = new HashMap<String, String>();
 
     private String dataSourcePrefix;
-
-    private String harvesterSpace;
 
     private String harvesterTempDir;
 
@@ -224,6 +217,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private Date lastSyncTimestamp;
 
+    private String dataSourceSpaces;
+
+    private String harvesterSpaces;
+
     // private SimpleDatabaseConfigurationContext dbConfigurationContext;
     //
     // private JdbcTemplate jdbcTemplate;
@@ -234,8 +231,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         realm = "OAI-PMH";
         user = "admin";
         pass = "aa";
-        dataSourceSpace = "DEFAULT";
-        harvesterSpace = "DST";
+        // dataSourceSpace = "DEFAULT";
+        // harvesterSpace = "DST";
     }
 
     public static void main(String[] args)
@@ -259,7 +256,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         {
             dsrt.initializePluginProperties();
             doc = dsrt.getResourceListAsXMLDoc();
-            ResourceListParser parser = ResourceListParser.create("DST", new Date(0L));
+            ResourceListParser parser = ResourceListParser.create(new HashMap<String, String>()); // , new Date(0L)
             parser.parseResourceListDocument(doc);
         } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException | URISyntaxException | InterruptedException
                 | TimeoutException | ExecutionException e)
@@ -273,8 +270,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         SectionProperties harvesterSectionProperties =
                 PropertyParametersUtil.extractSingleSectionProperties(properties,
                         HARVESTER_SECTION_NAME, false);
-        String harvesterSpaces = harvesterSectionProperties.getProperties().getProperty(HARVESTER_SPACES_PROPERTY_NAME);
-        extractHarvesterSpaces(harvesterSpaces);
+        harvesterSpaces = harvesterSectionProperties.getProperties().getProperty(HARVESTER_SPACES_PROPERTY_NAME);
         harvesterTempDir = harvesterSectionProperties.getProperties().getProperty(HARVESTER_TEMP_DIR_PROPERTY_NAME);
         String fileName =
                 properties.getProperty(HARVESTER_LAST_SYNC_TIMESTAMP_FILE,
@@ -283,27 +279,42 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         newLastSyncTimeStampFile = new File(fileName + ".new");
     }
 
-    private void extractHarvesterSpaces(String harvesterSpaces)
+    private void createDataSourceToHarvesterSpaceMappings()
     {
-        StringTokenizer st = new StringTokenizer(harvesterSpaces, ",");
-        if (st.countTokens() != spaceMappings.keySet().size())
+        List<String> dataSourceSpaceList = extractSpaces(dataSourceSpaces);
+        List<String> harvesterSpaceList = extractSpaces(harvesterSpaces);
+        if (dataSourceSpaceList.size() != harvesterSpaceList.size())
         {
-            throw new ConfigurationFailureException("Please specify a harvester space for each data source spacespecified.");
+            throw new ConfigurationFailureException("Please specify a harvester space for each data source space.");
         }
+        for (int i = 0; i < dataSourceSpaceList.size(); i++)
+        {
+            String harvesterSpace = harvesterSpaceList.get(i);
+            Space destSpace = ServiceProvider.getOpenBISService().tryGetSpace(new SpaceIdentifier(harvesterSpace));
+            if (destSpace == null)
+            {
+                operationLog.error("Space " + harvesterSpace + " does not exist");
+                throw new RuntimeException("Space " + harvesterSpace + " does not exist");
+            }
+            spaceMappings.put(dataSourceSpaceList.get(i), harvesterSpace);
+        }
+
+        operationLog.info("Syncing the following spaces:");
+        for (String s : spaceMappings.keySet())
+        {
+            System.out.println(s + " : " + spaceMappings.get(s));
+        }
+    }
+
+    private List<String> extractSpaces(String spaces)
+    {
+        StringTokenizer st = new StringTokenizer(spaces, ",");
         
         List<String> harvesterSpaceList =  new ArrayList<String>();
         while(st.hasMoreElements()) {
-            harvesterSpaceList.add(st.nextToken());
+            harvesterSpaceList.add(st.nextToken().trim());
         }
-        LinkedList<String> dataSourceSpaceList = new LinkedList<String>(spaceMappings.keySet());
-        for (int i = 0; i < dataSourceSpaceList.size(); i++)
-        {
-            spaceMappings.put(dataSourceSpaceList.get(i), harvesterSpaceList.get(i));
-        }
-        operationLog.info("Syncing the following spaces:");
-        for(String s: spaceMappings.keySet()) {
-            System.out.println(s + " : " + spaceMappings.get(s));
-        }
+        return harvesterSpaceList;
     }
 
     private void extractDataSourceProperties(Properties properties)
@@ -317,18 +328,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         realm = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_REALM_PROPERTY_NAME);
         user = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_USER_PROPERTY_NAME);
         pass = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_PASS_PROPERTY_NAME);
-        String dataSourceSpaces = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_SPACES_PROPERTY_NAME);
-        extractDataSourceSpaces(dataSourceSpaces);
+        dataSourceSpaces = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_SPACES_PROPERTY_NAME);
         dataSourcePrefix = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_PREFIX_PROPERTY_NAME);
-    }
-
-    private void extractDataSourceSpaces(String dataSourceSpaces)
-    {
-        StringTokenizer st = new StringTokenizer(dataSourceSpaces, ",");
-        while (st.hasMoreElements())
-        {
-            spaceMappings.put(st.nextToken(), null);
-        }
     }
 
     private Document getResourceListAsXMLDoc() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
@@ -342,7 +343,16 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         AuthenticationStore auth = client.getAuthenticationStore();
         auth.addAuthentication(new BasicAuthentication(new URI(dataSourceURI), realm, user, pass));
 
-        Request requestEntity = client.newRequest(dataSourceURI + "?verb=resourcelist.xml&space=" + dataSourceSpace).method("GET");
+        String spacesParam = "";
+        for (String dataSourceSpace : spaceMappings.keySet())
+        {
+            spacesParam += dataSourceSpace + ",";
+        }
+        if (spacesParam.isEmpty() == false)
+        {
+            spacesParam = spacesParam.substring(0, spacesParam.length() - 1);
+        }
+        Request requestEntity = client.newRequest(dataSourceURI + "?verb=resourcelist.xml&spaces=" + spacesParam).method("GET");
 
         ContentResponse contentResponse;
         contentResponse = requestEntity.send();
@@ -356,6 +366,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         byte[] content = contentResponse.getContent();
         ByteArrayInputStream bis = new ByteArrayInputStream(content);
 
+        System.out.println(new String(content));
         DocumentBuilderFactory domFactory =
                 DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(true);
@@ -564,6 +575,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         context = new DataSetProcessingContext(null, null, null, null, null, null);
         extractDataSourceProperties(properties);
         extractHarvesterProperties(properties);
+        createDataSourceToHarvesterSpaceMappings();
 
         // dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
         // jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
@@ -575,7 +587,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         try
         {
             operationLog.info(this.getClass() + " started.");
-            operationLog.info("Start synchronization from data source: " + dataSourceOpenbisURL + " space:" + dataSourceSpace);
+            operationLog.info("Start synchronization from data source: " + dataSourceOpenbisURL + " spaces:" + spaceMappings.keySet());
 
             // operationLog.info("register master data");
             registerMasterData();
@@ -602,18 +614,11 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             //retrieve the document from the data source
             operationLog.info("Retrieving the resource list..");
             Document doc = getResourceListAsXMLDoc();
-
-            Space destSpace = ServiceProvider.getOpenBISService().tryGetSpace(new SpaceIdentifier(harvesterSpace));
-            if (destSpace == null)
-            {
-                operationLog.error("Space " + harvesterSpace + " does not exist");
-                throw new RuntimeException("Space " + harvesterSpace + " does not exist");
-            }
             
             // Parse the resource list: This sends back all projects,
             // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
             operationLog.info("parsing the resource list xml document");
-            ResourceListParser parser = ResourceListParser.create(harvesterSpace, lastSyncTimestamp);
+            ResourceListParser parser = ResourceListParser.create(spaceMappings); // , lastSyncTimestamp
             data = parser.parseResourceListDocument(doc);
 
             // go through the resources returned by the parser and decide on add/update/delete operations
@@ -625,16 +630,16 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
             AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
 
-            EntityRetriever entityRetriever =
-                    EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), ServiceProvider.getOpenBISService()
-                            .getSessionToken());
-            EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpace);
+            // EntityRetriever entityRetriever =
+            // EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), ServiceProvider.getOpenBISService()
+            // .getSessionToken());
+            // EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpace);
                     
-            processProjects(projectsToProcess, experimentsToProcess, builder, harvesterEntityGraph);
+            processProjects(projectsToProcess, experimentsToProcess, builder);
         
-            processExperiments(experimentsToProcess, samplesToProcess, dataSetsToProcess, builder, harvesterEntityGraph);
+            processExperiments(experimentsToProcess, samplesToProcess, dataSetsToProcess, builder);
 
-            processSamples(samplesToProcess, builder, harvesterEntityGraph);
+            processSamples(samplesToProcess, builder);
 
             processMaterials(materialsToProcess, builder);
 
@@ -694,8 +699,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 NewExternalData dataSet = (NewExternalData) dsWithConn.getDataSet();
                 if (dsWithConn.getLastModificationDate().after(lastSyncTimestamp))
                 {
-                    if (physicalDSMap.containsKey(dataSet.getCode()) == false && harvesterEntityGraph.containsEntity(dataSet.getCode()) == false)
-                    {
+                    if (physicalDSMap.containsKey(dataSet.getCode()) == false && service.tryGetDataSet(dataSet.getCode()) == null)
+                     {
                         builder.dataSet(dataSet);
                     }
                     else {
@@ -823,8 +828,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
-    private void processSamples(Map<String, SampleWithConnections> samplesToProcess, AtomicEntityOperationDetailsBuilder builder,
-            EntityGraph<Node<?>> harvesterEntityGraph)
+    private void processSamples(Map<String, SampleWithConnections> samplesToProcess, AtomicEntityOperationDetailsBuilder builder)
     {
         // process samples
         Map<SampleIdentifier, NewSample> samplesToUpdate = new HashMap<SampleIdentifier, NewSample>();
@@ -834,8 +838,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp)) {
                 SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
-                Node<?> sampleInHarvesterGraph = harvesterEntityGraph.getNodeWithPermId(incomingSample.getPermID());
-                if (sampleInHarvesterGraph == null)
+                Sample sampleWithExperiment = service.tryGetSampleWithExperiment(sampleIdentifier);
+                if (sampleWithExperiment == null)
                 {
                     // ADD SAMPLE
                     builder.sample(incomingSample);
@@ -844,13 +848,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 {
                     // defer creation of sample update objects until all samples have been gone through;
                     samplesToUpdate.put(sampleIdentifier, incomingSample);
-                    List<EdgeNodePair> edgesExistingOnHarvester =
-                            harvesterEntityGraph.getNeighboursForEntityWithIdentifier(sampleIdentifier.toString(), null);
-                    for (EdgeNodePair edgeNodePair : edgesExistingOnHarvester)
+                    List<Sample> childSamples = getChildSamples(sampleWithExperiment);
+                    for (Sample child : childSamples)
                     {
-                        if (edgeNodePair.getEdge().getType().equals("Child"))
-                        {
-                            String childSampleIdentifier = edgeNodePair.getNode().getIdentifier();
+                            String childSampleIdentifier = child.getIdentifier();//edgeNodePair.getNode().getIdentifier();
                             SampleWithConnections childSampleWithConns = findChildInSamplesToProcess(childSampleIdentifier, samplesToProcess);
                             if (childSampleWithConns == null)
                             {
@@ -863,7 +864,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                                 NewSample childSample = childSampleWithConns.getSample();
                                 sampleWithUpdatedParents.add(childSample.getIdentifier());
                             }
-                        }
                     }
                 }
             }
@@ -927,25 +927,38 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
+    private List<Sample> getChildSamples(Sample sampleWithExperiment)
+    {
+        ListSampleCriteria criteria = ListSampleCriteria.createForParent(new TechId(sampleWithExperiment.getId()));
+        return service.listSamples(criteria);
+    }
+
     private void processExperiments(Map<String, ExperimentWithConnections> experimentsToProcess,
             Map<String, SampleWithConnections> samplesToProcess, Map<String, DataSetWithConnections> dataSetsToProcess,
-            AtomicEntityOperationDetailsBuilder builder, EntityGraph<Node<?>> harvesterEntityGraph)
+            AtomicEntityOperationDetailsBuilder builder)
     {
         // process experiments
         for (ExperimentWithConnections exp : experimentsToProcess.values())
         {
             NewExperiment newIncomingExp = exp.getExperiment();
             if (exp.getLastModificationDate().after(lastSyncTimestamp)) {
-                Node<?> experimentInHarvesterGraph =
-                        harvesterEntityGraph.getNodeWithPermId(newIncomingExp.getPermID());
-                if (experimentInHarvesterGraph == null)
+                Experiment experiment = null;
+                try
+                {
+                    experiment = service.tryGetExperimentByPermId(newIncomingExp.getPermID());
+                } catch (Exception e)
+                {
+                    // TODO doing nothing because when the experiment with the perm id not found
+                    // an exception will be thrown. Seems to be the same with entity kinds
+                }
+
+                if (experiment == null)
                 {
                     // ADD EXPERIMENT
                     builder.experiment(newIncomingExp);
                 }
                 else {
                     // UPDATE EXPERIMENT
-                    Experiment experiment = service.tryGetExperimentByPermId(newIncomingExp.getPermID());
                     ExperimentUpdatesDTO expUpdate = new ExperimentUpdatesDTO();
                     expUpdate.setProjectIdentifier(ExperimentIdentifierFactory.parse(newIncomingExp.getIdentifier()));
                     expUpdate.setVersion(experiment.getVersion());
@@ -974,14 +987,23 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     }
 
     private void processProjects(Map<String, ProjectWithConnections> projectsToProcess, Map<String, ExperimentWithConnections> experimentsToProcess,
-            AtomicEntityOperationDetailsBuilder builder, EntityGraph<Node<?>> harvesterEntityGraph)
+            AtomicEntityOperationDetailsBuilder builder)
     {
         for (ProjectWithConnections prj : projectsToProcess.values())
         {
             NewProject incomingProject = prj.getProject();
             if (prj.getLastModificationDate().after(lastSyncTimestamp))
             {
-                Project project = service.tryGetProjectByPermId(incomingProject.getPermID());
+                Project project = null;
+                try
+                {
+                    project = service.tryGetProjectByPermId(incomingProject.getPermID());
+                } catch (Exception e)
+                {
+                    // TODO doing nothing because when the project with the perm is not found
+                    // an exception will be thrown. See bug report SSDM-4108
+                }
+
                 if (project == null)
                 {
                     // ADD PROJECT
@@ -996,6 +1018,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     prjUpdate.setDescription(incomingProject.getDescription());
                     // TODO attachments????
                     prjUpdate.setAttachments(Collections.<NewAttachment> emptyList());
+                    // TODO!!!!!!prjUpdate.setSpaceCode(spaceCode);
                     builder.projectUpdate(prjUpdate); // ConversionUtils.convertToProjectUpdateDTO(new
                                                     // ch.systemsx.cisd.etlserver.registrator.api.v2.impl.Project(project))
                 }
@@ -1003,13 +1026,14 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             for (Connection conn : prj.getConnections())
             {
                 String connectedExpPermId = conn.getToPermId();
+                // TODO we need to do the same check for samples to support project samples
                 if (experimentsToProcess.containsKey(connectedExpPermId)) 
                 {
                   //the project is connected to an experiment
                     ExperimentWithConnections exp = experimentsToProcess.get(connectedExpPermId);
                     NewExperiment newExp = exp.getExperiment();
                     // check if our local graph has the same connection
-                    if (harvesterEntityGraph.containsEntity(newExp.getIdentifier()) == false)
+                    if (service.tryGetExperiment(ExperimentIdentifierFactory.parse(newExp.getIdentifier())) == null)
                     {
                         // add new edge
                         String oldIdentifier = newExp.getIdentifier();
@@ -1018,7 +1042,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
                         newExp.setIdentifier(incomingProject.getIdentifier() + "/" + expCode);
                         // add new experiment node
-                    }
+                    }// TODO can the following happen. i.e. a project experiment connection is always of type Connection so we should be safe to
+                     // remove the following?
                     // else
                     // {
                     // if (harvesterEntityGraph.edgeExists(incomingProject.getIdentifier(), newExp.getIdentifier(), conn.getType()) == false)

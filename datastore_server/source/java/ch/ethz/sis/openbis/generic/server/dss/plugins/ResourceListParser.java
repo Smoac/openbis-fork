@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -74,21 +75,19 @@ public class ResourceListParser
 {
     private final ResourceListParserData data;
 
-    private final String destSpaceCode;
 
-    private Date lastSyncTimestamp;
+    private final HashMap<String, String> spaceMappings;
 
-    private ResourceListParser(String destSpaceCode, Date lastSyncTimestamp)
+    private ResourceListParser(HashMap<String, String> spaceMappings)
     {
         // TODO do the returning of parser data better
         this.data = new ResourceListParserData();
-        this.destSpaceCode = destSpaceCode;
-        this.lastSyncTimestamp = lastSyncTimestamp;
+        this.spaceMappings = spaceMappings;
     }
 
-    public static ResourceListParser create(String destSpaceCode, Date lastSyncTimestamp)
+    public static ResourceListParser create(HashMap<String, String> spaceMappings)
     {
-        ResourceListParser parser = new ResourceListParser(destSpaceCode, lastSyncTimestamp);
+        ResourceListParser parser = new ResourceListParser(spaceMappings);
         return parser;
     }
 
@@ -301,15 +300,18 @@ public class ResourceListParser
     private SampleIdentifier getSampleIdentifier(String sampleIdentifierStr)
     {
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifierStr);
-        return new SampleIdentifier(new SpaceIdentifier(destSpaceCode), sampleIdentifier.getSampleCode());
+        SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
+        String originalSpaceCode = spaceLevel.getSpaceCode();
+        return new SampleIdentifier(new SpaceIdentifier(spaceMappings.get(originalSpaceCode)), sampleIdentifier.getSampleCode());
     }
 
     private ExperimentIdentifier getExperimentIdentifier(String experiment)
     {
-        ExperimentIdentifier sampleIdentifier = ExperimentIdentifierFactory.parse(experiment);
-        String projectCode = sampleIdentifier.getProjectCode();
-        String expCode = sampleIdentifier.getExperimentCode();
-        return new ExperimentIdentifier(new ProjectIdentifier(destSpaceCode, projectCode), expCode);
+        ExperimentIdentifier experimentIdentifier = ExperimentIdentifierFactory.parse(experiment);
+        String originalSpaceCode = experimentIdentifier.getSpaceCode();
+        String projectCode = experimentIdentifier.getProjectCode();
+        String expCode = experimentIdentifier.getExperimentCode();
+        return new ExperimentIdentifier(new ProjectIdentifier(spaceMappings.get(originalSpaceCode), projectCode), expCode);
     }
 
     private void parseProjectMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
@@ -317,7 +319,9 @@ public class ResourceListParser
 
         String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
         String desc = xdNode.getAttributes().getNamedItem("desc").getTextContent();
-        NewProject newProject = new NewProject("/" + destSpaceCode + "/" + code, desc);
+        String space = xdNode.getAttributes().getNamedItem("space").getTextContent();
+        // TODO is there a better way to create project identifier below?
+        NewProject newProject = new NewProject("/" + spaceMappings.get(space) + "/" + code, desc);
         newProject.setPermID(permId);
         ProjectWithConnections newPrjWithConns =
                 data.new ProjectWithConnections(newProject, lastModificationDate);
@@ -415,7 +419,8 @@ public class ResourceListParser
         String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
         String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
         String project = xdNode.getAttributes().getNamedItem("project").getTextContent();
-        NewExperiment newExp = new NewExperiment("/" + destSpaceCode + "/" + project + "/" + code, type);
+        String space = xdNode.getAttributes().getNamedItem("space").getTextContent();
+        NewExperiment newExp = new NewExperiment("/" + spaceMappings.get(space) + "/" + project + "/" + code, type);
         newExp.setPermID(permId);
         ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
         data.experimentsToCreate.put(permId, newExpWithConns);
@@ -428,10 +433,11 @@ public class ResourceListParser
         String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
         String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
         String experiment = xdNode.getAttributes().getNamedItem("experiment").getTextContent();
+        String space = xdNode.getAttributes().getNamedItem("space").getTextContent();
         SampleType sampleType = new SampleType();
         sampleType.setCode(type);
 
-        NewSample newSample = new NewSample("/" + destSpaceCode + "/" + code, sampleType, null, null,
+        NewSample newSample = new NewSample("/" + spaceMappings.get(space) + "/" + code, sampleType, null, null,
                 experiment.trim().equals("") ? null : experiment, null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>());
         newSample.setPermID(permId);
