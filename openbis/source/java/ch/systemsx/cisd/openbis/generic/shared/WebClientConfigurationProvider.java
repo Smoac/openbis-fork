@@ -156,10 +156,12 @@ public class WebClientConfigurationProvider
         webClientConfiguration
                 .setCreatableDataSetTypePatternsBlacklist(extractCreatableDataSetTypes(properties,
                         CREATABLE_DATA_SET_TYPES_BLACKLIST));
-        setSampleAndExperimentTextsInCommonDictionary(properties);
+        webClientConfiguration.setSampleText(properties.getProperty("sample-text", "Sample"));
+        webClientConfiguration.setExperimentText(properties.getProperty("experiment-text", "Experiment"));
+        setSampleAndExperimentTextsInCommonDictionary(webClientConfiguration);
     }
 
-    private void setSampleAndExperimentTextsInCommonDictionary(Properties properties)
+    private void setSampleAndExperimentTextsInCommonDictionary(WebClientConfiguration webClientConfiguration)
     {
         List<File> targets = findInjectionTargets();
         for (File target : targets)
@@ -172,11 +174,11 @@ public class WebClientConfigurationProvider
                 {
                     if (line.startsWith("entityTypes.sample "))
                     {
-                        line = "entityTypes.sample = '" + properties.getProperty("sample-text", "Sample") + "';";
+                        line = "entityTypes.sample = '" + webClientConfiguration.getSampleText() + "';";
                     }
                     if (line.startsWith("entityTypes.experiment "))
                     {
-                        line = "entityTypes.experiment = '" + properties.getProperty("experiment-text", "Experiment") + "';";
+                        line = "entityTypes.experiment = '" + webClientConfiguration.getExperimentText() + "';";
                     }
                     builder.append(line).append('\n');
                 }

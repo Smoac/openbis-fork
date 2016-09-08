@@ -230,6 +230,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
+import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * The {@link ICommonClientService} implementation.
@@ -1048,13 +1049,18 @@ public final class CommonClientService extends AbstractClientService implements
         {
             // This also refreshes the session.
             String sessionToken = getSessionToken();
-            final List<SearchableEntity> searchableEntities =
+            final List<SearchableEntity> searchableEntities = new ArrayList<>();
                     BeanUtils.createBeanList(SearchableEntity.class, Arrays
                             .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                                     .values()));
-            for (SearchableEntity searchableEntity : searchableEntities)
+            for (ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity entity : ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
+                    .values())
             {
+                SearchableEntity searchableEntity = new SearchableEntity();
+                searchableEntity.setName(entity.name());
+                searchableEntity.setDescription(WebClientConfigUtils.getTranslatedDescription(entity));
                 searchableEntity.setType(Type.ENTITY);
+                searchableEntities.add(searchableEntity);
             }
             List<SearchDomain> searchDomains = commonServer.listAvailableSearchDomains(sessionToken);
             for (SearchDomain searchDomain : searchDomains)

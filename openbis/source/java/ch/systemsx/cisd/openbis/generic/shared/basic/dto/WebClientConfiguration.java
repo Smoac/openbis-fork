@@ -57,6 +57,10 @@ public class WebClientConfiguration implements Serializable
     private boolean enableTrash;
 
     private boolean allowAddingUnofficielTerms;
+    
+    private String sampleText;
+    
+    private String experimentText;
 
     private List<String> creatableDataSetTypePatternsWhitelist;
 
@@ -141,6 +145,26 @@ public class WebClientConfiguration implements Serializable
     public void setAllowAddingUnofficialTerms(boolean allowAddingUnofficialTerms)
     {
         this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
+    }
+
+    public String getSampleText()
+    {
+        return sampleText;
+    }
+
+    public void setSampleText(String sampleText)
+    {
+        this.sampleText = sampleText;
+    }
+
+    public String getExperimentText()
+    {
+        return experimentText;
+    }
+
+    public void setExperimentText(String experimentText)
+    {
+        this.experimentText = experimentText;
     }
 
     public boolean getEnableTrash()

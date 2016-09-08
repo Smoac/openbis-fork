@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -111,7 +112,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         assignDataSetToSampleAndExperiment(data, null, getExperimentByIdentifier(experimentIdentifier));
     }
 
-    protected ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
+    private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
     {
         assert identifier != null : "Experiment identifier unspecified.";
         final ProjectPE project =
@@ -119,8 +120,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                         identifier.getSpaceCode(), identifier.getProjectCode());
         if (project == null)
         {
-            throw new UserFailureException("Unkown experiment because of unkown project: "
-                    + identifier);
+            throw UserFailureException.fromTemplate("Unkown %s because of unkown project: %s",
+                    WebClientConfigUtils.getExperimentText(), identifier);
         }
         return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
     }
