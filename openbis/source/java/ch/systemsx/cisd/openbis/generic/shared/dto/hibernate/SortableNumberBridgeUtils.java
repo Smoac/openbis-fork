@@ -11,7 +11,7 @@ public class SortableNumberBridgeUtils
     /*
      * Returns True for Integers and Reals and false for other values like NaN, Infinite, etc.. Used by DetailedQueryBuilder
      */
-    private static boolean isValidNumber(String number)
+    public static boolean isValidNumber(String number)
     {
         try
         {
