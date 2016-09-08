@@ -2268,7 +2268,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             String registratorUserIdOrNull)
     {
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-        projectBO.define(newProject, newProject.getAttachments(), null);
+        projectBO.define(newProject, null);
         if (registratorUserIdOrNull != null)
         {
             projectBO.getProject().setRegistrator(

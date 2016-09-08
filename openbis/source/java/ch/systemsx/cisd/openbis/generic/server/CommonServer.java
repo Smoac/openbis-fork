@@ -1583,7 +1583,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
 
         NewProject project = new NewProject(projectIdentifier.toString(), description);
-        projectBO.define(project, null, leaderId);
+        projectBO.define(project, leaderId);
         projectBO.save();
         for (NewAttachment attachment : attachments)
         {

@@ -89,8 +89,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         this.historyCreator = historyCreator;
     }
 
-    private ProjectPE createProject(final NewProject newProject,
-            List<NewAttachment> attachmentsOrNull, String leaderIdOrNull)
+    private ProjectPE createProject(final NewProject newProject, String leaderIdOrNull)
     {
         final ProjectPE result = new ProjectPE();
         ProjectIdentifier projectIdentifier =
@@ -111,7 +110,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             }
             result.setProjectLeader(leader);
         }
-        addAttachments(result, attachmentsOrNull, attachments);
+        addAttachments(result, newProject.getAttachments(), attachments);
         return result;
     }
 
@@ -173,13 +172,12 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     }
 
     @Override
-    public void define(final NewProject newProject,
-            List<NewAttachment> attachmentsOrNull, String creatorId) throws UserFailureException
+    public void define(final NewProject newProject, String creatorId) throws UserFailureException
     {
         assert newProject != null : "Unspecified new project.";
         assert newProject.getIdentifier() != null : "Unspecified project identifier.";
 
-        this.project = createProject(newProject, attachmentsOrNull, creatorId);
+        this.project = createProject(newProject, creatorId);
         dataChanged = true;
     }
 
