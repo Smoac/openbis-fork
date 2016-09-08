@@ -8,12 +8,10 @@ public class SortableNumberBridgeUtils
     private static int LUCENE_INTEGER_PADDING = 19; // On the UI a integer field can't have more than 18 characters, a long can have 19 taking out the
                                                     // minus sign
 
-    private static final String NaN = "NaN";
-
     /*
-     * Returns True for Integers, Reals and NaN value
+     * Returns True for Integers and Reals and false for other values like NaN, Infinite, etc.. Used by DetailedQueryBuilder
      */
-    public static boolean isValidNumber(String number)
+    private static boolean isValidNumber(String number)
     {
         try
         {
@@ -31,6 +29,9 @@ public class SortableNumberBridgeUtils
         return true;
     }
 
+    /*
+     * Used by EntityPropertyPE
+     */
     public static String getNumberForLucene(String number)
     {
         try
@@ -43,25 +44,32 @@ public class SortableNumberBridgeUtils
                 return getNumberForLucene(Double.valueOf(number));
             } catch (Exception ex2)
             {
-                return NaN; // Returns NaN for non numbers, this method can potentially be called by the indexer with non number values
+                return number; // Returns the string for non numbers, this method can potentially be called by the indexer with non number values
             }
         }
     }
 
+    /*
+     * Used by NumberFieldBridge
+     */
     public static String getNumberForLucene(Number number)
     {
-        if (number.toString().equals(NaN))
+        try
         {
-            return NaN;
-        } else if (number instanceof Integer || number instanceof Long)
-        {
-            return getIntegerAsStringForLucene(number) + ".0";
-        } else if (number instanceof Float || number instanceof Double)
-        {
-            String rawReal = number.toString();
-            int indexOfDot = rawReal.indexOf('.');
-            return getIntegerAsStringForLucene(Long.parseLong(rawReal.substring(0, indexOfDot))) + rawReal.substring(indexOfDot, rawReal.length());
-        } else
+            if (number instanceof Integer || number instanceof Long)
+            {
+                return getIntegerAsStringForLucene(number) + ".0";
+            } else if (number instanceof Float || number instanceof Double)
+            {
+                String rawReal = number.toString();
+                int indexOfDot = rawReal.indexOf('.');
+                return getIntegerAsStringForLucene(Long.parseLong(rawReal.substring(0, indexOfDot)))
+                        + rawReal.substring(indexOfDot, rawReal.length());
+            } else
+            {
+                return number.toString();
+            }
+        } catch (Exception ex)
         {
             return number.toString();
         }
