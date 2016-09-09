@@ -131,7 +131,7 @@ public class EntityRetriever
     {
         // TODO fix this
         buildEntityGraph(spaceId);
-        graph.printGraph(spaceId);
+        // graph.printGraph(spaceId);
         return graph;
     }
 

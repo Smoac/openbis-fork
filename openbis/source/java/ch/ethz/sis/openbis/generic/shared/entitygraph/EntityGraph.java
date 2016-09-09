@@ -106,6 +106,29 @@ public class EntityGraph<N extends Node<?>>
         return new ArrayList<N>(nodes.values());
     }
 
+    public String getEdgesForDOTRepresentation()
+    {
+        StringBuffer sb = new StringBuffer();
+        for (Node<?> node : getNodes())
+        {
+            List<EdgeNodePair> list = adjacencyMap.get(node);
+            if (list.isEmpty() && node.getEntityKind().equals("DATA_SET") == false)
+            {
+                sb.append("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + ")\";");
+                sb.append(System.getProperty("line.separator"));
+                continue;
+            }
+            for (EdgeNodePair edgeNodePair : list)
+            {
+                Node<?> neighbourNode = edgeNodePair.getNode();
+                sb.append("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + ")\" -> \""
+                        + neighbourNode.getCode() + "(" + neighbourNode.getEntityKind().charAt(0) + ")\";");
+                sb.append(System.getProperty("line.separator"));
+            }
+        }
+        return sb.toString();
+    }
+    
     private void printGraphInDOT(String spaceId)
     {
         PrintWriter writer;
@@ -114,22 +137,7 @@ public class EntityGraph<N extends Node<?>>
             writer = new PrintWriter("/Users/gakin/Documents/Entity_DAG_" + spaceId + ".dot");
             writer.println("digraph DAG");
             writer.println("{");
-            for (Node<?> node : getNodes())
-            {
-                List<EdgeNodePair> list = adjacencyMap.get(node);
-                if (list.isEmpty() && node.getEntityKind().equals("DATA_SET") == false)
-                {
-                    writer.println("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + ")\";");
-                    continue;
-                }
-                for (EdgeNodePair edgeNodePair : list)
-                {
-                    Node<?> neighbourNode = edgeNodePair.getNode();
-                    writer.println("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + ")\" -> \""
-                            + neighbourNode.getCode() + "(" + neighbourNode.getEntityKind().charAt(0) + ")\";");
-                }
-
-            }
+            writer.println(getEdgesForDOTRepresentation());
             writer.println("}");
             writer.close();
         } catch (FileNotFoundException e)
