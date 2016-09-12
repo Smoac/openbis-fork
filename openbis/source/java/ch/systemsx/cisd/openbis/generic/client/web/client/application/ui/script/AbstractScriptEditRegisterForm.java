@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.V
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.ScriptTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -125,11 +126,11 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                 new EntityKindSelectionWidget(viewContext, entityKindOrNull,
                         scriptIdOrNull == null, true);
         entityKindField
-                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<EntityKind>>>()
                     {
                         @Override
                         public void selectionChanged(
-                                SelectionChangedEvent<SimpleComboValue<String>> se)
+                                SelectionChangedEvent<SimpleComboValue<LabeledItem<EntityKind>>> se)
                         {
                             scriptExecution.updateEntityKind(entityKindField.tryGetEntityKind());
                         }

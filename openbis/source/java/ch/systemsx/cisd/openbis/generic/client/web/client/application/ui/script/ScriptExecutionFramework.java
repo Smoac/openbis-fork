@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -168,11 +169,11 @@ public class ScriptExecutionFramework
         evaluationResultPanel = createResultField(html);
         updateVisibleEntityChooser(map, entityKindChooser, entityLink);
         entityKindChooser
-                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<EntityKind>>>()
                     {
                         @Override
                         public void selectionChanged(
-                                SelectionChangedEvent<SimpleComboValue<String>> se)
+                                SelectionChangedEvent<SimpleComboValue<LabeledItem<EntityKind>>> se)
                         {
                             updateVisibleEntityChooser(map, entityKindChooser, entityLink);
                             evaluationResultPanel.setVisible(false);
@@ -357,7 +358,7 @@ public class ScriptExecutionFramework
     {
         if (kind != null)
         {
-            entityKindChooser.setSimpleValue(kind.name());
+            entityKindChooser.setSimpleValue(EntityKindSelectionWidget.createLabeledItem(kind, viewContext));
             entityKindChooser.disable();
         } else
         {

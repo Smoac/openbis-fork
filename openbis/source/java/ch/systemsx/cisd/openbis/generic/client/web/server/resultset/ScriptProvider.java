@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * Provider of {@link Script} instances.
@@ -95,13 +96,13 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
             return "All";
         } else if (entityKinds.length == 1)
         {
-            return entityKinds[0].getDescription();
+            return WebClientConfigUtils.getTranslatedDescription(entityKinds[0]);
         }
 
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         for (EntityKind entityKind : entityKinds)
         {
-            builder.append(entityKind.getDescription());
+            builder.append(WebClientConfigUtils.getTranslatedDescription(entityKind));
         }
 
         return builder.toString();
