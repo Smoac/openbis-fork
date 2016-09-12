@@ -11,11 +11,11 @@
 
 #-- If installation exists
 #-- Check if current installation is minimum master data installation
-#-- Backup ETC Folder (Skip if installation don't exist)
+#-- Backup etc Folder (Skip if installation don't exist)
 #-- Remove eln folder (Skip if installation don't exist)
 #-- uncompress eln tarbal into the eln folder
 #-- If current installation was minimum master data installation, remove extra eln master data script
-#-- Restore ETC folder from backup (Skip if installation don't exist)
+#-- Restore etc folder from backup (Skip if installation don't exist)
 
 echo "1 - Starting ELN-LIMS Upgade"
 
