@@ -714,7 +714,7 @@ public final class CommonClientService extends AbstractClientService implements
 
         MatchingEntitiesProvider provider =
                 new MatchingEntitiesProvider(commonServer, getSessionToken(), matchingEntities, matchingSearchDomains,
-                        queryText, useWildcardSearchMode);
+                        queryText, useWildcardSearchMode, webClientConfigurationProvider);
         return listEntities(provider, resultSetConfig);
     }
 
@@ -755,7 +755,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         ScriptProvider scriptProvider =
                 new ScriptProvider(commonServer, getSessionToken(), criteria.tryGetScriptType(),
-                        criteria.tryGetEntityKind());
+                        criteria.tryGetEntityKind(), webClientConfigurationProvider);
         return listEntities(scriptProvider, criteria);
     }
 
@@ -1058,7 +1058,8 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 SearchableEntity searchableEntity = new SearchableEntity();
                 searchableEntity.setName(entity.name());
-                searchableEntity.setDescription(WebClientConfigUtils.getTranslatedDescription(entity));
+                searchableEntity.setDescription(
+                        WebClientConfigUtils.getTranslatedDescription(webClientConfigurationProvider, entity));
                 searchableEntity.setType(Type.ENTITY);
                 searchableEntities.add(searchableEntity);
             }

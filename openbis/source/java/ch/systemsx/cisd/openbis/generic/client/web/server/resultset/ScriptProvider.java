@@ -30,6 +30,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -49,12 +50,16 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
 
     private final EntityKind entityKindOrNull;
 
+    private final WebClientConfigurationProvider webClientConfigurationProvider;
+
     public ScriptProvider(ICommonServer commonServer, String sessionToken,
-            ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
+            ScriptType scriptTypeOrNull, EntityKind entityKindOrNull, 
+            WebClientConfigurationProvider webClientConfigurationProvider)
     {
         super(commonServer, sessionToken);
         this.scriptTypeOrNull = scriptTypeOrNull;
         this.entityKindOrNull = entityKindOrNull;
+        this.webClientConfigurationProvider = webClientConfigurationProvider;
     }
 
     @Override
@@ -89,20 +94,20 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
         return builder.getModel();
     }
 
-    private static String buildDescription(EntityKind[] entityKinds)
+    private String buildDescription(EntityKind[] entityKinds)
     {
         if (entityKinds == null)
         {
             return "All";
         } else if (entityKinds.length == 1)
         {
-            return WebClientConfigUtils.getTranslatedDescription(entityKinds[0]);
+            return WebClientConfigUtils.getTranslatedDescription(webClientConfigurationProvider, entityKinds[0]);
         }
 
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         for (EntityKind entityKind : entityKinds)
         {
-            builder.append(WebClientConfigUtils.getTranslatedDescription(entityKind));
+            builder.append(WebClientConfigUtils.getTranslatedDescription(webClientConfigurationProvider, entityKind));
         }
 
         return builder.toString();

@@ -51,7 +51,7 @@ public class ScriptProviderTest extends AbstractProviderTest
             });
         ScriptProvider scriptProvider =
                 new ScriptProvider(server, SESSION_TOKEN, ScriptType.DYNAMIC_PROPERTY,
-                        EntityKind.EXPERIMENT);
+                        EntityKind.EXPERIMENT, null);
 
         TypedTableModel<Script> tableModel = scriptProvider.createTableModel();
 

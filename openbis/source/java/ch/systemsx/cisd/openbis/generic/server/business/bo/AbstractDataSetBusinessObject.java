@@ -28,12 +28,15 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -120,8 +123,11 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                         identifier.getSpaceCode(), identifier.getProjectCode());
         if (project == null)
         {
+            WebClientConfigurationProvider provider =
+                    (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(
+                            ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
             throw UserFailureException.fromTemplate("Unkown %s because of unkown project: %s",
-                    WebClientConfigUtils.getExperimentText(), identifier);
+                    WebClientConfigUtils.getExperimentText(provider), identifier);
         }
         return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
     }

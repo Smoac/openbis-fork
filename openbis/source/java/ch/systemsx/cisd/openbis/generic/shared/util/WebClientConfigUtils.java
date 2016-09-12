@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
@@ -30,53 +28,52 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
  */
 public class WebClientConfigUtils
 {
-    public static String getTranslatedDescription(SearchableEntity entity)
+    public static String getTranslatedDescription(WebClientConfigurationProvider provider, SearchableEntity entity)
     {
         String description = entity.getDescription();
-        if (getWebClientConfiguration() != null)
+        WebClientConfiguration webClientConfiguration = getWebClientConfiguration(provider);
+        if (webClientConfiguration != null)
         {
             if (entity == SearchableEntity.SAMPLE)
             {
-                description = getSampleText();
+                description = webClientConfiguration.getSampleText();
             } else if (entity == SearchableEntity.EXPERIMENT)
             {
-                description = getExperimentText();
+                description = webClientConfiguration.getExperimentText();
             }
         }
         return description;
     }
 
-    public static String getTranslatedDescription(EntityKind entityKind)
+    public static String getTranslatedDescription(WebClientConfigurationProvider provider, EntityKind entityKind)
     {
         String description = entityKind.getDescription();
-        if (getWebClientConfiguration() != null)
+        WebClientConfiguration webClientConfiguration = getWebClientConfiguration(provider);
+        if (webClientConfiguration != null)
         {
             if (entityKind == EntityKind.SAMPLE)
             {
-                description = getSampleText();
+                description = webClientConfiguration.getSampleText();
             } else if (entityKind == EntityKind.EXPERIMENT)
             {
-                description = getExperimentText();
+                description = webClientConfiguration.getExperimentText();
             }
         }
         return description;
     }
 
-    public static String getSampleText()
+    public static String getSampleText(WebClientConfigurationProvider provider)
     {
-        return getWebClientConfiguration().getSampleText();
+        return getWebClientConfiguration(provider).getSampleText();
     }
     
-    public static String getExperimentText()
+    public static String getExperimentText(WebClientConfigurationProvider provider)
     {
-        return getWebClientConfiguration().getExperimentText();
+        return getWebClientConfiguration(provider).getExperimentText();
     }
     
-    public static WebClientConfiguration getWebClientConfiguration()
+    private static WebClientConfiguration getWebClientConfiguration(WebClientConfigurationProvider provider)
     {
-        WebClientConfigurationProvider provider =
-                (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(
-                        ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
         return provider == null ? null : provider.getWebClientConfiguration();
     }
 
