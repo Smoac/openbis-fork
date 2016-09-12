@@ -357,7 +357,7 @@ def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	methodsSpace = tr.getSpace("METHODS");
 	materialsSpace = tr.getSpace("MATERIALS");
-	isNewInstallation = inventorySpace == None and methodsSpace == None and inventorySpace == None;
+	isNewInstallation = inventorySpace == None and methodsSpace == None and materialsSpace == None;
 			
 	## Installing Mandatory Spaces/Projects on every login if missing
 	insertSpaceIfMissing(tr, "METHODS");
