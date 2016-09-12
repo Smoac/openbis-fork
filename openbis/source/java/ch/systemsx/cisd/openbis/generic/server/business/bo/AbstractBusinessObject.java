@@ -34,6 +34,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
@@ -84,6 +85,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
@@ -112,6 +115,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * An <code>abstract</code> <i>Business Object</i>.
@@ -871,4 +875,20 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
     }
 
+    protected String getExperimentText()
+    {
+        return WebClientConfigUtils.getExperimentText(getWebClientConfigProvider());
+    }
+    
+    protected String getSampleText()
+    {
+        return WebClientConfigUtils.getSampleText(getWebClientConfigProvider());
+    }
+
+    private WebClientConfigurationProvider getWebClientConfigProvider()
+    {
+        return (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(
+                ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
+    }
+    
 }

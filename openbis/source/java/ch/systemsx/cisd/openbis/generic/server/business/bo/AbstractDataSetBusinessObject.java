@@ -123,11 +123,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                         identifier.getSpaceCode(), identifier.getProjectCode());
         if (project == null)
         {
-            WebClientConfigurationProvider provider =
-                    (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(
-                            ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
             throw UserFailureException.fromTemplate("Unkown %s because of unkown project: %s",
-                    WebClientConfigUtils.getExperimentText(provider), identifier);
+                    getExperimentText(), identifier);
         }
         return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
     }
