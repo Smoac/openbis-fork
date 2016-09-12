@@ -59,6 +59,8 @@ public class Parameters
 
     private static final String RSYNC_FLAGS = "rsync-flags";
     
+    private static final String DSS_ROOT_DIR = "dss-root-dir";
+    
     private final String openbisUser;
 
     private final String openbisPassword;
@@ -88,6 +90,8 @@ public class Parameters
     private final String rsyncBinary;
     
     private final String rsyncFlags;
+    
+    private final String dssRootDir;
 
     public Parameters(Properties props)
     {
@@ -106,6 +110,7 @@ public class Parameters
         this.destinationFolder= PropertyUtils.getProperty(props, DESTINATION_FOLDER);
         this.rsyncBinary = PropertyUtils.getProperty(props, RSYNC_BINARY);
         this.rsyncFlags = PropertyUtils.getProperty(props, RSYNC_FLAGS);
+        this.dssRootDir = PropertyUtils.getProperty(props, DSS_ROOT_DIR);
     }
 
     public String getOpenbisUser()
@@ -181,5 +186,10 @@ public class Parameters
     public String getRsyncFlags()
     {
     	return rsyncFlags;
+    }
+    
+    public String getDssRoot()
+    {
+    	return dssRootDir;
     }
 }

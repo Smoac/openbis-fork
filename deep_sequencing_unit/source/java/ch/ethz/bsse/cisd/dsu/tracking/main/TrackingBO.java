@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * @author Tomasz Pylak
@@ -298,7 +299,7 @@ public class TrackingBO
             // needed for the integration of the openBIS webapp
             System.out.println(entry.getKey() + " " + entry.getValue());
         }
-        LogUtils.info(changedLanesMap.toString());
+        LogUtils.debug(changedLanesMap.toString());
         return changedLanesMap;
     }
 
@@ -371,16 +372,20 @@ public class TrackingBO
         return gatherTrackedEntities(trackingState, trackingServer, session, filteredDataSets, changedTrackingMap);
     }
     
-        
+    
 	private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets) {
 		File rsyncBinary = new File(params.getRsyncBinary());
 		File destination = new File(params.getDestinationFolder());
-		RsyncCopier copier = new RsyncCopier(rsyncBinary, null, params.getRsyncFlags());
-		
+		String base_path_string = params.getDssRoot();
+		List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length());
+		Collections.addAll(cmdLineOptions, params.getRsyncFlags());
+		RsyncCopier copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
+				
 		for (AbstractExternalData ds : dataSets) {
-			File source = new File(ds.tryGetAsDataSet().getFullLocation());
-			copier.copy(source, destination, null, null);
-			LogUtils.info("Copying " + ds.getCode() + " from " + source + " to " + params.getDestinationFolder());            	
+			File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation());
+			LogUtils.info("Start rsyncing " + ds.getCode() + " from " + source + " to " + params.getDestinationFolder());
+			Status status = copier.copy(source, destination, null, null);
+			LogUtils.info("Got status: " + status + " for " + ds.getCode());
 		}
 	}
 
@@ -395,7 +400,7 @@ public class TrackingBO
         return maxDataSetId;
     }
     
-    /* Little helper function which reduces the number of data sets we are looking at. This can be configured
+    /** Little helper function which reduces the number of data sets we are looking at. This can be configured
      * by value 'old-data-set-backlog-number' in the service.properties. Without this value
      * the calls get slower and slower with the growing data set amount. But we can assume that older data sets
      * already got triggered earlier to send out an email. If not, the sample is so old that we do not want

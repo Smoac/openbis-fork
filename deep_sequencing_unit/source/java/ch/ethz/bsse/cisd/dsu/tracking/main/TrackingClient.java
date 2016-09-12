@@ -106,7 +106,8 @@ public class TrackingClient
         Option new_lanes = new Option(CL_PARAMETER_CHANGED_LANES, "only list lanes which have new datasets");
         
         Option copy_data_sets = new Option(CL_PARAMETER_COPY_DATA_SETS, "also copy the corresponding data sets to an extra"
-        		+ " folder. Only in combination with parameter \"" + CL_PARAMETER_LANES + "\"");
+        		+ " folder. Sample must be part of the space which is set in the property 'space-whitelist'. "
+        		+ " Only in combination with parameter \"" + CL_PARAMETER_LANES + "\"");
         
         Option remove = OptionBuilder.withArgName(CL_PARAMETER_REMOVE_LANES)
         		.hasArg()
