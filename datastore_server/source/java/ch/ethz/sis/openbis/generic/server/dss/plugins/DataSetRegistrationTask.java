@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+//TODO should we use permId in hash tables instead of identifier, fore exp in samplesToUpdate
 //TODO try to implement sample relationship sync like DS rel. sync
 //TODO check if already loaded harvesterEntityGraph can be used in most cases
 //TODO check if harvesterEntityGraph can be partially loaded as required
@@ -142,6 +143,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -366,7 +369,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         byte[] content = contentResponse.getContent();
         ByteArrayInputStream bis = new ByteArrayInputStream(content);
 
-        System.out.println(new String(content));
+        // System.out.println(new String(content));
         DocumentBuilderFactory domFactory =
                 DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(true);
@@ -838,7 +841,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp)) {
                 SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
-                Sample sampleWithExperiment = service.tryGetSampleWithExperiment(sampleIdentifier);
+                Sample sampleWithExperiment = service.tryGetSampleByPermId(incomingSample.getPermID());
                 if (sampleWithExperiment == null)
                 {
                     // ADD SAMPLE
@@ -903,7 +906,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         for (SampleIdentifier sampleIdentifier : samplesToUpdate.keySet())
         {
             NewSample newSmp = samplesToUpdate.get(sampleIdentifier);
-            Sample sampleWithExperiment = service.tryGetSampleWithExperiment(sampleIdentifier);
+            Sample sampleWithExperiment = service.tryGetSampleByPermId(newSmp.getPermID());
 
             TechId sampleId = TechId.create(sampleWithExperiment);
             String expIdentifier = newSmp
@@ -1018,7 +1021,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     prjUpdate.setDescription(incomingProject.getDescription());
                     // TODO attachments????
                     prjUpdate.setAttachments(Collections.<NewAttachment> emptyList());
-                    // TODO!!!!!!prjUpdate.setSpaceCode(spaceCode);
+                    ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(incomingProject.getIdentifier());
+                    prjUpdate.setSpaceCode(projectIdentifier.getSpaceCode());
                     builder.projectUpdate(prjUpdate); // ConversionUtils.convertToProjectUpdateDTO(new
                                                     // ch.systemsx.cisd.etlserver.registrator.api.v2.impl.Project(project))
                 }
