@@ -114,19 +114,35 @@ public class EntityGraph<N extends Node<?>>
             List<EdgeNodePair> list = adjacencyMap.get(node);
             if (list.isEmpty() && node.getEntityKind().equals("DATA_SET") == false)
             {
-                sb.append("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + ")\";");
+                sb.append(getRightHandNodeRep(node));
                 sb.append(System.getProperty("line.separator"));
                 continue;
             }
             for (EdgeNodePair edgeNodePair : list)
             {
                 Node<?> neighbourNode = edgeNodePair.getNode();
-                sb.append("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + ")\" -> \""
-                        + neighbourNode.getCode() + "(" + neighbourNode.getEntityKind().charAt(0) + ")\";");
+                sb.append("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + getDifferentiatorStr(node) + ")\" -> "
+                        + getRightHandNodeRep(neighbourNode));
                 sb.append(System.getProperty("line.separator"));
             }
         }
         return sb.toString();
+    }
+
+    private String getRightHandNodeRep(Node<?> node)
+    {
+        return "\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + getDifferentiatorStr(node) + ")\";";
+    }
+
+    private String getDifferentiatorStr(Node<?> node)
+    {
+        String differentiatorStr = "";
+        if (node.getEntityKind().equals("EXPERIMENT")) // in order to differentiate between experiments in the same space but under different projects
+        {
+            differentiatorStr =
+                    node.getPermId().substring(node.getPermId().indexOf('-') + 1);
+        }
+        return differentiatorStr;
     }
     
     private void printGraphInDOT(String spaceId)
