@@ -7,17 +7,17 @@
 ## Upgrade script algorithm explained
 ##
 
-#-- If current installation don't exists return with message, no eln installation found, do a normal first installation
+#-- If current installation don't exists return with message, no eln-lims installation found, do a normal first installation
 
 #-- If installation exists
-#-- Check if current installation is minimum master data installation
-#-- Backup etc Folder (Skip if installation don't exist)
-#-- Remove eln folder (Skip if installation don't exist)
-#-- uncompress eln tarbal into the eln folder
-#-- If current installation was minimum master data installation, remove extra eln master data script
-#-- Restore etc folder from backup (Skip if installation don't exist)
+#-- Check if current installation is a minimum master data installation
+#-- Backup etc folder (skip if etc folder don't exist)
+#-- Remove eln-lims folder
+#-- Uncompress eln-lims tarball into the core-plugins folder
+#-- If last installation was minimum master data installation, remove extra eln-lims master data script (skip if wasn't)
+#-- Restore etc folder from backup (skip if backup don't exist)
 
-echo "1 - Starting ELN-LIMS Upgade"
+echo "1 - Starting ELN-LIMS Upgrade"
 
 # Define a timestamp function
 timestamp() {
@@ -61,7 +61,7 @@ if [ -d $ELN_INSTALLATION ]; then
 	echo "5 - Remove current ELN-LIMS installation"
 	rm -rf $ELN_INSTALLATION
 	
-	#Uncompress eln tarball into the eln folder
+	#Uncompress eln-lims tarball into the eln-lims folder
 	echo "6 - Uncompressing tarball"
 	tar xfz $ELN_TARBALL -C $CORE_PLUGINS
 	
@@ -70,7 +70,7 @@ if [ -d $ELN_INSTALLATION ]; then
 		echo "7 - Replacing master data script since minimum master data installation was found"
 		mv $ELN_INSTALLATION_MINIMUM_MD_SCRIPT $ELN_INSTALLATION_STANDARD_MD_SCRIPT
 	else
-		echo "7 - Not modifing master data scripts since a standard master data installation was found"
+		echo "7 - Not modifying master data scripts since a standard master data installation was found"
 	fi
 	#Restore etc folder contents if they where backup
 	if [ -d $BACKUP"/eln-lims/1/as/webapps/eln-lims/html/etc/" ]; then
