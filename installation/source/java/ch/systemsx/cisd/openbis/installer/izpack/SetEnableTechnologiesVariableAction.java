@@ -37,9 +37,7 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
  */
 public class SetEnableTechnologiesVariableAction implements PanelAction
 {
-    private static final String DROPBOX_MONITOR_MODULE = "dropbox-monitor";
-
-    private static final String DATASET_UPLOADER_MODULE = "dataset-uploader";
+    private static final String[] MODULES = {"dropbox-monitor", "dataset-uploader", "data-set-file-search"};
 
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
@@ -94,11 +92,11 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     {
         Set<String> allTechnologies = new HashSet<String>();
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
-        builder.append(DROPBOX_MONITOR_MODULE);
-        allTechnologies.add(DROPBOX_MONITOR_MODULE);
-
-        builder.append(DATASET_UPLOADER_MODULE);
-        allTechnologies.add(DATASET_UPLOADER_MODULE);
+        for (String module : MODULES)
+        {
+            builder.append(module);
+            allTechnologies.add(module);
+        }
 
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
