@@ -30,31 +30,28 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 
 /**
  * @author Ganime Betul Akin
  */
 public class ResourceListParserData
 {
-    public Map<String, ProjectWithConnections> projectsToCreate = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
+    public Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
 
-    public Map<String, ProjectUpdatesDTO> projectUpdates = new HashMap<String, ProjectUpdatesDTO>();
+    public Map<String, ExperimentWithConnections> experimentsToProcess = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
 
-    public Map<String, ExperimentWithConnections> experimentsToCreate = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
+    public Map<String, SampleWithConnections> samplesToProcess = new HashMap<String, ResourceListParserData.SampleWithConnections>();
 
-    public Map<String, SampleWithConnections> samplesToCreate = new HashMap<String, ResourceListParserData.SampleWithConnections>();
+    public Map<String, DataSetWithConnections> datasetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
 
-    public Map<String, DataSetWithConnections> datasetsToCreate = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
-
-    public List<MaterialWithLastModificationDate> materialsToCreate = new ArrayList<MaterialWithLastModificationDate>();
+    public List<MaterialWithLastModificationDate> materialsToProcess = new ArrayList<MaterialWithLastModificationDate>();
 
     public Map<String, DataSetWithConnections> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate)
     {
         Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
-        for (String permId : datasetsToCreate.keySet())
+        for (String permId : datasetsToProcess.keySet())
         {
-            DataSetWithConnections ds = datasetsToCreate.get(permId);
+            DataSetWithConnections ds = datasetsToProcess.get(permId);
             if (ds.getKind() == DataSetKind.PHYSICAL && ds.lastModificationDate.after(lastSyncDate))
             {
                 dsMap.put(permId, ds);
@@ -67,9 +64,9 @@ public class ResourceListParserData
     {
         // List<NewDataSetWithConnections> dsList = new ArrayList<ResourceListParserData.NewDataSetWithConnections>();
         Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
-        for (String permId : datasetsToCreate.keySet())
+        for (String permId : datasetsToProcess.keySet())
         {
-            DataSetWithConnections ds = datasetsToCreate.get(permId);
+            DataSetWithConnections ds = datasetsToProcess.get(permId);
             if (ds.getKind() == DataSetKind.CONTAINER)
             {
                 dsMap.put(permId, ds);

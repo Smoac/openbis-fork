@@ -69,6 +69,15 @@ import org.xml.sax.SAXException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
@@ -77,12 +86,15 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.EntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.DataSetWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.ExperimentWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.SampleWithConnections;
+import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
+import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -625,18 +637,13 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             data = parser.parseResourceListDocument(doc);
 
             // go through the resources returned by the parser and decide on add/update/delete operations
-            Map<String, ProjectWithConnections> projectsToProcess = data.projectsToCreate;
-            Map<String, ExperimentWithConnections> experimentsToProcess = data.experimentsToCreate;
-            Map<String, SampleWithConnections> samplesToProcess = data.samplesToCreate;
-            Map<String, DataSetWithConnections> dataSetsToProcess = data.datasetsToCreate;
-            List<MaterialWithLastModificationDate> materialsToProcess = data.materialsToCreate;
+            Map<String, ProjectWithConnections> projectsToProcess = data.projectsToProcess;
+            Map<String, ExperimentWithConnections> experimentsToProcess = data.experimentsToProcess;
+            Map<String, SampleWithConnections> samplesToProcess = data.samplesToProcess;
+            Map<String, DataSetWithConnections> dataSetsToProcess = data.datasetsToProcess;
+            List<MaterialWithLastModificationDate> materialsToProcess = data.materialsToProcess;
 
             AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
-
-            // EntityRetriever entityRetriever =
-            // EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), ServiceProvider.getOpenBISService()
-            // .getSessionToken());
-            // EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpace);
                     
             processProjects(projectsToProcess, experimentsToProcess, builder);
         
@@ -772,7 +779,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             operationResult = service.performEntityOperations(builder.getDetails());
             System.err.println("entity operation result: " + operationResult);
 
-            operationLog.info("Saving the timestamp of synn start into file");
+            operationLog.info("Processing deletions");
+            processDeletions(data);
+
+            operationLog.info("Saving the timestamp of sync start to file");
             saveSyncTimestamp();
 
             operationLog.info("Done and dusted...");
@@ -783,6 +793,92 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         {
             operationLog.error("Sync failed: " + e.getMessage());
         }
+    }
+
+    private void processDeletions(ResourceListParserData data)
+    {
+        String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
+        EntityRetriever entityRetriever =
+                EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), sessionToken);
+
+        Set<String> incomingProjectPermIds = data.projectsToProcess.keySet();
+        Set<String> incomingExperimentPermIds = data.experimentsToProcess.keySet();
+        Set<String> incomingSamplePermIds = data.samplesToProcess.keySet();
+        Set<String> incomingDataSetCodes = data.datasetsToProcess.keySet();
+
+        // find projects, experiments, samples and data sets to be deleted
+        List<ProjectPermId> projectPermIds = new ArrayList<ProjectPermId>();
+        List<ExperimentPermId> experimentPermIds = new ArrayList<ExperimentPermId>();
+        List<SamplePermId> samplePermIds = new ArrayList<SamplePermId>();
+        List<DataSetPermId> dsPermIds = new ArrayList<DataSetPermId>();
+
+        for (String harvesterSpaceId : spaceMappings.values())
+        {
+            EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpaceId);
+            List<Node<?>> entities = harvesterEntityGraph.getNodes();
+            for (Node<?> entity : entities)
+            {
+                if (entity.getEntityKind().equals("PROJECT"))
+                {
+                    if (incomingProjectPermIds.contains(entity.getPermId()) == false)
+                    {
+                        projectPermIds.add(new ProjectPermId(entity.getPermId()));
+                    }
+                }
+                else if (entity.getEntityKind().equals("EXPERIMENT"))
+                {
+                    if (incomingExperimentPermIds.contains(entity.getPermId()) == false)
+                    {
+                        experimentPermIds.add(new ExperimentPermId(entity.getPermId()));
+                    }
+                }
+                else if (entity.getEntityKind().equals("SAMPLE"))
+                {
+                    if (incomingSamplePermIds.contains(entity.getPermId()) == false)
+                    {
+                        samplePermIds.add(new SamplePermId(entity.getPermId()));
+                    }
+                }
+                else if (entity.getEntityKind().equals("DATA_SET"))
+                {
+                    if (incomingDataSetCodes.contains(entity.getPermId()) == false)
+                    {
+                        dsPermIds.add(new DataSetPermId(entity.getPermId()));
+                    }
+                }
+            }
+        }
+
+        IApplicationServerApi v3Api = ServiceProvider.getV3ApplicationService();
+
+        // delete data sets
+        DataSetDeletionOptions dsDeletionOpts = new DataSetDeletionOptions();
+        dsDeletionOpts.setReason("sync data set deletions"); // TODO maybe mention data source space id in the reason
+
+        IDeletionId dsDeletionId =
+                v3Api.deleteDataSets(sessionToken, dsPermIds, dsDeletionOpts);
+
+        // delete samples
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("sync sample deletions");
+        IDeletionId smpDeletionId = v3Api.deleteSamples(sessionToken, samplePermIds, deletionOptions);
+
+        // delete experiments
+
+        ExperimentDeletionOptions expDeletionOpts = new ExperimentDeletionOptions();
+        expDeletionOpts.setReason("sync experiment deletions");
+        IDeletionId expDeletionId = v3Api.deleteExperiments(sessionToken, experimentPermIds, expDeletionOpts);
+
+        // delete projects
+        ProjectDeletionOptions prjDeletionOpts = new ProjectDeletionOptions();
+        prjDeletionOpts.setReason("Sync projects");
+        v3Api.deleteProjects(sessionToken, projectPermIds, prjDeletionOpts);
+
+        // confirm deletions
+        // TODO confirm
+        // v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
+
+        // TODO sync material deletions
     }
 
     private void saveSyncTimestamp()

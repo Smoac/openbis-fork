@@ -121,7 +121,7 @@ public class EntityGraph<N extends Node<?>>
             for (EdgeNodePair edgeNodePair : list)
             {
                 Node<?> neighbourNode = edgeNodePair.getNode();
-                sb.append("\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + getDifferentiatorStr(node) + ")\" -> "
+                sb.append("\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\" -> "
                         + getRightHandNodeRep(neighbourNode));
                 sb.append(System.getProperty("line.separator"));
             }
@@ -131,7 +131,7 @@ public class EntityGraph<N extends Node<?>>
 
     private String getRightHandNodeRep(Node<?> node)
     {
-        return "\"" + node.getCode() + "(" + node.getEntityKind().charAt(0) + getDifferentiatorStr(node) + ")\";";
+        return "\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\";";
     }
 
     private String getDifferentiatorStr(Node<?> node)
@@ -139,8 +139,11 @@ public class EntityGraph<N extends Node<?>>
         String differentiatorStr = "";
         if (node.getEntityKind().equals("EXPERIMENT")) // in order to differentiate between experiments in the same space but under different projects
         {
-            differentiatorStr =
+            differentiatorStr = "-" +
                     node.getPermId().substring(node.getPermId().indexOf('-') + 1);
+        }
+        else {
+            differentiatorStr = "" + node.getEntityKind().charAt(0);
         }
         return differentiatorStr;
     }

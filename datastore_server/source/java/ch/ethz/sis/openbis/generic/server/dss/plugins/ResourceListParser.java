@@ -292,7 +292,7 @@ public class ResourceListParser
             }
         }
         DataSetWithConnections newDsWithConns = data.new DataSetWithConnections(ds, lastModificationDate);
-        data.datasetsToCreate.put(permId, newDsWithConns);
+        data.datasetsToProcess.put(permId, newDsWithConns);
         newDsWithConns.setConnections(parseConnections(xpath, xdNode));
         ds.setDataSetProperties(parseDataSetProperties(xpath, xdNode));
     }
@@ -325,7 +325,7 @@ public class ResourceListParser
         newProject.setPermID(permId);
         ProjectWithConnections newPrjWithConns =
                 data.new ProjectWithConnections(newProject, lastModificationDate);
-        data.projectsToCreate.put(permId, newPrjWithConns);
+        data.projectsToProcess.put(permId, newPrjWithConns);
         newPrjWithConns.setConnections(parseConnections(xpath, xdNode));
     }
 
@@ -336,7 +336,7 @@ public class ResourceListParser
         NewMaterialWithType newMaterial = new NewMaterialWithType(code, type);
         MaterialWithLastModificationDate materialWithLastModDate =
                 data.new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
-        data.materialsToCreate.add(materialWithLastModDate);
+        data.materialsToProcess.add(materialWithLastModDate);
         newMaterial.setProperties(parseProperties(xpath, xdNode));
     }
 
@@ -423,7 +423,7 @@ public class ResourceListParser
         NewExperiment newExp = new NewExperiment("/" + spaceMappings.get(space) + "/" + project + "/" + code, type);
         newExp.setPermID(permId);
         ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
-        data.experimentsToCreate.put(permId, newExpWithConns);
+        data.experimentsToProcess.put(permId, newExpWithConns);
         newExpWithConns.setConnections(parseConnections(xpath, xdNode));
         newExp.setProperties(parseProperties(xpath, xdNode));
     }
@@ -442,7 +442,7 @@ public class ResourceListParser
                 new ArrayList<NewAttachment>());
         newSample.setPermID(permId);
         SampleWithConnections newSampleWithConns = data.new SampleWithConnections(newSample, lastModificationDate);
-        data.samplesToCreate.put(permId, newSampleWithConns);
+        data.samplesToProcess.put(permId, newSampleWithConns);
         newSampleWithConns.setConnections(parseConnections(xpath, xdNode));
         newSample.setProperties(parseProperties(xpath, xdNode));
     }
