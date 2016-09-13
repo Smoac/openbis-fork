@@ -841,7 +841,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp)) {
                 SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
-                Sample sampleWithExperiment = service.tryGetSampleByPermId(incomingSample.getPermID());
+                Sample sampleWithExperiment = null;
+                try
+                {
+                    sampleWithExperiment = service.tryGetSampleByPermId(incomingSample.getPermID());
+                } catch (Exception e)
+                {
+                    // TODO doing nothing because when the sample with the perm is not found
+                    // an exception will be thrown. See the same issue for projects
+                }
                 if (sampleWithExperiment == null)
                 {
                     // ADD SAMPLE

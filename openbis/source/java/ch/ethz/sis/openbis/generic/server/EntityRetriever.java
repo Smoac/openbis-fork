@@ -19,6 +19,8 @@ import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CHILD;
 import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.COMPONENT;
 import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CONNECTION;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,9 +104,47 @@ public class EntityRetriever
         IApplicationServerApi v3Api = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
 
         EntityRetriever me = new EntityRetriever(v3Api, v3Api.login("admin", "aa"));
-        String spaceId = "SRC";
-        me.getEntityGraph(spaceId);
-        graph.printGraph(spaceId);
+        String[] spaces = {"SRC", "SRC2"};
+        String[] clusters = new String[spaces.length];
+        for (int i=0; i < spaces.length; i++)
+        {
+            EntityGraph<Node<?>> entityGraph = me.getEntityGraph(spaces[i]);
+            clusters[i] = entityGraph.getEdgesForDOTRepresentation();
+        }
+        StringBuffer dotRep = new StringBuffer();
+        dotRep.append("digraph G {\n\n");
+        for (int i = 0; i < clusters.length; i++) {
+            dotRep.append("subgraph cluster_" + i + "{'");
+            dotRep.append("'style=filled;");
+            dotRep.append("color=lightgrey;");
+            dotRep.append("node [style=filled,color=white];");
+            dotRep.append("\n\n");
+            dotRep.append(clusters[i]);
+            dotRep.append("label = " + clusters[i] + ";}");
+            dotRep.append("\n\n");
+        }
+        dotRep.append("\n}");
+        String name = "";
+        for (String space : spaces)
+        {
+            name = space + "_";
+        }
+        me.printGraph(new String(dotRep), name.substring(0, name.length() - 1));
+    }
+
+    private void printGraph(String graph, String name)
+    {
+        PrintWriter writer;
+        try
+        {
+            writer = new PrintWriter("/Users/gakin/Documents/Entity_DAG_" + name + ".dot");
+            writer.println(graph);
+            writer.close();
+        } catch (FileNotFoundException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private EntityRetriever(IApplicationServerApi v3Api, String sessionToken)
