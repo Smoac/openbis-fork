@@ -162,6 +162,9 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
         if checksums_file:
             with open(checksums_file[0]) as checksums:
                 for line in checksums:
+                    # Ugly hack :-(
+                    if line.starts_with("Undetermined"):
+                        line = fcMetaDataDict['CODE'] + "_" + line
                     meta_data_file.write(line)
         else:
             print("File " + str(checksums_file) + " not found!")     
