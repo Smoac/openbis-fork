@@ -336,7 +336,7 @@ public class ResourceListParser
         NewMaterialWithType newMaterial = new NewMaterialWithType(code, type);
         MaterialWithLastModificationDate materialWithLastModDate =
                 data.new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
-        data.materialsToProcess.add(materialWithLastModDate);
+        data.materialsToProcess.put(code, materialWithLastModDate);
         newMaterial.setProperties(parseProperties(xpath, xdNode));
     }
 

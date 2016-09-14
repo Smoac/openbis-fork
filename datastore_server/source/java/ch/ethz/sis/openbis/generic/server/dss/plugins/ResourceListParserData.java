@@ -44,7 +44,7 @@ public class ResourceListParserData
 
     public Map<String, DataSetWithConnections> datasetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
 
-    public List<MaterialWithLastModificationDate> materialsToProcess = new ArrayList<MaterialWithLastModificationDate>();
+    public Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
 
     public Map<String, DataSetWithConnections> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate)
     {

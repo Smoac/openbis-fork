@@ -74,6 +74,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
@@ -253,7 +255,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     public static void main(String[] args)
     {
 
-        DataSetRegistrationTask dsrt = new DataSetRegistrationTask();
+        DataSetRegistrationTask<DataSetInformation> dsrt = new DataSetRegistrationTask<DataSetInformation>();
 
         // File storeRoot = new File("targets/store");
         // File temp = new File(storeRoot, "harvester-tmp");
@@ -641,7 +643,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             Map<String, ExperimentWithConnections> experimentsToProcess = data.experimentsToProcess;
             Map<String, SampleWithConnections> samplesToProcess = data.samplesToProcess;
             Map<String, DataSetWithConnections> dataSetsToProcess = data.datasetsToProcess;
-            List<MaterialWithLastModificationDate> materialsToProcess = data.materialsToProcess;
+            Map<String, MaterialWithLastModificationDate> materialsToProcess = data.materialsToProcess;
 
             AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
                     
@@ -805,13 +807,16 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         Set<String> incomingExperimentPermIds = data.experimentsToProcess.keySet();
         Set<String> incomingSamplePermIds = data.samplesToProcess.keySet();
         Set<String> incomingDataSetCodes = data.datasetsToProcess.keySet();
+        Set<String> incomingMaterialCodes = data.materialsToProcess.keySet();
 
         // find projects, experiments, samples and data sets to be deleted
         List<ProjectPermId> projectPermIds = new ArrayList<ProjectPermId>();
         List<ExperimentPermId> experimentPermIds = new ArrayList<ExperimentPermId>();
         List<SamplePermId> samplePermIds = new ArrayList<SamplePermId>();
         List<DataSetPermId> dsPermIds = new ArrayList<DataSetPermId>();
+        List<MaterialPermId> matPermIds = new ArrayList<MaterialPermId>();
 
+        // first find out the entities to be deleted
         for (String harvesterSpaceId : spaceMappings.values())
         {
             EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpaceId);
@@ -849,6 +854,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             }
         }
 
+        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material> materials = entityRetriever.fetchMaterials();
+        
+        for(ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material material: materials) {
+            if (incomingMaterialCodes.contains(material.getCode()) == false)
+            {
+                matPermIds.add(new MaterialPermId(material.getCode(), material.getType().getCode()));
+            }
+        }
+        
         IApplicationServerApi v3Api = ServiceProvider.getV3ApplicationService();
 
         // delete data sets
@@ -859,9 +873,9 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 v3Api.deleteDataSets(sessionToken, dsPermIds, dsDeletionOpts);
 
         // delete samples
-        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
-        deletionOptions.setReason("sync sample deletions");
-        IDeletionId smpDeletionId = v3Api.deleteSamples(sessionToken, samplePermIds, deletionOptions);
+        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("sync sample deletions");
+        IDeletionId smpDeletionId = v3Api.deleteSamples(sessionToken, samplePermIds, sampleDeletionOptions);
 
         // delete experiments
 
@@ -874,11 +888,14 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         prjDeletionOpts.setReason("Sync projects");
         v3Api.deleteProjects(sessionToken, projectPermIds, prjDeletionOpts);
 
+        // delete materials
+        MaterialDeletionOptions matDeletionOptions = new MaterialDeletionOptions();
+        matDeletionOptions.setReason("sync materials");
+        v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
+
         // confirm deletions
         // TODO confirm
         // v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
-
-        // TODO sync material deletions
     }
 
     private void saveSyncTimestamp()
@@ -905,24 +922,25 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         return dsBatchUpdatesDTO;
     }
 
-    private void processMaterials(List<MaterialWithLastModificationDate> materialsToProcess, AtomicEntityOperationDetailsBuilder builder)
+    private void processMaterials(Map<String, MaterialWithLastModificationDate> materialsToProcess, AtomicEntityOperationDetailsBuilder builder)
     {
         // process materials
-        for (MaterialWithLastModificationDate newMaterialWithType : materialsToProcess)
+        for (MaterialWithLastModificationDate newMaterialWithType : materialsToProcess.values())
         {
             NewMaterialWithType newIncomingMaterial = newMaterialWithType.getMaterial();
-            Material material = service.tryGetMaterial(new MaterialIdentifier(newIncomingMaterial.getCode(), newIncomingMaterial.getType()));
-            if (material == null)
-            {
-                builder.material(newIncomingMaterial);
-            }
-            else if (newMaterialWithType.getLastModificationDate().after(lastSyncTimestamp))
-            {
-                // TODO what should the date argument below be? Same question for version argument in other entities
-                MaterialUpdateDTO update =
-                        new MaterialUpdateDTO(TechId.create(material), Arrays.asList(newIncomingMaterial.getProperties()),
-                                material.getModificationDate());
-                builder.materialUpdate(update);
+            if (newMaterialWithType.getLastModificationDate().after(lastSyncTimestamp)) {
+                Material material = service.tryGetMaterial(new MaterialIdentifier(newIncomingMaterial.getCode(), newIncomingMaterial.getType()));
+                if (material == null)
+                {
+                    builder.material(newIncomingMaterial);
+                }
+                else
+                {
+                    MaterialUpdateDTO update =
+                            new MaterialUpdateDTO(TechId.create(material), Arrays.asList(newIncomingMaterial.getProperties()),
+                                    material.getModificationDate());
+                    builder.materialUpdate(update);
+                }
             }
         }
     }
