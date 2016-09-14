@@ -895,7 +895,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
         // confirm deletions
         // TODO confirm
-        // v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
+        v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
     }
 
     private void saveSyncTimestamp()

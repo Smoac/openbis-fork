@@ -152,8 +152,7 @@ public class EntityGraph<N extends Node<?>>
         String differentiatorStr = "";
         if (node.getEntityKind().equals("EXPERIMENT")) // in order to differentiate between experiments in the same space but under different projects
         {
-            differentiatorStr = "-" +
-                    node.getPermId().substring(node.getPermId().indexOf('-') + 1);
+            differentiatorStr = node.getPermId().substring(node.getPermId().indexOf('-') + 1);
         }
         else {
             differentiatorStr = "" + node.getEntityKind().charAt(0);
