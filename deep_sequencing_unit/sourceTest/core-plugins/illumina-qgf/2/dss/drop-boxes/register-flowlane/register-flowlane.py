@@ -58,6 +58,7 @@ CRC32_PATH='lib/crc32'
 if System.getProperty('os.name')  == 'Mac OS X':
     CRC32_PATH='lib/a.out'
 NOHUP_REGEX = 'nohup*.txt'
+CHECKSUMS_REGEX = 'checksums.txt'
 COMMAND_LINE_INVOCATION = 'Command-line invocation'
 MISMATCH_REGEX = r'(barcode-mismatches) ([0-9])'
 mismatch_dict = {0: 'NONE', 1:'ONE', 2:'TWO'}
@@ -122,6 +123,8 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
     Writes a file of meta data related to one sample
     '''
 
+    incoming_path = transaction.getIncoming().getAbsolutePath()
+    
     sequencing_sample_properties_list = sequencing_sample_properties_dict.keys()
     sequencing_sample_properties_list.sort()
 
@@ -154,8 +157,19 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
             meta_data_file.write(k.encode('utf-8') + "\t" + fcMetaDataDict[k].encode('utf-8') + "\n")
       
         meta_data_file.write("\nFASTQ_FILES\n".encode('utf-8'))
-        for file in fastqFileList:
-            meta_data_file.write(os.path.basename(file) + "\t" + str(CRC32_from_file(file, transaction)) + "\n")
+        
+        checksums_file = get_file_names(incoming_path, CHECKSUMS_REGEX)
+        if checksums_file:
+            with open(checksums_file[0]) as checksums:
+                for line in checksums:
+                    meta_data_file.write(line)
+        else:
+            print("File " + str(checksums_file) + " not found!")     
+            
+            # Use slow fall back solution
+            for file in fastqFileList:
+                print("Using fall back solution for creation of CRC32 checksums")
+                meta_data_file.write(os.path.basename(file) + "\t" + str(CRC32_from_file(file, transaction)) + "\n")
 
         meta_data_file.write("\nDATASET PROPERTIES\n".encode('utf-8'))
         # Data Set Property:
@@ -414,6 +428,7 @@ def process(transaction):
     if nohup_file:
         command_line_list, mismatches = get_mismatches(nohup_file)
         
+
     # get all fastqs
     fastq_files = get_file_names(incoming_path, FASTQ_GZ_PATTERN)
     
