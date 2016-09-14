@@ -115,6 +115,10 @@ public class EntityGraph<N extends Node<?>>
             if (list.isEmpty() && node.getEntityKind().equals("DATA_SET") == false)
             {
                 sb.append(getRightHandNodeRep(node));
+                // if(node.getEntityKind().equals("PROJECT")) {
+                // sb.append(" [shape=box]");
+                // }
+                sb.append(";");
                 sb.append(System.getProperty("line.separator"));
                 continue;
             }
@@ -123,6 +127,15 @@ public class EntityGraph<N extends Node<?>>
                 Node<?> neighbourNode = edgeNodePair.getNode();
                 sb.append("\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\" -> "
                         + getRightHandNodeRep(neighbourNode));
+                if (edgeNodePair.getEdge().getType().equals(Edge.COMPONENT))
+                {
+                    sb.append(" [style=dotted, color=red]");
+                }
+                else if (edgeNodePair.getEdge().getType().equals(Edge.CHILD))
+                {
+                    sb.append(" [style=dashed, color= blue]");
+                }
+                sb.append(";");
                 sb.append(System.getProperty("line.separator"));
             }
         }
@@ -131,7 +144,7 @@ public class EntityGraph<N extends Node<?>>
 
     private String getRightHandNodeRep(Node<?> node)
     {
-        return "\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\";";
+        return "\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\"";
     }
 
     private String getDifferentiatorStr(Node<?> node)

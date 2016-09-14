@@ -113,21 +113,22 @@ public class EntityRetriever
         }
         StringBuffer dotRep = new StringBuffer();
         dotRep.append("digraph G {\n\n");
-        for (int i = 0; i < clusters.length; i++) {
-            dotRep.append("subgraph cluster_" + i + "{'");
-            dotRep.append("'style=filled;");
+        for (int i = 0; i < spaces.length; i++)
+        {
+            dotRep.append("subgraph cluster_" + i + "{");
+            dotRep.append("style=filled;");
             dotRep.append("color=lightgrey;");
             dotRep.append("node [style=filled,color=white];");
             dotRep.append("\n\n");
             dotRep.append(clusters[i]);
-            dotRep.append("label = " + clusters[i] + ";}");
+            dotRep.append("label = " + spaces[i] + ";}");
             dotRep.append("\n\n");
         }
         dotRep.append("\n}");
         String name = "";
         for (String space : spaces)
         {
-            name = space + "_";
+            name += space + "_";
         }
         me.printGraph(new String(dotRep), name.substring(0, name.length() - 1));
     }
