@@ -89,7 +89,9 @@ public class TrackingBO
     {
         Boolean sendEmails = true;
         TrackingStateDTO prevTrackingState = trackingDAO.getTrackingState();
-        LogUtils.info(prevTrackingState.getLastSeenDataSetIdMap().toString());
+        
+        extractCommandLineFlags(commandLineMap);
+        LogUtils.debug("prevTrackingState: " + prevTrackingState.getLastSeenDataSetIdMap().toString());
 
         TrackedEntities changedEntities = null;
         List<EmailWithSummary> emailsWithSummary = null;
@@ -129,16 +131,39 @@ public class TrackingBO
             LogUtils.debug("Should never be reached.");
         }
 
+        
         if (sendEmails)
         {
             emailsWithSummary = emailGenerator.generateDataSetsEmails(changedEntities);
             sendEmails(emailsWithSummary, mailClient);
             
-            if (!params.getDebug()) {
-            	saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
-            }
         }
+        else {
+        	LogUtils.info("Not sending out any emails.");
+        }
+
+        if (!params.getDebug()) {
+        	LogUtils.info("Saving new state to tracking database.");
+        	saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
+        }
+        else {
+        	LogUtils.info("Debug mode activated! Won't save anything to the tracking database.");
+        }
+
     }
+
+	private void extractCommandLineFlags(final HashMap<String, String[]> commandLineMap) {
+		StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String[]> entry : commandLineMap.entrySet()) {
+        	sb.append(entry.getKey() + " ");
+        	if  (entry.getValue() != null) {
+            	for (String value : entry.getValue()) {
+            		sb.append(value);
+            	}        		
+        	}
+        }
+        LogUtils.info("Got these command line flags: '" + sb + "'");
+	}
 
     private static void sendEmails(List<EmailWithSummary> emailsWithSummary, IMailClient mailClient)
     {
@@ -299,7 +324,7 @@ public class TrackingBO
             // needed for the integration of the openBIS webapp
             System.out.println(entry.getKey() + " " + entry.getValue());
         }
-        LogUtils.debug(changedLanesMap.toString());
+        LogUtils.debug("changedLanesMap: " + changedLanesMap.toString());
         return changedLanesMap;
     }
 
@@ -342,7 +367,7 @@ public class TrackingBO
             // Check if the given lanes/samples have data sets which are newer than the last seen one (= maxDatasetIdForSample)
             if (filterList.contains(currentLaneId) && newDataSetID > maxDatasetIdForSample)
             {
-                LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
+                LogUtils.debug("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
                 filteredDataSets.add(d);
                 
                 if (spaceWhiteList.contains(d.getSpace().getCode()) || d.getSpace().getCode().startsWith(params.getDbmSpacePrefix())) {
@@ -360,7 +385,7 @@ public class TrackingBO
                 addDataSetTo(changedTrackingMap, d);
         }
         
-        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which could be transferred to an extra folder");
+        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which are in the list of 'space-whitelist' and could be transferred to an extra folder");
        
         
         if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_COPY_DATA_SETS))
@@ -444,7 +469,7 @@ public class TrackingBO
         Sample currentLane = dataSet.getSample();
         String lanePermId = currentLane.getPermId();
 
-        LogUtils.info("Found lane " + currentLane.getCode() + " with permId: " + lanePermId + " with new DS techId " + dataSet.getId() + " and DS permId " + dataSet.getPermId());
+        LogUtils.debug("Found lane " + currentLane.getCode() + " with permId: " + lanePermId + " with new DS techId " + dataSet.getId() + " and DS permId " + dataSet.getPermId());
         ArrayList<Long> existingList = changedTrackingMap.get(lanePermId);
         if (existingList == null)
         {
