@@ -142,7 +142,7 @@ public class TrackingBO
         	LogUtils.info("Not sending out any emails.");
         }
 
-        if (!params.getDebug()) {
+        if (!params.getDebug() && changedEntities != null) {
         	LogUtils.info("Saving new state to tracking database.");
         	saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
         }
