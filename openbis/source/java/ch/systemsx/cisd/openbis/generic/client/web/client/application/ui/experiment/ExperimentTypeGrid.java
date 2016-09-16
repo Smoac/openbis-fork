@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
@@ -64,7 +65,8 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
     @Override
     public AddEntityTypeDialog<ExperimentType> getNewDialog(ExperimentType newType)
     {
-        return (AddEntityTypeDialog<ExperimentType>) createRegisterEntityTypeDialog("New Experiment", newType, newType.getEntityKind());
+        return (AddEntityTypeDialog<ExperimentType>) createRegisterEntityTypeDialog(
+                "New " + viewContext.getMessage(Dict.EXPERIMENT), newType, newType.getEntityKind());
     }
 
     @Override

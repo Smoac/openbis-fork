@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectPerm
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -88,17 +89,18 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         this.historyCreator = historyCreator;
     }
 
-    private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,
-            List<NewAttachment> attachmentsOrNull, String leaderIdOrNull)
+    private ProjectPE createProject(final NewProject newProject, String leaderIdOrNull)
     {
         final ProjectPE result = new ProjectPE();
+        ProjectIdentifier projectIdentifier =
+                new ProjectIdentifierFactory(newProject.getIdentifier()).createIdentifier();
         final SpacePE group =
                 SpaceIdentifierHelper.tryGetSpace(projectIdentifier, session.tryGetPerson(), this);
         result.setSpace(group);
         result.setRegistrator(findPerson());
-        result.setPermId(getPermIdDAO().createPermId());
+        result.setPermId(getOrCreatePermID(newProject));
         result.setCode(projectIdentifier.getProjectCode());
-        result.setDescription(description);
+        result.setDescription(newProject.getDescription());
         if (leaderIdOrNull != null)
         {
             PersonPE leader = getPersonDAO().tryFindPersonByUserId(leaderIdOrNull);
@@ -108,7 +110,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             }
             result.setProjectLeader(leader);
         }
-        addAttachments(result, attachmentsOrNull, attachments);
+        addAttachments(result, newProject.getAttachments(), attachments);
         return result;
     }
 
@@ -170,11 +172,12 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     }
 
     @Override
-    public void define(ProjectIdentifier projectIdentifier, String description,
-            List<NewAttachment> attachmentsOrNull, String creatorId) throws UserFailureException
+    public void define(final NewProject newProject, String creatorId) throws UserFailureException
     {
-        assert projectIdentifier != null : "Unspecified project identifier.";
-        this.project = createProject(projectIdentifier, description, attachmentsOrNull, creatorId);
+        assert newProject != null : "Unspecified new project.";
+        assert newProject.getIdentifier() != null : "Unspecified project identifier.";
+
+        this.project = createProject(newProject, creatorId);
         dataChanged = true;
     }
 

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs;
@@ -221,8 +222,8 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
 
     private Window createRegisterEntityTypeDialog(final EntityKind entityKind)
     {
-        String title =
-                viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, entityKind.getDescription());
+        String title = viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE,
+                EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind));
 
         T newEntityType = createNewEntityType();
         return createRegisterEntityTypeDialog(title, newEntityType, entityKind);
@@ -248,8 +249,8 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
     {
         final String code = entityType.getCode();
         String title =
-                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, entityKind.getDescription(),
-                        code);
+                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, 
+                        EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind), code);
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
                 private final DescriptionField descriptionField;

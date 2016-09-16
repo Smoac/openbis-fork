@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -94,7 +95,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
     @Override
     protected String getEntityName()
     {
-        return EntityKind.SAMPLE.getDescription();
+        return EntityTypeUtils.translatedEntityKindForUI(viewContext, EntityKind.SAMPLE);
     }
 
     @Override

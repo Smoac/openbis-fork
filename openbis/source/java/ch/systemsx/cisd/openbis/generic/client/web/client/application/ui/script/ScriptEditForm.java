@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -87,11 +88,15 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         boolean pluginTypeIsPython = originalScript.getPluginType() == PluginType.JYTHON;
         if (pluginTypeIsPython)
         {
-            String entityKind =
-                    originalScript.getEntityKind() == null
-                            || originalScript.getEntityKind().length != 1 ? GenericConstants.ALL_ENTITY_KINDS
-                            : originalScript.getEntityKind()[0].name();
-            entityKindField.setSimpleValue(entityKind);
+            LabeledItem<EntityKind> item;
+            if (originalScript.getEntityKind() == null || originalScript.getEntityKind().length != 1)
+            {
+                item = EntityKindSelectionWidget.createLabeledItemForAll();
+            } else
+            {
+                item = EntityKindSelectionWidget.createLabeledItem(originalScript.getEntityKind()[0], viewContext);
+            }
+            entityKindField.setSimpleValue(item);
         } else
         {
             StringBuilder builder = new StringBuilder();

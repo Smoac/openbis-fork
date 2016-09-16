@@ -240,7 +240,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
-    private static LabelField createTemplateField(String label,
+    private static LabelField createTemplateField(String label, final String sampleTypeName, 
             final SampleTypeSelectionWidget typeSelection, final CheckBox autoGenerate)
     {
         LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
@@ -257,8 +257,9 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
                                 false, BatchOperationKind.REGISTRATION));
                     } else
                     {
-                        GWTUtils.alert("Sample type not selected.",
-                                "Sample type must be selected before downloading file template.");
+                        
+                        GWTUtils.alert(sampleTypeName + " not selected.",
+                                sampleTypeName + " must be selected before downloading file template.");
                     }
                 }
             });
@@ -303,6 +304,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         autoGenerateCodes = createAutoGenerateCheckbox();
         templateField =
                 createTemplateField(viewContext.getMessage(Dict.FILE_TEMPLATE_LABEL),
+                        viewContext.getMessage(Dict.SAMPLE_TYPE),
                         importSampleTypeSelection, autoGenerateCodes);
 
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
@@ -335,10 +337,10 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         return new CheckBoxField("Generate codes automatically", false);
     }
 
-    protected static Radio cerateExistingSamplesRadio()
+    private Radio cerateExistingSamplesRadio()
     {
         Radio existingRadio = new Radio();
-        existingRadio.setBoxLabel("specify the list of existing samples");
+        existingRadio.setBoxLabel("specify the list of existing " + viewContext.getMessage(Dict.SAMPLES).toLowerCase());
         existingRadio.setValue(true);
         return existingRadio;
     }

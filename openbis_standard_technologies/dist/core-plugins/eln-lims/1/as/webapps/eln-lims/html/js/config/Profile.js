@@ -111,7 +111,7 @@ $.extend(DefaultProfile.prototype, {
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : ["SUPPLIER", "PRODUCT", "REQUEST", "ORDER"],
+				"sampleTypeCodes" : [],
 				"experimentTypeCodes" : []
 		}		
 		this.propertyReplacingCode = "NAME";

@@ -128,7 +128,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         @Override
         protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(ExperimentUpdateResult result)
         {
-            return Arrays.asList(new HtmlMessageElement("Experiment successfully updated"));
+            return Arrays.asList(new HtmlMessageElement(viewContext.getMessage(Dict.EXPERIMENT) + " successfully updated"));
         }
 
     }

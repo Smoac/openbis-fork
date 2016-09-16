@@ -19,7 +19,7 @@ var FormUtil = new function() {
 	//
 	// Annotations
 	//
-	this.writeAnnotationForSample = function(stateObj, sample, propertyTypeCode, propertyValue) {
+	this.addAnnotationSlotForSample = function(stateObj, sample) {
 		var sampleAnnotations = stateObj[sample.permId];
 		if(!sampleAnnotations) {
 			sampleAnnotations = {};
@@ -28,6 +28,11 @@ var FormUtil = new function() {
 		
 		sampleAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
 		sampleAnnotations["sampleType"] =  sample.sampleTypeCode; //Adds sampleType code to the annotations if not present
+		return sampleAnnotations;
+	}
+	
+	this.writeAnnotationForSample = function(stateObj, sample, propertyTypeCode, propertyValue) {
+		var sampleAnnotations = this.addAnnotationSlotForSample(stateObj, sample);
 		
 		if(propertyTypeCode && propertyValue !== null && propertyValue !== undefined) {
 			sampleAnnotations[propertyTypeCode] = propertyValue;

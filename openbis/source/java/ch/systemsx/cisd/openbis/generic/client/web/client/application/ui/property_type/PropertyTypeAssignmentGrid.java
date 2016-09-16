@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -451,7 +452,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         final String title = viewContext.getMessage(
                 Dict.EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE,
-                entityKind.getDescription(),
+                EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind),
                 entityTypeCode,
                 propertyTypeCode);
 

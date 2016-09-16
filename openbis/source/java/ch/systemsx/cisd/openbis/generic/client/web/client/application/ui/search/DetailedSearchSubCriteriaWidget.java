@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
+import java.util.EnumSet;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
@@ -44,6 +47,10 @@ public class DetailedSearchSubCriteriaWidget extends DetailedSearchCriteriaWidge
     @Override
     protected String getCriteriaLabel()
     {
+        if (EnumSet.of(AssociatedEntityKind.EXPERIMENT, AssociatedEntityKind.SAMPLE).contains(association))
+        {
+            return EntityTypeUtils.translatedEntityKindForUI(viewContext, association.getEntityKind());
+        }
         return association.getDescription();
     }
 
@@ -62,7 +69,7 @@ public class DetailedSearchSubCriteriaWidget extends DetailedSearchCriteriaWidge
     @Override
     public String getCriteriaDescription()
     {
-        return association.getDescription() + "(" + super.getCriteriaDescription() + ")";
+        return getCriteriaLabel() + "(" + super.getCriteriaDescription() + ")";
     }
 
     public DetailedSearchSubCriteria extractSubCriteria(boolean useWildcardSearchMode)

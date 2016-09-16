@@ -29,6 +29,8 @@ function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyT
 		
 		if(isDelete) {
 			FormUtil.deleteAnnotationsFromPermId(this.stateObj, sample.permId);
+		} else if(!propertyTypeCode && !propertyValue) { 
+			FormUtil.addAnnotationSlotForSample(this.stateObj, sample);
 		} else {
 			FormUtil.writeAnnotationForSample(this.stateObj, sample, propertyTypeCode, propertyValue);
 		}

@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppSortingAndCodeComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppUrl;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -317,8 +318,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected String getOriginalDataDescription()
     {
-        return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + " ["
-                + originalData.getEntityType().getCode() + "]"
+        return EntityTypeUtils.translatedEntityKindForUI(viewContext, originalData.getEntityKind()) 
+                + " " + originalData.getCode() + " [" + originalData.getEntityType().getCode() + "]"
                 + (isDeleted() ? " <b>(moved to trash)</b>" : "");
     }
 
@@ -558,7 +559,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         Widget link =
                 LinkRenderer.getLinkWidget(entity.getCode(), listener, href,
                         DeletionUtils.isDeleted(entity));
-        link.setTitle(entity.getEntityKind().getDescription() + " " + entity.getCode());
+        link.setTitle(EntityTypeUtils.translatedEntityKindForUI(viewContext, entity.getEntityKind()) + " " + entity.getCode());
         return link;
     }
 

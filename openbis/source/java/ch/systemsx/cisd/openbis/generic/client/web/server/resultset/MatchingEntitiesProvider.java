@@ -32,6 +32,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Span;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -64,8 +66,11 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
 
     private final boolean useWildcardSearchMode;
 
+    private final WebClientConfigurationProvider webClientConfigurationProvider;
+
     public MatchingEntitiesProvider(ICommonServer commonServer, String sessionToken,
-            SearchableEntity[] matchingEntities, SearchDomain[] matchingSearchDomains, String queryText, boolean useWildcardSearchMode)
+            SearchableEntity[] matchingEntities, SearchDomain[] matchingSearchDomains, String queryText, 
+            boolean useWildcardSearchMode, WebClientConfigurationProvider webClientConfigurationProvider)
     {
         this.commonServer = commonServer;
         this.sessionToken = sessionToken;
@@ -75,6 +80,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
         
         this.queryText = queryText;
         this.useWildcardSearchMode = useWildcardSearchMode;
+        this.webClientConfigurationProvider = webClientConfigurationProvider;
     }
     
     @Override
@@ -108,7 +114,9 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
         for (MatchingEntity matchingEntity : entities)
         {
             builder.addRow(matchingEntity);
-            builder.column(ENTITY_KIND).addString(matchingEntity.getEntityKind().getDescription());
+            builder.column(ENTITY_KIND).addString(
+                    WebClientConfigUtils.getTranslatedDescription(webClientConfigurationProvider,
+                            matchingEntity.getEntityKind()));
             builder.column(ENTITY_TYPE).addString(matchingEntity.getEntityType().getCode());
             builder.column(SEARCH_DOMAIN_TYPE).addString(matchingEntity.getSearchDomain());
             builder.column(IDENTIFIER).addString(matchingEntity.getIdentifier());

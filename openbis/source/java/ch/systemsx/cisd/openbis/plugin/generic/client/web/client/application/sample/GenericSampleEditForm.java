@@ -23,6 +23,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -103,7 +104,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         @Override
         protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(SampleUpdateResult result)
         {
-            return Arrays.asList(new HtmlMessageElement("Sample successfully updated"));
+            return Arrays.asList(new HtmlMessageElement(viewContext.getMessage(Dict.SAMPLE) + " successfully updated"));
         }
     }
 

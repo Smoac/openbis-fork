@@ -80,7 +80,7 @@ check [grid-columns] independentOf [extjs]
                               ${generic.server}.dataaccess.entity_validation.*
 [generic.server.dataaccess.migration] = ${generic.server}.dataaccess.migration.*
 [generic.server.util] = ${generic.server}.util.*
-[generic.server-subpackages] = ${generic.server}.* excluding ${generic.server}.*.*
+[generic.server-subpackages] = ${generic.server}.* excluding ${generic.server}.*.* ${generic.server}.CommonServiceProvider
 
 check sets [generic.server.authorization] [generic.server.business] [generic.server.dataaccess] \
            [generic.server.dataaccess.migration] [generic.server.util] [generic.server-subpackages]

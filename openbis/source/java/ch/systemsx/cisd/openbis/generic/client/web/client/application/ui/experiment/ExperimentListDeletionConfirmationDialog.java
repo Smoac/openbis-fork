@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid.DisplayedAndSelectedExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -89,7 +90,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
     @Override
     protected String getEntityName()
     {
-        return EntityKind.EXPERIMENT.getDescription();
+        return EntityTypeUtils.translatedEntityKindForUI(viewContext, EntityKind.EXPERIMENT);
     }
 
     @Override

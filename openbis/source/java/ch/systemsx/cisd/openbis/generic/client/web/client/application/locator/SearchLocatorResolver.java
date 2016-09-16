@@ -5,6 +5,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
@@ -65,9 +66,12 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
             resolver.openEntitySearch(searchCriteria, locator.getHistoryToken());
         } else
         {
+            String sample = EntityTypeUtils.translatedEntityKindForUI(viewContext, EntityKind.SAMPLE).toUpperCase();
+            String dataSet = EntityTypeUtils.translatedEntityKindForUI(viewContext, EntityKind.DATA_SET).toUpperCase();
+            String entity = EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind).toUpperCase();
             throw new UserFailureException(
-                    "URLs for searching openBIS only support SAMPLE and DATA_SET searches. Entity "
-                            + entityKind + " is not supported.");
+                    "URLs for searching openBIS only support " + sample + " and " + dataSet + " searches. Entity "
+                            + entity + " is not supported.");
         }
     }
 

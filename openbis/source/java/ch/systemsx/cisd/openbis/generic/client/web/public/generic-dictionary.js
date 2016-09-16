@@ -6,15 +6,15 @@ var generic = {
   //
   
   no_samples_found: "There are no samples in this experiment",
-	experiment_samples_selction_title: "Samples",
+	experiment_samples_selction_title: entityTypes.samples,
 
 
   //
   // Sample Viewer
   //
 
-  sample_properties_panel_sample_identifier: "Sample", 
-  sample_properties_heading: "Sample Properties",
+  sample_properties_panel_sample_identifier: entityTypes.sample, 
+  sample_properties_heading: entityTypes.sample + " Properties",
   part_of_heading: "Contained",
   derived_samples_heading: "Children",
   parent_samples_heading: "Parents",

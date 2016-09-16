@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
@@ -87,7 +88,7 @@ public final class RevertDeletionConfirmationDialog extends
         if (deletedEntityOrNull != null)
         {
             String deletedEntity =
-                    deletedEntityOrNull.getEntityKind().getDescription() + " '"
+                    EntityTypeUtils.translatedEntityKindForUI(viewContext, deletedEntityOrNull.getEntityKind()) + " '"
                             + deletedEntityOrNull.getCode() + "'";
             Deletion deletion = deletedEntityOrNull.getDeletion();
             String deletedBy = deletion.getRegistrator().toString();

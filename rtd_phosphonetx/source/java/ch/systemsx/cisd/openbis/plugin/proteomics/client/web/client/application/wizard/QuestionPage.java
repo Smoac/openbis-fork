@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.WizardPage;
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
  * @author Franz-Josef Elmer
@@ -41,16 +42,17 @@ public class QuestionPage extends WizardPage<MsInjectionSampleAnnotationModel>
     {
         super(viewContext, MsInjectionAnnotationWizardState.CHOOSE_OR_CREATE_QUESTION, model);
         setLeftContentByDictionary();
-        addToRightContent(new Label("How do you want to annotate your samples?"), new RowData(1,
-                -1, new Margins(10)));
+        addToRightContent(new Label("How do you want to annotate your " 
+                + viewContext.getMessage(Dict.SAMPLES).toLowerCase() + "?"), new RowData(1, -1, new Margins(10)));
         radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("choose");
         chooseSampleRadioButton = new Radio();
-        chooseSampleRadioButton.setBoxLabel("I want to choose an existing biological sample.");
+        String sampleText = viewContext.getMessage(Dict.SAMPLE).toLowerCase();
+        chooseSampleRadioButton.setBoxLabel("I want to choose an existing biological " + sampleText + ".");
         chooseSampleRadioButton.setValue(true);
         radioGroup.add(chooseSampleRadioButton);
         Radio createSampleRadioButton = new Radio();
-        createSampleRadioButton.setBoxLabel("I want to create a new biological sample.");
+        createSampleRadioButton.setBoxLabel("I want to create a new biological " + sampleText + ".");
         radioGroup.add(createSampleRadioButton);
         addToRightContent(radioGroup, new RowData(1, -1, new Margins(10)));
         enableNextButton(true);

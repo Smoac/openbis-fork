@@ -1,4 +1,11 @@
 // Common dictionary
+
+var entityTypes = {}
+entityTypes.sample = "Sample";
+entityTypes.samples = entityTypes.sample + "s";
+entityTypes.experiment = "Experiment";
+entityTypes.experiments = entityTypes.experiment + "s";
+
 var common = {
 
   applicationName: "openBIS",
@@ -179,8 +186,8 @@ var common = {
   button_view: "View",
   button_delete: "Delete",
   button_deactivate: "Deactivate",
-  button_delete_sample: "Delete Sample",
-  button_delete_experiment: "Delete Experiment",
+  button_delete_sample: "Delete " + entityTypes.sample,
+  button_delete_experiment: "Delete " + entityTypes.experiment,
   button_delete_material: "Delete Material",
   button_delete_data_set: "Delete Data Set",
   button_delete_project: "Delete Project",
@@ -294,8 +301,8 @@ var common = {
   //
   
   subcode: "Subcode",
-  sample: "Sample",
-  sample_type: "Sample Type",
+  sample: entityTypes.sample,
+  sample_type: entityTypes.sample + " Type",
   database_instance: "Database Instance",
   sample_identifier: "Identifier",
   is_instance_sample: "Shared?",
@@ -305,8 +312,9 @@ var common = {
   space: "Space",
   groups: "Spaces",
   project: "Project",
-  experiment: "Experiment",
-  experiment_identifier: "Experiment Identifier",
+  experiment: entityTypes.experiment,
+  experiments: entityTypes.experiments,
+  experiment_identifier: entityTypes.experiment + " Identifier",
   generated_from: "Parent {0}",
   part_of: "Container",
   generatedfromparent: "Parents",
@@ -316,16 +324,16 @@ var common = {
   // Experiment Browser
   //
   
-  experiments_grid_header: "Experiments",
-  experiment_type: "Experiment Type",
+  experiments_grid_header: entityTypes.experiments,
+  experiment_type: entityTypes.experiment + " Type",
   project_selector_title: "Projects",
-  project_selector_tooltip: "Click on a row with space/project to see list of experiments in that space/project.",
+  project_selector_tooltip: "Click on a row with space/project to see list of " + entityTypes.experiments + " in that space/project.",
   project_selector_description_not_available: "(not available)",
   project_selector_code_column: "Space / Project",
   project_selector_details_link_label: "(info)",
   project_selector_details_link_tooltip: "Click on the link to see project details.",
-  perform_archiving_on_all_datasets_connected_to_experiments_msg_template: "{0} {1} will be performed on those data sets connected to the experiments from the table that are '{2}' (see their status) after you click on a Run button.",
-  perform_archiving_on_selected_or_all_datasets_connected_to_experiments_msg_template: "Select between performing {0} only on the data sets of the selected experiments ({1}) or on all data sets connected to an experiment from the table and click on a Run button. Note that only data sets that are '{2}' (see their status) will be processed.",
+  perform_archiving_on_all_datasets_connected_to_experiments_msg_template: "{0} {1} will be performed on those data sets connected to the " + entityTypes.experiments + " from the table that are '{2}' (see their status) after you click on a Run button.",
+  perform_archiving_on_selected_or_all_datasets_connected_to_experiments_msg_template: "Select between performing {0} only on the data sets of the selected " + entityTypes.experiments + " ({1}) or on all data sets connected to an " + entityTypes.experiment + " from the table and click on a Run button. Note that only data sets that are '{2}' (see their status) will be processed.",
   
   
   //
@@ -376,11 +384,11 @@ var common = {
   data_type: "Data Type",
   data_type_code: "Data Type Code",
   description: "Description",
-  sample_types: "Sample Types",
+  sample_types: entityTypes.sample + " Types",
   material_types: "Material Types",
   data_set_types: "Data Set Types",
   file_format_types: "File Types",
-  experiment_types: "Experiment Types",
+  experiment_types: entityTypes.experiment + " Types",
   mandatory: "Mandatory",
   is_mandatory: "Mandatory?",
   property_type: "Property Type",
@@ -483,23 +491,23 @@ var common = {
   DATA_SET_MENU_MASS_UPDATE: "Data Set Metadata Update",
   data_set_batch_update: "Data Set Metadata Batch Update",
   
-  EXPERIMENT_MENU_BROWSE: "Experiments",
-  EXPERIMENT_MENU_NEW: "Experiment",
-  EXPERIMENT_MENU_IMPORT: "Experiment Registration",
-  EXPERIMENT_MENU_MASS_UPDATE: "Experiment Updates",
-  EXPERIMENT_MENU_TYPES: "Experiment Types",
+  EXPERIMENT_MENU_BROWSE: entityTypes.experiments,
+  EXPERIMENT_MENU_NEW: entityTypes.experiment,
+  EXPERIMENT_MENU_IMPORT: entityTypes.experiment + " Registration",
+  EXPERIMENT_MENU_MASS_UPDATE: entityTypes.experiment + " Updates",
+  EXPERIMENT_MENU_TYPES: entityTypes.experiment + " Types",
   
   MATERIAL_MENU_BROWSE: "Materials",
   MATERIAL_MENU_IMPORT: "Material Registration",
   MATERIAL_MENU_MASS_UPDATE: "Material Updates",
   MATERIAL_MENU_TYPES: "Material Types",
    
-  SAMPLE_MENU_SEARCH: "Sample Search",
-  SAMPLE_MENU_BROWSE: "Samples",
-  SAMPLE_MENU_NEW: "Sample",
-  SAMPLE_MENU_IMPORT: "Sample Registration",
-  SAMPLE_MENU_MASS_UPDATE: "Sample Updates",
-  SAMPLE_MENU_TYPES: "Sample Types",
+  SAMPLE_MENU_SEARCH: entityTypes.sample + " Search",
+  SAMPLE_MENU_BROWSE: entityTypes.samples,
+  SAMPLE_MENU_NEW: entityTypes.sample,
+  SAMPLE_MENU_IMPORT: entityTypes.samples + " Registration",
+  SAMPLE_MENU_MASS_UPDATE: entityTypes.sample + " Updates",
+  SAMPLE_MENU_TYPES: entityTypes.sample + " Types",
   
   PROJECT_MENU_BROWSE: "Projects",
   PROJECT_MENU_NEW: "Project",
@@ -510,8 +518,8 @@ var common = {
   PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",
   PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS: "Browse Assignments",
   PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES: "New Property Type",
-  PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE: "Assign To Experiment Type",
-  PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE: "Assign To Sample Type",
+  PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE: "Assign To " + entityTypes.experiment + " Type",
+  PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE: "Assign To " + entityTypes.sample + " Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE: "Assign To Material Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE: "Assign To Data Set Type", 
   
@@ -554,20 +562,20 @@ var common = {
   data_set_upload: "Data Set Batch Registration (via CIFEX)",
   assign_data_set_property_type: "Assign Data Set Property Type",
   assign_material_property_type: "Assign Material Property Type",  
-  assign_experiment_property_type: "Assign Experiment Property Type",
-  assign_sample_property_type: "Assign Sample Property Type",
+  assign_experiment_property_type: "Assign " + entityTypes.experiment + " Property Type",
+  assign_sample_property_type: "Assign " + entityTypes.sample + " Property Type",
   property_type_assignments: "Property Type Assignments",
   property_type_registration: "Property Type Registration",
   property_types: "Property Types",
-  experiment_browser: "Experiment Browser",
-  experiment_import: "Experiment Batch Registration",
+  experiment_browser: entityTypes.experiment + " Browser",
+  experiment_import: entityTypes.experiment + " Batch Registration",
   vocabulary_registration: "Vocabulary Registration",
-  sample_batch_registration: "Sample Batch Registration",
-  sample_batch_update: "Sample Batch Update",
-  experiment_batch_update: "Experiment Batch Update",
+  sample_batch_registration: entityTypes.sample + " Batch Registration",
+  sample_batch_update: entityTypes.sample + " Batch Update",
+  experiment_batch_update: entityTypes.experiment + " Batch Update",
   material_batch_update: "Material Batch Update",
-  sample_registration: "Sample Registration",
-  sample_broser: "Sample Browser",
+  sample_registration: entityTypes.sample + " Registration",
+  sample_broser: entityTypes.sample + " Browser",
   list_groups: "Spaces Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
@@ -577,25 +585,25 @@ var common = {
   // Help Page Titles
   //
   
-  HELP__EXPERIMENT__BROWSE: "Experiment Browser",
-  HELP__EXPERIMENT__VIEW: "Experiment Viewer",
-  HELP__EXPERIMENT__EDIT: "Experiment Editor",
-  HELP__EXPERIMENT__REGISTER: "Experiment Registration",
-  HELP__EXPERIMENT__EXPERIMENT_TYPE__BROWSE: "Experiment Type Browser",
-  HELP__SAMPLE__BROWSE: "Sample Browser",
-  HELP__SAMPLE__VIEW: "Sample Viewer",
-  HELP__SAMPLE__EDIT: "Sample Editor",
-  HELP__SAMPLE__SEARCH: "Sample Advanced Search",
-  HELP__SAMPLE__REGISTER: "Sample Registration",
-  HELP__SAMPLE__IMPORT: "Sample Import",
-  HELP__SAMPLE__BATCH_UPDATE: "Sample Batch Update",
-  HELP__SAMPLE__SAMPLE_TYPE__BROWSE: "Sample Type Browser",
-  HELP__SAMPLE__SAMPLE_TYPE__REGISTER: "Add or Edit Sample Type",
-  HELP__SAMPLE__SAMPLE_TYPE__EDIT: "Add or Edit Sample Type",
+  HELP__EXPERIMENT__BROWSE: entityTypes.experiment + " Browser",
+  HELP__EXPERIMENT__VIEW: entityTypes.experiment + " Viewer",
+  HELP__EXPERIMENT__EDIT: entityTypes.experiment + " Editor",
+  HELP__EXPERIMENT__REGISTER: entityTypes.experiment + " Registration",
+  HELP__EXPERIMENT__EXPERIMENT_TYPE__BROWSE: entityTypes.experiment + " Type Browser",
+  HELP__SAMPLE__BROWSE: entityTypes.sample + " Browser",
+  HELP__SAMPLE__VIEW: entityTypes.sample + " Viewer",
+  HELP__SAMPLE__EDIT: entityTypes.sample + " Editor",
+  HELP__SAMPLE__SEARCH: entityTypes.sample + " Advanced Search",
+  HELP__SAMPLE__REGISTER: entityTypes.sample + " Registration",
+  HELP__SAMPLE__IMPORT: entityTypes.sample + " Import",
+  HELP__SAMPLE__BATCH_UPDATE: entityTypes.sample + " Batch Update",
+  HELP__SAMPLE__SAMPLE_TYPE__BROWSE: entityTypes.sample + " Type Browser",
+  HELP__SAMPLE__SAMPLE_TYPE__REGISTER: "Add or Edit " + entityTypes.sample + " Type",
+  HELP__SAMPLE__SAMPLE_TYPE__EDIT: "Add or Edit " + entityTypes.sample + " Type",
   HELP__MATERIAL__BROWSE: "Material Browser",
   HELP__MATERIAL__VIEW: "Material Viewer",
   HELP__MATERIAL__EDIT: "Material Editor",
-  HELP__MATERIAL__IMPORT: "Sample Import",
+  HELP__MATERIAL__IMPORT: entityTypes.sample + " Import",
   HELP__MATERIAL__MATERIAL_TYPE__BROWSE: "Material Type Browser",
   HELP__DATA_SET__VIEW: "Data Set Viewer",
   HELP__DATA_SET__EDIT: "Data Set Editor",
@@ -656,7 +664,7 @@ var common = {
   reopen_last_tab_on_login_label: "Reopen Last Tab",
   reopen_last_tab_on_login_info: "Check to reopen last opened tab after login. Note, that it works only if you enter openBIS with URL to the welcome page.",
   show_last_visits_label: "Show Last Visited Places",
-  show_last_visits_info: "Check to show the last visited materials, experiments, samples, and data sets on the welcome page.",
+  show_last_visits_info: "Check to show the last visited materials, " + entityTypes.experiments + ", " + entityTypes.samples + ", and data sets on the welcome page.",
     
   // About Box
   about_box_dialog_title: "About",
@@ -676,10 +684,10 @@ var common = {
   //
   // Experiment Registration
   //
-  experiment_registration: "Experiment Registration",
-  experiment_import: "Experiment Batch Registration",
-  samples: "Samples",
-  samples_list: "List of samples (codes or identifiers) separated by commas (\",\") or one sample per line.",
+  experiment_registration: entityTypes.experiment + " Registration",
+  experiment_import: entityTypes.experiment + " Batch Registration",
+  samples: entityTypes.samples,
+  samples_list: "List of " + entityTypes.sample + " (codes or identifiers) separated by commas (\",\") or one " + entityTypes.sample + " per line.",
   
   //
   // Data Set Edition
@@ -702,9 +710,9 @@ var common = {
  label: "Label",
  vocabulary_term_label_empty: "The label for the term.",
  VOCABULARY_TERMS_BROWSER: "Vocabulary Terms of {0}",
- TERM_FOR_SAMPLES_USAGE: "Usages for Samples",
+ TERM_FOR_SAMPLES_USAGE: "Usages for " + entityTypes.samples,
  TERM_FOR_DATA_SET_USAGE: "Usages for Data Sets",
- TERM_FOR_EXPERIMENTS_USAGE: "Usages for Experiments",
+ TERM_FOR_EXPERIMENTS_USAGE: "Usages for " + entityTypes.experiments,
  TERM_FOR_MATERIALS_USAGE: "Usages for Materials",
  TERM_TOTAL_USAGE: "Total Usages Number",
  add_vocabulary_terms_button: "Add",
@@ -775,15 +783,15 @@ var common = {
  //
  metaproject_browser: "Tag Browser",
  metaproject_browser_tree_title: "Tags",
- metaproject_browser_tree_tooltip: "Click on a row with an entity type (i.e. Experiments, Samples, Data Sets, Materials) to see entities of that type that belong to the given metaproject.",
+ metaproject_browser_tree_tooltip: "Click on a row with an entity type (i.e. " + entityTypes.experiments + ", " + entityTypes.samples + ", Data Sets, Materials) to see entities of that type that belong to the given metaproject.",
  metaproject_browser_entities_title: "Entities",
  
  //
  // Metaproject Entities
  //
  
- metaproject_entities_experiments: "Experiments",
- metaproject_entities_samples: "Samples",
+ metaproject_entities_experiments: entityTypes.experiments,
+ metaproject_entities_samples: entityTypes.samples,
  metaproject_entities_data_sets: "Data Sets",
  metaproject_entities_materials: "Materials",
 
@@ -802,7 +810,7 @@ var common = {
  // Detailed Search
  //
  data_set_search: "Data Set Search",
- sample_search: "Sample Search",
+ sample_search: entityTypes.sample + " Search",
  match_all: "Match all criteria (logical AND)",
  match_any: "Match any criteria (logical OR)",
  button_change_query : "Change Search Criteria",
@@ -812,8 +820,8 @@ var common = {
  //
  location: "Location",
  size: "Size",
- external_data_sample_identifier: "Sample Identifier",
- external_data_experiment_identifier: "Experiment Identifier",
+ external_data_sample_identifier: entityTypes.sample + " Identifier",
+ external_data_experiment_identifier: entityTypes.experiment + " Identifier",
  source_type: "Source Type",
  is_complete: "Complete?",
  complete: "Complete",
@@ -871,9 +879,9 @@ ignore_unregistered_materials: "Ignore unregistered materials",
  title_choose_material: "Choose a Material",
  choose_any_material: "Choose Any Material...",
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
- TITLE_CHOOSE_EXPERIMENT: "Choose an Experiment",
-incorrect_experiment_syntax: "Incorrect experiment specification. Please provide the experiment space, project and code using the format '/space/project/code'.",
- title_choose_sample: "Choose a Sample",
+ TITLE_CHOOSE_EXPERIMENT: "Choose an " + entityTypes.experiment,
+incorrect_experiment_syntax: "Incorrect " + entityTypes.experiment + " specification. Please provide the " + entityTypes.experiment + " space, project and code using the format '/space/project/code'.",
+ title_choose_sample: "Choose a " + entityTypes.sample,
 
  //
  // Attachments
@@ -923,8 +931,8 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
 all_radio: "all ({0})",
 only_selected_radio: "selected ({0})",
 data_sets_radio_group_label: "Data Sets",
-experiments_radio_group_label: "Experiments",
-samples_radio_group_label: "Samples",
+experiments_radio_group_label: entityTypes.experiments,
+samples_radio_group_label: entityTypes.samples,
 materials_radio_group_label: "Materials",
 
 //

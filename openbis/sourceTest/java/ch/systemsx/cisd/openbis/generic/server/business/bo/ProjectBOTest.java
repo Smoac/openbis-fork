@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -264,7 +265,7 @@ public final class ProjectBOTest extends AbstractBOTest
         boolean fail = true;
         try
         {
-            projectBO.define(null, null, null, null);
+            projectBO.define(new NewProject(null, null), null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -285,7 +286,7 @@ public final class ProjectBOTest extends AbstractBOTest
                 }
             });
 
-        projectBO.define(createProjectIdent(), null, null, null);
+        projectBO.define(new NewProject(createProjectIdent().toString(), null), null);
 
         context.checking(new Expectations()
             {
@@ -324,7 +325,7 @@ public final class ProjectBOTest extends AbstractBOTest
                 }
             });
 
-        projectBO.define(projIdent, null, null, null);
+        projectBO.define(new NewProject(projIdent.toString(), null), null);
 
         context.checking(new Expectations()
             {
