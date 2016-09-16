@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -116,8 +117,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     {
         final String code = dataSetType.getCode();
         String title =
-                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, entityKind.getDescription(),
-                        code);
+                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, 
+                        EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind), code);
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
                 private final DescriptionField descriptionField;

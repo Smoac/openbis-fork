@@ -22,12 +22,10 @@ import java.util.List;
 /**
  * @author Kaloyan Enimanev
  */
-public class NewProject implements Serializable
+public class NewProject extends Identifier<NewProject> implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
-
-    private final String identifier;
 
     private final String description;
 
@@ -35,13 +33,8 @@ public class NewProject implements Serializable
 
     public NewProject(String identifier, String description)
     {
-        this.identifier = identifier;
+        setIdentifier(identifier);
         this.description = description;
-    }
-
-    public String getIdentifier()
-    {
-        return identifier;
     }
 
     public String getDescription()

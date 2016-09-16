@@ -357,22 +357,23 @@ def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	methodsSpace = tr.getSpace("METHODS");
 	materialsSpace = tr.getSpace("MATERIALS");
-	isNewInstallation = inventorySpace == None and methodsSpace == None and inventorySpace == None;
+	isNewInstallation = inventorySpace == None and methodsSpace == None and materialsSpace == None;
 			
 	## Installing Mandatory Spaces/Projects on every login if missing
 	insertSpaceIfMissing(tr, "METHODS");
 	insertSpaceIfMissing(tr, "MATERIALS");
-	insertSpaceIfMissing(tr, "STOCK_CATALOG");
-	insertProjectIfMissing(tr, "/STOCK_CATALOG/PRODUCTS", projectsCache);
-	insertExperimentIfMissing(tr, "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION", "STOCK", "Product Collection");
-	insertProjectIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS", projectsCache);
-	insertExperimentIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION", "STOCK", "Supplier Collection");
-	insertProjectIfMissing(tr, "/STOCK_CATALOG/REQUESTS", projectsCache);
-	insertExperimentIfMissing(tr, "/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION", "STOCK", "Request Collection");
 	
-	insertSpaceIfMissing(tr, "STOCK_ORDERS");
-	insertProjectIfMissing(tr, "/STOCK_ORDERS/ORDERS", projectsCache);
-	insertExperimentIfMissing(tr, "/STOCK_ORDERS/ORDERS/ORDER_COLLECTION", "STOCK", "Order Collection");
+	if isSampleTypeAvailable(installedTypes, "SUPPLIER") and isSampleTypeAvailable(installedTypes, "PRODUCT") and isSampleTypeAvailable(installedTypes, "REQUEST") and isSampleTypeAvailable(installedTypes, "ORDER"):
+		insertSpaceIfMissing(tr, "STOCK_CATALOG");
+		insertProjectIfMissing(tr, "/STOCK_CATALOG/PRODUCTS", projectsCache);
+		insertExperimentIfMissing(tr, "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION", "STOCK", "Product Collection");
+		insertProjectIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS", projectsCache);
+		insertExperimentIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION", "STOCK", "Supplier Collection");
+		insertProjectIfMissing(tr, "/STOCK_CATALOG/REQUESTS", projectsCache);
+		insertExperimentIfMissing(tr, "/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION", "STOCK", "Request Collection");
+		insertSpaceIfMissing(tr, "STOCK_ORDERS");
+		insertProjectIfMissing(tr, "/STOCK_ORDERS/ORDERS", projectsCache);
+		insertExperimentIfMissing(tr, "/STOCK_ORDERS/ORDERS/ORDER_COLLECTION", "STOCK", "Order Collection");
 	
 	## Default lab notebook only on new installations
 	if isNewInstallation:

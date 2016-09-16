@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.List;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -39,11 +37,9 @@ public interface IProjectBO extends IEntityBusinessObject
      * Defines a new project of specified code in a specified group. After invocation of this method {@link IBusinessObject#save()} should be invoked
      * to store the new project in the Data Access Layer.
      * 
-     * @throws UserFailureException if <code>projectIdentifier</code> does already exist or project group is unspecified and home group is undefined.
+     * @throws UserFailureException if <code>newProject.getIdentifier()</code> does already exist or project space is unspecified and home group is undefined.
      */
-    public void define(final ProjectIdentifier projectIdentifier, String description,
-            List<NewAttachment> attachmentsOrNull, String leaderIdOrNull)
-            throws UserFailureException;
+    public void define(final NewProject newProject, String leaderIdOrNull) throws UserFailureException;
 
     /**
      * Returns the loaded project.

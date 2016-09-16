@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
@@ -122,14 +123,14 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 public String getTabTitle()
                 {
                     return MaterialComponentUtils.getMaterialName(material)
-                            + " features in all experiments";
+                            + " features in all " + screeningViewContext.getMessage(Dict.EXPERIMENTS).toLowerCase();
                 }
 
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return HelpPageIdentifier
-                            .createSpecific("Material features in all experiments");
+                    return HelpPageIdentifier.createSpecific("Material features in all " 
+                                    + screeningViewContext.getMessage(Dict.EXPERIMENTS).toLowerCase());
                 }
 
             };

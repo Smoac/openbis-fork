@@ -260,7 +260,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         addEntityOperationsLabel();
 
         final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Experiment"),
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext.getMessage(Dict.EXPERIMENT)),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override

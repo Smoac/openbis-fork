@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
@@ -122,7 +123,7 @@ public class JettyWebAppPluginInjector
             return;
         }
         operationLog.info("Inject the following web apps: " + remainingWebapps);
-        List<File> targets = findInjectionTargets();
+        List<File> targets = WebClientConfigurationProvider.findInjectionTargets();
         for (String webapp : remainingWebapps)
         {
             File folder = webappToFoldersMap.get(webapp);
@@ -172,7 +173,7 @@ public class JettyWebAppPluginInjector
         File webappFolder = webappToFoldersMap.get(START_PAGE);
         if (webappFolder != null)
         {
-            for (File target : findInjectionTargets())
+            for (File target : WebClientConfigurationProvider.findInjectionTargets())
             {
                 target.mkdirs();
                 File folderCustom = new File(target, "custom");
@@ -210,27 +211,6 @@ public class JettyWebAppPluginInjector
             }
         }
         return remainingWebApps;
-    }
-
-    private List<File> findInjectionTargets()
-    {
-        List<File> list = new ArrayList<File>();
-        String jettyHome = System.getProperty("jetty.base");
-        if (jettyHome != null)
-        {
-            list.add(new File(jettyHome + "/webapps/openbis/"));
-        } else
-        {
-            File[] files = new File("targets/www").listFiles();
-            for (File file : files)
-            {
-                if (file.getName().equals("WEB-INF") == false)
-                {
-                    list.add(file);
-                }
-            }
-        }
-        return list;
     }
 
 }

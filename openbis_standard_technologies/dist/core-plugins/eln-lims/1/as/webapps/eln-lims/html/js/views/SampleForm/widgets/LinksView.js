@@ -126,6 +126,7 @@ function LinksView(linksController, linksModel) {
 		
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, "ANNOTATIONS", linksModel.isDisabled, false);
 		dataGrid.init($dataGridContainer);
+		linksModel.writeState(sample, null, null, false);
 	}
 	
 	this.repaint = function($container) {
@@ -213,7 +214,7 @@ function LinksView(linksController, linksModel) {
 	linksView.getCustomField = function(propertyType) {
 		var propertyAnnotationCode = "$ANNOTATION::" + propertyType.code;
 		return {
-			label : "Annotation :: " + propertyType.label,
+			label : propertyType.label,
 			property : propertyAnnotationCode,
 			isExportable: true,
 			showByDefault: true,

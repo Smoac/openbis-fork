@@ -18,34 +18,46 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script
 
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Izabela Adamczyk
  */
-class EntityKindSelectionWidget extends SimpleComboBox<String>
+class EntityKindSelectionWidget extends SimpleComboBox<LabeledItem<EntityKind>>
 {
+    static LabeledItem<EntityKind> createLabeledItemForAll()
+    {
+        return new LabeledItem<EntityKind>(null, GenericConstants.ALL_ENTITY_KINDS);
+    }
+    
+    static LabeledItem<EntityKind> createLabeledItem(EntityKind entityKind, IMessageProvider viewContext)
+    {
+        return new LabeledItem<EntityKind>(entityKind, EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind));
+    }
+    
     public EntityKindSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
             EntityKind entityKindOrNull, boolean enabled, boolean withAll)
     {
         if (withAll)
         {
-            add(GenericConstants.ALL_ENTITY_KINDS);
+            add(createLabeledItemForAll());
         }
         if (entityKindOrNull != null)
         {
-            add(entityKindOrNull.name());
+            add(createLabeledItem(entityKindOrNull, viewContext));
         } else
         {
             for (EntityKind val : EntityKind.values())
             {
-                add(val.name());
+                add(createLabeledItem(val, viewContext));
             }
         }
         setFieldLabel(viewContext.getMessage(Dict.ENTITY_KIND));
@@ -57,21 +69,12 @@ class EntityKindSelectionWidget extends SimpleComboBox<String>
         setEnabled(enabled);
     }
 
-    public boolean isAllEntityKindsSelected()
-    {
-        return (StringUtils.isBlank(getSimpleValue()) == false)
-                && getSimpleValue().equals(GenericConstants.ALL_ENTITY_KINDS);
-    }
-
     public EntityKind tryGetEntityKind()
     {
-        String simpleValue = getSimpleValue();
-        if (StringUtils.isBlank(simpleValue) || isAllEntityKindsSelected())
+        if (getSelectedIndex() == -1)
         {
             return null;
-        } else
-        {
-            return EntityKind.valueOf(simpleValue);
         }
+        return getSimpleValue().getItem();
     }
 }

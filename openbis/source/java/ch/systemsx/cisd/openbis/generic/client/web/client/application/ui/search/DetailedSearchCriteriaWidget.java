@@ -43,7 +43,7 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
 
     private final List<DetailedSearchCriterionWidget> criteriaWidgets;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final EntityKind entityKind;
 

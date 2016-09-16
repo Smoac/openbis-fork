@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabul
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppUrl;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.LoggingConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -1469,13 +1470,14 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
+                    String entityKind = EntityTypeUtils.translatedEntityKindForUI(viewContext, kind);
                     if (type == null) // Create new entity option
                     {
-                        return "New " + kind.name() + " Type";
+                        return "New " + entityKind + " Type";
                     } else
                     // Edit existing entity option
                     {
-                        return "Edit " + kind.name() + " Type " + type.getCode();
+                        return "Edit " + entityKind + " Type " + type.getCode();
                     }
                 }
 

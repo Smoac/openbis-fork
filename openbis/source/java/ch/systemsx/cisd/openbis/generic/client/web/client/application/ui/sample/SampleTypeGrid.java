@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -35,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -43,10 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
-
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying sample types.
@@ -89,7 +91,8 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     @Override
     public AddEntityTypeDialog<SampleType> getNewDialog(SampleType newType)
     {
-        return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New Sample", newType, newType.getEntityKind());
+        return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New " + viewContext.getMessage(Dict.SAMPLE), 
+                newType, newType.getEntityKind());
     }
 
     @Override
@@ -132,8 +135,8 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     {
         final String code = sampleType.getCode();
         String title =
-                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, entityKind.getDescription(),
-                        code);
+                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, 
+                        EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind), code);
         return new AbstractEditEntityTypeDialog<SampleType>(viewContext, title,
                 postRegistrationCallback,
                 EntityKind.SAMPLE, sampleType)

@@ -298,7 +298,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
         {
             super(viewContext, data, title);
             this.viewContext = viewContext;
-            this.radioProvider = new SelectedOrAllExperimentsRadioProvider(data);
+            this.radioProvider = new SelectedOrAllExperimentsRadioProvider(viewContext, data);
 
             setWidth(DIALOG_WIDTH);
         }

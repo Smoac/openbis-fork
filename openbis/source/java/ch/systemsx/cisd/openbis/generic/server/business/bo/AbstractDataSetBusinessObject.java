@@ -28,12 +28,15 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -49,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -111,7 +115,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         assignDataSetToSampleAndExperiment(data, null, getExperimentByIdentifier(experimentIdentifier));
     }
 
-    protected ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
+    private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
     {
         assert identifier != null : "Experiment identifier unspecified.";
         final ProjectPE project =
@@ -119,8 +123,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                         identifier.getSpaceCode(), identifier.getProjectCode());
         if (project == null)
         {
-            throw new UserFailureException("Unkown experiment because of unkown project: "
-                    + identifier);
+            throw UserFailureException.fromTemplate("Unkown %s because of unkown project: %s",
+                    getExperimentText(), identifier);
         }
         return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
     }
