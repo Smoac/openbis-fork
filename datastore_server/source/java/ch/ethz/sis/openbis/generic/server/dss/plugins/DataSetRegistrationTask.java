@@ -107,8 +107,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
-import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTask;
@@ -175,54 +173,42 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     final DateFormat formater = new SimpleDateFormat("dd-MM-yy HH-mm-ss", Locale.ENGLISH);
 
-    private static final String DATA_SOURCE_SECTION_NAME = "data-source";
+    private static final String HARVESTER_CONFIG_FILE_PROPERTY_NAME = "harvester-config-file";
 
-    private static final String DATA_SOURCE_URL_PROPERTY_NAME = "server-url";
+    private static final String DATA_SOURCE_URL_PROPERTY_NAME = "resource-list-url";
 
-    private static final String DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME = "openbis-url";
+    private static final String DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME = "data-source-openbis-url";
 
-    private static final String DATA_SOURCE_DSS_URL_PROPERTY_NAME = "dss-url";
+    private static final String DATA_SOURCE_DSS_URL_PROPERTY_NAME = "data-source-dss-url";
 
-    private static final String DATA_SOURCE_SPACES_PROPERTY_NAME = "spaces";
+    private static final String DATA_SOURCE_SPACES_PROPERTY_NAME = "data-source-spaces";
 
-    private static final String DATA_SOURCE_PREFIX_PROPERTY_NAME = "prefix";
+    private static final String DATA_SOURCE_PREFIX_PROPERTY_NAME = "data-souce-prefix";
 
-    private static final String DATA_SOURCE_AUTH_REALM_PROPERTY_NAME = "auth-realm";
+    private static final String DATA_SOURCE_AUTH_REALM_PROPERTY_NAME = "data-source-auth-realm";
 
-    private static final String DATA_SOURCE_AUTH_USER_PROPERTY_NAME = "auth-user";
+    private static final String DATA_SOURCE_AUTH_USER_PROPERTY_NAME = "data-source-auth-user";
 
-    private static final String DATA_SOURCE_AUTH_PASS_PROPERTY_NAME = "auth-pass";
+    private static final String DATA_SOURCE_AUTH_PASS_PROPERTY_NAME = "data-source-auth-pass";
 
-    private static final String HARVESTER_SECTION_NAME = "harvester";
+    private static final String HARVESTER_SPACES_PROPERTY_NAME = "harvester-spaces";
 
-    private static final String HARVESTER_SPACES_PROPERTY_NAME = "spaces";
-
-    private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "tmp-dir";
+    private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "harvester-tmp-dir";
 
     private static final String DEFAULT_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file.txt";
+
     private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file";
+
+    
+    private static final String DEFAULT_DATA_SOURCE_SECTION = "DataSource1";
+
+    private static final String HARVESTER_CONFIG_FILE_NAME = "harvester-config-file";
 
     private File lastSyncTimestampFile;
 
     private File newLastSyncTimeStampFile;
 
-    private String dataSourceURI;
-
-    private String dataSourceOpenbisURL;
-
-    private String dataSourceDSSURL;
-
-    private String realm;
-
-    private String user;
-
-    private String pass;
-
     private HashMap<String, String> spaceMappings = new HashMap<String, String>();
-
-    private String dataSourcePrefix;
-
-    private String harvesterTempDir;
 
     private File storeRoot;
 
@@ -234,20 +220,17 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private Date lastSyncTimestamp;
 
-    private String dataSourceSpaces;
+    private File harvesterConfigFile;
 
-    private String harvesterSpaces;
-
-    // private SimpleDatabaseConfigurationContext dbConfigurationContext;
-    //
-    // private JdbcTemplate jdbcTemplate;
+    private SyncConfig config = null;
 
     private void initializePluginProperties()
     {
-        dataSourceURI = "https://localhost:8444/datastore_server/re-sync";
-        realm = "OAI-PMH";
-        user = "admin";
-        pass = "aa";
+        config = new SyncConfig();
+        config.setDataSourceURI("https://localhost:8444/datastore_server/re-sync");
+        config.setRealm("OAI-PMH");
+        config.setUser("admin");
+        config.setPass("aa");
         // dataSourceSpace = "DEFAULT";
         // harvesterSpace = "DST";
     }
@@ -282,24 +265,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
-    private void extractHarvesterProperties(Properties properties)
-    {
-        SectionProperties harvesterSectionProperties =
-                PropertyParametersUtil.extractSingleSectionProperties(properties,
-                        HARVESTER_SECTION_NAME, false);
-        harvesterSpaces = harvesterSectionProperties.getProperties().getProperty(HARVESTER_SPACES_PROPERTY_NAME);
-        harvesterTempDir = harvesterSectionProperties.getProperties().getProperty(HARVESTER_TEMP_DIR_PROPERTY_NAME);
-        String fileName =
-                properties.getProperty(HARVESTER_LAST_SYNC_TIMESTAMP_FILE,
-                        DEFAULT_LAST_SYNC_TIMESTAMP_FILE);
-        lastSyncTimestampFile = new File(fileName);
-        newLastSyncTimeStampFile = new File(fileName + ".new");
-    }
-
     private void createDataSourceToHarvesterSpaceMappings()
     {
-        List<String> dataSourceSpaceList = extractSpaces(dataSourceSpaces);
-        List<String> harvesterSpaceList = extractSpaces(harvesterSpaces);
+        List<String> dataSourceSpaceList = extractSpaces(config.getDataSourceSpaces());
+        List<String> harvesterSpaceList = extractSpaces(config.getHarvesterSpaces());
         if (dataSourceSpaceList.size() != harvesterSpaceList.size())
         {
             throw new ConfigurationFailureException("Please specify a harvester space for each data source space.");
@@ -334,21 +303,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         return harvesterSpaceList;
     }
 
-    private void extractDataSourceProperties(Properties properties)
-    {
-        SectionProperties dataSourceSectionProperties =
-                PropertyParametersUtil.extractSingleSectionProperties(properties,
-                        DATA_SOURCE_SECTION_NAME, false);
-        dataSourceURI = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_URL_PROPERTY_NAME);
-        dataSourceOpenbisURL = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME);
-        dataSourceDSSURL = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_DSS_URL_PROPERTY_NAME);
-        realm = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_REALM_PROPERTY_NAME);
-        user = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_USER_PROPERTY_NAME);
-        pass = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_PASS_PROPERTY_NAME);
-        dataSourceSpaces = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_SPACES_PROPERTY_NAME);
-        dataSourcePrefix = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_PREFIX_PROPERTY_NAME);
-    }
-
     private Document getResourceListAsXMLDoc() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
             URISyntaxException,
             InterruptedException, TimeoutException, ExecutionException
@@ -358,7 +312,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
         // Add authentication credentials
         AuthenticationStore auth = client.getAuthenticationStore();
-        auth.addAuthentication(new BasicAuthentication(new URI(dataSourceURI), realm, user, pass));
+        auth.addAuthentication(new BasicAuthentication(new URI(config.getDataSourceURI()), config.getRealm(), config.getUser(), config.getPass()));
 
         String spacesParam = "";
         for (String dataSourceSpace : spaceMappings.keySet())
@@ -369,7 +323,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         {
             spacesParam = spacesParam.substring(0, spacesParam.length() - 1);
         }
-        Request requestEntity = client.newRequest(dataSourceURI + "?verb=resourcelist.xml&spaces=" + spacesParam).method("GET");
+        Request requestEntity = client.newRequest(config.getDataSourceURI() + "?verb=resourcelist.xml&spaces=" + spacesParam).method("GET");
 
         ContentResponse contentResponse;
         contentResponse = requestEntity.send();
@@ -418,11 +372,11 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         private Properties setProperties()
         {
             Properties props = new Properties();
-            props.setProperty("user", DataSetRegistrationTask.this.user);
-            props.setProperty("pass", DataSetRegistrationTask.this.pass);
-            props.setProperty("as-url", DataSetRegistrationTask.this.dataSourceOpenbisURL);
-            props.setProperty("dss-url", DataSetRegistrationTask.this.dataSourceDSSURL);
-            props.setProperty("harvester-temp-dir", DataSetRegistrationTask.this.harvesterTempDir);
+            props.setProperty("user", DataSetRegistrationTask.this.config.getUser());
+            props.setProperty("pass", DataSetRegistrationTask.this.config.getPass());
+            props.setProperty("as-url", DataSetRegistrationTask.this.config.getDataSourceOpenbisURL());
+            props.setProperty("dss-url", DataSetRegistrationTask.this.config.getDataSourceDSSURL());
+            props.setProperty("harvester-temp-dir", DataSetRegistrationTask.this.config.getHarvesterTempDir());
             return props;
         }
     }
@@ -590,10 +544,17 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         storeRoot = new File(DssPropertyParametersUtil.loadServiceProperties().getProperty(PluginTaskInfoProvider.STOREROOT_DIR_KEY));
         service = ServiceProvider.getOpenBISService();
         context = new DataSetProcessingContext(null, null, null, null, null, null);
-        extractDataSourceProperties(properties);
-        extractHarvesterProperties(properties);
-        createDataSourceToHarvesterSpaceMappings();
 
+        String configFileProperty = properties.getProperty(HARVESTER_CONFIG_FILE_PROPERTY_NAME);
+
+        if (configFileProperty == null)
+        {
+            harvesterConfigFile =
+                    new File(ServiceProvider.getConfigProvider().getStoreRoot(), HARVESTER_CONFIG_FILE_NAME);
+        } else
+        {
+            harvesterConfigFile = new File(configFileProperty);
+        }
         // dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
         // jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
     }
@@ -604,7 +565,12 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         try
         {
             operationLog.info(this.getClass() + " started.");
-            operationLog.info("Start synchronization from data source: " + dataSourceOpenbisURL + " spaces:" + spaceMappings.keySet());
+
+            readConfiguration();
+
+            createDataSourceToHarvesterSpaceMappings();
+
+            operationLog.info("Start synchronization from data source: " + config.getDataSourceOpenbisURL() + " spaces:" + spaceMappings.keySet());
 
             // operationLog.info("register master data");
             registerMasterData();
@@ -674,7 +640,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             System.err.println("start linking/un-linking container and contained data sets");
             builder = new AtomicEntityOperationDetailsBuilder();
 
-            builder.user(DataSetRegistrationTask.this.user);
+            builder.user(DataSetRegistrationTask.this.config.getUser());
             Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
             
             // set parent and container data set codes before everything else
@@ -797,6 +763,37 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
+    private void readConfiguration() throws IOException
+    {
+        ConfigReader reader = new ConfigReader(harvesterConfigFile);
+ 
+        config = new SyncConfig();
+        if (reader.sectionExists(DEFAULT_DATA_SOURCE_SECTION) == false) {
+            throw new ConfigurationFailureException("Please specify at least one data source section.");
+        }
+
+        // TODO check that all required parameters are set in the config file
+        config.setDataSourceURI(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_URL_PROPERTY_NAME, null));
+        config.setDataSourceOpenbisURL(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null));
+        config.setDataSourceDSSURL(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null));
+        config.setRealm(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null));
+        config.setUser(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null));
+        config.setPass(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null));
+        config.setDataSourceSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_SPACES_PROPERTY_NAME, null));
+        config.setHarvesterSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_SPACES_PROPERTY_NAME, null));
+        config.setDataSourcePrefix(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_PREFIX_PROPERTY_NAME, null));
+        config.setHarvesterTempDir(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store"));
+        config.setLastSyncTimestampFileName(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_LAST_SYNC_TIMESTAMP_FILE,
+                DEFAULT_LAST_SYNC_TIMESTAMP_FILE));
+
+
+        String fileName = config.getLastSyncTimestampFileName();
+        lastSyncTimestampFile = new File(fileName);
+        newLastSyncTimeStampFile = new File(fileName + ".new");
+
+        config.printConfig();
+    }
+
     private void processDeletions(ResourceListParserData data)
     {
         String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
@@ -894,7 +891,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
 
         // confirm deletions
-        // TODO confirm
         v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
     }
 
