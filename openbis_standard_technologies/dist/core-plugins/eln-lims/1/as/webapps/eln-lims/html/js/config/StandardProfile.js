@@ -454,7 +454,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							var requestProductAnnotations = requestProductsAnnotations[requestProduct.permId];
 							
 							if(requestProduct.parents.length === 0) {
-								Util.showError("Product " + requestProduct.code + " don't have a provider, FIX IT!.");
+								Util.showError("Product " + requestProduct.code + " does not have a provider, FIX IT!.");
 								return;
 							}
 							var provider = requestProduct.parents[0];
@@ -470,7 +470,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							}
 							quantity += parseInt(requestProductAnnotations["QUANTITY_OF_ITEMS"]);
 							if(!quantity) {
-								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
+								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " does not have a quantity, FIX IT!.");
 								return;
 							}
 							
