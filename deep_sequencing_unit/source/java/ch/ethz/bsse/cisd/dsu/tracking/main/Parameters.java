@@ -183,9 +183,9 @@ public class Parameters
     	return rsyncBinary;
     }
     
-    public String getRsyncFlags()
+    public String [] getRsyncFlags()
     {
-    	return rsyncFlags;
+    	return rsyncFlags.split("\\s+");
     }
     
     public String getDssRoot()

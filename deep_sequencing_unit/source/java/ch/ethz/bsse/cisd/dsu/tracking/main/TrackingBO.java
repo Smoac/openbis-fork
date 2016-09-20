@@ -36,6 +36,7 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.filesystem.CopyModeExisting;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
 import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
@@ -57,7 +59,9 @@ import ch.systemsx.cisd.common.exceptions.Status;
 
 public class TrackingBO
 {
-    private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
+    private static final String ORIGINAL_PATH = "/original";
+
+	private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
 
 	private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
 
@@ -347,6 +351,8 @@ public class TrackingBO
         ArrayList<SampleIdentifier> filterList = new ArrayList<SampleIdentifier>();
         ArrayList<AbstractExternalData> filteredDataSets = new ArrayList<AbstractExternalData>();
         ArrayList<AbstractExternalData> toTransferDataSets = new ArrayList<AbstractExternalData>();
+        
+        // changedTrackingMap is used to report back which lanes are written back to the DB which have changed
         HashMap<String, ArrayList<Long>> changedTrackingMap = new HashMap<String, ArrayList<Long>>();
 
         // Loop over all lanes and create a list of relevant lanes
@@ -369,6 +375,7 @@ public class TrackingBO
             {
                 LogUtils.debug("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
                 filteredDataSets.add(d);
+                addDataSetTo(changedTrackingMap, d);
                 
                 if (spaceWhiteList.contains(d.getSpace().getCode()) || d.getSpace().getCode().startsWith(params.getDbmSpacePrefix())) {
                 	if (datasetTypeList.contains(d.getDataSetType().getCode())) {
@@ -381,8 +388,6 @@ public class TrackingBO
                 		}
                 	}
                 }
-//                System.out.println("Sending Email for Data Set with permID " + d.getPermId() + " which is part of " + d.getSampleCode());
-                addDataSetTo(changedTrackingMap, d);
         }
         
         LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which are in the list of 'space-whitelist' and could be transferred to an extra folder");
@@ -399,18 +404,44 @@ public class TrackingBO
     
     
 	private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets) {
+		
+		RsyncCopier copier = null;
 		File rsyncBinary = new File(params.getRsyncBinary());
-		File destination = new File(params.getDestinationFolder());
 		String base_path_string = params.getDssRoot();
-		List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length());
-		Collections.addAll(cmdLineOptions, params.getRsyncFlags());
-		RsyncCopier copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
+		if (params.getRsyncFlags() != null) {
+			List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length);
+			Collections.addAll(cmdLineOptions, params.getRsyncFlags());
+			
+			copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
+		}
+		else {
+			LogUtils.info("No extra rsync parameters found.");
+			copier = new RsyncCopier(rsyncBinary, null, "");
+		}
 				
-		for (AbstractExternalData ds : dataSets) {
-			File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation());
-			LogUtils.info("Start rsyncing " + ds.getCode() + " from " + source + " to " + params.getDestinationFolder());
-			Status status = copier.copy(source, destination, null, null);
-			LogUtils.info("Got status: " + status + " for " + ds.getCode());
+		for (AbstractExternalData ds : dataSets) {			
+			File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH);				
+			File targetName = new File (ds.tryGetAsDataSet().getFullLocation());
+			File destination = new File(params.getDestinationFolder(), targetName.getName());
+			
+			if (!destination.exists()) {
+				destination.mkdirs();
+			}
+			
+			final long start = System.currentTimeMillis();
+			LogUtils.info("Start rsyncing " + ds.getCode() + " from " + source.getPath() + " to " + destination.getPath());
+			
+			// this has always an --archive flag added 
+			// Status status = copier.copyDirectoryImmutably(source, destination,  targetName.getName(), CopyModeExisting.OVERWRITE);
+			
+			Status status = copier.copyContent(source, destination, null, null);
+			
+			if (status.isError())
+		        {
+		            throw new ExceptionWithStatus(status);
+		        }
+			
+			LogUtils.info(String.format("Got status: " + status + " for " + ds.getCode() + ", finished after %.2f s", (System.currentTimeMillis() - start) / 1000.0));
 		}
 	}
 
