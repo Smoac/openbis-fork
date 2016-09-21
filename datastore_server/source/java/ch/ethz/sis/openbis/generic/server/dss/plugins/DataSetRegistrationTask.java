@@ -109,7 +109,6 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
-import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTask;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
@@ -167,7 +166,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class DataSetRegistrationTask<T extends DataSetInformation> implements IMaintenanceTask
 {
     protected static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractDataSetDeletionPostProcessingMaintenanceTask.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataSetRegistrationTask.class);
     // private static final String DATA_SOURCE_URI = "https://bs-mbpr121.d.ethz.ch:8444/datastore_server/re-sync"; //
     // "http://localhost:8889/datastore_server/re-sync";
 
@@ -331,7 +330,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
         if (statusCode != HttpStatus.Code.OK.getCode())
         {
-            throw new RuntimeException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
+            throw new IOException ("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
         }
 
         byte[] content = contentResponse.getContent();
@@ -746,6 +745,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             }
             operationResult = service.performEntityOperations(builder.getDetails());
             System.err.println("entity operation result: " + operationResult);
+            operationLog.info("entity operation result: " + operationResult);
 
             operationLog.info("Processing deletions");
             processDeletions(data);
