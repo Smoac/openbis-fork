@@ -77,7 +77,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -289,8 +288,6 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             final DSSFileSystemView view = createFileSystemView(user);
             return new org.apache.sshd.server.FileSystemView()
                 {
-                    private Cache cache = new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-
                     @Override
                     public SshFile getFile(SshFile baseDir, String file)
                     {
@@ -300,7 +297,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                     @Override
                     public SshFile getFile(String file)
                     {
-                        return new FileView(view, file, cache);
+                        return new FileView(view, file);
                     }
                 };
         } catch (FtpException ex)
@@ -319,13 +316,11 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
         private FtpFile file;
 
-        private final Cache cache;
 
-        FileView(DSSFileSystemView fileView, String path, Cache cache)
+        FileView(DSSFileSystemView fileView, String path)
         {
             this.fileView = fileView;
             this.path = path;
-            this.cache = cache;
         }
 
         private FtpFile getFile()
@@ -334,7 +329,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             {
                 try
                 {
-                    file = fileView.getFile(path, cache);
+                    file = fileView.getFile(path);
                 } catch (FtpException ex)
                 {
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -458,7 +453,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             List<SshFile> result = new ArrayList<SshFile>();
             for (FtpFile child : files)
             {
-                result.add(new FileView(fileView, child.getAbsolutePath(), cache));
+                result.add(new FileView(fileView, child.getAbsolutePath()));
             }
             return result;
         }

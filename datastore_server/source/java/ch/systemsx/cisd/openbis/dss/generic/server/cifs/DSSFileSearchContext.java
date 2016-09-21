@@ -27,7 +27,6 @@ import org.alfresco.jlan.util.WildCard;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 
@@ -40,8 +39,8 @@ public class DSSFileSearchContext extends SearchContext
 
     private int index;
 
-    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes,
-            Cache cache) throws FileNotFoundException
+    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes) 
+            throws FileNotFoundException
     {
         String[] pathStr = FileName.splitPath(normalizedSearchPath, java.io.File.separatorChar);
         try
@@ -49,7 +48,7 @@ public class DSSFileSearchContext extends SearchContext
             if (pathStr[1] != null && WildCard.containsWildcards(pathStr[1]))
             {
                 WildCard wildCard = new WildCard(pathStr[1], true);
-                FtpFile directory = getFile(view, pathStr[0], cache);
+                FtpFile directory = getFile(view, pathStr[0]);
                 List<FtpFile> list = directory.listFiles();
                 for (FtpFile file : list)
                 {
@@ -60,7 +59,7 @@ public class DSSFileSearchContext extends SearchContext
                 }
             } else
             {
-                FtpFile file = getFile(view, normalizedSearchPath, cache);
+                FtpFile file = getFile(view, normalizedSearchPath);
                 if (matches(null, fileAttributes, file))
                 {
                     files.add(file);
@@ -72,9 +71,9 @@ public class DSSFileSearchContext extends SearchContext
         }
     }
 
-    private FtpFile getFile(DSSFileSystemView view, String path, Cache cache) throws FtpException
+    private FtpFile getFile(DSSFileSystemView view, String path) throws FtpException
     {
-        FtpFile file = view.getFile(path, cache);
+        FtpFile file = view.getFile(path);
         if (file instanceof NonExistingFtpFile)
         {
             throw new FtpException(file.getAbsolutePath() + " doesn't exist. Reason: "

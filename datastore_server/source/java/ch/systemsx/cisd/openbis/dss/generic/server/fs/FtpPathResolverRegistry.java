@@ -48,7 +48,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileWithContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
@@ -61,14 +60,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
 {
 
-    private static final class NodeBasedFtpFile extends AbstractFtpFile
+    private static final class NodeBasedFtpFile extends AbstractFtpFileWithContent
     {
-        private final FileNode fileNode;
+        private final FtpPathResolverRegistry ftpPathResolverRegistry;
+        private final FtpPathResolverContext resolverContext;
 
-        NodeBasedFtpFile(FileNode fileNode)
+        NodeBasedFtpFile(FileNode fileNode, FtpPathResolverRegistry ftpPathResolverRegistry, 
+                FtpPathResolverContext resolverContext)
         {
             super(fileNode.getFullPath());
-            this.fileNode = fileNode;
+            setSize(fileNode.getSize());
+            this.ftpPathResolverRegistry = ftpPathResolverRegistry;
+            this.resolverContext = resolverContext;
         }
 
         @Override
@@ -84,21 +87,28 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         }
 
         @Override
-        public long getSize()
-        {
-            return fileNode.getSize();
-        }
-
-        @Override
         public InputStream createInputStream(long offset) throws IOException
         {
-            throw new UnsupportedOperationException("Streaming content not supported: " + absolutePath);
+            FtpFile ftpFile = ftpPathResolverRegistry.resolveAndConvert(absolutePath, resolverContext);
+            return ftpFile.createInputStream(offset);
         }
 
         @Override
         public List<FtpFile> unsafeListFiles() throws RuntimeException
         {
             throw new UnsupportedOperationException("Listing files not supported: " + absolutePath);
+        }
+
+        @Override
+        public IRandomAccessFile getFileContent()
+        {
+            FtpFile ftpFile = ftpPathResolverRegistry.resolveAndConvert(absolutePath, resolverContext);
+            if (ftpFile instanceof AbstractFtpFileWithContent)
+            {
+                AbstractFtpFileWithContent fileWithContent = (AbstractFtpFileWithContent) ftpFile;
+                return fileWithContent.getFileContent();
+            }
+            throw new UnsupportedOperationException("Content not supported: " + absolutePath);
         }
     }
 
@@ -202,7 +212,8 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                                     FtpPathResolverRegistry.this, resolverContext);
                         } else if (entry instanceof FileNode)
                         {
-                            file = new NodeBasedFtpFile((FileNode) entry);
+                            file = new NodeBasedFtpFile((FileNode) entry, 
+                                    FtpPathResolverRegistry.this, resolverContext);
                         }
                         if (file != null)
                         {
@@ -229,12 +240,6 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         AbstractFtpFileWithContent fileWithContent = new AbstractFtpFileWithContent(file.getFullPath())
             {
                 @Override
-                public long getSize()
-                {
-                    return file.getNode().getFileLength();
-                }
-
-                @Override
                 public InputStream createInputStream(long offset) throws IOException
                 {
                     IHierarchicalContent content = file.getContent();
@@ -251,10 +256,14 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                     } catch (IOException ioex)
                     {
                         content.close();
+                        operationLog.error("Error while reading content at " + offset + " from " 
+                                + absolutePath, ioex);
                         throw ioex;
                     } catch (RuntimeException re)
                     {
                         content.close();
+                        operationLog.error("Error while reading content at " + offset + " from " 
+                                + absolutePath, re);
                         throw re;
                     }
                 }
@@ -284,6 +293,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                 }
             };
         fileWithContent.setLastModified(file.getNode().getLastModified());
+        fileWithContent.setSize(file.getNode().getFileLength());
         return fileWithContent;
     }
 

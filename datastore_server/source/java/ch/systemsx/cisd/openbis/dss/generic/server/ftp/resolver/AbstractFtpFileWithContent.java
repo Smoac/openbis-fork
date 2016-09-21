@@ -23,9 +23,22 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
  */
 public abstract class AbstractFtpFileWithContent extends AbstractFtpFile
 {
+    private long size;
+    
     public AbstractFtpFileWithContent(String absolutePath)
     {
         super(absolutePath);
+    }
+
+    @Override
+    public long getSize()
+    {
+        return size;
+    }
+
+    public void setSize(long size)
+    {
+        this.size = size;
     }
 
     public abstract IRandomAccessFile getFileContent();
