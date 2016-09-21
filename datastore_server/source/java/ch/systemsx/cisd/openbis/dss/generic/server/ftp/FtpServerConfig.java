@@ -34,25 +34,27 @@ public class FtpServerConfig
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpServerConfig.class);
 
-    final static String ENABLE_KEY = "enable";
+    private final static String PREFIX = "ftp.server.";
 
-    final static String SFTP_PORT_KEY = "sftp-port";
+    final static String ENABLE_KEY = PREFIX + "enable";
 
-    final static String LEGACY_FTP_PORT_KEY = "port";
+    final static String SFTP_PORT_KEY = PREFIX + "sftp-port";
 
-    final static String FTP_PORT_KEY = "ftp-port";
+    final static String LEGACY_FTP_PORT_KEY = PREFIX + "port";
 
-    final static String USE_SSL_KEY = "use-ssl";
+    final static String FTP_PORT_KEY = PREFIX + "ftp-port";
 
-    final static String IMPLICIT_SSL_KEY = "implicit-ssl";
+    final static String USE_SSL_KEY = PREFIX + "use-ssl";
 
-    final static String MAX_THREADS_KEY = "maxThreads";
+    final static String IMPLICIT_SSL_KEY = PREFIX + "implicit-ssl";
 
-    final static String ACTIVE_MODE_ENABLE_KEY = "activemode.enable";
+    final static String MAX_THREADS_KEY = PREFIX + "maxThreads";
 
-    final static String ACTIVE_PORT_KEY = "activemode.port";
+    final static String ACTIVE_MODE_ENABLE_KEY = PREFIX + "activemode.enable";
 
-    final static String PASSIVE_MODE_PORT_RANGE_KEY = "passivemode.port.range";
+    final static String ACTIVE_PORT_KEY = PREFIX + "activemode.port";
+
+    final static String PASSIVE_MODE_PORT_RANGE_KEY = PREFIX + "passivemode.port.range";
 
     private static final int DEFAULT_ACTIVE_PORT = 2122;
 

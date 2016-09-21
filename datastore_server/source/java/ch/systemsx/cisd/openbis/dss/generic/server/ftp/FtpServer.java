@@ -75,6 +75,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
@@ -116,9 +117,10 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         this.generalInfoService = generalInfoService;
         this.v3api = v3api;
         this.userManager = userManager;
+        ExtendedProperties serviceProperties = DssPropertyParametersUtil.loadServiceProperties();
         Properties ftpProperties = PropertyParametersUtil.extractSingleSectionProperties(
-                DssPropertyParametersUtil.loadServiceProperties(), "ftp.server", true).getProperties();
-        this.config = new FtpServerConfig(ftpProperties);
+                serviceProperties, "ftp.server", true).getProperties();
+        this.config = new FtpServerConfig(serviceProperties);
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(ftpProperties);
         this.pathResolverRegistry = resolverConfig.getResolverRegistry();
 
