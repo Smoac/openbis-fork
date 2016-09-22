@@ -26,6 +26,7 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -52,6 +53,9 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -97,6 +101,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.Pro
 import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.SampleWithConnections;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -105,6 +110,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
@@ -196,12 +203,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private static final String DEFAULT_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file.txt";
 
-    private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file";
+    private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME = "last-sync-timestamp-file";
 
+    private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
     
     private static final String DEFAULT_DATA_SOURCE_SECTION = "DataSource1";
 
     private static final String HARVESTER_CONFIG_FILE_NAME = "harvester-config-file";
+
+    private static final String SEPARATOR = ",";;
 
     private File lastSyncTimestampFile;
 
@@ -222,6 +232,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     private File harvesterConfigFile;
 
     private SyncConfig config = null;
+
+    private IMailClient mailClient;
+
+    private Set<EMailAddress> emailAddresses;
 
     private void initializePluginProperties()
     {
@@ -293,7 +307,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private List<String> extractSpaces(String spaces)
     {
-        StringTokenizer st = new StringTokenizer(spaces, ",");
+        StringTokenizer st = new StringTokenizer(spaces, SEPARATOR);
         
         List<String> harvesterSpaceList =  new ArrayList<String>();
         while(st.hasMoreElements()) {
@@ -543,6 +557,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         storeRoot = new File(DssPropertyParametersUtil.loadServiceProperties().getProperty(PluginTaskInfoProvider.STOREROOT_DIR_KEY));
         service = ServiceProvider.getOpenBISService();
         context = new DataSetProcessingContext(null, null, null, null, null, null);
+        mailClient = ServiceProvider.getDataStoreService().createEMailClient();
 
         String configFileProperty = properties.getProperty(HARVESTER_CONFIG_FILE_PROPERTY_NAME);
 
@@ -760,9 +775,28 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         } catch (Exception e)
         {
             operationLog.error("Sync failed: " + e.getMessage());
+            DataSource dataSource = createDataSource("/Users/gakin/Documents/sync.log");
+            for (EMailAddress recipient : emailAddresses)
+            {
+                mailClient.sendEmailMessageWithAttachment("Synchronization failed",
+                        "Hi, the syncronization failed. See the attached file for details.",
+                        "", new DataHandler(
+                                dataSource), null, null, recipient);
+            }
+
         }
     }
 
+    private DataSource createDataSource(final String filePath)
+    {
+        try
+        {
+            return new ByteArrayDataSource(new FileInputStream(filePath), "text/plain");
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
     private void readConfiguration() throws IOException
     {
         ConfigReader reader = new ConfigReader(harvesterConfigFile);
@@ -783,7 +817,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         config.setHarvesterSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_SPACES_PROPERTY_NAME, null));
         config.setDataSourcePrefix(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_PREFIX_PROPERTY_NAME, null));
         config.setHarvesterTempDir(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store"));
-        config.setLastSyncTimestampFileName(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_LAST_SYNC_TIMESTAMP_FILE,
+        config.setEmailAddresses(reader.getString(DEFAULT_DATA_SOURCE_SECTION, EMAIL_ADDRESSES_PROPERTY_NAME, null));
+        config.setLastSyncTimestampFileName(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME,
                 DEFAULT_LAST_SYNC_TIMESTAMP_FILE));
 
 
@@ -791,7 +826,21 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         lastSyncTimestampFile = new File(fileName);
         newLastSyncTimeStampFile = new File(fileName + ".new");
 
+        emailAddresses = getEMailAddresses();
+
         config.printConfig();
+    }
+
+    private Set<EMailAddress> getEMailAddresses()
+    {
+        String[] tokens =
+                config.getEmailAddresses().split(SEPARATOR);
+        Set<EMailAddress> addresses = new HashSet<EMailAddress>();
+        for (String token : tokens)
+        {
+            addresses.add(new EMailAddress(token.trim()));
+        }
+        return addresses;
     }
 
     private void processDeletions(ResourceListParserData data)

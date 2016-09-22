@@ -179,4 +179,16 @@ class SyncConfig
     private String harvesterSpaces;
 
     private String harvesterTempDir;
+
+    private String emailAddresses;
+
+    public String getEmailAddresses()
+    {
+        return emailAddresses;
+    }
+
+    public void setEmailAddresses(String emailAddresses)
+    {
+        this.emailAddresses = emailAddresses;
+    }
 }
