@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.FtpPathResolverRegistry;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
 
 /**
  * @author Franz-Josef Elmer
