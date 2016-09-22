@@ -125,7 +125,7 @@ public class DataSetCifsView implements DiskInterface
         String normalizedPath = normalizePath(path);
         try
         {
-            FtpFile file = view.getFile(normalizedPath, cache);
+            FtpFile file = view.getFile(normalizedPath);
             FileInfo fileInfo = new FileInfo();
             Utils.populateFileInfo(fileInfo, file);
             operationLog.debug("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
@@ -142,7 +142,7 @@ public class DataSetCifsView implements DiskInterface
         String normalizedSearchPath = normalizePath(searchPath);
         if (normalizedSearchPath.startsWith("/"))
         {
-            return new DSSFileSearchContext(createView(sess), normalizedSearchPath, attrib, cache);
+            return new DSSFileSearchContext(createView(sess), normalizedSearchPath, attrib);
         }
         throw new FileNotFoundException("Unknown file: " + searchPath);
     }
@@ -300,7 +300,7 @@ public class DataSetCifsView implements DiskInterface
     {
         try
         {
-            return view.getFile(normalizePath(originalPath), cache);
+            return view.getFile(normalizePath(originalPath));
         } catch (FtpException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -312,8 +312,8 @@ public class DataSetCifsView implements DiskInterface
         try
         {
             String sessionToken = getSessionToken(session);
-            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), getApplicationServerApi(), pathResolverRegistry,
-                    cache);
+            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), 
+                    getApplicationServerApi(), pathResolverRegistry, cache);
         } catch (FtpException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

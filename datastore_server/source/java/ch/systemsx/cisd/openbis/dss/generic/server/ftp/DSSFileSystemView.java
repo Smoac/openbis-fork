@@ -58,7 +58,7 @@ public class DSSFileSystemView implements FileSystemView
 
     private final class ServiceInvocationHandler implements InvocationHandler
     {
-        private final Map<Key, Object> cache = new HashMap<Key, Object>();
+        private final Map<Key, Object> objectCache = new HashMap<Key, Object>();
 
         private final IServiceForDataStoreServer openbisService;
 
@@ -74,11 +74,11 @@ public class DSSFileSystemView implements FileSystemView
             if (METHOD_NAMES.contains(method.getName()))
             {
                 Key key = new Key(args);
-                Object result = cache.get(key);
+                Object result = objectCache.get(key);
                 if (result == null)
                 {
                     result = invoke(method, args);
-                    cache.put(key, result);
+                    objectCache.put(key, result);
                 }
                 return result;
             } else
@@ -109,6 +109,8 @@ public class DSSFileSystemView implements FileSystemView
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
 
+    private Cache cache;
+
     public DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
             IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
@@ -122,13 +124,14 @@ public class DSSFileSystemView implements FileSystemView
             IFtpPathResolverRegistry pathResolverRegistry, Cache cache) throws FtpException
     {
         this.sessionToken = sessionToken;
+        this.cache = cache;
         this.service =
                 (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { IServiceForDataStoreServer.class },
                         new ServiceInvocationHandler(service));
         this.generalInfoService = generalInfoService;
         this.v3api = v3api;
         this.pathResolverRegistry = pathResolverRegistry;
-        this.workingDirectory = getFile(FtpConstants.ROOT_DIRECTORY, cache);
+        this.workingDirectory = getFile(FtpConstants.ROOT_DIRECTORY);
     }
 
     @Override
@@ -150,11 +153,6 @@ public class DSSFileSystemView implements FileSystemView
 
     @Override
     public FtpFile getFile(String path) throws FtpException
-    {
-        return getFile(path, new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER));
-    }
-
-    public FtpFile getFile(String path, Cache cache) throws FtpException
     {
         String normalizedPath = normalizePath(path);
 
