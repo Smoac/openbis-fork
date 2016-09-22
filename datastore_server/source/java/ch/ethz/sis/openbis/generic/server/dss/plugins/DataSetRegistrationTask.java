@@ -61,7 +61,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.AuthenticationStore;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -210,6 +212,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     private static final String DEFAULT_DATA_SOURCE_SECTION = "DataSource1";
 
     private static final String HARVESTER_CONFIG_FILE_NAME = "harvester-config-file";
+
+    private static final String LOG_FILE_PROPERTY_NAME = "log-file";
 
     private static final String SEPARATOR = ",";;
 
@@ -573,6 +577,22 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         // jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
     }
 
+    private void configureFileAppender()
+    {
+        DailyRollingFileAppender console = new DailyRollingFileAppender(); // create appender
+        // configure the appender
+        console.setName("bdfile");
+        String PATTERN = "%d %-5p [%t] %c - %m%n";
+        console.setLayout(new PatternLayout(PATTERN));
+        // console.setThreshold(Level.FATAL);
+        console.setAppend(false);
+        console.setFile(config.getLogFilePath());
+        console.activateOptions();
+        // add appender to any Logger (here is root)
+        operationLog.addAppender(console);
+        operationLog.setAdditivity(false);
+    }
+
     @Override
     public void execute()
     {
@@ -581,6 +601,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             operationLog.info(this.getClass() + " started.");
 
             readConfiguration();
+            
+            if(config.getLogFilePath() != null) {
+                configureFileAppender();
+            }
 
             createDataSourceToHarvesterSpaceMappings();
 
@@ -775,6 +799,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         } catch (Exception e)
         {
             operationLog.error("Sync failed: " + e.getMessage());
+            
+            sendInfoEmail();
+        }
+    }
+
+    private void sendInfoEmail()
+    {
+        if(config.getLogFilePath() != null) {
+            //send the operation log as attachment
             DataSource dataSource = createDataSource("/Users/gakin/Documents/sync.log");
             for (EMailAddress recipient : emailAddresses)
             {
@@ -783,8 +816,14 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                         "", new DataHandler(
                                 dataSource), null, null, recipient);
             }
-
         }
+        else {
+            for (EMailAddress recipient : emailAddresses)
+            {
+                mailClient.sendEmailMessage("Synchronization failed",
+                        "Hi, the syncronization failed. See the data store server log for details.", null, null, recipient);
+            }
+         }
     }
 
     private DataSource createDataSource(final String filePath)
@@ -820,6 +859,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         config.setEmailAddresses(reader.getString(DEFAULT_DATA_SOURCE_SECTION, EMAIL_ADDRESSES_PROPERTY_NAME, null));
         config.setLastSyncTimestampFileName(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME,
                 DEFAULT_LAST_SYNC_TIMESTAMP_FILE));
+        config.setLogFilePath(reader.getString(DEFAULT_DATA_SOURCE_SECTION, LOG_FILE_PROPERTY_NAME, null));
 
 
         String fileName = config.getLastSyncTimestampFileName();
