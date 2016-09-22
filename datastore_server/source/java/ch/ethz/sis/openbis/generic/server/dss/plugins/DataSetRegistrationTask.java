@@ -623,6 +623,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             operationLog.info("Registering meta data...");
             AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
             System.err.println("entity operation result: " + operationResult);
+            operationLog.info("entity operation result: " + operationResult);
 
             // register physical data sets
             operationLog.info("Registering data sets...");
@@ -756,8 +757,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             operationLog.info("Done and dusted...");
             operationLog.info(this.getClass() + " finished executing.");
 
-        } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException | URISyntaxException | InterruptedException
-                | TimeoutException | ExecutionException e)
+        } catch (Exception e)
         {
             operationLog.error("Sync failed: " + e.getMessage());
         }
