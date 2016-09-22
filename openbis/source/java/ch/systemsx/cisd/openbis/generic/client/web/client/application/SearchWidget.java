@@ -190,8 +190,6 @@ public final class SearchWidget extends LayoutContainer
             return;
         }
 
-        // reset the text field
-        textField.setValue("");
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
 
         Boolean useWildcards = useWildcardsCheckBox.getValue();
