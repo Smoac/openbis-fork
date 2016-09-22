@@ -30,7 +30,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.fasta.SequenceType;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -186,14 +186,9 @@ public class BlastUtils
         {
             return output;
         }
-        StringBuilder builder = new StringBuilder("Execution failed: ").append(command);
-        List<String> lines = processResult.isBinaryOutput() ? processResult.getErrorOutput() : output;
-        for (String line : lines)
-        {
-            builder.append("\n").append(line);
-        }
         processResult.log();
-        throw new EnvironmentFailureException(builder.toString());
+        String message = "Couldn't find any results. The reason is most likely that the BLAST database has been populated";
+        throw new UserFailureException(message);
     }
 
     public File getBlastDatabaseFolder(Properties properties, File storeRoot)

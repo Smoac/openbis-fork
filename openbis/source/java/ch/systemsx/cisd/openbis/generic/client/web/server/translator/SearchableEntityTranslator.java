@@ -84,6 +84,7 @@ public final class SearchableEntityTranslator
             matchingEntity.setEntityKind(entity.getEntityKind());
             matchingEntity.setEntityType(entity.getEntityType());
             matchingEntity.setId(entity.getId());
+            matchingEntity.setPermId(entity.getPermId());
             SearchDomainSearchResult searchResult = searchDomain.getSearchResult();
             matchingEntity.setSearchDomain(searchResult.getSearchDomain().getLabel());
 
