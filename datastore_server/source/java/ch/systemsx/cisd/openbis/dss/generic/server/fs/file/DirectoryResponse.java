@@ -28,7 +28,9 @@ public class DirectoryResponse implements IDirectoryResponse
 {
     public interface Node
     {
+        public String getFullPath();
 
+        public long getLastModified();
     }
 
     public static class DirectoryNode implements Node
@@ -43,11 +45,13 @@ public class DirectoryResponse implements IDirectoryResponse
             this.lastModified = lastModified;
         }
 
+        @Override
         public String getFullPath()
         {
             return fullPath;
         }
 
+        @Override
         public long getLastModified()
         {
             return lastModified;
@@ -70,6 +74,7 @@ public class DirectoryResponse implements IDirectoryResponse
             this.lastModified = lastModified;
         }
 
+        @Override
         public String getFullPath()
         {
             return fullPath;
@@ -80,6 +85,7 @@ public class DirectoryResponse implements IDirectoryResponse
             return size;
         }
 
+        @Override
         public long getLastModified()
         {
             return lastModified;
