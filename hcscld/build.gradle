@@ -1,4 +1,4 @@
-apply from: '../gradle/javaproject.gradle'
+apply from: '../jhdf5/javaproject.gradle'
 
 group='sis'
 
