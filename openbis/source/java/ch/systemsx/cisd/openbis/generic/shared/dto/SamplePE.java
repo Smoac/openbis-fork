@@ -69,6 +69,7 @@ import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
@@ -490,7 +491,10 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     public void setProject(ProjectPE project)
     {
-        this.project = project;
+        if (DAOFactory.projectSamplesEnabled)
+        {
+            this.project = project;
+        }
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

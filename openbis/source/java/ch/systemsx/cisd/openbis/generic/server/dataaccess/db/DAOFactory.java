@@ -76,6 +76,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 {
     private static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DAOFactory.class);
 
+    public static boolean projectSamplesEnabled = false;
+
     static
     {
         SpringEoDSQLExceptionTranslator.activate();
@@ -342,31 +344,78 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         return operationExecutionDAO;
     }
 
+    private static String projectConstraintFunction =
+            "CREATE FUNCTION check_project_is_defined_for_experiment_level_samples() " +
+                    "  RETURNS trigger AS " +
+                    "$BODY$ " +
+                    "BEGIN " +
+                    "  IF (NEW.proj_id IS NULL AND NEW.expe_id IS NOT NULL) THEN " +
+                    "    RAISE EXCEPTION 'Project has to be defined for experiment level samples'; " +
+                    "  END IF; " +
+                    "  RETURN NEW; " +
+                    "END; " +
+                    "$BODY$ " +
+                    "  LANGUAGE 'plpgsql';";
+
+    private static String projectConstraintTrigger =
+            "CREATE TRIGGER check_project_is_defined_for_experiment_level_samples " +
+                    "BEFORE INSERT OR UPDATE " +
+                    "ON samples_all " +
+                    "FOR EACH ROW " +
+                    "EXECUTE PROCEDURE check_project_is_defined_for_experiment_level_samples();";
+
+    private static String setProjectsToSamplesWithExperiments =
+            "UPDATE samples_all AS s  " +
+                    "SET proj_id = (SELECT proj_id FROM experiments_all WHERE id = s.expe_id) " +
+                    "WHERE s.proj_id IS NULL AND s.expe_id IS NOT NULL;";
+
     @Override
     public void afterPropertiesSet() throws Exception
     {
         Properties serviceProperties = configurer.getResolvedProps();
-        boolean projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
+        projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
         Connection connection = null;
         try
         {
             connection = context.getDataSource().getConnection();
             Statement statement = connection.createStatement();
+            connection.setAutoCommit(false);
+
+            ResultSet result = statement.executeQuery("SELECT tgname FROM pg_trigger WHERE tgname='disable_project_level_samples'");
+            boolean triggerExists = result.next();
+
             if (projectSamplesEnabled)
             {
-                operationLog.info("Enable project samples by dropping the trigger 'disable_project_level_samples'.");
-                statement.executeUpdate("DROP TRIGGER IF EXISTS disable_project_level_samples ON samples_all");
+                if (triggerExists)
+                {
+                    operationLog.info("Enable project samples by dropping the trigger 'disable_project_level_samples'.");
+                    statement.executeUpdate("DROP TRIGGER disable_project_level_samples ON samples_all");
+
+                    statement.executeUpdate(projectConstraintFunction);
+                    statement.executeUpdate(projectConstraintTrigger);
+                    statement.executeUpdate(setProjectsToSamplesWithExperiments);
+                } else
+                {
+                    operationLog.info("Project samples already enabled.");
+                }
             } else
             {
-                ResultSet result = statement.executeQuery("SELECT tgname FROM pg_trigger WHERE tgname='disable_project_level_samples'");
-                boolean triggerExists = result.next();
                 if (triggerExists == false)
                 {
                     operationLog.warn("It is not possible to disable project samples feature. The system still considers "
                             + Constants.PROJECT_SAMPLES_ENABLED_KEY + "=true.");
+                    projectSamplesEnabled = true;
                 }
             }
             statement.close();
+            connection.commit();
+        } catch (Throwable t)
+        {
+            operationLog.info("Failed to enable project level samples.", t);
+            if (connection != null)
+            {
+                connection.rollback();
+            }
         } finally
         {
             if (connection != null)
