@@ -31,34 +31,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+
 public class ConfigReader
 {
-
-    private static final String DATA_SOURCE_URL_PROPERTY_NAME = "resource-list-url";
-
-    private static final String DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME = "data-source-openbis-url";
-
-    private static final String DATA_SOURCE_DSS_URL_PROPERTY_NAME = "data-source-dss-url";
-
-    private static final String DATA_SOURCE_SPACES_PROPERTY_NAME = "data-source-spaces";
-
-    private static final String DATA_SOURCE_PREFIX_PROPERTY_NAME = "data-souce-prefix";
-
-    private static final String DATA_SOURCE_AUTH_REALM_PROPERTY_NAME = "data-source-auth-realm";
-
-    private static final String DATA_SOURCE_AUTH_USER_PROPERTY_NAME = "data-source-auth-user";
-
-    private static final String DATA_SOURCE_AUTH_PASS_PROPERTY_NAME = "data-source-auth-pass";
-
-    private static final String HARVESTER_SPACES_PROPERTY_NAME = "harvester-spaces";
-
-    private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "harvester-tmp-dir";
-
-    private static final String DEFAULT_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file.txt";
-
-    private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file";
-
-
 
     private Pattern sectionRegex = Pattern.compile("\\s*\\[([^]]*)\\]\\s*");
 
@@ -87,21 +63,6 @@ public class ConfigReader
                 System.out.println(reader.getSection(i));
             }
             
-            SyncConfig config = new SyncConfig();
-            String section1 = reader.getSection(0);
-            
-            config.setDataSourceURI(reader.getString(section1, DATA_SOURCE_URL_PROPERTY_NAME, null));
-            config.setDataSourceOpenbisURL(reader.getString(section1, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null));
-            config.setDataSourceDSSURL(reader.getString(section1, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null));
-            config.setRealm(reader.getString(section1, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null));
-            config.setUser(reader.getString(section1,DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null));
-            config.setPass(reader.getString(section1, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null));
-            config.setDataSourceSpaces(reader.getString(section1, DATA_SOURCE_SPACES_PROPERTY_NAME, null));
-            config.setHarvesterSpaces(reader.getString(section1, DATA_SOURCE_PREFIX_PROPERTY_NAME, null));
-            config.setHarvesterTempDir(reader.getString(section1, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store"));
-            config.setLastSyncTimestampFileName(reader.getString(section1, HARVESTER_LAST_SYNC_TIMESTAMP_FILE, DEFAULT_LAST_SYNC_TIMESTAMP_FILE));
-
-            config.printConfig();
         } catch (IOException e)
         {
             // TODO Auto-generated catch block
@@ -170,33 +131,60 @@ public class ConfigReader
         loadFile(new File(path));
     }
 
-    public String getString(String section, String key, String defaultvalue)
+    public String getString(String section, String key, String defaultvalue, boolean mandatory)
     {
-        Map<String, String> map = entries.get(section);
-        if (map == null)
+        String val = getValue(section, key);
+        if (val == null)
         {
+            if (mandatory)
+            {
+                throw new ConfigurationFailureException("Property '" + key + "' in section '" + section + "'  is mandatory.");
+            }
             return defaultvalue;
         }
-        return map.get(key);
+        return val;
     }
 
-    public int getInt(String section, String key, int defaultvalue)
+    private String getValue(String section, String key) throws ConfigurationFailureException
     {
         Map<String, String> map = entries.get(section);
         if (map == null)
         {
-            return defaultvalue;
+            throw new ConfigurationFailureException("Section '" + section + " does not exist.");
         }
-        return Integer.parseInt(map.get(key));
+        String val = map.get(key).trim();
+        if (val.equals("") == true)
+        {
+            return null;
+        }
+        return val;
     }
 
-    public double getDouble(String section, String key, double defaultvalue)
+    public int getInt(String section, String key, int defaultvalue, boolean mandatory)
     {
-        Map<String, String> map = entries.get(section);
-        if (map == null)
+        String val = getValue(section, key);
+        if (val == null)
         {
+            if (mandatory)
+            {
+                throw new ConfigurationFailureException("Property '" + key + "' in section '" + section + "'  is mandatory.");
+            }
             return defaultvalue;
         }
-        return Double.parseDouble(map.get(key));
+        return Integer.parseInt(val);
+    }
+
+    public double getDouble(String section, String key, double defaultvalue, boolean mandatory)
+    {
+        String val = getValue(section, key);
+        if (val == null)
+        {
+            if (mandatory)
+            {
+                throw new ConfigurationFailureException("Property '" + key + "' in section '" + section + "'  is mandatory.");
+            }
+            return defaultvalue;
+        }
+        return Double.parseDouble(val);
     }
 }

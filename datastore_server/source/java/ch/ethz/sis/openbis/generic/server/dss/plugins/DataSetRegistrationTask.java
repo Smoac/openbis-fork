@@ -176,6 +176,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 {
     protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataSetRegistrationTask.class);
+
     // private static final String DATA_SOURCE_URI = "https://bs-mbpr121.d.ethz.ch:8444/datastore_server/re-sync"; //
     // "http://localhost:8889/datastore_server/re-sync";
 
@@ -205,10 +206,12 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private static final String DEFAULT_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file.txt";
 
+    private static final String DEFAULT_LOG_FILE_NAME = "../../syncronization.log";
+
     private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME = "last-sync-timestamp-file";
 
     private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
-    
+
     private static final String DEFAULT_DATA_SOURCE_SECTION = "DataSource1";
 
     private static final String HARVESTER_CONFIG_FILE_NAME = "harvester-config-file";
@@ -239,8 +242,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private IMailClient mailClient;
 
-    private Set<EMailAddress> emailAddresses;
-
     private void initializePluginProperties()
     {
         config = new SyncConfig();
@@ -264,7 +265,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         // file.mkdirs();
         //
         // System.exit(0);
-        
+
         Properties properties = new Properties();
         properties.put(PluginTaskInfoProvider.STOREROOT_DIR_KEY, "targets/store");
 
@@ -312,9 +313,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     private List<String> extractSpaces(String spaces)
     {
         StringTokenizer st = new StringTokenizer(spaces, SEPARATOR);
-        
-        List<String> harvesterSpaceList =  new ArrayList<String>();
-        while(st.hasMoreElements()) {
+
+        List<String> harvesterSpaceList = new ArrayList<String>();
+        while (st.hasMoreElements())
+        {
             harvesterSpaceList.add(st.nextToken().trim());
         }
         return harvesterSpaceList;
@@ -348,7 +350,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
         if (statusCode != HttpStatus.Code.OK.getCode())
         {
-            throw new IOException ("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
+            throw new IOException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
         }
 
         byte[] content = contentResponse.getContent();
@@ -379,7 +381,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
             Properties props = setProperties();
 
-            DataSetRegistrationIngestionService ingestionService = new DataSetRegistrationIngestionService(props, storeRoot, dataSetCodes, dataSet.getDataSet());
+            DataSetRegistrationIngestionService ingestionService =
+                    new DataSetRegistrationIngestionService(props, storeRoot, dataSetCodes, dataSet.getDataSet());
             ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
             System.out.println("finished " + dataSet.getDataSet().getCode());
             dataSetCodes.add(dataSet.getDataSet().getCode());
@@ -456,7 +459,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
             List<NewProperty> dataSetProperties = dataSet.getDataSetProperties();
 
-            if (dataSetForUpdate == null) {
+            if (dataSetForUpdate == null)
+            {
                 // REGISTER NEW DATA SET
                 IDataSet ds = transaction.createNewDataSet(dataSet.getDataSetType().getCode(), dataSet.getCode());
                 dataSetCodes.add(ds.getDataSetCode());
@@ -467,22 +471,23 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 {
                     ds.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
                 }
-    
+
                 File storeRoot = transaction.getGlobalState().getStoreRootDir();
                 File temp = new File(storeRoot, this.harvesterTempDir);
                 temp.mkdirs();
                 File file = new File(temp, ds.getDataSetCode());
                 file.mkdirs();
-    
+
                 downloadDataSetFiles(file, ds.getDataSetCode());
-    
+
                 File dsPath = new File(file, "original");
                 for (File f : dsPath.listFiles())
                 {
                     transaction.moveFile(f.getAbsolutePath(), ds);
                 }
             }
-            else {
+            else
+            {
                 // UPDATE data set meta data excluding the container/contained relationships
                 dataSetForUpdate.setSample(sample);
                 dataSetForUpdate.setExperiment(experiment);
@@ -600,11 +605,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         {
             operationLog.info(this.getClass() + " started.");
 
-            readConfiguration();
-            
-            if(config.getLogFilePath() != null) {
-                configureFileAppender();
-            }
+            initConfiguration();
 
             createDataSourceToHarvesterSpaceMappings();
 
@@ -632,10 +633,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             // save the current time into a temp file as last sync time
             FileUtilities.writeToFile(newLastSyncTimeStampFile, formater.format(new Date()));
 
-            //retrieve the document from the data source
+            // retrieve the document from the data source
             operationLog.info("Retrieving the resource list..");
             Document doc = getResourceListAsXMLDoc();
-            
+
             // Parse the resource list: This sends back all projects,
             // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
             operationLog.info("parsing the resource list xml document");
@@ -650,9 +651,9 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             Map<String, MaterialWithLastModificationDate> materialsToProcess = data.materialsToProcess;
 
             AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
-                    
+
             processProjects(projectsToProcess, experimentsToProcess, builder);
-        
+
             processExperiments(experimentsToProcess, samplesToProcess, dataSetsToProcess, builder);
 
             processSamples(samplesToProcess, builder);
@@ -681,7 +682,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
             builder.user(DataSetRegistrationTask.this.config.getUser());
             Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
-            
+
             // set parent and container data set codes before everything else
             // container and physical data sets can both be parents/children of each other
             Map<String, Set<String>> dsToParents = new HashMap<String, Set<String>>();
@@ -717,14 +718,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 if (dsWithConn.getLastModificationDate().after(lastSyncTimestamp))
                 {
                     if (physicalDSMap.containsKey(dataSet.getCode()) == false && service.tryGetDataSet(dataSet.getCode()) == null)
-                     {
+                    {
                         builder.dataSet(dataSet);
                     }
-                    else {
-                        
+                    else
+                    {
+
                         datasetsToUpdate.put(dataSet.getCode(), dataSet);
-                        }
                     }
+                }
             }
 
             // go thru to-be-updated DS list and establish/break relations
@@ -734,7 +736,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 if (dataSet instanceof NewContainerDataSet)
                 {
                     NewContainerDataSet containerDS = (NewContainerDataSet) dataSet;
-                    if(dsToContained.containsKey(containerDS.getCode())) {
+                    if (dsToContained.containsKey(containerDS.getCode()))
+                    {
                         dsBatchUpdatesDTO.setModifiedContainedDatasetCodesOrNull(dsToContained.get(dataSet.getCode()).toArray(new
                                 String[containerDS.getContainedDataSetCodes().size()]));
                     }
@@ -799,17 +802,18 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         } catch (Exception e)
         {
             operationLog.error("Sync failed: " + e.getMessage());
-            
+
             sendInfoEmail();
         }
     }
 
     private void sendInfoEmail()
     {
-        if(config.getLogFilePath() != null) {
-            //send the operation log as attachment
-            DataSource dataSource = createDataSource("/Users/gakin/Documents/sync.log");
-            for (EMailAddress recipient : emailAddresses)
+        if (config.getLogFilePath() != null)
+        {
+            // send the operation log as attachment
+            DataSource dataSource = createDataSource(config.getLogFilePath()); // /Users/gakin/Documents/sync.log
+            for (EMailAddress recipient : config.getEmailAddresses())
             {
                 mailClient.sendEmailMessageWithAttachment("Synchronization failed",
                         "Hi, the syncronization failed. See the attached file for details.",
@@ -817,13 +821,14 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                                 dataSource), null, null, recipient);
             }
         }
-        else {
-            for (EMailAddress recipient : emailAddresses)
+        else
+        {
+            for (EMailAddress recipient : config.getEmailAddresses())
             {
                 mailClient.sendEmailMessage("Synchronization failed",
                         "Hi, the syncronization failed. See the data store server log for details.", null, null, recipient);
             }
-         }
+        }
     }
 
     private DataSource createDataSource(final String filePath)
@@ -836,51 +841,42 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    private void readConfiguration() throws IOException
+
+    private void initConfiguration() throws IOException
     {
         ConfigReader reader = new ConfigReader(harvesterConfigFile);
- 
+
         config = new SyncConfig();
-        if (reader.sectionExists(DEFAULT_DATA_SOURCE_SECTION) == false) {
+        if (reader.sectionExists(DEFAULT_DATA_SOURCE_SECTION) == false)
+        {
             throw new ConfigurationFailureException("Please specify at least one data source section.");
         }
 
-        // TODO check that all required parameters are set in the config file
-        config.setDataSourceURI(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_URL_PROPERTY_NAME, null));
-        config.setDataSourceOpenbisURL(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null));
-        config.setDataSourceDSSURL(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null));
-        config.setRealm(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null));
-        config.setUser(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null));
-        config.setPass(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null));
-        config.setDataSourceSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_SPACES_PROPERTY_NAME, null));
-        config.setHarvesterSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_SPACES_PROPERTY_NAME, null));
-        config.setDataSourcePrefix(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_PREFIX_PROPERTY_NAME, null));
-        config.setHarvesterTempDir(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store"));
-        config.setEmailAddresses(reader.getString(DEFAULT_DATA_SOURCE_SECTION, EMAIL_ADDRESSES_PROPERTY_NAME, null));
-        config.setLastSyncTimestampFileName(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME,
-                DEFAULT_LAST_SYNC_TIMESTAMP_FILE));
-        config.setLogFilePath(reader.getString(DEFAULT_DATA_SOURCE_SECTION, LOG_FILE_PROPERTY_NAME, null));
+        config.setEmailAddresses(reader.getString(DEFAULT_DATA_SOURCE_SECTION, EMAIL_ADDRESSES_PROPERTY_NAME, null, true));
+        config.setLogFilePath(reader.getString(DEFAULT_DATA_SOURCE_SECTION, LOG_FILE_PROPERTY_NAME, DEFAULT_LOG_FILE_NAME, false));
+        if (config.getLogFilePath() != null)
+        {
+            configureFileAppender();
+        }
 
+        config.setDataSourceURI(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_URL_PROPERTY_NAME, null, true));
+        config.setDataSourceOpenbisURL(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null, true));
+        config.setDataSourceDSSURL(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null, true));
+        config.setRealm(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null, true));
+        config.setUser(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null, true));
+        config.setPass(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null, true));
+        config.setDataSourceSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_SPACES_PROPERTY_NAME, null, true));
+        config.setHarvesterSpaces(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_SPACES_PROPERTY_NAME, null, true));
+        config.setDataSourcePrefix(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_PREFIX_PROPERTY_NAME, null, false));
+        config.setHarvesterTempDir(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store", false));
+        config.setLastSyncTimestampFileName(reader.getString(DEFAULT_DATA_SOURCE_SECTION, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME,
+                DEFAULT_LAST_SYNC_TIMESTAMP_FILE, false));
 
         String fileName = config.getLastSyncTimestampFileName();
         lastSyncTimestampFile = new File(fileName);
         newLastSyncTimeStampFile = new File(fileName + ".new");
 
-        emailAddresses = getEMailAddresses();
-
         config.printConfig();
-    }
-
-    private Set<EMailAddress> getEMailAddresses()
-    {
-        String[] tokens =
-                config.getEmailAddresses().split(SEPARATOR);
-        Set<EMailAddress> addresses = new HashSet<EMailAddress>();
-        for (String token : tokens)
-        {
-            addresses.add(new EMailAddress(token.trim()));
-        }
-        return addresses;
     }
 
     private void processDeletions(ResourceListParserData data)
@@ -941,14 +937,15 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
 
         List<ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material> materials = entityRetriever.fetchMaterials();
-        
-        for(ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material material: materials) {
+
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material material : materials)
+        {
             if (incomingMaterialCodes.contains(material.getCode()) == false)
             {
                 matPermIds.add(new MaterialPermId(material.getCode(), material.getType().getCode()));
             }
         }
-        
+
         IApplicationServerApi v3Api = ServiceProvider.getV3ApplicationService();
 
         // delete data sets
@@ -1013,7 +1010,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         for (MaterialWithLastModificationDate newMaterialWithType : materialsToProcess.values())
         {
             NewMaterialWithType newIncomingMaterial = newMaterialWithType.getMaterial();
-            if (newMaterialWithType.getLastModificationDate().after(lastSyncTimestamp)) {
+            if (newMaterialWithType.getLastModificationDate().after(lastSyncTimestamp))
+            {
                 Material material = service.tryGetMaterial(new MaterialIdentifier(newIncomingMaterial.getCode(), newIncomingMaterial.getType()));
                 if (material == null)
                 {
@@ -1038,7 +1036,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         for (SampleWithConnections sample : samplesToProcess.values())
         {
             NewSample incomingSample = sample.getSample();
-            if (sample.getLastModificationDate().after(lastSyncTimestamp)) {
+            if (sample.getLastModificationDate().after(lastSyncTimestamp))
+            {
                 SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
                 Sample sampleWithExperiment = null;
                 try
@@ -1061,19 +1060,19 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     List<Sample> childSamples = getChildSamples(sampleWithExperiment);
                     for (Sample child : childSamples)
                     {
-                            String childSampleIdentifier = child.getIdentifier();//edgeNodePair.getNode().getIdentifier();
-                            SampleWithConnections childSampleWithConns = findChildInSamplesToProcess(childSampleIdentifier, samplesToProcess);
-                            if (childSampleWithConns == null)
-                            {
-                                // TODO Handle sample delete
-                            }
-                            else
-                            {
-                                // the childSample will appear in the incoming samples list anyway
-                                // but we want to make sure its parent modification is handled
-                                NewSample childSample = childSampleWithConns.getSample();
-                                sampleWithUpdatedParents.add(childSample.getIdentifier());
-                            }
+                        String childSampleIdentifier = child.getIdentifier();// edgeNodePair.getNode().getIdentifier();
+                        SampleWithConnections childSampleWithConns = findChildInSamplesToProcess(childSampleIdentifier, samplesToProcess);
+                        if (childSampleWithConns == null)
+                        {
+                            // TODO Handle sample delete
+                        }
+                        else
+                        {
+                            // the childSample will appear in the incoming samples list anyway
+                            // but we want to make sure its parent modification is handled
+                            NewSample childSample = childSampleWithConns.getSample();
+                            sampleWithUpdatedParents.add(childSample.getIdentifier());
+                        }
                     }
                 }
             }
@@ -1108,7 +1107,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 // }
             }
         }
-        
+
         // create sample update dtos for the samples that need to be updated
         for (SampleIdentifier sampleIdentifier : samplesToUpdate.keySet())
         {
@@ -1151,7 +1150,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         for (ExperimentWithConnections exp : experimentsToProcess.values())
         {
             NewExperiment newIncomingExp = exp.getExperiment();
-            if (exp.getLastModificationDate().after(lastSyncTimestamp)) {
+            if (exp.getLastModificationDate().after(lastSyncTimestamp))
+            {
                 Experiment experiment = null;
                 try
                 {
@@ -1167,7 +1167,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     // ADD EXPERIMENT
                     builder.experiment(newIncomingExp);
                 }
-                else {
+                else
+                {
                     // UPDATE EXPERIMENT
                     ExperimentUpdatesDTO expUpdate = new ExperimentUpdatesDTO();
                     expUpdate.setProjectIdentifier(ExperimentIdentifierFactory.parse(newIncomingExp.getIdentifier()));
@@ -1231,16 +1232,16 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                     ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(incomingProject.getIdentifier());
                     prjUpdate.setSpaceCode(projectIdentifier.getSpaceCode());
                     builder.projectUpdate(prjUpdate); // ConversionUtils.convertToProjectUpdateDTO(new
-                                                    // ch.systemsx.cisd.etlserver.registrator.api.v2.impl.Project(project))
+                                                      // ch.systemsx.cisd.etlserver.registrator.api.v2.impl.Project(project))
                 }
             }
             for (Connection conn : prj.getConnections())
             {
                 String connectedExpPermId = conn.getToPermId();
                 // TODO we need to do the same check for samples to support project samples
-                if (experimentsToProcess.containsKey(connectedExpPermId)) 
+                if (experimentsToProcess.containsKey(connectedExpPermId))
                 {
-                  //the project is connected to an experiment
+                    // the project is connected to an experiment
                     ExperimentWithConnections exp = experimentsToProcess.get(connectedExpPermId);
                     NewExperiment newExp = exp.getExperiment();
                     // check if our local graph has the same connection
@@ -1255,19 +1256,19 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                         // add new experiment node
                     }// TODO can the following happen. i.e. a project experiment connection is always of type Connection so we should be safe to
                      // remove the following?
-                    // else
-                    // {
-                    // if (harvesterEntityGraph.edgeExists(incomingProject.getIdentifier(), newExp.getIdentifier(), conn.getType()) == false)
-                    // {
-                    // // add new edge
-                    // // String fullExpIdentifier = newExp.getIdentifier().replace("{1}", incomingProject.getIdentifier());
-                    // // newExp.setIdentifier(fullExpIdentifier);
-                    // }
-                    // else
-                    // {
-                    // // do nothing
-                    // }
-                    // }
+                     // else
+                     // {
+                     // if (harvesterEntityGraph.edgeExists(incomingProject.getIdentifier(), newExp.getIdentifier(), conn.getType()) == false)
+                     // {
+                     // // add new edge
+                     // // String fullExpIdentifier = newExp.getIdentifier().replace("{1}", incomingProject.getIdentifier());
+                     // // newExp.setIdentifier(fullExpIdentifier);
+                     // }
+                     // else
+                     // {
+                     // // do nothing
+                     // }
+                     // }
                 }
                 else
                 {
@@ -1295,7 +1296,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     {
         for (SampleWithConnections sample : samplesToProcess.values())
         {
-            if(sample.getSample().getIdentifier().equals(childSampleIdentifier)) {
+            if (sample.getSample().getIdentifier().equals(childSampleIdentifier))
+            {
                 return sample;
             }
         }

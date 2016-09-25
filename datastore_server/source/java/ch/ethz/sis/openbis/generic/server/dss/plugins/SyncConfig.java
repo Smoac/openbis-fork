@@ -17,6 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.common.mail.EMailAddress;
 
 /**
  * 
@@ -180,9 +184,11 @@ class SyncConfig
 
     private String harvesterTempDir;
 
-    private String emailAddresses;
+    private List<EMailAddress> emailAddresses = new ArrayList<>();
 
     private String logFilePath;
+
+    private static final String SEPARATOR = ",";;
 
     public String getLogFilePath()
     {
@@ -194,13 +200,18 @@ class SyncConfig
         this.logFilePath = logFilePath;
     }
 
-    public String getEmailAddresses()
+    public List<EMailAddress> getEmailAddresses()
     {
         return emailAddresses;
     }
 
     public void setEmailAddresses(String emailAddresses)
     {
-        this.emailAddresses = emailAddresses;
+        String[] tokens =
+                emailAddresses.split(SEPARATOR);
+        for (String token : tokens)
+        {
+            this.emailAddresses.add(new EMailAddress(token.trim()));
+        }
     }
 }
