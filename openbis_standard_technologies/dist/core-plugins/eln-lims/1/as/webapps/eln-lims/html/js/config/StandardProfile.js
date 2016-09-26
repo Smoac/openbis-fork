@@ -631,7 +631,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								
 								var rowData = {};
 								rowData.permId = product.permId;
-								rowData.supplier = provider.properties["NAME"];
+								rowData.supplier = provider.properties["COMPANY_NAME"];
 								rowData.name = product.properties["NAME"];
 								rowData.code =  product.properties["CATALOG_CODE"];
 								rowData.quantity = quantity;
