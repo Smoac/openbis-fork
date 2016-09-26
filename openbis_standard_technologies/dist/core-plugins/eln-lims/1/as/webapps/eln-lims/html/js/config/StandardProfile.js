@@ -513,7 +513,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							
 							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date(registrationDate));
 								page += "\n";
-								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["NAME"];
+								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["COMPANY_NAME"];
 								page += "\n";
 								page += languageLabels["CONTACT_INFO_LABEL"] + ":";
 								page += "\n";
