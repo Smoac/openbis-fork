@@ -152,8 +152,12 @@ public class ConfigReader
         {
             throw new ConfigurationFailureException("Section '" + section + " does not exist.");
         }
-        String val = map.get(key).trim();
-        if (val.equals("") == true)
+        String val = map.get(key);
+        if (val == null)
+        {
+            return null;
+        }
+        if (val.trim().equals("") == true)
         {
             return null;
         }
