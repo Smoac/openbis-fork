@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHist
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -75,8 +76,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory, InitializingBean
 {
     private static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DAOFactory.class);
-
-    public static boolean projectSamplesEnabled = false;
 
     static
     {
@@ -373,7 +372,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public void afterPropertiesSet() throws Exception
     {
         Properties serviceProperties = configurer.getResolvedProps();
-        projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
+        SamplePE.projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
         Connection connection = null;
         try
         {
@@ -384,7 +383,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             ResultSet result = statement.executeQuery("SELECT tgname FROM pg_trigger WHERE tgname='disable_project_level_samples'");
             boolean triggerExists = result.next();
 
-            if (projectSamplesEnabled)
+            if (SamplePE.projectSamplesEnabled)
             {
                 if (triggerExists)
                 {
@@ -404,7 +403,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                 {
                     operationLog.warn("It is not possible to disable project samples feature. The system still considers "
                             + Constants.PROJECT_SAMPLES_ENABLED_KEY + "=true.");
-                    projectSamplesEnabled = true;
+                    SamplePE.projectSamplesEnabled = true;
                 }
             }
             statement.close();

@@ -69,7 +69,6 @@ import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
@@ -101,6 +100,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public static final SamplePE[] EMPTY_ARRAY = new SamplePE[0];
 
     public static final List<SamplePE> EMPTY_LIST = Collections.emptyList();
+
+    public static boolean projectSamplesEnabled = false;
 
     private Long id;
 
@@ -491,7 +492,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     public void setProject(ProjectPE project)
     {
-        if (DAOFactory.projectSamplesEnabled)
+        if (projectSamplesEnabled)
         {
             this.project = project;
         }
