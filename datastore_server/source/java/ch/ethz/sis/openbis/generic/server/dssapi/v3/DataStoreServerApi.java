@@ -184,6 +184,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                     if (node.isDirectory() == false)
                     {
                         file.setFileLength(node.getFileLength());
+                        file.setChecksumCRC32(node.getChecksumCRC32());
                     }
                     result.add(file);
                 }
