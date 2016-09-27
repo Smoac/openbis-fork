@@ -22,7 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException;
 import com.google.gwt.user.client.rpc.InvocationException;
@@ -244,11 +243,11 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         {
             callbackListener.onFailureOf(viewContext, this, msg, caught);
         }
-        finishOnFailure(caught);
         for (IDelegatedAction a : failureActions)
         {
             a.execute();
         }
+        finishOnFailure(caught);
     }
 
     private boolean isIncompatibleServerException(final Throwable caught)
