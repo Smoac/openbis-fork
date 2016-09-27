@@ -187,7 +187,7 @@ public class BlastUtils
             return output;
         }
         processResult.log();
-        String message = "Couldn't find any results. The reason is most likely that the BLAST database has been populated";
+        String message = "Couldn't find any results. The reason is most likely that the BLAST database hasn't been populated";
         throw new UserFailureException(message);
     }
 
