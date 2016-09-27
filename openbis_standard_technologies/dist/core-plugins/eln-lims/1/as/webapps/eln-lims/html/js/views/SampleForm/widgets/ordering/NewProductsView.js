@@ -34,7 +34,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 		mainController.serverFacade.searchWithType("SUPPLIER", null, false, function(suppliers){
 			var supplierTerms = [];
 			for(var sIdx = 0; sIdx < suppliers.length; sIdx++) {
-				supplierTerms.push({code : suppliers[sIdx].identifier, label : suppliers[sIdx].properties["NAME"]});
+				supplierTerms.push({code : suppliers[sIdx].identifier, label : suppliers[sIdx].properties["COMPANY_NAME"]});
 			}
 			var supplierDropdown = FormUtil.getDropDownForTerms(null, supplierTerms, "Select a supplier", true);
 			

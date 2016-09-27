@@ -354,6 +354,7 @@ def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experime
 
 def init(tr, parameters, tableBuilder):
 	projectsCache = {};
+	installedTypes = getSampleTypes(tr, parameters);
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	methodsSpace = tr.getSpace("METHODS");
 	materialsSpace = tr.getSpace("MATERIALS");
@@ -384,7 +385,6 @@ def init(tr, parameters, tableBuilder):
 	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:
-		installedTypes = getSampleTypes(tr, parameters);
 		if isSampleTypeAvailable(installedTypes, "ANTIBODY"):
 			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
 			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ANTIBODY_COLLECTION_1", "MATERIALS", "Antibody Collection 1");
