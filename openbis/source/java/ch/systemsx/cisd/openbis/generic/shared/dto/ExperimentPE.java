@@ -396,7 +396,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     {
         getExperimentSamples().remove(sample);
         sample.setExperimentInternal(null);
-        sample.setProject(null);
     }
 
     public void addSample(SamplePE sample)

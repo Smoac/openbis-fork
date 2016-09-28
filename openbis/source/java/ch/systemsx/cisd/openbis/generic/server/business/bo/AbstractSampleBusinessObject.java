@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -169,11 +170,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void updateModifierAndModificationDate(ExperimentPE experimentOrNull)
     {
-        if (experimentOrNull != null)
-        {
-            experimentOrNull.setModifier(findPerson());
-            experimentOrNull.setModificationDate(getTransactionTimeStamp());
-        }
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experimentOrNull, null, session, timeStamp);
     }
 
     protected SampleOwner getSampleOwner(

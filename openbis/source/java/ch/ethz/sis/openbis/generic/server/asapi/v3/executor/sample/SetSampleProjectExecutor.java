@@ -75,7 +75,7 @@ public class SetSampleProjectExecutor extends AbstractSetEntityToOneRelationExec
     @Override
     protected void set(IOperationContext context, SamplePE entity, ProjectPE related)
     {
-        entity.setProject(related);
+        relationshipService.assignSampleToProject(context.getSession(), entity, related);
     }
 
 }

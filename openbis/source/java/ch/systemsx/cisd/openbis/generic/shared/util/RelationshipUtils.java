@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 
@@ -182,6 +183,21 @@ public class RelationshipUtils
         updateModificationDateAndModifier(dataSet, session, modificationTimestamp);
     }
 
+    public static void updateModificationDateAndModifierOfExperimentAndProject(
+            ExperimentPE experiment, ProjectPE previousProject, IAuthSession session, Date modificationTimestamp)
+    {
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session, modificationTimestamp);
+        if (SamplePE.projectSamplesEnabled)
+        {
+            ProjectPE project = experiment.getProject();
+            if (project != previousProject)
+            {
+                RelationshipUtils.updateModificationDateAndModifier(project, session, modificationTimestamp);
+                RelationshipUtils.updateModificationDateAndModifier(previousProject, session, modificationTimestamp);
+            }
+        }
+    }
+    
     public static void updateModificationDateAndModifier(
             IModifierAndModificationDateBean beanOrNull, IAuthSession session, Date modificationTimestamp)
     {

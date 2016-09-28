@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
@@ -30,6 +31,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
@@ -39,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
         implements ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
+
+    @Autowired
+    protected IRelationshipService relationshipService;
 
     @Override
     public void set(final IOperationContext context, MapBatch<ENTITY_CREATION, ENTITY_PE> batch)
