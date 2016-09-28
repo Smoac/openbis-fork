@@ -116,6 +116,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
@@ -130,13 +131,18 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransac
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IngestionService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationService;
@@ -152,6 +158,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -575,7 +582,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         mailClient = ServiceProvider.getDataStoreService().createEMailClient();
 
         String configFileProperty = properties.getProperty(HARVESTER_CONFIG_FILE_PROPERTY_NAME);
-
         if (configFileProperty == null)
         {
             harvesterConfigFile =
@@ -807,7 +813,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
         } catch (Exception e)
         {
-            operationLog.error("Sync failed: " + e.getMessage());
+            operationLog.error("Sync failed: ", e);
             sendErrorEmail("Synchronization failed");
         }
     }
@@ -861,7 +867,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         config.setLogFilePath(reader.getString(DEFAULT_DATA_SOURCE_SECTION, LOG_FILE_PROPERTY_NAME, DEFAULT_LOG_FILE_NAME, false));
         if (config.getLogFilePath() != null)
         {
-            // configureFileAppender();
+            configureFileAppender();
         }
 
         config.setDataSourceURI(reader.getString(DEFAULT_DATA_SOURCE_SECTION, DATA_SOURCE_URL_PROPERTY_NAME, null, true));
@@ -903,6 +909,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         List<DataSetPermId> dsPermIds = new ArrayList<DataSetPermId>();
         List<MaterialPermId> matPermIds = new ArrayList<MaterialPermId>();
 
+        Set<PhysicalDataSet> physicalDataSetsDelete = new HashSet<PhysicalDataSet>();
         // first find out the entities to be deleted
         for (String harvesterSpaceId : spaceMappings.values())
         {
@@ -959,6 +966,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                         boolean sameDS = true;
                         // if (ds.getKind() == DataSetKind.PHYSICAL && ds.lastModificationDate.after(lastSyncDate))
                         String typeCodeOrNull = entity.getTypeCodeOrNull();
+                        
                         DataSetWithConnections dsWithConns = data.datasetsToProcess.get(entity.getPermId());
                         NewExternalData ds = dsWithConns.getDataSet();
                         if (typeCodeOrNull.equals(ds.getDataSetType().getCode()) == false)
@@ -969,7 +977,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                         {
                             if (dsWithConns.getKind() == DataSetKind.PHYSICAL && dsWithConns.getLastModificationDate().after(lastSyncTimestamp))
                             {
+                                PhysicalDataSet physicalDS = service.tryGetDataSet(entity.getPermId()).tryGetAsDataSet();
                                 sameDS = deepCompareDataSets(entity.getPermId());
+                                if (sameDS == false)
+                                    physicalDataSetsDelete.add(physicalDS);
                             }
                         }
                         if (sameDS == false)
@@ -1023,6 +1034,29 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
         // confirm deletions
         v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
+
+        for (PhysicalDataSet physicalDS : physicalDataSetsDelete)
+        {
+            operationLog.info("Is going to delete the location: " + physicalDS.getLocation());
+            File datasetDir =
+                    getDirectoryProvider().getDataSetDirectory(physicalDS);
+            SegmentedStoreUtils.deleteDataSetInstantly(physicalDS.getCode(), datasetDir, new Log4jSimpleLogger(operationLog));
+        }
+    }
+
+    private IDataSetDirectoryProvider getDirectoryProvider()
+    {
+        return new DataSetDirectoryProvider(getConfigProvider().getStoreRoot(), getShareIdManager());
+    }
+
+    private IConfigProvider getConfigProvider()
+    {
+        return ServiceProvider.getConfigProvider();
+    }
+
+    private IShareIdManager getShareIdManager()
+    {
+        return ServiceProvider.getShareIdManager();
     }
 
     private boolean deepCompareDataSets(String dataSetCode)
