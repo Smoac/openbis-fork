@@ -48,7 +48,10 @@ public class SetSampleExperimentExecutor extends AbstractSetEntityExperimentRela
     @Override
     protected void set(IOperationContext context, SamplePE entity, ExperimentPE related)
     {
-        relationshipService.assignSampleToExperiment(context.getSession(), entity, related);
+        if (related != null)
+        {
+            relationshipService.assignSampleToExperiment(context.getSession(), entity, related);
+        }
     }
 
 }
