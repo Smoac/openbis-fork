@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.common.mail.EMailAddress;
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
  *
  * @author Ganime Betul Akin
  */
-class SyncConfig
+public class SyncConfig
 {
     private String dataSourceURI;
 
@@ -111,24 +112,30 @@ class SyncConfig
         this.dataSourcePrefix = dataSourcePrefix;
     }
 
-    public String getDataSourceSpaces()
+    public List<String> getDataSourceSpaces()
     {
         return dataSourceSpaces;
     }
 
     public void setDataSourceSpaces(String dataSourceSpaces)
     {
-        this.dataSourceSpaces = dataSourceSpaces;
+        for (String token : dataSourceSpaces.split(SEPARATOR))
+        {
+            this.dataSourceSpaces.add(token.trim());
+        }
     }
 
-    public String getHarvesterSpaces()
+    public List<String> getHarvesterSpaces()
     {
         return harvesterSpaces;
     }
 
     public void setHarvesterSpaces(String harvesterSpaces)
     {
-        this.harvesterSpaces = harvesterSpaces;
+        for (String token : harvesterSpaces.split(SEPARATOR))
+        {
+            this.harvesterSpaces.add(token.trim());
+        }
     }
 
     public String getHarvesterTempDir()
@@ -178,9 +185,9 @@ class SyncConfig
 
     private String dataSourcePrefix;
 
-    private String dataSourceSpaces;
+    private List<String> dataSourceSpaces = new ArrayList<>();
 
-    private String harvesterSpaces;
+    private List<String> harvesterSpaces = new ArrayList<>();
 
     private String harvesterTempDir;
 
@@ -188,7 +195,14 @@ class SyncConfig
 
     private String logFilePath;
 
-    private static final String SEPARATOR = ",";;
+    private static final String SEPARATOR = ",";
+
+    private HashMap<String, String> spaceMappings = new HashMap<String, String>();
+
+    public HashMap<String, String> getSpaceMappings()
+    {
+        return spaceMappings;
+    }
 
     public String getLogFilePath()
     {
@@ -207,9 +221,7 @@ class SyncConfig
 
     public void setEmailAddresses(String emailAddresses)
     {
-        String[] tokens =
-                emailAddresses.split(SEPARATOR);
-        for (String token : tokens)
+        for (String token : emailAddresses.split(SEPARATOR))
         {
             this.emailAddresses.add(new EMailAddress(token.trim()));
         }

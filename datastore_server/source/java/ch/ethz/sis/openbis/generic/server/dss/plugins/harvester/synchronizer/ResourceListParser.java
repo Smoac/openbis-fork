@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.openbis.generic.server.dss.plugins;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,12 +42,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.Connection;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.DataSetWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.ExperimentWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.MaterialWithLastModificationDate;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.ProjectWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.ResourceListParserData.SampleWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.Connection;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.ExperimentWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -292,7 +292,7 @@ public class ResourceListParser
             }
         }
         DataSetWithConnections newDsWithConns = data.new DataSetWithConnections(ds, lastModificationDate);
-        data.datasetsToProcess.put(permId, newDsWithConns);
+        data.getDataSetsToProcess().put(permId, newDsWithConns);
         newDsWithConns.setConnections(parseConnections(xpath, xdNode));
         ds.setDataSetProperties(parseDataSetProperties(xpath, xdNode));
     }
@@ -325,7 +325,7 @@ public class ResourceListParser
         newProject.setPermID(permId);
         ProjectWithConnections newPrjWithConns =
                 data.new ProjectWithConnections(newProject, lastModificationDate);
-        data.projectsToProcess.put(permId, newPrjWithConns);
+        data.getProjectsToProcess().put(permId, newPrjWithConns);
         newPrjWithConns.setConnections(parseConnections(xpath, xdNode));
     }
 
@@ -336,7 +336,7 @@ public class ResourceListParser
         NewMaterialWithType newMaterial = new NewMaterialWithType(code, type);
         MaterialWithLastModificationDate materialWithLastModDate =
                 data.new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
-        data.materialsToProcess.put(code, materialWithLastModDate);
+        data.getMaterialsToProcess().put(code, materialWithLastModDate);
         newMaterial.setProperties(parseProperties(xpath, xdNode));
     }
 
@@ -423,7 +423,7 @@ public class ResourceListParser
         NewExperiment newExp = new NewExperiment("/" + spaceMappings.get(space) + "/" + project + "/" + code, type);
         newExp.setPermID(permId);
         ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
-        data.experimentsToProcess.put(permId, newExpWithConns);
+        data.getExperimentsToProcess().put(permId, newExpWithConns);
         newExpWithConns.setConnections(parseConnections(xpath, xdNode));
         newExp.setProperties(parseProperties(xpath, xdNode));
     }
@@ -442,7 +442,7 @@ public class ResourceListParser
                 new ArrayList<NewAttachment>());
         newSample.setPermID(permId);
         SampleWithConnections newSampleWithConns = data.new SampleWithConnections(newSample, lastModificationDate);
-        data.samplesToProcess.put(permId, newSampleWithConns);
+        data.getSamplesToProcess().put(permId, newSampleWithConns);
         newSampleWithConns.setConnections(parseConnections(xpath, xdNode));
         newSample.setProperties(parseProperties(xpath, xdNode));
     }

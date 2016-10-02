@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.config;
 
 /**
  * 

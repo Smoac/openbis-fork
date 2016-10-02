@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.openbis.generic.server.dss.plugins;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,22 +36,47 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
  */
 public class ResourceListParserData
 {
-    public Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
+    private Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
 
-    public Map<String, ExperimentWithConnections> experimentsToProcess = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
+    private Map<String, ExperimentWithConnections> experimentsToProcess = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
 
-    public Map<String, SampleWithConnections> samplesToProcess = new HashMap<String, ResourceListParserData.SampleWithConnections>();
+    private Map<String, SampleWithConnections> samplesToProcess = new HashMap<String, ResourceListParserData.SampleWithConnections>();
 
-    public Map<String, DataSetWithConnections> datasetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
+    private Map<String, DataSetWithConnections> dataSetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
 
-    public Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
+    private Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
+
+    public Map<String, ProjectWithConnections> getProjectsToProcess()
+    {
+        return projectsToProcess;
+    }
+
+    public Map<String, ExperimentWithConnections> getExperimentsToProcess()
+    {
+        return experimentsToProcess;
+    }
+
+    public Map<String, SampleWithConnections> getSamplesToProcess()
+    {
+        return samplesToProcess;
+    }
+
+    public Map<String, DataSetWithConnections> getDataSetsToProcess()
+    {
+        return dataSetsToProcess;
+    }
+
+    public Map<String, MaterialWithLastModificationDate> getMaterialsToProcess()
+    {
+        return materialsToProcess;
+    }
 
     public Map<String, DataSetWithConnections> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate)
     {
         Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
-        for (String permId : datasetsToProcess.keySet())
+        for (String permId : dataSetsToProcess.keySet())
         {
-            DataSetWithConnections ds = datasetsToProcess.get(permId);
+            DataSetWithConnections ds = dataSetsToProcess.get(permId);
             if (ds.getKind() == DataSetKind.PHYSICAL && ds.lastModificationDate.after(lastSyncDate))
             {
                 dsMap.put(permId, ds);
@@ -64,9 +89,9 @@ public class ResourceListParserData
     {
         // List<NewDataSetWithConnections> dsList = new ArrayList<ResourceListParserData.NewDataSetWithConnections>();
         Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
-        for (String permId : datasetsToProcess.keySet())
+        for (String permId : dataSetsToProcess.keySet())
         {
-            DataSetWithConnections ds = datasetsToProcess.get(permId);
+            DataSetWithConnections ds = dataSetsToProcess.get(permId);
             if (ds.getKind() == DataSetKind.CONTAINER)
             {
                 dsMap.put(permId, ds);
