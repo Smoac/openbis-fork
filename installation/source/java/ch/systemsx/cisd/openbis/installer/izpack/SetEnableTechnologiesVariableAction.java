@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
  */
 public class SetEnableTechnologiesVariableAction implements PanelAction
 {
-    private static final String[] MODULES = {"dropbox-monitor", "dataset-uploader", "dataset-file-search"};
+    private static final String[] MODULES = { "dropbox-monitor", "dataset-uploader", "dataset-file-search" };
 
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
@@ -106,8 +106,17 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
             if (Boolean.TRUE.toString().equalsIgnoreCase(technologyFlag))
             {
                 builder.append(lowerCasedTechnology);
+
+                if (technology == GlobalInstallationContext.TECHNOLOGY_MICROSCOPY ||
+                        technology == GlobalInstallationContext.TECHNOLOGY_FLOW_CYTOMETRY)
+                {
+                    String lowerCasedTechnologyShared = GlobalInstallationContext.TECHNOLOGY_SHARED_MICROSCOPY_FLOW_CYTOMETRY.toLowerCase();
+                    builder.append(lowerCasedTechnologyShared);
+                    allTechnologies.add(lowerCasedTechnologyShared);
+                }
             }
         }
+
         Properties properties = Utils.tryToGetProperties(configFile);
         if (properties != null)
         {
