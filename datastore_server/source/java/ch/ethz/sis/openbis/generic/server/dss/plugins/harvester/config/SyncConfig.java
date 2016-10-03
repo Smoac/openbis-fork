@@ -62,36 +62,6 @@ public class SyncConfig
         this.dataSourceDSSURL = dataSourceDSSURL;
     }
 
-    public String getRealm()
-    {
-        return realm;
-    }
-
-    public void setRealm(String realm)
-    {
-        this.realm = realm;
-    }
-
-    public String getUser()
-    {
-        return user;
-    }
-
-    public void setUser(String user)
-    {
-        this.user = user;
-    }
-
-    public String getPass()
-    {
-        return pass;
-    }
-
-    public void setPass(String pass)
-    {
-        this.pass = pass;
-    }
-
     public String getLastSyncTimestampFileName()
     {
         return lastSyncTimestampFileName;
@@ -171,15 +141,11 @@ public class SyncConfig
         }
     }
 
+    private BasicAuthCredentials auth;
+
     private String dataSourceOpenbisURL;
 
     private String dataSourceDSSURL;
-
-    private String realm;
-
-    private String user;
-
-    private String pass;
 
     private String lastSyncTimestampFileName;
 
@@ -225,5 +191,25 @@ public class SyncConfig
         {
             this.emailAddresses.add(new EMailAddress(token.trim()));
         }
+    }
+
+    public void setAuthCredentials(String realm, String user, String pass)
+    {
+        this.auth = new BasicAuthCredentials(realm, user, pass);
+    }
+
+    public BasicAuthCredentials getAuthenticationCredentials()
+    {
+        return auth;
+    }
+
+    public String getUser()
+    {
+        return this.auth.getUser();
+    }
+
+    public String getPassword()
+    {
+        return this.auth.getPassword();
     }
 }

@@ -81,15 +81,16 @@ public class SynchronizationConfigReader
             config.setLogFilePath(reader.getString(section, LOG_FILE_PROPERTY_NAME, DEFAULT_LOG_FILE_NAME, false));
             if (config.getLogFilePath() != null)
             {
-                // configureFileAppender(config, logger);
+                configureFileAppender(config, logger);
             }
 
             config.setDataSourceURI(reader.getString(section, DATA_SOURCE_URL_PROPERTY_NAME, null, true));
             config.setDataSourceOpenbisURL(reader.getString(section, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null, true));
             config.setDataSourceDSSURL(reader.getString(section, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null, true));
-            config.setRealm(reader.getString(section, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null, true));
-            config.setUser(reader.getString(section, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null, true));
-            config.setPass(reader.getString(section, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null, true));
+            String realm = reader.getString(section, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null, true);
+            String user = reader.getString(section, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null, true);
+            String pass = reader.getString(section, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null, true);
+            config.setAuthCredentials(realm, user, pass);
 
             config.setDataSourceSpaces(reader.getString(section, DATA_SOURCE_SPACES_PROPERTY_NAME, null, true));
             config.setHarvesterSpaces(reader.getString(section, HARVESTER_SPACES_PROPERTY_NAME, null, true));

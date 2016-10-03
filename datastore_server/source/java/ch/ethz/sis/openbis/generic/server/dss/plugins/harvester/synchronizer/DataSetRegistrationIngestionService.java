@@ -27,19 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
@@ -54,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 class DataSetRegistrationIngestionService extends IngestionService<DataSetInformation>
 {
-
     private static final long serialVersionUID = 1L;
 
     private List<String> dataSetCodes;
@@ -144,20 +138,9 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
     private void downloadDataSetFiles(File dir, String dataSetCode)
     {
-        SslCertificateHelper.trustAnyCertificate(asUrl);
-        SslCertificateHelper.trustAnyCertificate(dssUrl);
-
-        IDataStoreServerApi dss =
-                HttpInvokerUtils.createStreamSupportingServiceStub(IDataStoreServerApi.class,
-                        dssUrl + IDataStoreServerApi.SERVICE_URL, 10000);
-        IApplicationServerApi as = HttpInvokerUtils
-                .createServiceStub(IApplicationServerApi.class, asUrl
-                        + IApplicationServerApi.SERVICE_URL, 10000);
-        String sessionToken = as.login(loginUser, loginPass);
-
-        DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
-        criteria.withDataSet().withCode().thatEquals(dataSetCode);
-        SearchResult<DataSetFile> result = dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+        DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
+        String sessionToken = dssFileUtils.login(loginUser, loginPass);
+        SearchResult<DataSetFile> result = dssFileUtils.searchWithDataSetCode(sessionToken, dataSetCode, new DataSetFileFetchOptions());
         List<DataSetFile> files = result.getObjects();
 
         List<IDataSetFileId> fileIds = new LinkedList<IDataSetFileId>();
@@ -168,7 +151,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         // Download the files & print the contents
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
         options.setRecursive(false);
-        InputStream stream = dss.downloadFiles(sessionToken, fileIds, options);
+        InputStream stream = dssFileUtils.downloadFiles(sessionToken, fileIds, options);
         DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
         DataSetFileDownload fileDownload = null;
         while ((fileDownload = reader.read()) != null)

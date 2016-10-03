@@ -16,11 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,19 +36,11 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.AuthenticationStore;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BasicAuthentication;
-import org.eclipse.jetty.http.HttpStatus;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -85,10 +75,7 @@ import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -171,7 +158,8 @@ public class EntitySynchronizer
 
         // retrieve the document from the data source
         operationLog.info("Retrieving the resource list..");
-        Document doc = getResourceListAsXMLDoc();
+        DataSourceConnector connector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials());
+        Document doc = connector.getResourceListAsXMLDoc(new ArrayList<String>(config.getSpaceMappings().keySet()));
 
         // Parse the resource list: This sends back all projects,
         // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
@@ -179,11 +167,9 @@ public class EntitySynchronizer
         ResourceListParser parser = ResourceListParser.create(config.getSpaceMappings()); // , lastSyncTimestamp
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
-        operationLog.info("Processing deletions");
         processDeletions(data);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
-
         processMetaData(data, builder);
 
         operationLog.info("Registering meta data...");
@@ -192,9 +178,7 @@ public class EntitySynchronizer
 
         // register physical data sets
         operationLog.info("Registering data sets...");
-
         Map<String, DataSetWithConnections> physicalDSMap = data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp);
-
         registerPhysicalDataSets(physicalDSMap);
 
         // link physical data sets registered above to container data sets
@@ -316,7 +300,6 @@ public class EntitySynchronizer
             builder.dataSetUpdate(dsBatchUpdatesDTO);
         }
         operationResult = service.performEntityOperations(builder.getDetails());
-        System.err.println("entity operation result: " + operationResult);
         operationLog.info("entity operation result: " + operationResult);
     }
 
@@ -351,50 +334,11 @@ public class EntitySynchronizer
         // service.commit();
     }
 
-    private Document getResourceListAsXMLDoc() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
-            URISyntaxException,
-            InterruptedException, TimeoutException, ExecutionException
-    {
 
-        HttpClient client = JettyHttpClientFactory.getHttpClient();
-
-        // Add authentication credentials
-        AuthenticationStore auth = client.getAuthenticationStore();
-        auth.addAuthentication(new BasicAuthentication(new URI(config.getDataSourceURI()), config.getRealm(), config.getUser(), config.getPass()));
-
-        String spacesParam = "";
-        for (String dataSourceSpace : config.getSpaceMappings().keySet())
-        {
-            spacesParam += dataSourceSpace + ",";
-        }
-        if (spacesParam.isEmpty() == false)
-        {
-            spacesParam = spacesParam.substring(0, spacesParam.length() - 1);
-        }
-        Request requestEntity = client.newRequest(config.getDataSourceURI() + "?verb=resourcelist.xml&spaces=" + spacesParam).method("GET");
-
-        ContentResponse contentResponse;
-        contentResponse = requestEntity.send();
-        int statusCode = contentResponse.getStatus();
-
-        if (statusCode != HttpStatus.Code.OK.getCode())
-        {
-            throw new IOException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
-        }
-
-        byte[] content = contentResponse.getContent();
-        ByteArrayInputStream bis = new ByteArrayInputStream(content);
-
-        // System.out.println(new String(content));
-        DocumentBuilderFactory domFactory =
-                DocumentBuilderFactory.newInstance();
-        domFactory.setNamespaceAware(true);
-        DocumentBuilder builder = domFactory.newDocumentBuilder();
-        return builder.parse(bis);
-    }
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
     {
+        operationLog.info("Processing deletions");
         String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
         EntityRetriever entityRetriever =
                 EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), sessionToken);
@@ -564,7 +508,7 @@ public class EntitySynchronizer
                     experiment = service.tryGetExperimentByPermId(newIncomingExp.getPermID());
                 } catch (Exception e)
                 {
-                    // TODO doing nothing because when the experiment with the perm id not found
+                    // doing nothing because when the experiment with the perm id not found
                     // an exception will be thrown. Seems to be the same with entity kinds
                 }
 
@@ -580,11 +524,11 @@ public class EntitySynchronizer
                     builder.experimentUpdate(expUpdate);
                 }
             }
-            handleSampleConnections(data, exp, newIncomingExp);
+            handleExperimentConnections(data, exp, newIncomingExp);
         }
     }
 
-    private void handleSampleConnections(ResourceListParserData data, ExperimentWithConnections exp, NewExperiment newIncomingExp)
+    private void handleExperimentConnections(ResourceListParserData data, ExperimentWithConnections exp, NewExperiment newIncomingExp)
     {
         Map<String, SampleWithConnections> samplesToProcess = data.getSamplesToProcess();
         Map<String, DataSetWithConnections> dataSetsToProcess = data.getDataSetsToProcess();
@@ -670,7 +614,7 @@ public class EntitySynchronizer
                     builder.projectUpdate(createProjectUpdateDTO(incomingProject, project));
                 }
             }
-            handleProjectConnections(data, prj);
+            // handleProjectConnections(data, prj);
         }
     }
 
@@ -686,6 +630,7 @@ public class EntitySynchronizer
                 // the project is connected to an experiment
                 ExperimentWithConnections exp = experimentsToProcess.get(connectedExpPermId);
                 NewExperiment newExp = exp.getExperiment();
+                Experiment experiment = service.tryGetExperimentByPermId(connectedExpPermId);
                 // check if our local graph has the same connection
                 if (service.tryGetExperiment(ExperimentIdentifierFactory.parse(newExp.getIdentifier())) == null)
                 {
@@ -693,16 +638,14 @@ public class EntitySynchronizer
                     String oldIdentifier = newExp.getIdentifier();
                     int index = oldIdentifier.lastIndexOf('/');
                     String expCode = oldIdentifier.substring(index + 1);
-
                     newExp.setIdentifier(prj.getProject().getIdentifier() + "/" + expCode);
                     // add new experiment node
                 }
             }
             else
             {
-                // TODO This means the XML contains the connection but not the connected entity.
-                // These sort of problems maybe recorded in a separate synchronization log?
-                // ???????????????
+                // This means the XML contains the connection but not the connected entity.
+                // This is an unlikely scenario.
                 operationLog.info("Connected experiment with permid : " + connectedExpPermId + " is missing");
             }
         }
@@ -739,7 +682,7 @@ public class EntitySynchronizer
                     sampleWithExperiment = service.tryGetSampleByPermId(incomingSample.getPermID());
                 } catch (Exception e)
                 {
-                    // TODO doing nothing because when the sample with the perm is not found
+                    // doing nothing because when the sample with the perm is not found
                     // an exception will be thrown. See the same issue for projects
                 }
                 if (sampleWithExperiment == null)
@@ -877,7 +820,7 @@ public class EntitySynchronizer
         {
             Properties props = new Properties();
             props.setProperty("user", EntitySynchronizer.this.config.getUser());
-            props.setProperty("pass", EntitySynchronizer.this.config.getPass());
+            props.setProperty("pass", EntitySynchronizer.this.config.getPassword());
             props.setProperty("as-url", EntitySynchronizer.this.config.getDataSourceOpenbisURL());
             props.setProperty("dss-url", EntitySynchronizer.this.config.getDataSourceDSSURL());
             props.setProperty("harvester-temp-dir", EntitySynchronizer.this.config.getHarvesterTempDir());
@@ -892,21 +835,14 @@ public class EntitySynchronizer
         String asUrl = config.getDataSourceOpenbisURL();
         String dssUrl = config.getDataSourceDSSURL();
 
-        SslCertificateHelper.trustAnyCertificate(dssUrl);
-        SslCertificateHelper.trustAnyCertificate(asUrl);
-
-        IDataStoreServerApi dss =
-                HttpInvokerUtils.createStreamSupportingServiceStub(IDataStoreServerApi.class,
-                        dssUrl + IDataStoreServerApi.SERVICE_URL, 10000);
-        IApplicationServerApi as = HttpInvokerUtils
-                .createServiceStub(IApplicationServerApi.class, asUrl
-                        + IApplicationServerApi.SERVICE_URL, 10000);
-        String sessionToken = as.login(config.getUser(), config.getPass());
+        DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
+        String sessionToken = dssFileUtils.login(config.getUser(), config.getPassword());
 
         DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
         criteria.withDataSet().withCode().thatEquals(dataSetCode);
-        SearchResult<DataSetFile> result = dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+        SearchResult<DataSetFile> result = dssFileUtils.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
 
+        // get the file nodes in the harvester openbis
         IDataStoreServerApi dssharvester = (IDataStoreServerApi) ServiceProvider.getDssServiceV3().getService();
         SearchResult<DataSetFile> resultHarvester =
                 dssharvester.searchFiles(ServiceProvider.getOpenBISService().getSessionToken(), criteria, new DataSetFileFetchOptions());
