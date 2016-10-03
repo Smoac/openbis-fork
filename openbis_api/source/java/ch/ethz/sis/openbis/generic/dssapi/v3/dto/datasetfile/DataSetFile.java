@@ -18,12 +18,12 @@ package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Jakub Straszewski
@@ -47,6 +47,9 @@ public class DataSetFile implements Serializable
 
     @JsonProperty
     private long fileLength;
+
+    @JsonProperty
+    private int checksumCRC32;
 
     @JsonIgnore
     public DataSetFilePermId getPermId()
@@ -107,5 +110,16 @@ public class DataSetFile implements Serializable
     public String toString()
     {
         return "DataSetFile: " + path + ", " + dataSetPermId;
+    }
+
+    @JsonIgnore
+    public int getChecksumCRC32()
+    {
+        return checksumCRC32;
+    }
+
+    public void setChecksumCRC32(int checksumCRC32)
+    {
+        this.checksumCRC32 = checksumCRC32;
     }
 }
