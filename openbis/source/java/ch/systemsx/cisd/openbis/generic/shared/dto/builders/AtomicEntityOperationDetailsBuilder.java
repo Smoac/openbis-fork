@@ -185,4 +185,11 @@ public class AtomicEntityOperationDetailsBuilder
         list.add(newMaterial.getMaterial());
         return this;
     }
+
+    public AtomicEntityOperationDetailsBuilder space(NewSpace newSpace)
+    {
+        spaceRegistrations.add(newSpace);
+        return this;
+    }
+
 }

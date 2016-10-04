@@ -89,6 +89,10 @@ public class SyncConfig
 
     public void setDataSourceSpaces(String dataSourceSpaces)
     {
+        if (dataSourceSpaces == null)
+        {
+            return;
+        }
         for (String token : dataSourceSpaces.split(SEPARATOR))
         {
             this.dataSourceSpaces.add(token.trim());
@@ -102,6 +106,10 @@ public class SyncConfig
 
     public void setHarvesterSpaces(String harvesterSpaces)
     {
+        if (harvesterSpaces == null)
+        {
+            return;
+        }
         for (String token : harvesterSpaces.split(SEPARATOR))
         {
             this.harvesterSpaces.add(token.trim());

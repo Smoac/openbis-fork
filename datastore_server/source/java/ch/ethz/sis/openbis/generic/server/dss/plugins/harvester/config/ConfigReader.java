@@ -36,6 +36,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 public class ConfigReader
 {
 
+    private static final String IGNORE_LINE_CHAR = "#";
+
     private Pattern sectionRegex = Pattern.compile("\\s*\\[([^]]*)\\]\\s*");
 
     private Pattern keyValueRegex = Pattern.compile("\\s*([^=]*)=(.*)");
@@ -110,7 +112,7 @@ public class ConfigReader
                 else if (section != null)
                 {
                     m = keyValueRegex.matcher(line);
-                    if (m.matches())
+                    if (m.matches() && line.startsWith(IGNORE_LINE_CHAR) == false)
                     {
                         String key = m.group(1).trim();
                         String value = m.group(2).trim();

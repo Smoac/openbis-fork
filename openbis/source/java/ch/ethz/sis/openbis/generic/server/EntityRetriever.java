@@ -78,6 +78,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
@@ -164,8 +165,7 @@ public class EntityRetriever
 
     public static EntityRetriever createWithSessionToken(IApplicationServerApi v3Api, String sessionToken)
     {
-        EntityRetriever er = new EntityRetriever(v3Api, sessionToken);
-        return er;
+        return new EntityRetriever(v3Api, sessionToken);
     }
 
     public EntityGraph<Node<?>> getEntityGraph(String spaceId)
@@ -184,6 +184,14 @@ public class EntityRetriever
                         Arrays.asList(spacePermId),
                         new SpaceFetchOptions());
         return map.get(spacePermId) != null;
+    }
+
+    /**
+     * Returns spaces the logged in user is allowed to see
+     */
+    public List<Space> getSpaces()
+    {
+        return v3Api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
     }
 
     public void buildEntityGraph(String spaceId)

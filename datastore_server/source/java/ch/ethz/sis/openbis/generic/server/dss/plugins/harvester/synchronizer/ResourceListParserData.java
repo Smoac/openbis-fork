@@ -19,8 +19,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -36,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
  */
 public class ResourceListParserData
 {
+    private Set<String> harvesterSpaceList = new HashSet<>();
+
     private Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
 
     private Map<String, ExperimentWithConnections> experimentsToProcess = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
@@ -45,6 +49,11 @@ public class ResourceListParserData
     private Map<String, DataSetWithConnections> dataSetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
 
     private Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
+
+    public Set<String> getHarvesterSpaceList()
+    {
+        return harvesterSpaceList;
+    }
 
     public Map<String, ProjectWithConnections> getProjectsToProcess()
     {

@@ -92,9 +92,20 @@ public class SynchronizationConfigReader
             String pass = reader.getString(section, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null, true);
             config.setAuthCredentials(realm, user, pass);
 
-            config.setDataSourceSpaces(reader.getString(section, DATA_SOURCE_SPACES_PROPERTY_NAME, null, true));
-            config.setHarvesterSpaces(reader.getString(section, HARVESTER_SPACES_PROPERTY_NAME, null, true));
-            createDataSourceToHarvesterSpaceMappings(config);
+            String dsSpaces = reader.getString(section, DATA_SOURCE_SPACES_PROPERTY_NAME, null, false);
+            if (dsSpaces != null)
+            {
+                config.setDataSourceSpaces(dsSpaces);
+            }
+            String hrvSpaces = reader.getString(section, HARVESTER_SPACES_PROPERTY_NAME, null, false);
+            if (hrvSpaces != null)
+            {
+                config.setHarvesterSpaces(hrvSpaces);
+            }
+            if (dsSpaces != null && hrvSpaces != null)
+            {
+                createDataSourceToHarvesterSpaceMappings(config);
+            }
 
             config.setDataSourcePrefix(reader.getString(section, DATA_SOURCE_PREFIX_PROPERTY_NAME, null, false));
             config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store", false));

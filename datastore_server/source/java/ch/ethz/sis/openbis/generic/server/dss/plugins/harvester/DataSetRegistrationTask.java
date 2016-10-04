@@ -134,7 +134,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             try
             {
                 operationLog
-                        .info("Start synchronization from data source: " + config.getDataSourceOpenbisURL() + " spaces:" + spaceMappings.keySet());
+                        .info("Start synchronization from data source: " + config.getDataSourceOpenbisURL() + " for user " + config.getUser());
 
                 String fileName = config.getLastSyncTimestampFileName();
                 lastSyncTimestampFile = new File(fileName);

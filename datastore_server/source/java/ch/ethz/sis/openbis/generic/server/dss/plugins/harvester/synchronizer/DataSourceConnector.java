@@ -58,14 +58,14 @@ public class DataSourceConnector
         this.authCredentials = authCredentials;
     }
 
-    public Document getResourceListAsXMLDoc(List<String> spaces) throws ParserConfigurationException, SAXException, IOException,
+    public Document getResourceListAsXMLDoc(List<String> spaceBlackList) throws ParserConfigurationException, SAXException, IOException,
             XPathExpressionException,
             URISyntaxException,
             InterruptedException, TimeoutException, ExecutionException
     {
         HttpClient client = JettyHttpClientFactory.getHttpClient();
         addAuthenticationCredentials(client);
-        Request requestEntity = createNewHttpRequest(client, spaces);
+        Request requestEntity = createNewHttpRequest(client, spaceBlackList);
         ContentResponse contentResponse = getResponse(requestEntity);
         return parseResponse(contentResponse);
     }
@@ -89,23 +89,26 @@ public class DataSourceConnector
 
         if (statusCode != HttpStatus.Code.OK.getCode())
         {
-            throw new IOException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
+            throw new IOException("Resource List could not be retrieved: " + contentResponse.getContentAsString());
         }
         return contentResponse;
     }
 
-    private Request createNewHttpRequest(HttpClient client, List<String> spaces)
+    private Request createNewHttpRequest(HttpClient client, List<String> spaceBlackList)
     {
-        String spacesParam = "";
-        for (String dataSourceSpace : spaces)
+        StringBuffer sb = new StringBuffer();
+        for (String dataSourceSpace : spaceBlackList)
         {
-            spacesParam += dataSourceSpace + ",";
+            sb.append(dataSourceSpace + ",");
         }
-        if (spacesParam.isEmpty() == false)
+        String req = dataSourceUrl + "?verb=resourcelist.xml";
+        if (sb.length() != 0)
         {
-            spacesParam = spacesParam.substring(0, spacesParam.length() - 1);
+            String str = sb.toString();
+            str = str.substring(0, str.length() - 1);
+            req += "&black_list=" + str;
         }
-        Request requestEntity = client.newRequest(dataSourceUrl + "?verb=resourcelist.xml&spaces=" + spacesParam).method("GET");
+        Request requestEntity = client.newRequest(req).method("GET");
         return requestEntity;
     }
 

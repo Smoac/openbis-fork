@@ -20,7 +20,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +47,8 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.Res
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.DefaultNameTranslator;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.INameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -75,20 +76,37 @@ public class ResourceListParser
 {
     private final ResourceListParserData data;
 
+    private INameTranslator nameTranslator;
 
-    private final HashMap<String, String> spaceMappings;
+    public void setNameTranslator(INameTranslator nameTranslator)
+    {
+        this.nameTranslator = nameTranslator;
+    }
 
-    private ResourceListParser(HashMap<String, String> spaceMappings)
+    public INameTranslator getNameTranslator()
+    {
+        return nameTranslator;
+    }
+
+    private ResourceListParser(INameTranslator nameTranslator)
     {
         // TODO do the returning of parser data better
         this.data = new ResourceListParserData();
-        this.spaceMappings = spaceMappings;
+        this.nameTranslator = nameTranslator;
     }
 
-    public static ResourceListParser create(HashMap<String, String> spaceMappings)
+    public static ResourceListParser create(INameTranslator nameTranslator)
     {
-        ResourceListParser parser = new ResourceListParser(spaceMappings);
-        return parser;
+        if (nameTranslator == null)
+        {
+            return create();
+        }
+        return new ResourceListParser(nameTranslator);
+    }
+
+    public static ResourceListParser create()
+    {
+        return create(new DefaultNameTranslator());
     }
 
     public ResourceListParserData parseResourceListDocument(Document doc) throws XPathExpressionException
@@ -256,11 +274,11 @@ public class ResourceListParser
 
     private void parseDataSetMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
-        String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
-        String sample = xdNode.getAttributes().getNamedItem("sample").getTextContent();
-        String experiment = xdNode.getAttributes().getNamedItem("experiment").getTextContent();
-        String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
-        String dsKind = xdNode.getAttributes().getNamedItem("dsKind").getTextContent();
+        String code = extractCode(xdNode);
+        String sample = extractAttribute(xdNode, "sample");
+        String experiment = extractAttribute(xdNode, "experimente");
+        String type = extractType(xdNode);
+        String dsKind = extractAttribute(xdNode, "dsKind");
         NewExternalData ds = new NewExternalData();
         if (dsKind.equals(DataSetKind.CONTAINER.toString()))
         {
@@ -297,12 +315,22 @@ public class ResourceListParser
         ds.setDataSetProperties(parseDataSetProperties(xpath, xdNode));
     }
 
+    private String extractAttribute(Node xdNode, String attrName)
+    {
+        return xdNode.getAttributes().getNamedItem(attrName).getTextContent();
+    }
+
+    private String extractCode(Node xdNode)
+    {
+        return extractAttribute(xdNode, "code");
+    }
+
     private SampleIdentifier getSampleIdentifier(String sampleIdentifierStr)
     {
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifierStr);
         SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
         String originalSpaceCode = spaceLevel.getSpaceCode();
-        return new SampleIdentifier(new SpaceIdentifier(spaceMappings.get(originalSpaceCode)), sampleIdentifier.getSampleCode());
+        return new SampleIdentifier(new SpaceIdentifier(nameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
     }
 
     private ExperimentIdentifier getExperimentIdentifier(String experiment)
@@ -311,17 +339,17 @@ public class ResourceListParser
         String originalSpaceCode = experimentIdentifier.getSpaceCode();
         String projectCode = experimentIdentifier.getProjectCode();
         String expCode = experimentIdentifier.getExperimentCode();
-        return new ExperimentIdentifier(new ProjectIdentifier(spaceMappings.get(originalSpaceCode), projectCode), expCode);
+        return new ExperimentIdentifier(new ProjectIdentifier(nameTranslator.translate(originalSpaceCode), projectCode), expCode);
     }
 
     private void parseProjectMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
 
-        String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
+        String code = extractCode(xdNode);
         String desc = xdNode.getAttributes().getNamedItem("desc").getTextContent();
-        String space = xdNode.getAttributes().getNamedItem("space").getTextContent();
+        String space = extractSpace(xdNode);
         // TODO is there a better way to create project identifier below?
-        NewProject newProject = new NewProject("/" + spaceMappings.get(space) + "/" + code, desc);
+        NewProject newProject = new NewProject("/" + nameTranslator.translate(space) + "/" + code, desc);
         newProject.setPermID(permId);
         ProjectWithConnections newPrjWithConns =
                 data.new ProjectWithConnections(newProject, lastModificationDate);
@@ -331,8 +359,8 @@ public class ResourceListParser
 
     private void parseMaterialMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
-        String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
-        String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
+        String code = extractCode(xdNode);
+        String type = extractType(xdNode);
         NewMaterialWithType newMaterial = new NewMaterialWithType(code, type);
         MaterialWithLastModificationDate materialWithLastModDate =
                 data.new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
@@ -416,11 +444,11 @@ public class ResourceListParser
 
     private void parseExperimentMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
-        String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
-        String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
-        String project = xdNode.getAttributes().getNamedItem("project").getTextContent();
-        String space = xdNode.getAttributes().getNamedItem("space").getTextContent();
-        NewExperiment newExp = new NewExperiment("/" + spaceMappings.get(space) + "/" + project + "/" + code, type);
+        String code = extractCode(xdNode);
+        String type = extractType(xdNode);
+        String project = extractAttribute(xdNode, "project");
+        String space = extractSpace(xdNode);
+        NewExperiment newExp = new NewExperiment("/" + nameTranslator.translate(space) + "/" + project + "/" + code, type);
         newExp.setPermID(permId);
         ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
         data.getExperimentsToProcess().put(permId, newExpWithConns);
@@ -430,14 +458,14 @@ public class ResourceListParser
 
     private void parseSampleMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
-        String code = xdNode.getAttributes().getNamedItem("code").getTextContent();
-        String type = xdNode.getAttributes().getNamedItem("type").getTextContent();
-        String experiment = xdNode.getAttributes().getNamedItem("experiment").getTextContent();
-        String space = xdNode.getAttributes().getNamedItem("space").getTextContent();
+        String code = extractCode(xdNode);
+        String type = extractType(xdNode);
+        String experiment = extractAttribute(xdNode, "experiment");
+        String space = extractSpace(xdNode);
         SampleType sampleType = new SampleType();
         sampleType.setCode(type);
 
-        NewSample newSample = new NewSample("/" + spaceMappings.get(space) + "/" + code, sampleType, null, null,
+        NewSample newSample = new NewSample("/" + nameTranslator.translate(space) + "/" + code, sampleType, null, null,
                 experiment.trim().equals("") ? null : experiment, null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>());
         newSample.setPermID(permId);
@@ -445,6 +473,18 @@ public class ResourceListParser
         data.getSamplesToProcess().put(permId, newSampleWithConns);
         newSampleWithConns.setConnections(parseConnections(xpath, xdNode));
         newSample.setProperties(parseProperties(xpath, xdNode));
+    }
+
+    private String extractType(Node xdNode)
+    {
+        return extractAttribute(xdNode, "type");
+    }
+
+    private String extractSpace(Node xdNode)
+    {
+        String space = extractAttribute(xdNode, "space");
+        data.getHarvesterSpaceList().add(nameTranslator.translate(space));
+        return space;
     }
 
     private String extractPermIdFromURI(String uri) throws XPathExpressionException

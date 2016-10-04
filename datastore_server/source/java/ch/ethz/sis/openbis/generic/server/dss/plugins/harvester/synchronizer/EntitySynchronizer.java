@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -70,6 +71,8 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.Res
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.INameTranslator;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.PrefixBasedNameTranslator;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
@@ -100,9 +103,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -120,6 +125,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * 
  *
@@ -159,17 +165,33 @@ public class EntitySynchronizer
         // retrieve the document from the data source
         operationLog.info("Retrieving the resource list..");
         DataSourceConnector connector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials());
-        Document doc = connector.getResourceListAsXMLDoc(new ArrayList<String>(config.getSpaceMappings().keySet()));
+        Document doc = connector.getResourceListAsXMLDoc(Arrays.asList(ArrayUtils.EMPTY_STRING_ARRAY));
 
         // Parse the resource list: This sends back all projects,
         // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
         operationLog.info("parsing the resource list xml document");
-        ResourceListParser parser = ResourceListParser.create(config.getSpaceMappings()); // , lastSyncTimestamp
+        String dataSourcePrefix = config.getDataSourcePrefix();
+        INameTranslator nameTranslator = null;
+        if (dataSourcePrefix != null && dataSourcePrefix.trim().equals("") == false)
+        {
+            nameTranslator = new PrefixBasedNameTranslator(dataSourcePrefix);
+        }
+        ResourceListParser parser = ResourceListParser.create(nameTranslator); // , lastSyncTimestamp
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
         processDeletions(data);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+
+        for (String spaceCode : data.getHarvesterSpaceList())
+        {
+            Space space = service.tryGetSpace(new SpaceIdentifier(spaceCode));
+            if (space == null)
+            {
+                builder.space(new NewSpace(spaceCode, "Synchronized from: " + config.getDataSourceURI(), null));
+            }
+        }
+
         processMetaData(data, builder);
 
         operationLog.info("Registering meta data...");
@@ -334,8 +356,6 @@ public class EntitySynchronizer
         // service.commit();
     }
 
-
-
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
     {
         operationLog.info("Processing deletions");
@@ -358,7 +378,7 @@ public class EntitySynchronizer
 
         Set<PhysicalDataSet> physicalDataSetsDelete = new HashSet<PhysicalDataSet>();
         // first find out the entities to be deleted
-        for (String harvesterSpaceId : config.getSpaceMappings().values())
+        for (String harvesterSpaceId : data.getHarvesterSpaceList())
         {
             EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpaceId);
             List<Node<?>> entities = harvesterEntityGraph.getNodes();
