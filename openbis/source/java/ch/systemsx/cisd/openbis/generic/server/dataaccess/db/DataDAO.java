@@ -146,10 +146,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 @Override
                 public Object doInHibernate(Session session) throws HibernateException
                 {
-
                     InQuery inQuery = new InQuery<Long, Number>();
                     List<Number> list =
-                            inQuery.withBatch(session, "select distinct samp_id from data where samp_id in (:sampleIds)", "sampleIds", sampleIds);
+                            inQuery.withBatch(session, "select distinct samp_id from data where samp_id in (:sampleIds)", "sampleIds", sampleIds,
+                                    null);
                     Set<Long> ids = new HashSet<Long>();
                     for (Number item : list)
                     {
@@ -1341,23 +1341,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         this.currentSession().flush();
         super.validateAndSaveUpdatedEntity(entity);
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
-    }
-
-    @Override
-    protected void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets)
-    {
-        List<DataPE> toUpdate = new ArrayList<DataPE>();
-        addAllDataSetsAndComponentsRecursively(toUpdate, dataSets);
-        super.scheduleDynamicPropertiesEvaluation(toUpdate);
-    }
-
-    private void addAllDataSetsAndComponentsRecursively(List<DataPE> resultDataSets, List<DataPE> dataSets)
-    {
-        for (DataPE dataSet : dataSets)
-        {
-            resultDataSets.add(dataSet);
-            addAllDataSetsAndComponentsRecursively(resultDataSets, dataSet.getContainedDataSets());
-        }
     }
 
     @Override

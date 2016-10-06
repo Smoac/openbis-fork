@@ -72,7 +72,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
-     * {@link JdbcAccessor}. </p>
+     * {@link JdbcAccessor}.
+     * </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
@@ -648,12 +649,16 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 @Override
                 public final Object doInHibernate(final Session session)
                 {
-                    SQLQuery query =
-                            session.createSQLQuery("select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
-                                    + " where relationship_id = :relationship and sample_id_child in (:children)");
-                    query.setParameterList("children", children);
-                    query.setParameter("relationship", relationship);
-                    return query.list();
+                    InQuery inQuery = new InQuery<Long, Number>();
+                    Map<String, Object> fixParams = new HashMap<String, Object>();
+                    fixParams.put("relationship", relationship);
+
+                    List<Object> list =
+                            inQuery.withBatch(session, "select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
+                                    + " where relationship_id = :relationship and sample_id_child in (:children)", "children",
+                                    new ArrayList(children),
+                                    fixParams);
+                    return list;
                 }
             });
 
@@ -729,7 +734,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final List<Long> longIds = TechId.asLongs(sampleTypeIds);
         return listSampleIdsByColumn("sampleType.id", longIds, "samples for given sample types");
     }
-    
+
     @Override
     public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
     {
@@ -741,20 +746,20 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
-                {
-                    @Override
-                    public DetachedCriteria createCriteria()
                     {
-                        final DetachedCriteria criteria =
-                                DetachedCriteria.forClass(SamplePE.class);
-                        criteria.setProjection(Projections.id());
-                        return criteria;
-                    }
-                }, columnName, longIds);
+                        @Override
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(SamplePE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, columnName, longIds);
         operationLog.info(String.format("found %s " + message, results.size()));
         return transformNumbers2TechIdList(results);
     }
-    
+
     @Override
     public void setSampleContainer(final Long sampleId, final Long containerId)
     {
