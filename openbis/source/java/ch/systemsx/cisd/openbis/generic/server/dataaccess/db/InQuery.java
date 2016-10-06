@@ -15,19 +15,21 @@ public class InQuery<I, O>
     {
         List<O> result = new ArrayList<O>(inArguments.size());
 
+        int fixParamsSize = (fixParams == null) ? 0 : fixParams.size();
         int fromIndex = 0;
+
         while (fromIndex < inArguments.size())
         {
-            int toIndex = fromIndex + POSTGRES_DRIVER_MAX_ARGS;
+            int toIndex = fromIndex + POSTGRES_DRIVER_MAX_ARGS - fixParamsSize;
             if (toIndex > inArguments.size())
             {
                 toIndex = inArguments.size();
             }
 
             List<I> partialInArguments = inArguments.subList(fromIndex, toIndex);
-
             SQLQuery query = session.createSQLQuery(inQuery);
             query.setParameterList(inParameter, partialInArguments);
+
             if (fixParams != null)
             {
                 for (String paramName : fixParams.keySet())
