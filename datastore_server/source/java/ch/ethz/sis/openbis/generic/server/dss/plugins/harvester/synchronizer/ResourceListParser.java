@@ -144,7 +144,6 @@ public class ResourceListParser
         List<String> uris = getResourceLocations(doc, xpath);
         for (String uri : uris)
         {
-
             parseUriMetaData(doc, xpath, uri);
         }
 
@@ -276,7 +275,7 @@ public class ResourceListParser
     {
         String code = extractCode(xdNode);
         String sample = extractAttribute(xdNode, "sample");
-        String experiment = extractAttribute(xdNode, "experimente");
+        String experiment = extractAttribute(xdNode, "experiment");
         String type = extractType(xdNode);
         String dsKind = extractAttribute(xdNode, "dsKind");
         NewExternalData ds = new NewExternalData();

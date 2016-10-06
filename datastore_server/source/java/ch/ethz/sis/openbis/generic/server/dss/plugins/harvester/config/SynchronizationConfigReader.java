@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
@@ -37,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public class SynchronizationConfigReader
 {
+    private static final String DEFAULT_HARVESTER_TEMP_DIR = "targets/store";
+
     private static final String DATA_SOURCE_URL_PROPERTY_NAME = "resource-list-url";
 
     private static final String DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME = "data-source-openbis-url";
@@ -45,7 +48,7 @@ public class SynchronizationConfigReader
 
     private static final String DATA_SOURCE_SPACES_PROPERTY_NAME = "data-source-spaces";
 
-    private static final String DATA_SOURCE_PREFIX_PROPERTY_NAME = "data-source-prefix";
+    private static final String DATA_SOURCE_ALIAS_PROPERTY_NAME = "data-source-alias";
 
     private static final String DATA_SOURCE_AUTH_REALM_PROPERTY_NAME = "data-source-auth-realm";
 
@@ -57,13 +60,13 @@ public class SynchronizationConfigReader
 
     private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "harvester-tmp-dir";
 
-    private static final String DEFAULT_LAST_SYNC_TIMESTAMP_FILE = "last-sync-timestamp-file.txt";
-
     private static final String DEFAULT_LOG_FILE_NAME = "../../syncronization.log";
 
     private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME = "last-sync-timestamp-file";
 
     private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
+
+    private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
 
     private static final String LOG_FILE_PROPERTY_NAME = "log-file";
 
@@ -84,6 +87,7 @@ public class SynchronizationConfigReader
                 configureFileAppender(config, logger);
             }
 
+            config.setDataSourceAlias(reader.getString(section, DATA_SOURCE_ALIAS_PROPERTY_NAME, null, true));
             config.setDataSourceURI(reader.getString(section, DATA_SOURCE_URL_PROPERTY_NAME, null, true));
             config.setDataSourceOpenbisURL(reader.getString(section, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null, true));
             config.setDataSourceDSSURL(reader.getString(section, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null, true));
@@ -107,13 +111,18 @@ public class SynchronizationConfigReader
                 createDataSourceToHarvesterSpaceMappings(config);
             }
 
-            config.setDataSourcePrefix(reader.getString(section, DATA_SOURCE_PREFIX_PROPERTY_NAME, null, false));
-            config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, "targets/store", false));
+            setDefaultLastSyncTimestampFileName(config);
+            config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, DEFAULT_HARVESTER_TEMP_DIR, false));
             config.setLastSyncTimestampFileName(reader.getString(section, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME,
-                    DEFAULT_LAST_SYNC_TIMESTAMP_FILE, false));
+                    defaultLastSyncTimestampFileName, false));
             configs.add(config);
         }
         return configs;
+    }
+
+    private void setDefaultLastSyncTimestampFileName(SyncConfig config)
+    {
+        this.defaultLastSyncTimestampFileName = defaultLastSyncTimestampFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
     }
 
     private void configureFileAppender(SyncConfig config, Logger logger)

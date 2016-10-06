@@ -33,7 +33,7 @@ public class PrefixBasedNameTranslator implements INameTranslator
     @Override
     public String translate(String name)
     {
-        return prefix + "-" + name;
+        return prefix + "_" + name;
     }
 
 }

@@ -170,7 +170,7 @@ public class EntitySynchronizer
         // Parse the resource list: This sends back all projects,
         // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
         operationLog.info("parsing the resource list xml document");
-        String dataSourcePrefix = config.getDataSourcePrefix();
+        String dataSourcePrefix = config.getDataSourceAlias();
         INameTranslator nameTranslator = null;
         if (dataSourcePrefix != null && dataSourcePrefix.trim().equals("") == false)
         {
@@ -211,11 +211,8 @@ public class EntitySynchronizer
 
     private void processDataSetRelationships(Map<String, DataSetWithConnections> dataSetsToProcess, Map<String, DataSetWithConnections> physicalDSMap)
     {
-        AtomicEntityOperationDetailsBuilder builder;
-        AtomicEntityOperationResult operationResult;
-        builder = new AtomicEntityOperationDetailsBuilder();
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
 
-        builder.user(config.getUser());
         Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
 
         // set parent and container data set codes before everything else
@@ -321,7 +318,7 @@ public class EntitySynchronizer
 
             builder.dataSetUpdate(dsBatchUpdatesDTO);
         }
-        operationResult = service.performEntityOperations(builder.getDetails());
+        AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
         operationLog.info("entity operation result: " + operationResult);
     }
 

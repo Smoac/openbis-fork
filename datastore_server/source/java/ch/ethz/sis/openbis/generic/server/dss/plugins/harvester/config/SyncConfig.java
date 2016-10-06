@@ -72,14 +72,14 @@ public class SyncConfig
         this.lastSyncTimestampFileName = lastSyncTimestampFileName;
     }
 
-    public String getDataSourcePrefix()
+    public String getDataSourceAlias()
     {
-        return dataSourcePrefix;
+        return dataSourceAlias;
     }
 
-    public void setDataSourcePrefix(String dataSourcePrefix)
+    public void setDataSourceAlias(String dataSourceAlias)
     {
-        this.dataSourcePrefix = dataSourcePrefix;
+        this.dataSourceAlias = dataSourceAlias;
     }
 
     public List<String> getDataSourceSpaces()
@@ -157,7 +157,7 @@ public class SyncConfig
 
     private String lastSyncTimestampFileName;
 
-    private String dataSourcePrefix;
+    private String dataSourceAlias;
 
     private List<String> dataSourceSpaces = new ArrayList<>();
 
