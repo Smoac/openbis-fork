@@ -626,9 +626,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                         @Override
                         public final Object doInHibernate(final Session session)
                         {
+                            InQuery<Long, Object> inQuery = new InQuery<>();
+                            Map<String, Object> fixParams = new HashMap<String, Object>();
+                            fixParams.put("r", relationship.getId());
+
                             final List<Long> longIds = TechId.asLongs(children);
-                            return session.createSQLQuery(query).setParameterList("ids", longIds)
-                                    .setParameter("r", relationship.getId()).list();
+                            List<Object> list = inQuery.withBatch(session, query, "ids", longIds, fixParams);
+                            return list;
                         }
                     });
         Set<TechId> result = transformNumbers2TechIdSet(results);
@@ -643,21 +647,20 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     @Override
     public Map<Long, Set<Long>> mapSampleIdsByChildrenIds(final Collection<Long> children, final Long relationship)
     {
+        final String query = "select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
+                + " where relationship_id = :relationship and sample_id_child in (:children)";
+
         @SuppressWarnings("unchecked")
         final List<Object[]> results = (List<Object[]>) getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
                 public final Object doInHibernate(final Session session)
                 {
-                    InQuery inQuery = new InQuery<Long, Number>();
+                    InQuery<Long, Object> inQuery = new InQuery<>();
                     Map<String, Object> fixParams = new HashMap<String, Object>();
                     fixParams.put("relationship", relationship);
 
-                    List<Object> list =
-                            inQuery.withBatch(session, "select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
-                                    + " where relationship_id = :relationship and sample_id_child in (:children)", "children",
-                                    new ArrayList(children),
-                                    fixParams);
+                    List<Object> list = inQuery.withBatch(session, query, "children", new ArrayList<>(children), fixParams);
                     return list;
                 }
             });
@@ -696,8 +699,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     private Set<TechId> listChildrenIds(final Collection<TechId> parents, String tableName)
     {
-        final String query =
-                "SELECT sample_id_child FROM " + tableName + " WHERE sample_id_parent IN (:ids)";
+        final String query = "SELECT sample_id_child FROM " + tableName + " WHERE sample_id_parent IN (:ids)";
 
         @SuppressWarnings("unchecked")
         final List<? extends Number> results =
@@ -708,8 +710,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                         public final Object doInHibernate(final Session session)
                         {
                             final List<Long> longIds = TechId.asLongs(parents);
-                            return session.createSQLQuery(query).setParameterList("ids", longIds)
-                                    .list();
+                            InQuery<Long, Object> inQuery = new InQuery<>();
+                            List<Object> list = inQuery.withBatch(session, query, "ids", longIds, null);
+                            return list;
                         }
                     });
         Set<TechId> result = transformNumbers2TechIdSet(results);
