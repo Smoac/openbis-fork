@@ -28,6 +28,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
@@ -36,7 +38,6 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.filesystem.CopyModeExisting;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -59,7 +60,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 
 public class TrackingBO
 {
-    private static final String ORIGINAL_PATH = "/original";
+    private static final String ORIGINAL_PATH = "/original/";
 
 	private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
 
@@ -130,6 +131,20 @@ public class TrackingBO
             sendEmails = false;
 
         }
+        else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_LIST_SPACES))
+        {
+            sendEmails = false;
+
+            // trim each list element and sort then
+            String trimmedSpaceList = 
+            		Pattern.compile(",")
+            		       .splitAsStream(params.getSpaceWhitelist())
+                           .map(String :: trim)
+                           .sorted()
+                           .collect(Collectors.joining(","));                        
+            System.out.println(trimmedSpaceList);
+        }
+
         else
         {
             LogUtils.debug("Should never be reached.");
@@ -422,6 +437,9 @@ public class TrackingBO
 		for (AbstractExternalData ds : dataSets) {			
 			File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH);				
 			File targetName = new File (ds.tryGetAsDataSet().getFullLocation());
+					
+			File omittedSource = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH + source.list()[0]);
+						
 			File destination = new File(params.getDestinationFolder(), targetName.getName());
 			
 			if (!destination.exists()) {
@@ -429,12 +447,12 @@ public class TrackingBO
 			}
 			
 			final long start = System.currentTimeMillis();
-			LogUtils.info("Start rsyncing " + ds.getCode() + " from " + source.getPath() + " to " + destination.getPath());
+			LogUtils.info("Start rsyncing " + ds.getCode() + " from " + omittedSource.getPath() + " to " + destination.getPath());
 			
 			// this has always an --archive flag added 
 			// Status status = copier.copyDirectoryImmutably(source, destination,  targetName.getName(), CopyModeExisting.OVERWRITE);
 			
-			Status status = copier.copyContent(source, destination, null, null);
+			Status status = copier.copyContent(omittedSource, destination, null, null);
 			
 			if (status.isError())
 		        {

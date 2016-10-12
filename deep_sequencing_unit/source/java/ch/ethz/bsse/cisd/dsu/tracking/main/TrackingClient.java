@@ -74,7 +74,9 @@ public class TrackingClient
     public static final String CL_PARAMETER_COPY_DATA_SETS = "copy_data_sets";
     
     public static final String CL_PARAMETER_REMOVE_LANES = "remove";
-
+    
+    public static final String CL_PARAMETER_LIST_SPACES = "list_spaces";
+    
     public static void main(String[] args)
     {
         try
@@ -114,11 +116,14 @@ public class TrackingClient
         		.withDescription("remove lanes from tracking list and do not send an email")
         		.create(CL_PARAMETER_REMOVE_LANES);
 
+        Option list_spaces = new Option(CL_PARAMETER_LIST_SPACES, "list spaces which are configured for an extra copy");
+        
         options.addOption(lanes);
         // options.addOption(all);
         options.addOption(new_lanes);
         options.addOption(copy_data_sets);
         options.addOption(remove);
+        options.addOption(list_spaces);
 
         // automatically generate the help statement
         HelpFormatter formatter = new HelpFormatter();
@@ -149,6 +154,10 @@ public class TrackingClient
             if (line.hasOption(CL_PARAMETER_COPY_DATA_SETS))
             {
             	commandLineMap.put(CL_PARAMETER_COPY_DATA_SETS, null);
+            }
+            if (line.hasOption(CL_PARAMETER_LIST_SPACES))
+            {
+            	commandLineMap.put(CL_PARAMETER_LIST_SPACES, null);
             }
             if (line.hasOption(CL_PARAMETER_REMOVE_LANES))
             {
