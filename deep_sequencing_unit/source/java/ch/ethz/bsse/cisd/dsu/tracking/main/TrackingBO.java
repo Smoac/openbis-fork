@@ -134,15 +134,19 @@ public class TrackingBO
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_LIST_SPACES))
         {
             sendEmails = false;
-
+            String trimmedSpaceWhiteList = ""; 
+            
+            String spaceWhiteList = (params.getSpaceWhitelist());
+            trimmedSpaceWhiteList = spaceWhiteList.replace(" ", "");
+            		
             // trim each list element and sort then
-            String trimmedSpaceList = 
-            		Pattern.compile(",")
-            		       .splitAsStream(params.getSpaceWhitelist())
-                           .map(String :: trim)
-                           .sorted()
-                           .collect(Collectors.joining(","));                        
-            System.out.println(trimmedSpaceList);
+//            String trimmedSpaceList = 
+//            		Pattern.compile(",")
+//            		       .splitAsStream(params.getSpaceWhitelist())
+//                           .map(String :: trim)
+//                           .sorted()
+//                           .collect(Collectors.joining(","));                        
+            System.out.println(trimmedSpaceWhiteList);
         }
 
         else
