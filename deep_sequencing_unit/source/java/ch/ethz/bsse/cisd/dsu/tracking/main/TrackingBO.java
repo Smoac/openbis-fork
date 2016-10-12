@@ -28,8 +28,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
