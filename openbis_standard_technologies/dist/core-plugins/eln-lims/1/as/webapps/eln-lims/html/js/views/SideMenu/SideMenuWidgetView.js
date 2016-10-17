@@ -129,7 +129,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
 
         var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Search"});
-        searchElement.change(searchFunction);
+        searchElement.keypress(function (e) {
+        	 var key = e.which;
+        	 if(key == 13)  // the enter key code
+        	  {
+        		searchFunction();
+        	    return false;  
+        	  }
+        });
         searchElement.css({"width" : "68%"});
         searchElement.css({"padding-right" : "0px"});
         searchElement.css({"margin-right" : "2px"});
