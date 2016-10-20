@@ -109,6 +109,12 @@ public class MaintenancePlugin
         }
     }
 
+    public synchronized void execute()
+    {
+        final MaintenanceTimerTask timerTask = new MaintenanceTimerTask();
+        timerTask.doRun();
+    }
+
     public synchronized void shutdown()
     {
         if (workerTimer != null)
@@ -138,6 +144,12 @@ public class MaintenancePlugin
             {
                 return;
             }
+
+            doRun();
+        }
+
+        private void doRun()
+        {
             acquireLockIfNecessary();
             try
             {
@@ -150,7 +162,6 @@ public class MaintenancePlugin
             {
                 releaseLockIfNecessay();
             }
-
         }
 
         private void acquireLockIfNecessary()
