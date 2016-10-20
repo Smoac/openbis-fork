@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.experiment.ListExperimentByIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.experiment.ListExperimentByPermId;
@@ -43,15 +43,25 @@ public class MapExperimentByIdExecutor extends AbstractMapObjectByIdExecutor<IEx
 
     private IExperimentDAO experimentDAO;
 
+    @Autowired
+    private IExperimentAuthorizationExecutor authorizationExecutor;
+
     @SuppressWarnings("unused")
     private MapExperimentByIdExecutor()
     {
     }
 
-    public MapExperimentByIdExecutor(IProjectDAO projectDAO, IExperimentDAO experimentDAO)
+    public MapExperimentByIdExecutor(IProjectDAO projectDAO, IExperimentDAO experimentDAO, IExperimentAuthorizationExecutor authorizationExecutor)
     {
         this.projectDAO = projectDAO;
         this.experimentDAO = experimentDAO;
+        this.authorizationExecutor = authorizationExecutor;
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
     }
 
     @Override

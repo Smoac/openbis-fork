@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
@@ -32,22 +35,24 @@ public class VerifyMaterialExecutor implements IVerifyMaterialExecutor
 {
 
     @Autowired
+    private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
+
+    @Autowired
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
 
-    @SuppressWarnings("unused")
-    private VerifyMaterialExecutor()
-    {
-    }
-
-    public VerifyMaterialExecutor(IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor)
-    {
-        this.verifyEntityPropertyExecutor = verifyEntityPropertyExecutor;
-    }
-
     @Override
-    public void verify(IOperationContext context, CollectionBatch<MaterialPE> batch)
+    public void verify(IOperationContext context, CollectionBatch<? extends IMaterialId> materialIds)
     {
-        verifyEntityPropertyExecutor.verify(context, batch);
+        if (materialIds != null && false == materialIds.isEmpty())
+        {
+            Map<IMaterialId, MaterialPE> map = mapMaterialByIdExecutor.map(context, materialIds.getObjects());
+
+            CollectionBatch<MaterialPE> materials =
+                    new CollectionBatch<MaterialPE>(materialIds.getBatchIndex(), materialIds.getFromObjectIndex(),
+                            materialIds.getToObjectIndex(), map.values(), materialIds.getTotalObjectCount());
+
+            verifyEntityPropertyExecutor.verify(context, materials);
+        }
     }
 
 }

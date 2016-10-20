@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
@@ -30,6 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 @Component
 public class VerifySampleExecutor implements IVerifySampleExecutor
 {
+
+    @Autowired
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Autowired
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
@@ -47,13 +53,22 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     private IVerifySampleParentsExecutor verifySampleParentsExecutor;
 
     @Override
-    public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
+    public void verify(IOperationContext context, CollectionBatch<? extends ISampleId> sampleIds)
     {
-        verifyEntityPropertyExecutor.verify(context, batch);
-        verifySampleExperimentExecutor.verify(context, batch);
-        verifySampleProjectExecutor.verify(context, batch);
-        verifySampleContainerExecutor.verify(context, batch);
-        verifySampleParentsExecutor.verify(context, batch);
+        if (sampleIds != null && false == sampleIds.isEmpty())
+        {
+            Map<ISampleId, SamplePE> map = mapSampleByIdExecutor.map(context, sampleIds.getObjects());
+
+            CollectionBatch<SamplePE> samples =
+                    new CollectionBatch<SamplePE>(sampleIds.getBatchIndex(), sampleIds.getFromObjectIndex(),
+                            sampleIds.getToObjectIndex(), map.values(), sampleIds.getTotalObjectCount());
+
+            verifyEntityPropertyExecutor.verify(context, samples);
+            verifySampleExperimentExecutor.verify(context, samples);
+            verifySampleProjectExecutor.verify(context, samples);
+            verifySampleContainerExecutor.verify(context, samples);
+            verifySampleParentsExecutor.verify(context, samples);
+        }
     }
 
 }

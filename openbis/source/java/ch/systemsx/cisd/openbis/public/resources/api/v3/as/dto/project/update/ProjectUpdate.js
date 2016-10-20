@@ -15,6 +15,9 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/attachment/upd
 		prototype.description = null;
 		prototype.attachments = null;
 
+		prototype.getObjectId = function() {
+			return this.getProjectId();
+		};
 		prototype.getProjectId = function() {
 			return this.projectId;
 		};

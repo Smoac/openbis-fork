@@ -9,6 +9,7 @@ define([ "stjs" ], function(stjs) {
 		constructor.serialVersionUID = 1;
 		prototype.code = null;
 		prototype.description = null;
+		prototype.creationId = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -22,6 +23,14 @@ define([ "stjs" ], function(stjs) {
 		prototype.setDescription = function(description) {
 			this.description = description;
 		};
-	}, {});
+		prototype.getCreationId = function() {
+			return this.creationId;
+		};
+		prototype.setCreationId = function(creationId) {
+			this.creationId = creationId;
+		};
+	}, {
+		creationId : "CreationId"
+	});
 	return SpaceCreation;
 })

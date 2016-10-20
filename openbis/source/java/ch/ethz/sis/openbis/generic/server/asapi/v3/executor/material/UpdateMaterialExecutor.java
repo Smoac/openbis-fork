@@ -25,12 +25,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
@@ -44,11 +44,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Jakub Straszewski
  */
 @Component
-public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<MaterialUpdate, MaterialPE, IMaterialId> implements IUpdateMaterialExecutor
+public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<MaterialUpdate, MaterialPE, IMaterialId, MaterialPermId> implements
+        IUpdateMaterialExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IMaterialAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
@@ -59,13 +63,16 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     @Autowired
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
 
-    @Autowired
-    private IVerifyMaterialExecutor verifyMaterialExecutor;
-
     @Override
     protected IMaterialId getId(MaterialUpdate update)
     {
         return update.getMaterialId();
+    }
+
+    @Override
+    protected MaterialPermId getPermId(MaterialPE entity)
+    {
+        return new MaterialPermId(entity.getCode(), entity.getMaterialType().getCode());
     }
 
     @Override
@@ -78,15 +85,15 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IMaterialId id, MaterialPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        // nothing to do
+        authorizationExecutor.canUpdate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MaterialPE> batch)
+    protected void checkAccess(IOperationContext context, IMaterialId id, MaterialPE entity)
     {
-        verifyMaterialExecutor.verify(context, batch);
+        authorizationExecutor.canUpdate(context, id, entity);
     }
 
     @Override

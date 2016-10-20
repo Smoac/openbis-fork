@@ -29,10 +29,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -51,7 +49,10 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
 {
 
     @Autowired
-    IMapSampleByIdExecutor mapSampleByIdExecutor;
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
+
+    @Autowired
+    private ISampleAuthorizationExecutor authorizationExecutor;
 
     @Override
     protected Map<ISampleId, SamplePE> map(IOperationContext context, List<? extends ISampleId> entityIds)
@@ -60,12 +61,15 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, ISampleId entityId, SamplePE entity)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(entityId);
-        }
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

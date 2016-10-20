@@ -17,19 +17,24 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.space.create.SpaceCreation")
-public class SpaceCreation implements ICreation
+public class SpaceCreation implements ICreation, IObjectCreation, ICreationIdHolder
 {
     private static final long serialVersionUID = 1L;
 
     private String code;
 
     private String description;
+
+    private CreationId creationId;
 
     public String getCode()
     {
@@ -49,6 +54,17 @@ public class SpaceCreation implements ICreation
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    @Override
+    public CreationId getCreationId()
+    {
+        return creationId;
+    }
+
+    public void setCreationId(CreationId creationId)
+    {
+        this.creationId = creationId;
     }
 
 }

@@ -66,6 +66,9 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     @Autowired
     private IDAOFactory daoFactory;
 
+    @Autowired
+    private ISpaceAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected List<SpacePE> createEntities(final IOperationContext context, CollectionBatch<SpaceCreation> batch)
     {
@@ -111,15 +114,15 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, SpacePE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        // nothing to do
+        authorizationExecutor.canCreate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SpacePE> batch)
+    protected void checkAccess(IOperationContext context, SpacePE entity)
     {
-        // nothing to do
+        authorizationExecutor.canCreate(context, entity);
     }
 
     @Override

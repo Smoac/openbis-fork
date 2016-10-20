@@ -36,11 +36,9 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.attachment.ICreateAttachmentExecutor;
@@ -56,7 +54,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.Create
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorByType;
@@ -81,6 +78,9 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private ISampleAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
@@ -117,9 +117,6 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     @Autowired
     private IAddTagToEntityExecutor addTagToEntityExecutor;
-
-    @Autowired
-    private IVerifySampleExecutor verifySampleExecutor;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -280,18 +277,15 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, SamplePE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(new SampleIdentifier(entity.getIdentifier()));
-        }
+        authorizationExecutor.canCreate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SamplePE> batch)
+    protected void checkAccess(IOperationContext context, SamplePE entity)
     {
-        verifySampleExecutor.verify(context, batch);
+        authorizationExecutor.canCreate(context, entity);
     }
 
     @Override

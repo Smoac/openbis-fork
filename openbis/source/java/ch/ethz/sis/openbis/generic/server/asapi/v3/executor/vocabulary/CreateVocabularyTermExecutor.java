@@ -43,9 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -58,6 +56,9 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
     @Autowired
     private IDAOFactory daoFactory;
 
+    @Autowired
+    private IVocabularyTermAuthorizationExecutor authorizationExecutor;
+
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     private ICommonBusinessObjectFactory businessObjectFactory;
 
@@ -67,12 +68,11 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
     @Autowired
     private IMapVocabularyTermByIdExecutor mapVocabularyTermByIdExecutor;
 
-    @Autowired
-    private ICreateVocabularyTermAuthorizationExecutor authorizationExecutor;
-
     @Override
     public List<VocabularyTermPermId> create(IOperationContext context, List<VocabularyTermCreation> creations)
     {
+        authorizationExecutor.canCreate(context);
+
         checkData(context, creations);
         checkAccess(context, creations);
 
@@ -152,11 +152,11 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
 
         if (hasOfficial)
         {
-            authorizationExecutor.checkCreateOfficialTerm(context);
+            authorizationExecutor.canCreateOfficial(context);
         }
         if (hasUnofficial)
         {
-            authorizationExecutor.checkCreateUnofficialTerm(context);
+            authorizationExecutor.canCreateUnofficial(context);
         }
     }
 
@@ -167,7 +167,7 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
 
         IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(context.getSession());
         vocabularyBO.loadDataByTechId(new TechId(vocabulary.getId()));
-        vocabularyBO.setAllowChangingInternallyManaged(isAllowedToChangeInternallyManaged(context));
+        vocabularyBO.setAllowChangingInternallyManaged(authorizationExecutor.canUpdateInternallyManaged(context));
 
         Set<String> existingTermCodes = new HashSet<String>();
         for (VocabularyTermPE existingTerm : vocabulary.getTerms())
@@ -209,21 +209,6 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
         vocabularyBO.save();
 
         return results;
-    }
-
-    private boolean isAllowedToChangeInternallyManaged(IOperationContext context)
-    {
-        Set<RoleAssignmentPE> roles = context.getSession().tryGetCreatorPerson().getAllPersonRoles();
-
-        for (RoleAssignmentPE role : roles)
-        {
-            if (RoleCode.ETL_SERVER.equals(role.getRole()) || (RoleCode.ADMIN.equals(role.getRole()) && role.getSpace() == null))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private Long getPreviousTermOrdinal(IOperationContext context, VocabularyPE vocabulary, VocabularyTermCreation creation)

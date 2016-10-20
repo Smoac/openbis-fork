@@ -18,31 +18,29 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update;
 
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operations.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.UpdateObjectsOperation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.sample.update.UpdateSamplesOperation")
-public class UpdateSamplesOperation implements IOperation
+public class UpdateSamplesOperation extends UpdateObjectsOperation<SampleUpdate>
 {
-    private List<SampleUpdate> updates;
+    private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
     private UpdateSamplesOperation()
     {
+    }
 
+    public UpdateSamplesOperation(SampleUpdate... updates)
+    {
+        super(updates);
     }
 
     public UpdateSamplesOperation(List<SampleUpdate> updates)
     {
-        this.updates = updates;
-    }
-
-    public List<SampleUpdate> getUpdates()
-    {
-        return updates;
+        super(updates);
     }
 
 }

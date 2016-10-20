@@ -25,23 +25,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -50,11 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetUpdate, DataPE, IDataSetId> implements IUpdateDataSetExecutor
+public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetUpdate, DataPE, IDataSetId, DataSetPermId> implements
+        IUpdateDataSetExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
@@ -80,13 +81,16 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     @Autowired
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
 
-    @Autowired
-    private IVerifyDataSetExecutor verifyDataSetExecutor;
-
     @Override
     protected IDataSetId getId(DataSetUpdate update)
     {
         return update.getDataSetId();
+    }
+
+    @Override
+    protected DataSetPermId getPermId(DataPE entity)
+    {
+        return new DataSetPermId(entity.getCode());
     }
 
     @Override
@@ -99,28 +103,15 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IDataSetId id, DataPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        boolean isStorageConfirmed;
-        if (entity instanceof ExternalDataPE)
-        {
-            isStorageConfirmed = ((ExternalDataPE) entity).isStorageConfirmation();
-        } else
-        {
-            isStorageConfirmed = true;
-        }
-
-        if (isStorageConfirmed
-                && false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
+        authorizationExecutor.canUpdate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<DataPE> batch)
+    protected void checkAccess(IOperationContext context, IDataSetId id, DataPE entity)
     {
-        verifyDataSetExecutor.verify(context, batch);
+        authorizationExecutor.canUpdate(context, id, entity);
     }
 
     @Override

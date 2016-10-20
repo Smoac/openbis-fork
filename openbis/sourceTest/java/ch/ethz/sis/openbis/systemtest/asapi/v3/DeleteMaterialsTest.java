@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import org.testng.annotations.Test;
@@ -40,6 +41,13 @@ public class DeleteMaterialsTest extends AbstractDeletionTest
             options.setReason("Just for testing");
         }
         return options;
+    }
+
+    @Test
+    public void testDeleteEmptyList()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        v3api.deleteMaterials(sessionToken, new ArrayList<MaterialPermId>(), getOptions());
     }
 
     @Test

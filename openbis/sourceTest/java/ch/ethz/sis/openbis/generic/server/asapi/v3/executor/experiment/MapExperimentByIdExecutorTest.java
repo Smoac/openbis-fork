@@ -45,11 +45,14 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
 
     private IExperimentDAO experimentDao;
 
+    private IExperimentAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected void init()
     {
         projectDao = context.mock(IProjectDAO.class);
         experimentDao = context.mock(IExperimentDAO.class);
+        authorizationExecutor = context.mock(IExperimentAuthorizationExecutor.class);
     }
 
     @Test
@@ -72,6 +75,7 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
                     one(experimentDao).listByPermID(Arrays.asList(permId1.getPermId(), permId2.getPermId(), permId3.getPermId()));
                     will(returnValue(Arrays.asList(experiment2, experiment1, experiment3)));
                 }
@@ -123,6 +127,8 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     one(projectDao).tryFindProject("SPACE_1", "PROJECT_1");
                     will(returnValue(project11));
 
@@ -180,6 +186,8 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     one(experimentDao).listByPermID(Arrays.asList(permId1.getPermId(), permId2.getPermId()));
                     will(returnValue(Arrays.asList(experiment3, experiment2)));
 
@@ -200,7 +208,7 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
 
     private Map<IExperimentId, ExperimentPE> execute(IExperimentId... experimentIds)
     {
-        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(projectDao, experimentDao);
+        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(projectDao, experimentDao, authorizationExecutor);
         return executor.map(operationContext, Arrays.asList(experimentIds));
     }
 }

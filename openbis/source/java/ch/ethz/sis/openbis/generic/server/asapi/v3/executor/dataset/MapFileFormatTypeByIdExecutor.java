@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IFileFormatTypeId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.dataset.ListFileFormatTypeByPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -39,6 +39,15 @@ public class MapFileFormatTypeByIdExecutor extends AbstractMapObjectByIdExecutor
 {
 
     private IFileFormatTypeDAO typeDAO;
+
+    @Autowired
+    private IFileFormatTypeAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
+    }
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends IFileFormatTypeId, FileFormatTypePE>> listers)

@@ -54,7 +54,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressStack;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ListSampleTechIdByIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleTechIdByIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;

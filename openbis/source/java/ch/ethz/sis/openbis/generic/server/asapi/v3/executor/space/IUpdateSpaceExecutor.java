@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateSpaceExecutor extends IUpdateEntityExecutor<SpaceUpdate>
+public interface IUpdateSpaceExecutor extends IUpdateEntityExecutor<SpaceUpdate, SpacePermId>
 {
 
 }

@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
@@ -30,6 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 @Component
 public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
 {
+
+    @Autowired
+    private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
     @Autowired
     private IVerifyDataSetSampleAndExperimentExecutor verifyDataSetSampleAndExperimentExecutor;
@@ -44,12 +50,21 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
     private IVerifyDataSetParentsExecutor verifyDataSetParentsExecutor;
 
     @Override
-    public void verify(IOperationContext context, CollectionBatch<DataPE> dataSets)
+    public void verify(IOperationContext context, CollectionBatch<? extends IDataSetId> dataSetIds)
     {
-        verifyDataSetSampleAndExperimentExecutor.verify(context, dataSets);
-        verifyEntityPropertyExecutor.verify(context, dataSets);
-        verifyDataSetContainersExecutor.verify(context, dataSets);
-        verifyDataSetParentsExecutor.verify(context, dataSets);
+        if (dataSetIds != null && false == dataSetIds.isEmpty())
+        {
+            Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds.getObjects());
+
+            CollectionBatch<DataPE> dataSets =
+                    new CollectionBatch<DataPE>(dataSetIds.getBatchIndex(), dataSetIds.getFromObjectIndex(),
+                            dataSetIds.getToObjectIndex(), map.values(), dataSetIds.getTotalObjectCount());
+
+            verifyDataSetSampleAndExperimentExecutor.verify(context, dataSets);
+            verifyEntityPropertyExecutor.verify(context, dataSets);
+            verifyDataSetContainersExecutor.verify(context, dataSets);
+            verifyDataSetParentsExecutor.verify(context, dataSets);
+        }
     }
 
 }

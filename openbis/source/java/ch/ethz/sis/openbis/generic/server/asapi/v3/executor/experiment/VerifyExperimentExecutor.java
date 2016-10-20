@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
@@ -30,6 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 @Component
 public class VerifyExperimentExecutor implements IVerifyExperimentExecutor
 {
+
+    @Autowired
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
@@ -45,9 +51,18 @@ public class VerifyExperimentExecutor implements IVerifyExperimentExecutor
     }
 
     @Override
-    public void verify(IOperationContext context, CollectionBatch<ExperimentPE> batch)
+    public void verify(IOperationContext context, CollectionBatch<? extends IExperimentId> experimentIds)
     {
-        verifyEntityPropertyExecutor.verify(context, batch);
+        if (experimentIds != null && false == experimentIds.isEmpty())
+        {
+            Map<IExperimentId, ExperimentPE> map = mapExperimentByIdExecutor.map(context, experimentIds.getObjects());
+
+            CollectionBatch<ExperimentPE> experiments =
+                    new CollectionBatch<ExperimentPE>(experimentIds.getBatchIndex(), experimentIds.getFromObjectIndex(),
+                            experimentIds.getToObjectIndex(), map.values(), experimentIds.getTotalObjectCount());
+
+            verifyEntityPropertyExecutor.verify(context, experiments);
+        }
     }
 
 }

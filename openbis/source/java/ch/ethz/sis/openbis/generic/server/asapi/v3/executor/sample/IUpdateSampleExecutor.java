@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateSampleExecutor extends IUpdateEntityExecutor<SampleUpdate>
+public interface IUpdateSampleExecutor extends IUpdateEntityExecutor<SampleUpdate, SamplePermId>
 {
 
 }

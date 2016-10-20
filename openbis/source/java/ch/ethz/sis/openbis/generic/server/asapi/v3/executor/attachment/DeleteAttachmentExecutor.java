@@ -28,7 +28,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdExcept
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -38,8 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 @Component
 public class DeleteAttachmentExecutor implements IDeleteAttachmentExecutor
 {
-    @Autowired
-    private EntityHistoryCreator historyCreator;
 
     private IAttachmentDAO attachmentDAO;
 

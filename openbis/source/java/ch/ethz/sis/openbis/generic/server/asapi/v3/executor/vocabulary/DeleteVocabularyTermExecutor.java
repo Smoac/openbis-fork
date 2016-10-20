@@ -48,6 +48,8 @@ public class DeleteVocabularyTermExecutor
         extends AbstractDeleteEntityExecutor<Void, IVocabularyTermId, VocabularyTermPE, VocabularyTermDeletionOptions> implements
         IDeleteVocabularyTermExecutor
 {
+    @Autowired
+    private IVocabularyTermAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapVocabularyTermByIdExecutor mapTermByIdExecutor;
@@ -59,9 +61,15 @@ public class DeleteVocabularyTermExecutor
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, IVocabularyTermId entityId, VocabularyTermPE entity)
     {
-        // nothing to do
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

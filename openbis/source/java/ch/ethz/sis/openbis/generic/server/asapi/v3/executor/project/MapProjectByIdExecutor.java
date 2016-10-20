@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.project.ListProjectByIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.project.ListProjectByPermId;
@@ -40,14 +40,24 @@ public class MapProjectByIdExecutor extends AbstractMapObjectByIdExecutor<IProje
 
     private IProjectDAO projectDAO;
 
+    @Autowired
+    private IProjectAuthorizationExecutor authorizationExecutor;
+
     @SuppressWarnings("unused")
     private MapProjectByIdExecutor()
     {
     }
 
-    public MapProjectByIdExecutor(IProjectDAO projectDAO)
+    public MapProjectByIdExecutor(IProjectDAO projectDAO, IProjectAuthorizationExecutor authorizationExecutor)
     {
         this.projectDAO = projectDAO;
+        this.authorizationExecutor = authorizationExecutor;
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
     }
 
     @Override

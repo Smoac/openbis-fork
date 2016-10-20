@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -28,7 +27,6 @@ import javax.annotation.Resource;
 import org.apache.commons.collections.map.IdentityMap;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
@@ -78,11 +76,9 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION ex
         postSet(context, allSet);
     }
 
-    @SuppressWarnings("unchecked")
     private Map<ENTITY_CREATION, Collection<RELATED_PE>> getRelatedMap(final IOperationContext context,
             final MapBatch<ENTITY_CREATION, ENTITY_PE> batch)
     {
-        final Map<RELATED_ID, RELATED_PE> allRelatedMap = new HashMap<RELATED_ID, RELATED_PE>();
         final Map<ENTITY_CREATION, Collection<RELATED_PE>> relatedMap = new IdentityMap<ENTITY_CREATION, Collection<RELATED_PE>>();
         final Set<RELATED_ID> toLoadIds = new HashSet<RELATED_ID>();
 
@@ -92,22 +88,10 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION ex
                 @Override
                 public void process(ENTITY_CREATION creation, ENTITY_PE entity)
                 {
-                    RELATED_ID creationId = getCreationId(context, creation);
-                    if (creationId != null)
-                    {
-                        allRelatedMap.put(creationId, (RELATED_PE) entity);
-                    }
-
                     Collection<? extends RELATED_ID> relatedIds = getRelatedIds(context, creation);
                     if (relatedIds != null)
                     {
-                        for (RELATED_ID relatedId : relatedIds)
-                        {
-                            if (false == relatedId instanceof CreationId)
-                            {
-                                toLoadIds.add(relatedId);
-                            }
-                        }
+                        toLoadIds.addAll(relatedIds);
                     }
                 }
 
@@ -118,9 +102,7 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION ex
                 }
             };
 
-        Map<RELATED_ID, RELATED_PE> loadedMap = map(context, toLoadIds);
-        allRelatedMap.putAll(loadedMap);
-
+        final Map<RELATED_ID, RELATED_PE> loadedMap = map(context, toLoadIds);
         final Set<RELATED_PE> checked = new HashSet<RELATED_PE>();
 
         new MapBatchProcessor<ENTITY_CREATION, ENTITY_PE>(context, batch)
@@ -136,7 +118,7 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION ex
 
                         for (RELATED_ID relatedId : relatedIds)
                         {
-                            RELATED_PE related = allRelatedMap.get(relatedId);
+                            RELATED_PE related = loadedMap.get(relatedId);
 
                             if (related == null)
                             {

@@ -29,15 +29,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -52,6 +49,9 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     @Autowired
     private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
+    @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected Map<IDataSetId, DataPE> map(IOperationContext context, List<? extends IDataSetId> entityIds)
     {
@@ -59,21 +59,15 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, IDataSetId entityId, DataPE entity)
     {
-        boolean isStorageConfirmed;
-        if (entity instanceof ExternalDataPE)
-        {
-            isStorageConfirmed = ((ExternalDataPE) entity).isStorageConfirmation();
-        } else
-        {
-            isStorageConfirmed = true;
-        }
-
-        if (isStorageConfirmed && false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), entity.getSpace()))
-        {
-            throw new UnauthorizedObjectAccessException(entityId);
-        }
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

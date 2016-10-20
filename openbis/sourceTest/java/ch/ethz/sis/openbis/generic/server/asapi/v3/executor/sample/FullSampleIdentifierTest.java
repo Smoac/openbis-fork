@@ -21,6 +21,8 @@ import static junit.framework.Assert.fail;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.FullSampleIdentifier;
+
 /**
  * @author Franz-Josef Elmer
  */

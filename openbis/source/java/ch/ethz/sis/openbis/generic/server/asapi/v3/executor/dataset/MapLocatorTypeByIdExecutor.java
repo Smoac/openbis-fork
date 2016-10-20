@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ILocatorTypeId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.dataset.ListLocatorTypeByPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -39,6 +39,15 @@ public class MapLocatorTypeByIdExecutor extends AbstractMapObjectByIdExecutor<IL
 {
 
     private ILocatorTypeDAO typeDAO;
+
+    @Autowired
+    private ILocatorTypeAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
+    }
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends ILocatorTypeId, LocatorTypePE>> listers)

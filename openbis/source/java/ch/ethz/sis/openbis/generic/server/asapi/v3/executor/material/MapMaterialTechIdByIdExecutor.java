@@ -18,12 +18,14 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.material.ListMaterialsTechIdByPermId;
 
 /**
  * @author Franz-Josef Elmer
@@ -31,6 +33,15 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById
 @Component
 public class MapMaterialTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<IMaterialId, Long> implements IMapMaterialTechIdByIdExecutor
 {
+
+    @Autowired
+    private IMaterialAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
+    }
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends IMaterialId, Long>> listers)

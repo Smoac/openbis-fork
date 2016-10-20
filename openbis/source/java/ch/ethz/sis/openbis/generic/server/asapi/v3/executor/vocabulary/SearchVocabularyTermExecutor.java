@@ -32,11 +32,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.StringFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -50,6 +50,16 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
 
     @Autowired
     private ISearchVocabularyExecutor searchVocabularyExecutor;
+
+    @Autowired
+    private IVocabularyTermAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<VocabularyTermPE> search(IOperationContext context, VocabularyTermSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearch(context);
+        return super.search(context, criteria);
+    }
 
     @Override
     protected List<VocabularyTermPE> listAll()

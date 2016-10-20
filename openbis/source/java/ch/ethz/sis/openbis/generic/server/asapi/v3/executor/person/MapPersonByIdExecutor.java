@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.person.ListPersonByPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -38,6 +38,15 @@ public class MapPersonByIdExecutor extends AbstractMapObjectByIdExecutor<IPerson
 {
 
     private IPersonDAO personDAO;
+
+    @Autowired
+    private IPersonAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
+    }
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends IPersonId, PersonPE>> listers)

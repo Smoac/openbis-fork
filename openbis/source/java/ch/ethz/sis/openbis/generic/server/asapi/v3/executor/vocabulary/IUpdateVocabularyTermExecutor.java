@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateVocabularyTermExecutor extends IUpdateEntityExecutor<VocabularyTermUpdate>
+public interface IUpdateVocabularyTermExecutor extends IUpdateEntityExecutor<VocabularyTermUpdate, VocabularyTermPermId>
 {
 
 }

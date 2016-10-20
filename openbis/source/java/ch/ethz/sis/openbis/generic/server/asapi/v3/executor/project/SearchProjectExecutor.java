@@ -33,11 +33,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.StringFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.ISearchSpaceExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -51,6 +51,16 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
 
     @Autowired
     private ISearchSpaceExecutor searchSpaceExecutor;
+
+    @Autowired
+    private IProjectAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<ProjectPE> search(IOperationContext context, ProjectSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearch(context);
+        return super.search(context, criteria);
+    }
 
     @Override
     protected List<ProjectPE> listAll()

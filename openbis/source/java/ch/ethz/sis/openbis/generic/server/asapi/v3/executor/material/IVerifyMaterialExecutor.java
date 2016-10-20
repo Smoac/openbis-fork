@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
  * @author Jakub Straszewski
@@ -26,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 public interface IVerifyMaterialExecutor
 {
 
-    public void verify(IOperationContext context, CollectionBatch<MaterialPE> batch);
+    public void verify(IOperationContext context, CollectionBatch<? extends IMaterialId> batch);
 
 }

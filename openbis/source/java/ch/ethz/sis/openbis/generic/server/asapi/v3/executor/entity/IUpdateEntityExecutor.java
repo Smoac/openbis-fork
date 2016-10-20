@@ -23,9 +23,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 /**
  * @author pkupczyk
  */
-public interface IUpdateEntityExecutor<UPDATE>
+public interface IUpdateEntityExecutor<UPDATE, PERM_ID>
 {
 
-    public void update(IOperationContext context, List<UPDATE> updates);
+    public List<PERM_ID> update(IOperationContext context, List<UPDATE> updates);
 
 }

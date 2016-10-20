@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.space.update.SpaceUpdate")
-public class SpaceUpdate implements IUpdate
+public class SpaceUpdate implements IUpdate, IObjectUpdate<ISpaceId>
 {
 
     private static final long serialVersionUID = 1L;
@@ -38,6 +39,13 @@ public class SpaceUpdate implements IUpdate
 
     @JsonProperty
     private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
+
+    @Override
+    @JsonIgnore
+    public ISpaceId getObjectId()
+    {
+        return getSpaceId();
+    }
 
     @JsonIgnore
     public ISpaceId getSpaceId()

@@ -25,10 +25,8 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -41,7 +39,10 @@ public class DeleteSpaceExecutor extends AbstractDeleteEntityExecutor<Void, ISpa
 {
 
     @Autowired
-    IMapSpaceByIdExecutor mapSpaceByIdExecutor;
+    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
+
+    @Autowired
+    private ISpaceAuthorizationExecutor authorizationExecutor;
 
     @Override
     protected Map<ISpaceId, SpacePE> map(IOperationContext context, List<? extends ISpaceId> entityIds)
@@ -50,12 +51,15 @@ public class DeleteSpaceExecutor extends AbstractDeleteEntityExecutor<Void, ISpa
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, ISpaceId entityId, SpacePE entity)
     {
-        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(entityId);
-        }
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

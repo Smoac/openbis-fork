@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.deletion.AbstractObjectDeletionOptions")
-public class AbstractObjectDeletionOptions implements Serializable
+public class AbstractObjectDeletionOptions<T extends AbstractObjectDeletionOptions<T>> implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
@@ -36,9 +36,11 @@ public class AbstractObjectDeletionOptions implements Serializable
         return reason;
     }
 
-    public void setReason(String reason)
+    @SuppressWarnings("unchecked")
+    public T setReason(String reason)
     {
         this.reason = reason;
+        return (T) this;
     }
 
 }

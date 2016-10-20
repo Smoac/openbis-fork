@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.UpdateFieldWithListUpdateValueExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.update.UpdateFieldWithListUpdateValueExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 
 /**

@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateDataSetExecutor extends IUpdateEntityExecutor<DataSetUpdate>
+public interface IUpdateDataSetExecutor extends IUpdateEntityExecutor<DataSetUpdate, DataSetPermId>
 {
 
 }

@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,27 +25,32 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchSampleExecutor implements ISearchSampleExecutor
+public class SearchSampleExecutor extends AbstractSearchObjectExecutor<SampleSearchCriteria, Long> implements ISearchSampleExecutor
 {
-
+    
     @Autowired
-    private ISearchSampleIdExecutor searchSampleIdExecutor;
-
-    @Autowired
-    private IDAOFactory daoFactory;
+    private ISampleAuthorizationExecutor authorizationExecutor;
 
     @Override
-    public List<SamplePE> search(IOperationContext context, SampleSearchCriteria criteria)
+    protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
     {
-        List<Long> sampleIds = searchSampleIdExecutor.search(context, criteria);
-        return daoFactory.getSampleDAO().listByIDs(sampleIds);
+        authorizationExecutor.canSearch(context);
+        
+        SampleSearchManager searchManager =
+                new SampleSearchManager(daoFactory.getHibernateSearchDAO(), businessObjectFactory.createSampleLister(context.getSession()));
+
+        Collection<Long> sampleIds =
+                searchManager.searchForSampleIDs(context.getSession().getUserName(), criteria);
+
+        return new ArrayList<Long>(sampleIds);
     }
 
 }

@@ -17,6 +17,9 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		prototype.previousTermId = null;
 		prototype.official = null;
 
+		prototype.getObjectId = function() {
+			return this.getVocabularyTermId();
+		};
 		prototype.getVocabularyTermId = function() {
 			return this.vocabularyTermId;
 		};

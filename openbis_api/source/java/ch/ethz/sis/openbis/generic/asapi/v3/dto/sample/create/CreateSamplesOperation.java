@@ -18,31 +18,29 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create;
 
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operations.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.sample.create.CreateSamplesOperation")
-public class CreateSamplesOperation implements IOperation
+public class CreateSamplesOperation extends CreateObjectsOperation<SampleCreation>
 {
-    private List<SampleCreation> creations;
+    private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
     private CreateSamplesOperation()
     {
+    }
 
+    public CreateSamplesOperation(SampleCreation... creations)
+    {
+        super(creations);
     }
 
     public CreateSamplesOperation(List<SampleCreation> creations)
     {
-        this.creations = creations;
-    }
-
-    public List<SampleCreation> getCreations()
-    {
-        return creations;
+        super(creations);
     }
 
 }

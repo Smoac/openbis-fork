@@ -40,7 +40,10 @@ public class DeleteMaterialExecutor extends AbstractDeleteEntityExecutor<Void, I
 {
 
     @Autowired
-    IMapMaterialByIdExecutor mapMaterialByIdExecutor;
+    private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
+
+    @Autowired
+    private IMaterialAuthorizationExecutor authorizationExecutor;
 
     @Override
     protected Map<IMaterialId, MaterialPE> map(IOperationContext context, List<? extends IMaterialId> entityIds)
@@ -49,9 +52,15 @@ public class DeleteMaterialExecutor extends AbstractDeleteEntityExecutor<Void, I
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, IMaterialId entityId, MaterialPE entity)
     {
-        // nothing to do
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

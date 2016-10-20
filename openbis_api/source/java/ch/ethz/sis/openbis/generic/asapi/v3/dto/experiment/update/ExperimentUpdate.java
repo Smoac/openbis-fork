@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.update.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
@@ -38,7 +39,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.update.ExperimentUpdate")
-public class ExperimentUpdate implements IUpdate, IPropertiesHolder
+public class ExperimentUpdate implements IUpdate, IObjectUpdate<IExperimentId>, IPropertiesHolder
 {
 
     private static final long serialVersionUID = 1L;
@@ -57,6 +58,13 @@ public class ExperimentUpdate implements IUpdate, IPropertiesHolder
 
     @JsonProperty
     private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
+
+    @Override
+    @JsonIgnore
+    public IExperimentId getObjectId()
+    {
+        return getExperimentId();
+    }
 
     @JsonIgnore
     public IExperimentId getExperimentId()

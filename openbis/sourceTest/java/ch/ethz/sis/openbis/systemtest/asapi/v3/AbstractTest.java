@@ -74,6 +74,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -559,6 +560,30 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     propertyType.getMaterialType();
+                }
+            });
+    }
+
+    protected void assertSummaryNotFetched(final OperationExecution execution)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    execution.getSummary();
+                }
+            });
+    }
+
+    protected void assertDetailsNotFetched(final OperationExecution execution)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    execution.getDetails();
                 }
             });
     }

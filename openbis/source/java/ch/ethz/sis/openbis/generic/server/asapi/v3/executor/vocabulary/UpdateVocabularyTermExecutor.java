@@ -16,13 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -38,9 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
@@ -57,11 +56,13 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
     private IMapVocabularyTermByIdExecutor mapVocabularyTermByIdExecutor;
 
     @Autowired
-    private IUpdateVocabularyTermAuthorizationExecutor authorizationExecutor;
+    private IVocabularyTermAuthorizationExecutor authorizationExecutor;
 
     @Override
-    public void update(IOperationContext context, List<VocabularyTermUpdate> updates)
+    public List<VocabularyTermPermId> update(IOperationContext context, List<VocabularyTermUpdate> updates)
     {
+        authorizationExecutor.canUpdate(context);
+
         checkData(context, updates);
 
         final Map<IVocabularyTermId, VocabularyTermPE> terms = getTermsMap(context, updates);
@@ -70,10 +71,13 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
         checkAccess(context, updates, terms);
 
         IVocabularyTermBO termBO = businessObjectFactory.createVocabularyTermBO(context.getSession());
+        List<VocabularyTermPermId> permIds = new ArrayList<VocabularyTermPermId>();
 
         for (final VocabularyTermUpdate update : updates)
         {
             final VocabularyTermPE termPE = terms.get(update.getVocabularyTermId());
+
+            permIds.add(new VocabularyTermPermId(termPE.getCode(), termPE.getVocabulary().getCode()));
 
             if (update.getDescription().isModified() || update.getLabel().isModified() || update.getPreviousTermId().isModified())
             {
@@ -161,6 +165,8 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
                 termBO.makeOfficial(Arrays.asList(term));
             }
         }
+
+        return permIds;
     }
 
     private void checkData(IOperationContext context, Collection<VocabularyTermUpdate> updates)
@@ -176,7 +182,7 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
 
     private void checkAccess(IOperationContext context, Collection<VocabularyTermUpdate> updates, Map<IVocabularyTermId, VocabularyTermPE> terms)
     {
-        boolean allowedToChangeInternallyManaged = isAllowedToChangeInternallyManaged(context);
+        boolean allowedToChangeInternallyManaged = authorizationExecutor.canUpdateInternallyManaged(context);
         boolean hasOfficial = false;
         boolean hasUnofficial = false;
 
@@ -200,11 +206,11 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
 
         if (hasOfficial)
         {
-            authorizationExecutor.checkUpdateOfficialTerm(context);
+            authorizationExecutor.canUpdateOfficial(context);
         }
         if (hasUnofficial)
         {
-            authorizationExecutor.checkUpdateUnofficialTerm(context);
+            authorizationExecutor.canUpdateUnofficial(context);
         }
     }
 
@@ -253,21 +259,6 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
         }
 
         return termsMap;
-    }
-
-    private boolean isAllowedToChangeInternallyManaged(IOperationContext context)
-    {
-        Set<RoleAssignmentPE> roles = context.getSession().tryGetCreatorPerson().getAllPersonRoles();
-
-        for (RoleAssignmentPE role : roles)
-        {
-            if (RoleCode.ETL_SERVER.equals(role.getRole()) || (RoleCode.ADMIN.equals(role.getRole()) && role.getSpace() == null))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -84,6 +87,24 @@ public class RuntimeCache<K, V>
     public boolean remove(K key)
     {
         return getCache().remove(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<K> getKeys()
+    {
+        return getCache().getKeys();
+    }
+
+    public List<V> getValues()
+    {
+        List<V> values = new ArrayList<V>(getKeys().size());
+
+        for (K key : getKeys())
+        {
+            values.add(get(key));
+        }
+
+        return values;
     }
 
     public void initCache()

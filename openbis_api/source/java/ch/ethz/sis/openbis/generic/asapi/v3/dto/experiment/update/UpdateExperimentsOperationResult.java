@@ -16,14 +16,24 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operations.IOperationResult;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.UpdateObjectsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.update.UpdateExperimentsOperationResult")
-public class UpdateExperimentsOperationResult implements IOperationResult
+public class UpdateExperimentsOperationResult extends UpdateObjectsOperationResult<ExperimentPermId>
 {
+
+    private static final long serialVersionUID = 1L;
+
+    public UpdateExperimentsOperationResult(List<ExperimentPermId> ids)
+    {
+        super(ids);
+    }
 
 }

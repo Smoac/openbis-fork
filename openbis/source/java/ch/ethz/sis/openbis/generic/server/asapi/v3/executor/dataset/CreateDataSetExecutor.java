@@ -35,7 +35,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
@@ -48,7 +47,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
@@ -71,6 +69,9 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
@@ -107,9 +108,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
 
     @Autowired
     private IAddTagToEntityExecutor addTagToEntityExecutor;
-
-    @Autowired
-    private IVerifyDataSetExecutor verifyDataSetExecutor;
 
     @Override
     protected List<DataPE> createEntities(final IOperationContext context, CollectionBatch<DataSetCreation> batch)
@@ -237,18 +235,15 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, DataPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(entity.getRegistrator(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(new DataSetPermId(entity.getPermId()));
-        }
+        authorizationExecutor.canCreate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<DataPE> batch)
+    protected void checkAccess(IOperationContext context, DataPE entity)
     {
-        verifyDataSetExecutor.verify(context, batch);
+        authorizationExecutor.canCreate(context, entity);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchExperimentExecutor extends ISearchObjectExecutor<ExperimentSearchCriteria, ExperimentPE>
+public interface ISearchExperimentExecutor extends ISearchObjectExecutor<ExperimentSearchCriteria, Long>
 {
 
 }

@@ -18,6 +18,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionError;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionProgress;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -62,6 +66,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionDetails;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionSummary;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionDetailsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionSummaryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.OperationExecutionPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -678,6 +690,66 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createOperationExecution()
+    {
+        DtoGenerator gen = new DtoGenerator("operation", "OperationExecution", OperationExecutionFetchOptions.class);
+
+        addPermId(gen, OperationExecutionPermId.class);
+        addCode(gen);
+        gen.addSimpleField(OperationExecutionState.class, "state");
+        gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class);
+        addDescription(gen);
+        gen.addSimpleField(OperationExecutionAvailability.class, "availability");
+        gen.addSimpleField(Integer.class, "availabilityTime");
+
+        gen.addFetchedField(OperationExecutionSummary.class, "summary", "Summary", OperationExecutionSummaryFetchOptions.class);
+        gen.addSimpleField(OperationExecutionAvailability.class, "summaryAvailability");
+        gen.addSimpleField(Integer.class, "summaryAvailabilityTime");
+
+        gen.addFetchedField(OperationExecutionDetails.class, "details", "Details", OperationExecutionDetailsFetchOptions.class);
+        gen.addSimpleField(OperationExecutionAvailability.class, "detailsAvailability");
+        gen.addSimpleField(Integer.class, "detailsAvailabilityTime");
+
+        gen.addSimpleField(Date.class, "creationDate");
+        gen.addSimpleField(Date.class, "startDate");
+        gen.addSimpleField(Date.class, "finishDate");
+
+        gen.setToStringMethod("\"OperationExecution code: \" + code");
+
+        return gen;
+    }
+
+    private static DtoGenerator createOperationExecutionSummary()
+    {
+        DtoGenerator gen =
+                new DtoGenerator("operation", "OperationExecutionSummary", OperationExecutionSummaryFetchOptions.class);
+
+        gen.addPluralFetchedField("List<String>", List.class.getName(), "operations", "Operations", EmptyFetchOptions.class);
+        gen.addFetchedField(String.class, "progress", "Progress", EmptyFetchOptions.class);
+        gen.addFetchedField(String.class, "error", "Error", EmptyFetchOptions.class);
+        gen.addPluralFetchedField("List<String>", List.class.getName(), "results", "Results", EmptyFetchOptions.class);
+        gen.setToStringMethod("\"OperationExecutionSummary\"");
+
+        return gen;
+    }
+
+    private static DtoGenerator createOperationExecutionDetails()
+    {
+        DtoGenerator gen =
+                new DtoGenerator("operation", "OperationExecutionDetails", OperationExecutionDetailsFetchOptions.class);
+
+        gen.addClassForImport(IOperation.class);
+        gen.addClassForImport(IOperationResult.class);
+
+        gen.addPluralFetchedField("List<? extends IOperation>", List.class.getName(), "operations", "Operations", EmptyFetchOptions.class);
+        gen.addFetchedField(IOperationExecutionProgress.class, "progress", "Progress", EmptyFetchOptions.class);
+        gen.addFetchedField(IOperationExecutionError.class, "error", "Error", EmptyFetchOptions.class);
+        gen.addPluralFetchedField("List<? extends IOperationResult>", List.class.getName(), "results", "Results", EmptyFetchOptions.class);
+        gen.setToStringMethod("\"OperationExecutionDetails\"");
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -710,6 +782,9 @@ public class Generator extends AbstractGenerator
         list.add(createGlobalSearchObject());
         list.add(createPropertyAssignmentGenerator());
         list.add(createPropertyTypeGenerator());
+        list.add(createOperationExecution());
+        list.add(createOperationExecutionSummary());
+        list.add(createOperationExecutionDetails());
 
         for (DtoGenerator gen : list)
         {

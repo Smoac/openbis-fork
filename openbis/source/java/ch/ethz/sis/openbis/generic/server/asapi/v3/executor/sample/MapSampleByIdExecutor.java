@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleByIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleByPermId;
@@ -39,6 +39,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public class MapSampleByIdExecutor extends AbstractMapObjectByIdExecutor<ISampleId, SamplePE> implements IMapSampleByIdExecutor
 {
     private ISampleDAO sampleDAO;
+
+    @Autowired
+    private ISampleAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
+    }
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends ISampleId, SamplePE>> listers)

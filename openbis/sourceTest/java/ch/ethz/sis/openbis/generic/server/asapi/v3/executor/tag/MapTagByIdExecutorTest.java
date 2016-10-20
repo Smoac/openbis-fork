@@ -48,16 +48,26 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
 
     private IGetTagIdentifierExecutor getTagIdentifierExecutor;
 
+    private ITagAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected void init()
     {
         getTagIdentifierExecutor = context.mock(IGetTagIdentifierExecutor.class);
         metaprojectDao = context.mock(IMetaprojectDAO.class);
+        authorizationExecutor = context.mock(ITagAuthorizationExecutor.class);
     }
 
     @Test
     public void testWithNull()
     {
+        context.checking(new Expectations()
+            {
+                {
+                    one(authorizationExecutor).canGet(operationContext);
+                }
+            });
+
         Map<ITagId, MetaprojectPE> map = execute(null);
         Assert.assertEquals(0, map.size());
     }
@@ -65,6 +75,13 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
     @Test
     public void testWithEmptyList()
     {
+        context.checking(new Expectations()
+            {
+                {
+                    one(authorizationExecutor).canGet(operationContext);
+                }
+            });
+
         Map<ITagId, MetaprojectPE> map = execute(Collections.<ITagId> emptyList());
         Assert.assertEquals(0, map.size());
     }
@@ -101,6 +118,8 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     allowing(operationContext).getSession();
                     will(returnValue(session));
 
@@ -137,7 +156,7 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
 
     private Map<ITagId, MetaprojectPE> execute(Collection<? extends ITagId> tagIds)
     {
-        MapTagByIdExecutor executor = new MapTagByIdExecutor(daoFactory, getTagIdentifierExecutor);
+        MapTagByIdExecutor executor = new MapTagByIdExecutor(daoFactory, getTagIdentifierExecutor, authorizationExecutor);
         return executor.map(operationContext, tagIds);
     }
 

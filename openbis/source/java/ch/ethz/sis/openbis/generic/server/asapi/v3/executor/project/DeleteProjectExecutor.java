@@ -25,10 +25,8 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -42,7 +40,10 @@ public class DeleteProjectExecutor extends AbstractDeleteEntityExecutor<Void, IP
 {
 
     @Autowired
-    IMapProjectByIdExecutor mapProjectByIdExecutor;
+    private IMapProjectByIdExecutor mapProjectByIdExecutor;
+
+    @Autowired
+    private IProjectAuthorizationExecutor authorizationExecutor;
 
     @Override
     protected Map<IProjectId, ProjectPE> map(IOperationContext context, List<? extends IProjectId> entityIds)
@@ -51,12 +52,15 @@ public class DeleteProjectExecutor extends AbstractDeleteEntityExecutor<Void, IP
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, IProjectId entityId, ProjectPE entity)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(entityId);
-        }
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

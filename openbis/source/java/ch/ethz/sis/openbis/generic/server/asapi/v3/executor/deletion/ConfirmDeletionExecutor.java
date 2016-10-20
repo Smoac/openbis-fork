@@ -58,12 +58,17 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
     @Autowired
     private IDAOFactory daoFactory;
 
+    @Autowired
+    private IDeletionAuthorizationExecutor authorizationExecutor;
+
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     ICommonBusinessObjectFactory businessObjectFactory;
 
     @Override
     public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds)
     {
+        authorizationExecutor.canConfirm(context);
+
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
         Map<IDeletionId, DeletionPE> deletionMap = mapDeletionByIdExecutor.map(context, deletionIds);
 

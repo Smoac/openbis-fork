@@ -30,9 +30,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.attachment.ICreateAttachmentExecutor;
@@ -42,7 +40,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
@@ -70,6 +67,9 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
 
     @Autowired
     private ICreateAttachmentExecutor createAttachmentExecutor;
+
+    @Autowired
+    private IProjectAuthorizationExecutor authorizationExecutor;
 
     @Override
     protected List<ProjectPE> createEntities(IOperationContext context, CollectionBatch<ProjectCreation> batch)
@@ -121,18 +121,15 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, ProjectPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(new ProjectIdentifier(entity.getIdentifier()));
-        }
+        authorizationExecutor.canCreate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ProjectPE> batch)
+    protected void checkAccess(IOperationContext context, ProjectPE entity)
     {
-        // nothing to do
+        authorizationExecutor.canCreate(context, entity);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,28 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operations.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchObjectsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.search.SearchExperimentsOperationResult")
-public class SearchExperimentsOperationResult implements IOperationResult
+public class SearchExperimentsOperationResult extends SearchObjectsOperationResult<Experiment>
 {
+
+    private static final long serialVersionUID = 1L;
+
+    @SuppressWarnings("unused")
+    private SearchExperimentsOperationResult()
+    {
+    }
+
+    public SearchExperimentsOperationResult(SearchResult<Experiment> searchResult)
+    {
+        super(searchResult);
+    }
 
 }

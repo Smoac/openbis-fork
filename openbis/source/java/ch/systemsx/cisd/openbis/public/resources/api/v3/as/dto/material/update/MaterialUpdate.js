@@ -14,6 +14,9 @@ define([ "stjs", "as/dto/common/update/IdListUpdateValue" ], function(stjs, IdLi
 		prototype.properties = null;
 		prototype.tagIds = null;
 
+		prototype.getObjectId = function() {
+			return this.getMaterialId();
+		};
 		prototype.getMaterialId = function() {
 			return this.materialId;
 		};

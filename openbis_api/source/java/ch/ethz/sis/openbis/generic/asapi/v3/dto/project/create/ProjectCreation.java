@@ -20,6 +20,9 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,7 +31,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.project.create.ProjectCreation")
-public class ProjectCreation implements ICreation
+public class ProjectCreation implements ICreation, IObjectCreation, ICreationIdHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -41,6 +44,8 @@ public class ProjectCreation implements ICreation
     private IPersonId leaderId;
 
     private List<AttachmentCreation> attachments;
+
+    private CreationId creationId;
 
     public ISpaceId getSpaceId()
     {
@@ -90,6 +95,17 @@ public class ProjectCreation implements ICreation
     public void setAttachments(List<AttachmentCreation> attachments)
     {
         this.attachments = attachments;
+    }
+
+    @Override
+    public CreationId getCreationId()
+    {
+        return creationId;
+    }
+
+    public void setCreationId(CreationId creationId)
+    {
+        this.creationId = creationId;
     }
 
 }

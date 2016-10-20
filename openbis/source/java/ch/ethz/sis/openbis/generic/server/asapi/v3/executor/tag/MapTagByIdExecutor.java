@@ -42,20 +42,26 @@ public class MapTagByIdExecutor implements IMapTagByIdExecutor
     @Autowired
     private IGetTagIdentifierExecutor getTagIdentifierExecutor;
 
+    @Autowired
+    private ITagAuthorizationExecutor authorizationExecutor;
+
     @SuppressWarnings("unused")
     private MapTagByIdExecutor()
     {
     }
 
-    public MapTagByIdExecutor(IDAOFactory daoFactory, IGetTagIdentifierExecutor getTagCodeExecutor)
+    public MapTagByIdExecutor(IDAOFactory daoFactory, IGetTagIdentifierExecutor getTagCodeExecutor, ITagAuthorizationExecutor authorizationExecutor)
     {
         this.daoFactory = daoFactory;
         this.getTagIdentifierExecutor = getTagCodeExecutor;
+        this.authorizationExecutor = authorizationExecutor;
     }
 
     @Override
     public Map<ITagId, MetaprojectPE> map(IOperationContext context, Collection<? extends ITagId> tagIds)
     {
+        authorizationExecutor.canGet(context);
+
         Map<ITagId, MetaprojectPE> map = new LinkedHashMap<ITagId, MetaprojectPE>();
 
         if (tagIds != null)

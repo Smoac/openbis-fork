@@ -330,7 +330,7 @@ public final class ColumnNames
 
     public static final String URL_TEMPLATE_COLUMN = "url_template";
 
-    public static final String OWNER = "owner";
+    public static final String OWNER_COLUMN = "owner";
 
     public static final String CREATION_DATE_COLUMN = "creation_date";
 
@@ -344,7 +344,29 @@ public final class ColumnNames
 
     public static final String ACCESS_TIMESTAMP = "access_timestamp";
 
-    public static final String STATE = "state";
+    public static final String STATE_COLUMN = "state";
+
+    public static final String AVAILABILITY_COLUMN = "availability";
+
+    public static final String AVAILABILITY_TIME_COLUMN = "availability_time";
+
+    public static final String SUMMARY_OPERATIONS_COLUMN = "summary_operations";
+
+    public static final String SUMMARY_PROGRESS_COLUMN = "summary_progress";
+
+    public static final String SUMMARY_ERROR_COLUMN = "summary_error";
+
+    public static final String SUMMARY_RESULTS_COLUMN = "summary_results";
+
+    public static final String SUMMARY_AVAILABILITY_COLUMN = "summary_availability";
+
+    public static final String SUMMARY_AVAILABILITY_TIME_COLUMN = "summary_availability_time";
+
+    public static final String DETAILS_PATH_COLUMN = "details_path";
+
+    public static final String DETAILS_AVAILABILITY_COLUMN = "details_availability";
+
+    public static final String DETAILS_AVAILABILITY_TIME_COLUMN = "details_availability_time";
 
     private ColumnNames()
     {

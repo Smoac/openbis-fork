@@ -29,6 +29,9 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.parentIds = null;
 		prototype.childIds = null;
 
+		prototype.getObjectId = function() {
+			return this.getDataSetId();
+		};
 		prototype.getDataSetId = function() {
 			return this.dataSetId;
 		};

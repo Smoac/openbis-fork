@@ -128,7 +128,7 @@ public class SearchCacheTest
         logRecorder.resetLogContent();
         cache.put(key1, entry1);
         AssertionUtil.assertMatches(
-                "(?s).*Cache entry ([0-9]+) that contains search result with 1 object has been put to the cache. Cache now contains 1 entry..*",
+                "(?s).*Cache entry ([0-9]+) that contains 1 object has been put to the cache. Cache now contains 1 entry..*",
                 logRecorder.getLogContent());
 
         SearchCacheKey key2 = createCacheKey("session2");
@@ -137,7 +137,7 @@ public class SearchCacheTest
         logRecorder.resetLogContent();
         cache.put(key2, entry2);
         AssertionUtil.assertMatches(
-                "(?s).*Cache entry ([0-9]+) that contains search result with 1 object has been put to the cache. Cache now contains 2 entries..*",
+                "(?s).*Cache entry ([0-9]+) that contains 1 object has been put to the cache. Cache now contains 2 entries..*",
                 logRecorder.getLogContent());
 
         SearchCacheKey key3 = createCacheKey("session3");
@@ -148,11 +148,11 @@ public class SearchCacheTest
 
         AssertionUtil
                 .assertMatches(
-                        "(?s).*Cache entry ([0-9]+) that contains search result with 1 object has been evicted from the cache. Cache now contains 1 entry..*",
+                        "(?s).*Cache entry ([0-9]+) that contains 1 object has been evicted from the cache. Cache now contains 1 entry..*",
                         logRecorder.getLogContent());
 
         AssertionUtil.assertMatches(
-                "(?s).*Cache entry ([0-9]+) that contains search result with 1 object has been put to the cache. Cache now contains 2 entries..*",
+                "(?s).*Cache entry ([0-9]+) that contains 1 object has been put to the cache. Cache now contains 2 entries..*",
                 logRecorder.getLogContent());
     }
 
@@ -168,7 +168,7 @@ public class SearchCacheTest
         cache.put(key, entry);
 
         AssertionUtil.assertMatches(
-                "(?s).*Cache entry ([0-9]+) that contains search result with 0 objects has been put to the cache. Cache now contains 1 entry..*",
+                "(?s).*Cache entry ([0-9]+) that contains 0 objects has been put to the cache. Cache now contains 1 entry..*",
                 logRecorder.getLogContent());
 
         logRecorder.resetLogContent();
@@ -192,7 +192,7 @@ public class SearchCacheTest
         cache.put(key, entry);
 
         AssertionUtil.assertMatches(
-                "(?s).*Cache entry ([0-9]+) that contains search result with 0 objects has been put to the cache. Cache now contains 1 entry..*",
+                "(?s).*Cache entry ([0-9]+) that contains 0 objects has been put to the cache. Cache now contains 1 entry..*",
                 logRecorder.getLogContent());
 
         logRecorder.resetLogContent();

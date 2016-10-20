@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
@@ -40,11 +41,16 @@ public class SearchDeletionExecutor implements ISearchDeletionExecutor
 {
 
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    ICommonBusinessObjectFactory businessObjectFactory;
+    private ICommonBusinessObjectFactory businessObjectFactory;
+
+    @Autowired
+    private IDeletionAuthorizationExecutor authorizationExecutor;
 
     @Override
     public List<Deletion> search(IOperationContext context, DeletionSearchCriteria criteria, DeletionFetchOptions fetchOptions)
     {
+        authorizationExecutor.canSearch(context);
+
         if (context == null)
         {
             throw new IllegalArgumentException("Context cannot be null");

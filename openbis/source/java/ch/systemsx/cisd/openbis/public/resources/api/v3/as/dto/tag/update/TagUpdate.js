@@ -19,6 +19,9 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.dataSetIds = null;
 		prototype.materialIds = null;
 
+		prototype.getObjectId = function() {
+			return this.getTagId();
+		};
 		prototype.getTagId = function() {
 			return this.tagId;
 		};

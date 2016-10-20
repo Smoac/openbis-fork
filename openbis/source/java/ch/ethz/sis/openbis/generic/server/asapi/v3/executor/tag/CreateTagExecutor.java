@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -49,6 +48,9 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private ITagAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private ISetTagExperimentsExecutor setTagExperimentsExecutor;
@@ -106,15 +108,15 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, MetaprojectPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        new TagAuthorization(context).checkAccess(entity);
+        authorizationExecutor.canCreate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MetaprojectPE> batch)
+    protected void checkAccess(IOperationContext context, MetaprojectPE entity)
     {
-        // nothing to do
+        authorizationExecutor.canCreate(context, entity);
     }
 
     @Override

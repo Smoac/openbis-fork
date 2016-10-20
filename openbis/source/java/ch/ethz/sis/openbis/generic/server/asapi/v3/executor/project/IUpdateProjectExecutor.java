@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateProjectExecutor extends IUpdateEntityExecutor<ProjectUpdate>
+public interface IUpdateProjectExecutor extends IUpdateEntityExecutor<ProjectUpdate, ProjectPermId>
 {
 
 }

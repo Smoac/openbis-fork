@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
 
 /**
@@ -29,5 +31,13 @@ public interface IOperationExecutionDAO extends IGenericDAO<OperationExecutionPE
     void createOrUpdate(OperationExecutionPE execution);
 
     OperationExecutionPE tryFindByCode(String code);
+
+    List<OperationExecutionPE> tryFindByCodes(List<String> codes);
+
+    List<OperationExecutionPE> getExecutionsToBeTimeOutPending();
+
+    List<OperationExecutionPE> getExecutionsToBeTimedOut();
+
+    List<OperationExecutionPE> getExecutionsToBeDeleted();
 
 }

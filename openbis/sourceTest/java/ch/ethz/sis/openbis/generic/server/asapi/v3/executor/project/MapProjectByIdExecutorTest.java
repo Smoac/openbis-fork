@@ -44,10 +44,13 @@ public class MapProjectByIdExecutorTest extends AbstractExecutorTest
 
     private IProjectDAO projectDao;
 
+    private IProjectAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected void init()
     {
         projectDao = context.mock(IProjectDAO.class);
+        authorizationExecutor = context.mock(IProjectAuthorizationExecutor.class);
     }
 
     @Test
@@ -61,6 +64,8 @@ public class MapProjectByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     one(projectDao).listByPermID(Collections.singletonList(project.getPermId()));
                     will(returnValue(Collections.singletonList(project)));
                 }
@@ -79,6 +84,8 @@ public class MapProjectByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     one(projectDao).listByPermID(Collections.singletonList(permId.getPermId()));
                     will(returnValue(null));
                 }
@@ -105,6 +112,8 @@ public class MapProjectByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     one(projectDao).tryFindProjects(
                             Collections.singletonList(new ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier(space.getCode(),
                                     project.getCode())));
@@ -127,6 +136,8 @@ public class MapProjectByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
+                    one(authorizationExecutor).canGet(operationContext);
+
                     one(projectDao).tryFindProjects(
                             Collections.singletonList(new ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier(spaceCode,
                                     projectCode)));
@@ -148,12 +159,20 @@ public class MapProjectByIdExecutorTest extends AbstractExecutorTest
                 private static final long serialVersionUID = 1L;
 
             };
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(authorizationExecutor).canGet(operationContext);
+                }
+            });
+
         execute(unknownId);
     }
 
     private Map<IProjectId, ProjectPE> execute(IProjectId... projectIds)
     {
-        IMapProjectByIdExecutor executor = new MapProjectByIdExecutor(projectDao);
+        IMapProjectByIdExecutor executor = new MapProjectByIdExecutor(projectDao, authorizationExecutor);
         return executor.map(operationContext, Arrays.asList(projectIds));
     }
 }

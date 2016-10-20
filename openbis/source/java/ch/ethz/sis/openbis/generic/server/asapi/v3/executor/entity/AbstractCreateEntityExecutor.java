@@ -31,8 +31,10 @@ import org.springframework.dao.DataAccessException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CreationIdCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
@@ -46,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, PE extends IIdentityHolder, PERM_ID extends IObjectId>
+public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation & ICreationIdHolder, PE extends IIdentityHolder, PERM_ID extends IObjectId>
         implements ICreateEntityExecutor<CREATION, PERM_ID>
 {
 
@@ -56,6 +58,8 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
     @Override
     public List<PERM_ID> create(IOperationContext context, List<CREATION> creations)
     {
+        checkAccess(context);
+
         if (creations == null || creations.isEmpty())
         {
             return new ArrayList<PERM_ID>();
@@ -78,8 +82,6 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
 
             daoFactory.getSessionFactory().getCurrentSession().flush();
             reloadEntities(context, entitiesAll);
-
-            checkBusinessRules(context, new CollectionBatch<PE>(0, 0, entitiesAll.size(), entitiesAll.values(), entitiesAll.size()));
 
             return permIdsAll;
         } catch (DataAccessException e)
@@ -154,10 +156,20 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
 
         save(context, new ArrayList<PE>(creationToEntityMap.values()), false);
 
-        for (PE entity : creationToEntityMap.values())
+        CreationIdCache creationIdCache = CreationIdCache.getInstance(context);
+
+        for (Map.Entry<CREATION, PE> entry : creationToEntityMap.entrySet())
         {
+            CREATION creation = entry.getKey();
+            PE entity = entry.getValue();
+
             PERM_ID permId = createPermId(context, entity);
             permIdsAll.add(permId);
+
+            if (creation.getCreationId() != null)
+            {
+                creationIdCache.putIds(creation.getCreationId(), permId);
+            }
         }
 
         daoFactory.setBatchUpdateMode(false);
@@ -189,9 +201,9 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
 
     protected abstract void checkData(IOperationContext context, CREATION creation);
 
-    protected abstract void checkAccess(IOperationContext context, PE entity);
+    protected abstract void checkAccess(IOperationContext context);
 
-    protected abstract void checkBusinessRules(IOperationContext context, CollectionBatch<PE> batch);
+    protected abstract void checkAccess(IOperationContext context, PE entity);
 
     protected abstract List<PE> createEntities(IOperationContext context, CollectionBatch<CREATION> batch);
 

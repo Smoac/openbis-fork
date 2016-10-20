@@ -19,13 +19,14 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.ListableSampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -34,8 +35,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<SampleTypeSearchCriteria, SampleTypePE> implements ISearchSampleTypeExecutor
+public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<SampleTypeSearchCriteria, SampleTypePE>
+        implements ISearchSampleTypeExecutor
 {
+
+    @Autowired
+    private ISampleAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<SampleTypePE> search(IOperationContext context, SampleTypeSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearchType(context);
+        return super.search(context, criteria);
+    }
+
     public SearchSampleTypeExecutor()
     {
         super(EntityKind.SAMPLE);
@@ -50,7 +63,7 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
         }
         return super.getMatcher(criteria);
     }
-    
+
     private static final class ListableMatcher extends Matcher<SampleTypePE>
     {
         @Override

@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,17 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
  */
 public class DeleteSpaceTest extends AbstractDeletionTest
 {
+
+    @Test
+    public void testDeleteEmptyList()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SpaceDeletionOptions options = new SpaceDeletionOptions();
+        options.setReason("It is just a test");
+
+        v3api.deleteSpaces(sessionToken, new ArrayList<SpacePermId>(), options);
+    }
 
     @Test
     public void testDeleteEmptySpace()

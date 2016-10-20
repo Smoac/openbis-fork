@@ -26,18 +26,16 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -49,11 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpdate, SamplePE, ISampleId> implements IUpdateSampleExecutor
+public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpdate, SamplePE, ISampleId, SamplePermId> implements
+        IUpdateSampleExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private ISampleAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -79,13 +81,16 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     @Autowired
     private IUpdateSampleAttachmentExecutor updateSampleAttachmentExecutor;
 
-    @Autowired
-    private IVerifySampleExecutor verifySampleExecutor;
-
     @Override
     protected ISampleId getId(SampleUpdate update)
     {
         return update.getSampleId();
+    }
+
+    @Override
+    protected SamplePermId getPermId(SamplePE entity)
+    {
+        return new SamplePermId(entity.getPermId());
     }
 
     @Override
@@ -98,18 +103,15 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, ISampleId id, SamplePE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
+        authorizationExecutor.canUpdate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SamplePE> batch)
+    protected void checkAccess(IOperationContext context, ISampleId id, SamplePE entity)
     {
-        verifySampleExecutor.verify(context, batch);
+        authorizationExecutor.canUpdate(context, id, entity);
     }
 
     @Override

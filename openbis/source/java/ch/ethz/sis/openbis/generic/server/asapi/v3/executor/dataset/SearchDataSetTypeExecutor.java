@@ -16,9 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -27,8 +31,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchDataSetTypeExecutor extends AbstractSearchEntityTypeExecutor<DataSetTypeSearchCriteria, DataSetTypePE> implements ISearchDataSetTypeExecutor
+public class SearchDataSetTypeExecutor extends AbstractSearchEntityTypeExecutor<DataSetTypeSearchCriteria, DataSetTypePE>
+        implements ISearchDataSetTypeExecutor
 {
+
+    @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<DataSetTypePE> search(IOperationContext context, DataSetTypeSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearchType(context);
+        return super.search(context, criteria);
+    }
+
     public SearchDataSetTypeExecutor()
     {
         super(EntityKind.DATA_SET);

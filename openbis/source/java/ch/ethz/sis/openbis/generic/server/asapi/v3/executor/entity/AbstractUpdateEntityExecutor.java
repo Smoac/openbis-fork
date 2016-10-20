@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -47,19 +48,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE extends IIdentityHolder, ID extends IObjectId>
-        implements IUpdateEntityExecutor<UPDATE>
+public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE extends IIdentityHolder, ID extends IObjectId, PERM_ID>
+        implements IUpdateEntityExecutor<UPDATE, PERM_ID>
 {
 
     @Autowired
     private IDAOFactory daoFactory;
 
     @Override
-    public void update(IOperationContext context, List<UPDATE> updates)
+    public List<PERM_ID> update(IOperationContext context, List<UPDATE> updates)
     {
+        checkAccess(context);
+
         if (updates == null || updates.isEmpty())
         {
-            return;
+            return Collections.emptyList();
         }
 
         try
@@ -77,12 +80,19 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
 
             reloadEntities(context, entitiesAll);
 
-            checkBusinessRules(context, new CollectionBatch<PE>(0, 0, entitiesAll.size(), entitiesAll.values(), entitiesAll.size()));
+            List<PERM_ID> permIds = new ArrayList<PERM_ID>();
+            for (PE entity : entitiesAll.values())
+            {
+                permIds.add(getPermId(entity));
+            }
+            return permIds;
 
         } catch (DataAccessException e)
         {
             handleException(e);
         }
+
+        return Collections.emptyList();
     }
 
     private void checkData(final IOperationContext context, CollectionBatch<UPDATE> batch)
@@ -201,11 +211,13 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
 
     protected abstract ID getId(UPDATE update);
 
+    protected abstract PERM_ID getPermId(PE entity);
+
     protected abstract void checkData(IOperationContext context, UPDATE update);
 
-    protected abstract void checkAccess(IOperationContext context, ID id, PE entity);
+    protected abstract void checkAccess(IOperationContext context);
 
-    protected abstract void checkBusinessRules(IOperationContext context, CollectionBatch<PE> batch);
+    protected abstract void checkAccess(IOperationContext context, ID id, PE entity);
 
     protected abstract void updateBatch(IOperationContext context, MapBatch<UPDATE, PE> batch);
 

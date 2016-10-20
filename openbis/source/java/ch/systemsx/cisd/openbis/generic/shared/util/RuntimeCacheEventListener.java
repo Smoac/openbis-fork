@@ -73,7 +73,7 @@ public class RuntimeCacheEventListener implements CacheEventListener
     @Override
     public void notifyRemoveAll(Ehcache cache)
     {
-        operationLog.info("All search results have been removed from the cache.");
+        operationLog.info("All entries have been removed from the cache.");
     }
 
     private void logOperation(Ehcache cache, Element element, String operation)
@@ -85,7 +85,7 @@ public class RuntimeCacheEventListener implements CacheEventListener
             if (operationLog.isInfoEnabled())
             {
                 StringBuilder sb = new StringBuilder();
-                sb.append("Cache entry " + entry.hashCode() + " that contains search result with " + entry + " " + operation + ".");
+                sb.append("Cache entry " + entry.hashCode() + " that contains " + entry + " " + operation + ".");
 
                 int cacheSize = cache.getSize();
 

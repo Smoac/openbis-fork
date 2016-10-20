@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
@@ -26,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface IVerifySampleExecutor
 {
 
-    public void verify(IOperationContext context, CollectionBatch<SamplePE> batch);
+    public void verify(IOperationContext context, CollectionBatch<? extends ISampleId> batch);
 
 }

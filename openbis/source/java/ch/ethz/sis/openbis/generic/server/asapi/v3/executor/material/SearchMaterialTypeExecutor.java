@@ -16,9 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -27,8 +31,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchMaterialTypeExecutor extends AbstractSearchEntityTypeExecutor<MaterialTypeSearchCriteria, MaterialTypePE> implements ISearchMaterialTypeExecutor
+public class SearchMaterialTypeExecutor extends AbstractSearchEntityTypeExecutor<MaterialTypeSearchCriteria, MaterialTypePE>
+        implements ISearchMaterialTypeExecutor
 {
+
+    @Autowired
+    private IMaterialAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<MaterialTypePE> search(IOperationContext context, MaterialTypeSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearchType(context);
+        return super.search(context, criteria);
+    }
+
     public SearchMaterialTypeExecutor()
     {
         super(EntityKind.MATERIAL);

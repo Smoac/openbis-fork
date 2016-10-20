@@ -20,16 +20,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.springframework.beans.BeansException;
+import org.springframework.jdbc.datasource.ConnectionHolder;
 import org.springframework.jdbc.datasource.JdbcTransactionObjectSupport;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.HibernateInterceptorsWrapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -39,11 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
+import net.lemnik.eodsql.QueryTool;
+
 /**
  * An implementation of {@link HibernateTransactionManager} that:
  * <ul>
  * <li>creates a new EntityValidationInterceptor for each hibernate session,</li>
- * <li>injects (and clears) the connection of the current transaction as default managed database connection into EoDSQL.</li> </li>
+ * <li>injects (and clears) the connection of the current transaction as default managed database connection into EoDSQL.</li></li>
  * </ul>
  * 
  * @author Jakub Straszewski
@@ -97,6 +99,22 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
         super.doBegin(transaction, definition);
         QueryTool.setManagedDatabaseConnection(((JdbcTransactionObjectSupport) transaction)
                 .getConnectionHolder().getConnection());
+    }
+
+    @Override
+    protected void doResume(Object transaction, Object suspendedResources)
+    {
+        super.doResume(transaction, suspendedResources);
+
+        if (getDataSource() != null)
+        {
+            Object resource = TransactionSynchronizationManager.getResource(getDataSource());
+
+            if (resource instanceof ConnectionHolder)
+            {
+                QueryTool.setManagedDatabaseConnection(((ConnectionHolder) resource).getConnection());
+            }
+        }
     }
 
     @Override

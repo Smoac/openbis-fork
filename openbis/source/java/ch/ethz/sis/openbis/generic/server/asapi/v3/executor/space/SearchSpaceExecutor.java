@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
@@ -27,10 +28,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -39,6 +40,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 @Component
 public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<SpaceSearchCriteria, SpacePE> implements ISearchSpaceExecutor
 {
+
+    @Autowired
+    private ISpaceAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<SpacePE> search(IOperationContext context, SpaceSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearch(context);
+        return super.search(context, criteria);
+    }
 
     @Override
     protected List<SpacePE> listAll()

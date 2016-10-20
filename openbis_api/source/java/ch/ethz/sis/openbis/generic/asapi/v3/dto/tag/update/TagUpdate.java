@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.tag.update.TagUpdate")
-public class TagUpdate implements IUpdate
+public class TagUpdate implements IUpdate, IObjectUpdate<ITagId>
 {
     private static final long serialVersionUID = 1L;
 
@@ -57,6 +58,13 @@ public class TagUpdate implements IUpdate
 
     @JsonProperty
     private IdListUpdateValue<IMaterialId> materialIds = new IdListUpdateValue<IMaterialId>();
+
+    @Override
+    @JsonIgnore
+    public ITagId getObjectId()
+    {
+        return getTagId();
+    }
 
     @JsonIgnore
     public ITagId getTagId()

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Jakub Straszewski
  */
 @JsonObject("as.dto.material.update.MaterialUpdate")
-public class MaterialUpdate implements IUpdate, IPropertiesHolder
+public class MaterialUpdate implements IUpdate, IObjectUpdate<IMaterialId>, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,6 +48,13 @@ public class MaterialUpdate implements IUpdate, IPropertiesHolder
 
     @JsonProperty
     private Map<String, String> properties = new HashMap<String, String>();
+
+    @Override
+    @JsonIgnore
+    public IMaterialId getObjectId()
+    {
+        return getMaterialId();
+    }
 
     @JsonIgnore
     public IMaterialId getMaterialId()

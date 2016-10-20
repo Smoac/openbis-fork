@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectHolder;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
 
 /**
  * @author pkupczyk

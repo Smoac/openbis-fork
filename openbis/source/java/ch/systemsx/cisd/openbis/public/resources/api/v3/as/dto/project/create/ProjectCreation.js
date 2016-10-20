@@ -12,6 +12,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.description = null;
 		prototype.leaderId = null;
 		prototype.attachments = null;
+		prototype.creationId = null;
 
 		prototype.getSpaceId = function() {
 			return this.spaceId;
@@ -43,13 +44,20 @@ define([ "stjs" ], function(stjs) {
 		prototype.setAttachments = function(attachments) {
 			this.attachments = attachments;
 		};
+		prototype.getCreationId = function() {
+			return this.creationId;
+		};
+		prototype.setCreationId = function(creationId) {
+			this.creationId = creationId;
+		};
 	}, {
 		spaceId : "ISpaceId",
 		leaderId : "IPersonId",
 		attachments : {
 			name : "List",
 			arguments : [ "AttachmentCreation" ]
-		}
+		},
+		creationId : "CreationId"
 	});
 	return ProjectCreation;
 })

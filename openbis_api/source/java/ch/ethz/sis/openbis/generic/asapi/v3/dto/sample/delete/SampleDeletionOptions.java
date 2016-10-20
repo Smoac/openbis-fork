@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.sample.delete.SampleDeletionOptions")
-public class SampleDeletionOptions extends AbstractObjectDeletionOptions
+public class SampleDeletionOptions extends AbstractObjectDeletionOptions<SampleDeletionOptions>
 {
 
     private static final long serialVersionUID = 1L;

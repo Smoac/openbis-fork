@@ -17,22 +17,32 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.validator.constraints.Length;
@@ -46,11 +56,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * @author pkupczyk
  */
 @Entity
+@DynamicInsert
+@DynamicUpdate
 @Table(name = TableNames.OPERATION_EXECUTIONS_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 public class OperationExecutionPE implements IIdHolder, Serializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private static final String SEPARATOR = "\n";
 
     protected Long id;
 
@@ -58,9 +72,31 @@ public class OperationExecutionPE implements IIdHolder, Serializable
 
     private OperationExecutionState state;
 
+    private PersonPE owner;
+
     private String description;
 
-    private String error;
+    private OperationExecutionAvailability availability;
+
+    private Long availabilityTime;
+
+    private String summaryOperations;
+
+    private String summaryProgress;
+
+    private String summaryError;
+
+    private String summaryResults;
+
+    private OperationExecutionAvailability summaryAvailability;
+
+    private Long summaryAvailabilityTime;
+
+    private String detailsPath;
+
+    private OperationExecutionAvailability detailsAvailability;
+
+    private Long detailsAvailabilityTime;
 
     private Date creationDate;
 
@@ -83,6 +119,7 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     }
 
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.CODE_COLUMN, updatable = false)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     public String getCode()
     {
@@ -95,7 +132,7 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     }
 
     @NotNull(message = ValidationMessages.STATE_NOT_NULL_MESSAGE)
-    @Column(name = ColumnNames.STATE)
+    @Column(name = ColumnNames.STATE_COLUMN)
     @Enumerated(EnumType.STRING)
     public OperationExecutionState getState()
     {
@@ -105,6 +142,19 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     public void setState(OperationExecutionState state)
     {
         this.state = state;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = ValidationMessages.OWNER_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.OWNER_COLUMN, updatable = false)
+    public PersonPE getOwner()
+    {
+        return owner;
+    }
+
+    public void setOwner(PersonPE owner)
+    {
+        this.owner = owner;
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
@@ -118,15 +168,151 @@ public class OperationExecutionPE implements IIdHolder, Serializable
         this.description = description;
     }
 
-    @Column(name = ColumnNames.ERROR_COLUMN)
-    public String getError()
+    @Column(name = ColumnNames.AVAILABILITY_COLUMN)
+    @Enumerated(EnumType.STRING)
+    public OperationExecutionAvailability getAvailability()
     {
-        return error;
+        return availability;
     }
 
-    public void setError(String error)
+    public void setAvailability(OperationExecutionAvailability availability)
     {
-        this.error = error;
+        this.availability = availability;
+    }
+
+    @Column(name = ColumnNames.AVAILABILITY_TIME_COLUMN)
+    public Long getAvailabilityTime()
+    {
+        return availabilityTime;
+    }
+
+    public void setAvailabilityTime(Long availabilityTime)
+    {
+        this.availabilityTime = availabilityTime;
+    }
+
+    @Column(name = ColumnNames.SUMMARY_OPERATIONS_COLUMN)
+    public String getSummaryOperations()
+    {
+        return summaryOperations;
+    }
+
+    public void setSummaryOperations(String summaryOperations)
+    {
+        this.summaryOperations = summaryOperations;
+    }
+
+    @Transient
+    public List<String> getSummaryOperationsList()
+    {
+        return splitString(getSummaryOperations());
+    }
+
+    public void setSummaryOperationsList(List<String> summaryOperationsList)
+    {
+        this.summaryOperations = joinList(summaryOperationsList);
+    }
+
+    @Column(name = ColumnNames.SUMMARY_PROGRESS_COLUMN)
+    public String getSummaryProgress()
+    {
+        return summaryProgress;
+    }
+
+    public void setSummaryProgress(String summaryProgress)
+    {
+        this.summaryProgress = summaryProgress;
+    }
+
+    @Column(name = ColumnNames.SUMMARY_ERROR_COLUMN)
+    public String getSummaryError()
+    {
+        return summaryError;
+    }
+
+    public void setSummaryError(String summaryError)
+    {
+        this.summaryError = summaryError;
+    }
+
+    @Column(name = ColumnNames.SUMMARY_RESULTS_COLUMN)
+    public String getSummaryResults()
+    {
+        return summaryResults;
+    }
+
+    public void setSummaryResults(String summaryResults)
+    {
+        this.summaryResults = summaryResults;
+    }
+
+    @Transient
+    public List<String> getSummaryResultsList()
+    {
+        return splitString(getSummaryResults());
+    }
+
+    public void setSummaryResultsList(List<String> summaryResultsList)
+    {
+        this.summaryResults = joinList(summaryResultsList);
+    }
+
+    @Column(name = ColumnNames.SUMMARY_AVAILABILITY_COLUMN)
+    @Enumerated(EnumType.STRING)
+    public OperationExecutionAvailability getSummaryAvailability()
+    {
+        return summaryAvailability;
+    }
+
+    public void setSummaryAvailability(OperationExecutionAvailability summaryAvailability)
+    {
+        this.summaryAvailability = summaryAvailability;
+    }
+
+    @Column(name = ColumnNames.SUMMARY_AVAILABILITY_TIME_COLUMN)
+    public Long getSummaryAvailabilityTime()
+    {
+        return summaryAvailabilityTime;
+    }
+
+    public void setSummaryAvailabilityTime(Long summaryAvailabilityTime)
+    {
+        this.summaryAvailabilityTime = summaryAvailabilityTime;
+    }
+
+    @Column(name = ColumnNames.DETAILS_PATH_COLUMN)
+    @Length(min = 1, max = 1000, message = ValidationMessages.DETAILS_PATH_LENGTH_MESSAGE)
+    public String getDetailsPath()
+    {
+        return detailsPath;
+    }
+
+    public void setDetailsPath(String detailsPath)
+    {
+        this.detailsPath = detailsPath;
+    }
+
+    @Column(name = ColumnNames.DETAILS_AVAILABILITY_COLUMN)
+    @Enumerated(EnumType.STRING)
+    public OperationExecutionAvailability getDetailsAvailability()
+    {
+        return detailsAvailability;
+    }
+
+    public void setDetailsAvailability(OperationExecutionAvailability detailsAvailability)
+    {
+        this.detailsAvailability = detailsAvailability;
+    }
+
+    @Column(name = ColumnNames.DETAILS_AVAILABILITY_TIME_COLUMN)
+    public Long getDetailsAvailabilityTime()
+    {
+        return detailsAvailabilityTime;
+    }
+
+    public void setDetailsAvailabilityTime(Long detailsAvailabilityTime)
+    {
+        this.detailsAvailabilityTime = detailsAvailabilityTime;
     }
 
     @Column(name = ColumnNames.CREATION_DATE_COLUMN, nullable = false, insertable = false, updatable = false)
@@ -163,6 +349,35 @@ public class OperationExecutionPE implements IIdHolder, Serializable
         this.finishDate = finishDate;
     }
 
+    @Transient
+    public Long getAvailabilityTimeLeft()
+    {
+        return getAvailabilityTimeLeft(getAvailabilityTime());
+    }
+
+    @Transient
+    public Long getSummaryAvailabilityTimeLeft()
+    {
+        return getAvailabilityTimeLeft(getSummaryAvailabilityTime());
+    }
+
+    @Transient
+    public Long getDetailsAvailabilityTimeLeft()
+    {
+        return getAvailabilityTimeLeft(getDetailsAvailabilityTime());
+    }
+
+    private Long getAvailabilityTimeLeft(Long time)
+    {
+        if (getFinishDate() != null && time != null)
+        {
+            return getFinishDate().getTime() + time * 1000 - System.currentTimeMillis();
+        } else
+        {
+            return null;
+        }
+    }
+
     @Override
     public final boolean equals(final Object obj)
     {
@@ -193,6 +408,38 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     public final String toString()
     {
         return getCode();
+    }
+
+    private List<String> splitString(String string)
+    {
+        if (string != null)
+        {
+            String[] array = string.split(SEPARATOR);
+            return Arrays.asList(array);
+        } else
+        {
+            return Collections.emptyList();
+        }
+    }
+
+    private String joinList(List<String> list)
+    {
+        StringBuilder builder = new StringBuilder();
+        Iterator<String> iterator = list.iterator();
+
+        while (iterator.hasNext())
+        {
+            String item = iterator.next();
+
+            builder.append(item != null ? item.trim() : "");
+
+            if (iterator.hasNext())
+            {
+                builder.append(SEPARATOR);
+            }
+        }
+
+        return builder.toString();
     }
 
 }

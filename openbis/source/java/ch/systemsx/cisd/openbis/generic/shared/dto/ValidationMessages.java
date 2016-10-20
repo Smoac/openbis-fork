@@ -238,7 +238,7 @@ public final class ValidationMessages
 
     public static final String IS_AVAILABLE_NOT_NULL_MESSAGE = "Is Available" + CAN_NOT_BE_NULL;
 
-    public static final String REGISTRATION_ID_NOT_NULL_MESSAGE = "Regirtation id"
+    public static final String REGISTRATION_ID_NOT_NULL_MESSAGE = "Registration id"
             + CAN_NOT_BE_NULL;
 
     public static final String OWNER_NOT_NULL_MESSAGE = "Owner" + CAN_NOT_BE_NULL;
@@ -246,6 +246,10 @@ public final class ValidationMessages
     public static final String METAPROJECT_NOT_NULL_MESSAGE = "Metaproject" + CAN_NOT_BE_NULL;
 
     public static final String STATE_NOT_NULL_MESSAGE = "State" + CAN_NOT_BE_NULL;
+
+    public static final String DETAILS_PATH_LENGTH_MESSAGE = LENGTH_PREFIX + "details path" + LENGTH_SUFFIX;
+
+    public static final String DETAILS_PATH_NOT_RELATIVE = "Details path is not relative";
 
     private ValidationMessages()
     {

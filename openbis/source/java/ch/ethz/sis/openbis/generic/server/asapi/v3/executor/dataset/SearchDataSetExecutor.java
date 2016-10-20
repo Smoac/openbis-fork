@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,27 +25,34 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
 @Component
-public class SearchDataSetExecutor implements ISearchDataSetExecutor
+public class SearchDataSetExecutor extends AbstractSearchObjectExecutor<DataSetSearchCriteria, Long> implements
+        ISearchDataSetExecutor
 {
 
     @Autowired
-    private ISearchDataSetIdExecutor searchDataSetIdExecutor;
-
-    @Autowired
-    private IDAOFactory daoFactory;
+    private IDataSetAuthorizationExecutor authorizationExecutor;
 
     @Override
-    public List<DataPE> search(IOperationContext context, DataSetSearchCriteria criteria)
+    protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
     {
-        List<Long> dataIds = searchDataSetIdExecutor.search(context, criteria);
-        return daoFactory.getDataDAO().listByIDs(dataIds);
+        authorizationExecutor.canSearch(context);
+        
+        DataSetSearchManager searchManager =
+                new DataSetSearchManager(daoFactory.getHibernateSearchDAO(),
+                        businessObjectFactory.createDatasetLister(context.getSession()));
+
+        Collection<Long> dataIds =
+                searchManager.searchForDataSetIds(context.getSession().getUserName(), criteria);
+
+        return new ArrayList<Long>(dataIds);
     }
 
 }

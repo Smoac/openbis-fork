@@ -26,12 +26,11 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.deletion.TagDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.delete.TagDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -56,6 +55,9 @@ public class DeleteTagExecutor extends AbstractDeleteEntityExecutor<Void, ITagId
     @Autowired
     private IReindexEntityExecutor reindexObjectExecutor;
 
+    @Autowired
+    private ITagAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected Map<ITagId, MetaprojectPE> map(IOperationContext context, List<? extends ITagId> entityIds)
     {
@@ -63,9 +65,15 @@ public class DeleteTagExecutor extends AbstractDeleteEntityExecutor<Void, ITagId
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, ITagId entityId, MetaprojectPE entity)
     {
-        new TagAuthorization(context).checkAccess(entity);
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

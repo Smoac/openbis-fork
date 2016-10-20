@@ -26,17 +26,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -47,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectUpdate, ProjectPE, IProjectId> implements
+public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectUpdate, ProjectPE, IProjectId, ProjectPermId> implements
         IUpdateProjectExecutor
 {
 
@@ -63,10 +61,19 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     @Autowired
     private IUpdateProjectAttachmentExecutor updateProjectAttachmentExecutor;
 
+    @Autowired
+    private IProjectAuthorizationExecutor authorizationExecutor;
+
     @Override
     protected IProjectId getId(ProjectUpdate update)
     {
         return update.getProjectId();
+    }
+
+    @Override
+    protected ProjectPermId getPermId(ProjectPE entity)
+    {
+        return new ProjectPermId(entity.getPermId());
     }
 
     @Override
@@ -79,18 +86,15 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IProjectId id, ProjectPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
+        authorizationExecutor.canUpdate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ProjectPE> batch)
+    protected void checkAccess(IOperationContext context, IProjectId id, ProjectPE entity)
     {
-        // nothing to do
+        authorizationExecutor.canUpdate(context, id, entity);
     }
 
     @Override

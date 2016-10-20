@@ -1,10 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators.uglify;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -25,11 +22,7 @@ public class UglifyJS
 
         try
         {
-            // TODO jar包内资源加载有通常三种方式，但测试中发现只有第一种方式才找到了资源
-            if (reader == null)
-            {
-                reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(url));
-            }
+            reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(url));
 
             /*
              * if (reader == null) { reader = new InputStreamReader(getClass().getResourceAsStream("../"+url)); } if (reader == null) { reader = new

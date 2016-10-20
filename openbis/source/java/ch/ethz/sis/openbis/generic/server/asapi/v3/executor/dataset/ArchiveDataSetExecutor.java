@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
@@ -32,9 +33,14 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 public class ArchiveDataSetExecutor extends AbstractArchiveUnarchiveDataSetExecutor implements IArchiveDataSetExecutor
 {
 
+    @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
+
     @Override
     public void archive(final IOperationContext context, final List<? extends IDataSetId> dataSetIds, final DataSetArchiveOptions options)
     {
+        authorizationExecutor.canArchive(context);
+
         doArchiveUnarchive(context, dataSetIds, options, new IArchiveUnarchiveAction()
             {
                 @Override

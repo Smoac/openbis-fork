@@ -25,19 +25,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -49,12 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<ExperimentUpdate, ExperimentPE, IExperimentId> implements
+public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<ExperimentUpdate, ExperimentPE, IExperimentId, ExperimentPermId> implements
         IUpdateExperimentExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IExperimentAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
@@ -71,13 +72,16 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     @Autowired
     private IUpdateExperimentAttachmentExecutor updateExperimentAttachmentExecutor;
 
-    @Autowired
-    private IVerifyExperimentExecutor verifyExperimentExecutor;
-
     @Override
     protected IExperimentId getId(ExperimentUpdate update)
     {
         return update.getExperimentId();
+    }
+
+    @Override
+    protected ExperimentPermId getPermId(ExperimentPE entity)
+    {
+        return new ExperimentPermId(entity.getPermId());
     }
 
     @Override
@@ -90,18 +94,15 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IExperimentId id, ExperimentPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
+        authorizationExecutor.canUpdate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ExperimentPE> batch)
+    protected void checkAccess(IOperationContext context, IExperimentId id, ExperimentPE entity)
     {
-        verifyExperimentExecutor.verify(context, batch);
+        authorizationExecutor.canUpdate(context, id, entity);
     }
 
     @Override

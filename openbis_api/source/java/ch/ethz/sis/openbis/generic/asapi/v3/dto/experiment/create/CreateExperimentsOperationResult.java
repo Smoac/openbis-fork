@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create;
 
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operations.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -26,23 +26,18 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.create.CreateExperimentsOperationResult")
-public class CreateExperimentsOperationResult implements IOperationResult
+public class CreateExperimentsOperationResult extends CreateObjectsOperationResult<ExperimentPermId>
 {
-    private List<ExperimentPermId> permIds;
+
+    private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
     private CreateExperimentsOperationResult()
     {
-
     }
 
-    public CreateExperimentsOperationResult(List<ExperimentPermId> permIds)
+    public CreateExperimentsOperationResult(List<ExperimentPermId> objectIds)
     {
-        this.permIds = permIds;
-    }
-
-    public List<ExperimentPermId> getPermIds()
-    {
-        return permIds;
+        super(objectIds);
     }
 }

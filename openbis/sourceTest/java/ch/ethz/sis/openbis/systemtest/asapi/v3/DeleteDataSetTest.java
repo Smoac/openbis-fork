@@ -16,15 +16,16 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import java.util.ArrayList;
 import java.util.Collections;
-
-import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -42,6 +43,15 @@ public class DeleteDataSetTest extends AbstractDeletionTest
             options.setReason("Just for testing");
         }
         return options;
+    }
+
+    @Test
+    public void testDeleteEmptyList()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        IDeletionId deletionId = v3api.deleteDataSets(sessionToken, new ArrayList<DataSetPermId>(), getOptions());
+        Assert.assertNull(deletionId);
     }
 
     @Test

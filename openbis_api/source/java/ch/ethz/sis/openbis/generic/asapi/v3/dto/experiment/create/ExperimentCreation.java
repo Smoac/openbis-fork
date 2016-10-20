@@ -22,6 +22,9 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
@@ -32,7 +35,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.create.ExperimentCreation")
-public class ExperimentCreation implements ICreation, IPropertiesHolder
+public class ExperimentCreation implements ICreation, IObjectCreation, ICreationIdHolder, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,6 +50,8 @@ public class ExperimentCreation implements ICreation, IPropertiesHolder
     private Map<String, String> properties = new HashMap<String, String>();
 
     private List<AttachmentCreation> attachments;
+
+    private CreationId creationId;
 
     public void setTypeId(IEntityTypeId typeId)
     {
@@ -120,6 +125,17 @@ public class ExperimentCreation implements ICreation, IPropertiesHolder
     public void setAttachments(List<AttachmentCreation> attachments)
     {
         this.attachments = attachments;
+    }
+
+    @Override
+    public CreationId getCreationId()
+    {
+        return creationId;
+    }
+
+    public void setCreationId(CreationId creationId)
+    {
+        this.creationId = creationId;
     }
 
 }

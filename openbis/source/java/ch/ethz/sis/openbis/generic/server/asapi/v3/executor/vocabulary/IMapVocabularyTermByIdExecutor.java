@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
-import java.util.Collection;
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.IMapObjectByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * @author pkupczyk
  */
-public interface IMapVocabularyTermByIdExecutor
+public interface IMapVocabularyTermByIdExecutor extends IMapObjectByIdExecutor<IVocabularyTermId, VocabularyTermPE>
 {
-
-    public Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, Collection<? extends IVocabularyTermId> vocabularyTermIds);
 
 }

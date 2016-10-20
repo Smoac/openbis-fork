@@ -22,7 +22,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 public class ProgressFormatter
 {
 
-    public static String format(IProgress progress)
+    public static String formatShort(IProgress progress)
     {
         StringBuilder result = new StringBuilder();
 
@@ -33,6 +33,15 @@ public class ProgressFormatter
         {
             result.append(progress.getLabel() + " (" + progress.getNumItemsProcessed() + "/" + progress.getTotalItemsToProcess() + ")");
         }
+
+        return result.toString();
+    }
+
+    public static String format(IProgress progress)
+    {
+        StringBuilder result = new StringBuilder();
+
+        result.append(formatShort(progress));
 
         if (progress.getDetails() != null)
         {

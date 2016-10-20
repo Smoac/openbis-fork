@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import org.testng.annotations.Test;
@@ -30,6 +31,17 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
  */
 public class DeleteProjectTest extends AbstractDeletionTest
 {
+
+    @Test
+    public void testDeleteEmptyList()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectDeletionOptions options = new ProjectDeletionOptions();
+        options.setReason("It is just a test");
+
+        v3api.deleteProjects(sessionToken, new ArrayList<ProjectPermId>(), options);
+    }
 
     @Test
     public void testDeleteProject()

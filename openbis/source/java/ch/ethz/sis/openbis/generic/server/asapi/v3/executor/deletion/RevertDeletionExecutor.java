@@ -70,9 +70,14 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     private ICommonBusinessObjectFactory businessObjectFactory;
 
+    @Autowired
+    private IDeletionAuthorizationExecutor authorizationExecutor;
+
     @Override
     public void revert(IOperationContext context, List<? extends IDeletionId> deletionIds)
     {
+        authorizationExecutor.canRevert(context);
+
         if (context == null)
         {
             throw new IllegalArgumentException("Context cannot be null");

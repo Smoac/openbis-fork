@@ -23,27 +23,42 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.server.business.search.ExperimentSearchManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchExperimentExecutor implements ISearchExperimentExecutor
+public class SearchExperimentExecutor extends AbstractSearchObjectExecutor<ExperimentSearchCriteria, Long> implements
+        ISearchExperimentExecutor
 {
 
     @Autowired
-    private ISearchExperimentIdExecutor searchExperimentIdExecutor;
-
-    @Autowired
-    protected IDAOFactory daoFactory;
+    private IExperimentAuthorizationExecutor authorizationExecutor;
 
     @Override
-    public List<ExperimentPE> search(IOperationContext context, ExperimentSearchCriteria criteria)
+    protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
     {
-        List<Long> experimentIds = searchExperimentIdExecutor.search(context, criteria);
-        return daoFactory.getExperimentDAO().listByIDs(experimentIds);
+        authorizationExecutor.canSearch(context);
+
+        if (criteria.getCriteria().isEmpty())
+        {
+            // if no criteria were provided find all experiments
+            criteria.getCriteria().add(
+                    new DetailedSearchCriterion(DetailedSearchField
+                            .createAttributeField(SampleAttributeSearchFieldKind.CODE), "*"));
+        }
+
+        ExperimentSearchManager searchManager =
+                new ExperimentSearchManager(daoFactory.getHibernateSearchDAO(),
+                        businessObjectFactory.createExperimentTable(context.getSession()));
+
+        return searchManager.searchForExperimentIDs(context.getSession().getUserName(), criteria);
     }
 
 }

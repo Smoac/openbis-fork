@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
@@ -26,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 public interface IVerifyDataSetExecutor
 {
 
-    public void verify(IOperationContext context, CollectionBatch<DataPE> entities);
+    public void verify(IOperationContext context, CollectionBatch<? extends IDataSetId> entities);
 
 }

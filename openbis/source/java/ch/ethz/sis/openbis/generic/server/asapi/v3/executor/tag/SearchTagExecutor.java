@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
@@ -27,11 +28,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.StringFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -41,6 +42,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 public class SearchTagExecutor extends AbstractSearchObjectManuallyExecutor<TagSearchCriteria, MetaprojectPE> implements
         ISearchTagExecutor
 {
+
+    @Autowired
+    private ITagAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<MetaprojectPE> search(IOperationContext context, TagSearchCriteria criteria)
+    {
+        authorizationExecutor.canSearch(context);
+        return super.search(context, criteria);
+    }
 
     @Override
     protected List<MetaprojectPE> listAll()

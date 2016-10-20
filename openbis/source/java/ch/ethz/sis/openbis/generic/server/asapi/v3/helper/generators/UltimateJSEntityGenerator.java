@@ -20,6 +20,7 @@ public class UltimateJSEntityGenerator
 
     private static final String API_PROJECT_SOURCE_FOLDER = API_PROJECT_ROOT_FOLDER + "/openbis_api/source/java/";
 
+    @SuppressWarnings("unused")
     private static final String JSTEST_PROJECT_SOURCE_FOLDER = API_PROJECT_ROOT_FOLDER
             + "/js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/";
 
@@ -109,7 +110,10 @@ public class UltimateJSEntityGenerator
             out.write(string);
         } finally
         {
-            out.close();
+            if (out != null)
+            {
+                out.close();
+            }
         }
     }
 

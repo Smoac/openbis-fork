@@ -28,10 +28,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -47,7 +45,10 @@ public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDele
 {
 
     @Autowired
-    IMapExperimentByIdExecutor mapExperimentByIdExecutor;
+    private IExperimentAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Override
     protected Map<IExperimentId, ExperimentPE> map(IOperationContext context, List<? extends IExperimentId> entityIds)
@@ -56,12 +57,15 @@ public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDele
     }
 
     @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canDelete(context);
+    }
+
+    @Override
     protected void checkAccess(IOperationContext context, IExperimentId entityId, ExperimentPE entity)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(entityId);
-        }
+        authorizationExecutor.canDelete(context, entityId, entity);
     }
 
     @Override

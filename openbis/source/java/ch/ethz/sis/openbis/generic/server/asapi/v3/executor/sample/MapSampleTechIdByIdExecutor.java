@@ -18,12 +18,15 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleTechIdByIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleTechIdByPermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -32,6 +35,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 @Component
 public class MapSampleTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<ISampleId, Long> implements IMapSampleTechIdByIdExecutor
 {
+
+    @Autowired
+    private ISampleAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected void checkAccess(IOperationContext context)
+    {
+        authorizationExecutor.canGet(context);
+    }
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends ISampleId, Long>> listers)

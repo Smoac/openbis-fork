@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author Jakub Straszewski
  */
-public interface IUpdateMaterialExecutor extends IUpdateEntityExecutor<MaterialUpdate>
+public interface IUpdateMaterialExecutor extends IUpdateEntityExecutor<MaterialUpdate, MaterialPermId>
 {
 
 }

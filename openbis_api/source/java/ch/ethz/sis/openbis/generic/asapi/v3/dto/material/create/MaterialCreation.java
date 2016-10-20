@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
@@ -31,7 +33,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.material.create.MaterialCreation")
-public class MaterialCreation implements ICreation, IPropertiesHolder
+public class MaterialCreation implements ICreation, IObjectCreation, ICreationIdHolder, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -41,11 +43,11 @@ public class MaterialCreation implements ICreation, IPropertiesHolder
 
     private String description;
 
-    private CreationId creationId;
-
     private List<? extends ITagId> tagIds;
 
     private Map<String, String> properties = new HashMap<String, String>();
+
+    private CreationId creationId;
 
     public String getCode()
     {
@@ -65,16 +67,6 @@ public class MaterialCreation implements ICreation, IPropertiesHolder
     public void setDescription(String description)
     {
         this.description = description;
-    }
-
-    public CreationId getCreationId()
-    {
-        return creationId;
-    }
-
-    public void setCreationId(CreationId creationId)
-    {
-        this.creationId = creationId;
     }
 
     public List<? extends ITagId> getTagIds()
@@ -119,6 +111,17 @@ public class MaterialCreation implements ICreation, IPropertiesHolder
     public void setTypeId(IEntityTypeId typeId)
     {
         this.typeId = typeId;
+    }
+
+    @Override
+    public CreationId getCreationId()
+    {
+        return creationId;
+    }
+
+    public void setCreationId(CreationId creationId)
+    {
+        this.creationId = creationId;
     }
 
 }

@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+
 import junit.framework.Assert;
 
 /**
@@ -42,6 +44,18 @@ import junit.framework.Assert;
  */
 public class DeleteSampleTest extends AbstractDeletionTest
 {
+
+    @Test
+    public void testDeleteEmptyList()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleDeletionOptions options = new SampleDeletionOptions();
+        options.setReason("It is just a test");
+
+        IDeletionId deletionId = v3api.deleteSamples(sessionToken, new ArrayList<SamplePermId>(), options);
+        Assert.assertNull(deletionId);
+    }
 
     @Test
     public void testDeleteWithIndexCheck() throws Exception

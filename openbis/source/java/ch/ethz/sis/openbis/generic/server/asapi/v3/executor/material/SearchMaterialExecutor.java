@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,27 +24,42 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchMaterialExecutor implements ISearchMaterialExecutor
+public class SearchMaterialExecutor extends AbstractSearchObjectExecutor<MaterialSearchCriteria, Long> implements
+        ISearchMaterialExecutor
 {
 
     @Autowired
-    private ISearchMaterialIdExecutor searchMaterialIdExecutor;
-
-    @Autowired
-    private IDAOFactory daoFactory;
+    private IMaterialAuthorizationExecutor authorizationExecutor;
 
     @Override
-    public List<MaterialPE> search(IOperationContext context, MaterialSearchCriteria criteria)
+    protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
     {
-        List<Long> materialIds = searchMaterialIdExecutor.search(context, criteria);
-        return daoFactory.getMaterialDAO().listMaterialsById(materialIds);
+        authorizationExecutor.canSearch(context);
+
+        if (criteria.getCriteria().isEmpty())
+        {
+            // if no criteria were provided find all materials
+            criteria.getCriteria().add(
+                    new DetailedSearchCriterion(DetailedSearchField
+                            .createAttributeField(SampleAttributeSearchFieldKind.CODE), "*"));
+        }
+
+        List<Long> materialIds = daoFactory.getHibernateSearchDAO().searchForEntityIds(context.getSession().tryGetPerson().getUserId(), criteria,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
+                Collections.<IAssociationCriteria> emptyList());
+
+        return materialIds;
     }
 
 }

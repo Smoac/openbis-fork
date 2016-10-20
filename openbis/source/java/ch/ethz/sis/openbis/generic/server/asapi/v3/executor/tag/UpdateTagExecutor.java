@@ -25,13 +25,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -41,12 +39,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, MetaprojectPE, ITagId> implements
+public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, MetaprojectPE, ITagId, TagPermId> implements
         IUpdateTagExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private ITagAuthorizationExecutor authorizationExecutor;
 
     @Autowired
     private IMapTagByIdExecutor mapTagByIdExecutor;
@@ -70,6 +71,12 @@ public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, M
     }
 
     @Override
+    protected TagPermId getPermId(MetaprojectPE entity)
+    {
+        return new TagPermId(entity.getOwner().getUserId(), entity.getCode());
+    }
+
+    @Override
     protected void checkData(IOperationContext context, TagUpdate update)
     {
         if (update.getTagId() == null)
@@ -79,18 +86,15 @@ public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, M
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, ITagId id, MetaprojectPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        if (false == new TagAuthorization(context).canAccess(entity))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
+        authorizationExecutor.canUpdate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MetaprojectPE> batch)
+    protected void checkAccess(IOperationContext context, ITagId id, MetaprojectPE entity)
     {
-        // nothing to do
+        authorizationExecutor.canUpdate(context, id, entity);
     }
 
     @Override

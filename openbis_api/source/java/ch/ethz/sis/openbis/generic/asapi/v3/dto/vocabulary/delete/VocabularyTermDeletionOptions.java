@@ -30,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.vocabulary.delete.VocabularyTermDeletionOptions")
-public class VocabularyTermDeletionOptions extends AbstractObjectDeletionOptions
+public class VocabularyTermDeletionOptions extends AbstractObjectDeletionOptions<VocabularyTermDeletionOptions>
 {
 
     private static final long serialVersionUID = 1L;

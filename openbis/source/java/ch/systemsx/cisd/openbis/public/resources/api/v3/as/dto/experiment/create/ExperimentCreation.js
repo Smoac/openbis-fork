@@ -14,6 +14,8 @@ define([ "stjs" ], function(stjs) {
 		prototype.tagIds = null;
 		prototype.properties = null;
 		prototype.attachments = null;
+		prototype.creationId = null;
+
 		prototype.setTypeId = function(typeId) {
 			this.typeId = typeId;
 		};
@@ -56,6 +58,12 @@ define([ "stjs" ], function(stjs) {
 		prototype.setAttachments = function(attachments) {
 			this.attachments = attachments;
 		};
+		prototype.getCreationId = function() {
+			return this.creationId;
+		};
+		prototype.setCreationId = function(creationId) {
+			this.creationId = creationId;
+		};
 	}, {
 		typeId : "IEntityTypeId",
 		projectId : "IProjectId",
@@ -70,7 +78,8 @@ define([ "stjs" ], function(stjs) {
 		attachments : {
 			name : "List",
 			arguments : [ "AttachmentCreation" ]
-		}
+		},
+		creationId : "CreationId"
 	});
 	return ExperimentCreation;
 })

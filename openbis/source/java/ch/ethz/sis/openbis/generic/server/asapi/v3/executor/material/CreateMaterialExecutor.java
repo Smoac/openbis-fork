@@ -66,6 +66,9 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     private IDAOFactory daoFactory;
 
     @Autowired
+    private IMaterialAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
     private ISetMaterialTypeExecutor setMaterialTypeExecutor;
 
     @Autowired
@@ -73,9 +76,6 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
 
     @Autowired
     private IAddTagToEntityExecutor addTagToEntityExecutor;
-
-    @Autowired
-    private IVerifyMaterialExecutor verifyMaterialExecutor;
 
     @Override
     protected List<MaterialPE> createEntities(final IOperationContext context, CollectionBatch<MaterialCreation> batch)
@@ -121,15 +121,15 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, MaterialPE entity)
+    protected void checkAccess(IOperationContext context)
     {
-        // nothing to do
+        authorizationExecutor.canCreate(context);
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MaterialPE> batch)
+    protected void checkAccess(IOperationContext context, MaterialPE entity)
     {
-        verifyMaterialExecutor.verify(context, batch);
+        authorizationExecutor.canCreate(context, entity);
     }
 
     @Override

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTITY_PE, DELETION_OPTIONS extends AbstractObjectDeletionOptions>
+public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTITY_PE, DELETION_OPTIONS extends AbstractObjectDeletionOptions<?>>
         implements IDeleteEntityExecutor<DELETION_ID, ENTITY_ID, DELETION_OPTIONS>
 {
 
@@ -50,6 +50,8 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
     @Override
     public DELETION_ID delete(IOperationContext context, List<? extends ENTITY_ID> entityIds, DELETION_OPTIONS deletionOptions)
     {
+        checkAccess(context);
+
         if (context == null)
         {
             throw new IllegalArgumentException("Context cannot be null");
@@ -68,6 +70,11 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
         }
 
         Map<ENTITY_ID, ENTITY_PE> entityMap = map(context, entityIds);
+
+        if (entityMap.isEmpty())
+        {
+            return null;
+        }
 
         for (Map.Entry<ENTITY_ID, ENTITY_PE> entry : entityMap.entrySet())
         {
@@ -92,6 +99,8 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
     }
 
     protected abstract Map<ENTITY_ID, ENTITY_PE> map(IOperationContext context, List<? extends ENTITY_ID> entityIds);
+
+    protected abstract void checkAccess(IOperationContext context);
 
     protected abstract void checkAccess(IOperationContext context, ENTITY_ID entityId, ENTITY_PE entity);
 

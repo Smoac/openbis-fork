@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateExperimentExecutor extends IUpdateEntityExecutor<ExperimentUpdate>
+public interface IUpdateExperimentExecutor extends IUpdateEntityExecutor<ExperimentUpdate, ExperimentPermId>
 {
 
 }

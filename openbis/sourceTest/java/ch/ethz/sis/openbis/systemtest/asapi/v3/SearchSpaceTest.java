@@ -74,7 +74,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithPermIdThatStartsWith()
     {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();
-        criteria.withPermId().thatStartsWith("C");
+        criteria.withPermId().thatStartsWith("CI");
         testSearch(TEST_USER, criteria, "CISD");
     }
 
@@ -82,7 +82,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithPermIdThatEndsWith()
     {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();
-        criteria.withPermId().thatEndsWith("E");
+        criteria.withPermId().thatEndsWith("ACE");
         testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
@@ -106,7 +106,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatStartsWith()
     {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();
-        criteria.withCode().thatStartsWith("c");
+        criteria.withCode().thatStartsWith("ci");
         testSearch(TEST_USER, criteria, "CISD");
     }
 
@@ -114,7 +114,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatEndsWith()
     {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();
-        criteria.withCode().thatEndsWith("e");
+        criteria.withCode().thatEndsWith("ace");
         testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 

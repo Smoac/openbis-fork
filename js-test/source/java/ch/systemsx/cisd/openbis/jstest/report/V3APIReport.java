@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
@@ -36,8 +37,6 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.collection.CollectionUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +44,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 
 /**
  * @author pkupczyk
@@ -57,10 +59,51 @@ public class V3APIReport
             "ch.ethz.sis.openbis.generic.asapi.v3"
     };
 
-    private static final String[] IGNORE_CLASSES = {
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder"
-    };
+    private static final Collection<ClassFilter> CLASS_FILTERS = new ArrayList<ClassFilter>();
+
+    static
+    {
+        CLASS_FILTERS.add(new ClassFilter("inner classes filter")
+            {
+                @Override
+                public boolean accepts(Class<?> clazz)
+                {
+                    return false == clazz.getName().contains("$");
+                }
+            });
+
+        CLASS_FILTERS.add(new ClassFilter("ignored classes filter")
+            {
+                @Override
+                public boolean accepts(Class<?> clazz)
+                {
+                    String[] IGNORE_CLASSES = {
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder",
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder"
+                    };
+                    return false == ArrayUtils.contains(IGNORE_CLASSES, clazz.getName());
+                }
+            });
+
+        CLASS_FILTERS.add(new ClassFilter("classes that implement IOperation or IOperationResult (executeOperations is not yet supported in JS)")
+            {
+                @Override
+                public boolean accepts(Class<?> clazz)
+                {
+                    return false == IOperation.class.isAssignableFrom(clazz) && false == IOperationResult.class.isAssignableFrom(clazz);
+                }
+            });
+
+        CLASS_FILTERS.add(new ClassFilter("operation execution related classes (executeOperations is not yet supported in JS)")
+            {
+                @Override
+                public boolean accepts(Class<?> clazz)
+                {
+                    return false == clazz.getName().contains("v3.dto.operation") && false == clazz.getName().contains("v3.dto.common.operation");
+                }
+            });
+
+    }
 
     @Test
     public void test() throws Exception
@@ -99,26 +142,35 @@ public class V3APIReport
                 .filterInputsBy(filterBuilder));
 
         Multimap<String, String> map = reflections.getStore().get(SubTypesScanner.class);
-
-        Collection<String> nonInnerAndNonIgnoredClassNames = Collections2.filter(map.values(), new Predicate<String>()
-            {
-
-                @Override
-                public boolean apply(String item)
-                {
-                    return false == item.contains("$") && false == ArrayUtils.contains(IGNORE_CLASSES, item);
-                }
-            });
-        Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerAndNonIgnoredClassNames);
+        Collection<String> uniqueClassNames = new TreeSet<String>(map.values());
         Collection<Class<?>> uniqueClasses = ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames));
+        Collection<Class<?>> filteredClasses = new LinkedHashSet<Class<?>>(uniqueClasses);
 
-        for (Class<?> uniqueClass : uniqueClasses)
+        for (final ClassFilter filter : CLASS_FILTERS)
         {
-            System.out.println("Found V3 public class:\t" + uniqueClass.getName());
+            filteredClasses = Collections2.filter(filteredClasses, new Predicate<Class<?>>()
+                {
+                    @Override
+                    public boolean apply(Class<?> clazz)
+                    {
+                        boolean result = filter.apply(clazz);
+                        if (!result)
+                        {
+                            System.out.println("Filtered out class '" + clazz.getName() + "' by filter '" + filter.getFilterName() + "'");
+                        }
+                        return result;
+                    }
+                });
         }
+
+        for (Class<?> filteredClass : filteredClasses)
+        {
+            System.out.println("Found V3 public class:\t" + filteredClass.getName());
+        }
+
         System.out.println();
 
-        return uniqueClasses;
+        return filteredClasses;
     }
 
     private String getJSONObjectAnnotation(Class<?> clazz)
@@ -277,6 +329,36 @@ public class V3APIReport
         {
             methods.add(method);
         }
+    }
+
+    static abstract class ClassFilter implements Predicate<Class<?>>
+    {
+
+        private String filterName;
+
+        public ClassFilter(String filterName)
+        {
+            this.filterName = filterName;
+        }
+
+        public abstract boolean accepts(Class<?> clazz);
+
+        @Override
+        public boolean apply(Class<?> clazz)
+        {
+            return accepts(clazz);
+        }
+
+        public String getFilterName()
+        {
+            return filterName;
+        }
+
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        System.out.println(new V3APIReport().getReport());
     }
 
 }

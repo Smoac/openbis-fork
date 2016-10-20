@@ -6,10 +6,10 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 
-public class GetSessionInformationTest extends AbstractSampleTest
+public class GetSessionInformationTest extends AbstractTest
 {
     @Test
-    public void testGetByPermId()
+    public void testGet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SessionInformation sessionInformation = v3api.getSessionInformation(sessionToken);
