@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Set;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -31,10 +29,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPE
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
@@ -49,26 +48,42 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void canCreate(IOperationContext context)
     {
-        // We are checking the creator of the session here instead of the actual user. The creator of the session has to always be ETL_SERVER. The
-        // actual user does not have to be ETL_SERVER. This will happen when data store executes the registration on behalf of a different user for
-        // the user to become the registrator.
+        boolean isCreatorPersonAllowed = false;
+        boolean isPersonAllowed = false;
 
-        Set<RoleAssignmentPE> roles = context.getSession().tryGetCreatorPerson().getAllPersonRoles();
-        boolean isEtlServer = false;
+        if (context.getSession().tryGetCreatorPerson() != null)
+        {
+            isCreatorPersonAllowed = canCreate(context.getSession().tryGetCreatorPerson());
+        }
 
-        for (RoleAssignmentPE role : roles)
+        if (context.getSession().tryGetPerson() != null)
+        {
+            isPersonAllowed = canCreate(context.getSession().tryGetPerson());
+        }
+
+        if (false == isCreatorPersonAllowed && false == isPersonAllowed)
+        {
+            throw new UserFailureException(
+                    "Data set creation can be only executed by a system user or a user with " + RoleCode.ETL_SERVER + " role.");
+        }
+    }
+
+    private boolean canCreate(PersonPE person)
+    {
+        if (person.isSystemUser())
+        {
+            return true;
+        }
+
+        for (RoleAssignmentPE role : person.getAllPersonRoles())
         {
             if (RoleCode.ETL_SERVER.equals(role.getRole()))
             {
-                isEtlServer = true;
-                break;
+                return true;
             }
         }
 
-        if (false == isEtlServer)
-        {
-            throw new UserFailureException("Data set creation can be only executed by a user with " + RoleCode.ETL_SERVER + " role.");
-        }
+        return false;
     }
 
     @Override

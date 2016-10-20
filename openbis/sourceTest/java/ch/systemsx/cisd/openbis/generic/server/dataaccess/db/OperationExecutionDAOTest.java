@@ -255,8 +255,8 @@ public final class OperationExecutionDAOTest extends AbstractDAOTest
         setAvailabilities(createFinished(now), TIMED_OUT, DateUtils.MILLIS_PER_HOUR);
 
         // finished expired
-        OperationExecutionPE finished1 = setAvailabilities(createFinished(now - 1), AVAILABLE, 1);
-        OperationExecutionPE finished10 = setAvailabilities(createFinished(now - 10), AVAILABLE, 1);
+        OperationExecutionPE finished1 = setAvailabilities(createFinished(now - DateUtils.MILLIS_PER_SECOND), AVAILABLE, 1);
+        OperationExecutionPE finished10 = setAvailabilities(createFinished(now - 10 * DateUtils.MILLIS_PER_SECOND), AVAILABLE, 1);
         setAvailabilities(createFinished(now - 1), DELETE_PENDING, 1);
         setAvailabilities(createFinished(now - 1), DELETED, 1);
         setAvailabilities(createFinished(now - 1), TIME_OUT_PENDING, 1);
@@ -270,8 +270,8 @@ public final class OperationExecutionDAOTest extends AbstractDAOTest
         setAvailabilities(createFailed(now), TIMED_OUT, DateUtils.MILLIS_PER_HOUR);
 
         // failed expired
-        OperationExecutionPE failed2 = setAvailabilities(createFailed(now - 2), AVAILABLE, 1);
-        OperationExecutionPE failed20 = setAvailabilities(createFailed(now - 20), AVAILABLE, 1);
+        OperationExecutionPE failed2 = setAvailabilities(createFailed(now - 2 * DateUtils.MILLIS_PER_SECOND), AVAILABLE, 1);
+        OperationExecutionPE failed20 = setAvailabilities(createFailed(now - 20 * DateUtils.MILLIS_PER_SECOND), AVAILABLE, 1);
         setAvailabilities(createFailed(now - 1), DELETE_PENDING, 1);
         setAvailabilities(createFailed(now - 1), DELETED, 1);
         setAvailabilities(createFailed(now - 1), TIME_OUT_PENDING, 1);

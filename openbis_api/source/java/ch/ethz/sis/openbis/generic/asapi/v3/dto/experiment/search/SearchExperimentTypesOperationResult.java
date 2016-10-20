@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.experiment.search.SearchExperimentsOperationResult")
+@JsonObject("as.dto.experiment.search.SearchExperimentTypesOperationResult")
 public class SearchExperimentTypesOperationResult extends SearchObjectsOperationResult<ExperimentType>
 {
 

@@ -174,7 +174,6 @@ public class DataSetDeletionTest extends DeletionTest
 
         newTx();
 
-        delete(dataset);
         delete(parent1, parent2);
         delete(experiment);
         delete(project);
@@ -214,7 +213,6 @@ public class DataSetDeletionTest extends DeletionTest
 
         newTx();
 
-        delete(dataset);
         delete(container1, container2);
         delete(experiment);
         delete(project);

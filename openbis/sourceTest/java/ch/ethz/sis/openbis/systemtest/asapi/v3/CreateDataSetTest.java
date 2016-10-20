@@ -960,7 +960,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     createDataSet(sessionToken, physicalDataSetCreation(), new DataSetFetchOptions());
                 }
-            }, "Data set creation can be only executed by a user with ETL_SERVER role.");
+            }, "Data set creation can be only executed by a system user or a user with ETL_SERVER role.");
     }
 
     @Test
