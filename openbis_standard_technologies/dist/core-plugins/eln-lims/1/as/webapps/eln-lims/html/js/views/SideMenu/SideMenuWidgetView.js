@@ -355,29 +355,48 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "EXPERIMENT":
     	    		var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, function(searchResult) {
-    	    			var results = [];
-    	                var samples = searchResult.objects;
-    	                
-    	                if(samples.length > 30) {
-    	                	Util.showInfo("More than 30 Samples, please use the sample table on the experiment to navigate them.");
-    	                } else {
-    	                	for (var i = 0; i < samples.length; i++) {
-        	                    var sample = samples[i];
-        	                    var sampleDisplayName = sample.code;
-        	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
-        	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
-        	                    }
-        	                    
-        	                    var sampleNode = { title : sampleDisplayName, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
-        	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
-        	                    	sampleNode.icon = "fa fa-flask";
-        	                    }
-        	                    results.push(sampleNode);
-        	                }
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
+    	    		function(searchResult) {
+    	    			var samples = searchResult.objects;
+    	    			
+    	    			var getOkResultsFunction = function(dfd, samples) {
+    	                	return function() {
+    	                		var results = [];
+        	                	for (var i = 0; i < samples.length; i++) {
+	        	                    var sample = samples[i];
+	        	                    var sampleDisplayName = sample.code;
+	        	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+	        	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+	        	                    }
+	        	                    
+	        	                    var sampleNode = { title : sampleDisplayName, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
+	        	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
+	        	                    	sampleNode.icon = "fa fa-flask";
+	        	                    }
+	        	                    results.push(sampleNode);
+        	                	}
+        	                	dfd.resolve(results);
+        	                	Util.unblockUI();
+    	                	}
     	                }
     	                
-    	                dfd.resolve(results);
+    	                var getCancelResultsFunction = function(dfd) {
+    	                	return function() {
+    	                		dfd.resolve([]);
+    	                	}
+    	                }
+    	                
+    	                if(samples.length > 50) {
+    	                	var toExecute = function() {
+        	                	Util.blockUIConfirm("Do you want to show " + samples.length + " " + ELNDictionary.Samples + " on the tree?", 
+        	    	                	getOkResultsFunction(dfd, samples),
+        	    	                	getCancelResultsFunction(dfd));
+        	                }
+    	                	
+    	                	setTimeout(toExecute, 1000);
+    	                } else {
+    	                	getOkResultsFunction(dfd, samples)();
+    	                }
     	    		});
     	    		break;
     	    	case "SAMPLE":
