@@ -16,31 +16,53 @@ from systemtest.testcase import TEST_DATA
 class TestCase(systemtest.testcase.TestCase):
 
     def execute(self):
+        '''create data source openbis (openbis1)'''
         self.installOpenbis(instanceName ='openbis1', technologies = ['screening'])
-        openbis_datasource = self.createOpenbisController('openbis1')
-        openbis_datasource.setDummyAuthentication()
-        openbis_datasource.setDataStoreServerUsername('etlserver')
-        openbis_datasource.createTestDatabase('openbis')
-        openbis_datasource.createTestDatabase('pathinfo')
-        openbis_datasource.createTestDatabase('imaging')
+        openbis1 = self.createOpenbisController('openbis1')
+        openbis1.setDummyAuthentication()
+        openbis1.setDataStoreServerUsername('etlserver1')
+        openbis1.createTestDatabase('openbis')
+        openbis1.createTestDatabase('pathinfo')
+        openbis1.createTestDatabase('imaging')
         
+        '''create harvester openbis (openbis2)'''
+        self.installOpenbis(instanceName ='openbis2', technologies = ['screening', 'proteomics'])
+        openbis2 = self.createOpenbisController('openbis2')
+        openbis2.setDummyAuthentication()
+        openbis2.setDataStoreServerUsername('etlserver2')
+        openbis2.createTestDatabase('openbis')
+        openbis2.createTestDatabase('pathinfo')
+        openbis2.createTestDatabase('imaging')
+        openbis2.createTestDatabase('proteomics')
 
     def executeInDevMode(self):
-        openbis_datasource = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
-        self.installDataSourcePlugin(openbis_datasource)
-        corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis_datasource.installPath
+        openbis1 = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
+        self.installDataSourcePlugin(openbis1)
+        corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
         util.printAndFlush(corePluginsPropertiesFile)
         #util.writeProperties(corePluginsPropertiesFile)
-        openbis_datasource.allDown()
-        openbis_datasource.setDataStoreServerUsername('etlserver')
-        openbis_datasource.allUp()
+        openbis1.setDataStoreServerUsername('etlserver1')
+        openbis1.allUp()
+
+        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = '8445', dropDatabases=False)
+        openbis2.setDataStoreServerPort('8446')
+        self.installHarvesterPlugin(openbis2)
+        openbis2.setDataStoreServerUsername('etlserver2')
+        openbis2.allUp()
         
     def installDataSourcePlugin(self, openbisController):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
         path = repository.getPathToArtifact('149', 'archive.zip')
         util.printAndFlush("path to core plugin in the repository: %s" % path)
         destination = "%s/servers/core-plugins/openbis1/" % openbisController.installPath
-        util.unzipSubfolder(path, 'openbissync.git/core-plugins/openbis-sync/1/', destination)
+        util.unzipSubfolder(path, 'openbissync.git/core-plugins/datasource/1/', destination)
+
+    def installHarvesterPlugin(self, openbisController):
+        repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
+        path = repository.getPathToArtifact('149', 'archive.zip')
+        util.printAndFlush("path to core plugin in the repository: %s" % path)
+        destination = "%s/servers/core-plugins/openbis2/" % openbisController.installPath
+        util.unzipSubfolder(path, 'openbissync.git/core-plugins/harvester/1/', destination)
 
 class GitLabArtifactRepository(GitArtifactRepository):
     """
