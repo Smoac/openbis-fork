@@ -218,11 +218,11 @@ class TestCase(object):
         util.writeProperties(dssPropsFile, dssProps)
         
     
-    def createOpenbisController(self, instanceName = 'openbis', dropDatabases = True, databasesToDrop = []):
+    def createOpenbisController(self, instanceName = 'openbis', port = '8443', dropDatabases = True, databasesToDrop = []):
         """
         Creates an openBIS controller object assuming that an openBIS instance for the specified name is installed.
         """
-        return OpenbisController(self, self.name, self._getInstallPath(instanceName), instanceName, 
+        return OpenbisController(self, self.name, self._getInstallPath(instanceName), instanceName, port,
                                  dropDatabases, databasesToDrop)
     
     def installScreeningTestClient(self):
@@ -420,7 +420,7 @@ class OpenbisController(_Controller):
     """
     Class to control AS and DSS of an installed openBIS instance.
     """
-    def __init__(self, testCase, testName, installPath, instanceName, dropDatabases = True, databasesToDrop = []):
+    def __init__(self, testCase, testName, installPath, instanceName, port = '8443',  dropDatabases = True, databasesToDrop = []):
         """
         Creates a new instance for specifies test case with specified test and instance name, installation path.
         """
@@ -445,6 +445,12 @@ class OpenbisController(_Controller):
         self.dssProperties['imaging-database.kind'] = self.databaseKind
         self.dssProperties['proteomics-database-kind'] = self.databaseKind
         self.dssPropertiesModified = True
+        if port != '8443':
+            self.httpsIniFile = "%s/servers/openBIS-server/jetty/start.d/https.ini" % installPath
+            if os.path.exists(self.httpsIniFile):
+                self.httpsIni = util.readProperties(self.httpsIniFile)
+                self.httpsIni['https.port'] = port
+                util.writeProperties(self.httpsIniFile, self.httpsIni)
         if dropDatabases:
             util.dropDatabase(PSQL_EXE, "openbis_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "pathinfo_%s" % self.databaseKind)
@@ -458,7 +464,7 @@ class OpenbisController(_Controller):
     def setDummyAuthentication(self):
         """ Disables authentication. """
         self.asProperties['authentication-service'] = 'dummy-authentication-service'
-        
+
     def setDataStoreServerCode(self, code):
         """ Sets the code of the Data Store Server. """
         self.dssProperties['data-store-server-code'] = code
