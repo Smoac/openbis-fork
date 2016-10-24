@@ -111,14 +111,17 @@ function SampleFormController(mainController, mode, sample) {
 		//
 		// Parents/Children Links
 		//
-		if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
-			return;
+		if(!isCopyWithNewCode) {
+			if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
+				return;
+			}
+			if(!_this._sampleFormModel.sampleLinksChildren.isValid()) {
+				return;
+			}
 		}
+		
 		var sampleParentsFinal = _this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
 		
-		if(!_this._sampleFormModel.sampleLinksChildren.isValid()) {
-			return;
-		}
 		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
 		
 		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
