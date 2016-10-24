@@ -125,7 +125,7 @@ public class OperationExecutionStoreTest
         logRecorder.reset();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionNew()
     {
         assertExecutionDirectoryExistsWithFiles(false);
@@ -189,7 +189,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionScheduled()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -216,7 +216,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionRunning()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -244,7 +244,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionProgress() throws Exception
     {
         final IProgress progress1 = new TestProgress(1);
@@ -307,7 +307,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionFinishedWhenExecutionDirectoryExists()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -347,7 +347,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionFinishedWhenExecutionDirectoryDoesNotExist()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -380,7 +380,7 @@ public class OperationExecutionStoreTest
         }
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionFailedWhenExecutionDirectoryExists()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -414,7 +414,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testExecutionFailedWhenExecutionDirectoryDoesNotExist()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
