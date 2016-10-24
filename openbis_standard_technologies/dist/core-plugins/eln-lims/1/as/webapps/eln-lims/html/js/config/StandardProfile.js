@@ -478,7 +478,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							if(!absoluteTotalForCurrency) {
 								absoluteTotalForCurrency = 0;
 							}
-							absoluteTotalForCurrency += requestProduct.properties["PRICE_PER_UNIT"] * quantity;
+							
+							if(requestProduct.properties["PRICE_PER_UNIT"]) {
+								absoluteTotalForCurrency += parseFloat(requestProduct.properties["PRICE_PER_UNIT"]) * quantity;
+							}
+							
 							absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]] = absoluteTotalForCurrency;
 							
 							quantityByProductPermId[requestProduct.permId] = quantity;
@@ -544,15 +548,25 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 									var product = providerProducts[pIdx];
 									var quantity = quantityByProductPermId[product.permId];
-									var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
-									page += product.properties["NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
-									page += "\n";
-									var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
-									if(!totalForCurrency) {
-										totalForCurrency = 0;
+									var unitPriceAsString = product.properties["PRICE_PER_UNIT"];
+									var unitPrice = "N/A";
+									if(unitPriceAsString) {
+										unitPrice = parseFloat(unitPriceAsString);
 									}
-									totalForCurrency += unitPrice * quantity;
-									providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+									page += product.properties["NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + unitPrice + "\t" + product.properties["CURRENCY"];
+									page += "\n";
+									
+									if(unitPriceAsString) {
+										var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
+										if(!totalForCurrency) {
+											totalForCurrency = 0;
+										}
+										totalForCurrency += unitPrice * quantity;
+										
+										providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+									} else {
+										providerTotalByCurrency[product.properties["CURRENCY"]] = "N/A";
+									}
 								}
 								page += "\n";
 								page += languageLabels["PRICE_TOTALS_LABEL"] + ":";
@@ -581,7 +595,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						isExportable: true,
 						sortable : true,
 						render : function(data) {
-							return FormUtil.getFormLink(data.code, "SAMPLE", data.permId);
+							return FormUtil.getFormLink(data.code, "Sample", data.permId);
 						}
 					},{
 						label : 'Supplier',
@@ -623,16 +637,23 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 								var product = providerProducts[pIdx];
 								var quantity = quantityByProductPermId[product.permId];
-								var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
-								
+								var unitPriceAsString = product.properties["PRICE_PER_UNIT"];
+								var unitPrice = "N/A";
+								if(unitPriceAsString) {
+									unitPrice = parseFloat(unitPriceAsString);
+								}
 								var rowData = {};
 								rowData.permId = product.permId;
 								rowData.supplier = provider.properties["COMPANY_NAME"];
 								rowData.name = product.properties["NAME"];
 								rowData.code =  product.properties["CATALOG_CODE"];
 								rowData.quantity = quantity;
-								rowData.unitPrice = product.properties["PRICE_PER_UNIT"];
-								rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
+								rowData.unitPrice = unitPrice;
+								if(unitPrice !== "N/A") {
+									rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
+								} else {
+									rowData.totalProductCost = "N/A";
+								}
 								rowData.currency = product.properties["CURRENCY"];
 								rows.push(rowData);
 							}
