@@ -465,6 +465,16 @@ class OpenbisController(_Controller):
         """ Disables authentication. """
         self.asProperties['authentication-service'] = 'dummy-authentication-service'
 
+    def setOpenbisPortDataStoreServer(self, port):
+        as_url = self.dssProperties['server-url']
+        util.printAndFlush('as_url' + as_url)
+        parts = as_url.split(':')
+        s=""
+        for idx, part in enumerate(parts):
+            if(idx < len(parts) -1):
+                s = s + part + ":"
+        self.dssProperties['server-url'] = s + port
+         
     def setDataStoreServerCode(self, code):
         """ Sets the code of the Data Store Server. """
         self.dssProperties['data-store-server-code'] = code
