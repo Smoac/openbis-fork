@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
@@ -30,11 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModificatio
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
  * @author pkupczyk
@@ -64,7 +63,8 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
         if (false == isCreatorPersonAllowed && false == isPersonAllowed)
         {
             throw new UserFailureException(
-                    "Data set creation can be only executed by a system user or a user with " + RoleCode.ETL_SERVER + " role.");
+                    "Data set creation can be only executed by a system user or a user with at least " + RoleWithHierarchy.SPACE_ETL_SERVER
+                            + " role.");
         }
     }
 
@@ -75,15 +75,8 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
             return true;
         }
 
-        for (RoleAssignmentPE role : person.getAllPersonRoles())
-        {
-            if (RoleCode.ETL_SERVER.equals(role.getRole()))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        AuthorizationServiceUtils authorization = new AuthorizationServiceUtils(null, person);
+        return authorization.doesUserHaveRole(RoleWithHierarchy.SPACE_ETL_SERVER);
     }
 
     @Override

@@ -23,9 +23,12 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +38,15 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionOptions;
@@ -70,11 +76,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOption
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.UpdateSpacesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.UpdateSpacesOperationResult;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author pkupczyk
@@ -89,6 +97,8 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
     @Autowired
     private PlatformTransactionManager txManager;
 
+    private Set<String> beforeSpaceCodes;
+
     @Override
     @BeforeClass(alwaysRun = true)
     public void beforeClass()
@@ -96,6 +106,27 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         super.beforeClass();
         getMarkTimeOutPendingMaintenancePlugin().shutdown();
         getMarkTimedOutOrDeletedMaintenancePlugin().shutdown();
+    }
+
+    @Override
+    @BeforeMethod
+    public void beforeMethod(Method method)
+    {
+        super.beforeMethod(method);
+
+        beforeSpaceCodes = getAllSpaceCodes();
+    }
+
+    @Override
+    @AfterMethod
+    public void afterMethod(Method method)
+    {
+        super.afterMethod(method);
+
+        Set<String> afterSpaceCodes = getAllSpaceCodes();
+
+        Assert.assertEquals(afterSpaceCodes, beforeSpaceCodes, method.getName()
+                + " method has added some spaces but hasn't cleaned them up. Such spaces will make other tests fail (e.g. space search tests).");
     }
 
     @Override
@@ -190,7 +221,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(spaces.get(spaceId1).getDescription(), update2.getDescription().getValue());
         assertEquals(spaces.get(spaceId3).getCode(), creation3.getCode());
 
-        v3api.deleteSpaces(sessionToken, Arrays.asList(spaceId1, spaceId3), new SpaceDeletionOptions().setReason("test"));
+        deleteSpaces(Arrays.asList(spaceId1, spaceId3));
     }
 
     @Test
@@ -498,7 +529,8 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
 
         CreateSpacesOperationResult operationResult = (CreateSpacesOperationResult) execution.getDetails().getResults().get(0);
         assertEquals(1, operationResult.getObjectIds().size());
-        v3api.deleteSpaces(sessionToken, operationResult.getObjectIds(), new SpaceDeletionOptions().setReason("test"));
+
+        deleteSpaces(operationResult.getObjectIds());
     }
 
     @Test
@@ -756,6 +788,46 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(execution.getAvailabilityTime(), availabilityTime);
         assertEquals(execution.getSummaryAvailabilityTime(), summaryAvailabilityTime);
         assertEquals(execution.getDetailsAvailabilityTime(), detailsAvailabilityTime);
+    }
+
+    private Set<String> getAllSpaceCodes()
+    {
+        // do it in a separate transaction to get only spaces that won't be rolled back
+        TransactionStatus transaction =
+                txManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
+        try
+        {
+            // login as system user not to create a dead lock on a the same user as a test method uses
+            SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
+            SearchResult<Space> result = v3api.searchSpaces(systemSession.getSessionToken(), new SpaceSearchCriteria(), new SpaceFetchOptions());
+
+            Set<String> codes = new HashSet<String>();
+            for (Space space : result.getObjects())
+            {
+                codes.add(space.getCode());
+            }
+
+            return codes;
+        } finally
+        {
+            txManager.commit(transaction);
+        }
+    }
+
+    private void deleteSpaces(List<? extends ISpaceId> spaceIds)
+    {
+        // do it in a separate transaction to execute a space delete that won't be rolled back
+        TransactionStatus transaction =
+                txManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
+        try
+        {
+            // login as system user not to create a dead lock on a the same user as a test method uses
+            SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
+            v3api.deleteSpaces(systemSession.getSessionToken(), spaceIds, new SpaceDeletionOptions().setReason("test"));
+        } finally
+        {
+            txManager.commit(transaction);
+        }
     }
 
     private int defaultAvalability()

@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIden
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -129,6 +129,26 @@ public class AuthorizationServiceUtils
         }
         return true;
 
+    }
+
+    public boolean doesUserHaveRole(RoleWithHierarchy role)
+    {
+        if (user.getAllPersonRoles().size() == 0)
+        {
+            return false;
+        }
+
+        // getRoles() takes all the roles stronger/equal than the role
+        List<RoleWithIdentifier> retainedUserRoles =
+                DefaultAccessController.retainMatchingRoleWithIdentifiers(
+                        new ArrayList<RoleWithIdentifier>(userRoles), role.getRoles());
+
+        if (retainedUserRoles.size() == 0)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static PersonPE getUserByName(IDAOFactory daoFactory, String userId)

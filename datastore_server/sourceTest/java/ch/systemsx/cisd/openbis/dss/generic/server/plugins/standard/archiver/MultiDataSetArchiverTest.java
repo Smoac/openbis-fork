@@ -62,6 +62,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
@@ -627,7 +628,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
@@ -706,7 +707,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, true);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
@@ -788,7 +789,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
@@ -879,7 +880,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, false);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 20.00 GB, needed space: 1.00 GB\n"
@@ -958,7 +959,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -987,7 +988,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
@@ -1109,7 +1110,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
@@ -1142,7 +1143,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
                 + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Free space on unarchiving scratch share '1': "
                 + "34.00 GB, requested space for unarchiving 2 data sets: 30.00 GB\n", getFilteredLogContent());
@@ -1169,7 +1170,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
                 + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Unarchiving delayed\n", getFilteredLogContent());
         assertEquals("", statusUpdater.toString());
@@ -1189,7 +1190,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "5");
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverContext, true);
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
@@ -1219,7 +1220,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         status = archiver.unarchive(Arrays.asList(ds1), archiverContext);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
                 + "has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Free space on unarchiving scratch share '1': "
                 + "34.00 GB, requested space for unarchiving 1 data sets: 10.00 GB\n", getFilteredLogContent());
