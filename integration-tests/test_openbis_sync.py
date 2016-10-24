@@ -27,7 +27,7 @@ class TestCase(systemtest.testcase.TestCase):
         
         '''create harvester openbis (openbis2)'''
         self.installOpenbis(instanceName ='openbis2', technologies = ['screening', 'proteomics'])
-        openbis2 = self.createOpenbisController('openbis2')
+        openbis2 = self.createOpenbisController('openbis2', port = '8445')
         openbis2.setDummyAuthentication()
         openbis2.setDataStoreServerUsername('etlserver2')
         openbis2.createTestDatabase('openbis')
@@ -44,8 +44,10 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1.setDataStoreServerUsername('etlserver1')
         openbis1.allUp()
 
-        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = '8445', dropDatabases=False)
+        openbis2_port = '8445'
+        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
         openbis2.setDataStoreServerPort('8446')
+        openbis2.setOpenbisPortDataStoreServer(openbis2_port)
         self.installHarvesterPlugin(openbis2)
         openbis2.setDataStoreServerUsername('etlserver2')
         openbis2.allUp()
