@@ -17,4 +17,4 @@ CIFEX_ROOT="`dirname ${SCRIPT}`"
 CIFEX_ETC="${CIFEX_ROOT}/etc"
 CIFEX_LIB="${CIFEX_ROOT}/lib"
 
-java -Xmx256m -Djavax.net.ssl.trustStore=${CIFEX_ETC}/keystore -Dcifex.config="${CIFEX_ETC}" -jar "${CIFEX_LIB}/cifex.jar" "$@"
+java -Xmx256m -Dcifex.config="${CIFEX_ETC}" -jar "${CIFEX_LIB}/cifex.jar" "$@"
