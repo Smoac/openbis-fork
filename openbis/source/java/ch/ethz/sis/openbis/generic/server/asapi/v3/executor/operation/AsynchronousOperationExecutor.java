@@ -125,4 +125,12 @@ public class AsynchronousOperationExecutor implements IAsynchronousOperationExec
         return new AsynchronousOperationExecutionResults(executionId);
     }
 
+    public void shutdown()
+    {
+        if (executionThreadPool != null)
+        {
+            executionThreadPool.shutdown();
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,6 +10,7 @@ import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -57,6 +60,8 @@ public class AsynchronousOperationExecutorTest
 
     private OperationExecutionPermId executionId2 = new OperationExecutionPermId();
 
+    private Collection<AsynchronousOperationExecutor> executors = new ArrayList<AsynchronousOperationExecutor>();
+
     @SuppressWarnings("unchecked")
     @BeforeMethod
     private void beforeMethod()
@@ -84,7 +89,17 @@ public class AsynchronousOperationExecutorTest
         operationResults2 = mockery.mock(List.class, "operationResults2");
     }
 
-    @Test(enabled=false)
+    @AfterMethod
+    private void afterMethod()
+    {
+        for (AsynchronousOperationExecutor executor : executors)
+        {
+            executor.shutdown();
+        }
+        executors.clear();
+    }
+
+    @Test
     public void testExecuteWithOperationThatSucceeds()
     {
         final AsynchronousOperationExecutionOptions options = new AsynchronousOperationExecutionOptions();
@@ -117,7 +132,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithOperationThatFails()
     {
         final TestException exception = new TestException();
@@ -149,7 +164,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionNewThatFails()
     {
         final TestException exception = new TestException();
@@ -174,7 +189,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionScheduledThatFails()
     {
         final TestException exception = new TestException();
@@ -201,7 +216,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionRunningThatFails()
     {
         final TestException exception = new TestException();
@@ -232,7 +247,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionFinishedThatFails()
     {
         final TestException exception = new TestException();
@@ -267,7 +282,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionFailedThatFails()
     {
         final TestException exception = new TestException();
@@ -293,7 +308,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithThreadPoolExhausted() throws Exception
     {
         final MessageChannel mainChannel = createMessageChannel("mainChannel");
@@ -399,7 +414,7 @@ public class AsynchronousOperationExecutorTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithThreadPoolNotExhausted() throws Exception
     {
         final MessageChannel mainChannel = createMessageChannel("mainChannel");
@@ -523,7 +538,9 @@ public class AsynchronousOperationExecutorTest
     private AsynchronousOperationExecutor createExecutor()
     {
         AsynchronousOperationThreadPoolExecutor poolExecutor = new AsynchronousOperationThreadPoolExecutor(executionStore, operationsExecutor);
-        return new AsynchronousOperationExecutor(executionConfig, executionIdFactory, executionStore, poolExecutor);
+        AsynchronousOperationExecutor executor = new AsynchronousOperationExecutor(executionConfig, executionIdFactory, executionStore, poolExecutor);
+        executors.add(executor);
+        return executor;
     }
 
     private void executeAndAssertResults(IOperationContext context, final List<? extends IOperation> operations,

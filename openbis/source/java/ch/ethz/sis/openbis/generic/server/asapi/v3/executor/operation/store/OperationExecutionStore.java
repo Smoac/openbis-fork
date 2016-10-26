@@ -78,6 +78,8 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     @Autowired
     private IOperationExecutionFSStore fsStore;
 
+    private Thread progressThread;
+
     private Map<OperationExecutionPermId, IProgress> progressMap = new HashMap<OperationExecutionPermId, IProgress>();
 
     public OperationExecutionStore()
@@ -95,7 +97,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     @PostConstruct
     private void init()
     {
-        Thread progressThread = new Thread(this);
+        progressThread = new Thread(this);
         progressThread.setName(config.getProgressThreadName());
         progressThread.setDaemon(true);
         progressThread.start();
@@ -657,7 +659,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     @Override
     public void run()
     {
-        while (true)
+        while (false == Thread.currentThread().isInterrupted())
         {
             Map<OperationExecutionPermId, IProgress> progressMapCopy = new HashMap<OperationExecutionPermId, IProgress>();
 
@@ -701,7 +703,16 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
                 Thread.sleep(config.getProgressInterval() * 1000);
             } catch (InterruptedException ex)
             {
+                return;
             }
+        }
+    }
+
+    public void shutdown()
+    {
+        if (progressThread != null)
+        {
+            progressThread.interrupt();
         }
     }
 

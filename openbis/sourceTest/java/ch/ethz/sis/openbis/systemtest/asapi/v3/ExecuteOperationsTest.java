@@ -138,7 +138,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         getMarkTimedOutOrDeletedMaintenancePlugin().start();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithDuplicatedExecutionId()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -158,13 +158,13 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
             }, "already exists in the database");
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithMultipleSynchronousOperationsThatAllSucceed()
     {
         testExecuteWithMultipleOperationsThatAllSucceed(true);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithMultipleAsynchronousOperationsThatAllSucceed()
     {
         testExecuteWithMultipleOperationsThatAllSucceed(false);
@@ -224,13 +224,13 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         deleteSpaces(Arrays.asList(spaceId1, spaceId3));
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithMultipleSynchronousOperationsThatSomeFail()
     {
         testExecuteWithMultipleOperationsThatSomeFail(true);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithMultipleAsynchronousOperationsThatSomeFail()
     {
         testExecuteWithMultipleOperationsThatSomeFail(false);
@@ -291,7 +291,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         }
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithRelatedOperationsThatCreateAndUseTheSameObjectByCreationId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -339,7 +339,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(child.getParents().get(0), parent);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithRelatedOperationsThatCreateAndUpdateTheSameObjectByIdentifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -391,7 +391,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(historyEntry.getPropertyValue(), "created");
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithSynchronousOperationThatSucceedsAndExecutionIdNull()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -416,7 +416,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(extractCodes(beforeList), extractCodes(afterList));
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithSynchronousOperationThatSucceedsAndExecutionIdNotNull()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -447,7 +447,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
                 defaultDetailsAvalability());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithSynchronousOperationThatFailsAndExecutionIdNull()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -471,7 +471,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(extractCodes(beforeList), extractCodes(afterList));
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithSynchronousOperationThatFailsAndExecutionIdNotNull()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -500,7 +500,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
                 defaultDetailsAvalability());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithAsynchronousOperationThatSucceeds()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -533,7 +533,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         deleteSpaces(operationResult.getObjectIds());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithAsynchronousOperationThatFails()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -563,7 +563,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         AssertionUtil.assertContains("Code cannot be empty", execution.getSummary().getError());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithNullAvailabilities()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -572,7 +572,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
                 defaultDetailsAvalability());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithZeroAvailabilities()
     {
         final Integer availability = 0;
@@ -589,7 +589,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithNonZeroAvailabilities()
     {
         final Integer availability = 1;
@@ -612,7 +612,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithNegativeAvailabilities()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -621,7 +621,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertAvailabilities(execution, TIME_OUT_PENDING, 0, TIME_OUT_PENDING, 0, TIME_OUT_PENDING, 0);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithGreaterThanMaxAvailabilities()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -631,7 +631,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
                 defaultDetailsAvalability());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithZeroAvailability()
     {
         final Integer availability = 0;
@@ -648,7 +648,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithNonZeroAvailability()
     {
         final Integer availability = 1;
@@ -671,7 +671,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithZeroSummaryAvailability()
     {
         final Integer availability = SECONDS_PER_HOUR;
@@ -690,7 +690,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution.getSummary());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithNonZeroSummaryAvailability()
     {
         final Integer availability = SECONDS_PER_HOUR;
@@ -716,7 +716,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution.getSummary());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithZeroDetailsAvailability()
     {
         final Integer availability = SECONDS_PER_HOUR;
@@ -735,7 +735,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution.getDetails());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithNonZeroDetailsAvailability()
     {
         final Integer availability = SECONDS_PER_HOUR;

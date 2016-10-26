@@ -45,7 +45,7 @@ public class SynchronousOperationExecutorTest
         operationResults = mockery.mock(List.class, "operationResults");
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithoutExecutionId()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
@@ -61,7 +61,7 @@ public class SynchronousOperationExecutorTest
         executeAndAssertResults(options, operationResults);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionId()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
@@ -83,7 +83,7 @@ public class SynchronousOperationExecutorTest
         executeAndAssertResults(options, operationResults);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithOperationThatFails()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
@@ -106,7 +106,7 @@ public class SynchronousOperationExecutorTest
         executeAndAssertException(options, exception);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionNewThatFails()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
@@ -126,7 +126,7 @@ public class SynchronousOperationExecutorTest
         executeAndAssertException(options, exception);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionRunningThatFails()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
@@ -148,7 +148,7 @@ public class SynchronousOperationExecutorTest
         executeAndAssertException(options, exception);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionFinishedThatFails()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
@@ -174,7 +174,7 @@ public class SynchronousOperationExecutorTest
         executeAndAssertException(options, exception);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecuteWithExecutionFailedThatFails()
     {
         final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();

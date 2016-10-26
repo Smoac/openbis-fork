@@ -15,6 +15,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,6 +84,8 @@ public class OperationExecutionStoreTest
 
     private long timestamp;
 
+    private Collection<OperationExecutionStore> stores = new ArrayList<OperationExecutionStore>();
+
     @BeforeMethod
     private void beforeMethod()
     {
@@ -122,10 +125,15 @@ public class OperationExecutionStoreTest
     @AfterMethod
     public void afterMethod(Method method)
     {
+        for (OperationExecutionStore store : stores)
+        {
+            store.shutdown();
+        }
+        stores.clear();
         logRecorder.reset();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionNew()
     {
         assertExecutionDirectoryExistsWithFiles(false);
@@ -189,7 +197,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionScheduled()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -216,7 +224,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionRunning()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -244,7 +252,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionProgress() throws Exception
     {
         final IProgress progress1 = new TestProgress(1);
@@ -256,7 +264,7 @@ public class OperationExecutionStoreTest
         mockery.checking(new TestExpectations()
             {
                 {
-                    addProgressConfigExpectations(0);
+                    addDefaultProgressConfigExpectations();
                     addDefaultAvailabilityConfigExpectations();
 
                     allowing(executionConfig).getStorePath();
@@ -307,7 +315,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionFinishedWhenExecutionDirectoryExists()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -347,7 +355,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionFinishedWhenExecutionDirectoryDoesNotExist()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -380,7 +388,7 @@ public class OperationExecutionStoreTest
         }
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionFailedWhenExecutionDirectoryExists()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -414,7 +422,7 @@ public class OperationExecutionStoreTest
         mockery.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test
     public void testExecutionFailedWhenExecutionDirectoryDoesNotExist()
     {
         final OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -450,7 +458,9 @@ public class OperationExecutionStoreTest
     {
         OperationExecutionFSStore fsStore = new OperationExecutionFSStore(executionConfig);
         OperationExecutionDBStore dbStore = new OperationExecutionDBStore(executionDAO);
-        return new OperationExecutionStore(executionConfig, dbStore, fsStore);
+        OperationExecutionStore store = new OperationExecutionStore(executionConfig, dbStore, fsStore);
+        stores.add(store);
+        return store;
     }
 
     private void createExecutionDirectory()
@@ -503,16 +513,11 @@ public class OperationExecutionStoreTest
 
         public void addDefaultProgressConfigExpectations()
         {
-            addProgressConfigExpectations(1);
-        }
-
-        public void addProgressConfigExpectations(int progressInterval)
-        {
             allowing(executionConfig).getProgressThreadName();
             will(returnValue(PROGRESS_THREAD_NAME));
 
             allowing(executionConfig).getProgressInterval();
-            will(returnValue(progressInterval));
+            will(returnValue(1));
         }
 
         public void addDefaultAvailabilityConfigExpectations()
