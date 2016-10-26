@@ -24,6 +24,7 @@ archivesBaseName = 'openBIS-server-standard-technologies'
 
 configurations.create('gwt')
 configurations.create('zipping')
+configurations.create('core_plugins')
 configurations.create('datastore_server')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
@@ -48,6 +49,11 @@ dependencies {
                 'google:gwt-dev:+'
 	
 	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
+	
+	core_plugins "aarpon:obit_microscopy_core_technology:master@zip",
+	         "aarpon:obit_flow_core_technology:master@zip",
+	         "aarpon:obit_shared_core_technology:master@zip"
+//	core_plugins "aarpon:obit_shared_core_technology:master@zip"
 		
 	datastore_server project(':deep_sequencing_unit'),
 					 project(':rtd_yeastx'),
@@ -246,13 +252,26 @@ war {
 }
 
 task zipCorePlugins(type: Zip) {
-    archiveName 'core-plugins.zip'
-	from project(':rtd_phosphonetx').fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
-	from project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
-	from project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/dss/**', '**/package-to-dist'])
-	from 'dist/core-plugins'
-	from 'dist/server/core-plugins.properties'
-	into 'core-plugins'
+  archiveName 'core-plugins.zip'
+  from project(':rtd_phosphonetx').fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
+  from project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
+  from project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/dss/**', '**/package-to-dist'])
+  from 'dist/core-plugins'
+  project.configurations.core_plugins.each { from zipTree(it) }
+  from 'dist/server/core-plugins.properties'
+  into 'core-plugins'
+  eachFile { FileCopyDetails fcd -> 
+    def rp = fcd.relativePath
+    if (rp.pathString.contains("obit_")) {
+      if (rp.pathString.contains("/core-plugins/") && fcd.name.equals("core-plugins.properties") == false) {
+        fcd.relativePath = new RelativePath(fcd.isDirectory() == false, rp.segments[2..-1] as String[])
+      } else if (fcd.name.equals("LICENSE")) {
+        fcd.relativePath = new RelativePath(true, ["core-plugins", rp.pathString.split("_")[1], "LICENSE"] as String[])
+      } else {
+        fcd.exclude()
+      }
+    }
+  }
 }
 
 def generateMD5(final file) {
