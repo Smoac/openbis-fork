@@ -7,4 +7,10 @@ ext.repositoryConfig = {
         ivyPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/ivy.xml"
         artifactPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
     }
+    ivy {
+        url "https://github.com/"
+        layout 'pattern', {
+          artifact '[organisation]/[module]/archive/[revision].[ext]'
+        }
+    }
 }
