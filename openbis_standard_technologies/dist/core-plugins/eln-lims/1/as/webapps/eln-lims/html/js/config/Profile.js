@@ -97,8 +97,8 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS", "STOCK_CATALOG"];
-		this.inventorySpacesReadOnly = ["STOCK_ORDERS"];
+		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
+		this.inventorySpacesReadOnly = []; //"STOCK_ORDERS"
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
