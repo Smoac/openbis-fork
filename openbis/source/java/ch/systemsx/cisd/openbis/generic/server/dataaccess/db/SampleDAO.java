@@ -72,7 +72,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
-     * {@link JdbcAccessor}. </p>
+     * {@link JdbcAccessor}.
+     * </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
@@ -625,9 +626,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                         @Override
                         public final Object doInHibernate(final Session session)
                         {
+                            InQuery<Long, Object> inQuery = new InQuery<>();
+                            Map<String, Object> fixParams = new HashMap<String, Object>();
+                            fixParams.put("r", relationship.getId());
+
                             final List<Long> longIds = TechId.asLongs(children);
-                            return session.createSQLQuery(query).setParameterList("ids", longIds)
-                                    .setParameter("r", relationship.getId()).list();
+                            List<Object> list = inQuery.withBatch(session, query, "ids", longIds, fixParams);
+                            return list;
                         }
                     });
         Set<TechId> result = transformNumbers2TechIdSet(results);
@@ -642,18 +647,21 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     @Override
     public Map<Long, Set<Long>> mapSampleIdsByChildrenIds(final Collection<Long> children, final Long relationship)
     {
+        final String query = "select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
+                + " where relationship_id = :relationship and sample_id_child in (:children)";
+
         @SuppressWarnings("unchecked")
         final List<Object[]> results = (List<Object[]>) getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
                 public final Object doInHibernate(final Session session)
                 {
-                    SQLQuery query =
-                            session.createSQLQuery("select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
-                                    + " where relationship_id = :relationship and sample_id_child in (:children)");
-                    query.setParameterList("children", children);
-                    query.setParameter("relationship", relationship);
-                    return query.list();
+                    InQuery<Long, Object> inQuery = new InQuery<>();
+                    Map<String, Object> fixParams = new HashMap<String, Object>();
+                    fixParams.put("relationship", relationship);
+
+                    List<Object> list = inQuery.withBatch(session, query, "children", new ArrayList<>(children), fixParams);
+                    return list;
                 }
             });
 
@@ -691,8 +699,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     private Set<TechId> listChildrenIds(final Collection<TechId> parents, String tableName)
     {
-        final String query =
-                "SELECT sample_id_child FROM " + tableName + " WHERE sample_id_parent IN (:ids)";
+        final String query = "SELECT sample_id_child FROM " + tableName + " WHERE sample_id_parent IN (:ids)";
 
         @SuppressWarnings("unchecked")
         final List<? extends Number> results =
@@ -703,8 +710,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                         public final Object doInHibernate(final Session session)
                         {
                             final List<Long> longIds = TechId.asLongs(parents);
-                            return session.createSQLQuery(query).setParameterList("ids", longIds)
-                                    .list();
+                            InQuery<Long, Object> inQuery = new InQuery<>();
+                            List<Object> list = inQuery.withBatch(session, query, "ids", longIds, null);
+                            return list;
                         }
                     });
         Set<TechId> result = transformNumbers2TechIdSet(results);
@@ -729,7 +737,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final List<Long> longIds = TechId.asLongs(sampleTypeIds);
         return listSampleIdsByColumn("sampleType.id", longIds, "samples for given sample types");
     }
-    
+
     @Override
     public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
     {
@@ -741,20 +749,20 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
-                {
-                    @Override
-                    public DetachedCriteria createCriteria()
                     {
-                        final DetachedCriteria criteria =
-                                DetachedCriteria.forClass(SamplePE.class);
-                        criteria.setProjection(Projections.id());
-                        return criteria;
-                    }
-                }, columnName, longIds);
+                        @Override
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(SamplePE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, columnName, longIds);
         operationLog.info(String.format("found %s " + message, results.size()));
         return transformNumbers2TechIdList(results);
     }
-    
+
     @Override
     public void setSampleContainer(final Long sampleId, final Long containerId)
     {

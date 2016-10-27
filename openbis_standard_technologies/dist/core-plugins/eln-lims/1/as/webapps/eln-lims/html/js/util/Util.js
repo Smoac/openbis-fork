@@ -31,6 +31,24 @@ var Util = new function() {
 		$.blockUI({ message: '', css: { width: '0px' } });
 	}
 	
+	this.blockUIConfirm = function(message, okAction, cancelAction) {
+		var $messageWithOKAndCancel = $("<div>").append(message);
+		
+		var $ok = FormUtil.getButtonWithText("Accept", okAction);
+		
+		var $cancel = FormUtil.getButtonWithText("Cancel", function() {
+			if(cancelAction) {
+				cancelAction();
+			}
+			Util.unblockUI();
+		});
+		
+		$messageWithOKAndCancel.append($("<br>")).append($ok).append("&nbsp;").append($cancel);
+		this.blockUI($messageWithOKAndCancel, {
+			'text-align' : 'left'
+		});
+	}
+	
 	this.blockUI = function(message, extraCSS) {
 		this.unblockUI();
 		BlockScrollUtil.disable_scroll();

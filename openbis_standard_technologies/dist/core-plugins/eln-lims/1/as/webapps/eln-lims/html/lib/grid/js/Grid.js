@@ -342,6 +342,9 @@ $.extend(Grid.prototype, {
 					if(!rowValue) {
 						rowValue = "";
 					} else {
+						var specialCharsRemover = document.createElement("textarea");
+						specialCharsRemover.innerHTML = rowValue;
+						rowValue = specialCharsRemover.value; //Removes special HTML Chars
 						rowValue = String(rowValue).replace(/\r?\n|\r|\t/g, " "); //Remove carriage returns and tabs
 						if(plainText === true){
 							rowValue = String(rowValue).replace(/<(?:.|\n)*?>/gm, '');

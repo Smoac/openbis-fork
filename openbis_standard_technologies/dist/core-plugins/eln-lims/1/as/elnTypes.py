@@ -646,7 +646,7 @@ ANTIBODY = [FIRST_TIME_VERSIONED, True, "ANTIBODY", "", [
     ]];
 
 CHEMICAL = [FIRST_TIME_VERSIONED, True, "CHEMICAL", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                 "General",                 "Name",                 DataType.MULTILINE_VARCHAR,        None,        "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                 "General",                 "Name",                 DataType.VARCHAR,        None,        "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage", "Supplier",             DataType.MULTILINE_VARCHAR,        None,        "Supplier of the product", None, None],
         [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage", "Art. Number",            DataType.MULTILINE_VARCHAR,        None,        "Article number of the product", None, None],
@@ -656,7 +656,7 @@ CHEMICAL = [FIRST_TIME_VERSIONED, True, "CHEMICAL", "", [
     ]];
 
 ENZYME = [FIRST_TIME_VERSIONED, True, "ENZYME", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.MULTILINE_VARCHAR,        None,        "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.VARCHAR,        None,        "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage",    "Supplier",                DataType.MULTILINE_VARCHAR,        None,        "Supplier of the product", None, None],
         [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage",    "Art. Number",            DataType.MULTILINE_VARCHAR,        None,        "Article number of the product", None, None],
@@ -667,7 +667,7 @@ ENZYME = [FIRST_TIME_VERSIONED, True, "ENZYME", "", [
     ]];
 
 MEDIA = [FIRST_TIME_VERSIONED, True, "MEDIA", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.MULTILINE_VARCHAR,        None,            "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.VARCHAR,        None,            "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",             "General",                "For what",                DataType.MULTILINE_VARCHAR,        None,            "For what kind of experimental application/readout this sample is used in the lab", None, None],
         [FIRST_TIME_VERSIONED, "ORGANISM",             "General",                "Organism",                DataType.CONTROLLEDVOCABULARY,    "ORGANISM",        "For what organism this medium is used", None, None],
@@ -681,7 +681,7 @@ MEDIA = [FIRST_TIME_VERSIONED, True, "MEDIA", "", [
     ]];
 
 SOLUTION_BUFFER = [FIRST_TIME_VERSIONED, True, "SOLUTION_BUFFER", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.MULTILINE_VARCHAR,        None,            "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.VARCHAR,        None,            "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",             "General",                "For what",                DataType.MULTILINE_VARCHAR,        None,            "For what kind of experimental application/readout this sample is used in the lab", None, None],
         [FIRST_TIME_VERSIONED, "DETAILS",             "Recipe",                "Details",                DataType.MULTILINE_VARCHAR,        None,            "Details and tips about how to prepare the solution/buffer", None, None],
@@ -700,7 +700,7 @@ OLIGO = [FIRST_TIME_VERSIONED, True, "OLIGO", "", [
         [FIRST_TIME_VERSIONED, "DIRECTION",                 "Details",            "Direction",                DataType.CONTROLLEDVOCABULARY, "DIRECTION",            "Direction of the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "RESTRICTION_ENZYME",         "Details",            "Restriction Enzyme",        DataType.MULTILINE_VARCHAR,        None,                "Restriction sites in the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "MODIFICATIONS",             "Details",            "Modifications",            DataType.MULTILINE_VARCHAR,        None,                "Modifications of the ordered oligonucleotide", None, None],
-        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",            "Sequence",                    DataType.MULTILINE_VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
+        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",            "Sequence",                    DataType.VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "XMLCOMMENTS",             "Comments",            "Comments List",            DataType.XML,                    None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
         [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", "ANNOTATIONS_OLIGO", None]
     ]];
@@ -713,7 +713,7 @@ RNA = [FIRST_TIME_VERSIONED, True, "RNA", "", [
         [FIRST_TIME_VERSIONED, "STRAND",                     "Details",                "Strand",                DataType.CONTROLLEDVOCABULARY,    "STRAND",            "Double or single strand RNA", None, None],
         [FIRST_TIME_VERSIONED, "BACKBONE_TYPE",             "Details",                "Backbone type",        DataType.CONTROLLEDVOCABULARY,    "RNA_BACKBONE",        "Type of backbone, modifications in the backbone", None, None],
         [FIRST_TIME_VERSIONED, "MODIFICATIONS",             "Details",                "Modifications",        DataType.VARCHAR,                None,                "Modifications of the ordered oligonucleotide", None, None],
-        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",                "Sequence",                DataType.MULTILINE_VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
+        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",                "Sequence",                DataType.VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "SUPPLIER",                 "Supplier and storage",    "Supplier",                DataType.MULTILINE_VARCHAR,        None,                "Supplier of the product", None, None],
         [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",             "Supplier and storage",    "Art. Number",            DataType.MULTILINE_VARCHAR,        None,                "Article number of the product", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",                 "Supplier and storage",    "Storage",                DataType.CONTROLLEDVOCABULARY,    "STORAGE",            "Storage conditions of the product", None, None],
@@ -758,7 +758,7 @@ BACTERIA = [FIRST_TIME_VERSIONED, True, "BACTERIA", "", [
     ]];
 
 YEAST = [FIRST_TIME_VERSIONED, True, "YEAST", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                             "General",                "Yeast strain name",                    DataType.MULTILINE_VARCHAR,        None,                                "Yeast strain name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                             "General",                "Yeast strain name",                    DataType.VARCHAR,        None,                                "Yeast strain name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
         [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.MULTILINE_VARCHAR,        None,                                "Owner number", None, None],
@@ -841,7 +841,7 @@ STORAGE_PROPERTIES = [
 ##
 
 EXPERIMENTAL_STEP = [FIRST_TIME_VERSIONED, True, "EXPERIMENTAL_STEP", "", [
-        [MANDATORY_ITEM_VERSION, "NAME",                             "General",                "Name",                                    DataType.MULTILINE_VARCHAR,        None,                                "Name", None, None],
+        [MANDATORY_ITEM_VERSION, "NAME",                             "General",                "Name",                                    DataType.VARCHAR,        None,                                "Name", None, None],
         [MANDATORY_ITEM_VERSION, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [MANDATORY_ITEM_VERSION, "FINISHED_FLAG",                     "General",                 "Finished Flag",                         DataType.BOOLEAN,                 None,                                "Marks the experiment as finished", None, None],
         [MANDATORY_ITEM_VERSION, "OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
@@ -859,7 +859,7 @@ EXPERIMENTAL_STEP = [FIRST_TIME_VERSIONED, True, "EXPERIMENTAL_STEP", "", [
     ]];
 
 GENERAL_PROTOCOL = [FIRST_TIME_VERSIONED, True, "GENERAL_PROTOCOL", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.MULTILINE_VARCHAR,        None,                "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",                 "General",            "For what",                    DataType.MULTILINE_VARCHAR,        None,                "For what kind of experimental application/readout this sample is used in the lab", None, None],
         [FIRST_TIME_VERSIONED, "PROTOCOL_TYPE",             "General",            "Protocol type",            DataType.CONTROLLEDVOCABULARY,    "PROTOCOL_TYPE",    "Category a protocol belongs", None, None],
@@ -875,7 +875,7 @@ GENERAL_PROTOCOL = [FIRST_TIME_VERSIONED, True, "GENERAL_PROTOCOL", "", [
     ]];
 
 PCR_PROTOCOL = [FIRST_TIME_VERSIONED, True, "PCR_PROTOCOL", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.MULTILINE_VARCHAR,        None,                "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",                 "General",            "For what",                    DataType.MULTILINE_VARCHAR,        None,                "For what kind of experimental application/readout this sample is used in the lab", None, None],
         [FIRST_TIME_VERSIONED, "TEMPLATE",                 "General",            "Template",                    DataType.CONTROLLEDVOCABULARY,    "TEMPLATE",            "Type of template used in the PCR protocol", None, None],
@@ -890,7 +890,7 @@ PCR_PROTOCOL = [FIRST_TIME_VERSIONED, True, "PCR_PROTOCOL", "", [
     ]];
 
 WESTERN_BLOTTING_PROTOCOL = [FIRST_TIME_VERSIONED, True, "WESTERN_BLOTTING_PROTOCOL", "", [
-        [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.MULTILINE_VARCHAR,        None,                "Name", None, None],
+        [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",                 "General",            "For what",                    DataType.MULTILINE_VARCHAR,        None,                "For what kind of experimental application/readout this sample is used in the lab", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",                 "General",             "Storage",                    DataType.CONTROLLEDVOCABULARY,    "STORAGE",            "Storage conditions of the product", None, None],

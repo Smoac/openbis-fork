@@ -81,7 +81,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			}
 			
 			//Create Experiment
-			var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+			var isDefaultExperimentPressent = mainController.profile.getExperimentTypeForExperimentTypeCode("DEFAULT_EXPERIMENT") != null;
+			if(isDefaultExperimentPressent) {
+				var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 				if(profile.isInventorySpace(_this._projectFormModel.project.spaceCode)) {
 					var experimentType = profile.getExperimentTypeForExperimentTypeCode(_this._projectFormModel.project.spaceCode);
 					if(experimentType) {
@@ -92,8 +94,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				} else {
 					_this._projectFormController.createNewExperiment("DEFAULT_EXPERIMENT");
 				}
-			});
-			toolbarModel.push({ component : $createExpBtn, tooltip: "Create " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode) });
+				});
+				toolbarModel.push({ component : $createExpBtn, tooltip: "Create Experiment" });
+			}
 			
 			//Edit
 			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {

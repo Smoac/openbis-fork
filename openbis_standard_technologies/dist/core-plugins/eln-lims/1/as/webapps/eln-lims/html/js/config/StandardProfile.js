@@ -562,18 +562,14 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									page += "\n";
 								}
 								page += languageLabels["ADDITIONAL_INFO_LABEL"] + ": " + order.properties["ADDITIONAL_INFORMATION"];
-								page += "\n";
-								page += "-------------------------------------------------------------------";
-								page += "\n";
 							orderPages.push(page);
 						}
 						
 						//Print Pages
-						var completeOrder = "";
 						for(var pageIdx = 0; pageIdx < orderPages.length; pageIdx++) {
-							completeOrder += orderPages[pageIdx];
+							Util.downloadTextFile(orderPages[pageIdx], "order_" + sample.code + "_p" + pageIdx + ".txt");
 						}
-						Util.downloadTextFile(completeOrder, "order.txt");
+						
 					}, "Print Order");
 					
 					//
