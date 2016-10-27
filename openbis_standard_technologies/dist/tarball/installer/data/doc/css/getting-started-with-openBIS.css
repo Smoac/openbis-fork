@@ -41,6 +41,20 @@ h4 { font: 16px; }
   margin: 15px 300px 15px 0px
 }
 
+.microscopy {
+	background-color: #de0096;
+	padding-top: 5px;
+  padding-bottom: 5px;
+  margin: 15px 300px 15px 0px
+}
+
+.flow {
+	background-color: #96de;
+	padding-top: 5px;
+  padding-bottom: 5px;
+  margin: 15px 300px 15px 0px
+}
+
 .sourcecode { 
 	font: 14px "Courier", serif; 
 	background-color: #EEEEEE;
