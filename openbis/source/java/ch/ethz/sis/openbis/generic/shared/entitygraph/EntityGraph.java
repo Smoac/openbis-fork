@@ -108,13 +108,23 @@ public class EntityGraph<N extends Node<?>>
 
     public String getEdgesForDOTRepresentation()
     {
+        return getEdgesForNode(false);
+    }
+
+    public String getEdgesForTest()
+    {
+        return getEdgesForNode(true);
+    }
+
+    private String getEdgesForNode(boolean forTest)
+    {
         StringBuffer sb = new StringBuffer();
         for (Node<?> node : getNodes())
         {
             List<EdgeNodePair> list = adjacencyMap.get(node);
             if (list.isEmpty() && node.getEntityKind().equals("DATA_SET") == false)
             {
-                sb.append(getRightHandNodeRep(node));
+                sb.append(getRightHandNodeRep(node, forTest));
                 // if(node.getEntityKind().equals("PROJECT")) {
                 // sb.append(" [shape=box]");
                 // }
@@ -125,8 +135,8 @@ public class EntityGraph<N extends Node<?>>
             for (EdgeNodePair edgeNodePair : list)
             {
                 Node<?> neighbourNode = edgeNodePair.getNode();
-                sb.append("\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\" -> "
-                        + getRightHandNodeRep(neighbourNode));
+                sb.append("\"" + node.getCode() + "(" + getDifferentiatorStr(node, forTest) + ")\" -> "
+                        + getRightHandNodeRep(neighbourNode, forTest));
                 if (edgeNodePair.getEdge().getType().equals(Edge.COMPONENT))
                 {
                     sb.append(" [style=dotted, color=red]");
@@ -142,22 +152,42 @@ public class EntityGraph<N extends Node<?>>
         return sb.toString();
     }
 
-    private String getRightHandNodeRep(Node<?> node)
+    private String getRightHandNodeRep(Node<?> node, boolean forTest)
     {
-        return "\"" + node.getCode() + "(" + getDifferentiatorStr(node) + ")\"";
+        return "\"" + node.getCode() + "(" + getDifferentiatorStr(node, forTest) + ")\"";
     }
 
-    private String getDifferentiatorStr(Node<?> node)
+    private String getDifferentiatorStr(Node<?> node, boolean forTest)
     {
-        String differentiatorStr = "";
-        if (node.getEntityKind().equals("EXPERIMENT")) // in order to differentiate between experiments in the same space but under different projects
+        if (forTest == false)
         {
-            differentiatorStr = node.getPermId().substring(node.getPermId().indexOf('-') + 1);
+            String differentiatorStr = "";
+            if (node.getEntityKind().equals("EXPERIMENT")) // in order to differentiate between experiments in the same space but under different
+                                                           // projects
+            {
+                differentiatorStr = node.getPermId().substring(node.getPermId().indexOf('-') + 1);
+            }
+            else
+            {
+                differentiatorStr = "" + node.getEntityKind().charAt(0);
+            }
+            return differentiatorStr;
         }
-        else {
-            differentiatorStr = "" + node.getEntityKind().charAt(0);
+        Map<String, String> propertiesOrNull = node.getPropertiesOrNull();
+        String s = "props =";
+        if (propertiesOrNull != null) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("props = ");
+            for (String property : propertiesOrNull.keySet())
+            {
+                sb.append(property);
+                sb.append(":");
+                sb.append(propertiesOrNull.get(property));
+                sb.append(",");
+            }
+            s = new String(sb);
         }
-        return differentiatorStr;
+        return s;
     }
     
     private void printGraphInDOT(String spaceId)
@@ -184,7 +214,6 @@ public class EntityGraph<N extends Node<?>>
         {
             // printNeighboursForNode(node);
         }
-
         printGraphInDOT(space);
     }
 
