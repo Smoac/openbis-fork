@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -147,9 +146,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 @Override
                 public Object doInHibernate(Session session) throws HibernateException
                 {
-                    SQLQuery query = session.createSQLQuery("select distinct samp_id from data where samp_id in (:sampleIds)");
-                    query.setParameterList("sampleIds", sampleIds);
-                    List<Number> list = query.list();
+
+                    InQuery inQuery = new InQuery<Long, Number>();
+                    List<Number> list =
+                            inQuery.withBatch(session, "select distinct samp_id from data where samp_id in (:sampleIds)", "sampleIds", sampleIds,
+                                    null);
                     Set<Long> ids = new HashSet<Long>();
                     for (Number item : list)
                     {
@@ -1330,11 +1331,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         flushWithSqlExceptionHandling(getHibernateTemplate());
         scheduleDynamicPropertiesEvaluation(dataSets);
-        
+
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
     }
-    
+
     @Override
     public final void validateAndSaveUpdatedEntity(DataPE entity) throws DataAccessException
     {
@@ -1344,13 +1345,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
-    protected void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets) 
+    protected void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets)
     {
         List<DataPE> toUpdate = new ArrayList<DataPE>();
         addAllDataSetsAndComponentsRecursively(toUpdate, dataSets);
         super.scheduleDynamicPropertiesEvaluation(toUpdate);
     }
-    
+
     private void addAllDataSetsAndComponentsRecursively(List<DataPE> resultDataSets, List<DataPE> dataSets)
     {
         for (DataPE dataSet : dataSets)
@@ -1359,7 +1360,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             addAllDataSetsAndComponentsRecursively(resultDataSets, dataSet.getContainedDataSets());
         }
     }
-    
+
     @Override
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples)
     {

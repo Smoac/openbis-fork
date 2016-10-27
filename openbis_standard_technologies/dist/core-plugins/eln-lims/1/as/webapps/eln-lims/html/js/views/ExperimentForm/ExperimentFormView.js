@@ -132,9 +132,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		// Form Defined Properties from General Section
 		//
 		var experimentType = mainController.profile.getExperimentTypeForExperimentTypeCode(this._experimentFormModel.experiment.experimentTypeCode);
-		for(var i = 0; i < experimentType.propertyTypeGroups.length; i++) {
-			var propertyTypeGroup = experimentType.propertyTypeGroups[i];
-			this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+		if(experimentType.propertyTypeGroups) {
+			for(var i = 0; i < experimentType.propertyTypeGroups.length; i++) {
+				var propertyTypeGroup = experimentType.propertyTypeGroups[i];
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+			}
 		}
 		
 		//

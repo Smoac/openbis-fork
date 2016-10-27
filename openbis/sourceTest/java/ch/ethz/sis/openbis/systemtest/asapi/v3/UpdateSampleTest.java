@@ -52,7 +52,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
-
 import junit.framework.Assert;
 
 /**
@@ -60,6 +59,25 @@ import junit.framework.Assert;
  */
 public class UpdateSampleTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testUpdateBiggerThanPostgresDriverArgumentsLimitWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ReindexingState state = new ReindexingState();
+        List<SampleUpdate> updates = new ArrayList<SampleUpdate>();
+        for (int i = 0; i < 40000; i++)
+        {
+            SampleUpdate update = new SampleUpdate();
+            update.setSampleId(new SamplePermId("200811050945092-976"));
+            update.setProperty("OFFSET", "50");
+            updates.add(update);
+        }
+
+        v3api.updateSamples(sessionToken, updates);
+
+        assertSamplesReindexed(state, "200811050945092-976");
+    }
 
     @Test
     public void testUpdateWithIndexCheck()
