@@ -20,11 +20,20 @@ apply from: 'admin-console.gradle'
 
 apply plugin: 'war'
 
+repositories {
+    ivy {
+        url "https://github.com/"
+        layout 'pattern', {
+            artifact '[organisation]/[module]/archive/[revision].[ext]'
+        }
+    }
+}
+
 archivesBaseName = 'openBIS-server-standard-technologies'
 
 configurations.create('gwt')
 configurations.create('zipping')
-//configurations.create('core_plugins')
+configurations.create('core_plugins')
 configurations.create('datastore_server')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
@@ -50,9 +59,9 @@ dependencies {
 	
 	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 	
-//	core_plugins "aarpon:obit_microscopy_core_technology:master@zip",
-//	         "aarpon:obit_flow_core_technology:master@zip",
-//	         "aarpon:obit_shared_core_technology:master@zip"
+	core_plugins "aarpon:obit_microscopy_core_technology:master@zip",
+	         "aarpon:obit_flow_core_technology:master@zip",
+	         "aarpon:obit_shared_core_technology:master@zip"
 		
 	datastore_server project(':deep_sequencing_unit'),
 					 project(':rtd_yeastx'),
@@ -256,7 +265,7 @@ task zipCorePlugins(type: Zip) {
   from project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
   from project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/dss/**', '**/package-to-dist'])
   from 'dist/core-plugins'
-//  project.configurations.core_plugins.each { from zipTree(it) }
+  project.configurations.core_plugins.each { from zipTree(it) }
   from 'dist/server/core-plugins.properties'
   into 'core-plugins'
   eachFile { FileCopyDetails fcd -> 
