@@ -53,8 +53,8 @@ public class PlasmapperConnector
 
         try
         {
-            downloadFromService(serverURL, VECTOR_MAP_URL, fastaInputFilePath, svgOutputFilePath);
-            downloadFromService(serverURL, GENBANK_URL, fastaInputFilePath, gbOutputFilePath);
+            downloadFromService(serverURL, GENBANK_URL, fastaInputFilePath, gbOutputFilePath, Boolean.TRUE);
+            downloadFromService(serverURL, VECTOR_MAP_URL, fastaInputFilePath, svgOutputFilePath, Boolean.FALSE);
             generateHTML(htmlOutputFilePath, svgOutputFile);
         } catch (Exception ex)
         {
@@ -69,7 +69,8 @@ public class PlasmapperConnector
             final String serverURL,
             final String service,
             final String fastaInputFilePath,
-            final String outputFilePath) throws Exception
+            final String outputFilePath,
+            final Boolean allowContentToFile) throws Exception
     {
         HttpClient client = JettyHttpClientFactory.getHttpClient();
         Request requestEntity = client.newRequest(serverURL + service).method("POST");
@@ -91,7 +92,13 @@ public class PlasmapperConnector
             downloadFileFromResponse(serverURL, contentAsString, outputFilePath);
         } catch (Exception ex)
         {
-            FileUtils.writeStringToFile(new File(outputFilePath), contentAsString, "UTF-8");
+            if (allowContentToFile)
+            {
+                FileUtils.writeStringToFile(new File(outputFilePath), contentAsString, "UTF-8");
+            } else
+            {
+                throw ex;
+            }
         }
     }
 
