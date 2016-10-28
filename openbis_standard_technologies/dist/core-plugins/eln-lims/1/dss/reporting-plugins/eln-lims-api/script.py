@@ -32,7 +32,7 @@ from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 
-from ch.ethz.ssdm.eln import PlasmapperConnector
+from ch.ethz.sis import PlasmapperConnector
 
 import time
 import subprocess
@@ -566,10 +566,11 @@ def insertDataSet(tr, parameters, tableBuilder):
 			futureSVG = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"));
 			futureHTML = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html"));
 			try:
-				PlasmapperConnector.downloadPlasmidMap(
+				PlasmapperConnector.createPlasmidDataSet(
 					PLASMAPPER_BASE_URL,
 					tempDir + "/" + folderName + "/" + temFile.getName(),
 					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"),
+					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".gb"),
 					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html")
 				);
 			except:
