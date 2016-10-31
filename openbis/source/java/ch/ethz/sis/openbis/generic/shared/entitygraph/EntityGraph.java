@@ -162,10 +162,13 @@ public class EntityGraph<N extends Node<?>>
         if (forTest == false)
         {
             String differentiatorStr = "";
-            if (node.getEntityKind().equals("EXPERIMENT")) // in order to differentiate between experiments in the same space but under different
-                                                           // projects
+            if (node.getEntityKind().equals("EXPERIMENT") || node.getEntityKind().equals("PROJECT")) // in order to differentiate between
+                                                                                                     // experiments/projects in the same space but
+                                                                                                     // under different
+            // projects/spaces
             {
-                differentiatorStr = node.getPermId().substring(node.getPermId().indexOf('-') + 1);
+                differentiatorStr = node.getIdentifier();
+                ;
             }
             else
             {
@@ -203,7 +206,6 @@ public class EntityGraph<N extends Node<?>>
             writer.close();
         } catch (FileNotFoundException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
