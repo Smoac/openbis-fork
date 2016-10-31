@@ -211,12 +211,10 @@ public class EntitySynchronizer
 
     private void processDataSetRelationships(Map<String, DataSetWithConnections> dataSetsToProcess, Map<String, DataSetWithConnections> physicalDSMap)
     {
-        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
-
-        Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
-
         // set parent and container data set codes before everything else
         // container and physical data sets can both be parents/children of each other
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
         Map<String, Set<String>> dsToParents = new HashMap<String, Set<String>>();
         Map<String, Set<String>> dsToContained = new HashMap<String, Set<String>>();
         for (DataSetWithConnections dsWithConn : dataSetsToProcess.values())

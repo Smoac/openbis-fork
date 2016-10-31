@@ -220,7 +220,7 @@ public class ResourceListParser
         }
         else if ("DATA_SET".equals(entityKind))
         {
-            parseDataSetMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
+            parseDataSetMetaData(xpath, extractDataSetCodeFromURI(uri), xdNode, lastModificationDate);
         }
         else if ("MATERIAL".equals(entityKind))
         {
@@ -489,6 +489,17 @@ public class ResourceListParser
     private String extractPermIdFromURI(String uri) throws XPathExpressionException
     {
         Pattern pattern = Pattern.compile("([0-9\\-]{17,})");
+        Matcher matcher = pattern.matcher(uri);
+        if (matcher.find())
+        {
+            return matcher.group(1);
+        }
+        throw new XPathExpressionException("Malformed resource url");
+    }
+
+    private String extractDataSetCodeFromURI(String uri) throws XPathExpressionException
+    {
+        Pattern pattern = Pattern.compile("(?<=DATA_SET\\/)(.*)(?=\\/M)");
         Matcher matcher = pattern.matcher(uri);
         if (matcher.find())
         {
