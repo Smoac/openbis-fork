@@ -88,9 +88,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -160,7 +157,7 @@ public class EntitySynchronizer
             InterruptedException, TimeoutException, ExecutionException, NoSuchAlgorithmException
     {
         // operationLog.info("register master data");
-        registerMasterData();
+        // registerMasterData();
 
         // retrieve the document from the data source
         operationLog.info("Retrieving the resource list..");
@@ -344,10 +341,10 @@ public class EntitySynchronizer
 
     private void registerMasterData()
     {
-        EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create("http://localhost:8888/openbis/openbis", "admin", "a");
-        MasterDataRegistrationService service = new MasterDataRegistrationService(encapsulatedServer);
-        IMasterDataRegistrationTransaction transaction = service.transaction();
-        transaction.getOrCreateNewDataSetType("test dataset type");
+        // EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create("http://localhost:8888/openbis/openbis", "admin", "a");
+        // MasterDataRegistrationService service = new MasterDataRegistrationService(encapsulatedServer);
+        // IMasterDataRegistrationTransaction transaction = service.transaction();
+        // transaction.getOrCreateNewDataSetType("test dataset type");
         // service.commit();
     }
 
