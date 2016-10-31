@@ -1,0 +1,15 @@
+[DataSource1]
+
+resource-list-url = https://localhost:8444/datastore_server/re-sync
+data-source-openbis-url = https://localhost:8443/openbis/openbis
+data-source-dss-url = https://localhost:8444/datastore_server
+#data-source-spaces = SRC
+#harvester-spaces = DST1
+data-source-alias = DS43
+data-source-auth-realm = OAI-PMH
+data-source-auth-user = harvester1
+data-source-auth-pass = 123
+harvester-tmp-dir = harvester-tmp
+email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
+#last-sync-timestamp-file = ../../last-sync-timestamp-file_HRVSTR.txt
+#log-file = ../../syncronization111.log
