@@ -701,7 +701,63 @@ function MainController(profile) {
 							$("#search").removeClass("search-query-searching");
 							localReference.changeView("showAdvancedSearchPage", value);
 						}
-					} else { //Search Domain
+					} else if(searchDomain == "filesearch") { 
+						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
+							
+							if(localSearchId === localReference.lastSearchId) {
+								$("#search").removeClass("search-query-searching");
+								
+								var columns = [ {
+									label : 'Entity Kind',
+									property : 'entityKind',
+									sortable : true
+								}, {
+									label : 'Entity Type',
+									property : 'entityType',
+									sortable : true
+								}, {
+									label : 'Code',
+									property : 'code',
+									sortable : true
+								}, {
+									label : 'Path',
+									property : 'pathInDataSet',
+									sortable : true
+								}];
+								
+								var getDataList = function(callback) {
+									var dataList = [];
+									if(data.result) {
+										for(var i = 0; i < data.result.length; i++) {
+											var result = data.result[i];
+											
+											dataList.push({
+												entityKind : result.resultLocation.entityKind,
+												entityType : result.resultLocation.entityType,
+												permId : result.resultLocation.permId,
+												code : result.resultLocation.code,
+												pathInDataSet : result.resultLocation.pathInDataSet
+											});
+										}
+									}
+									callback(dataList);
+								};
+								
+								var rowClick = function(e) {
+									switch(e.data.entityKind) {
+										case "DATA_SET":
+											mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
+											break;
+									}
+								}
+								
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+								localReference.currentView = dataGrid;
+								dataGrid.init($("#mainContainer"));
+								history.pushState(null, "", ""); //History Push State
+							}
+						});
+					} else {
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 							var dataSetCodes = [];
 							for(var i = 0; i < data.result.length; i++) {
