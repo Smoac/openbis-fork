@@ -15,13 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -42,13 +35,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.project.Project")
-public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IExperimentsHolder, IModificationDateHolder, IModifierHolder,
-        IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IExperimentsHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -200,7 +197,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasExperiments())
         {
             return experiments;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Experiments have not been fetched.");
         }
@@ -216,10 +214,11 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @JsonIgnore
     public List<Sample> getSamples()
     {
-        if (getFetchOptions().hasSamples())
+        if (getFetchOptions() != null && getFetchOptions().hasSamples())
         {
             return samples;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Samples have not been fetched.");
         }
@@ -238,7 +237,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("History have not been fetched.");
         }
@@ -258,7 +258,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Space has not been fetched.");
         }
@@ -278,7 +279,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Registrator has not been fetched.");
         }
@@ -298,7 +300,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Modifier has not been fetched.");
         }
@@ -317,7 +320,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasLeader())
         {
             return leader;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Leader has not been fetched.");
         }
@@ -337,7 +341,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Attachments have not been fetched.");
         }

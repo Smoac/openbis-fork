@@ -44,6 +44,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressFormatter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.notification.OperationExecutionNotifier;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -458,7 +459,8 @@ public class OperationExecutionStoreTest
     {
         OperationExecutionFSStore fsStore = new OperationExecutionFSStore(executionConfig);
         OperationExecutionDBStore dbStore = new OperationExecutionDBStore(executionDAO);
-        OperationExecutionStore store = new OperationExecutionStore(executionConfig, dbStore, fsStore);
+        OperationExecutionNotifier notifier = new OperationExecutionNotifier();
+        OperationExecutionStore store = new OperationExecutionStore(executionConfig, dbStore, fsStore, notifier);
         stores.add(store);
         return store;
     }

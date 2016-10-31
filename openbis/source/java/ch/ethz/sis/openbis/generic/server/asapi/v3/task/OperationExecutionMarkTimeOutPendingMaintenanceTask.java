@@ -41,7 +41,10 @@ public class OperationExecutionMarkTimeOutPendingMaintenanceTask extends Abstrac
         final List<OperationExecution> executions =
                 getExecutionStore().getExecutionsToBeTimeOutPending(context, new OperationExecutionFetchOptions());
 
-        getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.TIME_OUT_PENDING);
+        if (false == executions.isEmpty())
+        {
+            getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.TIME_OUT_PENDING);
+        }
 
         final long now = System.currentTimeMillis();
 

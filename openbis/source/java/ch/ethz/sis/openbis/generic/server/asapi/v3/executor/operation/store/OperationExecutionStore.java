@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,14 +26,18 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionError;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionNotification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
@@ -52,6 +57,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressStack;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressFormatter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.notification.IOperationExecutionNotifier;
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
@@ -69,6 +76,9 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, OperationExecutionStore.class);
 
+    @Resource(name = ObjectMapperResource.NAME)
+    private ObjectMapper objectMapper;
+
     @Autowired
     private IOperationExecutionConfig config;
 
@@ -78,6 +88,9 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     @Autowired
     private IOperationExecutionFSStore fsStore;
 
+    @Autowired
+    private IOperationExecutionNotifier notifier;
+
     private Thread progressThread;
 
     private Map<OperationExecutionPermId, IProgress> progressMap = new HashMap<OperationExecutionPermId, IProgress>();
@@ -86,11 +99,13 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     {
     }
 
-    OperationExecutionStore(IOperationExecutionConfig config, IOperationExecutionDBStore dbStore, IOperationExecutionFSStore fsStore)
+    OperationExecutionStore(IOperationExecutionConfig config, IOperationExecutionDBStore dbStore, IOperationExecutionFSStore fsStore,
+            IOperationExecutionNotifier notifier)
     {
         this.config = config;
         this.dbStore = dbStore;
         this.fsStore = fsStore;
+        this.notifier = notifier;
         init();
     }
 
@@ -143,9 +158,11 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
         int summaryAvailabilityTime = config.getSummaryAvailabilityTimeOrDefault(options.getSummaryAvailabilityTime());
         int detailsAvailabilityTime = config.getDetailsAvailabilityTimeOrDefault(options.getDetailsAvailabilityTime());
 
-        dbStore.executionNew(executionId.getPermId(), context.getSession().tryGetPerson().getId(), options.getDescription(), operationsMessages,
+        dbStore.executionNew(executionId.getPermId(), context.getSession().tryGetPerson().getId(), options.getDescription(),
+                translateNotification(executionId, options.getNotification()), operationsMessages,
                 availabilityTime, summaryAvailabilityTime, detailsAvailabilityTime);
         fsStore.executionNew(executionId.getPermId(), operations);
+        notifier.executionNew(executionId.getPermId(), options.getNotification());
 
         operationLog.info("Execution " + executionId + " is new");
     }
@@ -206,6 +223,8 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
 
         dbStore.executionFailed(executionId.getPermId(), error.getMessage());
         fsStore.executionFailed(executionId.getPermId(), error);
+        notifier.executionFailed(executionId.getPermId(), execution.getDescription(), execution.getSummaryOperationsList(), error.getMessage(),
+                translateNotification(executionId, execution.getNotification()));
 
         operationLog.error("Execution " + executionId + " has failed");
         operationLog.error(error.getMessage());
@@ -231,6 +250,8 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
 
         dbStore.executionFinished(executionId.getPermId(), resultsMessages);
         fsStore.executionFinished(executionId.getPermId(), results);
+        notifier.executionFinished(executionId.getPermId(), execution.getDescription(), execution.getSummaryOperationsList(), resultsMessages,
+                translateNotification(executionId, execution.getNotification()));
 
         operationLog.info("Execution " + executionId + " has finished");
     }
@@ -384,6 +405,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
         execution.setCode(executionPE.getCode());
         execution.setState(convertState(executionPE.getState()));
         execution.setDescription(executionPE.getDescription());
+        execution.setNotification(translateNotification(executionId, executionPE.getNotification()));
         execution.setAvailability(convertAvailability(executionPE.getAvailability()));
         execution.setAvailabilityTime(executionPE.getAvailabilityTime().intValue());
         execution.setSummaryAvailability(convertAvailability(executionPE.getSummaryAvailability()));
@@ -532,6 +554,38 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
         }
 
         return details;
+    }
+
+    private IOperationExecutionNotification translateNotification(IOperationExecutionId executionId, String notification)
+    {
+        if (notification == null || notification.trim().isEmpty())
+        {
+            return null;
+        }
+
+        try
+        {
+            return (IOperationExecutionNotification) objectMapper.readValue(notification, Object.class);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Couldn't read notification configuration for operation execution id " + executionId, e);
+        }
+    }
+
+    private String translateNotification(IOperationExecutionId executionId, IOperationExecutionNotification notification)
+    {
+        if (notification == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return objectMapper.writeValueAsString(notification);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Couldn't write notification configuration for operation execution id " + executionId, e);
+        }
     }
 
     private void checkContext(IOperationContext context)

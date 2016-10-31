@@ -41,7 +41,10 @@ public class OperationExecutionMarkTimedOutOrDeletedMaintenanceTask extends Abst
         final IOperationContext context = createOperationContext();
         final List<OperationExecution> executions = getExecutionStore().getExecutionsToBeTimedOut(context, new OperationExecutionFetchOptions());
 
-        getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.TIMED_OUT);
+        if (false == executions.isEmpty())
+        {
+            getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.TIMED_OUT);
+        }
 
         markOperationExecutions(executions, new MarkAction()
             {

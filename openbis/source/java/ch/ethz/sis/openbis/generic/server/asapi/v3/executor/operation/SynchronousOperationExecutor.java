@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationEx
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.OperationExecutionPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store.IOperationExecutionStore;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -63,6 +64,12 @@ public class SynchronousOperationExecutor implements ISynchronousOperationExecut
             SynchronousOperationExecutionOptions options)
     {
         OperationExecutionPermId executionId = options.getExecutionId();
+
+        if (executionId == null && options.getNotification() != null)
+        {
+            throw new UserFailureException(
+                    "Synchronous operation execution must have an execution id specified for a notification to work.");
+        }
 
         try
         {

@@ -51,7 +51,7 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void executionNew(String code, Long owner, String description, List<String> operations, long availabilityTime,
+    public void executionNew(String code, Long owner, String description, String notification, List<String> operations, long availabilityTime,
             long summaryAvailabilityTime, long detailsAvailabilityTime)
     {
         OperationExecutionPE executionPE = new OperationExecutionPE();
@@ -59,6 +59,7 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
         executionPE.setCode(code);
         executionPE.setState(OperationExecutionState.NEW);
         executionPE.setOwner(dao.findPersonById(owner));
+        executionPE.setNotification(notification);
         executionPE.setDescription(description);
         executionPE.setAvailability(initialAvailability(availabilityTime));
         executionPE.setAvailabilityTime(availabilityTime);

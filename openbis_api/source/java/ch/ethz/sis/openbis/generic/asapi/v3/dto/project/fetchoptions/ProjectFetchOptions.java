@@ -15,10 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
@@ -29,6 +25,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -87,6 +85,7 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
         return experiments != null;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSamples()
     {
         if (samples == null)
@@ -257,12 +256,12 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Project", this);
         f.addFetchOption("Experiments", experiments);
+        f.addFetchOption("Samples", samples);
         f.addFetchOption("History", history);
         f.addFetchOption("Space", space);
         f.addFetchOption("Registrator", registrator);

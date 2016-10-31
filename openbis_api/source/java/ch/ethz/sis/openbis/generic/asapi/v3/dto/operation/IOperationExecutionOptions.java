@@ -26,6 +26,8 @@ public interface IOperationExecutionOptions extends Serializable
 
     String getDescription();
 
+    IOperationExecutionNotification getNotification();
+
     Integer getAvailabilityTime();
 
     Integer getSummaryAvailabilityTime();

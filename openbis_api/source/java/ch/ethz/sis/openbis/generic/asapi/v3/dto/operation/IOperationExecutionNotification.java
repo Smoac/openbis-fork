@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation;
 /**
  * @author pkupczyk
  */
-public interface IOperationNotificationOptions
+public interface IOperationExecutionNotification
 {
 
 }

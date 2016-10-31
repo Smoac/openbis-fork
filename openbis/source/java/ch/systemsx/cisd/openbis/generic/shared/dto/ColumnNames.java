@@ -346,6 +346,8 @@ public final class ColumnNames
 
     public static final String STATE_COLUMN = "state";
 
+    public static final String NOTIFICATION_COLUMN = "notification";
+
     public static final String AVAILABILITY_COLUMN = "availability";
 
     public static final String AVAILABILITY_TIME_COLUMN = "availability_time";

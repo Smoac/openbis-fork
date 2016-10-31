@@ -26,6 +26,8 @@ public class AbstractOperationExecutionOptions implements IOperationExecutionOpt
 
     private String description;
 
+    private IOperationExecutionNotification notification;
+
     private Integer availabilityTime;
 
     private Integer summaryAvailabilityTime;
@@ -41,6 +43,17 @@ public class AbstractOperationExecutionOptions implements IOperationExecutionOpt
     public String getDescription()
     {
         return description;
+    }
+
+    public void setNotification(IOperationExecutionNotification notification)
+    {
+        this.notification = notification;
+    }
+
+    @Override
+    public IOperationExecutionNotification getNotification()
+    {
+        return notification;
     }
 
     @Override

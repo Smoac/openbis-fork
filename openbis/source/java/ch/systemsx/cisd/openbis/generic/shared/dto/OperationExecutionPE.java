@@ -76,6 +76,8 @@ public class OperationExecutionPE implements IIdHolder, Serializable
 
     private String description;
 
+    private String notification;
+
     private OperationExecutionAvailability availability;
 
     private Long availabilityTime;
@@ -166,6 +168,17 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    @Column(name = ColumnNames.NOTIFICATION_COLUMN)
+    public String getNotification()
+    {
+        return notification;
+    }
+
+    public void setNotification(String notification)
+    {
+        this.notification = notification;
     }
 
     @Column(name = ColumnNames.AVAILABILITY_COLUMN)

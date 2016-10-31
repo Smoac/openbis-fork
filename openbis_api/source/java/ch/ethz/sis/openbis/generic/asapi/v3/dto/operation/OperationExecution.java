@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionNotification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionDetails;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
@@ -56,6 +57,9 @@ public class OperationExecution implements Serializable, ICodeHolder, IPermIdHol
 
     @JsonProperty
     private String description;
+
+    @JsonProperty
+    private IOperationExecutionNotification notification;
 
     @JsonProperty
     private OperationExecutionAvailability availability;
@@ -175,6 +179,19 @@ public class OperationExecution implements Serializable, ICodeHolder, IPermIdHol
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public IOperationExecutionNotification getNotification()
+    {
+        return notification;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setNotification(IOperationExecutionNotification notification)
+    {
+        this.notification = notification;
     }
 
     // Method automatically generated with DtoGenerator

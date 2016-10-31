@@ -23,13 +23,19 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -53,6 +59,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationE
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionResults;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionEmailNotification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionResults;
@@ -93,6 +100,16 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
     private static final int SECONDS_PER_HOUR = 60 * 60;
 
     private static final int SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
+
+    private static final String EMAIL_DIR = "targets/email";
+
+    private static final String EMAIL_PATTERN = "Date: (.*)\nFrom: (.*)\nTo: (.*)\nSubject: (.*)\nContent:\n(.*)";
+
+    private static final String EMAIL_FROM = "application_server@localhost";
+
+    private static final String EMAIL_TO_1 = "test1@email.com";
+
+    private static final String EMAIL_TO_2 = "test2@email.com";
 
     @Autowired
     private PlatformTransactionManager txManager;
@@ -761,6 +778,63 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(execution.getDetails());
     }
 
+    @Test
+    public void testExecuteWithEmailNotificationWhenExecutionFinishes()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SpaceCreation creation = spaceCreation();
+
+        List<? extends IOperation> operations = Arrays.asList(new CreateSpacesOperation(creation));
+        SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        options.setExecutionId(new OperationExecutionPermId());
+        options.setNotification(new OperationExecutionEmailNotification(EMAIL_TO_1, EMAIL_TO_2));
+
+        SynchronousOperationExecutionResults results = (SynchronousOperationExecutionResults) v3api.executeOperations(sessionToken,
+                operations, options);
+
+        CreateSpacesOperationResult result = (CreateSpacesOperationResult) results.getResults().get(0);
+        assertEquals(result.getObjectIds(), Arrays.asList(new SpacePermId(creation.getCode())));
+
+        Email email = findLatestEmail();
+        assertEquals(email.from, EMAIL_FROM);
+        assertEquals(email.to, EMAIL_TO_1 + ", " + EMAIL_TO_2);
+        assertEquals(email.subject, String.format("Operation execution %s finished", options.getExecutionId()));
+        assertEquals(email.content,
+                String.format("Execution: %s\nOperation: CreateSpacesOperation 1 creation(s)\nResult: CreateSpacesOperationResult[%s]",
+                        options.getExecutionId(), result.getObjectIds().get(0)));
+    }
+
+    @Test
+    public void testExecuteWithEmailNotificationWhenExecutionFails()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SpaceCreation creation = spaceCreation(null);
+
+        final List<? extends IOperation> operations = Arrays.asList(new CreateSpacesOperation(creation));
+        final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        options.setExecutionId(new OperationExecutionPermId());
+        options.setNotification(new OperationExecutionEmailNotification(EMAIL_TO_1, EMAIL_TO_2));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.executeOperations(sessionToken, operations, options);
+                }
+            }, "Code cannot be empty");
+
+        Email email = findLatestEmail();
+        assertEquals(email.from, EMAIL_FROM);
+        assertEquals(email.to, EMAIL_TO_1 + ", " + EMAIL_TO_2);
+        assertEquals(email.subject, String.format("Operation execution %s failed", options.getExecutionId()));
+        AssertionUtil.assertStarts(String.format(
+                "Execution: %s\nOperation: CreateSpacesOperation 1 creation(s)\nError: ch.systemsx.cisd.common.exceptions.UserFailureException: Code cannot be empty.",
+                options.getExecutionId()), email.content);
+    }
+
     private OperationExecution executeWithAvailabilities(String sessionToken, Integer availability, Integer summaryAvailability,
             Integer detailsAvailability)
     {
@@ -788,6 +862,61 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(execution.getAvailabilityTime(), availabilityTime);
         assertEquals(execution.getSummaryAvailabilityTime(), summaryAvailabilityTime);
         assertEquals(execution.getDetailsAvailabilityTime(), detailsAvailabilityTime);
+    }
+
+    private Email findLatestEmail()
+    {
+        File emailDir = new File(EMAIL_DIR);
+
+        if (emailDir.exists())
+        {
+            File[] emails = emailDir.listFiles();
+
+            if (emails != null && emails.length > 0)
+            {
+                Arrays.sort(emails, new Comparator<File>()
+                    {
+                        @Override
+                        public int compare(File f1, File f2)
+                        {
+                            return -f1.getName().compareTo(f2.getName());
+                        }
+                    });
+
+                File latestEmail = emails[0];
+                try
+                {
+                    String latestEmailContent = FileUtils.readFileToString(latestEmail);
+                    Pattern pattern = Pattern.compile(EMAIL_PATTERN, Pattern.DOTALL);
+
+                    Matcher m = pattern.matcher(latestEmailContent);
+                    if (m.find())
+                    {
+                        Email email = new Email();
+                        email.from = m.group(2);
+                        email.to = m.group(3);
+                        email.subject = m.group(4);
+                        email.content = m.group(5);
+                        return email;
+                    } else
+                    {
+                        throw new RuntimeException("Latest email content does not match the expected email pattern. The latest email content was:\n"
+                                + latestEmailContent + "\nThe expected email pattern was:\n" + EMAIL_PATTERN);
+                    }
+
+                } catch (IOException e)
+                {
+                    throw new RuntimeException("Could not read the latest email " + latestEmail.getAbsolutePath(), e);
+                }
+
+            } else
+            {
+                throw new RuntimeException("No emails found in " + emailDir.getAbsolutePath() + " directory");
+            }
+        } else
+        {
+            throw new RuntimeException("Email directory " + emailDir.getAbsolutePath() + " does not exist");
+        }
     }
 
     private Set<String> getAllSpaceCodes()
@@ -843,6 +972,17 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
     private int defaultDetailsAvalability()
     {
         return SECONDS_PER_DAY;
+    }
+
+    private class Email
+    {
+        private String from;
+
+        private String to;
+
+        private String subject;
+
+        private String content;
     }
 
 }

@@ -73,11 +73,11 @@ public abstract class AbstractOperationExecutionMarkMaintenanceTask implements I
     @Override
     public final void execute()
     {
-        getOperationLog().info("execution started");
+        getOperationLog().debug("execution started");
 
         doExecute();
 
-        getOperationLog().info("task executed");
+        getOperationLog().debug("task executed");
     }
 
     protected abstract void doExecute();

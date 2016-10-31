@@ -1449,3 +1449,7 @@ withResults
 withResultsUsing
 withSummary
 withSummaryUsing
+getNotification
+IOperationExecutionNotification
+OperationExecutionEmailNotification
+setNotification

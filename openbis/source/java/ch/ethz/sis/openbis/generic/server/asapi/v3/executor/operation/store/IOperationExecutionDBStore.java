@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
 public interface IOperationExecutionDBStore
 {
 
-    void executionNew(String code, Long owner, String description, List<String> operations, long availabilityTime, long summaryAvailabilityTime,
-            long detailsAvailabilityTime);
+    void executionNew(String code, Long owner, String description, String notification, List<String> operations, long availabilityTime,
+            long summaryAvailabilityTime, long detailsAvailabilityTime);
 
     void executionScheduled(String code);
 

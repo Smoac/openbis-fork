@@ -16,9 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation;
 
-import java.util.Arrays;
-import java.util.List;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -29,18 +26,5 @@ public class AsynchronousOperationExecutionOptions extends AbstractOperationExec
 {
 
     private static final long serialVersionUID = 1L;
-
-    private List<IOperationNotificationOptions> notificationOptions;
-
-    public AsynchronousOperationExecutionOptions setNotificationOptions(IOperationNotificationOptions... notificationOptions)
-    {
-        this.notificationOptions = Arrays.asList(notificationOptions);
-        return this;
-    }
-
-    public List<IOperationNotificationOptions> getNotificationOptions()
-    {
-        return notificationOptions;
-    }
 
 }

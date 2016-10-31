@@ -19,25 +19,28 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
-public class EmailOperationNotificationOptions implements IOperationNotificationOptions
+@JsonObject("as.dto.operation.OperationExecutionEmailNotification")
+public class OperationExecutionEmailNotification implements IOperationExecutionNotification
 {
 
     private List<String> emails;
 
     @SuppressWarnings("unused")
-    private EmailOperationNotificationOptions()
+    private OperationExecutionEmailNotification()
     {
     }
 
-    public EmailOperationNotificationOptions(List<String> emails)
+    public OperationExecutionEmailNotification(List<String> emails)
     {
         this.emails = emails;
     }
 
-    public EmailOperationNotificationOptions(String... emails)
+    public OperationExecutionEmailNotification(String... emails)
     {
         this.emails = Arrays.asList(emails);
     }
