@@ -246,8 +246,8 @@ war {
 }
 
 def downloadFile(url, filename) {
-  new File('targets/downloads/').mkdirs();
-  ext.executeFunction('wget', [url, '-q', '-O', "targets/downloads/$filename"])
+  new File('../openbis_standard_technologies/targets/downloads/').mkdirs();
+  ext.executeFunction('wget', [url, '-q', '-O', "../openbis_standard_technologies/targets/downloads/$filename"])
 }
 
 task zipCorePlugins(type: Zip) {
