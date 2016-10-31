@@ -48,16 +48,23 @@ class TestCase(systemtest.testcase.TestCase):
         
         #openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
 
-        #=======================================================================
-        # openbis2_port = '8445'
-        # openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
-        # openbis2.setDataStoreServerPort('8446')
-        # openbis2.setOpenbisPortDataStoreServer(openbis2_port)
-        # self.installHarvesterPlugin(openbis2)
-        # openbis2.setDummyAuthentication()
-        # openbis2.setDataStoreServerUsername('etlserver2')
-        # openbis2.allUp()
-        #=======================================================================
+        openbis2_port = '8445'
+        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
+        openbis2.setDataStoreServerPort('8446')
+        openbis2.setOpenbisPortDataStoreServer(openbis2_port)
+        self.installHarvesterPlugin(openbis2)
+        openbis2.setDummyAuthentication()
+        openbis2.setDataStoreServerUsername('etlserver2')
+        source = self.getHarvesterConfigFolder()
+        destination = openbis2.installPath
+        util.printAndFlush("Copying harvester config file from %s to %s"% (source, destination))
+        util.copyFromTo(source, destination, "harvester-config.txt")
+        openbis2.allUp()
+        
+        monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
+                                  "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
+        monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
+        monitor.waitUntilEvent(util.RegexCondition('Sync failed'))
         
 
     def installPlugin(self, openbisController, plugin_name):
@@ -77,6 +84,9 @@ class TestCase(systemtest.testcase.TestCase):
     def installHarvesterPlugin(self, openbisController):
         self.installPlugin(openbisController, "harvester")
 
+    def getHarvesterConfigFolder(self):
+        return systemtest.testcase.TEMPLATES + "/" + self.name + "/harvester_config"
+    
 class GitLabArtifactRepository(GitArtifactRepository):
     """
     Artifact repository for a gitlab projects.
