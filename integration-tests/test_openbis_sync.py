@@ -37,34 +37,45 @@ class TestCase(systemtest.testcase.TestCase):
 
     def executeInDevMode(self):
         openbis1 = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
+        openbis1.setDummyAuthentication()
         self.installDataSourcePlugin(openbis1)
+        self.installEntityRegistrationPlugin(openbis1)
         corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
         util.printAndFlush(corePluginsPropertiesFile)
         #util.writeProperties(corePluginsPropertiesFile)
         openbis1.setDataStoreServerUsername('etlserver1')
         openbis1.allUp()
-
-        openbis2_port = '8445'
-        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
-        openbis2.setDataStoreServerPort('8446')
-        openbis2.setOpenbisPortDataStoreServer(openbis2_port)
-        self.installHarvesterPlugin(openbis2)
-        openbis2.setDataStoreServerUsername('etlserver2')
-        openbis2.allUp()
         
-    def installDataSourcePlugin(self, openbisController):
+        #openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
+
+        #=======================================================================
+        # openbis2_port = '8445'
+        # openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
+        # openbis2.setDataStoreServerPort('8446')
+        # openbis2.setOpenbisPortDataStoreServer(openbis2_port)
+        # self.installHarvesterPlugin(openbis2)
+        # openbis2.setDummyAuthentication()
+        # openbis2.setDataStoreServerUsername('etlserver2')
+        # openbis2.allUp()
+        #=======================================================================
+        
+
+    def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
         path = repository.getPathToArtifact('149', 'archive.zip')
         util.printAndFlush("path to core plugin in the repository: %s" % path)
-        destination = "%s/servers/core-plugins/openbis1/" % openbisController.installPath
-        util.unzipSubfolder(path, 'openbissync.git/core-plugins/datasource/1/', destination)
+        destination = "%s/servers/core-plugins/%s/" % (openbisController.installPath, openbisController.instanceName)
+        util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
+        util.unzipSubfolder(path, 'openbissync.git/core-plugins/%s/1/'% plugin_name, destination)
+
+    def installDataSourcePlugin(self, openbisController):
+        self.installPlugin(openbisController, "datasource")
+        
+    def installEntityRegistrationPlugin(self, openbisController):
+        self.installPlugin(openbisController, "test")
 
     def installHarvesterPlugin(self, openbisController):
-        repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
-        path = repository.getPathToArtifact('149', 'archive.zip')
-        util.printAndFlush("path to core plugin in the repository: %s" % path)
-        destination = "%s/servers/core-plugins/openbis2/" % openbisController.installPath
-        util.unzipSubfolder(path, 'openbissync.git/core-plugins/harvester/1/', destination)
+        self.installPlugin(openbisController, "harvester")
 
 class GitLabArtifactRepository(GitArtifactRepository):
     """
