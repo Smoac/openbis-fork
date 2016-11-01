@@ -58,20 +58,22 @@ function NewProductsView(newProductsController, newProductsModel) {
 				}
 			});
 			
-			var priceField = FormUtil.getRealInputField(null, "Price", true);
+			var priceField = FormUtil.getRealInputField(null, "Price", false);
 				priceField.change(function() {
 					var value = $(this).val();
-					try {
-						var valueParsed = parseFloat(value);
-						if("" + valueParsed === "NaN") {
+					if(value) {
+						try {
+							var valueParsed = parseFloat(value);
+							if("" + valueParsed === "NaN") {
+								Util.showError("Please input a correct price.");
+								$(this).val("");
+							} else {
+								$(this).val(valueParsed);
+							}
+						} catch(err) {
 							Util.showError("Please input a correct price.");
 							$(this).val("");
-						} else {
-							$(this).val(valueParsed);
 						}
-					} catch(err) {
-						Util.showError("Please input a correct price.");
-						$(this).val("");
 					}
 				});
 			
