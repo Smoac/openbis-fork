@@ -493,7 +493,20 @@ public class EntitySynchronizer
         v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
 
         // confirm deletions
-        v3Api.confirmDeletions(sessionToken, Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId));
+        ArrayList deletionIds = new ArrayList();
+        if (expDeletionId != null)
+        {
+            deletionIds.add(expDeletionId);
+        }
+        if (smpDeletionId != null)
+        {
+            deletionIds.add(smpDeletionId);
+        }
+        if (dsDeletionId != null)
+        {
+            deletionIds.add(dsDeletionId);
+        }
+        v3Api.confirmDeletions(sessionToken, deletionIds); // Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId)
 
         for (PhysicalDataSet physicalDS : physicalDataSetsDelete)
         {
