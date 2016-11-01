@@ -573,7 +573,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									if(unitPriceAsString) {
 										unitPrice = parseFloat(unitPriceAsString);
 									}
-									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_CODE"] + "\t\t" + unitPrice + "\t\t" + product.properties["CURRENCY"];
+									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_CODE"] + "\t\t" + unitPrice + " " + product.properties["CURRENCY"];
 									page += "\n";
 									
 									if(unitPriceAsString) {
