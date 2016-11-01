@@ -63,7 +63,7 @@ $.extend(DefaultProfile.prototype, {
 					"COSTUMER_INFORMATION" : "Costumer Information",
 					"SHIP_TO" : "Ship To",
 					"BILL_TO" : "Bill To",
-					"SHIP_ADDRESS" : "Ship Address",
+					"SHIP_ADDRESS" : "Address",
 					"PHONE" : "Phone",
 					"FAX" : "Fax",
 					
@@ -90,7 +90,7 @@ $.extend(DefaultProfile.prototype, {
 					"COSTUMER_INFORMATION" : "Costumer Information",
 					"SHIP_TO" : "Ship To",
 					"BILL_TO" : "Bill To",
-					"SHIP_ADDRESS" : "Ship Address",
+					"SHIP_ADDRESS" : "Address",
 					"PHONE" : "Phone",
 					"FAX" : "Fax",
 					
