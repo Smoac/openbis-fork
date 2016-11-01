@@ -246,8 +246,11 @@ war {
 }
 
 def downloadFile(url, filename) {
-  new File('../openbis_standard_technologies/targets/downloads/').mkdirs();
-  ext.executeFunction('wget', [url, '-q', '-O', "../openbis_standard_technologies/targets/downloads/$filename"])
+  def file = project(':openbis_standard_technologies').file("targets/downloads/$filename")
+  if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 60000) {
+    file.getParentFile().mkdirs()
+    ext.executeFunction('wget', [url, '-q', '-O', file.getAbsolutePath()])
+  }
 }
 
 task zipCorePlugins(type: Zip) {
