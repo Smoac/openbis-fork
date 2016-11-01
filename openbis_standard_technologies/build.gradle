@@ -247,7 +247,7 @@ war {
 
 def downloadFile(url, filename) {
   def file = project(':openbis_standard_technologies').file("targets/downloads/$filename")
-  if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 60000) {
+  if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
     file.getParentFile().mkdirs()
     ext.executeFunction('wget', [url, '-q', '-O', file.getAbsolutePath()])
   }
