@@ -96,6 +96,7 @@ $.extend(DefaultProfile.prototype, {
 				}
 		}
 		
+		this.isAdmin = false;
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
 		this.inventorySpacesReadOnly = []; //"STOCK_ORDERS"
@@ -722,6 +723,14 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
+		this.initIsAdmin = function(callback) {
+			var _this = this;
+			this.serverFacade.listPersons(function(data) {
+				_this.isAdmin = !(data.error);
+				callback();
+			});
+		}
+		
 		//
 		// Initializes
 		//
@@ -732,7 +741,9 @@ $.extend(DefaultProfile.prototype, {
 				_this.initVocabulariesForSampleTypes(function() {
 					_this.initSearchDomains(function() {
 						_this.initDirectLinkURL(function() {
-							callbackWhenDone();
+							_this.initIsAdmin(function() {
+								callbackWhenDone();
+							});
 						});
 					});
 				});

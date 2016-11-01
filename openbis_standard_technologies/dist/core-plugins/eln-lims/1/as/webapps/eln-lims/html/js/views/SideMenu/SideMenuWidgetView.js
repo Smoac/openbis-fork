@@ -253,7 +253,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
         }
         
-        if(profile.mainMenu.showUserManager) {
+        if(profile.mainMenu.showUserManager && profile.isAdmin) {
         	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
         }
         
