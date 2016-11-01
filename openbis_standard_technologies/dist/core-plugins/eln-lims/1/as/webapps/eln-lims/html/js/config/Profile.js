@@ -50,49 +50,63 @@ $.extend(DefaultProfile.prototype, {
 				showUserManager : true
 		}
 		
+		this.orderLabInfo = {
+				
+		}
 		this.orderLanguage = {
 				"ENGLISH" : {
-					"DATE_LABEL" : "Date",
-					"SUPPLIER_LABEL" : "Supplier",
-					"CONTACT_INFO_LABEL" : "Contact Information",
-					"ORDER_INFO_LABEL" : "Order Information",
-					"ACCOUNT_LABEL" : "Account Number",
+					"ORDER_INFORMATION" : "Order Information",
+					"ORDER_DATE" : "Date",
+					"ORDER_STATUS" : "Status",
+					"ORDER_CODE" : "Code",
 					
-					"PREFERRED_LANGUAGE_LABEL" : "Preferred Supplier Language",
-					"PREFERRED_ORDER_METHOD_LABEL" : "Preferred Supplier Order Method",
+					"COSTUMER_INFORMATION" : "Costumer Information",
+					"SHIP_TO" : "Ship To",
+					"BILL_TO" : "Bill To",
+					"SHIP_ADDRESS" : "Ship Address",
+					"PHONE" : "Phone",
+					"FAX" : "Fax",
 					
-					"ORDER_MANAGER_LABEL" : "Order Manager",
-					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Order Manager Contact Details",
+					"SUPPLIER_INFORMATION" : "Supplier Information",
+					"SUPPLIER" : "Supplier",
+					"SUPPLIER_ADDRESS_LINE_1" : "Address",
+					"SUPPLIER_ADDRESS_LINE_2" : "       ",
+					"SUPPLIER_PHONE" : "Phone",
+					"SUPPLIER_FAX" : "Fax",
+					"SUPPLIER_EMAIL" : "Email",
+					"CUSTOMER_NUMBER" : "Customer No",
 					
 					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tQuantity\tUnit Price\tCurrency",
-					
-					"SUPPLIER_FAX_LABEL" : "Supplier fax",
-					"SUPPLIER_EMAIL_LABEL" : "Supplier Email",
-					
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCode\t\tUnit Price\t\tCurrency",
 					"PRICE_TOTALS_LABEL" : "Total Price",
 					"ADDITIONAL_INFO_LABEL" : "Additional Information"
 				},
 				"GERMAN" : {
-					"DATE_LABEL" : "Datum",
-					"SUPPLIER_LABEL" : "Lieferant",
-					"CONTACT_INFO_LABEL" : "Kontaktdetails",
-					"ORDER_INFO_LABEL" : "Bestellungdetails",
-					"ACCOUNT_LABEL" : "Account Nummer",
-					 
-					"PREFERRED_LANGUAGE_LABEL" : "Bevorzugte Lieferanten-Sprache",
-					"PREFERRED_ORDER_METHOD_LABEL" : "Bevorzugte Bestellungsart",
-					 
-					"ORDER_MANAGER_LABEL" : "Besteller",
-					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Besteller Kontaktdetails",
-					 
-					"REQUESTED_PRODUCTS_LABEL" : "Bestellte Produkte",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tMenge\tPreis pro Einheit\tWährung",
-					"SUPPLIER_FAX_LABEL" : "Lieferant Fax",
-					"SUPPLIER_EMAIL_LABEL" : "Lieferant Email",
-					 
-					"PRICE_TOTALS_LABEL" : "Gesamtpreis",
-					"ADDITIONAL_INFO_LABEL" : "Zusätzliches Informationen"
+					"ORDER_INFORMATION" : "Order Information",
+					"ORDER_DATE" : "Order Date",
+					"ORDER_STATUS" : "Order Status",
+					"ORDER_CODE" : "Order Code",
+					
+					"COSTUMER_INFORMATION" : "Costumer Information",
+					"SHIP_TO" : "Ship To",
+					"BILL_TO" : "Bill To",
+					"SHIP_ADDRESS" : "Ship Address",
+					"PHONE" : "Phone",
+					"FAX" : "Fax",
+					
+					"SUPPLIER_INFORMATION" : "Supplier Information",
+					"SUPPLIER" : "Supplier",
+					"SUPPLIER_ADDRESS_LINE_1" : "Address",
+					"SUPPLIER_ADDRESS_LINE_2" : "       ",
+					"SUPPLIER_PHONE" : "Supplier fax",
+					"SUPPLIER_FAX" : "Supplier fax",
+					"SUPPLIER_EMAIL" : "Supplier Email",
+					"CUSTOMER_NUMBER" : "Customer Number",
+					
+					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCode\t\tUnit Price\t\tCurrency",
+					"PRICE_TOTALS_LABEL" : "Total Price",
+					"ADDITIONAL_INFO_LABEL" : "Additional Information"
 				}
 		}
 		
