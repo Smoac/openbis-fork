@@ -261,7 +261,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModelUtils.push({ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
         }
         
-        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
+        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, expanded : true, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
         treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         
 		var glyph_opts = {
@@ -457,5 +457,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 		
         this._sideMenuWidgetModel.menuDOMBody.append($tree);
         this._sideMenuWidgetModel.tree = $tree;
+        
+        $tree.fancytree("getTree").getNodeByKey("LAB_NOTEBOOK").setExpanded(true);
+        var inventoryNode = $tree.fancytree("getTree").getNodeByKey("INVENTORY");
+        inventoryNode.setExpanded(true).done(function(){
+            inventoryNode.visit(function(node){
+                node.setExpanded(true).done(function(){
+                    node.visit(function(node2){
+                        node2.setExpanded(true);
+                    })
+                });
+            })
+        });
     }
 }
