@@ -5,13 +5,25 @@ import shutil
 import settings
 import systemtest.testcase
 import systemtest.util as util
-import urllib2
+import urllib, urllib2
+import ssl, base64
 
 from urllib2 import Request
+
+from functools import wraps
 
 from systemtest.artifactrepository import GitArtifactRepository
 
 from systemtest.testcase import TEST_DATA
+
+#Had to add the ssl wrap thing below because of a problem during the auth call
+def sslwrap(func):
+    @wraps(func)
+    def bar(*args, **kw):
+        kw['ssl_version'] = ssl.PROTOCOL_TLSv1
+        return func(*args, **kw)
+    return bar
+ssl.wrap_socket = sslwrap(ssl.wrap_socket)
 
 class TestCase(systemtest.testcase.TestCase):
 
@@ -66,8 +78,20 @@ class TestCase(systemtest.testcase.TestCase):
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
                                   "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
-        log_entry = monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
+        self.getResourceListForComparison()
         
+    def getResourceListForComparison(self):
+        url = "https://localhost:8444/datastore_server/re-sync?verb=resourcelist.xml"
+        request = urllib2.Request(url)
+        request.add_header('Accept', 'application/json')
+        request.add_header("Content-type", "application/x-www-form-urlencoded")
+        base64string = base64.encodestring('%s:%s' % ("harvester1", "123")).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        data = urllib.urlencode({'mode' : 'test'})
+        response = urllib2.urlopen(request)
+        util.printAndFlush(response.read())
+        return 
 
     def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
