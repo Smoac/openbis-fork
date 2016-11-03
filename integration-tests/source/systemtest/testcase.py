@@ -489,6 +489,10 @@ class OpenbisController(_Controller):
     def setDataStoreServerUsername(self, username):
         """ Sets the username of the Data Store Server. """
         self.dssProperties['username'] = username
+
+    def setDataStoreServerProperty(self, prop, val):
+        """ Can be used to set the value of any property in DSS service.properties """
+        self.dssProperties[prop] = val
         
     def setAsMaxHeapSize(self, maxHeapSize):
         self._setMaxHeapSize("openBIS-server/jetty/etc/openbis.conf", maxHeapSize)
