@@ -165,7 +165,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 operationLog.info("Saving the timestamp of sync start to file");
                 saveSyncTimestamp();
 
-                operationLog.info("Done and dusted...");
                 operationLog.info(this.getClass() + " finished executing.");
 
             } catch (Exception e)
