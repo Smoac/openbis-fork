@@ -44,6 +44,7 @@ class TestCase(systemtest.testcase.TestCase):
         util.printAndFlush(corePluginsPropertiesFile)
         #util.writeProperties(corePluginsPropertiesFile)
         openbis1.setDataStoreServerUsername('etlserver1')
+        openbis1.setDataStoreServerProperty("host-address", "https://localhost")
         openbis1.allUp()
         
         #openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
@@ -52,6 +53,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
         openbis2.setDataStoreServerPort('8446')
         openbis2.setOpenbisPortDataStoreServer(openbis2_port)
+        openbis2.setDataStoreServerProperty("host-address", "https://localhost")
         self.installHarvesterPlugin(openbis2)
         openbis2.setDummyAuthentication()
         openbis2.setDataStoreServerUsername('etlserver2')
@@ -64,7 +66,7 @@ class TestCase(systemtest.testcase.TestCase):
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
                                   "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
-        monitor.waitUntilEvent(util.RegexCondition('Sync failed'))
+        log_entry = monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
         
 
     def installPlugin(self, openbisController, plugin_name):
