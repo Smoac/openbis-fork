@@ -293,7 +293,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    	case "LAB_NOTEBOOK":
     	    	case "INVENTORY":
     	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
-    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, function(searchResult) {
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
     	    			var results = [];
     	                var spaces = searchResult.objects;
     	                for (var i = 0; i < spaces.length; i++) {
@@ -314,7 +314,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "SPACE":
     	    		var projectRules = { "UUIDv4" : { type : "Attribute", name : "SPACE", value : permId } };
-    	    		mainController.serverFacade.searchForProjectsAdvanced({ entityKind : "PROJECT", logicalOperator : "AND", rules : projectRules }, function(searchResult) {
+    	    		mainController.serverFacade.searchForProjectsAdvanced({ entityKind : "PROJECT", logicalOperator : "AND", rules : projectRules }, null, function(searchResult) {
     	    			var results = [];
     	                var projects = searchResult.objects;
     	                for (var i = 0; i < projects.length; i++) {
@@ -328,7 +328,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "PROJECT":
     	    		var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PROJECT_PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForExperimentsAdvanced({ entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules }, function(searchResult) {
+    	    		mainController.serverFacade.searchForExperimentsAdvanced({ entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules }, null, function(searchResult) {
     	    			var results = [];
     	                var experiments = searchResult.objects;
     	                for (var i = 0; i < experiments.length; i++) {
@@ -355,7 +355,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "EXPERIMENT":
     	    		var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null,
     	    		function(searchResult) {
     	    			var samples = searchResult.objects;
     	    			
@@ -401,7 +401,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "SAMPLE":
     	    		var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, function(searchResult) {
+    	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
     	    			var results = [];
     	                var datasets = searchResult.objects;
     	                

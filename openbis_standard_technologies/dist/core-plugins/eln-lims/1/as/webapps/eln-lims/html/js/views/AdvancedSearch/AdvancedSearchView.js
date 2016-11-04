@@ -619,7 +619,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				callback(rows);
 			};
 			
-			var dataGrid = new DataGridController("Search Results", columns, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
+			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
 			return dataGrid;
 	}
 	

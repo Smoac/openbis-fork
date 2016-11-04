@@ -1,10 +1,13 @@
-function Grid(columns, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
-	this.init(columns, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable);
+function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
+	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable);
 }
 
 $.extend(Grid.prototype, {
-	init : function(columns, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
-		this.columns = columns;
+	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
+		this.columnsFirst = columnsFirst;
+		this.columnsDynamicFunc = columnsDynamicFunc;
+		this.columnsDynamic = [];
+		this.columnsLast = columnsLast;
 		this.getDataList = getDataList;
 		this.showAllColumns = showAllColumns;
 		this.tableSettings = tableSettings;
@@ -23,7 +26,7 @@ $.extend(Grid.prototype, {
 		this.isMultiselectable = isMultiselectable;
 		this.selectedItems = [];
 		if(isMultiselectable) {
-			this.addMultiSelect(columns);
+			this.addMultiSelect(columnsFirst);
 		}
 	},
 	addMultiSelect : function(columns) {
@@ -31,26 +34,7 @@ $.extend(Grid.prototype, {
 		columns.unshift({
 				showByDefault: true,
 				label : function() {
-					var $selectall = $("<input>", { type : 'checkbox' });
-					$selectall.change(function(){
-						var allCheckboxes = _this.panel.find(".multi-selectable-checkbox");
-						var isChecked = $(this).is(":checked");
-						//check / uncheck all
-						allCheckboxes.each(function() { 
-			                this.checked = isChecked;
-			            });
-						//If check, add to the selectedItems list
-						_this.selectedItems = [];
-						if(isChecked) { //select all
-							_this.getDataList(function(dataList) {
-								for(var dIdx = 0; dIdx < dataList.length; dIdx++) {
-									_this.selectedItems.push(dataList[dIdx].$object);
-								}
-							});
-						}
-					});
-					
-					return $selectall;
+					return "";
 				},
 				property : '$selected',
 				isExportable: false,
@@ -109,7 +93,6 @@ $.extend(Grid.prototype, {
 			template = template.replace(templateToReplace, templateToReplaceFor);
 			//
 			thisGrid.panel.html(template);
-			thisGrid.renderColumnDropdown();
 			thisGrid.renderDropDownOptions();
 			
 			if(thisGrid.rowClickListeners && thisGrid.rowClickListeners.length > 0) {
@@ -159,17 +142,20 @@ $.extend(Grid.prototype, {
 		return thisGrid.panel;
 	},
 
-	renderColumnDropdown : function() {
+	renderColumnDropdown : function(columnsForDropdown) {
 		var thisGrid = this;
 
 		var columnList = thisGrid.panel.find(".columnDropdown").find("ul");
+		columnList.empty();
 		columnList.click(function(e) {
 			e.stopPropagation();
 		});
 		
 		var defaultNumColumns = 5; //Including last always
 		
-		thisGrid.columns.forEach(function(column, columnIndex) {
+		var currentColumns = this.getAllColumns();
+		
+		columnsForDropdown.forEach(function(column, columnIndex) {
 			if(!column.showByDefault) {
 				var checkbox = $("<input>")
 				.attr("type", "checkbox")
@@ -180,12 +166,17 @@ $.extend(Grid.prototype, {
 					if((thisGrid.tableSettings.columns[column.property] === true)) { //If settings are present
 						checkbox.attr("checked", "checked");
 					}
-				} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) { //Defaults
+				} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === currentColumns.length)) { //Defaults
 					checkbox.attr("checked", "checked");
 				}
 				
-				checkbox.change(function() {
+				checkbox.change(function(e) {
+					var $checkbox = $(this);
+					var propertyName = $checkbox.prop('value');
+					var isChecked = $checkbox.prop('checked');
+					thisGrid.tableSettings.columns[propertyName] = isChecked;
 					thisGrid.panel.repeater('render');
+					e.stopPropagation();
 				});
 				var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append(checkbox).append("&nbsp;").append(column.label);
 				var item = $("<li>").attr("role", "presentation").append(label);
@@ -195,7 +186,7 @@ $.extend(Grid.prototype, {
 	},
 
 	getAllColumns : function() {
-		return this.columns;
+		return this.columnsFirst.concat(this.columnsDynamic).concat(this.columnsLast);
 	},
 
 	addExtraOptions : function(extraOptions) {
@@ -331,7 +322,9 @@ $.extend(Grid.prototype, {
 		var thisGrid = this;
 		
 		var exportColumnsFromData = function(namePrefix, data, headings) {
-			
+			if(data.objects) {
+				data = data.objects
+			}
 			var arrayOfRowArrays = [];
 			arrayOfRowArrays.push(headings);
 			for(var dIdx = 0; dIdx < data.length; dIdx++) {
@@ -386,8 +379,10 @@ $.extend(Grid.prototype, {
 		var headings = [];
 		var data = [];
 		var prefix = "";
+		
 		if(isAllColumnsOrVisible) {
-			thisGrid.columns.forEach(function(head) {
+			var currentColumns = this.getAllColumns();
+			currentColumns.forEach(function(head) {
 				if(head.isExportable === true || head.isExportable === undefined) {
 					headings.push(head.property);
 				}
@@ -447,14 +442,14 @@ $.extend(Grid.prototype, {
 
 	filterData : function(dataList, filter) {
 		var thisGrid = this;
-
+		var currentColumns = this.getAllColumns();
 		if (filter) {
 			filterKeywords = filter.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
 			dataList = dataList.filter(function(data) {
 				var isValid = new Array(filterKeywords.length);
 				
-				for(cIdx = 0; cIdx < thisGrid.columns.length; cIdx++) {
-					var column = thisGrid.columns[cIdx];
+				for(cIdx = 0; cIdx < currentColumns.length; cIdx++) {
+					var column = currentColumns[cIdx];
 					for(var fIdx = 0; fIdx < filterKeywords.length; fIdx++) {
 						var filterKeyword = filterKeywords[fIdx];
 						if (column.filter) {
@@ -493,7 +488,8 @@ $.extend(Grid.prototype, {
 			//
 			
 			var sortColumn = null;
-			thisGrid.columns.forEach(function(column) {
+			var currentColumns = this.getAllColumns();
+			currentColumns.forEach(function(column) {
 				if (column.property == sortProperty) {
 					sortColumn = column;
 				}
@@ -526,9 +522,11 @@ $.extend(Grid.prototype, {
 		var items = [];
 		var maxLineLength = 200;
 		
+		var visibleColumns = thisGrid.getVisibleColumns();
+		
 		dataList.forEach(function(data) {
 			var item = {};
-			thisGrid.getVisibleColumns().forEach(function(column) {
+			visibleColumns.forEach(function(column) {
 				//1. Render
 				var value = null;
 				if (column.render) {
@@ -566,23 +564,55 @@ $.extend(Grid.prototype, {
 
 	list : function(options, callback) {
 		var thisGrid = this;
-		thisGrid.getDataList(function(dataList) {
+		
+		thisGrid.getDataList(function(dataListResult) {
+			dataList = null;
+			var isDynamic = (dataListResult.totalCount != null && dataListResult.totalCount != undefined);
 			
-			dataList = thisGrid.filterData(dataList, options.search);
-			dataList = thisGrid.sortData(dataList, options.sortProperty, options.sortDirection);
+			if(isDynamic) {
+				dataList = dataListResult.objects;		
+				
+				if(thisGrid.onChangeState && thisGrid.tableSettings) {
+					thisGrid.tableSettings.sort = {
+							sortProperty : options.sortProperty,
+							sortDirection : options.sortDirection
+					};
+					thisGrid.onChangeState(thisGrid.tableSettings);
+				}
+				
+			} else { //Used for static tables filtering and sorting, on dynamic ones it happens on the getDataList function given the options
+				dataList = dataListResult;
+				dataList = thisGrid.filterData(dataList, options.search);
+				dataList = thisGrid.sortData(dataList, options.sortProperty, options.sortDirection);
+			}
+			
 
 			var result = {};
-			result.count = dataList.length;
+			
+			if(isDynamic) {
+				result.count = dataListResult.totalCount;
+			} else {
+				result.count = dataList.length;
+			}
+			
 			result.datas = [];
 			result.items = [];
-			result.columns = thisGrid.getVisibleColumns();
+			
 			result.page = options.pageIndex;
 			result.pages = Math.ceil(result.count / options.pageSize);
 			result.start = options.pageIndex * options.pageSize;
 			result.end = result.start + options.pageSize;
 			result.end = (result.end <= result.count) ? result.end : result.count;
 			
-			dataList = dataList.slice(result.start, result.end);
+			if(!isDynamic) {
+				dataList = dataList.slice(result.start, result.end);
+			}
+			
+			if(thisGrid.columnsDynamicFunc) {
+				thisGrid.columnsDynamic = thisGrid.columnsDynamicFunc(dataList);
+			}
+			thisGrid.renderColumnDropdown(thisGrid.getAllColumns());
+			result.columns = thisGrid.getVisibleColumns();
 			
 			if(dataList.length === 0) { //Special case, empty table
 				result.start = 0;
@@ -632,8 +662,9 @@ $.extend(Grid.prototype, {
 						$parent.css("cursor", "initial");
 					}
 				}
+				
 			}, 1);
-		});
+		}, options);
 	},
 
 	addRowClickListener : function(listener) {

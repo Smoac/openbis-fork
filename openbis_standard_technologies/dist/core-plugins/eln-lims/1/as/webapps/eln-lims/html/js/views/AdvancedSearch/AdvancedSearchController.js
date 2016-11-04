@@ -45,13 +45,13 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 				mainController.serverFacade.searchGlobally(freeText, callbackFunction);
 				break;
 			case "SAMPLE":
-				mainController.serverFacade.searchForSamplesAdvanced(model, callbackFunction);
+				mainController.serverFacade.searchForSamplesAdvanced(model, null, callbackFunction);
 				break;
 			case "EXPERIMENT":
-				mainController.serverFacade.searchForExperimentsAdvanced(model, callbackFunction);
+				mainController.serverFacade.searchForExperimentsAdvanced(model, null, callbackFunction);
 				break;
 			case "DATASET":
-				mainController.serverFacade.searchForDataSetsAdvanced(model, callbackFunction);
+				mainController.serverFacade.searchForDataSetsAdvanced(model, null, callbackFunction);
 				break;
 		}
 	}

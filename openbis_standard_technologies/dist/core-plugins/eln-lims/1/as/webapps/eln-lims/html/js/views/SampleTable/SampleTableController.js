@@ -43,47 +43,34 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			properyKeyValueList = [{ "SHOW_IN_PROJECT_OVERVIEW" : "\"true\"" }];
 		}
 		
-		mainController.serverFacade.searchWithExperiment(this._sampleTableModel.experimentIdentifier, this._sampleTableModel.projectPermId, properyKeyValueList, function(experimentSamples) {
-			_this._sampleTableModel.allSamples = experimentSamples;
-			for(var i = 0; i < experimentSamples.length; i++) {
-				if(_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode]) {
-					_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode] = _this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode] + 1;
-				} else {
-					_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode] = 1;
-				}
+		//
+		var advancedSampleSearchCriteria = null;
+		
+		if(this._sampleTableModel.experiment) {
+			advancedSampleSearchCriteria = {
+					entityKind : "SAMPLE",
+					logicalOperator : "AND",
+					rules : { "1" : { type : "Experiment", name : "ATTR.PERM_ID", value : this._sampleTableModel.experiment.permId } }
 			}
-			callback();
-			
-			//Show samples when only one type available by default
-			var numSampleTypes = 0;
-			var defaultSampleType = null;
-			for(sampleTypeCode in _this._sampleTableModel.sampleTypes) {
-				if(numSampleTypes === 0) {
-					defaultSampleType = sampleTypeCode;
-				}
-				numSampleTypes++;
+		} else if(this._sampleTableModel.projectPermId) {
+			advancedSampleSearchCriteria = {
+					entityKind : "SAMPLE",
+					logicalOperator : "AND",
+					rules : { "1" : { type : "Experiment", name : "ATTR.PROJECT_PERM_ID", value : this._sampleTableModel.projectPermId } }
 			}
-			
-			if(numSampleTypes === 1) {
-				_this._reloadTableWithSampleType(defaultSampleType);
-				_this._sampleTableView.getSampleTypeSelector().val(defaultSampleType);
-			}
-		});
+		}
+		
+		if(this._sampleTableModel.showInProjectOverview) {
+			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "SHOW_IN_PROJECT_OVERVIEW", value : "true" };
+		}
+		//
+		callback();
+		this._reloadTableWithAllSamples(advancedSampleSearchCriteria);
 	}
 	
-	this._reloadTableWithSampleType = function(selectedSampleTypeCode) {
-		if(selectedSampleTypeCode !== '') { //Verify something selected
-			//Get samples from type
-			var samples = [];
-			for (var idx = 0; idx < this._sampleTableModel.allSamples.length; idx++) {
-				var sampleToCheckType = this._sampleTableModel.allSamples[idx];
-				if(sampleToCheckType.sampleTypeCode === selectedSampleTypeCode) {
-					samples.push(sampleToCheckType);
-				}
-			}
-			
+	this._reloadTableWithAllSamples = function(advancedSampleSearchCriteria) {
 			//Create and display table
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, null, null, null, null, null, null, true);
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true);
 			
 			
 			var extraOptions = [];
@@ -115,6 +102,5 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			}});
 			
 			dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
-		}
 	}
 }

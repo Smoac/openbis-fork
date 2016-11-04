@@ -103,7 +103,7 @@ function SampleHierarchyTableView(controller, model) {
 			mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 		}
 		
-		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick, false, "SAMPLE_HIERARCHY_TABLE");
+		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "SAMPLE_HIERARCHY_TABLE");
 		this._dataGrid.init(this._container);
 		this._container.prepend($("<legend>").append(" " + ELNDictionary.Sample + " Hierarchy"));
 	}

@@ -667,47 +667,47 @@ function ServerFacade(openbisServer) {
 	// New Advanced Search
 	//
 	
-	this.searchForDataSetsAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForDataSetsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/dataset/search/DataSetSearchCriteria';
 		var fetchOptionsClass = 'as/dto/dataset/fetchoptions/DataSetFetchOptions';
 		var searchMethodName = 'searchDataSets';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForExperimentsAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForExperimentsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/experiment/search/ExperimentSearchCriteria';
 		var fetchOptionsClass = 'as/dto/experiment/fetchoptions/ExperimentFetchOptions';
 		var searchMethodName = 'searchExperiments';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForSamplesAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/sample/search/SampleSearchCriteria';
 		var fetchOptionsClass = 'as/dto/sample/fetchoptions/SampleFetchOptions';
 		var searchMethodName = 'searchSamples';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForSpacesAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForSpacesAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/space/search/SpaceSearchCriteria';
 		var fetchOptionsClass = 'as/dto/space/fetchoptions/SpaceFetchOptions';
 		var searchMethodName = 'searchSpaces';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForProjectsAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForProjectsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/project/search/ProjectSearchCriteria';
 		var fetchOptionsClass = 'as/dto/project/fetchoptions/ProjectFetchOptions';
 		var searchMethodName = 'searchProjects';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForEntityAdvanced = function(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
+	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		require(['openbis', 
 		         criteriaClass,
 		         fetchOptionsClass,
 		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
-			
+		
 			try {
 				//Boilerplate
 				var testProtocol = window.location.protocol;
@@ -722,7 +722,7 @@ function ServerFacade(openbisServer) {
 				
 				//Setting the searchCriteria given the advancedSearchCriteria model
 				var searchCriteria = new EntitySearchCriteria();
-				
+			
 				//Setting the fetchOptions given standard settings
 				var fetchOptions = new EntityFetchOptions();
 				if(fetchOptions.withTags) {
@@ -756,13 +756,41 @@ function ServerFacade(openbisServer) {
 					fetchOptions.withProperties();
 				}
 				
-				//Operator
-				var operator = advancedSearchCriteria.logicalOperator;
-				if (!operator) {
-					operator = "AND";
+				if(advancedFetchOptions && advancedFetchOptions.cache) {
+					fetchOptions.cacheMode(advancedFetchOptions.cache);
 				}
-				searchCriteria.withOperator(operator);
 				
+				if(advancedFetchOptions && 
+						advancedFetchOptions.count != null &&
+						advancedFetchOptions.count != undefined && 
+						advancedFetchOptions.from != null &&
+						advancedFetchOptions.from != undefined) {
+					fetchOptions.from(advancedFetchOptions.from);
+					fetchOptions.count(advancedFetchOptions.count);
+				}
+				
+				if(advancedFetchOptions && advancedFetchOptions.sort) {
+					switch(advancedFetchOptions.sort.type) {
+						case "Attribute":
+							fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
+							break;
+						case "Property":
+							fetchOptions.sortBy().property(advancedFetchOptions.sort.name)[advancedFetchOptions.sort.direction]();
+							break;
+					}
+				}
+				
+				var setOperator = function(criteria, operator) {
+					//Operator
+					if (!operator) {
+						operator = "AND";
+					}
+					criteria.withOperator(operator);
+					return criteria;
+				}
+				
+				searchCriteria = setOperator(searchCriteria, advancedSearchCriteria.logicalOperator);
+			
 				//Rules
 				var ruleKeys = Object.keys(advancedSearchCriteria.rules);
 				for (var idx = 0; idx < ruleKeys.length; idx++)
@@ -771,21 +799,21 @@ function ServerFacade(openbisServer) {
 					var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
 					var fieldNameType = null;
 					var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-					
+				
 					if(fieldName) {
 						var firstDotIndex = fieldName.indexOf(".");
 						fieldNameType = fieldName.substring(0, firstDotIndex);
 						fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
 					}
-					
+				
 					if(!fieldValue) {
 						fieldValue = "*";
 					}
-					
+				
 					var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
-						criteria.withProperty(propertyName).thatEquals(propertyValue);
+						criteria.withProperty(propertyName).thatContains(propertyValue);
 					}
-					
+				
 					var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
 						switch(attributeName) {
 							//Used by all entities
@@ -825,10 +853,10 @@ function ServerFacade(openbisServer) {
 								break;
 						}
 					}
-					
+				
 					switch(fieldType) {
 						case "All":
-							searchCriteria.withAnyField().thatEquals(fieldValue);
+							searchCriteria.withAnyField().thatContains(fieldValue);
 							break;
 						case "Property":
 							setPropertyCriteria(searchCriteria, fieldName, fieldValue);
@@ -839,49 +867,49 @@ function ServerFacade(openbisServer) {
 						case "Sample":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withSample(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withSample(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 							}
 							break;
 						case "Experiment":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withExperiment(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withExperiment(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 							}
 							break;
 						case "Parent":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 							}
 							break;
 						case "Children":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 							}
 							break;
 					}
 				}
-				
+			
 				v3Api[searchMethodName](searchCriteria, fetchOptions)
 				.done(function(result) {
-					callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
+					callback(result);
 				})
 				.fail(function(result) {
 					Util.showError("Call failed to server: " + JSON.stringify(result));
@@ -912,26 +940,26 @@ function ServerFacade(openbisServer) {
 		var v1Sample = {};
 		v1Sample["@type"] = "Sample";
 		v1Sample["@id"] = CONST_UNSUPPORTED_NUMBER;
-		v1Sample["spaceCode"] = v3Sample.space.code;
-		v1Sample["permId"] = v3Sample.permId.permId;
+		v1Sample["spaceCode"] = (v3Sample.space)?v3Sample.space.code:null;
+		v1Sample["permId"] = (v3Sample.permId)?v3Sample.permId.permId:null;
 		v1Sample["code"] = v3Sample.code;
-		v1Sample["identifier"] = v3Sample.identifier.identifier;
+		v1Sample["identifier"] = (v3Sample.identifier)?v3Sample.identifier.identifier:null;
 		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
-		v1Sample["sampleTypeCode"] = v3Sample.type.code;
+		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
 		v1Sample["properties"] = v3Sample.properties;
 		
 		v1Sample["registrationDetails"] = {};
 		v1Sample["registrationDetails"]["@type"] = "EntityRegistrationDetails";
 		v1Sample["registrationDetails"]["@id"] = CONST_UNSUPPORTED_NUMBER;
-		v1Sample["registrationDetails"]["userFirstName"] = v3Sample.registrator.firstName;
-		v1Sample["registrationDetails"]["userLastName"] = v3Sample.registrator.lastName;
-		v1Sample["registrationDetails"]["userEmail"] = v3Sample.registrator.email;
-		v1Sample["registrationDetails"]["userId"] = v3Sample.registrator.userId;
+		v1Sample["registrationDetails"]["userFirstName"] = (v3Sample.registrator)?v3Sample.registrator.firstName:null;
+		v1Sample["registrationDetails"]["userLastName"] = (v3Sample.registrator)?v3Sample.registrator.lastName:null;
+		v1Sample["registrationDetails"]["userEmail"] = (v3Sample.registrator)?v3Sample.registrator.email:null;
+		v1Sample["registrationDetails"]["userId"] = (v3Sample.registrator)?v3Sample.registrator.userId:null;
 		v1Sample["registrationDetails"]["modifierFirstName"]  = (v3Sample.modifier)?v3Sample.modifier.firstName:null;
 		v1Sample["registrationDetails"]["modifierLastName"] = (v3Sample.modifier)?v3Sample.modifier.lastName:null;
 		v1Sample["registrationDetails"]["modifierEmail"] = (v3Sample.modifier)?v3Sample.modifier.email:null;
 		v1Sample["registrationDetails"]["modifierUserId"] = (v3Sample.modifier)?v3Sample.modifier.userId:null;
-		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrator.registrationDate;
+		v1Sample["registrationDetails"]["registrationDate"] = (v3Sample.registrator)?v3Sample.registrator.registrationDate:null;
 		v1Sample["registrationDetails"]["modificationDate"] = (v3Sample.modifier)?v3Sample.modifier.registrationDate:null;
 		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
 		

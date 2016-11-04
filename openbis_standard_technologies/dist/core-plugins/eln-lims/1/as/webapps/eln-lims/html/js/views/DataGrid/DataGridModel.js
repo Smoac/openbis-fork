@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-function DataGridModel(title, columns, data, rowClickEventHandler, datagrid, isMultiselectable) {
+function DataGridModel(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, datagrid, isMultiselectable) {
 	this.title = title;
-	this.columns = columns;
+	this.columnsFirst = columnsFirst;
+	this.columnsLast = columnsLast;
+	this.columnsDynamicFunc = columnsDynamicFunc;
 	this.data = data;
 	this.rowClickEventHandler = rowClickEventHandler;
 	this.datagrid = datagrid;

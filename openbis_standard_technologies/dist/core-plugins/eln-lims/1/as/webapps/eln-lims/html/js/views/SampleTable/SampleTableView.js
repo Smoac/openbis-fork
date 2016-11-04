@@ -76,33 +76,31 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		
 		var tableToolbarModel = [];
 		if(this._sampleTableModel.experimentIdentifier) {
-			var $sampleTypes = this._getLoadedSampleTypesDropdown();
-			tableToolbarModel.push({ component : $sampleTypes, tooltip: null });
 			var $options = this._getOptionsMenu();
 			toolbarModel.push({ component : $options, tooltip: null });
 		} else if(this._sampleTableModel.projectPermId) {
-			var $sampleTypes = this._getLoadedSampleTypesDropdown();
-			tableToolbarModel.push({ component : $sampleTypes, tooltip: null });
+
 		} else {
 			var $allSampleTypes = this._getAllSampleTypesDropdown();
 			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 		}
 		
-		$container.append(FormUtil.getToolbar(toolbarModel));
-		$container.append("<br>");
-		$container.append(FormUtil.getToolbar(tableToolbarModel));
+		if(toolbarModel.length > 0) {
+			$container.append(FormUtil.getToolbar(toolbarModel));
+		}
+		if(toolbarModel.length > 0 && tableToolbarModel.length > 0) {
+			$container.append("<br>");
+		}
+		if(tableToolbarModel.length > 0) {
+			$container.append(FormUtil.getToolbar(tableToolbarModel));
+		}
+		
+		
 		$container.append(this._tableContainer);
 	}
 	
 	this.getTableContainer = function() {
 		return this._tableContainer;
-	}
-	
-	//
-	// Components
-	//
-	this.getSampleTypeSelector = function() {
-		return this.sampleTypeSelector;
 	}
 	
 	//
@@ -137,33 +135,19 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		return $dropDownMenu;
 	}
 	
-	this._getLoadedSampleTypesDropdown = function() {
-		var _this = this;
-		var	$sampleTypesSelector = $('<select>', { 'id' : 'sampleTypeCodesToShow', class : 'form-control' });
-		$sampleTypesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
-		for(sampleTypeCode in this._sampleTableModel.sampleTypes) {
-			$sampleTypesSelector.append($('<option>', { 'value' : sampleTypeCode }).text(sampleTypeCode));
-		}
-		
-		$sampleTypesSelector.change(function(event) {
-			var sampleTypeToShow = $(this).val();
-			_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
-		});
-		this.sampleTypeSelector = $sampleTypesSelector;
-		return $("<span>").append($sampleTypesSelector);
-	}
-	
 	this._getAllSampleTypesDropdown = function() {
 		var _this = this;
 		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false);
 		$sampleTypesSelector.change(function() {
 			var sampleTypeToShow = $(this).val();
-			Util.blockUI();
-			mainController.serverFacade.searchByTypeWithParents(sampleTypeToShow, function(samples) {
-				_this._sampleTableModel.allSamples = samples;
-				_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
-				Util.unblockUI();
-			});
+			
+			var advancedSampleSearchCriteria = {
+					entityKind : "SAMPLE",
+					logicalOperator : "AND",
+					rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeToShow } }
+			}
+			
+			_this._sampleTableController._reloadTableWithAllSamples(advancedSampleSearchCriteria);
 		});
 		
 		return $("<span>").append($sampleTypesSelector);
