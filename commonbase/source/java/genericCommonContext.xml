@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2008 ETH Zuerich, CISD
+    
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+    <!--
+        // Replaces ${...} with corresponding values found in 'location' property. A value
+        // can be overridden by setting a corresponding system property.
+    -->
+    <bean id="propertyConfigurer"
+        class="ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:service.properties" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+    </bean>
+
+    <!-- 
+        // Authentication
+    -->
+
+    <bean id="dummy-authentication-service"
+        class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
+
+    <bean id="no-authentication-service"
+        class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
+
+    <bean id="crowd-configuration" 
+        class="ch.systemsx.cisd.authentication.crowd.CrowdConfiguration">
+        <property name="host" value="${crowd.service.host}" />
+        <property name="portStr" value="${crowd.service.port}" />
+        <property name="timeoutStr" value="${crowd.service.timeout}" />
+        <property name="application" value="${crowd.application.name}" />
+        <property name="applicationPassword" value="${crowd.application.password}" />
+    </bean>
+
+    <bean id="crowd-authentication-service"
+        class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
+        <constructor-arg ref="crowd-configuration" />
+    </bean>
+
+    <bean id="ldap-directory-configuration" 
+        class="ch.systemsx.cisd.authentication.ldap.LDAPDirectoryConfiguration">
+        <property name="serverUrl" value="${ldap.server.url}" />
+        <property name="securityProtocol" value="${ldap.security.protocol}" />
+        <property name="securityAuthenticationMethod" value="${ldap.security.authentication-method}" />
+        <property name="securityPrincipalDistinguishedName" value="${ldap.security.principal.distinguished.name}" />
+        <property name="securityPrincipalPassword" value="${ldap.security.principal.password}" />
+        <property name="referral" value="${ldap.referral}" /> 
+        <property name="userIdAttributeName" value="${ldap.attributenames.user.id}" /> 
+        <property name="emailAttributeName" value="${ldap.attributenames.email}" /> 
+        <property name="firstNameAttributeName" value="${ldap.attributenames.first.name}" /> 
+        <property name="lastNameAttributeName" value="${ldap.attributenames.last.name}" />
+        <property name="queryEmailForAliases" value="${ldap.queryEmailForAliases}" />
+        <property name="queryTemplate" value="${ldap.queryTemplate}" />
+        <property name="maxRetriesStr" value="${ldap.maxRetries}" />
+        <property name="timeoutStr" value="${ldap.timeout}" />
+        <property name="timeToWaitAfterFailureStr" value="${ldap.timeToWaitAfterFailure}" />
+    </bean>
+    
+    <bean id="ldap-authentication-service"
+        class="ch.systemsx.cisd.authentication.ldap.LDAPAuthenticationService">
+        <constructor-arg ref="ldap-directory-configuration" />
+    </bean>
+
+    <bean id="file-authentication-service"
+        class="ch.systemsx.cisd.authentication.file.FileAuthenticationService">
+        <constructor-arg value="etc/passwd" />
+    </bean>
+
+    <bean id="file-crowd-authentication-service"
+        class="ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+        <constructor-arg>
+            <list>
+                <ref bean="file-authentication-service" />
+                <ref bean="crowd-authentication-service" />
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="file-ldap-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+        <constructor-arg>
+            <list>
+                <ref bean="file-authentication-service" />
+                <ref bean="ldap-authentication-service" />
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="ldap-crowd-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+        <constructor-arg>
+            <list>
+                <ref bean="ldap-authentication-service" />
+                <ref bean="crowd-authentication-service" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="authentication-cache-configuration"
+    		class="ch.systemsx.cisd.authentication.file.CachingAuthenticationConfiguration">
+        <property name="delegate" ref="ldap-crowd-authentication-service" />
+        <property name="passwordCacheFile" value="etc/passwd_cache" />
+        <property name="cacheTimeStr" value="${authentication.cache.time}" />
+        <property name="cacheTimeNoRevalidationStr" value="${authentication.cache.time-no-revalidation}" />
+    </bean>
+
+    <bean id="ldap-crowd-caching-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.file.CachingAuthenticationService">
+        <constructor-arg ref="authentication-cache-configuration" />
+    </bean>
+    
+    <bean id="file-ldap-crowd-caching-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+        <constructor-arg>
+            <list>
+                <ref bean="file-authentication-service" />
+                <ref bean="ldap-crowd-caching-authentication-service" />
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <!-- Keep this for backward compatibility with old service.properties files. -->
+    <alias name="ldap-crowd-authentication-service" alias="stacked-authentication-service"/>
+        
+    <!-- 
+        // Implementation of IRequestContextProvider
+    -->
+
+    <bean id="request-context-provider"
+        class="ch.systemsx.cisd.common.servlet.SpringRequestContextProvider" />
+ 
+ </beans>

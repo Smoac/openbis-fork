@@ -1,0 +1,14 @@
+    <!-- 
+        // Spring stuff
+    -->
+
+    <listener>
+        <listener-class>ch.systemsx.cisd.common.servlet.CISDContextLoaderListener</listener-class>
+    </listener>
+    
+    <servlet>
+        <servlet-name>spring</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
