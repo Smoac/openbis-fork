@@ -48,7 +48,6 @@ import ch.systemsx.cisd.common.reflection.BeanUtils;
 public final class BeanUtilsTest
 {
 
-    @SuppressWarnings("null")
     @Test
     public final void testGetPropertyDescriptors() throws IllegalArgumentException,
             IllegalAccessException, InvocationTargetException

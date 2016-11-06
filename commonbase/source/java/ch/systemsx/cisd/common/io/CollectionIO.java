@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.collection.FromStringIdentityConverter;
 import ch.systemsx.cisd.common.collection.IFromStringConverter;
 import ch.systemsx.cisd.common.collection.IToStringConverter;
 import ch.systemsx.cisd.common.collection.ToStringDefaultConverter;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

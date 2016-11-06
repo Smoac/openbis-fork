@@ -44,34 +44,6 @@ public final class ProcessExecutionHelper
     public static final int RECOMMENDED_BUFFER_SIZE = 4096;
 
     /**
-     * Strategy on whether to read the process output or not.
-     * 
-     * @deprecated Use {@link ProcessIOStrategy} instead
-     */
-    @Deprecated
-    public enum OutputReadingStrategy
-    {
-        /** Never read the output. */
-        NEVER,
-
-        /**
-         * Hint that the output of the process is only requested if the process failed in some way. <br/>
-         * <i>Note that the implementation may read the output anyway.</i>
-         */
-        ON_ERROR,
-
-        /** Always read the output. */
-        ALWAYS;
-    }
-
-    /**
-     * The default strategy for when to read the process output.
-     */
-    @Deprecated
-    public static final OutputReadingStrategy DEFAULT_OUTPUT_READING_STRATEGY =
-            OutputReadingStrategy.ALWAYS;
-
-    /**
      * Log the <var>result</var> and return the {@link ProcessResult#isOK()} flag.
      * 
      * @throws InterruptedExceptionUnchecked If the <var>result</var> has the {@link ProcessResult#isInterruped()} flag set.
@@ -287,89 +259,6 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * Runs an Operating System process, specified by <var>cmd</var>.
-     * 
-     * @param cmd The command line to run.
-     * @param operationLog The {@link Logger} to use for all message on the higher level.
-     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli-seconds. If the process is not finished after that time,
-     *            it will be terminated by a watch dog.
-     * @param outputReadingStrategy The strategy for when to read the output (both <code>stdout</code> and <code>sterr</code>) of the process.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
-     */
-    @Deprecated
-    public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion,
-            final OutputReadingStrategy outputReadingStrategy) throws InterruptedExceptionUnchecked
-    {
-        return log(run(cmd, operationLog, machineLog, millisToWaitForCompletion,
-                outputReadingStrategy, false));
-    }
-
-    /**
-     * Runs an Operating System process, specified by <var>cmd</var>.
-     * 
-     * @param cmd The command line to run.
-     * @param operationLog The {@link Logger} to use for all message on the higher level.
-     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
-     *            it will be terminated by a watch dog.
-     * @param outputReadingStrategy The strategy for when to read the output (both <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets interrupted while waiting on the
-     *            future.
-     * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
-     */
-    @Deprecated
-    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion,
-            final OutputReadingStrategy outputReadingStrategy, final boolean stopOnInterrupt)
-            throws InterruptedExceptionUnchecked
-    {
-        return new ProcessExecutor(
-                cmd,
-                null,
-                false,
-                millisToWaitForCompletion,
-                outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
-                        : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
-                .run(stopOnInterrupt);
-    }
-
-    /**
-     * Runs an Operating System process, specified by <var>cmd</var>.
-     * 
-     * @param cmd The command line to run.
-     * @param operationLog The {@link Logger} to use for all message on the higher level.
-     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
-     *            it will be terminated by a watch dog.
-     * @param outputReadingStrategy The strategy for when to read the output (both <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param binaryOutput If <code>true</code>, the process is expected to produce binary output on <code>stdout</code>.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets interrupted while waiting on the
-     *            future.
-     * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
-     */
-    @Deprecated
-    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion,
-            final OutputReadingStrategy outputReadingStrategy, final boolean binaryOutput,
-            final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
-    {
-        return new ProcessExecutor(
-                cmd,
-                null,
-                false,
-                millisToWaitForCompletion,
-                outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
-                        : (binaryOutput ? ProcessIOStrategy.BINARY_IO_STRATEGY
-                                : ProcessIOStrategy.DEFAULT_IO_STRATEGY), operationLog, machineLog, null, null)
-                .run(stopOnInterrupt);
-    }
-
-    /**
      * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a result.
      * 
      * @param cmd The command line to run.
@@ -410,31 +299,6 @@ public final class ProcessExecutionHelper
         return new ProcessExecutor(cmd, environment, replaceEnvironment,
                 ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog,
                 stdoutHandlerOrNull, stderrHandlerOrNull)
-                .runUnblocking();
-    }
-
-    /**
-     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a result.
-     * 
-     * @param cmd The command line to run.
-     * @param outputReadingStrategy The strategy about when to read the output from the process.
-     * @param operationLog The {@link Logger} to use for all message on the higher level.
-     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return The handler which allows to wait for the result or terminate the process.
-     * @deprecated Use {@link #runUnblocking(List, Logger, Logger, ProcessIOStrategy, ITextHandler, ITextHandler)} instead.
-     */
-    @Deprecated
-    public static IProcessHandler runUnblocking(final List<String> cmd,
-            final OutputReadingStrategy outputReadingStrategy, Logger operationLog,
-            final Logger machineLog)
-    {
-        return new ProcessExecutor(
-                cmd,
-                null,
-                false,
-                ConcurrencyUtilities.NO_TIMEOUT,
-                outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
-                        : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
                 .runUnblocking();
     }
 

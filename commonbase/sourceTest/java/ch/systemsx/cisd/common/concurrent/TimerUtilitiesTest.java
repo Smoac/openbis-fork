@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,8 +26,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Test cases for the {@link TimerUtilities}.

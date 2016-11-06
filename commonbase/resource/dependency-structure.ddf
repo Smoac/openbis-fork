@@ -1,11 +1,5 @@
 {package} = ch.systemsx.cisd.common
 
-[converter] = ${package}.converter.*
-check sets [converter]
-
-[db] = ${package}.db.*
-check sets [db]
-
 [exception] = ${package}.exceptions.*
 check sets [exception]
 
@@ -15,14 +9,11 @@ check sets [collection]
 [logging] = ${package}.logging.*
 check sets [logging]
 
-[parser] = ${package}.parser.*
-check sets [parser]
-
-[monitoring] = ${package}.monitoring.*
-check sets [monitoring]
-
 [properties] = ${package}.properties.*
 check sets [properties]
+
+[io] = ${package}.io.*
+check sets [io]
 
 [reflection] = ${package}.reflection.*
 check sets [reflection]
@@ -30,23 +21,12 @@ check sets [reflection]
 [process] = ${package}.process.*
 check sets [process]
 
-[test] = ${package}.test.*
-check sets [test]
-
-[io] = ${package}.io.*
-check sets [io]
-
-[mail] = ${package}.mail.*
-check sets [mail]
-
-layer layer0 = [logging] [converter] [reflection]
+layer layer0 = [logging] [reflection]
 layer layer1 = [exception]  
 layer layer2 = [collection]  
 layer layer2b = [properties]
-layer layer3 = [process] [mail] [monitoring]
-layer layer4 = [test] [io]
-layer layer5 = [db] [parser]
+layer layer3 = [process]
+layer layer4 = [io]
 
-check layeringOf layer0 layer1 layer2 layer2b layer3 layer4 layer5
+check layeringOf layer0 layer1 layer2 layer2b layer3 layer4
 
-check [parser] independentOf ${package}.exceptions.UserFailureException

@@ -556,7 +556,6 @@ public class ProcessExecutionHelperTest
                 result.getStartupFailureMessage().indexOf("some_non_existent_executable") >= 0);
     }
 
-    @SuppressWarnings("null")
     @Test(groups =
     { "requires_unix", "slow", "flaky" })
     public void testSleepyExecutionWithTermination() throws Exception

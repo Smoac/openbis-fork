@@ -26,14 +26,13 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.io.FileUtilities;
 import classycle.Analyser;
 import classycle.dependency.DefaultResultRenderer;
 import classycle.dependency.DependencyChecker;
 import classycle.util.NotStringPattern;
 import classycle.util.OrStringPattern;
 import classycle.util.WildCardPattern;
-
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Unit test checking dependency definitions by Classycle. Dependency definition file is assumed to be <tt>resource/dependency-structure.dff</tt> .
@@ -68,9 +67,8 @@ public class DependencyCheckingTest extends AssertJUnit
                 new Analyser(getClassPaths(), new NotStringPattern(orPattern), null, true);
         String dependencyDefinitions =
                 FileUtilities.loadExactToString(new File(PATH_TO_DEPENDENCY_STRUCTURE_DDF));
-        @SuppressWarnings("rawtypes")
         DependencyChecker dependencyChecker =
-                new DependencyChecker(analyser, dependencyDefinitions, new HashMap(),
+                new DependencyChecker(analyser, dependencyDefinitions, new HashMap<Object, Object>(),
                         new DefaultResultRenderer());
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);

@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ch.systemsx.cisd.base.exceptions.StopException;
-
 /**
  * A class that provides the framework for guarding a {@link Thread} such that it can be stopped safely. It will guard the current thread of whoever
  * runs {@link #startGuard()}.

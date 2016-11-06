@@ -61,6 +61,7 @@ public class FullLengthReadingStreamTest extends AssertJUnit
         assertEquals(-1, count);
         assertEquals(new byte[]
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, bytes);
+        stream.close();
     }
 
     @Test
@@ -90,6 +91,7 @@ public class FullLengthReadingStreamTest extends AssertJUnit
         assertEquals(-1, count);
         assertEquals(new byte[]
         { 0, 0, 0, 0, 0, 0 }, bytes);
+        fullStream.close();
     }
 
     private class HalfReadingStream extends ByteArrayInputStream

@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.parser.BeanProperty;
 import ch.systemsx.cisd.common.reflection.AnnotationUtils;
 import ch.systemsx.cisd.common.reflection.AnnotationUtils.Parameter;
 

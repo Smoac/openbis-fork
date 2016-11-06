@@ -160,8 +160,7 @@ public final class BeanUtils
         {
         };
 
-    @SuppressWarnings(
-    { "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes" })
     static final Set<Class> immutableTypes = new LinkedHashSet<Class>(Arrays.asList(boolean.class,
             Boolean.class, byte.class, Byte.class, short.class, Short.class, int.class,
             Integer.class, long.class, Long.class, float.class, Float.class, double.class,

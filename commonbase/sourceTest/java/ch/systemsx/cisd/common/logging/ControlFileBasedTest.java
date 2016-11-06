@@ -24,7 +24,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.FileUtilities;
 import ch.systemsx.cisd.common.logging.event.BooleanEvent;
 import ch.systemsx.cisd.common.logging.event.LongEvent;
 import ch.systemsx.cisd.common.utilities.TestResources;

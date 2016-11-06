@@ -669,8 +669,7 @@ class ProcessExecutor
                 }
 
                 @Override
-                public ProcessResult getResult(@SuppressWarnings("hiding")
-                final long millisToWaitForCompletion)
+                public ProcessResult getResult(final long millisToWaitForCompletion)
                 {
                     return getProcessResult(stopOnInterruption, runnerFuture,
                             millisToWaitForCompletion);
