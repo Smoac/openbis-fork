@@ -117,7 +117,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             downloadDataSetFiles(dir, ds.getDataSetCode());
 
             File dsPath = new File(dir, "original");
-            for (File f : dsPath.listFiles())
+            for (File f : dir.listFiles())
             {
                 transaction.moveFile(f.getAbsolutePath(), ds);
             }
@@ -169,7 +169,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             }
             else
             {
-                System.err.println("Downloaded " + dsFile.getPath() + " "
+                System.out.println("Downloaded " + dsFile.getPath() + " "
                         + MemorySizeFormatter.format(dsFile.getFileLength()));
                 Path path = Paths.get(dir.getAbsolutePath(), filePath);
                 try
