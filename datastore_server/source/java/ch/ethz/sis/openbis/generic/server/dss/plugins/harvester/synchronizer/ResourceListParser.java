@@ -284,7 +284,7 @@ public class ResourceListParser
             ds = new NewContainerDataSet();
             ds.setCode(code);
             ds.setDataSetType(new DataSetType(type));
-            // ds.setDataStoreCode("STANDARD");
+            ds.setDataStoreCode("DSS1");
             if (sample.trim().equals("") == false)
             {
                 ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
@@ -298,7 +298,7 @@ public class ResourceListParser
         {
             ds.setCode(code);
             ds.setDataSetType(new DataSetType(type));
-            // ds.setDataStoreCode("STANDARD");
+            ds.setDataStoreCode("DSS1");
             if (sample.trim().equals("") == false)
             {
                 ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
