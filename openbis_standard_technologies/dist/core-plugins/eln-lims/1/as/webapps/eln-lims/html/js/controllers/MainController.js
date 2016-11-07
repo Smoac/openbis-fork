@@ -662,7 +662,7 @@ function MainController(profile) {
 		var newView = null;
 		
 		if(freeText) {
-			newView = new AdvancedSearchController(this, "*" + freeText + "*");
+			newView = new AdvancedSearchController(this, freeText);
 		} else {
 			newView = new AdvancedSearchController(this);
 		}

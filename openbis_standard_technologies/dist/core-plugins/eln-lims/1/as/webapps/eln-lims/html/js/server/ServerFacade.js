@@ -1445,7 +1445,7 @@ function ServerFacade(openbisServer) {
 	//
 	// Global Search
 	//
-	this.searchGlobally = function(freeText, callbackFunction)
+	this.searchGlobally = function(freeText, advancedFetchOptions, callbackFunction)
 	{
 		var _this = this;
 		require(['openbis', 'as/dto/global/search/GlobalSearchCriteria', 
@@ -1458,8 +1458,11 @@ function ServerFacade(openbisServer) {
 			var v3api = new openbis(url + "/openbis/openbis/rmi-application-server-v3.json");
 			v3api._private.sessionToken = mainController.serverFacade.getSession();
 			var searchCriteria = new GlobalSearchCriteria();
-			searchCriteria.withWildCards();
-			searchCriteria.withText().thatContains(freeText);
+//			searchCriteria.withWildCards();
+			
+			searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+			searchCriteria.withOperator("AND");
+			
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			var sampleFetchOptions = fetchOptions.withSample();
 			sampleFetchOptions.withSpace();
@@ -1480,6 +1483,30 @@ function ServerFacade(openbisServer) {
 			dataSetFetchOptions.withRegistrator();
 			dataSetFetchOptions.withModifier();
 			dataSetFetchOptions.withProperties();
+			
+			if(advancedFetchOptions && advancedFetchOptions.cache) {
+				fetchOptions.cacheMode(advancedFetchOptions.cache);
+			}
+			
+			if(advancedFetchOptions && 
+					advancedFetchOptions.count != null &&
+					advancedFetchOptions.count != undefined && 
+					advancedFetchOptions.from != null &&
+					advancedFetchOptions.from != undefined) {
+				fetchOptions.from(advancedFetchOptions.from);
+				fetchOptions.count(advancedFetchOptions.count);
+			}
+			
+//			if(advancedFetchOptions && advancedFetchOptions.sort) {
+//				switch(advancedFetchOptions.sort.type) {
+//					case "Attribute":
+//						fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
+//						break;
+//					case "Property":
+//						fetchOptions.sortBy().property(advancedFetchOptions.sort.name)[advancedFetchOptions.sort.direction]();
+//						break;
+//				}
+//			}
 			
 			v3api.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
 				callbackFunction(results);
