@@ -859,10 +859,20 @@ function ServerFacade(openbisServer) {
 							searchCriteria.withAnyField().thatContains(fieldValue);
 							break;
 						case "Property":
-							setPropertyCriteria(searchCriteria, fieldName, fieldValue);
+							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 							break;
 						case "Attribute":
-							setAttributeCriteria(searchCriteria, fieldName, fieldValue);
+							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+							break;
+						case "Property/Attribute":
+							switch(fieldNameType) {
+								case "PROP":
+									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+								case "ATTR":
+									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+							}
 							break;
 						case "Sample":
 							switch(fieldNameType) {

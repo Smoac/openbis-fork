@@ -171,21 +171,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				break;
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
-				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Experiment", label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory}, 
 				                    {value : "Parent", label : "Parent"}, 
 				                    {value : "Children", label : "Children"}];
 				break;
 			case "EXPERIMENT":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
-				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"}];
+				                    {value : "Property/Attribute", label : "Property"}];
 				break;
 			case "DATASET":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
-				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
@@ -210,11 +207,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				case "All":
 					//Do Nothing
 				break;
-				case "Property":
-					$newFieldNameContainer.append(_this._getNewPropertyDropdown());
-					break;
-				case "Attribute":
-					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
+				case "Property/Attribute":
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN"));
 					break;
 				case "Sample":
 					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE"));
@@ -249,7 +243,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		attributesModel.push({ value : "", label : "-------------------------", disabled : true });
 		var propertiesModel = this._getFieldNameProperties();
 		model = attributesModel.concat(propertiesModel);
-		var $dropdown = FormUtil.getDropdown(model, "Select a property or attribute");
+		var $dropdown = FormUtil.getDropdown(model, "Select a property");
 		$dropdown.change(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
@@ -295,7 +289,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._getNewAttributeDropdown = function(entityKind) {
 		var _this = this;
 		var model = this._getFieldNameAttributesByEntityKind(entityKind);
-		var $dropdown = FormUtil.getDropdown(model, "Select an attribute");
+		var $dropdown = FormUtil.getDropdown(model, "Select a property");
 		$dropdown.change(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
