@@ -132,6 +132,13 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "modificationDate";
 						break;
+					case "entityKind":
+					case "identifier":
+					case "experiment":
+					case "matched":
+					case "score":
+						fetchOptions.sort = null;
+						break;
 					default: //Properties
 						fetchOptions.sort.type = "Property";
 						fetchOptions.sort.name = options.sortProperty;
