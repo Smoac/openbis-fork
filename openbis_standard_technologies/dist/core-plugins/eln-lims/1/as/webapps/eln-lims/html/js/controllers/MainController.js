@@ -701,7 +701,7 @@ function MainController(profile) {
 							$("#search").removeClass("search-query-searching");
 							localReference.changeView("showAdvancedSearchPage", value);
 						}
-					} else if(searchDomain == "filesearch") { 
+					} else if(searchDomain == "data-set-file-search") { 
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 							
 							if(localSearchId === localReference.lastSearchId) {
