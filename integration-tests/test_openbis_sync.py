@@ -50,7 +50,7 @@ class TestCase(systemtest.testcase.TestCase):
     def executeInDevMode(self):
         openbis1 = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
         openbis1.setDummyAuthentication()
-        self.installDataSourcePlugin(openbis1)
+        self.installDataSourcePlugin(openbis1, 8444)
         self.installEntityRegistrationPlugin(openbis1)
         corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
         util.printAndFlush(corePluginsPropertiesFile)
@@ -62,12 +62,15 @@ class TestCase(systemtest.testcase.TestCase):
         #openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
 
         openbis2_port = '8445'
+        openbis2_dss_port = '8446'
         openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
-        openbis2.setDataStoreServerPort('8446')
+        openbis2.setDataStoreServerPort(openbis2_dss_port)
         openbis2.setOpenbisPortDataStoreServer(openbis2_port)
         openbis2.setDataStoreServerProperty("host-address", "https://localhost")
         self.installHarvesterPlugin(openbis2)
         openbis2.setDummyAuthentication()
+        '''datasource plugin is installed also on harvester side just for testing'''
+        self.installDataSourcePlugin(openbis2, openbis2_dss_port)
         openbis2.setDataStoreServerUsername('etlserver2')
         source = self.getHarvesterConfigFolder()
         destination = openbis2.installPath
@@ -79,17 +82,19 @@ class TestCase(systemtest.testcase.TestCase):
                                   "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
         monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
-        self.getResourceListForComparison()
         
-    def getResourceListForComparison(self):
-        url = "https://localhost:8444/datastore_server/re-sync?verb=resourcelist.xml"
+        datasource_graph = self.getResourceListForComparison(openbis2_dss_port, 'harvester1', '123')
+        harvester_graph = self.getResourceListForComparison('8443', 'testuser', '123')
+        
+    def getResourceListForComparison(self, dss_port, user, password):
+        url = "https://localhost:%s/datastore_server/re-sync?verb=resourcelist.xml"%dss_port
         request = urllib2.Request(url)
         request.add_header('Accept', 'application/json')
         request.add_header("Content-type", "application/x-www-form-urlencoded")
-        base64string = base64.encodestring('%s:%s' % ("harvester1", "123")).replace('\n', '')
+        base64string = base64.encodestring('%s:%s' % (user, password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
         data = urllib.urlencode({'mode' : 'test'})
-        response = urllib2.urlopen(request)
+        response = urllib2.urlopen(request, data)
         util.printAndFlush(response.read())
         return 
 
@@ -101,8 +106,15 @@ class TestCase(systemtest.testcase.TestCase):
         util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
         util.unzipSubfolder(path, 'openbissync.git/core-plugins/%s/1/'% plugin_name, destination)
 
-    def installDataSourcePlugin(self, openbisController):
+    def installDataSourcePlugin(self, openbisController, dss_port):
         self.installPlugin(openbisController, "datasource")
+        datasource_core_plugin_properties = "%s/1/dss/services/resource-sync/plugin.properties" % openbisController.instanceName
+        plugin_properties_file = os.path.join(openbisController.installPath, "servers", "core-plugins", datasource_core_plugin_properties)
+        util.printAndFlush("Updating %s" % plugin_properties_file)
+        pluginProps = util.readProperties(plugin_properties_file)
+        pluginProps['request-handler.server-url'] = "https://localhost:%s/openbis" % dss_port
+        pluginProps['request-handler.download-url'] = "https://localhost:%s" % dss_port
+        util.writeProperties(plugin_properties_file, pluginProps)
         
     def installEntityRegistrationPlugin(self, openbisController):
         self.installPlugin(openbisController, "test")
