@@ -130,6 +130,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public class EntitySynchronizer
 {
+    private final String dataStoreCode;
+
     private final File storeRoot;
 
     private final IEncapsulatedOpenBISService service;
@@ -142,10 +144,12 @@ public class EntitySynchronizer
 
     private final Logger operationLog;
 
-    public EntitySynchronizer(IEncapsulatedOpenBISService service, File storeRoot, Date lastSyncTimestamp, DataSetProcessingContext context,
+    public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
+            DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
     {
         this.service = service;
+        this.dataStoreCode = dataStoreCode;
         this.storeRoot = storeRoot;
         this.lastSyncTimestamp = lastSyncTimestamp;
         this.context = context;
@@ -173,7 +177,8 @@ public class EntitySynchronizer
         {
             nameTranslator = new PrefixBasedNameTranslator(dataSourcePrefix);
         }
-        ResourceListParser parser = ResourceListParser.create(nameTranslator); // , lastSyncTimestamp
+
+        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode); // , lastSyncTimestamp
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
         processDeletions(data);

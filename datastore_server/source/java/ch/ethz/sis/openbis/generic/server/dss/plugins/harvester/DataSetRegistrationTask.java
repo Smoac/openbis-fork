@@ -31,7 +31,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -54,6 +53,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -67,16 +67,11 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataSetRegistrationTask.class);
 
-    // private static final String DATA_SOURCE_URI = "https://bs-mbpr121.d.ethz.ch:8444/datastore_server/re-sync"; //
-    // "http://localhost:8889/datastore_server/re-sync";
-
     final DateFormat formater = new SimpleDateFormat("dd-MM-yy HH-mm-ss", Locale.ENGLISH);
 
     private static final String HARVESTER_CONFIG_FILE_PROPERTY_NAME = "harvester-config-file";
 
     private static final String DEFAULT_HARVESTER_CONFIG_FILE_NAME = "../../harvester-config.txt";
-
-    private HashMap<String, String> spaceMappings = new HashMap<String, String>();
 
     private File storeRoot;
 
@@ -94,23 +89,32 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     File newLastSyncTimeStampFile;
 
+    private String dataStoreCode;
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
-        storeRoot = new File(DssPropertyParametersUtil.loadServiceProperties().getProperty(PluginTaskInfoProvider.STOREROOT_DIR_KEY));
         service = ServiceProvider.getOpenBISService();
         context = new DataSetProcessingContext(null, null, null, null, null, null);
+        dataStoreCode = getConfigProvider().getDataStoreCode();
+        storeRoot = new File(DssPropertyParametersUtil.loadServiceProperties().getProperty(PluginTaskInfoProvider.STOREROOT_DIR_KEY));
         mailClient = ServiceProvider.getDataStoreService().createEMailClient();
+
 
         String configFileProperty = properties.getProperty(HARVESTER_CONFIG_FILE_PROPERTY_NAME);
         if (configFileProperty == null)
         {
             harvesterConfigFile =
-                    new File(ServiceProvider.getConfigProvider().getStoreRoot(), DEFAULT_HARVESTER_CONFIG_FILE_NAME);
+                    new File(getConfigProvider().getStoreRoot(), DEFAULT_HARVESTER_CONFIG_FILE_NAME);
         } else
         {
             harvesterConfigFile = new File(configFileProperty);
         }
+    }
+
+    private IConfigProvider getConfigProvider()
+    {
+        return ServiceProvider.getConfigProvider();
     }
 
     @Override
@@ -159,7 +163,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 // save the current time into a temp file as last sync time
                 FileUtilities.writeToFile(newLastSyncTimeStampFile, formater.format(new Date()));
 
-                EntitySynchronizer synchronizer = new EntitySynchronizer(service, storeRoot, lastSyncTimestamp, context, config, operationLog);
+                EntitySynchronizer synchronizer =
+                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, context, config, operationLog);
                 synchronizer.syncronizeEntities();
 
                 operationLog.info("Saving the timestamp of sync start to file");

@@ -76,37 +76,34 @@ public class ResourceListParser
 {
     private final ResourceListParserData data;
 
-    private INameTranslator nameTranslator;
+    private final INameTranslator nameTranslator;
 
-    public void setNameTranslator(INameTranslator nameTranslator)
-    {
-        this.nameTranslator = nameTranslator;
-    }
+    private final String dataStoreCode;
 
     public INameTranslator getNameTranslator()
     {
         return nameTranslator;
     }
 
-    private ResourceListParser(INameTranslator nameTranslator)
+    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode)
     {
-        // TODO do the returning of parser data better
         this.data = new ResourceListParserData();
         this.nameTranslator = nameTranslator;
+        this.dataStoreCode = dataStoreCode;
     }
 
-    public static ResourceListParser create(INameTranslator nameTranslator)
+    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode)
     {
         if (nameTranslator == null)
         {
-            return create();
+            return create(dataStoreCode);
         }
-        return new ResourceListParser(nameTranslator);
+        return new ResourceListParser(nameTranslator, dataStoreCode);
     }
 
-    public static ResourceListParser create()
+    public static ResourceListParser create(String dataStoreCode)
     {
-        return create(new DefaultNameTranslator());
+        return create(new DefaultNameTranslator(), dataStoreCode);
     }
 
     public ResourceListParserData parseResourceListDocument(Document doc) throws XPathExpressionException
@@ -284,7 +281,7 @@ public class ResourceListParser
             ds = new NewContainerDataSet();
             ds.setCode(code);
             ds.setDataSetType(new DataSetType(type));
-            ds.setDataStoreCode("DSS1");
+            ds.setDataStoreCode(this.dataStoreCode);
             if (sample.trim().equals("") == false)
             {
                 ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
@@ -298,7 +295,7 @@ public class ResourceListParser
         {
             ds.setCode(code);
             ds.setDataSetType(new DataSetType(type));
-            ds.setDataStoreCode("DSS1");
+            ds.setDataStoreCode(this.dataStoreCode);
             if (sample.trim().equals("") == false)
             {
                 ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
