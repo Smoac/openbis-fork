@@ -142,6 +142,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].value = selectedValue; //Update model
 		});
+		
+		$fieldValue.keypress(function (e) {
+       	 var key = e.which;
+       	 if(key == 13)  // the enter key code
+       	  {
+       		 _this._advancedSearchController.search();
+       	    return false;  
+       	  }
+       });
+        
 		var $newFieldNameContainer = $("<td>");
 		
 			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue)))
