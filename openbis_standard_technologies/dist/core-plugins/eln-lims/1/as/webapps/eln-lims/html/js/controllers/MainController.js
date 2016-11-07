@@ -751,7 +751,7 @@ function MainController(profile) {
 									}
 								}
 								
-								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
 								localReference.currentView = dataGrid;
 								dataGrid.init($("#mainContainer"));
 								history.pushState(null, "", ""); //History Push State
@@ -877,7 +877,7 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
 									localReference.currentView = dataGrid;
 									dataGrid.init($("#mainContainer"));
 									history.pushState(null, "", ""); //History Push State
@@ -1048,7 +1048,7 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick, true, "SEARCH_OPENBIS");
+			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS");
 			localReference.currentView = dataGrid;
 			dataGrid.init($("#mainContainer"));
 			history.pushState(null, "", ""); //History Push State
