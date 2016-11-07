@@ -63,9 +63,9 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 						rowData.experiment = entity.experiment.code;
 					}
 					
-					rowData.entityType = entity.type.code;
+					rowData.entityType = (entity.type)?entity.type.code:"";
 					rowData.code =  entity.code;
-					rowData.permId = entity.permId.permId;
+					rowData.permId = (entity.permId)?entity.permId.permId:"";
 					rowData.registrationDate = (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null;
 					rowData.modificationDate = (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null;
 					rowData.entityObject = entity;
