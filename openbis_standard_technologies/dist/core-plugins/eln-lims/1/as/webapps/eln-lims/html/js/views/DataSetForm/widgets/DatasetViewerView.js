@@ -17,6 +17,7 @@
 function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	this._dataSetViewerController = dataSetViewerController;
 	this._dataSetViewerModel = dataSetViewerModel;
+	this._level = 3;
 	
 	this.repaintDatasets = function() {
 		var _this = this;
@@ -59,87 +60,115 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var treeModel = [];
 		for(var datasetCode in this._dataSetViewerModel.sampleDataSets) {
 			var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
-			treeModel.push({ title : dataset.dataSetTypeCode + " : " + datasetCode, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
+			var onClick = "mainController.changeView('showViewDataSetPageFromPermId', '" + datasetCode + "');";
+			var dataSetTitle = "<span onclick=\"" + onClick + "\">" 
+					+ dataset.dataSetTypeCode + " : " + datasetCode + "</span>";
+			treeModel.push({ title : dataSetTitle, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
 		}
 		
 		var glyph_opts = {
-        	    map: {
-        	      doc: "glyphicon glyphicon-file",
-        	      docOpen: "glyphicon glyphicon-file",
-        	      checkbox: "glyphicon glyphicon-unchecked",
-        	      checkboxSelected: "glyphicon glyphicon-check",
-        	      checkboxUnknown: "glyphicon glyphicon-share",
-        	      dragHelper: "glyphicon glyphicon-play",
-        	      dropMarker: "glyphicon glyphicon-arrow-right",
-        	      error: "glyphicon glyphicon-warning-sign",
-        	      expanderClosed: "glyphicon glyphicon-plus-sign",
-        	      expanderLazy: "glyphicon glyphicon-plus-sign",  // glyphicon-expand
-        	      expanderOpen: "glyphicon glyphicon-minus-sign",  // glyphicon-collapse-down
-        	      folder: "glyphicon glyphicon-folder-close",
-        	      folderOpen: "glyphicon glyphicon-folder-open",
-        	      loading: "glyphicon glyphicon-refresh"
-        	    }
-        };
+			map: {
+				doc: "glyphicon glyphicon-file",
+				docOpen: "glyphicon glyphicon-file",
+				checkbox: "glyphicon glyphicon-unchecked",
+				checkboxSelected: "glyphicon glyphicon-check",
+				checkboxUnknown: "glyphicon glyphicon-share",
+				dragHelper: "glyphicon glyphicon-play",
+				dropMarker: "glyphicon glyphicon-arrow-right",
+				error: "glyphicon glyphicon-warning-sign",
+				expanderClosed: "glyphicon glyphicon-plus-sign",
+				expanderLazy: "glyphicon glyphicon-plus-sign",  // glyphicon-expand
+				expanderOpen: "glyphicon glyphicon-minus-sign",  // glyphicon-collapse-down
+				folder: "glyphicon glyphicon-folder-close",
+				folderOpen: "glyphicon glyphicon-folder-open",
+				loading: "glyphicon glyphicon-refresh"
+			}
+		};
 		
-        var onActivate = function(event, data) {
-        	if(data.node.key === "/") {
-        		mainController.changeView('showViewDataSetPageFromPermId', data.node.data.datasetCode);
-        	}
-    	};
-    	
-    	var onClick = function(event, data) {
-    		
-    	};
-    	
-    	var onLazyLoad = function(event, data) {
-    		var dfd = new $.Deferred();
-    	    data.result = dfd.promise();
-    	    
-    		var pathToLoad = data.node.key;
-    		var parentDatasetCode = data.node.data.datasetCode;
-    		
-    		var repaintEvent = function(code, files) {
-    			if(!files.result) {
-    				Util.showError("Files can't be found, most probably the DSS is down, contact your admin.");
-    			} else {
-    				var results = [];
-        			for(var fIdx = 0; fIdx < files.result.length; fIdx++) {
-        				var file = files.result[fIdx];
-        				
-        				var titleValue = null;
-        				if(file.isDirectory) {
-        					titleValue = file.pathInListing;
-        					var directLink = _this._dataSetViewerModel.getDirectDirectoryLink(code, file);
-        					if(directLink) {
-        						titleValue = directLink + " " + titleValue;
-        					}
-        				} else {
-        					var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
-        					titleValue = $fileLink[0].outerHTML;
-        					var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
-        					if(previewLink) {
-        						titleValue = previewLink + " " + titleValue;
-        					}
-        				}
-        				results.push({ title : titleValue, key : file.pathInDataSet, folder : file.isDirectory, lazy : file.isDirectory, datasetCode : parentDatasetCode });
-        			}
-        			
-        			dfd.resolve(results);
-    			}
+		var onClick = function(event, data) {
+
+		};
+		
+		var onLazyLoad = function(event, data) {
+			var dfd = new $.Deferred();
+			data.result = dfd.promise();
+			
+			var pathToLoad = data.node.key;
+			var parentDatasetCode = data.node.data.datasetCode;
+			
+			var repaintEvent = function(code, files) {
+				if (!files.result) {
+					Util.showError("Files can't be found, most probably the DSS is down, contact your admin.");
+				} else if (_this._isSingleFolder(files)) {
+					var file = files.result[0];
+					_this.updateDirectoryView(parentDatasetCode, file.pathInDataSet, true, repaintEvent)
+				} else {
+					var results = [];
+					for (var fIdx = 0; fIdx < files.result.length; fIdx++) {
+						var file = files.result[fIdx];
+						
+						var titleValue = null;
+						if (file.isDirectory) {
+							titleValue = file.pathInListing;
+							var directLink = _this._dataSetViewerModel.getDirectDirectoryLink(code, file.pathInDataSet);
+							if (directLink) {
+								titleValue = directLink + " " + titleValue;
+							}
+						} else {
+							var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
+							titleValue = $fileLink[0].outerHTML;
+							var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
+							if (previewLink) {
+								titleValue = previewLink + " " + titleValue;
+							}
+						}
+						results.push({ title : titleValue, key : file.pathInDataSet, folder : file.isDirectory, lazy : file.isDirectory, datasetCode : parentDatasetCode });
+					}
+					
+					dfd.resolve(results);
+				}
 			};
 			
 			_this.updateDirectoryView(parentDatasetCode, pathToLoad, true, repaintEvent);
-    	};
-    	
-    	$tree.fancytree({
-        	extensions: ["dnd", "edit", "glyph"], //, "wide"
-        	glyph: glyph_opts,
-        	source: treeModel,
-        	activate: onActivate,
-        	click: onClick,
-        	lazyLoad : onLazyLoad
-        });
-        
+		};
+		
+		var onCreateNode = function(event, data) {
+			var nodePath = data.node.key;
+			if (nodePath === "/") {
+				var code = data.node.data.datasetCode;
+				_this._handleFolderToStart(code, nodePath, function(dataSetCode, path) {
+					var directLink = _this._dataSetViewerModel.getDirectDirectoryLink(dataSetCode, path);
+					if (directLink) {
+						data.node.setTitle(directLink + " " + data.node.title);
+					}
+				});
+			}
+		};
+		
+		$tree.fancytree({
+			extensions: ["dnd", "edit", "glyph"], //, "wide"
+			glyph: glyph_opts,
+			source: treeModel,
+			createNode: onCreateNode,
+			click: onClick,
+			lazyLoad : onLazyLoad
+		});
+		
+	}
+	
+	this._handleFolderToStart = function(dataSetCode, path, handle) {
+		var _this = this;
+		mainController.serverFacade.listFilesForDataSet(dataSetCode, path, false, function(files) {
+			if (_this._isSingleFolder(files)) {
+				var file = files.result[0];
+				_this._handleFolderToStart(dataSetCode, file.pathInDataSet, handle);
+			} else {
+				handle(dataSetCode, path);
+			}
+		});
+	}
+	
+	this.downloadLink = new function(dataSetCode, path) {
 	}
 	
 	this.updateDirectoryView = function(code, path, notAddPath, repaintEvent) {
@@ -147,5 +176,16 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		mainController.serverFacade.listFilesForDataSet(code, path, false, function(files) {
 			repaintEvent(code, files);
 		});
+	}
+	
+	this._isSingleFolder = function(files) {
+		if (files.result.length != 1) {
+			return false;
+		}
+		var file = files.result[0];
+		if (file.isDirectory == false) {
+			return false;
+		}
+		return file.pathInDataSet.split('/').length < this._level
 	}
 }
