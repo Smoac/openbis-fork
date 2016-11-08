@@ -19,8 +19,6 @@ import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CHILD;
 import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.COMPONENT;
 import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CONNECTION;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,17 +80,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 public class EntityRetriever 
 {
     private static final EntityGraph<Node<?>> graph = new EntityGraph<Node<?>>();
-
-    // url for local openbis acting as a harvester
-    // private static final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
-
-    // url for standalone openbis acting as a data source
-    private static final String URL = "https://localhost:8443/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
 
     private final IApplicationServerApi v3Api;
 
@@ -100,69 +91,12 @@ public class EntityRetriever
 
     private static final int TIMEOUT = 10000;
 
-    public static void main(String[] args)
-    {
-        IApplicationServerApi v3Api = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
-
-        EntityRetriever me = new EntityRetriever(v3Api, v3Api.login("admin", "aa"));
-        String[] spaces = {"SRC", "SRC2"};
-        String[] clusters = new String[spaces.length];
-        for (int i=0; i < spaces.length; i++)
-        {
-            EntityGraph<Node<?>> entityGraph = me.getEntityGraph(spaces[i]);
-            clusters[i] = entityGraph.getEdgesForDOTRepresentation();
-        }
-        StringBuffer dotRep = new StringBuffer();
-        dotRep.append("digraph G {\n\n");
-        for (int i = 0; i < spaces.length; i++)
-        {
-            dotRep.append("subgraph cluster_" + i + "{");
-            dotRep.append("style=filled;");
-            dotRep.append("color=lightgrey;");
-            dotRep.append("node [style=filled,color=white];");
-            dotRep.append("\n\n");
-            dotRep.append(clusters[i]);
-            dotRep.append("label = " + spaces[i] + ";}");
-            dotRep.append("\n\n");
-        }
-        dotRep.append("\n}");
-        String name = "";
-        for (String space : spaces)
-        {
-            name += space + "_";
-        }
-        me.printGraph(new String(dotRep), name.substring(0, name.length() - 1));
-    }
-
-    private void printGraph(String graph, String name)
-    {
-        PrintWriter writer;
-        try
-        {
-            writer = new PrintWriter("/Users/gakin/Documents/Entity_DAG_" + name + ".dot");
-            writer.println(graph);
-            writer.close();
-        } catch (FileNotFoundException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
     private EntityRetriever(IApplicationServerApi v3Api, String sessionToken)
     {
         this.v3Api = v3Api;
         this.sessionToken = sessionToken;
     }
     
-    public static String getSessionToken(String url, String user, String password)
-    {
-        IApplicationServerApi v3 =
-                HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, url + IApplicationServerApi.SERVICE_URL, TIMEOUT);
-        return v3.login(user, password);
-
-    }
-
     public static EntityRetriever createWithSessionToken(IApplicationServerApi v3Api, String sessionToken)
     {
         return new EntityRetriever(v3Api, sessionToken);
@@ -196,7 +130,7 @@ public class EntityRetriever
 
     public void buildEntityGraph(String spaceId)
     {
-        // TODO add experiment datasets
+        // TODO add experiment datasets.
         graph.clear();
         ProjectSearchCriteria prjCriteria = new ProjectSearchCriteria();
         prjCriteria.withSpace().withCode().thatEquals(spaceId);
