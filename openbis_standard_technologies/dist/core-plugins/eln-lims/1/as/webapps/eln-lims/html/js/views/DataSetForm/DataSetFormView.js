@@ -297,7 +297,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, false);
+			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, true);
 			dataSetViewer.init();
 		}
 	}

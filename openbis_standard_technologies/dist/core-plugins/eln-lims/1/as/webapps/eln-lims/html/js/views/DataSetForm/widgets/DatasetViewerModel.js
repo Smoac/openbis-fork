@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-function DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
+function DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, 
+		enableUpload, enableDeepUnfolding) {
 	this.containerId = containerId;
 	this.containerIdTitle = containerId + "-title";
 	this.containerIdContent = containerId + "-content";
@@ -26,7 +27,7 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	this.datasets = datasets;
 	
 	this.enableUpload = enableUpload;
-	this.enableOpenDataset = enableOpenDataset;
+	this.enableDeepUnfolding = enableDeepUnfolding;
 	this.sampleDataSets = {};
 	this.datastoreDownloadURL = datastoreDownloadURL;
 	

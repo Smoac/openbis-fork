@@ -38,23 +38,41 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		
 		$containerTitle.append($("<div>").append($uploadButton));
 		
-		// Title / Container Content
+		// Container Content
 		var $containerContent = $("<div>", {"id" : this._dataSetViewerModel.containerIdContent });
-		$containerContent.append($("<legend>").append("Datasets:"));
 		$mainContainer.append($containerTitle).append($containerContent);
 		
-		var $container = $("#"+this._dataSetViewerModel.containerIdContent);
-		$container.empty();
-		
 		var $filesContainer = $("<div>");
-		$container.append($filesContainer);
+		$containerContent.append($filesContainer);
+		if (this._dataSetViewerModel.enableDeepUnfolding) {
+			var b = FormUtil.getButtonWithText("Expand all levels", function() {
+				_this._expandAll();
+			});
+			$filesContainer.append(b);
+			var $treeContainer = $("<div>");
+			$filesContainer.append($treeContainer);
+			$filesContainer = $treeContainer;
+		}
 		this.repaintFilesAsTree($filesContainer);
+	}
+	
+	this._expandAll = function() {
+		var _this = this;
+		var tree = $("#filestree").fancytree("getTree");
+		_this._expandDeep(tree.getRootNode());
+	}
+	
+	this._expandDeep = function(node) {
+		var _this = this;
+		node.setExpanded(true).done(function() {
+			node.visit(function(n) {_this._expandDeep(n);});
+		})
 	}
 	
 	this.repaintFilesAsTree = function($container) {
 		$container.empty();
 		var _this = this;
-		var $tree = $("<div>", { "id" : "tree" });
+		var $tree = $("<div>", { "id" : "filestree" });
 		$container.append($tree);
 		
 		var treeModel = [];

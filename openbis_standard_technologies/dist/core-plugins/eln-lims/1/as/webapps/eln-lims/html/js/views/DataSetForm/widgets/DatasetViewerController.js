@@ -26,10 +26,9 @@
  * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
  * @param {Map} datasets API result with the datasets to show.
  * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
- * @param {Boolean} enableOpenDataset If true, pressing on a row opens the dataset form on view mode for the given dataset.
  */
-function DataSetViewerController(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
-	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset);
+function DataSetViewerController(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding) {
+	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding);
 	this._datasetViewerView = new DataSetViewerView(this, this._datasetViewerModel);
 	
 	this.init = function() {
