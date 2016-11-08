@@ -47,6 +47,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbis2.createTestDatabase('imaging')
         openbis2.createTestDatabase('proteomics')
 
+
     def executeInDevMode(self):
         openbis1 = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
         openbis1.setDummyAuthentication()
@@ -59,7 +60,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1.setDataStoreServerProperty("host-address", "https://localhost")
         openbis1.allUp()
         
-        #openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
+        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
 
         openbis2_port = '8445'
         openbis2_dss_port = '8446'
@@ -83,11 +84,49 @@ class TestCase(systemtest.testcase.TestCase):
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
         monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
         
-        datasource_graph = self.getResourceListForComparison(openbis2_dss_port, 'harvester1', '123')
-        harvester_graph = self.getResourceListForComparison('8443', 'testuser', '123')
+        '''read entity graph from datasource'''
+        datasource_graph_response = self.getResourceListForComparison('8444', 'harvester1', '123')
+        file1 = os.path.join(destination, "datasource_graph.txt")
+        self.writeResponseToFile(datasource_graph_response, file1)
+        content1 = self.readLinesFromFile(file1)
+        content1.sort()
+
+        '''read entity graph from harvester'''
+        harvester_graph_response = self.getResourceListForComparison(openbis2_dss_port, 'testuser1', '123')
+        file2 = os.path.join(destination, "harvester_graph.txt")
+        self.writeResponseToFile(harvester_graph_response, file2)
+        content2 = self.readLinesFromFile(file2)
+        content2.sort()
+        
+        '''compare the two. If the only different is in space labels then we are good.'''
+        diff_array = self.diff(set(content1), set(content2))
+        same = True
+        with open(os.path.join(destination, "diff.txt"), 'wb') as output:
+            for item in diff_array:
+                output.write("%s\n" % item)
+                if item.startswith("label") == False:
+                    same = False
+
+        if same == False:
+            self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
+                
+    def readLinesFromFile(self, file):
+        with open(file, 'rb') as output:
+            content = output.readlines()
+        return content
+            
+    def writeResponseToFile(self, datasource_graph_response, file1):
+        with open(file1, 'wb') as output:
+            output.write(datasource_graph_response.read())
+        return output
+    
+    def diff(self, first, second):
+        first = set(first)
+        second = set(second)
+        return [item for item in first if item not in second]
         
     def getResourceListForComparison(self, dss_port, user, password):
-        url = "https://localhost:%s/datastore_server/re-sync?verb=resourcelist.xml"%dss_port
+        url = "https://localhost:%s/datastore_server/re-sync?verb=resourcelist.xml" % dss_port
         request = urllib2.Request(url)
         request.add_header('Accept', 'application/json')
         request.add_header("Content-type", "application/x-www-form-urlencoded")
@@ -95,8 +134,7 @@ class TestCase(systemtest.testcase.TestCase):
         request.add_header("Authorization", "Basic %s" % base64string)
         data = urllib.urlencode({'mode' : 'test'})
         response = urllib2.urlopen(request, data)
-        util.printAndFlush(response.read())
-        return 
+        return response
 
     def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
