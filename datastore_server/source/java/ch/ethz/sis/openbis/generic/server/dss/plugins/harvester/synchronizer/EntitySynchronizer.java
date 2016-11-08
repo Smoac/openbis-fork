@@ -498,7 +498,7 @@ public class EntitySynchronizer
         v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
 
         // confirm deletions
-        ArrayList deletionIds = new ArrayList();
+        ArrayList<IDeletionId> deletionIds = new ArrayList<IDeletionId>();
         if (expDeletionId != null)
         {
             deletionIds.add(expDeletionId);
@@ -854,6 +854,7 @@ public class EntitySynchronizer
             props.setProperty("as-url", EntitySynchronizer.this.config.getDataSourceOpenbisURL());
             props.setProperty("dss-url", EntitySynchronizer.this.config.getDataSourceDSSURL());
             props.setProperty("harvester-temp-dir", EntitySynchronizer.this.config.getHarvesterTempDir());
+            props.setProperty("do-not-create-original-dir", "true");
             return props;
         }
     }
