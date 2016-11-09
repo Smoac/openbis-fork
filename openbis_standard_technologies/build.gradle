@@ -249,7 +249,7 @@ def downloadFile(url, filename) {
   def file = project(':openbis').file("../openbis_standard_technologies/targets/downloads/$filename")
   if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
     file.getParentFile().mkdirs()
-    ext.executeFunction('curl', [url, '-sL', '-o', file.getAbsolutePath()])
+    ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])
   }
 }
 
