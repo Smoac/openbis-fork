@@ -28,55 +28,53 @@ ssl.wrap_socket = sslwrap(ssl.wrap_socket)
 class TestCase(systemtest.testcase.TestCase):
 
     def execute(self):
+        openbis1_dss_port = '8444'
+        openbis2_port = '8445'
+        openbis2_dss_port = '8446'
+
         '''create data source openbis (openbis1)'''
         self.installOpenbis(instanceName ='openbis1', technologies = ['screening'])
         openbis1 = self.createOpenbisController('openbis1')
         openbis1.setDummyAuthentication()
         openbis1.setDataStoreServerUsername('etlserver1')
+        openbis1.setDataStoreServerProperty("host-address", "https://localhost")
         openbis1.createTestDatabase('openbis')
         openbis1.createTestDatabase('pathinfo')
         openbis1.createTestDatabase('imaging')
         
+        '''Set openbis1 as the datasource'''
+        self.installDataSourcePlugin(openbis1, openbis1_dss_port)
+        self.installEntityRegistrationPlugin(openbis1)
+        corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
+        util.printAndFlush(corePluginsPropertiesFile)
+        openbis1.allUp()
+        
+        '''Drop the folder to register some test entities in space SYNC'''
+        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
+        
         '''create harvester openbis (openbis2)'''
         self.installOpenbis(instanceName ='openbis2', technologies = ['screening', 'proteomics'])
-        openbis2 = self.createOpenbisController('openbis2', port = '8445')
+        openbis2 = self.createOpenbisController('openbis2', port = openbis2_port)
         openbis2.setDummyAuthentication()
         openbis2.setDataStoreServerUsername('etlserver2')
+        openbis2.setDataStoreServerPort(openbis2_dss_port)
+        openbis2.setOpenbisPortDataStoreServer(openbis2_port)
+        openbis2.setDataStoreServerProperty("host-address", "https://localhost")
         openbis2.createTestDatabase('openbis')
         openbis2.createTestDatabase('pathinfo')
         openbis2.createTestDatabase('imaging')
         openbis2.createTestDatabase('proteomics')
 
-
-    def executeInDevMode(self):
-        openbis1 = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
-        openbis1.setDummyAuthentication()
-        self.installDataSourcePlugin(openbis1, 8444)
-        self.installEntityRegistrationPlugin(openbis1)
-        corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
-        util.printAndFlush(corePluginsPropertiesFile)
-        #util.writeProperties(corePluginsPropertiesFile)
-        openbis1.setDataStoreServerUsername('etlserver1')
-        openbis1.setDataStoreServerProperty("host-address", "https://localhost")
-        openbis1.allUp()
-        
-        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
-
-        openbis2_port = '8445'
-        openbis2_dss_port = '8446'
-        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
-        openbis2.setDataStoreServerPort(openbis2_dss_port)
-        openbis2.setOpenbisPortDataStoreServer(openbis2_port)
-        openbis2.setDataStoreServerProperty("host-address", "https://localhost")
+        '''set openbis2 as harvester'''
         self.installHarvesterPlugin(openbis2)
-        openbis2.setDummyAuthentication()
-        '''datasource plugin is installed also on harvester side just for testing'''
-        self.installDataSourcePlugin(openbis2, openbis2_dss_port)
-        openbis2.setDataStoreServerUsername('etlserver2')
         source = self.getHarvesterConfigFolder()
         destination = openbis2.installPath
-        util.printAndFlush("Copying harvester config file from %s to %s"% (source, destination))
+        util.printAndFlush("Copying harvester configuration file from %s to %s"% (source, destination))
         util.copyFromTo(source, destination, "harvester-config.txt")
+
+        '''datasource plugin is installed on harvester side as well in order to get the resource list during testing'''
+        self.installDataSourcePlugin(openbis2, openbis2_dss_port)
+
         openbis2.allUp()
         
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
@@ -98,7 +96,7 @@ class TestCase(systemtest.testcase.TestCase):
         content2 = self.readLinesFromFile(file2)
         content2.sort()
         
-        '''compare the two. If the only different is in space labels then we are good.'''
+        '''compare the two. If the only difference is in space labels then we are good.'''
         diff_array = self.diff(set(content1), set(content2))
         same = True
         with open(os.path.join(destination, "diff.txt"), 'wb') as output:
@@ -106,6 +104,72 @@ class TestCase(systemtest.testcase.TestCase):
                 output.write("%s\n" % item)
                 if item.startswith("label") == False:
                     same = False
+        self.assertEquals("The entity graphs on datasource and harvester are not equal", True, same)
+
+        if same == False:
+            self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
+            
+    def executeInDevMode(self):
+        openbis1_dss_port = '8444'
+        openbis1 = self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
+        openbis1.setDummyAuthentication()
+        self.installDataSourcePlugin(openbis1, openbis1_dss_port)
+        self.installEntityRegistrationPlugin(openbis1)
+        corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
+        util.printAndFlush(corePluginsPropertiesFile)
+        #util.writeProperties(corePluginsPropertiesFile)
+        openbis1.setDataStoreServerUsername('etlserver1')
+        openbis1.setDataStoreServerProperty("host-address", "https://localhost")
+        openbis1.allUp()
+        
+        '''Drop the folder to register some test entities in space SYNC'''
+        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
+
+        openbis2_port = '8445'
+        openbis2_dss_port = '8446'
+        openbis2 = self.createOpenbisController(instanceName = 'openbis2', port = openbis2_port, dropDatabases=False)
+        openbis2.setDataStoreServerPort(openbis2_dss_port)
+        openbis2.setOpenbisPortDataStoreServer(openbis2_port)
+        openbis2.setDataStoreServerProperty("host-address", "https://localhost")
+        self.installHarvesterPlugin(openbis2)
+        openbis2.setDummyAuthentication()
+        '''datasource plugin is installed on harvester side as well just for testing'''
+        self.installDataSourcePlugin(openbis2, openbis2_dss_port)
+        openbis2.setDataStoreServerUsername('etlserver2')
+        source = self.getHarvesterConfigFolder()
+        destination = openbis2.installPath
+        util.printAndFlush("Copying harvester configuration file from %s to %s"% (source, destination))
+        util.copyFromTo(source, destination, "harvester-config.txt")
+        openbis2.allUp()
+        
+        monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
+                                  "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
+        monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the time stamp of sync start to file'))
+        
+        '''read entity graph from datasource'''
+        datasource_graph_response = self.getResourceListForComparison('8444', 'harvester1', '123')
+        file1 = os.path.join(destination, "datasource_graph.txt")
+        self.writeResponseToFile(datasource_graph_response, file1)
+        content1 = self.readLinesFromFile(file1)
+        content1.sort()
+
+        '''read entity graph from harvester'''
+        harvester_graph_response = self.getResourceListForComparison(openbis2_dss_port, 'testuser1', '123')
+        file2 = os.path.join(destination, "harvester_graph.txt")
+        self.writeResponseToFile(harvester_graph_response, file2)
+        content2 = self.readLinesFromFile(file2)
+        content2.sort()
+        
+        '''compare the two. If the only difference is in space labels then we are good.'''
+        diff_array = self.diff(set(content1), set(content2))
+        same = True
+        with open(os.path.join(destination, "diff.txt"), 'wb') as output:
+            for item in diff_array:
+                output.write("%s\n" % item)
+                if item.startswith("label") == False:
+                    same = False
+        self.assertEquals("The entity graphs on datasource and harvester are not equal", True, same)
 
         if same == False:
             self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
