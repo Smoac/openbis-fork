@@ -104,7 +104,7 @@ class TestCase(systemtest.testcase.TestCase):
                 output.write("%s\n" % item)
                 if item.startswith("label") == False:
                     same = False
-        self.assertEquals("The entity graphs on datasource and harvester are not equal", True, same)
+        self.assertEquals("The entity graphs on datasource and harvester are equal", True, same)
 
         if same == False:
             self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
