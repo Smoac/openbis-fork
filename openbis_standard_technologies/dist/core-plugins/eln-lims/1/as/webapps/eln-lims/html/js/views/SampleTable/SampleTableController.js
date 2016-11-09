@@ -81,14 +81,14 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 					Util.showError("Please select at least one sample to delete!");
 				} else {
 					var warningText = "The next " + ELNDictionary.samples + " will be deleted: ";
-					var sampleTechIds = [];
+					var samplePermIds = [];
 					for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-						sampleTechIds.push(selected[sIdx].id);
+						samplePermIds.push(selected[sIdx].permId);
 						warningText += selected[sIdx].identifier + " ";
 					}
 					
 					var modalView = new DeleteEntityController(function(reason) {
-						mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
+						mainController.serverFacade.deleteSamples(samplePermIds, reason, function(data) {
 							if(data.error) {
 								Util.showError(data.error.message);
 							} else {

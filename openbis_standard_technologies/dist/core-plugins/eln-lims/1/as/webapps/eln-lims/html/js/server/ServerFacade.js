@@ -362,8 +362,33 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}
 	
-	this.deleteSamples = function(sampleIds, reason, callback) {
-		this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", callback);
+	this.deleteSamples = function(samplePermIds, reason, callback) {
+		require([ 'openbis', "as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
+		        function(openbis, SamplePermId, SampleDeletionOptions) {
+					//Boilerplate
+					var testProtocol = window.location.protocol;
+					var testHost = window.location.hostname;
+					var testPort = window.location.port;
+					
+					var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+					var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+					
+					var v3Api = new openbis(testApiUrl);
+					v3Api._private.sessionToken = mainController.serverFacade.getSession();
+			
+		            var samplePermIdsObj = [];
+		            for(var sPIdx = 0; sPIdx < samplePermIds.length; sPIdx++) {
+		            	samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
+		            }
+		 
+		            var deletionOptions = new SampleDeletionOptions();
+		            deletionOptions.setReason(reason);
+		 
+		            // logical deletion (move objects to the trash can)
+		            v3Api.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
+		            	callback(deletionId);
+		            });
+		 });
 	}
 	
 	this.deleteExperiments = function(experimentIds, reason, callback) {
