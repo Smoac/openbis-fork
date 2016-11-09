@@ -994,8 +994,8 @@ function ServerFacade(openbisServer) {
 		v1Sample["registrationDetails"]["modifierLastName"] = (v3Sample.modifier)?v3Sample.modifier.lastName:null;
 		v1Sample["registrationDetails"]["modifierEmail"] = (v3Sample.modifier)?v3Sample.modifier.email:null;
 		v1Sample["registrationDetails"]["modifierUserId"] = (v3Sample.modifier)?v3Sample.modifier.userId:null;
-		v1Sample["registrationDetails"]["registrationDate"] = (v3Sample.registrator)?v3Sample.registrator.registrationDate:null;
-		v1Sample["registrationDetails"]["modificationDate"] = (v3Sample.modifier)?v3Sample.modifier.registrationDate:null;
+		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrationDate;
+		v1Sample["registrationDetails"]["modificationDate"] = v3Sample.modificationDate;
 		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
 		
 		v1Sample["parents"] = null;
