@@ -43,6 +43,9 @@ import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
+import ch.systemsx.cisd.common.concurrent.IActivityObserver;
+import ch.systemsx.cisd.common.concurrent.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.utilities.AddToListTextHandler;
 import ch.systemsx.cisd.common.utilities.DelegatingTextHandler;
 import ch.systemsx.cisd.common.utilities.ITextHandler;
@@ -155,7 +158,7 @@ class ProcessExecutor
     private static final double OUTPUT_READING_TIMEOUT_FRACTION = 0.1;
 
     /** The minimum timeout to wait for the process output to complete. */
-    private static final long OUTPUT_READING_TIMEOUT_MIN = 250;
+    private static final long OUTPUT_READING_TIMEOUT_MILLIS = 250;
 
     /** Corresponds to a short timeout of 1/100 s. */
     private static final long PAUSE_MILLIS = 10;
@@ -181,6 +184,8 @@ class ProcessExecutor
 
     private final long millisToWaitForCompletion;
 
+    private final boolean doNotTimeoutWhenIO;
+
     private final long millisToWaitForIOCompletion;
 
     private final ProcessIOStrategy processIOStrategy;
@@ -197,6 +202,8 @@ class ProcessExecutor
 
     // Use this reference to make sure the process is as dead as you can get it to be.
     private final AtomicReference<ProcessRecord> processWrapper;
+
+    private final RecordingActivityObserverSensor activityObserverSensor;
 
     /**
      * Returns the command represented by <var>commandLine</var>.
@@ -338,8 +345,8 @@ class ProcessExecutor
                             try
                             {
                                 processIOHandlerOrNull.handle(processRunning,
-                                        process.getOutputStream(), process.getInputStream(),
-                                        process.getErrorStream());
+                                        activityObserverSensor, process.getOutputStream(),
+                                        process.getInputStream(), process.getErrorStream());
                             } catch (IOException ex)
                             {
                                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -365,7 +372,8 @@ class ProcessExecutor
                 {
                     return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
                             processIOResult, "", exitValue, processOutput.getBinaryProcessOutput()
-                                    .toByteArray(), processOutput.getErrorProcessOutput(),
+                                    .toByteArray(),
+                            processOutput.getErrorProcessOutput(),
                             operationLog, machineLog);
                 } else
                 {
@@ -378,7 +386,7 @@ class ProcessExecutor
                 machineLog
                         .error(String.format("Exception when launching: [%s, %s]", ex.getClass()
                                 .getSimpleName(), StringUtils.defaultIfEmpty(ex.getMessage(),
-                                "NO MESSAGE")));
+                                        "NO MESSAGE")));
                 throw ex;
             }
         }
@@ -476,7 +484,7 @@ class ProcessExecutor
                 machineLog
                         .error(String.format("Exception when launching: [%s, %s]", ex.getClass()
                                 .getSimpleName(), StringUtils.defaultIfEmpty(ex.getMessage(),
-                                "NO MESSAGE")));
+                                        "NO MESSAGE")));
                 throw ex;
             }
         }
@@ -555,20 +563,24 @@ class ProcessExecutor
     private class BinaryProcessIOHandler implements IProcessIOHandler
     {
         @Override
-        public void handle(AtomicBoolean processRunning, OutputStream stdin, InputStream stdout,
-                InputStream stderr) throws IOException
+        public void handle(AtomicBoolean processRunning, IActivityObserver activityObserver, OutputStream stdin,
+                InputStream stdout, InputStream stderr) throws IOException
         {
             final BufferedReader bufStderr = new BufferedReader(new InputStreamReader(stderr));
             final byte[] buf = new byte[ProcessExecutionHelper.RECOMMENDED_BUFFER_SIZE];
             ITextHandler processErrorOutputHandler = processOutput.getProcessErrorOutputHandler();
             while (processRunning.get())
             {
-                ProcessExecutionHelper.readBytesIfAvailable(stdout,
+                final long stdOutRead = ProcessExecutionHelper.readBytesIfAvailable(stdout,
                         processOutput.processBinaryOutput, buf, -1,
                         processIOStrategy.isDiscardStandardOutput());
-                ProcessExecutionHelper.readTextIfAvailable(bufStderr,
+                final boolean stdErrRead = ProcessExecutionHelper.readTextIfAvailable(bufStderr,
                         processErrorOutputHandler,
                         processIOStrategy.isDiscardStandardError());
+                if (stdOutRead > 0 || stdErrRead)
+                {
+                    activityObserver.update();
+                }
                 ConcurrencyUtilities.sleep(200);
             }
             ProcessExecutionHelper.readBytesIfAvailable(stdout, processOutput.processBinaryOutput,
@@ -584,8 +596,8 @@ class ProcessExecutor
     private class TextProcessIOHandler implements IProcessIOHandler
     {
         @Override
-        public void handle(AtomicBoolean processRunning, OutputStream stdin, InputStream stdout,
-                InputStream stderr) throws IOException
+        public void handle(AtomicBoolean processRunning, IActivityObserver activityObserver, OutputStream stdin,
+                InputStream stdout, InputStream stderr) throws IOException
         {
             final BufferedReader bufStdout = new BufferedReader(new InputStreamReader(stdout));
             final BufferedReader bufStderr = new BufferedReader(new InputStreamReader(stderr));
@@ -593,12 +605,16 @@ class ProcessExecutor
             ITextHandler processTextOutputHandler = processOutput.getProcessTextOutputHandler();
             while (processRunning.get())
             {
-                ProcessExecutionHelper.readTextIfAvailable(bufStdout,
+                final boolean stdOutRead = ProcessExecutionHelper.readTextIfAvailable(bufStdout,
                         processTextOutputHandler,
                         processIOStrategy.isDiscardStandardOutput());
-                ProcessExecutionHelper.readTextIfAvailable(bufStderr,
+                final boolean stdErrRead = ProcessExecutionHelper.readTextIfAvailable(bufStderr,
                         processErrorOutputHandler,
                         processIOStrategy.isDiscardStandardError());
+                if (stdOutRead || stdErrRead)
+                {
+                    activityObserver.update();
+                }
                 ConcurrencyUtilities.sleep(200);
             }
             ProcessExecutionHelper.readTextIfAvailable(bufStdout, processTextOutputHandler,
@@ -610,7 +626,8 @@ class ProcessExecutor
 
     ProcessExecutor(final List<String> commandLine, final Map<String, String> environment,
             final boolean replaceEnvironment, final long millisToWaitForCompletion,
-            final ProcessIOStrategy ioStrategy, final Logger operationLog, final Logger machineLog,
+            final boolean doNotTimeoutWhenIO, final ProcessIOStrategy ioStrategy,
+            final Logger operationLog, final Logger machineLog,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         this.processNumber = processCounter.getAndIncrement();
@@ -627,8 +644,9 @@ class ProcessExecutor
         }
         this.millisToWaitForIOCompletion =
                 Math.round((millisToWaitForCompletion == ConcurrencyUtilities.NO_TIMEOUT) ? ConcurrencyUtilities.NO_TIMEOUT
-                        : Math.max(OUTPUT_READING_TIMEOUT_MIN, this.millisToWaitForCompletion
+                        : Math.max(OUTPUT_READING_TIMEOUT_MILLIS, this.millisToWaitForCompletion
                                 * OUTPUT_READING_TIMEOUT_FRACTION));
+        this.doNotTimeoutWhenIO = doNotTimeoutWhenIO;
         this.processIOStrategy = ioStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.environment = environment;
@@ -644,6 +662,7 @@ class ProcessExecutor
         {
             this.processIOHandlerOrNull = ioStrategy.tryGetCustomIOHandler();
         }
+        this.activityObserverSensor = new RecordingActivityObserverSensor();
     }
 
     final IProcessHandler runUnblocking()
@@ -665,14 +684,14 @@ class ProcessExecutor
                 public ProcessResult getResult()
                 {
                     return getProcessResult(stopOnInterruption, runnerFuture,
-                            millisToWaitForCompletion);
+                            millisToWaitForCompletion, doNotTimeoutWhenIO);
                 }
 
                 @Override
-                public ProcessResult getResult(final long millisToWaitForCompletion)
+                public ProcessResult getResult(final long millisToWaitForCompletion, boolean doNotTimeOutWhenIO)
                 {
                     return getProcessResult(stopOnInterruption, runnerFuture,
-                            millisToWaitForCompletion);
+                            millisToWaitForCompletion, doNotTimeOutWhenIO);
                 }
             };
     }
@@ -708,7 +727,8 @@ class ProcessExecutor
                                         .unwrapIfNecessary((Exception) th);
                 machineLog.warn(String.format(
                         "Exception when doing process I/O, type='%s', msg='%s'.", cause.getClass()
-                                .getSimpleName(), cause.getMessage()));
+                                .getSimpleName(),
+                        cause.getMessage()));
                 break;
             case INTERRUPTED:
                 machineLog.warn("Interrupted when doing process I/O.");
@@ -722,17 +742,19 @@ class ProcessExecutor
     final ProcessResult run(final boolean stopOnInterrupt)
     {
         final Future<ProcessResult> runnerFuture = launchProcessExecutor();
-        return getProcessResult(stopOnInterrupt, runnerFuture, millisToWaitForCompletion);
+        return getProcessResult(stopOnInterrupt, runnerFuture, millisToWaitForCompletion, doNotTimeoutWhenIO);
     }
 
     private ProcessResult getProcessResult(final boolean stopOnInterrupt,
-            final Future<ProcessResult> runnerFuture, final long millisToWaitForCompletionOverride)
+            final Future<ProcessResult> runnerFuture, final long millisToWaitForCompletionOverride, 
+            final boolean doNotTimeOutOnIOOverride)
     {
         // when runUnblocking is used it is possible that we are hanging here while other thread
         // runs the killer. We will get COMPLETE status and null as the ProcessResult. We have to
         // change that status.
         ExecutionResult<ProcessResult> executionResult =
-                getExecutionResult(runnerFuture, millisToWaitForCompletionOverride);
+                getExecutionResult(runnerFuture, millisToWaitForCompletionOverride, 
+                        doNotTimeOutOnIOOverride ? activityObserverSensor : null);
         if (executionResult.getStatus() != ExecutionStatus.COMPLETE)
         {
             executionResult = killProcess(executionResult.getStatus(), stopOnInterrupt);
@@ -784,9 +806,9 @@ class ProcessExecutor
     }
 
     private static ExecutionResult<ProcessResult> getExecutionResult(
-            final Future<ProcessResult> runnerFuture, long millisToWaitForCompletion)
+            final Future<ProcessResult> runnerFuture, long millisToWaitForCompletion, IActivitySensor activitySensor)
     {
-        return ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false, null);
+        return ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false, null, null, activitySensor);
     }
 
     /**

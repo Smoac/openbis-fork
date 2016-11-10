@@ -299,7 +299,7 @@ public class ProcessExecutionHelperTest
                     createSleepingExecutable("dummySleepyFailedWithTimeOut.sh",
                             2 * WATCHDOG_WAIT_MILLIS);
             final IProcessHandler processHandler =
-                    ProcessExecutionHelper.runUnblocking(
+                    ProcessExecutionHelper.runNonblocking(
                             Arrays.asList(dummyExec.getAbsolutePath()), operationLog, machineLog,
                             ProcessIOStrategy.DEFAULT_IO_STRATEGY, null, null);
             processHandler.getResult();
@@ -357,6 +357,22 @@ public class ProcessExecutionHelperTest
 
     @Test(groups =
     { "requires_unix", "slow" })
+    public void testSleepyExecutionFailedWithIOTimeOut() throws Exception
+    {
+        final File dummyExec =
+                createSleepingExecutable("dummySleepyFailedWithTimeOut.sh",
+                        2 * WATCHDOG_WAIT_MILLIS);
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS, false, true);
+        assertTrue(result.isTimedOut());
+        assertFalse(result.isOK());
+        assertEquals(1, result.getOutput().size());
+        assertEquals(sleepyMessage, result.getOutput().get(0));
+    }
+
+    @Test(groups =
+    { "requires_unix", "slow" })
     public void testHangingExecLotsOfOutputOnStdOut() throws Exception
     {
         final File dummyExec = createExecutableEndlessLoop("iHang.sh");
@@ -364,6 +380,38 @@ public class ProcessExecutionHelperTest
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, WATCHDOG_WAIT_MILLIS);
         assertTrue(result.isTimedOut());
+        assertFalse(result.isOK());
+        assertTrue(Integer.toString(result.getOutput().size()), result.getOutput().size() > 100);
+        assertEquals(Integer.toString(result.getOutput().size()),
+                result.getOutput().get(result.getOutput().size() - 1));
+    }
+
+    @Test(groups =
+    { "requires_unix", "slow" })
+    public void testHangingExecLotsOfOutputOnStdOutWaitForNoIO() throws Exception
+    {
+        final File dummyExec = createExecutableEndlessLoop("iHang.sh");
+        final Thread mainThread = Thread.currentThread();
+        final Runnable interrupt = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(WATCHDOG_WAIT_MILLIS * 2);
+                } catch (InterruptedException e)
+                {
+                }
+                mainThread.interrupt();
+            }
+        };
+        new Thread(interrupt).start();
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS, true, false);
+        assertTrue(result.isInterruped());
+        assertFalse(result.isTimedOut());
         assertFalse(result.isOK());
         assertTrue(Integer.toString(result.getOutput().size()), result.getOutput().size() > 100);
         assertEquals(Integer.toString(result.getOutput().size()),
@@ -395,6 +443,34 @@ public class ProcessExecutionHelperTest
         assertEquals(stdout2, result.getOutput().get(2));
         assertEquals(stderr2, result.getOutput().get(3));
         assertEquals(0, result.getExitValue());
+    }
+
+    @Test(groups =
+    { "requires_unix", "slow" })
+    public void testTryExecutionReadProcessOutputWithIOTimeout() throws Exception
+    {
+        final String stdout1 = "This goes to stdout, 1";
+        final String stdout2 = "This goes to stdout, 2";
+        final String stderr1 = "This goes to stderr, 1";
+        final String stderr2 = "This goes to stderr, 2";
+        final File dummyExec =
+                createExecutable("dummy.sh", "echo " + stdout1, "sleep 0.5", "echo " + stderr1
+                        + " > /dev/stderr", "sleep 0.5", "echo " + stdout2, "sleep 3", 
+                        "echo " + stderr2 + " > /dev/stderr");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS, true,
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, false);
+        result.log();
+        assertFalse(result.isOK());
+        assertTrue(result.isTimedOut());
+        assertTrue(result.isOutputAvailable());
+        assertFalse(result.isBinaryOutput());
+        assertEquals(3, result.getOutput().size());
+        assertEquals(stdout1, result.getOutput().get(0));
+        assertEquals(stderr1, result.getOutput().get(1));
+        assertEquals(stdout2, result.getOutput().get(2));
+        assertEquals(143, result.getExitValue());
     }
 
     @Test(groups =
@@ -562,7 +638,7 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createSleepingExecutable("sleep.sh", 2 * WATCHDOG_WAIT_MILLIS);
         final IProcessHandler handler =
-                ProcessExecutionHelper.runUnblocking(Arrays.asList(dummyExec.getAbsolutePath()),
+                ProcessExecutionHelper.runNonblocking(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, ProcessIOStrategy.DEFAULT_IO_STRATEGY, null, null);
         final AtomicReference<ProcessResult> result = new AtomicReference<ProcessResult>(null);
         final Runnable resultGetter = new Runnable()

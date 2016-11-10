@@ -72,9 +72,9 @@ public final class ProcessExecutionHelper
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
+        return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT, false,
                 ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
-                .run(stopOnInterrupt);
+                        .run(stopOnInterrupt);
     }
 
     /**
@@ -142,9 +142,34 @@ public final class ProcessExecutionHelper
             final Logger machineLog, final long millisToWaitForCompletion,
             final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion,
+        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, false,
                 ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
-                .run(stopOnInterrupt);
+                        .run(stopOnInterrupt);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param doNotTimeoutWhenIO If <code>true</code>, do not consider it a timeout as long as there is I/O activity on either <code>stdout</code> or
+     *            <code>stderr</code>, i.e. <code>millisToWaitForCompletion</code> will be considered the time to wait for I/O rather than the time to
+     *            wait for the process to complete.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion, boolean doNotTimeoutWhenIO,
+            final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
+    {
+        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, doNotTimeoutWhenIO,
+                ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
+                        .run(stopOnInterrupt);
     }
 
     /**
@@ -166,8 +191,34 @@ public final class ProcessExecutionHelper
             final ProcessIOStrategy ioStrategy, final boolean stopOnInterrupt)
             throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, ioStrategy,
-                operationLog, machineLog, null, null).run(stopOnInterrupt);
+        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, false,
+                ioStrategy, operationLog, machineLog, null, null).run(stopOnInterrupt);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param doNotTimeoutWhenIO If <code>true</code>, do not consider it a timeout as long as there is I/O activity on either <code>stdout</code> or
+     *            <code>stderr</code>, i.e. <code>millisToWaitForCompletion</code> will be considered the time to wait for I/O rather than the time to
+     *            wait for the process to complete.
+     * @param ioStrategy The strategy to handle process I/O.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion, boolean doNotTimeoutWhenIO,
+            final ProcessIOStrategy ioStrategy, final boolean stopOnInterrupt)
+            throws InterruptedExceptionUnchecked
+    {
+        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, doNotTimeoutWhenIO, 
+                ioStrategy, operationLog, machineLog, null, null).run(stopOnInterrupt);
     }
 
     /**
@@ -193,6 +244,35 @@ public final class ProcessExecutionHelper
             final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutor(cmd, environment, replaceEnvironment, millisToWaitForCompletion,
+                false, ioStrategy, operationLog, machineLog, null, null).run(stopOnInterrupt);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param environment The environment of the process to start.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before addinng the keys from <var>environment</var>, if it is
+     *            <code>false</code>, the keys in <var>environment</var> will be added without clearing the environment before.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param doNotTimeoutWhenIO If <code>true</code>, do not consider it a timeout as long as there is I/O activity on either <code>stdout</code> or
+     *            <code>stderr</code>, i.e. <code>millisToWaitForCompletion</code> will be considered the time to wait for I/O rather than the time to
+     *            wait for the process to complete.
+     * @param ioStrategy The strategy to handle process I/O.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Map<String, String> environment,
+            boolean replaceEnvironment, final Logger operationLog, final Logger machineLog,
+            final long millisToWaitForCompletion, final boolean doNotTimeoutWhenIO,
+            final ProcessIOStrategy ioStrategy, final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
+    {
+        return new ProcessExecutor(cmd, environment, replaceEnvironment, millisToWaitForCompletion, doNotTimeoutWhenIO,
                 ioStrategy, operationLog, machineLog, null, null).run(stopOnInterrupt);
     }
 
@@ -269,11 +349,11 @@ public final class ProcessExecutionHelper
      * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The handler which allows to wait for the result or terminate the process.
      */
-    public static IProcessHandler runUnblocking(final List<String> cmd, Logger operationLog,
+    public static IProcessHandler runNonblocking(final List<String> cmd, Logger operationLog,
             final Logger machineLog, final ProcessIOStrategy processIOStrategy,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
-        return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
+        return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT, false,
                 processIOStrategy, operationLog, machineLog, stdoutHandlerOrNull, stderrHandlerOrNull).runUnblocking();
     }
 
@@ -291,22 +371,22 @@ public final class ProcessExecutionHelper
      * @param processIOStrategy The strategy on how to deal with process I/O.
      * @return The handler which allows to wait for the result or terminate the process.
      */
-    public static IProcessHandler runUnblocking(final List<String> cmd,
+    public static IProcessHandler runNonblocking(final List<String> cmd,
             final Map<String, String> environment, final boolean replaceEnvironment,
             Logger operationLog, final Logger machineLog, final ProcessIOStrategy processIOStrategy,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return new ProcessExecutor(cmd, environment, replaceEnvironment,
-                ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog,
-                stdoutHandlerOrNull, stderrHandlerOrNull)
-                .runUnblocking();
+                ConcurrencyUtilities.NO_TIMEOUT, false, processIOStrategy, operationLog, 
+                machineLog, stdoutHandlerOrNull, stderrHandlerOrNull)
+                        .runUnblocking();
     }
 
     /**
      * Helper method for non-blocking reading text from a reader and add it to a list of strings, or, alternatively, discard it.
      * 
      * @param outputOrNull Must not be <code>null</code> if <var>discard</var> is <code>false</code> .
-     * @return <code>true</code> if reader is end-of-file and <code>false</code> otherwise.
+     * @return <code>true</code> if reader has read some text and <code>false</code> otherwise.
      */
     public static boolean readTextIfAvailable(final BufferedReader reader,
             final List<String> outputOrNull, final boolean discard) throws IOException
@@ -317,19 +397,21 @@ public final class ProcessExecutionHelper
     static boolean readTextIfAvailable(final BufferedReader reader,
             final ITextHandler textHandler, final boolean discard) throws IOException
     {
+        boolean readText = false;
         while (reader.ready())
         {
             final String line = reader.readLine();
             if (line == null)
             {
-                return true;
+                return readText;
             }
+            readText = true;
             if (discard == false)
             {
                 textHandler.handle(line);
             }
         }
-        return true;
+        return readText;
     }
 
     /**
