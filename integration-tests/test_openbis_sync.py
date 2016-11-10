@@ -231,7 +231,7 @@ class GitLabArtifactRepository(GitArtifactRepository):
     """
     Artifact repository for a gitlab projects.
     Note: it requires project id as the project "argument". This can be found by using the following command:
-    curl --header "PRIVATE-TOKEN: 2iwhxKbfe62ES8JWAKsG"  "https://ssdmsource.ethz.ch/api/v3/projects?per_page=99999"
+    curl --header "PRIVATE-TOKEN: Wbt8EV8pREkqwu3BqQtQ"  "https://ssdmsource.ethz.ch/api/v3/projects?per_page=99999"
     after logging in and retrieving the private token with
     curl https://ssdmsource.ethz.ch/api/v3/session --data-urlencode 'login=’ --data-urlencode 'password=’
     """
@@ -242,7 +242,7 @@ class GitLabArtifactRepository(GitArtifactRepository):
     def downloadArtifact(self, project, pattern):
         url = "https://%s/api/v3/projects/%s/repository/%s" % (self.host, project, pattern)
         util.printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
-        request = Request(url, headers = {'PRIVATE-TOKEN' : '2iwhxKbfe62ES8JWAKsG'})
+        request = Request(url, headers = {'PRIVATE-TOKEN' : 'Wbt8EV8pREkqwu3BqQtQ'})
         self._download(urllib2.urlopen(request), pattern)
         return pattern
     
