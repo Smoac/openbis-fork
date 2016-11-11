@@ -104,7 +104,7 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 				
 			var criteriaToSend = $.extend(true, {}, criteria);
 			
-			if(options.search) {
+			if(options && options.search) {
 				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
 				for(var fIdx = 0; fIdx < filter.length; fIdx++) {
 					var fKeyword = filter[fIdx];
@@ -112,7 +112,7 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 				}
 			}
 			
-			if(options.sortProperty && options.sortDirection) {
+			if(options && options.sortProperty && options.sortDirection) {
 				fetchOptions.sort = { 
 						type : null,
 						name : null,

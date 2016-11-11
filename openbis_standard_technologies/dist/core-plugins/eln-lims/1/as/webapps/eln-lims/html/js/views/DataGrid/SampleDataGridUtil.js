@@ -305,7 +305,7 @@ var SampleDataGridUtil = new function() {
 				
 			var criteriaToSend = $.extend(true, {}, criteria);
 			
-			if(options.search) {
+			if(options && options.search) {
 				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
 				for(var fIdx = 0; fIdx < filter.length; fIdx++) {
 					var fKeyword = filter[fIdx];
@@ -313,7 +313,7 @@ var SampleDataGridUtil = new function() {
 				}
 			}
 			
-			if(options.sortProperty && options.sortDirection) {
+			if(options && options.sortProperty && options.sortDirection) {
 				fetchOptions.sort = { 
 						type : null,
 						name : null,
@@ -340,6 +340,11 @@ var SampleDataGridUtil = new function() {
 				}
 			}
 			
+//			Util.blockUI();
+//			mainController.serverFacade.searchForSamplesAdvanced(criteriaToSend, fetchOptions, function(result) {
+//				callbackForSearch(result);
+//				Util.unblockUI();
+//			});
 			mainController.serverFacade.searchForSamplesAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
 		}
 	}

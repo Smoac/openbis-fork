@@ -527,6 +527,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						}
 					}
 					
+					if(!entity) {
+						continue;
+					}
 					for(var propertyCode in entity.properties) {
 						if(entity.properties[propertyCode]) {
 							foundPropertyCodes[propertyCode] = true;
