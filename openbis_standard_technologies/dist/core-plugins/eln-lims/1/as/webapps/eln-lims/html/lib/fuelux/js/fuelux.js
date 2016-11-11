@@ -5551,12 +5551,8 @@
 										return true;
 									} else {
 										for ( j in newCols[ i ] ) {
-											if ( oldCols[ i ][ j ] !== newCols[ i ][ j ]) {
-												if(oldCols[ i ][ j ] && newCols[ i ][ j ] && (oldCols[ i ][ j ].name !== newCols[ i ][ j ].name)) {
-													return true;
-												} else if(!oldCols[ i ][ j ] && newCols[ i ][ j ] || oldCols[ i ][ j ] && !newCols[ i ][ j ]) {
-													return true;
-												}
+											if ( oldCols[ i ][ j ] !== newCols[ i ][ j ] ) {
+												return true;
 											}
 										}
 									}

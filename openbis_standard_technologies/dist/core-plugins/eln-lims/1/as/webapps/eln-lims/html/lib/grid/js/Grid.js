@@ -28,6 +28,7 @@ $.extend(Grid.prototype, {
 		if(isMultiselectable) {
 			this.addMultiSelect(columnsFirst);
 		}
+		this.lastUsedColumns = [];
 	},
 	addMultiSelect : function(columns) {
 		var _this = this;
@@ -612,7 +613,40 @@ $.extend(Grid.prototype, {
 				thisGrid.columnsDynamic = thisGrid.columnsDynamicFunc(dataList);
 			}
 			thisGrid.renderColumnDropdown(thisGrid.getAllColumns());
-			result.columns = thisGrid.getVisibleColumns();
+			
+			if(!thisGrid.lastUsedColumns || thisGrid.lastUsedColumns.length === 0) {
+				thisGrid.lastUsedColumns = thisGrid.getVisibleColumns();
+				result.columns = thisGrid.lastUsedColumns;
+			} else {
+				var newColumns = thisGrid.getVisibleColumns();
+				if(newColumns.length === thisGrid.lastUsedColumns.length) { //No changes
+					
+				} else if(newColumns.length > thisGrid.lastUsedColumns.length) { //We added one column, first not matching column, we add to last used
+					var newLastUsedColumns = [];
+					for(var cIdx = 0; cIdx < thisGrid.lastUsedColumns.length; cIdx++) {
+						newLastUsedColumns.push(thisGrid.lastUsedColumns[cIdx]);
+					}
+					for(var cIdx = 0; cIdx < newColumns.length; cIdx++) {
+						if(newColumns[cIdx].property !== newLastUsedColumns[cIdx].property) {
+							newLastUsedColumns.splice(cIdx, 0, newColumns[cIdx]);
+						}
+					}
+					thisGrid.lastUsedColumns = newLastUsedColumns;
+					result.columns = thisGrid.lastUsedColumns;
+				} else { //We removed one column, first not matching column, we remove from last used
+					var newLastUsedColumns = [];
+					for(var cIdx = 0; cIdx < thisGrid.lastUsedColumns.length; cIdx++) {
+						newLastUsedColumns.push(thisGrid.lastUsedColumns[cIdx]);
+					}
+					for(var cIdx = 0; cIdx < newColumns.length; cIdx++) {
+						if(newColumns[cIdx].property !== newLastUsedColumns[cIdx].property) {
+							newLastUsedColumns.splice(cIdx, 1);
+						}
+					}
+					thisGrid.lastUsedColumns = newLastUsedColumns;
+					result.columns = thisGrid.lastUsedColumns;
+				}
+			}
 			
 			if(dataList.length === 0) { //Special case, empty table
 				result.start = 0;
@@ -639,6 +673,7 @@ $.extend(Grid.prototype, {
 						bugHeader.remove();
 					}
 				}
+				
 				//HACK:	Legacy Hacks no longer needed
 				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
 				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
@@ -664,7 +699,7 @@ $.extend(Grid.prototype, {
 					}
 				}
 				
-			}, 1);
+			}, 100);
 		}, options);
 	},
 
