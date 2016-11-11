@@ -35,8 +35,29 @@ function MainController(profile) {
 	// Atributes
 	//
 	
+	this.openbisV1 = new openbis();
+	this.openbisV3 = null;
+	
+	
+	this.loadV3 = function(callback) {
+		require(['openbis'], function(openbis) {
+			//Boilerplate
+			var testProtocol = window.location.protocol;
+			var testHost = window.location.hostname;
+			var testPort = window.location.port;
+			
+			var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+			var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+			
+			mainController.openbisV3 = new openbis(testApiUrl);
+			mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+			callback();
+		});
+	};
+	
+		
 	// Server Facade Object
-	this.serverFacade = new ServerFacade(new openbis()); //Client APP Facade, used as control point to know what is used and create utility methods.
+	this.serverFacade = new ServerFacade(this.openbisV1); //Client APP Facade, used as control point to know what is used and create utility methods.
 
 	// Configuration
 	this.profile = profile;
@@ -119,62 +140,64 @@ function MainController(profile) {
 		$("#main").show();
 		
 		//Get Metadata from all sample types before showing the main menu
-		this.serverFacade.listSampleTypes (
-			function(result) {
-				//Load Sample Types
-				localReference.profile.allSampleTypes = result.result;
-				
-				//Load datastores for automatic DSS configuration, the first one will be used
-				localReference.serverFacade.listDataStores(function(dataStores) {
-						localReference.profile.allDataStores = dataStores.result;
+		this.loadV3(function() {
+			_this.serverFacade.listSampleTypes (
+					function(result) {
+						//Load Sample Types
+						localReference.profile.allSampleTypes = result.result;
 						
-						var nextInit = function() {
-							//Load display settings
-							localReference.serverFacade.getUserDisplaySettings( function(response) {
-								if(response.result) {
-									localReference.profile.displaySettings = response.result;
+						//Load datastores for automatic DSS configuration, the first one will be used
+						localReference.serverFacade.listDataStores(function(dataStores) {
+								localReference.profile.allDataStores = dataStores.result;
+								
+								var nextInit = function() {
+									//Load display settings
+									localReference.serverFacade.getUserDisplaySettings( function(response) {
+										if(response.result) {
+											localReference.profile.displaySettings = response.result;
+										}
+										
+										//Load Experiment Types
+										localReference.serverFacade.listExperimentTypes(function(experiments) {
+											localReference.profile.allExperimentTypes = experiments.result;
+											
+											
+											//Init profile
+											var startAppFunc = function() {
+												//Start App
+												localReference.sideMenu = new SideMenuWidgetController(localReference);
+												localReference.sideMenu.init($("#sideMenu"), function() {
+													//Page reload using the URL info
+													var queryString = Util.queryString();
+													var menuUniqueId = queryString.menuUniqueId;
+													var viewName = queryString.viewName;
+													var viewData = queryString.viewData;
+													var hideMenu = queryString.hideMenu;
+													
+													if(viewName && viewData) {
+														localReference.sideMenu.moveToNodeId(menuUniqueId);
+														localReference.changeView(viewName, viewData);
+														
+														if(hideMenu === "true") {
+															localReference.sideMenu.hideSideMenu();
+														}
+													} else {
+														localReference.changeView("showBlancPage", null);
+													}
+													Util.unblockUI();
+												});
+											};
+											
+											localReference.profile.init(startAppFunc);
+										});
+									});
 								}
 								
-								//Load Experiment Types
-								localReference.serverFacade.listExperimentTypes(function(experiments) {
-									localReference.profile.allExperimentTypes = experiments.result;
-									
-									
-									//Init profile
-									var startAppFunc = function() {
-										//Start App
-										localReference.sideMenu = new SideMenuWidgetController(localReference);
-										localReference.sideMenu.init($("#sideMenu"), function() {
-											//Page reload using the URL info
-											var queryString = Util.queryString();
-											var menuUniqueId = queryString.menuUniqueId;
-											var viewName = queryString.viewName;
-											var viewData = queryString.viewData;
-											var hideMenu = queryString.hideMenu;
-											
-											if(viewName && viewData) {
-												localReference.sideMenu.moveToNodeId(menuUniqueId);
-												localReference.changeView(viewName, viewData);
-												
-												if(hideMenu === "true") {
-													localReference.sideMenu.hideSideMenu();
-												}
-											} else {
-												localReference.changeView("showBlancPage", null);
-											}
-											Util.unblockUI();
-										});
-									};
-									
-									localReference.profile.init(startAppFunc);
-								});
-							});
-						}
-						
-						nextInit();
-				});
-			}
-		);
+								nextInit();
+						});
+					}
+				);
+		});
 	}
 	
 	//

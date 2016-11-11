@@ -363,19 +363,8 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.deleteSamples = function(samplePermIds, reason, callback) {
-		require([ 'openbis', "as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
-		        function(openbis, SamplePermId, SampleDeletionOptions) {
-					//Boilerplate
-					var testProtocol = window.location.protocol;
-					var testHost = window.location.hostname;
-					var testPort = window.location.port;
-					
-					var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-					var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-					
-					var v3Api = new openbis(testApiUrl);
-					v3Api._private.sessionToken = mainController.serverFacade.getSession();
-			
+		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
+		        function(SamplePermId, SampleDeletionOptions) {
 		            var samplePermIdsObj = [];
 		            for(var sPIdx = 0; sPIdx < samplePermIds.length; sPIdx++) {
 		            	samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
@@ -385,7 +374,7 @@ function ServerFacade(openbisServer) {
 		            deletionOptions.setReason(reason);
 		 
 		            // logical deletion (move objects to the trash can)
-		            v3Api.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
+		            mainController.openbisV3.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
 		            	callback(deletionId);
 		            });
 		 });
@@ -728,23 +717,10 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
-		require(['openbis', 
-		         criteriaClass,
+		require([criteriaClass,
 		         fetchOptionsClass,
-		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
-		
+		         'as/dto/common/search/DateObjectEqualToValue'], function(EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
 			try {
-				//Boilerplate
-				var testProtocol = window.location.protocol;
-				var testHost = window.location.hostname;
-				var testPort = window.location.port;
-				
-				var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-				var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-				
-				var v3Api = new openbis(testApiUrl);
-				v3Api._private.sessionToken = mainController.serverFacade.getSession();
-				
 				//Setting the searchCriteria given the advancedSearchCriteria model
 				var searchCriteria = new EntitySearchCriteria();
 			
@@ -942,7 +918,7 @@ function ServerFacade(openbisServer) {
 					}
 				}
 			
-				v3Api[searchMethodName](searchCriteria, fetchOptions)
+				mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 				.done(function(result) {
 					callback(result);
 				})
@@ -1483,18 +1459,10 @@ function ServerFacade(openbisServer) {
 	this.searchGlobally = function(freeText, advancedFetchOptions, callbackFunction)
 	{
 		var _this = this;
-		require(['openbis', 'as/dto/global/search/GlobalSearchCriteria', 
+		require(['as/dto/global/search/GlobalSearchCriteria', 
 		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'], 
-		         function(openbis, GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
-			var protocol = window.location.protocol;
-			var host = window.location.hostname;
-			var port = window.location.port;
-			var url = protocol + "//" + host + ":" + port;
-			var v3api = new openbis(url + "/openbis/openbis/rmi-application-server-v3.json");
-			v3api._private.sessionToken = mainController.serverFacade.getSession();
+		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
-//			searchCriteria.withWildCards();
-			
 			searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
 			searchCriteria.withOperator("AND");
 			
@@ -1532,18 +1500,7 @@ function ServerFacade(openbisServer) {
 				fetchOptions.count(advancedFetchOptions.count);
 			}
 			
-//			if(advancedFetchOptions && advancedFetchOptions.sort) {
-//				switch(advancedFetchOptions.sort.type) {
-//					case "Attribute":
-//						fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
-//						break;
-//					case "Property":
-//						fetchOptions.sortBy().property(advancedFetchOptions.sort.name)[advancedFetchOptions.sort.direction]();
-//						break;
-//				}
-//			}
-			
-			v3api.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
+			mainController.openbisV3.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
 				callbackFunction(results);
 			}).fail(function(error) {
 				Util.showError("Call failed to server: " + JSON.stringify(error));
