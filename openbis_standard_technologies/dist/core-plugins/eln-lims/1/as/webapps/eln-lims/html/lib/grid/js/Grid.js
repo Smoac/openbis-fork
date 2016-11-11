@@ -634,8 +634,9 @@ $.extend(Grid.prototype, {
 				 //HACK: Fixes extra headers added on this fuelux 3.1.0 when rendering again
 				var tableHeads = $(thisGrid.panel).find('thead');
 				if(tableHeads.length > 1) {
-					for(var hIdx = 0; hIdx < tableHeads.length - 1; hIdx++) {
-						$(tableHeads[hIdx]).remove();
+					for(var hIdx = 1; hIdx < tableHeads.length; hIdx++) {
+						var bugHeader = $(tableHeads[hIdx]);
+						bugHeader.remove();
 					}
 				}
 				//HACK:	Legacy Hacks no longer needed
