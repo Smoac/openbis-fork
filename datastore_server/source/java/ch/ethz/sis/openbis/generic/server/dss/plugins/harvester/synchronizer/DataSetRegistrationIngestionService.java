@@ -116,7 +116,6 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
             downloadDataSetFiles(dir, ds.getDataSetCode());
 
-            File dsPath = new File(dir, "original");
             for (File f : dir.listFiles())
             {
                 transaction.moveFile(f.getAbsolutePath(), ds);
