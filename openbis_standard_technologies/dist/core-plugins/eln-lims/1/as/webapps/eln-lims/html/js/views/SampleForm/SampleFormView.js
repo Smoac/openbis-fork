@@ -455,7 +455,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			this._reloadPreviewImage();
 			
 			// Dataset Viewer
-			this._sampleFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), this._sampleFormModel.datasets, false, false);
+			this._sampleFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), this._sampleFormModel.datasets, false, true);
 			this._sampleFormModel.dataSetViewer.init();
 		}
 		
