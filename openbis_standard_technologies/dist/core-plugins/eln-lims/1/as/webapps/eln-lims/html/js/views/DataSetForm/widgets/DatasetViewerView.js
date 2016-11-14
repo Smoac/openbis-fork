@@ -77,10 +77,14 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		
 		var treeModel = [];
 		for(var datasetCode in this._dataSetViewerModel.sampleDataSets) {
+			var displayName = this._dataSetViewerModel.sampleDataSets[datasetCode].properties[profile.propertyReplacingCode];
+			if(!displayName) {
+				displayName = datasetCode;
+			}
 			var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
 			var onClick = "mainController.changeView('showViewDataSetPageFromPermId', '" + datasetCode + "');";
 			var dataSetTitle = "<span onclick=\"" + onClick + "\">" 
-					+ dataset.dataSetTypeCode + " : " + datasetCode + "</span>";
+					+ dataset.dataSetTypeCode + " : " + displayName + "</span>";
 			treeModel.push({ title : dataSetTitle, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
 		}
 		
