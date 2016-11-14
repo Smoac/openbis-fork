@@ -45,9 +45,9 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var $filesContainer = $("<div>");
 		$containerContent.append($filesContainer);
 		if (this._dataSetViewerModel.enableDeepUnfolding) {
-			var b = FormUtil.getButtonWithText("Expand all levels", function() {
+			var b = FormUtil.getButtonWithIcon("glyphicon-chevron-down", function() {
 				_this._expandAll();
-			});
+			}, null, "Expand all");
 			$filesContainer.append(b);
 			var $treeContainer = $("<div>");
 			$filesContainer.append($treeContainer);

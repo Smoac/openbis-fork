@@ -466,13 +466,17 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
-	this.getButtonWithIcon = function(iconClass, clickEvent, text) {
-		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+	this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip) {
+		var $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
 		if(text) {
-			$pinBtn.append("&nbsp;").append(text);
+			$btn.append("&nbsp;").append(text);
 		}
-		$pinBtn.click(clickEvent);
-		return $pinBtn;
+		if(tooltip) {
+			$btn.attr("title", tooltip);
+			$btn.tooltipster();
+		}
+		$btn.click(clickEvent);
+		return $btn;
 	}
 	
 	this.getHierarchyButton = function(permId) {
