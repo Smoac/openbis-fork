@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionDetailsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionNotificationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionSummaryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -35,6 +36,9 @@ public class OperationExecutionFetchOptions extends FetchOptions<OperationExecut
 
     @JsonProperty
     private PersonFetchOptions owner;
+
+    @JsonProperty
+    private OperationExecutionNotificationFetchOptions notification;
 
     @JsonProperty
     private OperationExecutionSummaryFetchOptions summary;
@@ -65,6 +69,28 @@ public class OperationExecutionFetchOptions extends FetchOptions<OperationExecut
     public boolean hasOwner()
     {
         return owner != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public OperationExecutionNotificationFetchOptions withNotification()
+    {
+        if (notification == null)
+        {
+            notification = new OperationExecutionNotificationFetchOptions();
+        }
+        return notification;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public OperationExecutionNotificationFetchOptions withNotificationUsing(OperationExecutionNotificationFetchOptions fetchOptions)
+    {
+        return notification = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasNotification()
+    {
+        return notification != null;
     }
 
     // Method automatically generated with DtoGenerator
@@ -133,6 +159,7 @@ public class OperationExecutionFetchOptions extends FetchOptions<OperationExecut
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("OperationExecution", this);
         f.addFetchOption("Owner", owner);
+        f.addFetchOption("Notification", notification);
         f.addFetchOption("Summary", summary);
         f.addFetchOption("Details", details);
         return f;

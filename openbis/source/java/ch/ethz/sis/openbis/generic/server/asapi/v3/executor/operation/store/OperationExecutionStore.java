@@ -56,16 +56,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressStack;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressFormatter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationExecutionAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.notification.IOperationExecutionNotifier;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionState;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author pkupczyk
@@ -81,6 +79,9 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
 
     @Autowired
     private IOperationExecutionConfig config;
+
+    @Autowired
+    private IOperationExecutionAuthorizationExecutor authorization;
 
     @Autowired
     private IOperationExecutionDBStore dbStore;
@@ -99,10 +100,12 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     {
     }
 
-    OperationExecutionStore(IOperationExecutionConfig config, IOperationExecutionDBStore dbStore, IOperationExecutionFSStore fsStore,
+    OperationExecutionStore(IOperationExecutionConfig config, IOperationExecutionAuthorizationExecutor authorization,
+            IOperationExecutionDBStore dbStore, IOperationExecutionFSStore fsStore,
             IOperationExecutionNotifier notifier)
     {
         this.config = config;
+        this.authorization = authorization;
         this.dbStore = dbStore;
         this.fsStore = fsStore;
         this.notifier = notifier;
@@ -322,6 +325,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
 
         if (executionPE != null)
         {
+            checkAccess(context, executionPE);
             return translate(context, executionPE, fo);
         }
 
@@ -332,36 +336,58 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     public List<OperationExecution> getExecutions(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
+        checkAccess(context);
 
         List<OperationExecutionPE> executionPEs = dbStore.getExecutions();
-        return translate(context, executionPEs, fetchOptions);
+        return translate(context, filter(context, executionPEs), fetchOptions);
     }
 
     @Override
     public List<OperationExecution> getExecutionsToBeTimeOutPending(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
+        checkAccess(context);
 
         List<OperationExecutionPE> executionPEs = dbStore.getExecutionsToBeTimeOutPending();
-        return translate(context, executionPEs, fetchOptions);
+        return translate(context, filter(context, executionPEs), fetchOptions);
     }
 
     @Override
     public List<OperationExecution> getExecutionsToBeTimedOut(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
+        checkAccess(context);
 
         List<OperationExecutionPE> executionPEs = dbStore.getExecutionsToBeTimedOut();
-        return translate(context, executionPEs, fetchOptions);
+        return translate(context, filter(context, executionPEs), fetchOptions);
     }
 
     @Override
     public List<OperationExecution> getExecutionsToBeDeleted(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
+        checkAccess(context);
 
         List<OperationExecutionPE> executionPEs = dbStore.getExecutionsToBeDeleted();
-        return translate(context, executionPEs, fetchOptions);
+        return translate(context, filter(context, executionPEs), fetchOptions);
+    }
+
+    private List<OperationExecutionPE> filter(IOperationContext context, Collection<OperationExecutionPE> executionPEs)
+    {
+        List<OperationExecutionPE> filtered = new ArrayList<OperationExecutionPE>();
+
+        if (executionPEs != null)
+        {
+            for (OperationExecutionPE executionPE : executionPEs)
+            {
+                if (authorization.canGet(context, executionPE))
+                {
+                    filtered.add(executionPE);
+                }
+            }
+        }
+
+        return filtered;
     }
 
     private List<OperationExecution> translate(IOperationContext context, Collection<OperationExecutionPE> executionPEs,
@@ -393,11 +419,6 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
 
     private OperationExecution translate(IOperationContext context, OperationExecutionPE executionPE, OperationExecutionFetchOptions fetchOptions)
     {
-        if (false == canAccess(context, executionPE))
-        {
-            return null;
-        }
-
         OperationExecutionPermId executionId = new OperationExecutionPermId(executionPE.getCode());
 
         OperationExecution execution = new OperationExecution();
@@ -687,27 +708,19 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
         return OperationExecutionAvailability.valueOf(availability.name());
     }
 
+    private void checkAccess(IOperationContext context)
+    {
+        authorization.canGet(context);
+    }
+
     private void checkAccess(IOperationContext context, OperationExecutionPE executionPE)
     {
-        if (false == canAccess(context, executionPE))
+        authorization.canGet(context);
+
+        if (false == authorization.canGet(context, executionPE))
         {
             throw new UnauthorizedObjectAccessException(new OperationExecutionPermId(executionPE.getCode()));
         }
-    }
-
-    private boolean canAccess(IOperationContext context, OperationExecutionPE executionPE)
-    {
-        PersonPE person = context.getSession().tryGetPerson();
-
-        // users can see their own executions
-        if (person.getId().equals(executionPE.getOwner().getId()))
-        {
-            return true;
-        }
-
-        // instance observer users and stronger can see all the executions
-        AuthorizationServiceUtils authorization = new AuthorizationServiceUtils(null, context.getSession().tryGetPerson());
-        return authorization.doesUserHaveRole(RoleCode.OBSERVER.toString(), null);
     }
 
     @Override

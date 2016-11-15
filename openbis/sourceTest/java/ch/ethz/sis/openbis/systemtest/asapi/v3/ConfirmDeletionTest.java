@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.testng.annotations.Test;
@@ -129,6 +130,48 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
                     v3api.confirmDeletions(sessionToken2, Collections.singletonList(deletionId));
                 }
             }, deletionId);
+    }
+
+    @Test
+    public void testConfirmDeletionWithDeletionIdsThatContainsNulls()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createCisdExperiment();
+
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("It is just a test");
+
+        assertExperimentExists(experimentId);
+
+        IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Arrays.asList(experimentId), deletionOptions);
+
+        assertDeletionExists(deletionId);
+        assertExperimentDoesNotExist(experimentId);
+
+        // We do not want it to fail but rather ignore the nulls. Ignoring the nulls allows us to
+        // pass the result of the deleteXXX method directly to confirmDeletions without any checks
+        // (the deleteXXX methods return null when an object to be deleted does not exist, e.g. it had been already deleted)
+
+        v3api.confirmDeletions(sessionToken, Arrays.asList(null, deletionId, null));
+
+        assertDeletionDoesNotExist(deletionId);
+        assertExperimentDoesNotExist(experimentId);
+    }
+
+    @Test
+    public void testConfirmDeletionWithDeletionIdsNull()
+    {
+        assertUserFailureException(new IDelegatedAction()
+            {
+
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                    v3api.confirmDeletions(sessionToken, null);
+                }
+            }, "Deletion ids cannot be null");
     }
 
 }

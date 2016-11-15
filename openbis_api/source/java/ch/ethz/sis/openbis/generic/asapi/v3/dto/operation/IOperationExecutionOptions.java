@@ -18,9 +18,12 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.operation.IOperationExecutionOptions")
 public interface IOperationExecutionOptions extends Serializable
 {
 

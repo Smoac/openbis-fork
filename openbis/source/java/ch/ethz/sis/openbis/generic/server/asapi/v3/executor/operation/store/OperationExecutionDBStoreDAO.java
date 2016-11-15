@@ -47,7 +47,7 @@ public class OperationExecutionDBStoreDAO implements IOperationExecutionDBStoreD
     @Override
     public OperationExecutionPE findExecutionByCode(String code)
     {
-        return daoFactory.getOperationExecutionDAO().tryFindByCode(code);
+        return refresh(daoFactory.getOperationExecutionDAO().tryFindByCode(code));
     }
 
     @Override
@@ -77,25 +77,48 @@ public class OperationExecutionDBStoreDAO implements IOperationExecutionDBStoreD
     @Override
     public List<OperationExecutionPE> findAllExecutions()
     {
-        return daoFactory.getOperationExecutionDAO().listAllEntities();
+        return refresh(daoFactory.getOperationExecutionDAO().listAllEntities());
     }
 
     @Override
     public List<OperationExecutionPE> findExecutionsToBeTimeOutPending()
     {
-        return daoFactory.getOperationExecutionDAO().getExecutionsToBeTimeOutPending();
+        return refresh(daoFactory.getOperationExecutionDAO().getExecutionsToBeTimeOutPending());
     }
 
     @Override
     public List<OperationExecutionPE> findExecutionsToBeTimedOut()
     {
-        return daoFactory.getOperationExecutionDAO().getExecutionsToBeTimedOut();
+        return refresh(daoFactory.getOperationExecutionDAO().getExecutionsToBeTimedOut());
     }
 
     @Override
     public List<OperationExecutionPE> findExecutionsToBeDeleted()
     {
-        return daoFactory.getOperationExecutionDAO().getExecutionsToBeDeleted();
+        return refresh(daoFactory.getOperationExecutionDAO().getExecutionsToBeDeleted());
+    }
+
+    private OperationExecutionPE refresh(OperationExecutionPE execution)
+    {
+        if (execution != null)
+        {
+            daoFactory.getSessionFactory().getCurrentSession().refresh(execution);
+        }
+
+        return execution;
+    }
+
+    private List<OperationExecutionPE> refresh(List<OperationExecutionPE> executions)
+    {
+        if (executions != null)
+        {
+            for (OperationExecutionPE execution : executions)
+            {
+                refresh(execution);
+            }
+        }
+
+        return executions;
     }
 
 }

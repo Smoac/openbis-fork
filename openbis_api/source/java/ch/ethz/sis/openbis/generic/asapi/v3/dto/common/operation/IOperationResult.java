@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.operations.IOperationResult")
+@JsonObject("as.dto.common.operation.IOperationResult")
 public interface IOperationResult extends Serializable
 {
 

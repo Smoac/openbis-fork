@@ -20,10 +20,12 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.create.CreateObjectsOperationResult")
 public abstract class CreateObjectsOperationResult<ID extends IObjectId> implements IOperationResult
 {
 

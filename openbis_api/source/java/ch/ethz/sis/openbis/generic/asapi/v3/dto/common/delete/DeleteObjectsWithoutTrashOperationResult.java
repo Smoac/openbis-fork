@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.delete.DeleteObjectsWithoutTrashOperationResult")
 public abstract class DeleteObjectsWithoutTrashOperationResult extends DeleteObjectsOperationResult
 {
 

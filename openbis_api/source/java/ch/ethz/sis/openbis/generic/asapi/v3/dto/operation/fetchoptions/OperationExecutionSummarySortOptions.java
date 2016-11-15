@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.operations.fetchoptions.OperationExecutionSummarySortOptions")
+@JsonObject("as.dto.operation.fetchoptions.OperationExecutionSummarySortOptions")
 public class OperationExecutionSummarySortOptions extends SortOptions<OperationExecutionSummary>
 {
 

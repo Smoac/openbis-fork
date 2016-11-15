@@ -1,11 +1,15 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/common/operations/IOperation" ], function(stjs, IOperation) {
-	var UpdateExperimentsOperation = function() {
+define([ "stjs", "as/dto/common/update/UpdateObjectsOperation" ], function(stjs, UpdateObjectsOperation) {
+	var UpdateExperimentsOperation = function(updates) {
+		UpdateObjectsOperation.call(this, updates);
 	};
-	stjs.extend(UpdateExperimentsOperation, null, [ IOperation ], function(constructor, prototype) {
+	stjs.extend(UpdateExperimentsOperation, UpdateObjectsOperation, [ UpdateObjectsOperation ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.experiment.update.UpdateExperimentsOperation';
+		prototype.getMessage = function() {
+			return "UpdateExperimentsOperation";
+		};
 	}, {});
 	return UpdateExperimentsOperation;
 })

@@ -1,21 +1,15 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/common/operations/IOperationResult" ], function(stjs, IOperationResult) {
-	var CreateSamplesOperationResult = function(permIds) {
-		this.permIds = permIds;
+define([ "stjs", "as/dto/common/create/CreateObjectsOperationResult" ], function(stjs, CreateObjectsOperationResult) {
+	var CreateSamplesOperationResult = function(objectIds) {
+		CreateObjectsOperationResult.call(this, objectIds);
 	};
-	stjs.extend(CreateSamplesOperationResult, null, [ IOperationResult ], function(constructor, prototype) {
+	stjs.extend(CreateSamplesOperationResult, CreateObjectsOperationResult, [ CreateObjectsOperationResult ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.sample.create.CreateSamplesOperationResult';
-		prototype.permIds = null;
-		prototype.getPermIds = function() {
-			return this.permIds;
+		prototype.getMessage = function() {
+			return "CreateSamplesOperationResult";
 		};
-	}, {
-		permIds : {
-			name : "List",
-			arguments : [ "SamplePermId" ]
-		}
-	});
+	}, {});
 	return CreateSamplesOperationResult;
 })

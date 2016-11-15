@@ -58,7 +58,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionResults;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionEmailNotification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
@@ -851,19 +850,6 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         return getExecution(sessionToken, options.getExecutionId(), fullOperationExecutionFetchOptions());
     }
 
-    private void assertAvailabilities(OperationExecution execution, OperationExecutionAvailability availability,
-            Integer availabilityTime, OperationExecutionAvailability summaryAvailability, Integer summaryAvailabilityTime,
-            OperationExecutionAvailability detailsAvailability, Integer detailsAvailabilityTime)
-    {
-        assertEquals(execution.getAvailability(), availability);
-        assertEquals(execution.getSummaryAvailability(), summaryAvailability);
-        assertEquals(execution.getDetailsAvailability(), detailsAvailability);
-
-        assertEquals(execution.getAvailabilityTime(), availabilityTime);
-        assertEquals(execution.getSummaryAvailabilityTime(), summaryAvailabilityTime);
-        assertEquals(execution.getDetailsAvailabilityTime(), detailsAvailabilityTime);
-    }
-
     private Email findLatestEmail()
     {
         File emailDir = new File(EMAIL_DIR);
@@ -957,21 +943,6 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         {
             txManager.commit(transaction);
         }
-    }
-
-    private int defaultAvalability()
-    {
-        return SECONDS_PER_DAY * 365;
-    }
-
-    private int defaultSummaryAvalability()
-    {
-        return SECONDS_PER_DAY * 30;
-    }
-
-    private int defaultDetailsAvalability()
-    {
-        return SECONDS_PER_DAY;
     }
 
     private class Email

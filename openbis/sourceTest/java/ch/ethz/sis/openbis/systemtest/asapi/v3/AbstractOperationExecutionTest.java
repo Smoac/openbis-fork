@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionDetailsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
@@ -187,6 +190,34 @@ public class AbstractOperationExecutionTest extends AbstractTest
             }
         }
         return null;
+    }
+
+    protected void assertAvailabilities(OperationExecution execution, OperationExecutionAvailability availability,
+            Integer availabilityTime, OperationExecutionAvailability summaryAvailability, Integer summaryAvailabilityTime,
+            OperationExecutionAvailability detailsAvailability, Integer detailsAvailabilityTime)
+    {
+        assertEquals(execution.getAvailability(), availability);
+        assertEquals(execution.getSummaryAvailability(), summaryAvailability);
+        assertEquals(execution.getDetailsAvailability(), detailsAvailability);
+
+        assertEquals(execution.getAvailabilityTime(), availabilityTime);
+        assertEquals(execution.getSummaryAvailabilityTime(), summaryAvailabilityTime);
+        assertEquals(execution.getDetailsAvailabilityTime(), detailsAvailabilityTime);
+    }
+
+    protected int defaultAvalability()
+    {
+        return operationExecutionConfig.getAvailabilityTimeDefault();
+    }
+
+    protected int defaultSummaryAvalability()
+    {
+        return operationExecutionConfig.getSummaryAvailabilityTimeDefault();
+    }
+
+    protected int defaultDetailsAvalability()
+    {
+        return operationExecutionConfig.getDetailsAvailabilityTimeDefault();
     }
 
 }

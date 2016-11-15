@@ -20,10 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.update.UpdateObjectsOperation")
 public abstract class UpdateObjectsOperation<U extends IObjectUpdate<?>> implements IOperation
 {
 

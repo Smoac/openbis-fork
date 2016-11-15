@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.operations.AsynchronousOperationExecutionResults")
+@JsonObject("as.dto.operation.AsynchronousOperationExecutionResults")
 public class AsynchronousOperationExecutionResults implements IOperationExecutionResults
 {
 

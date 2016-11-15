@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -70,16 +71,31 @@ final class OperationExecutionDAO extends AbstractGenericEntityDAO<OperationExec
     @Override
     public OperationExecutionPE tryFindByCode(String code)
     {
-        List<OperationExecutionPE> list = tryFindByCodes(Arrays.asList(code));
+        List<OperationExecutionPE> list = findByCodes(Arrays.asList(code));
         return list.isEmpty() ? null : list.get(0);
     }
 
     @Override
-    public List<OperationExecutionPE> tryFindByCodes(List<String> codes)
+    public List<OperationExecutionPE> findByCodes(Collection<String> codes)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(OperationExecutionPE.class);
         criteria.add(Restrictions.in("code", codes));
         criteria.addOrder(Order.asc("code"));
+
+        final List<OperationExecutionPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d executions(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
+    @Override
+    public List<OperationExecutionPE> findByIds(Collection<Long> ids)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(OperationExecutionPE.class);
+        criteria.add(Restrictions.in("id", ids));
 
         final List<OperationExecutionPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())

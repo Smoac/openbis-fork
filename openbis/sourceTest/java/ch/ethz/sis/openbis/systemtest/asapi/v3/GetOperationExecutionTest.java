@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
@@ -42,6 +43,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.CreateSpacesOperati
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.CreateSpacesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
@@ -49,6 +52,9 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
  */
 public class GetOperationExecutionTest extends AbstractOperationExecutionTest
 {
+
+    @Autowired
+    private IOperationExecutionConfig config;
 
     @Test
     public void testGetByPermId()
@@ -76,12 +82,12 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
     public void testGetForRegularUser()
     {
         String sessionTokenAdmin = v3api.login(TEST_USER, PASSWORD);
-        String sessionTokenUser = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionTokenUser = v3api.login(TEST_SPACE_USER, PASSWORD);
 
         OperationExecutionPermId executionId = new OperationExecutionPermId();
         List<? extends IOperation> operations = Arrays.asList(new CreateSpacesOperation(spaceCreation()));
 
-        SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
         options.setExecutionId(executionId);
 
         OperationExecution executionBefore = getExecution(sessionTokenAdmin, options.getExecutionId(), emptyOperationExecutionFetchOptions());
@@ -95,8 +101,14 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
         OperationExecution executionAfter = getExecution(sessionTokenAdmin, options.getExecutionId(), emptyOperationExecutionFetchOptions());
         assertNotNull(executionAfter);
 
-        executionAfter = getExecution(sessionTokenUser, options.getExecutionId(), emptyOperationExecutionFetchOptions());
-        assertNull(executionAfter);
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    getExecution(sessionTokenUser, options.getExecutionId(), emptyOperationExecutionFetchOptions());
+                }
+            }, options.getExecutionId());
 
         v3api.logout(sessionTokenAdmin);
         v3api.logout(sessionTokenUser);
@@ -220,7 +232,7 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
     }
 
     @Test
-    public void testGetWithDetails()
+    public void testGetWithDetails() throws Exception
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -247,6 +259,10 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
         fo.withDetails().withProgress();
         fo.withDetails().withError();
         fo.withDetails().withResults();
+
+        // wait to make sure the progress information gets updated
+
+        Thread.sleep(config.getProgressInterval() * 1000);
 
         OperationExecution execution = getExecution(sessionToken, options.getExecutionId(), fo);
 

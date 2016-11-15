@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.delete.DeleteObjectsWithTrashOperationResult")
 public abstract class DeleteObjectsWithTrashOperationResult extends DeleteObjectsOperationResult
 {
 

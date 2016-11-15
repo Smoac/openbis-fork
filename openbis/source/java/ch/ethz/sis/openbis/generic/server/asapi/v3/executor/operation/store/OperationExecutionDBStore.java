@@ -193,35 +193,30 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public OperationExecutionPE getExecution(String code)
     {
         return dao.findExecutionByCode(code);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<OperationExecutionPE> getExecutions()
     {
         return dao.findAllExecutions();
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<OperationExecutionPE> getExecutionsToBeTimeOutPending()
     {
         return dao.findExecutionsToBeTimeOutPending();
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<OperationExecutionPE> getExecutionsToBeTimedOut()
     {
         return dao.findExecutionsToBeTimedOut();
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<OperationExecutionPE> getExecutionsToBeDeleted()
     {
         return dao.findExecutionsToBeDeleted();

@@ -20,10 +20,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionError;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.operation.OperationExecutionError")
 public class OperationExecutionError implements IOperationExecutionError
 {
 

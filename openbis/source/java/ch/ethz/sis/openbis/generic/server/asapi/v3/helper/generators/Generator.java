@@ -73,6 +73,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionStat
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionSummary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionDetailsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionNotificationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionSummaryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.OperationExecutionPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
@@ -700,7 +701,7 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(OperationExecutionState.class, "state");
         gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class);
         addDescription(gen);
-        gen.addSimpleField(IOperationExecutionNotification.class, "notification");
+        gen.addFetchedField(IOperationExecutionNotification.class, "notification", "Notification", OperationExecutionNotificationFetchOptions.class);
         gen.addSimpleField(OperationExecutionAvailability.class, "availability");
         gen.addSimpleField(Integer.class, "availabilityTime");
 

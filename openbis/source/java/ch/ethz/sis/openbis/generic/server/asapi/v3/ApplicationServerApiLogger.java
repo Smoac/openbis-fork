@@ -70,9 +70,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search.Ob
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionResults;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.delete.OperationExecutionDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecutionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecutionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
@@ -274,6 +276,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public void updateOperationExecutions(String sessionToken, List<OperationExecutionUpdate> executionUpdates)
+    {
+        logAccess(sessionToken, "update-operation-executions", "OPERATION_EXECUTION_UPDATES(%s)", abbreviate(executionUpdates));
+    }
+
+    @Override
     public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "get-spaces", "SPACE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(spaceIds), fetchOptions);
@@ -471,6 +479,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
     {
         logAccess(sessionToken, "delete-tags", "TAG_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(tagIds), deletionOptions);
+    }
+
+    @Override
+    public void deleteOperationExecutions(String sessionToken, List<? extends IOperationExecutionId> executionIds,
+            OperationExecutionDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-operation-executions", "EXECUTION_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(executionIds), deletionOptions);
     }
 
     @Override

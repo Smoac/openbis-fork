@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecutionId;
@@ -35,6 +36,9 @@ public class OperationExecutionUpdate implements IUpdate, IObjectUpdate<IOperati
 
     @JsonProperty
     private IOperationExecutionId executionId;
+
+    @JsonProperty
+    private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
 
     @JsonProperty
     private boolean deleteSummary;
@@ -61,21 +65,37 @@ public class OperationExecutionUpdate implements IUpdate, IObjectUpdate<IOperati
         this.executionId = executionId;
     }
 
+    @JsonIgnore
+    public void setDescription(String description)
+    {
+        this.description.setValue(description);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<String> getDescription()
+    {
+        return description;
+    }
+
+    @JsonIgnore
     public void deleteSummary()
     {
         this.deleteSummary = true;
     }
 
+    @JsonIgnore
     public boolean isDeleteSummary()
     {
         return deleteSummary;
     }
 
+    @JsonIgnore
     public void deleteDetails()
     {
         this.deleteDetails = true;
     }
 
+    @JsonIgnore
     public boolean isDeleteDetails()
     {
         return deleteDetails;

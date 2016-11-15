@@ -120,6 +120,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionRes
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionResults;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.delete.DeleteOperationExecutionsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.delete.OperationExecutionDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.get.GetOperationExecutionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.get.GetOperationExecutionsOperationResult;
@@ -127,6 +129,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecution
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecutionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.SearchOperationExecutionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.SearchOperationExecutionsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.UpdateOperationExecutionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperationResult;
@@ -415,6 +419,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    public void updateOperationExecutions(String sessionToken, List<OperationExecutionUpdate> updates)
+    {
+        executeOperation(sessionToken, new UpdateOperationExecutionsOperation(updates));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
@@ -642,6 +653,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteTagsOperation(tagIds, deletionOptions));
+    }
+
+    @Override
+    @Transactional
+    public void deleteOperationExecutions(String sessionToken, List<? extends IOperationExecutionId> executionIds,
+            OperationExecutionDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeleteOperationExecutionsOperation(executionIds, deletionOptions));
     }
 
     @Override

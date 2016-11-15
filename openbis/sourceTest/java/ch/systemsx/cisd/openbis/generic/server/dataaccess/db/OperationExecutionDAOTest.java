@@ -77,14 +77,14 @@ public final class OperationExecutionDAOTest extends AbstractDAOTest
     @Test
     public void testTryFindByCodes()
     {
-        List<OperationExecutionPE> executions = executionDAO.tryFindByCodes(Arrays.asList("testCode1", "testCode2"));
+        List<OperationExecutionPE> executions = executionDAO.findByCodes(Arrays.asList("testCode1", "testCode2"));
         assertEquals(executions.size(), 0);
 
         createNew("testCode1");
         createNew("testCode2");
         createNew("testCode3");
 
-        executions = executionDAO.tryFindByCodes(Arrays.asList("testCode1", "testCode2"));
+        executions = executionDAO.findByCodes(Arrays.asList("testCode1", "testCode2"));
         assertEquals(executions.size(), 2);
         assertEquals(executions.get(0).getCode(), "testCode1");
         assertEquals(executions.get(1).getCode(), "testCode2");

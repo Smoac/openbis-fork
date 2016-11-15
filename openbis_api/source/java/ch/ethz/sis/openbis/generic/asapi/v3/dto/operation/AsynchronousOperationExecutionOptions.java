@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.operations.AsynchronousOperationExecutionOptions")
+@JsonObject("as.dto.operation.AsynchronousOperationExecutionOptions")
 public class AsynchronousOperationExecutionOptions extends AbstractOperationExecutionOptions
 {
 

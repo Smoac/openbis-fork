@@ -18,16 +18,16 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.operation.search.OperationExecutionSearchCriteria")
 public class OperationExecutionSearchCriteria extends AbstractCompositeSearchCriteria
 {
 
     private static final long serialVersionUID = 1L;
-
-    // TODO add more criteria we can search against, e.g. status, dates, id
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()

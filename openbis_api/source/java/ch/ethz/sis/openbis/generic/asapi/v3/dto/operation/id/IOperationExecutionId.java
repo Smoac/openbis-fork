@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.operation.id.IOperationExecutionId")
 public interface IOperationExecutionId extends IObjectId
 {
 

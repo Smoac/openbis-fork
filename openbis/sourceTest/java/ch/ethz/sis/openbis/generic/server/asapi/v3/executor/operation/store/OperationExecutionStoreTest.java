@@ -43,6 +43,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressFormatter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationExecutionAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.notification.OperationExecutionNotifier;
 import ch.systemsx.cisd.authentication.Principal;
@@ -66,6 +67,8 @@ public class OperationExecutionStoreTest
     private Mockery mockery;
 
     private IOperationExecutionConfig executionConfig;
+
+    private IOperationExecutionAuthorizationExecutor executionAuthorization;
 
     private IOperationExecutionDBStoreDAO executionDAO;
 
@@ -96,6 +99,7 @@ public class OperationExecutionStoreTest
         mockery = new Mockery();
 
         executionConfig = mockery.mock(IOperationExecutionConfig.class);
+        executionAuthorization = mockery.mock(IOperationExecutionAuthorizationExecutor.class);
         executionDAO = mockery.mock(IOperationExecutionDBStoreDAO.class);
         executionId = new OperationExecutionPermId();
 
@@ -214,6 +218,10 @@ public class OperationExecutionStoreTest
 
                     allowing(executionDAO).findExecutionByCode(executionId.getPermId());
                     will(returnValue(executionPE));
+
+                    oneOf(executionAuthorization).canGet(context);
+                    oneOf(executionAuthorization).canGet(context, executionPE);
+                    will(returnValue(true));
                 }
             });
 
@@ -241,6 +249,10 @@ public class OperationExecutionStoreTest
 
                     allowing(executionDAO).findExecutionByCode(executionId.getPermId());
                     will(returnValue(executionPE));
+
+                    oneOf(executionAuthorization).canGet(context);
+                    oneOf(executionAuthorization).canGet(context, executionPE);
+                    will(returnValue(true));
                 }
             });
 
@@ -340,6 +352,10 @@ public class OperationExecutionStoreTest
                     allowing(executionDAO).findExecutionByCode(executionId.getPermId());
                     will(returnValue(executionPE));
 
+                    oneOf(executionAuthorization).canGet(context);
+                    oneOf(executionAuthorization).canGet(context, executionPE);
+                    will(returnValue(true));
+
                     oneOf(executionConfig).getStorePath();
                     will(returnValue(STORE_PATH));
                 }
@@ -373,6 +389,10 @@ public class OperationExecutionStoreTest
 
                     allowing(executionDAO).findExecutionByCode(executionId.getPermId());
                     will(returnValue(executionPE));
+
+                    oneOf(executionAuthorization).canGet(context);
+                    oneOf(executionAuthorization).canGet(context, executionPE);
+                    will(returnValue(true));
 
                     oneOf(executionConfig).getStorePath();
                     will(returnValue(STORE_PATH));
@@ -408,6 +428,10 @@ public class OperationExecutionStoreTest
                     allowing(executionDAO).findExecutionByCode(executionId.getPermId());
                     will(returnValue(executionPE));
 
+                    oneOf(executionAuthorization).canGet(context);
+                    oneOf(executionAuthorization).canGet(context, executionPE);
+                    will(returnValue(true));
+
                     oneOf(executionConfig).getStorePath();
                     will(returnValue(STORE_PATH));
                 }
@@ -440,6 +464,10 @@ public class OperationExecutionStoreTest
                     allowing(executionDAO).findExecutionByCode(executionId.getPermId());
                     will(returnValue(executionPE));
 
+                    oneOf(executionAuthorization).canGet(context);
+                    oneOf(executionAuthorization).canGet(context, executionPE);
+                    will(returnValue(true));
+
                     oneOf(executionConfig).getStorePath();
                     will(returnValue(STORE_PATH));
                 }
@@ -460,7 +488,7 @@ public class OperationExecutionStoreTest
         OperationExecutionFSStore fsStore = new OperationExecutionFSStore(executionConfig);
         OperationExecutionDBStore dbStore = new OperationExecutionDBStore(executionDAO);
         OperationExecutionNotifier notifier = new OperationExecutionNotifier();
-        OperationExecutionStore store = new OperationExecutionStore(executionConfig, dbStore, fsStore, notifier);
+        OperationExecutionStore store = new OperationExecutionStore(executionConfig, executionAuthorization, dbStore, fsStore, notifier);
         stores.add(store);
         return store;
     }

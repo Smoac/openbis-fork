@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.operation;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionProgress;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.operation.OperationExecutionProgress")
 public class OperationExecutionProgress implements IOperationExecutionProgress
 {
 

@@ -48,6 +48,7 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -59,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 @DynamicInsert
 @DynamicUpdate
 @Table(name = TableNames.OPERATION_EXECUTIONS_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
-public class OperationExecutionPE implements IIdHolder, Serializable
+public class OperationExecutionPE implements IIdHolder, IIdentityHolder, Serializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -118,6 +119,20 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return getCode();
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return getCode();
     }
 
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)

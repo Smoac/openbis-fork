@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.operations.SynchronousOperationExecutionOptions")
+@JsonObject("as.dto.operation.SynchronousOperationExecutionOptions")
 public class SynchronousOperationExecutionOptions extends AbstractOperationExecutionOptions
 {
 

@@ -21,10 +21,12 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.get.GetObjectsOperation")
 public abstract class GetObjectsOperation<ID extends IObjectId, FETCH_OPTIONS extends FetchOptions<?>> implements IOperation
 {
 

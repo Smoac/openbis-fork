@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.operations.SynchronousOperationExecutionResults")
+@JsonObject("as.dto.operation.SynchronousOperationExecutionResults")
 public class SynchronousOperationExecutionResults implements IOperationExecutionResults
 {
 

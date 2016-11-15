@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.search.SearchObjectsOperationResult")
 public abstract class SearchObjectsOperationResult<OBJECT>
         implements IOperationResult
 {

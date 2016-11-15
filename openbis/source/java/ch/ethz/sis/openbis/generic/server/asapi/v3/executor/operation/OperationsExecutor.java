@@ -55,9 +55,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMate
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IUpdateMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IVerifyMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.objectkindmodification.ISearchObjectKindModificationsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.delete.IDeleteOperationExecutionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.get.IGetOperationExecutionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.internal.IInternalOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search.ISearchOperationExecutionsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.update.IUpdateOperationExecutionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ICreateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IDeleteProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjectsOperationExecutor;
@@ -125,6 +127,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IDeleteVocabularyTermsOperationExecutor deleteVocabularyTermsExecutor;
 
     @Autowired
+    private IDeleteOperationExecutionsOperationExecutor deleteOperationExecutionsExecutor;
+
+    @Autowired
     private ICreateSpacesOperationExecutor createSpacesExecutor;
 
     @Autowired
@@ -171,6 +176,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateVocabularyTermsOperationExecutor updateVocabularyTermsExecutor;
+
+    @Autowired
+    private IUpdateOperationExecutionsOperationExecutor updateOperationExecutionsExecutor;
 
     @Autowired
     private IVerifyExperimentsOperationExecutor verifyExperimentsExecutor;
@@ -299,6 +307,7 @@ public class OperationsExecutor implements IOperationsExecutor
             resultMap.putAll(deleteMaterialsExecutor.execute(context, operations));
             resultMap.putAll(deleteTagsExecutor.execute(context, operations));
             resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
+            resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));
 
             // create
             resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
@@ -311,6 +320,7 @@ public class OperationsExecutor implements IOperationsExecutor
             resultMap.putAll(createDataSetsExecutor.execute(context, operations));
 
             // update
+            resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
             resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
             resultMap.putAll(updateTagsExecutor.execute(context, operations));
             resultMap.putAll(updateMaterialsExecutor.execute(context, operations));

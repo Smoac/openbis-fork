@@ -1,20 +1,15 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/common/operations/IOperation" ], function(stjs, IOperation) {
-	var CreateExperimentsOperation = function() {
+define([ "stjs", "as/dto/common/create/CreateObjectsOperation" ], function(stjs, CreateObjectsOperation) {
+	var CreateExperimentsOperation = function(creations) {
+		CreateObjectsOperation.call(this, creations);
 	};
-	stjs.extend(CreateExperimentsOperation, null, [ IOperation ], function(constructor, prototype) {
+	stjs.extend(CreateExperimentsOperation, CreateObjectsOperation, [ CreateObjectsOperation ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.experiment.create.CreateExperimentsOperation';
-		prototype.creations = null;
-		prototype.getCreations = function() {
-			return this.creations;
+		prototype.getMessage = function() {
+			return "CreateExperimentsOperation";
 		};
-	}, {
-		newExperiments : {
-			name : "List",
-			arguments : [ "ExperimentCreation" ]
-		}
-	});
+	}, {});
 	return CreateExperimentsOperation;
 })

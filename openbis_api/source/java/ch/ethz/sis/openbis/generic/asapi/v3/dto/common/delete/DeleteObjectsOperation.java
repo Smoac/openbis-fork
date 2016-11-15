@@ -21,10 +21,12 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.AbstractObjectDeletionOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.delete.DeleteObjectsOperation")
 public abstract class DeleteObjectsOperation<ID extends IObjectId, OPTIONS extends AbstractObjectDeletionOptions<OPTIONS>> implements IOperation
 {
 

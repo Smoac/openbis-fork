@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("as.dto.common.search.SearchObjectsOperation")
 public abstract class SearchObjectsOperation<CRITERIA extends ISearchCriteria, FETCH_OPTIONS extends FetchOptions<?>>
         implements IOperation
 {

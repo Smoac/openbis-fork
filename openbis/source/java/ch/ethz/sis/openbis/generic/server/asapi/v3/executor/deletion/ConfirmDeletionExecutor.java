@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
@@ -67,10 +69,33 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
     @Override
     public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds)
     {
+        if (context == null)
+        {
+            throw new UserFailureException("Context cannot be null.");
+        }
+        if (deletionIds == null)
+        {
+            throw new UserFailureException("Deletion ids cannot be null.");
+        }
+
         authorizationExecutor.canConfirm(context);
 
+        // We do not want to fail with nulls but rather ignore them. Ignoring the nulls allows us to
+        // pass the result of the deleteXXX method directly to confirmDeletions without any checks
+        // (the deleteXXX methods return null when an object to be deleted does not exist, e.g. it had been already deleted)
+
+        List<IDeletionId> deletionIdsWithoutNulls = new ArrayList<IDeletionId>();
+
+        for (IDeletionId deletionId : deletionIds)
+        {
+            if (deletionId != null)
+            {
+                deletionIdsWithoutNulls.add(deletionId);
+            }
+        }
+
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
-        Map<IDeletionId, DeletionPE> deletionMap = mapDeletionByIdExecutor.map(context, deletionIds);
+        Map<IDeletionId, DeletionPE> deletionMap = mapDeletionByIdExecutor.map(context, deletionIdsWithoutNulls);
 
         List<Long> deletionTechIds = new LinkedList<Long>();
         for (DeletionPE deletion : deletionMap.values())
@@ -94,7 +119,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
         }
 
         // NOTE: we can't do bulk deletions to preserve original reasons
-        for (IDeletionId deletionId : deletionIds)
+        for (IDeletionId deletionId : deletionIdsWithoutNulls)
         {
             DeletionPE deletion = deletionMap.get(deletionId);
 

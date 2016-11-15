@@ -185,7 +185,14 @@ public class OperationExecution implements Serializable, ICodeHolder, IPermIdHol
     @JsonIgnore
     public IOperationExecutionNotification getNotification()
     {
-        return notification;
+        if (getFetchOptions() != null && getFetchOptions().hasNotification())
+        {
+            return notification;
+        }
+        else
+        {
+            throw new NotFetchedException("Notification has not been fetched.");
+        }
     }
 
     // Method automatically generated with DtoGenerator
