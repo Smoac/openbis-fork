@@ -923,11 +923,6 @@ public class EntitySynchronizer
     private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData childDS)
     {
         AbstractExternalData dsInHarvester = service.tryGetDataSet(childDS.getCode());
-        if (dsInHarvester == null)
-        {
-            // this can happen if the DS could not have been registered because of an error in the file download for example
-            return null;
-        }
         ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable = new
                 ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
         DataSetBatchUpdatesDTO dsBatchUpdatesDTO = ConversionUtils.convertToDataSetBatchUpdatesDTO(updateUpdatable);
