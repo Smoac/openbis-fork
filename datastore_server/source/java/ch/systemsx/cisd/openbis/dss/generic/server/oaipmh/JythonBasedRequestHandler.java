@@ -63,7 +63,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 @SuppressWarnings("hiding")
 public class JythonBasedRequestHandler implements IRequestHandler
 {
-
     private static final String SCRIPT_PATH_PARAMETER_NAME = "script-path";
 
     private static final String PROPERTIES_VARIABLE_NAME = "properties";

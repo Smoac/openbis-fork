@@ -22,10 +22,13 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
@@ -33,6 +36,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
@@ -65,7 +69,14 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
     private final String harvesterTempDir;
 
-    public DataSetRegistrationIngestionService(Properties properties, File storeRoot, List<String> dataSetCodes, NewExternalData ds)
+    private final int SUCCESS = 1;
+
+    private final int FAILURE = 0;
+
+    private final Logger log;
+
+    public DataSetRegistrationIngestionService(Properties properties, File storeRoot, List<String> dataSetCodes, NewExternalData ds,
+            Logger operationLog)
     {
         super(properties, storeRoot);
         this.dataSetCodes = dataSetCodes;
@@ -75,6 +86,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         this.asUrl = properties.getProperty("as-url");
         this.dssUrl = properties.getProperty("dss-url");
         this.harvesterTempDir = properties.getProperty("harvester-temp-dir");
+        this.log = operationLog;
     }
 
     @Override
@@ -97,28 +109,36 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
         if (dataSetForUpdate == null)
         {
-            // REGISTER NEW DATA SET
-            IDataSet ds = transaction.createNewDataSet(dataSet.getDataSetType().getCode(), dataSet.getCode());
-            dataSetCodes.add(ds.getDataSetCode());
-            ds.setSample(sample);
-            ds.setExperiment(experiment);
-            ds.setParentDatasets(dataSet.getParentDataSetCodes());
-            for (NewProperty newProperty : dataSetProperties)
-            {
-                ds.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
-            }
-
+            String dataSetCode = dataSet.getCode();
             File storeRoot = transaction.getGlobalState().getStoreRootDir();
             File temp = new File(storeRoot, this.harvesterTempDir);
             temp.mkdirs();
-            File dir = new File(temp, ds.getDataSetCode());
+            File dir = new File(temp, dataSetCode);
             dir.mkdirs();
 
-            downloadDataSetFiles(dir, ds.getDataSetCode());
-
-            for (File f : dir.listFiles())
+            int status = downloadDataSetFiles(dir, dataSetCode);
+            if (status == SUCCESS)
             {
-                transaction.moveFile(f.getAbsolutePath(), ds);
+                // REGISTER NEW DATA SET
+                IDataSet ds = transaction.createNewDataSet(dataSet.getDataSetType().getCode(), dataSet.getCode());
+                dataSetCodes.add(dataSetCode);
+                ds.setSample(sample);
+                ds.setExperiment(experiment);
+                ds.setParentDatasets(dataSet.getParentDataSetCodes());
+                for (NewProperty newProperty : dataSetProperties)
+                {
+                    ds.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
+                }
+
+                for (File f : dir.listFiles())
+                {
+                    transaction.moveFile(f.getAbsolutePath(), ds);
+                }
+            }
+            else
+            {
+                log.error("Data set with code :" + dataSetCode
+                        + " could not be synced because one or more files could not be downloaded correctly");
             }
         }
         else
@@ -135,7 +155,31 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         return null;
     }
 
-    private void downloadDataSetFiles(File dir, String dataSetCode)
+    class FileDetails
+    {
+        final int crc32checksum;
+
+        final long fileLength;
+
+        public FileDetails(int crc32checksum, long fileLength)
+        {
+            super();
+            this.crc32checksum = crc32checksum;
+            this.fileLength = fileLength;
+        }
+
+        public int getCrc32checksum()
+        {
+            return crc32checksum;
+        }
+
+        public long getFileLength()
+        {
+            return fileLength;
+        }
+    }
+
+    private int downloadDataSetFiles(File dir, String dataSetCode)
     {
         DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
         String sessionToken = dssFileUtils.login(loginUser, loginPass);
@@ -143,9 +187,11 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         List<DataSetFile> files = result.getObjects();
 
         List<IDataSetFileId> fileIds = new LinkedList<IDataSetFileId>();
+        Map<DataSetFilePermId, FileDetails> fileDetailsMap = new HashMap<DataSetFilePermId, FileDetails>();
         for (DataSetFile f : files)
         {
             fileIds.add(f.getPermId());
+            fileDetailsMap.put(f.getPermId(), new FileDetails(f.getChecksumCRC32(), f.getFileLength()));
         }
         // Download the files & print the contents
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
@@ -155,31 +201,44 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         DataSetFileDownload fileDownload = null;
         while ((fileDownload = reader.read()) != null)
         {
-            DataSetFile dsFile = fileDownload.getDataSetFile();
-            if (dsFile.getPath().equals(""))
+            DataSetFile orgFile = fileDownload.getDataSetFile();
+            if (orgFile.getPath().equals(""))
                 continue;
             // if (dsFile.getPath().equals("original"))
             // continue;
-            String filePath = dsFile.getPath();// .substring("original/".length());
+            String filePath = orgFile.getPath();// .substring("original/".length());
             File output = new File(dir.getAbsolutePath(), filePath);
-            if (dsFile.isDirectory())
+            if (orgFile.isDirectory())
             {
                 output.mkdirs();
             }
             else
             {
-                System.out.println("Downloaded " + dsFile.getPath() + " "
-                        + MemorySizeFormatter.format(dsFile.getFileLength()));
+                DataSetFilePermId filePermId = orgFile.getPermId();
+                FileDetails fileDetails = fileDetailsMap.get(filePermId);
+
+                System.out.println("Downloaded " + orgFile.getPath() + " "
+                        + MemorySizeFormatter.format(orgFile.getFileLength()));
+
                 Path path = Paths.get(dir.getAbsolutePath(), filePath);
                 try
                 {
-                    Files.copy(fileDownload.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    ChecksummmingInputStream cis = new ChecksummmingInputStream(fileDownload.getInputStream());
+                    Files.copy(cis, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+                    if (cis.checksum() != fileDetails.getCrc32checksum()
+                            || cis.getLength() != fileDetails.getFileLength())
+                    {
+                        log.error("Crc32 or file length does not match for " + orgFile.getPath());
+                        return FAILURE;
+                    }
                 } catch (IOException e)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    log.error(e.getMessage());
+                    return FAILURE;
                 }
             }
         }
+        return SUCCESS;
     }
 }

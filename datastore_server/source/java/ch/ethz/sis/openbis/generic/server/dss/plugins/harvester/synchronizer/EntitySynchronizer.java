@@ -80,6 +80,7 @@ import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -264,6 +265,12 @@ public class EntitySynchronizer
         // go thru to-be-updated DS list and establish/break relations
         for (NewExternalData dataSet : datasetsToUpdate.values())
         {
+            // if the DS could not have been registered for some reason,
+            // skip this.
+            if (dataSet.getComplete() != BooleanOrUnknown.T)
+            {
+                continue;
+            }
             DataSetBatchUpdatesDTO dsBatchUpdatesDTO = createDataSetBatchUpdateDTO(dataSet);
             if (dataSet instanceof NewContainerDataSet)
             {
@@ -839,9 +846,8 @@ public class EntitySynchronizer
             Properties props = setProperties();
 
             DataSetRegistrationIngestionService ingestionService =
-                    new DataSetRegistrationIngestionService(props, storeRoot, dataSetCodes, dataSet.getDataSet());
+                    new DataSetRegistrationIngestionService(props, storeRoot, dataSetCodes, dataSet.getDataSet(), operationLog);
             ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
-            System.out.println("finished " + dataSet.getDataSet().getCode());
             dataSetCodes.add(dataSet.getDataSet().getCode());
             return Status.OK;
         }
@@ -881,7 +887,6 @@ public class EntitySynchronizer
         {
             return false;
         }
-
         List<DataSetFile> dsNodes = result.getObjects();
         List<DataSetFile> harvesterNodes = resultHarvester.getObjects();
         sortFileNodes(dsNodes);
@@ -918,6 +923,11 @@ public class EntitySynchronizer
     private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData childDS)
     {
         AbstractExternalData dsInHarvester = service.tryGetDataSet(childDS.getCode());
+        if (dsInHarvester == null)
+        {
+            // this can happen if the DS could not have been registered because of an error in the file download for example
+            return null;
+        }
         ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable = new
                 ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
         DataSetBatchUpdatesDTO dsBatchUpdatesDTO = ConversionUtils.convertToDataSetBatchUpdatesDTO(updateUpdatable);
