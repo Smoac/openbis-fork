@@ -170,8 +170,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void updateModifierAndModificationDate(ExperimentPE experimentOrNull)
     {
-        Date timeStamp = getTransactionTimeStamp();
-        RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experimentOrNull, null, session, timeStamp);
+        if (experimentOrNull != null)
+        {
+            Date timeStamp = getTransactionTimeStamp();
+            RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experimentOrNull, null, session, timeStamp);
+        }
     }
 
     protected SampleOwner getSampleOwner(
@@ -535,8 +538,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             return;
         }
-        ExperimentPE newExperiment = expIdentifierOrNull == null ? null :
-                tryFindExperiment(experimentCacheOrNull, expIdentifierOrNull.toString(), null);
+        ExperimentPE newExperiment =
+                expIdentifierOrNull == null ? null : tryFindExperiment(experimentCacheOrNull, expIdentifierOrNull.toString(), null);
         if (EntityHelper.equalEntities(newExperiment, sample.getExperiment()))
         {
             return;
