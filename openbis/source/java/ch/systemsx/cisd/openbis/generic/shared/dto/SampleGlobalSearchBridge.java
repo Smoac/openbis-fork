@@ -23,6 +23,9 @@ public class SampleGlobalSearchBridge extends GlobalSearchBridge<SamplePE>
         if (sample.getExperiment() != null)
         {
             addExperiment(values, sample.getExperiment());
+        } else if (sample.getProject() != null)
+        {
+            addProject(values, sample.getProject());
         } else if (sample.getSpace() != null)
         {
             addSpace(values, sample.getSpace());

@@ -64,6 +64,8 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
 
     private Experiment experiment;
 
+    private Project project;
+
     private Long id;
 
     private List<Attachment> attachments;
@@ -248,6 +250,16 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         this.experiment = experiment;
     }
 
+    public final Project getProject()
+    {
+        return project;
+    }
+
+    public final void setProject(Project project)
+    {
+        this.project = project;
+    }
+
     //
     // IIdentifierHolder
     //
@@ -349,7 +361,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         return "Sample [sampleType=" + sampleType + ", space=" + space + ", databaseInstance="
                 + databaseInstance + ", identifier=" + identifier + ", container=" + container
                 + ", parents=" + parents + ", properties=" + properties + ", deletion=" + deletion
-                + ", experiment=" + experiment + ", id=" + id + ", modificationDate="
+                + ", project=" + project + ", experiment=" + experiment + ", id=" + id + ", modificationDate="
                 + getModificationDate() + ", attachments=" + attachments + ", permId=" + permId
                 + ", permlink=" + permlink + ", searchlink=" + searchlink + ", subCode=" + subCode
                 + "]";

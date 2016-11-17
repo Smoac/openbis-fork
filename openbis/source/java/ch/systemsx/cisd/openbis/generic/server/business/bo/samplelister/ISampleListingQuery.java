@@ -58,7 +58,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     public static final int FETCH_SIZE = 1000;
 
     static final String SELECT_FROM_SAMPLES_S =
-            "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, "
+            "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.proj_id, s.space_id, s.saty_id, "
                     + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
                     + "   s.pers_id_modifier, s.del_id, s.samp_id_part_of, s.version                                              "
                     + " FROM samples s";

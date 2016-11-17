@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -132,6 +133,8 @@ final class SampleListingWorker extends AbstractLister
             new Long2ObjectOpenHashMap<SampleType>();
 
     private final Long2ObjectMap<Experiment> experiments = new Long2ObjectOpenHashMap<Experiment>();
+
+    private final Long2ObjectMap<Project> projects = new Long2ObjectOpenHashMap<Project>();
 
     private final LongSet idsOfSamplesAwaitingParentResolution = new LongOpenHashSet();
 
@@ -363,6 +366,13 @@ final class SampleListingWorker extends AbstractLister
         final Experiment experiment = referencedEntityDAO.tryGetExperiment(experimentId);
         experiments.put(experimentId, experiment);
         return experiment;
+    }
+
+    private Project createAndSaveProject(final long projectId)
+    {
+        final Project project = referencedEntityDAO.tryGetProject(projectId);
+        projects.put(projectId, project);
+        return project;
     }
 
     private SampleType tryGetSingleModeSampleType()
@@ -692,6 +702,10 @@ final class SampleListingWorker extends AbstractLister
             {
                 sample.setExperiment(getOrCreateExperiment(row));
             }
+            if (row.proj_id != null)
+            {
+                sample.setProject(getOrCreateProject(row));
+            }
         }
         // prepare loading related samples
         if (maxSampleParentResolutionDepth > 0)
@@ -764,6 +778,16 @@ final class SampleListingWorker extends AbstractLister
             experiment = createAndSaveExperiment(row.expe_id);
         }
         return experiment;
+    }
+
+    private Project getOrCreateProject(SampleRecord row)
+    {
+        Project project = projects.get(row.proj_id);
+        if (project == null)
+        {
+            project = createAndSaveProject(row.proj_id);
+        }
+        return project;
     }
 
     private void retrieveDependentSamplesRecursively(boolean primary)

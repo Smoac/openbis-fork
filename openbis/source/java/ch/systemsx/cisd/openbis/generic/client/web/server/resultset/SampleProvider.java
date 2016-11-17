@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -171,8 +172,13 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 
     private String getProjectCode(Sample sample)
     {
-        Experiment experiment = sample.getExperiment();
-        return experiment == null ? "" : experiment.getProject().getCode();
+        Project project = sample.getProject();
+        if (project == null) {
+            Experiment experiment = sample.getExperiment();
+            return experiment == null ? "" : experiment.getProject().getCode();
+        } else {
+            return project.getCode();
+        }
     }
 
     private final List<Sample> getSamples()

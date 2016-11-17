@@ -387,8 +387,12 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            final Project project =
-                                    rowItem.getObjectOrNull().getExperiment().getProject();
+                            Project project =
+                                    rowItem.getObjectOrNull().getProject();
+                            if (project == null)
+                            {
+                                project = rowItem.getObjectOrNull().getExperiment().getProject();
+                            }
                             final String href = LinkExtractor.tryExtract(project);
                             OpenEntityDetailsTabHelper.open(viewContext, project,
                                     specialKeyPressed, href);
@@ -398,8 +402,15 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                         public String tryGetLink(Sample entity,
                                 ISerializableComparable comparableValue)
                         {
-                            final Experiment exp = entity.getExperiment();
-                            return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
+                            final Project proj = entity.getProject();
+                            if (proj == null)
+                            {
+                                final Experiment exp = entity.getExperiment();
+                                return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
+                            } else
+                            {
+                                return LinkExtractor.tryExtract(proj);
+                            }
                         }
                     });
     }
@@ -604,8 +615,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                                             additionalMessage =
                                                     EntityDeletionConfirmationUtils.getMessageForSingleSample(
                                                             viewContext, sampleChildrenInfoList.get(0));
-                                        }
-                                        else
+                                        } else
                                         {
                                             additionalMessage =
                                                     EntityDeletionConfirmationUtils.getMessageForMultipleSamples(

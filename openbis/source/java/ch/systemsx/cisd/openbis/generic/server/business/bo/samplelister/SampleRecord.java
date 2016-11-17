@@ -28,6 +28,8 @@ public class SampleRecord extends CodeRecord
 
     public Long expe_id;
 
+    public Long proj_id;
+
     public Long space_id;
 
     public Long samp_id_part_of;

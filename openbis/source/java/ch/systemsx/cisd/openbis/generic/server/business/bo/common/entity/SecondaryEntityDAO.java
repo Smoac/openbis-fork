@@ -90,6 +90,33 @@ public class SecondaryEntityDAO
         return tryCreateExperiment(experimentId, record);
     }
 
+    public Project tryGetProject(final long projectId)
+    {
+        final ExperimentProjectSpaceCodeRecord record =
+                query.getProjectAndGroupCodeForId(projectId);
+        if (record == null)
+        {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return tryCreateProject(projectId, record);
+    }
+
+    private Project tryCreateProject(final long projectId,
+            final ExperimentProjectSpaceCodeRecord record)
+    {
+        final Space space = new Space();
+        space.setCode(record.spc_code);
+
+        final Project project = new Project();
+        project.setId(record.p_id);
+        project.setPermId(record.p_perm_id);
+        project.setCode(record.p_code);
+        project.setIdentifier(new ProjectIdentifier(space.getCode(), record.p_code).toString());
+        project.setSpace(space);
+
+        return project;
+    }
+
     private Experiment tryCreateExperiment(final long experimentId,
             final ExperimentProjectSpaceCodeRecord record)
     {
