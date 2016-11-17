@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -305,10 +306,14 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         }
 
         Experiment experiment = sample.getExperiment();
+        Project project = sample.getProject();
         if (experiment != null)
         {
             properties.put(viewContext.getMessage(Dict.PROJECT), experiment.getProject());
             properties.put(viewContext.getMessage(Dict.EXPERIMENT), experiment);
+        } else if (project != null)
+        {
+            properties.put(viewContext.getMessage(Dict.PROJECT), project);
         }
 
         // If there is only one Derived Sample it can be shown as a property,

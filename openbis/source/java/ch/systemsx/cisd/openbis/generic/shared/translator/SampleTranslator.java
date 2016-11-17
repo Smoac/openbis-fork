@@ -146,6 +146,7 @@ public final class SampleTranslator
             setProperties(result, samplePE, managedPropertyEvaluatorFactory);
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment(),
                     baseIndexURL, null, managedPropertyEvaluatorFactory, LoadableFields.PROPERTIES));
+            result.setProject(ProjectTranslator.translate(samplePE.getProject()));
             List<Attachment> attachments;
             if (samplePE.attachmentsInitialized() == false)
             {
