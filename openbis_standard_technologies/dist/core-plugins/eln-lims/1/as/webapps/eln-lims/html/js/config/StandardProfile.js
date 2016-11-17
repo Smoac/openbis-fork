@@ -551,7 +551,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								registrationDate = mainController.currentView._sampleFormModel.sample.registrationDetails.modificationDate;
 							}
 							
-							var page = "ORDER FORM"
+							var page = languageLabels["ORDER_FORM"];
 								page += "\n";
 								page += "\n";
 								page += languageLabels["ORDER_INFORMATION"];

@@ -55,6 +55,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		this.orderLanguage = {
 				"ENGLISH" : {
+					"ORDER_FORM" : "Order Form",
 					"ORDER_INFORMATION" : "Order Information",
 					"ORDER_DATE" : "Date",
 					"ORDER_STATUS" : "Status",
@@ -82,31 +83,32 @@ $.extend(DefaultProfile.prototype, {
 					"ADDITIONAL_INFO_LABEL" : "Additional Information"
 				},
 				"GERMAN" : {
-					"ORDER_INFORMATION" : "Order Information",
-					"ORDER_DATE" : "Order Date",
-					"ORDER_STATUS" : "Order Status",
-					"ORDER_CODE" : "Order Code",
-					
-					"COSTUMER_INFORMATION" : "Costumer Information",
-					"SHIP_TO" : "Ship To",
-					"BILL_TO" : "Bill To",
-					"SHIP_ADDRESS" : "Address",
-					"PHONE" : "Phone",
+					"ORDER_FORM" : "Bestellformular",
+					"ORDER_INFORMATION" : "Bestellinformation",
+					"ORDER_DATE" : "Bestelldatum",
+					"ORDER_STATUS" : "Bestellstatus",
+					"ORDER_CODE" : "Bestellcode",
+
+					"COSTUMER_INFORMATION" : "Kundeninformation",
+					"SHIP_TO" : "Lieferung an",
+					"BILL_TO" : "Rechnung an",
+					"SHIP_ADDRESS" : "Addresse",
+					"PHONE" : "Telefon",
 					"FAX" : "Fax",
-					
-					"SUPPLIER_INFORMATION" : "Supplier Information",
-					"SUPPLIER" : "Supplier",
-					"SUPPLIER_ADDRESS_LINE_1" : "Address",
+
+					"SUPPLIER_INFORMATION" : "Lieferanteninformation",
+					"SUPPLIER" : "Lieferant",
+					"SUPPLIER_ADDRESS_LINE_1" : "Addresse",
 					"SUPPLIER_ADDRESS_LINE_2" : "       ",
-					"SUPPLIER_PHONE" : "Supplier fax",
-					"SUPPLIER_FAX" : "Supplier fax",
-					"SUPPLIER_EMAIL" : "Supplier Email",
-					"CUSTOMER_NUMBER" : "Customer Number",
-					
-					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCode\t\tUnit Price",
-					"PRICE_TOTALS_LABEL" : "Total Price",
-					"ADDITIONAL_INFO_LABEL" : "Additional Information"
+					"SUPPLIER_PHONE" : "Lieferant Telefon",
+					"SUPPLIER_FAX" : "Lieferant Fax",
+					"SUPPLIER_EMAIL" : "Lieferant Email",
+					"CUSTOMER_NUMBER" : "Kundennummer",
+
+					"REQUESTED_PRODUCTS_LABEL" : "Angeforderte Produkte",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Anzahl\t\tName\t\tCode\t\tPreis pro Einheit",
+					"PRICE_TOTALS_LABEL" : "Gesamtpreis",
+					"ADDITIONAL_INFO_LABEL" : "Zusätzliche Informationen"
 				}
 		}
 		
