@@ -121,9 +121,10 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1.setDataStoreServerUsername('etlserver1')
         openbis1.setDataStoreServerProperty("host-address", "https://localhost")
         openbis1.allUp()
-        
-        '''Drop the folder to register some test entities in space SYNC'''
-        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
+ 
+        '''uncomment the following if we have ot run the test once in non-dev mode before (otherwise we already have ENTITY_REGISTRATION and get an error'''
+#        '''Drop the folder to register some test entities in space SYNC'''
+#        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
 
         openbis2_port = '8445'
         openbis2_dss_port = '8446'
@@ -145,7 +146,7 @@ class TestCase(systemtest.testcase.TestCase):
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
                                   "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
-        monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the time stamp of sync start to file'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
         
         '''read entity graph from datasource'''
         datasource_graph_response = self.getResourceListForComparison('8444', 'harvester1', '123')
