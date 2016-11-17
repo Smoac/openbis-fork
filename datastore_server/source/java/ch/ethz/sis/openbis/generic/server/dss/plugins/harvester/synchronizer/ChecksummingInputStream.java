@@ -16,9 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.CRC32;
 
 /**
@@ -26,14 +32,14 @@ import java.util.zip.CRC32;
  *
  * @author Ganime Betul Akin
  */
-class ChecksummmingInputStream extends FilterInputStream
+public class ChecksummingInputStream extends FilterInputStream
 {
 
     private final CRC32 crc32;
 
     private long totalLength;
 
-    ChecksummmingInputStream(InputStream in)
+    ChecksummingInputStream(InputStream in)
     {
         super(in);
         crc32 = new CRC32();
@@ -70,18 +76,28 @@ class ChecksummmingInputStream extends FilterInputStream
     {
         return totalLength;
     }
-}
 
-// class Main {
-// public static void main(String[] args) throws IOException {
-// FileInputStream fis = new FileInputStream(new File("akin_dinner.mp4"));
-// CheckSummingInputStream checkSummingInputStream = new CheckSummingInputStream(fis);
-// BufferedInputStream bis = new BufferedInputStream(checkSummingInputStream, 1 << 18);
-// long start = System.currentTimeMillis();
-// Files.copy(bis, Paths.get("akin_dinner_copy.mp4"), StandardCopyOption.REPLACE_EXISTING);
-// long end = System.currentTimeMillis();
-// System.out.println("Total: " + (end - start) + " ms.");
-// System.out.println("Crc: " + checkSummingInputStream.checksum());
-// System.out.println("Length: " + checkSummingInputStream.getLength());
-// }
-// }
+    public static void main(String[] args)
+    {
+        try
+        {
+            FileInputStream fis =
+                    new FileInputStream(
+                            new File(
+                                    "/Users/gakin/Documents/workspace_openbis_trunk/integration-tests/targets/playground/test_openbis_sync/openbis2/data/store/harvester-tmp/20161117115152163-19/original/DSC_0358.JPG"));
+            ChecksummingInputStream cis = new ChecksummingInputStream(fis);
+            Files.copy(cis, Paths.get("/Users/gakin/Documents/writable"), StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Crc: " + (cis.checksum() & (~0L)));
+            System.out.println("Length: " + cis.getLength());
+        } catch (FileNotFoundException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+}

@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,6 +39,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
@@ -183,7 +185,8 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
     {
         DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
         String sessionToken = dssFileUtils.login(loginUser, loginPass);
-        SearchResult<DataSetFile> result = dssFileUtils.searchWithDataSetCode(sessionToken, dataSetCode, new DataSetFileFetchOptions());
+        DataSetFileFetchOptions dsFileFetchOptions = new DataSetFileFetchOptions();
+        SearchResult<DataSetFile> result = dssFileUtils.searchWithDataSetCode(sessionToken, dataSetCode, dsFileFetchOptions);
         List<DataSetFile> files = result.getObjects();
 
         List<IDataSetFileId> fileIds = new LinkedList<IDataSetFileId>();
@@ -223,13 +226,19 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
                 Path path = Paths.get(dir.getAbsolutePath(), filePath);
                 try
                 {
-                    ChecksummmingInputStream cis = new ChecksummmingInputStream(fileDownload.getInputStream());
-                    Files.copy(cis, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(fileDownload.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-                    if (cis.checksum() != fileDetails.getCrc32checksum()
-                            || cis.getLength() != fileDetails.getFileLength())
+                    File copiedFile = new File(path.normalize().toString());
+                    FileInputStream fis = new FileInputStream(copiedFile);
+
+                    int checksumCRC32 = IOUtilities.getChecksumCRC32(fis);
+
+                    if (checksumCRC32 != fileDetails.getCrc32checksum()
+                            || copiedFile.length() != fileDetails.getFileLength())
                     {
-                        log.error("Crc32 or file length does not match for " + orgFile.getPath());
+                        log.error("Crc32 or file length does not match for  " + orgFile.getPath() + " calculated:" + checksumCRC32
+                                + " expected:"
+                                + fileDetails.getCrc32checksum());
                         return FAILURE;
                     }
                 } catch (IOException e)
