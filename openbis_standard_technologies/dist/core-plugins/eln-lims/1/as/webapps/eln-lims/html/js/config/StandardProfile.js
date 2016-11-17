@@ -428,11 +428,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		this.sampleFormOnSubmit = function(sample, action) {
 			if(sample.sampleTypeCode === "ORDER") {
 				var orderStatus = sample.properties["ORDER_STATUS"];
+				var samplesToDelete = null;
 				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["ORDER_STATE"]) {
 					//Set property
 					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
 					//Delete requests
-					var samplesToDelete = [];
+					samplesToDelete = [];
 					var requests = sample.parents;
 					if(requests) {
 						for(var rIdx = 0; rIdx < requests.length; rIdx++) {
