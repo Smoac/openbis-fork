@@ -362,7 +362,7 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}
 	
-	this.deleteSamples = function(samplePermIds, reason, callback) {
+	this.deleteSamples = function(samplePermIds, reason, callback, confirmDeletions) {
 		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
 		        function(SamplePermId, SampleDeletionOptions) {
 		            var samplePermIdsObj = [];
@@ -375,7 +375,11 @@ function ServerFacade(openbisServer) {
 		 
 		            // logical deletion (move objects to the trash can)
 		            mainController.openbisV3.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
-		            	callback(deletionId);
+		            	if(confirmDeletions) {
+		            		mainController.openbisV3.confirmDeletions([deletionId]).then(callback);
+		            	} else {
+		            		callback(deletionId);
+		            	}
 		            });
 		 });
 	}

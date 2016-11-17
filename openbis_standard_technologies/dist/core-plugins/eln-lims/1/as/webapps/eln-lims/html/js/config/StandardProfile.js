@@ -428,15 +428,23 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		this.sampleFormOnSubmit = function(sample, action) {
 			if(sample.sampleTypeCode === "ORDER") {
 				var orderStatus = sample.properties["ORDER_STATUS"];
-				if(orderStatus === "ORDERED") {
-					delete sample.properties["ORDER_STATE"];
+				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["ORDER_STATE"]) {
+					//Set property
 					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
+					//Delete requests
+					var samplesToDelete = [];
+					var requests = sample.parents;
+					if(requests) {
+						for(var rIdx = 0; rIdx < requests.length; rIdx++) {
+							samplesToDelete.push(requests[rIdx].permId);
+						}
+					}
 				}
-				action(sample, null);
+				action(sample, null, samplesToDelete);
 			} else if(sample.sampleTypeCode === "REQUEST") {
 				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
 			} else if(action) {
-				action(sample, null);
+				action(sample);
 			}
 		}
 		

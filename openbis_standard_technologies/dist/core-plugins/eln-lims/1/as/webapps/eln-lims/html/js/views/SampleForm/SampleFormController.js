@@ -158,7 +158,7 @@ function SampleFormController(mainController, mode, sample) {
 		
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
-		var continueSampleCreation = function(sample, newSampleParents) {
+		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete) {
 			
 			//
 			//Identification Info
@@ -315,7 +315,7 @@ function SampleFormController(mainController, mode, sample) {
 			if(profile.getDefaultDataStoreCode()) {
 				
 				mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
-					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
+					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response, samplesToDelete);
 				});
 				
 			} else {
@@ -327,7 +327,7 @@ function SampleFormController(mainController, mode, sample) {
 		return false;
 	}
 	
-	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response) {
+	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response, samplesToDelete) {
 		if(response.error) { //Error Case 1
 			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") { //Error Case 2
@@ -379,8 +379,21 @@ function SampleFormController(mainController, mode, sample) {
 				
 				searchUntilFound(); //First call
 			}
-			Util.showSuccess(message, callbackOk);
-			_this._sampleFormModel.isFormDirty = false;
+			
+			if(samplesToDelete) {
+				mainController.serverFacade.deleteSamples(samplesToDelete, 
+															"Order " + _this._sampleFormModel.sample.code + " Created", 
+															function() {
+																Util.showSuccess(message, callbackOk);
+																_this._sampleFormModel.isFormDirty = false;
+															}, 
+															true);
+			} else {
+				Util.showSuccess(message, callbackOk);
+				_this._sampleFormModel.isFormDirty = false;
+			}
+			
+			
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}
