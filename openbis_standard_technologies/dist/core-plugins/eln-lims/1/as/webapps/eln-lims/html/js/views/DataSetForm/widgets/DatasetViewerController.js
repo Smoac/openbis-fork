@@ -34,8 +34,10 @@ function DataSetViewerController(containerId, profile, sample, serverFacade, dat
 	this.init = function() {
 		// Loading the datasets
 		if(this._datasetViewerModel.datasets) {
-			this.updateDatasets(this._datasetViewerModel.datasets);
-			this._datasetViewerView.repaintDatasets();
+			if(this._datasetViewerModel.datasets.length > 0) {
+				this.updateDatasets(this._datasetViewerModel.datasets);
+				this._datasetViewerView.repaintDatasets();
+			}
 		} else {
 			var _this = this;
 			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
