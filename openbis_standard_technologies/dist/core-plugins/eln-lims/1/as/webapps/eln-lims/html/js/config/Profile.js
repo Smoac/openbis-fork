@@ -78,7 +78,7 @@ $.extend(DefaultProfile.prototype, {
 					"CUSTOMER_NUMBER" : "Customer No",
 					
 					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCode\t\tUnit Price",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCatalog Num\t\tUnit Price",
 					"PRICE_TOTALS_LABEL" : "Total Price",
 					"ADDITIONAL_INFO_LABEL" : "Additional Information"
 				},
@@ -106,7 +106,7 @@ $.extend(DefaultProfile.prototype, {
 					"CUSTOMER_NUMBER" : "Kundennummer",
 
 					"REQUESTED_PRODUCTS_LABEL" : "Angeforderte Produkte",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Anzahl\t\tName\t\tCode\t\tPreis pro Einheit",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Anzahl\t\tName\t\tCatalog Num\t\tPreis pro Einheit",
 					"PRICE_TOTALS_LABEL" : "Gesamtpreis",
 					"ADDITIONAL_INFO_LABEL" : "Zusätzliche Informationen"
 				}

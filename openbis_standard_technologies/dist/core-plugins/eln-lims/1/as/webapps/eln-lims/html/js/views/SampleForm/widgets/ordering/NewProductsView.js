@@ -15,7 +15,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 		var $newProductsTableHead = $("<thead>");
 		var $newProductsTableHeaders = $("<tr>")
 											.append($("<th>").append("Name"))
-											.append($("<th>").append("Catalog Code"))
+											.append($("<th>").append("Catalog Num"))
 											.append($("<th>").append("Price"))
 											.append($("<th>").append("Currency"))
 											.append($("<th>").append("Supplier"))
@@ -77,13 +77,13 @@ function NewProductsView(newProductsController, newProductsModel) {
 					}
 				});
 			
-			var codeField = FormUtil.getTextInputField(null, "Code", true);
+			var catalogNumField = FormUtil.getTextInputField(null, "Catalog Num", true);
 			
 			var nameField = FormUtil.getTextInputField(null, "Name", true);
 			
 			var $newProductsTableRow = $("<tr>")
 			.append($("<td>").append(nameField))
-			.append($("<td>").append(codeField))
+			.append($("<td>").append(catalogNumField))
 			.append($("<td>").append(priceField))
 			.append($("<td>").append(currencyDropdown))
 			.append($("<td>").append(supplierDropdown))

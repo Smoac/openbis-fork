@@ -662,12 +662,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					// Order Summary Grid
 					//
 					var columns = [ {
-						label : 'Code',
-						property : 'code',
+						label : 'Catalog Num',
+						property : 'catalogNum',
 						isExportable: true,
 						sortable : true,
 						render : function(data) {
-							return FormUtil.getFormLink(data.code, "Sample", data.permId);
+							return FormUtil.getFormLink(data.catalogNum, "Sample", data.permId);
 						}
 					},{
 						label : 'Supplier',
@@ -718,7 +718,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								rowData.permId = product.permId;
 								rowData.supplier = provider.properties["NAME"];
 								rowData.name = product.properties["NAME"];
-								rowData.code =  product.properties["CATALOG_NUM"];
+								rowData.catalogNum =  product.properties["CATALOG_NUM"];
 								rowData.quantity = quantity;
 								rowData.unitPrice = unitPrice;
 								if(unitPrice !== "N/A") {
