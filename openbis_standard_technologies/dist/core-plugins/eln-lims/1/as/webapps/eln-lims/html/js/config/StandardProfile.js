@@ -580,7 +580,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								page += "\n";
 								page += languageLabels["SUPPLIER_INFORMATION"];
 								page += "\n";
-								page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties["COMPANY_NAME"];
+								page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties["NAME"];
 								page += "\n";
 								page += "- " + languageLabels["SUPPLIER_ADDRESS_LINE_1"] + ": " + provider.properties["COMPANY_ADDRESS_LINE_1"]
 								page += "\n";
@@ -609,7 +609,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									if(unitPriceAsString) {
 										unitPrice = parseFloat(unitPriceAsString);
 									}
-									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_CODE"] + "\t\t" + unitPrice + " " + product.properties["CURRENCY"];
+									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_NUM"] + "\t\t" + unitPrice + " " + product.properties["CURRENCY"];
 									page += "\n";
 									
 									if(unitPriceAsString) {
@@ -716,9 +716,9 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								}
 								var rowData = {};
 								rowData.permId = product.permId;
-								rowData.supplier = provider.properties["COMPANY_NAME"];
+								rowData.supplier = provider.properties["NAME"];
 								rowData.name = product.properties["NAME"];
-								rowData.code =  product.properties["CATALOG_CODE"];
+								rowData.code =  product.properties["CATALOG_NUM"];
 								rowData.quantity = quantity;
 								rowData.unitPrice = unitPrice;
 								if(unitPrice !== "N/A") {

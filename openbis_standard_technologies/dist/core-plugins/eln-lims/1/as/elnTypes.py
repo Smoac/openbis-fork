@@ -939,7 +939,7 @@ ORDER_STATUS = [ MANDATORY_ITEM_VERSION, "ORDER_STATUS", "Order Status",
                                 ]];
                                 
 SUPPLIER = [MANDATORY_ITEM_VERSION, False, "SUPPLIER", "", [
-        [MANDATORY_ITEM_VERSION, "COMPANY_NAME",                        "General",            "Company Name",                        DataType.VARCHAR,        None,                "Name", None, None, True],
+        [MANDATORY_ITEM_VERSION, "NAME",                        "General",            "Company Name",                        DataType.VARCHAR,        None,                "Name", None, None, True],
         [MANDATORY_ITEM_VERSION, "COMPANY_ADDRESS_LINE_1",                     "General",            "Company address",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
         [MANDATORY_ITEM_VERSION, "COMPANY_ADDRESS_LINE_2",                     "General",            "Company address Line 2",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
         [MANDATORY_ITEM_VERSION, "COMPANY_FAX",                         "General",            "Company fax",            DataType.VARCHAR,                   None,                       "Company fax",                  None,       None],
@@ -960,7 +960,7 @@ PRODUCT = [MANDATORY_ITEM_VERSION, False, "PRODUCT", "", [
         [MANDATORY_ITEM_VERSION, "PRODUCT_SECONDARY_NAMES",             "General",            "Product Secondary Names",        DataType.VARCHAR,                   None,                       "Product Secondary Names",            None,       None],
         [MANDATORY_ITEM_VERSION, "DESCRIPTION",                         "General",            "Description",                    DataType.MULTILINE_VARCHAR,         None,                       "Description",                        None,       None],
         [MANDATORY_ITEM_VERSION, "COMPANY",                             "General",            "Company",                        DataType.VARCHAR,                   None,                       "Company",                            None,       None],
-        [MANDATORY_ITEM_VERSION, "CATALOG_CODE",                        "General",            "Catalog Code",                   DataType.VARCHAR,                   None,                       "Catalog Code",                       None,       None, True],
+        [MANDATORY_ITEM_VERSION, "CATALOG_NUM",                        "General",            "Catalog Number",                   DataType.VARCHAR,                   None,                       "Catalog Code",                       None,       None, True],
         [MANDATORY_ITEM_VERSION, "CATEGORY",                            "General",            "Category",                       DataType.VARCHAR,                   None,                       "Category",                           None,       None],
         [MANDATORY_ITEM_VERSION, "HAZARD_STATEMENT",                    "General",            "Hazard Statement",               DataType.VARCHAR,                   None,                       "Hazard Statement",                   None,       None],
         [MANDATORY_ITEM_VERSION, "PRICE_PER_UNIT",                      "General",            "Estimated Price",                 DataType.REAL,                      None,                       "Price Per Unit",                     None,       None],

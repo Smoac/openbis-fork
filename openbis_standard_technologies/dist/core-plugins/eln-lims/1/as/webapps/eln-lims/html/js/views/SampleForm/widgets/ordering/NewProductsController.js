@@ -46,7 +46,7 @@ function NewProductsController() {
 							NAME : $($($productProperties[0]).children()[0]).val(),
 							PRICE_PER_UNIT : $($($productProperties[2]).children()[0]).val(),
 							CURRENCY : $($($productProperties[3]).children()[0]).val(),
-							CATALOG_CODE : $($($productProperties[1]).children()[0]).val()
+							CATALOG_NUM : $($($productProperties[1]).children()[0]).val()
 						},
 						annotations : {
 							QUANTITY_OF_ITEMS : $($($productProperties[5]).children()[0]).val()
