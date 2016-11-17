@@ -322,6 +322,19 @@ $.extend(Grid.prototype, {
 	exportTSVB : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
 		var thisGrid = this;
 		
+		function stringToUtf16ByteArray(str)
+		{
+		    var bytes = [];
+		    bytes.push(255, 254);
+		   for (var i = 0; i < str.length; ++i)
+		   {
+		       var charCode = str.charCodeAt(i);
+		       bytes.push(charCode & 0xFF);  //low byte
+		       bytes.push((charCode & 0xFF00) >>> 8);  //high byte (might be 0)
+		   }
+		    return bytes;
+		}
+		
 		var exportColumnsFromData = function(namePrefix, data, headings) {
 			if(data.objects) {
 				data = data.objects
@@ -356,24 +369,11 @@ $.extend(Grid.prototype, {
 			var csvContentEncoded = null;
 			var out = null;
 			var charType = null;
-			try { //USE UTF-16 if available
-				csvContentEncoded = (new TextEncoder("utf-16le")).encode([tsvWithoutNumbers]);
-				var bom = new Uint8Array([0xFF, 0xFE]);
-				out = new Uint8Array( bom.byteLength + csvContentEncoded.byteLength );
-				out.set( bom , 0 );
-				out.set( csvContentEncoded, bom.byteLength );
-				charType = 'text/tsv;charset=UTF-16LE;';
-			} catch(error) { //USE UTF-8
-				csvContentEncoded = tsvWithoutNumbers;
-				out = new Uint8Array(csvContentEncoded.length);
-				for(var ii = 0,jj = csvContentEncoded.length; ii < jj; ++ii){
-					out[ii] = csvContentEncoded.charCodeAt(ii);
-				}
-				charType = 'text/tsv;charset=UTF-8;';
-			}
-			//
 			
-			var blob = new Blob([out], {type: charType});
+			var utf16bytes = stringToUtf16ByteArray(tsvWithoutNumbers);
+			var utf16bytesArray = new Uint8Array( utf16bytes.length );
+			utf16bytesArray.set( utf16bytes , 0 );			
+			var blob = new Blob([utf16bytesArray], {type: 'text/tsv;charset=UTF-16LE;'});
 			saveAs(blob,'exportedTable' + namePrefix + '.tsv');
 		}
 		
