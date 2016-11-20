@@ -18,6 +18,9 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.Checksum;
@@ -43,10 +46,9 @@ public class IOUtilities
     public static int getChecksumCRC32(InputStream inputStream)
     {
         Checksum checksummer = new CRC32();
-        InputStream in = null;
+        InputStream in = new CheckedInputStream(inputStream, checksummer);
         try
         {
-            in = new CheckedInputStream(inputStream, checksummer);
             IOUtils.copy(in, new NullOutputStream());
         } catch (IOException ex)
         {
@@ -58,6 +60,14 @@ public class IOUtilities
         return (int) checksummer.getValue();
     }
 
+    public static int copyWithChecksum(InputStream inputStream, Path path, CopyOption... copyOptions) throws IOException
+    {
+        Checksum checksummer = new CRC32();
+        InputStream checkedInputStream = new CheckedInputStream(inputStream, checksummer);
+        Files.copy(checkedInputStream, path, copyOptions);
+        return (int) checksummer.getValue();
+    }
+    
     /**
      * Converts a CRC32 checksum to a string representation.
      */
