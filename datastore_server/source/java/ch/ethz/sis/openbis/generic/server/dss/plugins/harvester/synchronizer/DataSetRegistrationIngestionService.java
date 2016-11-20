@@ -17,12 +17,11 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -226,13 +225,8 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
                 Path path = Paths.get(dir.getAbsolutePath(), filePath);
                 try
                 {
-                    Files.copy(fileDownload.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
+                    int checksumCRC32 = IOUtilities.copyWithChecksum(fileDownload.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                     File copiedFile = new File(path.normalize().toString());
-                    FileInputStream fis = new FileInputStream(copiedFile);
-
-                    int checksumCRC32 = IOUtilities.getChecksumCRC32(fis);
-
                     if (checksumCRC32 != fileDetails.getCrc32checksum()
                             || copiedFile.length() != fileDetails.getFileLength())
                     {
