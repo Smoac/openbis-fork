@@ -19,9 +19,10 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -223,9 +224,12 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
                         + MemorySizeFormatter.format(orgFile.getFileLength()));
 
                 Path path = Paths.get(dir.getAbsolutePath(), filePath);
+
                 try
                 {
-                    int checksumCRC32 = IOUtilities.copyWithChecksum(fileDownload.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                    InputStream inputStream = fileDownload.getInputStream();
+                    OutputStream outputStream = Files.newOutputStream(path);
+                    int checksumCRC32 = IOUtilities.copyAndGetChecksumCRC32(inputStream, outputStream);
                     File copiedFile = new File(path.normalize().toString());
                     if (checksumCRC32 != fileDetails.getCrc32checksum()
                             || copiedFile.length() != fileDetails.getFileLength())
