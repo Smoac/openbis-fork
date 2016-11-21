@@ -44,10 +44,14 @@ public class IOUtilities
     
     public static int getChecksumCRC32(InputStream inputStream)
     {
-        return copyWithChecksum(inputStream, new NullOutputStream());
+        return copyAndGetChecksumCRC32(inputStream, new NullOutputStream());
     }
 
-    public static int copyWithChecksum(InputStream inputStream, OutputStream out)
+    /**
+     * Copies the input stream into the output stream while calculating the CRC32 checksum. Note also that, the input and output streams are closed
+     * after the invocation of this method.
+     */
+    public static int copyAndGetChecksumCRC32(InputStream inputStream, OutputStream out)
     {
         Checksum checksummer = new CRC32();
         InputStream in = new CheckedInputStream(inputStream, checksummer);
