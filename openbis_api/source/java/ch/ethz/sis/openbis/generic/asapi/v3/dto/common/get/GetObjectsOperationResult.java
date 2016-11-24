@@ -17,8 +17,8 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +66,7 @@ public abstract class GetObjectsOperationResult<ID extends IObjectId, OBJECT> im
     @JsonIgnore
     public Map<ID, OBJECT> getObjectMap()
     {
-        Map<ID, OBJECT> objectMap = new HashMap<ID, OBJECT>();
+        Map<ID, OBJECT> objectMap = new LinkedHashMap<ID, OBJECT>();
 
         if (ids != null && objects != null)
         {
