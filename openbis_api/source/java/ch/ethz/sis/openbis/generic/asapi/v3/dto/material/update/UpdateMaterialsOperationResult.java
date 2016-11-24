@@ -31,6 +31,11 @@ public class UpdateMaterialsOperationResult extends UpdateObjectsOperationResult
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateMaterialsOperationResult()
+    {
+    }
+
     public UpdateMaterialsOperationResult(List<MaterialPermId> ids)
     {
         super(ids);

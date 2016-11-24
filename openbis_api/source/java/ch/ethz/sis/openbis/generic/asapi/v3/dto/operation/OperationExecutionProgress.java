@@ -34,6 +34,11 @@ public class OperationExecutionProgress implements IOperationExecutionProgress
 
     private Integer totalItemsToProcess;
 
+    @SuppressWarnings("unused")
+    private OperationExecutionProgress()
+    {
+    }
+
     public OperationExecutionProgress(String message, Integer numItemsProcessed, Integer totalItemsToProcess)
     {
         this.message = message;

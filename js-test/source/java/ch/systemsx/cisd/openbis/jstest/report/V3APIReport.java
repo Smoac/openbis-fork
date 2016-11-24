@@ -45,9 +45,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
-
 /**
  * @author pkupczyk
  */
@@ -85,23 +82,23 @@ public class V3APIReport
                 }
             });
 
-        CLASS_FILTERS.add(new ClassFilter("classes that implement IOperation or IOperationResult (executeOperations is not yet supported in JS)")
-            {
-                @Override
-                public boolean accepts(Class<?> clazz)
-                {
-                    return false == IOperation.class.isAssignableFrom(clazz) && false == IOperationResult.class.isAssignableFrom(clazz);
-                }
-            });
-
-        CLASS_FILTERS.add(new ClassFilter("operation execution related classes (executeOperations is not yet supported in JS)")
-            {
-                @Override
-                public boolean accepts(Class<?> clazz)
-                {
-                    return false == clazz.getName().contains("v3.dto.operation") && false == clazz.getName().contains("v3.dto.common.operation");
-                }
-            });
+//        CLASS_FILTERS.add(new ClassFilter("classes that implement IOperation or IOperationResult (executeOperations is not yet supported in JS)")
+//            {
+//                @Override
+//                public boolean accepts(Class<?> clazz)
+//                {
+//                    return false == IOperation.class.isAssignableFrom(clazz) && false == IOperationResult.class.isAssignableFrom(clazz);
+//                }
+//            });
+//
+//        CLASS_FILTERS.add(new ClassFilter("operation execution related classes (executeOperations is not yet supported in JS)")
+//            {
+//                @Override
+//                public boolean accepts(Class<?> clazz)
+//                {
+//                    return false == clazz.getName().contains("v3.dto.operation") && false == clazz.getName().contains("v3.dto.common.operation");
+//                }
+//            });
 
     }
 

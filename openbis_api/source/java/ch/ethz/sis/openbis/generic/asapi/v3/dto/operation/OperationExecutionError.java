@@ -33,6 +33,11 @@ public class OperationExecutionError implements IOperationExecutionError
 
     private String message;
 
+    @SuppressWarnings("unused")
+    private OperationExecutionError()
+    {
+    }
+
     public OperationExecutionError(String message)
     {
         this.message = message;

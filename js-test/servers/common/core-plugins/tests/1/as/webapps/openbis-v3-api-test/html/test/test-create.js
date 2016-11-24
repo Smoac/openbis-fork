@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
-	return function() {
-		QUnit.module("Create tests");
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testCreate = function(c, fCreate, fFind, fCheck) {
 			c.start();
@@ -21,7 +21,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 
 		QUnit.test("createSpaces()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("SPACE");
 
 			var fCreate = function(facade) {
@@ -40,7 +40,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createProjects()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("PROJECT");
 
 			var fCreate = function(facade) {
@@ -73,7 +73,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createExperiments()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
@@ -116,7 +116,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createSamples()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("SAMPLE");
 
 			var fCreate = function(facade) {
@@ -139,7 +139,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createMaterials()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("MATERIAL");
 
 			var fCreate = function(facade) {
@@ -161,7 +161,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createVocabularyTerms()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY_TERM");
 
 			var fCreate = function(facade) {
@@ -188,7 +188,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createTags()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("TAG");
 			var description = "Description of " + code;
 
@@ -207,5 +207,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testCreate(c, fCreate, c.findTag, fCheck);
 		});
 
+	}
+
+	return function() {
+		executeModule("Create tests", openbis);
+		executeModule("Create tests (executeOperations)", openbisExecuteOperations);
 	}
 });

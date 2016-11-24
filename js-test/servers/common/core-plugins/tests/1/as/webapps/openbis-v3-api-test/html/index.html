@@ -29,7 +29,7 @@
 <script>
 	require([ 'jquery', 'test/qunit', 'test/qunit-report', 'test/main' ], function($, qunit, report, main) {
 		qunit.config.autostart = false;
-		qunit.config.testTimeout = 20000;
+		qunit.config.testTimeout = 60000;
 		qunit.jUnitReport = function(report) {
 			$("#qunit-junit-report").text(report.xml);
 			console.log(report.xml);

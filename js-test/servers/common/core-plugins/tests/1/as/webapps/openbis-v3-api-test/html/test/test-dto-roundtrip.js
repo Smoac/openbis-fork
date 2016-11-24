@@ -30,11 +30,11 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 			var actionFacade;
 
 			// those classes cannot be deserialized if the value is an empty string, must be a null
-			var nullParamRegexes = [/number.*value/i, /SamplesOperation/];
+			var nullParamRegexes = [/number.*value/i, /.*Operation/, /.*OperationResult/];
 
 			var instantiate = function(proto) {
 				var initWithNull = _.any(nullParamRegexes, function (regex) {
-							return proto.prototype["@type"].search(regex) > 0;
+							return proto.prototype["@type"].match(regex) !== null;
 						});
 				return new proto(initWithNull ? null : ""); 
 			};

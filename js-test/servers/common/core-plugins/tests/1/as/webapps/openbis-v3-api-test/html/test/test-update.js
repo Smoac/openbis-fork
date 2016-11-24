@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
-	return function() {
-		QUnit.module("Update tests");
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testUpdate = function(c, fCreate, fUpdate, fFind, fCheck, fCheckError) {
 			c.start();
@@ -38,7 +38,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 
 		QUnit.test("updateSpaces()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("SPACE");
 
 			var fCreate = function(facade) {
@@ -64,7 +64,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateProjects() added attachments", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("PROJECT");
 
 			var fCreate = function(facade) {
@@ -104,7 +104,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateProjects() changed attributes", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("PROJECT");
 
 			var fCreate = function(facade) {
@@ -131,35 +131,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testUpdate(c, fCreate, fUpdate, c.findProject, fCheck);
 		});
 
-		QUnit.test("updateProjects() removed space",
-				function(assert) {
-					var c = new common(assert);
-					var code = c.generateId("PROJECT");
+		QUnit.test("updateProjects() removed space", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("PROJECT");
 
-					var fCreate = function(facade) {
-						var projectCreation = new c.ProjectCreation();
-						projectCreation.setSpaceId(new c.SpacePermId("TEST"));
-						projectCreation.setCode(code);
-						projectCreation.setDescription("JS test project");
-						return facade.createProjects([ projectCreation ]);
-					}
+			var fCreate = function(facade) {
+				var projectCreation = new c.ProjectCreation();
+				projectCreation.setSpaceId(new c.SpacePermId("TEST"));
+				projectCreation.setCode(code);
+				projectCreation.setDescription("JS test project");
+				return facade.createProjects([ projectCreation ]);
+			}
 
-					var fUpdate = function(facade, permId) {
-						var projectUpdate = new c.ProjectUpdate();
-						projectUpdate.setProjectId(permId);
-						projectUpdate.setSpaceId(null);
-						return facade.updateProjects([ projectUpdate ]);
-					}
+			var fUpdate = function(facade, permId) {
+				var projectUpdate = new c.ProjectUpdate();
+				projectUpdate.setProjectId(permId);
+				projectUpdate.setSpaceId(null);
+				return facade.updateProjects([ projectUpdate ]);
+			}
 
-					var fCheckError = function(error, permId) {
-						c.assertContains(error, "Space id cannot be null", "Error");
-					}
+			var fCheckError = function(error, permId) {
+				c.assertContains(error, "Space id cannot be null", "Error");
+			}
 
-					testUpdate(c, fCreate, fUpdate, c.findProject, null, fCheckError);
-				});
+			testUpdate(c, fCreate, fUpdate, c.findProject, null, fCheckError);
+		});
 
 		QUnit.test("updateExperiments() changed attributes + added tag + added attachment", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
@@ -207,7 +206,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateExperiments() changed properties + removed tag", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
@@ -243,7 +242,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateExperiments() removed project", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
@@ -269,7 +268,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateSamples()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("SAMPLE");
 
 			var fCreate = function(facade) {
@@ -302,7 +301,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateDataSets()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = null;
 
 			var fCreate = function(facade) {
@@ -334,7 +333,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateMaterials()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("MATERIAL");
 
 			var fCreate = function(facade) {
@@ -363,7 +362,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateVocabularyTerms()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY_TERM");
 			var description = "Description of " + code;
 
@@ -391,7 +390,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("updateTags()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var code = c.generateId("TAG");
 			var description = "Description of " + code;
 
@@ -416,5 +415,36 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testUpdate(c, fCreate, fUpdate, c.findTag, fCheck);
 		});
 
+		QUnit.test("updateOperationExecutions()", function(assert) {
+			var c = new common(assert, openbis);
+			var permId = null;
+
+			var fCreate = function(facade) {
+				return c.createOperationExecution(facade).then(function(id) {
+					permId = id;
+					return [ id ];
+				});
+			}
+
+			var fUpdate = function(facade, permId) {
+				var executionUpdate = new c.OperationExecutionUpdate();
+				executionUpdate.setExecutionId(permId);
+				executionUpdate.setDescription("Description " + permId.getPermId());
+				return facade.updateOperationExecutions([ executionUpdate ]);
+			}
+
+			var fCheck = function(execution) {
+				c.assertEqual(execution.getPermId().getPermId(), permId.getPermId(), "PermId");
+				c.assertEqual(execution.getDescription(), "Description " + permId.getPermId(), "Execution description");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findOperationExecution, fCheck);
+		});
+
+	}
+
+	return function() {
+		executeModule("Update tests", openbis);
+		executeModule("Update tests (executeOperations)", openbisExecuteOperations);
 	}
 });

@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
-	return function() {
-		QUnit.module("Get tests");
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testGet = function(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig) {
 			c.start();
@@ -113,7 +113,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 
 		QUnit.test("getSpaces()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.SpaceFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -137,7 +137,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getProjects()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.ProjectFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -162,7 +162,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getExperiments()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.ExperimentFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -186,7 +186,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getSamples()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.SampleFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -210,7 +210,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getDataSets()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.DataSetFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -250,7 +250,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getMaterials()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.MaterialFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -274,7 +274,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getVocabularyTerms()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.VocabularyTermFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -298,7 +298,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("getTags()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			var fo = new c.TagFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -321,5 +321,33 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
+		QUnit.test("getOperationExecutions()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.OperationExecutionFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+
+			var fCreate = function(facade) {
+				return $.when(c.createOperationExecution(facade), c.createOperationExecution(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getOperationExecutions(permIds, fo);
+			}
+
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getOperationExecutions(permIds, new c.OperationExecutionFetchOptions());
+			}
+
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+
+	}
+
+	return function() {
+		executeModule("Get tests", openbis);
+		executeModule("Get tests (executeOperations)", openbisExecuteOperations);
 	}
 });

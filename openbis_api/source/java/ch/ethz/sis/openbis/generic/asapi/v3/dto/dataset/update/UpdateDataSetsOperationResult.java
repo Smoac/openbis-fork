@@ -31,6 +31,11 @@ public class UpdateDataSetsOperationResult extends UpdateObjectsOperationResult<
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateDataSetsOperationResult()
+    {
+    }
+
     public UpdateDataSetsOperationResult(List<DataSetPermId> ids)
     {
         super(ids);

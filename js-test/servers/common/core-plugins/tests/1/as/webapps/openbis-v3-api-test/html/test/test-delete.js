@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
-	return function() {
-		QUnit.module("Deletion tests");
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testDeleteWithoutTrash = function(c, fCreate, fFind, fDelete) {
 			c.start();
@@ -125,64 +125,85 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 
 		QUnit.test("deleteSpaces()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createSpace, c.findSpace, c.deleteSpace);
 		});
 
 		QUnit.test("deleteProjects()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createProject, c.findProject, c.deleteProject);
 		});
 
 		QUnit.test("deleteExperiments() with revert", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithTrashAndRevert(c, c.createExperiment, c.findExperiment, c.deleteExperiment);
 		});
 
 		QUnit.test("deleteExperiments() with confirm", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithTrashAndConfirm(c, c.createExperiment, c.findExperiment, c.deleteExperiment);
 		});
 
 		QUnit.test("deleteSamples() with revert", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithTrashAndRevert(c, c.createSample, c.findSample, c.deleteSample);
 		});
 
 		QUnit.test("deleteSamples() with confirm", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithTrashAndConfirm(c, c.createSample, c.findSample, c.deleteSample);
 		});
 
 		QUnit.test("deleteDataSets() with revert", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithTrashAndRevert(c, c.createDataSet, c.findDataSet, c.deleteDataSet);
 		});
 
 		QUnit.test("deleteDataSets() with confirm", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithTrashAndConfirm(c, c.createDataSet, c.findDataSet, c.deleteDataSet);
 		});
 
 		QUnit.test("deleteMaterials()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createMaterial, c.findMaterial, c.deleteMaterial);
 		});
 
 		QUnit.test("deleteVocabularyTerms()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createVocabularyTerm, c.findVocabularyTerm, c.deleteVocabularyTerm);
 		});
 
 		QUnit.test("replaceVocabularyTerms()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createVocabularyTerm, c.findVocabularyTerm, c.replaceVocabularyTerm);
 		});
 
 		QUnit.test("deleteTags()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createTag, c.findTag, c.deleteTag);
 		});
 
+		QUnit.test("deleteOperationExecutions()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var findNotDeletedOrDeletePending = function(facade, permId) {
+				return c.findOperationExecution(facade, permId).then(function(execution) {
+					if (!execution || execution.getAvailability() == "DELETE_PENDING" || execution.getAvailability() == "DELETED") {
+						return null;
+					} else {
+						return execution;
+					}
+				});
+			}
+
+			testDeleteWithoutTrash(c, c.createOperationExecution, findNotDeletedOrDeletePending, c.deleteOperationExecution);
+		});
+
+	}
+
+	return function() {
+		executeModule("Deletion tests", openbis);
+		executeModule("Deletion tests (executeOperations)", openbisExecuteOperations);
 	}
 });

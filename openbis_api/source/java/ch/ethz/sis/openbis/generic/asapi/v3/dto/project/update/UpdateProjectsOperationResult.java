@@ -31,6 +31,11 @@ public class UpdateProjectsOperationResult extends UpdateObjectsOperationResult<
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateProjectsOperationResult()
+    {
+    }
+
     public UpdateProjectsOperationResult(List<ProjectPermId> ids)
     {
         super(ids);

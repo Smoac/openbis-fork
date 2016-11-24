@@ -31,6 +31,11 @@ public class UpdateSamplesOperationResult extends UpdateObjectsOperationResult<S
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateSamplesOperationResult()
+    {
+    }
+
     public UpdateSamplesOperationResult(List<SamplePermId> ids)
     {
         super(ids);

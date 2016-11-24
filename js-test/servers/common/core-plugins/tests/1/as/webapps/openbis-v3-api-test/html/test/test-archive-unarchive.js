@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
-	return function() {
-		QUnit.module("Archive/Unarchive")
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testAction = function(c, fAction) {
 			c.start();
@@ -18,7 +18,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 
 		QUnit.test("archiveDataSets()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
@@ -31,7 +31,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("unarchiveDataSets()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
@@ -45,5 +45,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testAction(c, fAction);
 		});
 
+	}
+
+	return function() {
+		executeModule("Archive/Unarchive", openbis);
+		executeModule("Archive/Unarchive (executeOperations)", openbisExecuteOperations);
 	}
 })

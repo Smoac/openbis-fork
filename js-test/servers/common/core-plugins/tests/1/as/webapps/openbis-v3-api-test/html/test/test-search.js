@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ], function($, _, openbis, common, naturalsort) {
-	return function() {
-		QUnit.module("Search tests");
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/naturalsort' ], function($, _, openbis, openbisExecuteOperations, common, naturalsort) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testSearch = function(c, fSearch, fCheck) {
 			c.start();
@@ -86,7 +86,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		}
 
 		QUnit.test("searchSpaces()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SpaceSearchCriteria();
@@ -114,7 +114,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSpaces() with paging and sorting", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.SpaceSearchCriteria();
 			criteria.withOrOperator();
@@ -129,7 +129,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchProjects()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.ProjectSearchCriteria();
@@ -161,7 +161,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchProjects() with paging and sorting", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.ProjectSearchCriteria();
 			criteria.withOrOperator();
@@ -176,7 +176,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchExperiments()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.ExperimentSearchCriteria();
@@ -197,7 +197,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchExperiments() with paging and sorting", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.ExperimentSearchCriteria();
 			criteria.withOrOperator();
@@ -212,7 +212,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchExperimentTypes()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.ExperimentTypeSearchCriteria();
@@ -243,7 +243,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchExperimentTypes() with vocabularies", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.ExperimentTypeSearchCriteria();
@@ -275,7 +275,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSamples()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
@@ -310,7 +310,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSamples() with paging and sorting", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
@@ -325,7 +325,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSamples() withoutExperiment", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
@@ -342,7 +342,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSamples() withExperiment", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
@@ -359,7 +359,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSamples() withoutContainer", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
@@ -376,7 +376,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSamples() withContainer", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
@@ -393,7 +393,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchSampleTypes()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleTypeSearchCriteria();
@@ -451,7 +451,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -484,7 +484,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() with paging and sorting", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.DataSetSearchCriteria();
 			criteria.withOrOperator();
@@ -499,7 +499,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() with sorting by property", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.DataSetSearchCriteria();
 			criteria.withOrOperator();
@@ -515,7 +515,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() withoutSample", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -532,7 +532,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() withSample", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -549,7 +549,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() withoutExperiment", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -566,7 +566,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() withExperiment", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -583,7 +583,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() withPhysicalData", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -609,7 +609,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSets() withLinkedData", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
@@ -628,7 +628,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchDataSetTypes()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetTypeSearchCriteria();
@@ -660,7 +660,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchMaterials()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.MaterialSearchCriteria();
@@ -681,7 +681,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchMaterials() with paging and sorting", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var criteria = new c.MaterialSearchCriteria();
 			criteria.withOrOperator();
@@ -696,7 +696,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchMaterialTypes()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.MaterialTypeSearchCriteria();
@@ -728,7 +728,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchGlobally() withText thatContains", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
@@ -791,7 +791,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchGlobally() withText thatContainsExactly", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
@@ -818,7 +818,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchGlobally() withObjectKind thatIn", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
@@ -846,7 +846,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchGlobally() withWildCards", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
@@ -874,7 +874,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchObjectKindModifications()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.ObjectKindModificationSearchCriteria();
@@ -899,7 +899,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchVocabularyTerms()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.VocabularyTermSearchCriteria();
@@ -920,7 +920,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 		});
 
 		QUnit.test("searchTags()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.TagSearchCriteria();
@@ -938,5 +938,48 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchOperationExecutions()", function(assert) {
+			var c = new common(assert, openbis);
+
+			c.start();
+
+			// We want to start only once. Because testSearch() also calls
+			// start() let's make the start() do nothing.
+			c.start = function() {
+			}
+
+			c.createFacadeAndLogin().then(function(facade) {
+				$.when(c.createOperationExecution(facade)).then(function(permId) {
+					var fSearch = function(facade) {
+						var criteria = new c.OperationExecutionSearchCriteria();
+						return facade.searchOperationExecutions(criteria, new c.OperationExecutionFetchOptions());
+					}
+
+					var fCheck = function(facade, executions) {
+						c.assertTrue(executions.length >= 1);
+						var found = false;
+
+						executions.forEach(function(execution) {
+							if (execution.getPermId().getPermId() == permId.getPermId()) {
+								found = true;
+							}
+						});
+
+						c.assertTrue(found);
+					}
+
+					return testSearch(c, fSearch, fCheck);
+				});
+			}).fail(function() {
+				c.fail();
+				c.finish();
+			});
+		});
+
+	}
+
+	return function() {
+		executeModule("Search tests", openbis);
+		executeModule("Search tests (executeOperations)", openbisExecuteOperations);
 	}
 });

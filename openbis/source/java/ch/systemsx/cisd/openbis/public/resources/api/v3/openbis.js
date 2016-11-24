@@ -156,7 +156,7 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				returnType : "SessionInformation"
 			});
 		}
-		
+
 		this.createSpaces = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -350,6 +350,17 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.updateOperationExecutions = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateOperationExecutions",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+
 		this.getSpaces = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -466,6 +477,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				returnType : {
 					name : "Map",
 					arguments : [ "ITagId", "Tag" ]
+				}
+			});
+		}
+
+		this.getOperationExecutions = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getOperationExecutions",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IOperationExecutionId", "OperationExecution" ]
 				}
 			});
 		}
@@ -650,6 +676,18 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.searchOperationExecutions = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchOperationExecutions",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -741,6 +779,17 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.deleteOperationExecutions = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteOperationExecutions",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
 		this.searchDeletions = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -807,6 +856,17 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				data : {
 					"method" : "unarchiveDataSets",
 					"params" : [ thisFacade._private.sessionToken, ids, options ]
+				}
+			});
+		}
+
+		this.executeOperations = function(operations, options) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "executeOperations",
+					"params" : [ thisFacade._private.sessionToken, operations, options ]
 				}
 			});
 		}

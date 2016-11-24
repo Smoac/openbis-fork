@@ -1,4 +1,4 @@
-define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, _, dtos) {
+define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOpenbis, _, dtos) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
@@ -14,8 +14,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 	var testUserId = "openbis_test_js";
 	var testUserPassword = "password";
 
-	var Common = function(assert) {
+	var Common = function(assert, openbis) {
 		this.assert = assert;
+
+		if (!openbis) {
+			openbis = defaultOpenbis;
+		}
 
 		this.SpaceCreation = dtos.SpaceCreation;
 		this.ProjectCreation = dtos.ProjectCreation;
@@ -92,6 +96,88 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
 		this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
 		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
+
+		// operations
+
+		this.GetSessionInformationOperation = dtos.GetSessionInformationOperation;
+		this.GetSpacesOperation = dtos.GetSpacesOperation;
+		this.GetProjectsOperation = dtos.GetProjectsOperation;
+		this.GetExperimentsOperation = dtos.GetExperimentsOperation;
+		this.GetSamplesOperation = dtos.GetSamplesOperation;
+		this.GetDataSetsOperation = dtos.GetDataSetsOperation;
+		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
+		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
+		this.GetTagsOperation = dtos.GetTagsOperation;
+
+		this.CreateSpacesOperation = dtos.CreateSpacesOperation;
+		this.CreateProjectsOperation = dtos.CreateProjectsOperation;
+		this.CreateExperimentsOperation = dtos.CreateExperimentsOperation;
+		this.CreateSamplesOperation = dtos.CreateSamplesOperation;
+		this.CreateMaterialsOperation = dtos.CreateMaterialsOperation;
+		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
+		this.CreateTagsOperation = dtos.CreateTagsOperation;
+
+		this.UpdateSpacesOperation = dtos.UpdateSpacesOperation;
+		this.UpdateProjectsOperation = dtos.UpdateProjectsOperation;
+		this.UpdateExperimentsOperation = dtos.UpdateExperimentsOperation;
+		this.UpdateSamplesOperation = dtos.UpdateSamplesOperation;
+		this.UpdateDataSetsOperation = dtos.UpdateDataSetsOperation;
+		this.UpdateMaterialsOperation = dtos.UpdateMaterialsOperation;
+		this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
+		this.UpdateTagsOperation = dtos.UpdateTagsOperation;
+		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
+
+		this.GetSpacesOperation = dtos.GetSpacesOperation;
+		this.GetProjectsOperation = dtos.GetProjectsOperation;
+		this.GetExperimentsOperation = dtos.GetExperimentsOperation;
+		this.GetSamplesOperation = dtos.GetSamplesOperation;
+		this.GetDataSetsOperation = dtos.GetDataSetsOperation;
+		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
+		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
+		this.GetTagsOperation = dtos.GetTagsOperation;
+		this.GetOperationExecutionsOperation = dtos.GetOperationExecutionsOperation;
+
+		this.SearchSpacesOperation = dtos.SearchSpacesOperation;
+		this.SearchProjectsOperation = dtos.SearchProjectsOperation;
+		this.SearchExperimentsOperation = dtos.SearchExperimentsOperation;
+		this.SearchExperimentTypesOperation = dtos.SearchExperimentTypesOperation;
+		this.SearchSamplesOperation = dtos.SearchSamplesOperation;
+		this.SearchSampleTypesOperation = dtos.SearchSampleTypesOperation;
+		this.SearchDataSetsOperation = dtos.SearchDataSetsOperation;
+		this.SearchDataSetTypesOperation = dtos.SearchDataSetTypesOperation;
+		this.SearchMaterialsOperation = dtos.SearchMaterialsOperation;
+		this.SearchMaterialTypesOperation = dtos.SearchMaterialTypesOperation;
+		this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
+		this.SearchTagsOperation = dtos.SearchTagsOperation;
+		this.SearchCustomASServicesOperation = dtos.SearchCustomASServicesOperation;
+		this.SearchObjectKindModificationsOperation = dtos.SearchObjectKindModificationsOperation;
+		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
+		this.SearchOperationExecutionsOperation = dtos.SearchOperationExecutionsOperation;
+		this.SearchDeletionsOperation = dtos.SearchDeletionsOperation;
+
+		this.DeleteSpacesOperation = dtos.DeleteSpacesOperation;
+		this.DeleteProjectsOperation = dtos.DeleteProjectsOperation;
+		this.DeleteExperimentsOperation = dtos.DeleteExperimentsOperation;
+		this.DeleteSamplesOperation = dtos.DeleteSamplesOperation;
+		this.DeleteDataSetsOperation = dtos.DeleteDataSetsOperation;
+		this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
+		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
+		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
+		this.DeleteOperationExecutionsOperation = dtos.DeleteOperationExecutionsOperation;
+
+		this.RevertDeletionsOperation = dtos.RevertDeletionsOperation;
+		this.ConfirmDeletionsOperation = dtos.ConfirmDeletionsOperation;
+		this.ExecuteCustomASServiceOperation = dtos.ExecuteCustomASServiceOperation;
+		this.ArchiveDataSetsOperation = dtos.ArchiveDataSetsOperation;
+		this.UnarchiveDataSetsOperation = dtos.UnarchiveDataSetsOperation;
+
+		this.SynchronousOperationExecutionOptions = dtos.SynchronousOperationExecutionOptions;
+		this.AsynchronousOperationExecutionOptions = dtos.AsynchronousOperationExecutionOptions;
+		this.OperationExecutionDeletionOptions = dtos.OperationExecutionDeletionOptions;
+		this.OperationExecutionFetchOptions = dtos.OperationExecutionFetchOptions;
+		this.OperationExecutionPermId = dtos.OperationExecutionPermId;
+		this.OperationExecutionSearchCriteria = dtos.OperationExecutionSearchCriteria;
+		this.OperationExecutionUpdate = dtos.OperationExecutionUpdate;
 
 		this.getDtos = function() {
 			return dtos;
@@ -202,6 +288,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			});
 		}.bind(this);
 
+		this.createOperationExecution = function(facade) {
+			var c = this;
+			var operation = new dtos.GetSpacesOperation([ new dtos.SpacePermId("/TEST") ], new dtos.SpaceFetchOptions());
+			var options = new dtos.SynchronousOperationExecutionOptions();
+			options.setExecutionId(new dtos.OperationExecutionPermId());
+			return facade.executeOperations([ operation ], options).then(function() {
+				return options.getExecutionId();
+			});
+		}.bind(this);
+
 		this.findSpace = function(facade, id) {
 			var c = this;
 			return facade.getSpaces([ id ], c.createSpaceFetchOptions()).then(function(spaces) {
@@ -255,6 +351,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			var c = this;
 			return facade.getTags([ id ], c.createTagFetchOptions()).then(function(tags) {
 				return tags[id];
+			});
+		}.bind(this);
+
+		this.findOperationExecution = function(facade, id) {
+			var c = this;
+			return facade.getOperationExecutions([ id ], c.createOperationExecutionFetchOptions()).then(function(executions) {
+				return executions[id];
 			});
 		}.bind(this);
 
@@ -320,6 +423,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			var options = new dtos.TagDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteTags([ id ], options);
+		}.bind(this);
+
+		this.deleteOperationExecution = function(facade, id) {
+			var c = this;
+			var options = new dtos.OperationExecutionDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteOperationExecutions([ id ], options);
 		}.bind(this);
 
 		this.getObjectProperty = function(object, propertyName) {
@@ -466,6 +576,22 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			fo.withSamples();
 			fo.withDataSets();
 			fo.withMaterials();
+			return fo;
+		};
+
+		this.createOperationExecutionFetchOptions = function() {
+			var fo = new dtos.OperationExecutionFetchOptions();
+			fo.withOwner().withSpace();
+			fo.withOwner().withRegistrator();
+			fo.withNotification();
+			fo.withSummary().withOperations();
+			fo.withSummary().withProgress();
+			fo.withSummary().withError();
+			fo.withSummary().withResults();
+			fo.withDetails().withOperations();
+			fo.withDetails().withProgress();
+			fo.withDetails().withError();
+			fo.withDetails().withResults();
 			return fo;
 		};
 
@@ -623,6 +749,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 
 		this.ok = function(msg) {
 			this.assert.ok(true, msg);
+		};
+
+		this.section = function(msg) {
+			this.assert.ok(true, "******************************************************");
+			this.assert.ok(true, msg);
+			this.assert.ok(true, "******************************************************");
 		};
 
 		this.fail = function(msg) {

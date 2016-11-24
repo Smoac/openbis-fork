@@ -33,6 +33,11 @@ public class ConfirmDeletionsOperation implements IOperation
 
     private List<? extends IDeletionId> deletionIds;
 
+    @SuppressWarnings("unused")
+    private ConfirmDeletionsOperation()
+    {
+    }
+
     public ConfirmDeletionsOperation(List<? extends IDeletionId> deletionIds)
     {
         this.deletionIds = deletionIds;

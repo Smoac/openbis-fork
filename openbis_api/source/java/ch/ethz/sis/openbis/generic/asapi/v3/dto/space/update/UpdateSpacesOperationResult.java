@@ -31,6 +31,11 @@ public class UpdateSpacesOperationResult extends UpdateObjectsOperationResult<Sp
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateSpacesOperationResult()
+    {
+    }
+
     public UpdateSpacesOperationResult(List<SpacePermId> ids)
     {
         super(ids);

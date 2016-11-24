@@ -31,6 +31,11 @@ public class UpdateTagsOperationResult extends UpdateObjectsOperationResult<TagP
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateTagsOperationResult()
+    {
+    }
+
     public UpdateTagsOperationResult(List<TagPermId> ids)
     {
         super(ids);

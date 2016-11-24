@@ -16,7 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
@@ -31,7 +38,11 @@ public abstract class GetObjectsOperationResult<ID extends IObjectId, OBJECT> im
 
     private static final long serialVersionUID = 1L;
 
-    private Map<ID, OBJECT> objectMap;
+    @JsonProperty
+    private List<ID> ids;
+
+    @JsonProperty
+    private List<OBJECT> objects;
 
     protected GetObjectsOperationResult()
     {
@@ -39,11 +50,35 @@ public abstract class GetObjectsOperationResult<ID extends IObjectId, OBJECT> im
 
     public GetObjectsOperationResult(Map<ID, OBJECT> objectMap)
     {
-        this.objectMap = objectMap;
+        if (objectMap != null)
+        {
+            ids = new ArrayList<ID>();
+            objects = new ArrayList<OBJECT>();
+
+            for (Map.Entry<ID, OBJECT> entry : objectMap.entrySet())
+            {
+                ids.add(entry.getKey());
+                objects.add(entry.getValue());
+            }
+        }
     }
 
+    @JsonIgnore
     public Map<ID, OBJECT> getObjectMap()
     {
+        Map<ID, OBJECT> objectMap = new HashMap<ID, OBJECT>();
+
+        if (ids != null && objects != null)
+        {
+            Iterator<ID> idIter = ids.iterator();
+            Iterator<OBJECT> objectIter = objects.iterator();
+
+            while (idIter.hasNext() && objectIter.hasNext())
+            {
+                objectMap.put(idIter.next(), objectIter.next());
+            }
+        }
+
         return objectMap;
     }
 
@@ -56,7 +91,10 @@ public abstract class GetObjectsOperationResult<ID extends IObjectId, OBJECT> im
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + " " + getObjectMap().size() + " object(s)";
+        int idsSize = ids != null ? ids.size() : 0;
+        int objectsSize = objects != null ? objects.size() : 0;
+        int size = Math.min(idsSize, objectsSize);
+        return getClass().getSimpleName() + " " + size + " object(s)";
     }
 
 }

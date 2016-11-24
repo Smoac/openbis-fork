@@ -1,9 +1,9 @@
 /**
  * Test searching and executing custom AS services.
  */
-define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbis, common) {
-	return function() {
-		QUnit.module("Custom AS service tests")
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
+	var executeModule = function(moduleName, openbis) {
+		QUnit.module(moduleName);
 
 		var testAction = function(c, fAction, fCheck) {
 			c.start();
@@ -20,10 +20,10 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				c.finish();
 			});
 		}
-		
+
 		QUnit.test("searchCustomASServices()", function(assert) {
-			var c = new common(assert);
-			
+			var c = new common(assert, openbis);
+
 			var fAction = function(facade) {
 				var criteria = new c.CustomASServiceSearchCriteria();
 				criteria.withCode().thatStartsWith("simple");
@@ -37,13 +37,13 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				c.assertEqual(service.getCode().getPermId(), "simple-service", "Code");
 				c.assertEqual(service.getDescription(), "a simple service", "Description");
 			}
-			
+
 			testAction(c, fAction, fCheck);
 		});
-		
-		QUnit.test("executeCustomASService()", function(assert){
-			var c = new common(assert);
-			
+
+		QUnit.test("executeCustomASService()", function(assert) {
+			var c = new common(assert, openbis);
+
 			var fAction = function(facade) {
 				var id = new c.CustomASServiceCode("simple-service");
 				var options = new c.CustomASServiceExecutionOptions().withParameter("a", "1").withParameter("space-code", "TEST");
@@ -58,8 +58,13 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				c.assertEqual(space.getDescription(), null, "Description");
 				c.assertDate(space.getRegistrationDate(), "Registration date", 2013, 04, 12, 12, 59);
 			}
-			
+
 			testAction(c, fAction, fCheck);
 		});
+	}
+
+	return function() {
+		executeModule("Custom AS service tests", openbis);
+		executeModule("Custom AS service tests (executeOperations)", openbisExecuteOperations);
 	}
 })

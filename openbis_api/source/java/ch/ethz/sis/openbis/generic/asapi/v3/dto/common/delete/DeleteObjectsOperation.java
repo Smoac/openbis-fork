@@ -65,7 +65,7 @@ public abstract class DeleteObjectsOperation<ID extends IObjectId, OPTIONS exten
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + " " + getObjectIds().size() + " object(s)";
+        return getClass().getSimpleName() + (getObjectIds() != null ? " " + getObjectIds().size() + " objects(s)" : "");
     }
 
 }

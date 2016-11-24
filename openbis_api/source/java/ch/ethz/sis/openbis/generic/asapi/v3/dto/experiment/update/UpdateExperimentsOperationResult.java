@@ -31,6 +31,11 @@ public class UpdateExperimentsOperationResult extends UpdateObjectsOperationResu
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateExperimentsOperationResult()
+    {
+    }
+
     public UpdateExperimentsOperationResult(List<ExperimentPermId> ids)
     {
         super(ids);

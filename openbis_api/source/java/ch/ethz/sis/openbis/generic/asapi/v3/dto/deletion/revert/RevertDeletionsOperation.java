@@ -33,6 +33,11 @@ public class RevertDeletionsOperation implements IOperation
 
     private List<? extends IDeletionId> deletionIds;
 
+    @SuppressWarnings("unused")
+    private RevertDeletionsOperation()
+    {
+    }
+
     public RevertDeletionsOperation(List<? extends IDeletionId> deletionIds)
     {
         this.deletionIds = deletionIds;

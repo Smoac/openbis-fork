@@ -31,6 +31,11 @@ public class UpdateVocabularyTermsOperationResult extends UpdateObjectsOperation
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private UpdateVocabularyTermsOperationResult()
+    {
+    }
+
     public UpdateVocabularyTermsOperationResult(List<VocabularyTermPermId> ids)
     {
         super(ids);
