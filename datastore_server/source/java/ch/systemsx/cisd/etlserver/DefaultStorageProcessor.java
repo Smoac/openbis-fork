@@ -50,6 +50,10 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor implements
 
     static final String DELETE_UNZIPPED_KEY = "delete_unzipped";
 
+    // the following flag is introduced to be used in cases like openbis sync where we download the data set files including the 'original' folder
+    // and then move all of them to the data store. This way, the thumbnail archives in screening instances will also be handled.
+    static final String DO_NOT_CREATE_ORIGINAL_DIR_KEY = "do-not-create-original-dir";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DefaultStorageProcessor.class);
 
@@ -57,12 +61,15 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor implements
 
     private final boolean deleteUnzipped;
 
+    private final boolean doNotCreateOriginalDir;
+
     public DefaultStorageProcessor(final Properties properties)
     {
         super(properties);
 
         unzip = PropertyUtils.getBoolean(properties, UNZIP_CRITERIA_KEY, false);
         deleteUnzipped = PropertyUtils.getBoolean(properties, DELETE_UNZIPPED_KEY, true);
+        doNotCreateOriginalDir = PropertyUtils.getBoolean(properties, DO_NOT_CREATE_ORIGINAL_DIR_KEY, false);
     }
 
     //
@@ -88,6 +95,8 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor implements
 
         protected final UnstoreDataAction unstoreDataAction;
 
+        private final boolean doNotCreateOriginalDir;
+
         public DefaultStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
                 DefaultStorageProcessor processor)
         {
@@ -95,19 +104,25 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor implements
             this.unzip = processor.unzip;
             this.deleteUnzipped = processor.deleteUnzipped;
             this.unstoreDataAction = processor.getDefaultUnstoreDataAction(null);
+            this.doNotCreateOriginalDir = processor.doNotCreateOriginalDir;
         }
 
         @Override
         protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
             checkParameters(incomingDataSetDirectory, rootDirectory);
-            File originalDir = getOriginalDirectory(rootDirectory);
-            if (originalDir.mkdir() == false)
+            File targetDir = rootDirectory;
+            if (doNotCreateOriginalDir == false)
             {
-                throw new EnvironmentFailureException("Couldn't create "
-                        + originalDir.getAbsolutePath());
+                File originalDir = getOriginalDirectory(rootDirectory);
+                if (originalDir.mkdir() == false)
+                {
+                    throw new EnvironmentFailureException("Couldn't create "
+                            + originalDir.getAbsolutePath());
+                }
+                targetDir = originalDir;
             }
-            final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
+            final File targetFile = new File(targetDir, incomingDataSetDirectory.getName());
             if (FileRenamer.renameAndLog(incomingDataSetDirectory, targetFile) == false)
             {
                 throw new EnvironmentFailureException(String.format(NO_RENAME,
@@ -116,7 +131,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor implements
             // Set the stored data directory in case unzip throws an exception.
             this.storedDataDirectory = rootDirectory;
 
-            unzipIfMatching(targetFile, originalDir);
+            unzipIfMatching(targetFile, targetDir);
             return rootDirectory;
         }
 
