@@ -69,8 +69,7 @@ public class ExperimentPermIdPredicate extends AbstractDatabaseInstancePredicate
         ExperimentPE experiment = authorizationDataProvider.tryGetExperimentByPermId(id.getId());
         if (experiment == null)
         {
-            return Status.createError(String.format("There is no experiment with perm id '%s'.",
-                    id.getId()));
+            return Status.OK;
         }
         return experimentPEPredicate.evaluate(person, allowedRoles, experiment);
     }
