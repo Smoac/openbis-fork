@@ -236,7 +236,7 @@ function MainController(profile) {
 		try {
 			switch (newViewChange) {
 				case "showExportTreePage":
-					document.title = "Export";
+					document.title = "Export Builder";
 					var newView = new ExportTreeController(this);
 					newView.init($("#mainContainer"));
 					this.currentView = newView;
@@ -268,12 +268,12 @@ function MainController(profile) {
 					window.scrollTo(0,0);
 					break;
 				case "showVocabularyManagerPage":
-					document.title = "Vocabulary Manager";
+					document.title = "Vocabulary Browser";
 					this._showVocabularyManager();
 					window.scrollTo(0,0);
 					break;
 				case "showTrashcanPage":
-					document.title = "Trashcan Manager";
+					document.title = "Trashcan";
 					this._showTrashcan();
 					window.scrollTo(0,0);
 					break;
