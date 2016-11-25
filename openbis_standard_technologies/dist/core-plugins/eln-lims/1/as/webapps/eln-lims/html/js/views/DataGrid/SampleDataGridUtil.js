@@ -33,7 +33,7 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Sample Type',
 			property : 'sampleTypeCode',
-			isExportable: true,
+			isExportable: false,
 			sortable : false
 		});
 		
