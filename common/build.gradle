@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+//evaluationDependsOn(':commonbase')
 
 apply from: '../gradle/javaproject.gradle'
 
@@ -28,7 +28,8 @@ dependencies {
             'eclipse:jetty-client:+',
             'apache:commons-csv:+'
 					
-	testCompile 'fjelmer:classycle:+',
+	testCompile project(path: ':commonbase', configuration: 'tests'),
+				'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',
 				'hamcrest:hamcrest-library:+'
 }
