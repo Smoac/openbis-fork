@@ -9,6 +9,9 @@ check sets [collection]
 [logging] = ${package}.logging.*
 check sets [logging]
 
+[parser] = ${package}.parser.*
+check sets [parser]
+
 [properties] = ${package}.properties.*
 check sets [properties]
 
@@ -27,6 +30,9 @@ layer layer2 = [collection]
 layer layer2b = [properties]
 layer layer3 = [process]
 layer layer4 = [io]
+layer layer5 = [parser]
 
-check layeringOf layer0 layer1 layer2 layer2b layer3 layer4
+check layeringOf layer0 layer1 layer2 layer2b layer3 layer4 layer5
+
+check [parser] independentOf ${package}.exceptions.UserFailureException
 
