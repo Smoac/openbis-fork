@@ -733,7 +733,15 @@ var FormUtil = new function() {
 	//
 	// Rich Text Editor Support - (CKEditor)
 	//
+	var isCKEditorConfigured = false;
 	this.activateRichTextProperties = function($component, componentOnChange) {
+		if(!isCKEditorConfigured) {
+			CKEDITOR.on( 'instanceReady', function( ev ) {
+			    ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+			});
+			isCKEditorConfigured = true;
+		}
+		
 		var editor = $component.ckeditor().editor;
 		editor.on('change', function(event) {
 			var value = event.editor.getData();
