@@ -31,6 +31,7 @@ import os
 import re
 import sys
 import logging
+import collections
 from datetime import *
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
@@ -48,22 +49,19 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SampleFetchOption
 
 excelFormats = {"xls": "HSSFWorkbook()" , "xlsx": "XSSFWorkbook()"}
 
-# This list is imply used to keep the order of elements of the 'columnHeadersMap'
-columnHeadersList = ["EXTERNAL_SAMPLE_NAME", "BARCODE", "INDEX2", "CONTACT_PERSON_NAME",
-                     "BIOLOGICAL_SAMPLE_ARRIVED", "PREPARED_BY", "KIT", "QC_AT_DBSSE",
-                     "NOTES"]
+column_headers_tuple = (("EXTERNAL_SAMPLE_NAME", "Sample Name"),
+                    ("BARCODE", "Index"),
+                    ("INDEX2", "Index2"),
+                    ("PREPARED_BY", "Prepared by"),
+                    ("KIT", "Kit"),
+                    ("QC_AT_DBSSE", "QC at D-BSSE"),
+                    ("CONTACT_PERSON_NAME", "Contact Person"),
+                    ("NOTES", "Notes"),
+                    ("BIOLOGICAL_SAMPLE_ARRIVED", "Received")
+                    )
 
-columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
-                    "BARCODE": "Index",
-                    "INDEX2": "Index2",
-                    "PREPARED_BY" : "Prepared by",
-                    "KIT" : "Kit",
-                    "QC_AT_DBSSE" : "QC at D-BSSE",
-                    "CONTACT_PERSON_NAME" : "Contact Person",
-                    "NOTES" : "Notes",
-                    "BIOLOGICAL_SAMPLE_ARRIVED": "Received",
-                    }
-
+# Keep the order of the tuples
+column_headers_dict = collections.OrderedDict(column_headers_tuple)
  
 class uniqueRow():
     '''
@@ -146,7 +144,7 @@ def merge_two_dicts(x, y):
     z.update(y)
     return z
 
-def writeHeader(sheet, myRows, wb, configMap):
+def writeHeader(sheet, myRows, wb, configMap, piName, piSpace):
   # Write header
   row = sheet.createRow(myRows.getNextRow())
   row.createCell(0).setCellValue(configMap["facilityName"] + ", " + configMap["facilityInstitution"])
@@ -154,6 +152,12 @@ def writeHeader(sheet, myRows, wb, configMap):
   row1 = sheet.createRow(myRows.getNextRow())
   row1.createCell(0).setCellValue(getDate())
   row1.getCell(0).setCellStyle(setFont(wb, configMap, 10, True))
+  
+  createRow(configMap, wb, sheet, myRows, "Principal Investigator", piName.replace("_", " "), 0, 10, True, columnspace=1)
+  createRow(configMap, wb, sheet, myRows,"Data Space", piSpace, 0, 10, True, columnspace=1)
+  createRow(configMap, wb, sheet, myRows)
+  createRow(configMap, wb, sheet, myRows,"Samples", "", 0, 10, True, True)
+
 
 
 def createRow(configMap, wb, sheet, myRows, key="", value="", rowNumber=0, fontSize=10, boldness=False, underline=False, columnspace=0):
@@ -201,21 +205,20 @@ def write_flowcell_details(configMap, flowCellProperties, myRows, sequencerVocab
 
 
 
-def write_samples(configMap, myRows, wb, sheet, setFont, sample, sampleValues):
+def write_samples(configMap, myRows, wb, sheet, setFont, sample, sampleValues, working_column_headers_dict):
     singleSampleColumns = uniqueColumn()
     rowN = sheet.createRow(myRows.getNextRow())
     rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
     rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
-    for column in columnHeadersList:
-        if (column == 'BIOLOGICAL_SAMPLE_ARRIVED'):
+    for code, label in working_column_headers_dict.iteritems():
+        if (code == 'BIOLOGICAL_SAMPLE_ARRIVED'):
             try:
-#                 value = sampleValues[column].split(" ")[0]
-                value = sampleValues[column]
+                value = sampleValues[code].split(" ")[0]
             except:
                 value = ""
         else:
             try:
-                value = sampleValues[column]
+                value = sampleValues[code]
             except:
                 value = ""
         rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(value)
@@ -223,14 +226,51 @@ def write_samples(configMap, myRows, wb, sheet, setFont, sample, sampleValues):
     
     return value
 
+
+def filter_on_nonexisting_columns(regular_samples, check_empty_columns_dict):
+    for key, value_dict in sorted(regular_samples.iteritems()):
+        for code, count in check_empty_columns_dict.iteritems():
+            if code in value_dict:
+                check_empty_columns_dict[code] = check_empty_columns_dict[code] + 1
+    
+    return check_empty_columns_dict
+
+
+
+def write_intermediate_section(configMap, flowCellProperties, myRows, wb, sheet):
+    createRow(configMap, wb, sheet, myRows)
+    createRow(configMap, wb, sheet, myRows)
+    createRow(configMap, wb, sheet, myRows)
+    sequencer = identify_sequencer(flowCellProperties["SEQUENCER"])
+    createRow(configMap, wb, sheet, myRows, key=sequencer + " sequencing", value="", rowNumber=0, fontSize=10, boldness=True, underline=True, columnspace=0)
+    createRow(configMap, wb, sheet, myRows, "Run Folder Name", flowCellProperties["RUN_NAME_FOLDER"], 0, 10, True)
+    createRow(configMap, wb, sheet, myRows)
+    createRow(configMap, wb, sheet, myRows)
+
+
+
+def write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet):
+    myColumns = uniqueColumn()
+    sampleHeader = sheet.createRow(myRows.getNextRow())
+    sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Sample Code")
+    sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
+    for code, label in working_column_headers_dict.iteritems():
+        sampleHeader.createCell(myColumns.getNextColumn()).setCellValue(label)
+        sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
+    
+
+
 def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict,
                piSpace, flowCellProperties, flowcellName, logger,format="xls"):
     '''
     Writes out all data to an Excel file
     '''
     accumulated_pi_dict = {}
-    sample_pools = {}
+    pool_samples = {}
     regular_samples = {}
+    check_empty_columns_dict = {"INDEX2": 0, "NOTES": 0, "BIOLOGICAL_SAMPLE_ARRIVED": 0}
+    working_column_headers_dict = column_headers_dict.copy()
+    
     myRows = uniqueRow()
     sequencerVocabulary = getVocabulary(service, "SEQUENCER")
     runModeVocabulary = getVocabulary(service, "RUN_MODE_VOCABULARY")
@@ -248,22 +288,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     # 4/3 = 133 percent magnification when opening the workbook
     sheet.setZoom(4, 3)
     
-    writeHeader(sheet, myRows, wb, configMap)
-    createRow(configMap, wb, sheet, myRows, "Principal Investigator", piName.replace("_", " "), 0, 10, True, columnspace=1)
-    createRow(configMap, wb, sheet, myRows,"Data Space", piSpace, 0, 10, True, columnspace=1)
-    createRow(configMap, wb, sheet, myRows)
-    createRow(configMap, wb, sheet, myRows,"Samples", "", 0, 10, True, True)
-    
-    myColumns = uniqueColumn()
-    
-    sampleHeader = sheet.createRow(myRows.getNextRow())
-    #   sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Flow Cell:Lane")
-    #   sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
-    sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Sample Code")
-    sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
-    for c in columnHeadersList:
-        sampleHeader.createCell(myColumns.getNextColumn()).setCellValue(columnHeadersMap[c])
-        sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
+    writeHeader(sheet, myRows, wb, configMap, piName, piSpace)
     
     listofLanes = piDict[piName]
     listofLanes.sort()
@@ -271,9 +296,9 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
        
     for lane in listofLanes:
         accumulated_pi_dict = merge_two_dicts(accumulated_pi_dict, sampleDict[lane])
-
+     
     # sort the dictionary by keys and taking the key as an integer
-    for sample in sorted(accumulated_pi_dict.iterkeys(), key=int):
+    for sample in sorted(accumulated_pi_dict.iterkeys(), key=int):        
         sampleValues = accumulated_pi_dict[sample]
         logger.debug(sampleValues['PRINCIPAL_INVESTIGATOR_NAME'])
         logger.debug(piName)
@@ -287,40 +312,35 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
             if sampleValues['BARCODE'] != 'NOINDEX':
                 regular_samples[sample] = sampleValues
             else:
-                sample_pools[sample] = sampleValues
+                pool_samples[sample] = sampleValues
         except:
             if int(sampleValues['NCBI_ORGANISM_TAXONOMY']) != 10847:
-                sample_pools[sample] = sampleValues
+                pool_samples[sample] = sampleValues
             else:
                 regular_samples[sample] = sampleValues
-                           
-    print("Found {0} samples.".format(len(regular_samples)))
-    print("Found {0} pools.".format(len(sample_pools)))
+
+    logger.debug("Found {0} samples.".format(len(regular_samples)))
+    logger.debug("Found {0} pools.".format(len(pool_samples)))
+
+    merged_regular_pool =  merge_two_dicts(regular_samples, pool_samples)
+    check_empty_columns_dict = filter_on_nonexisting_columns(merged_regular_pool, check_empty_columns_dict)    
     
+    for key, values in check_empty_columns_dict.iteritems():        
+        if values == 0:
+            logger.debug("Popped! " + key)
+            working_column_headers_dict.pop(key)
+            
+    logger.debug("check_empty_columns_dict: {0}".format(check_empty_columns_dict))
+    
+    write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet)
     for reg_sample in regular_samples:     
-        value = write_samples(configMap, myRows, wb, sheet, setFont, reg_sample, regular_samples[reg_sample])
+        value = write_samples(configMap, myRows, wb, sheet, setFont, reg_sample, regular_samples[reg_sample], working_column_headers_dict)
   
-    createRow(configMap, wb, sheet, myRows)
-    createRow(configMap, wb, sheet, myRows)
-    createRow(configMap, wb, sheet, myRows)
-    sequencer = identify_sequencer(flowCellProperties["SEQUENCER"])
-    createRow(configMap, wb, sheet, myRows, key=sequencer + " sequencing", value="", rowNumber=0, fontSize=10, boldness=True, underline=True, columnspace=0 )
-    createRow(configMap, wb, sheet, myRows, "Run Folder Name", flowCellProperties["RUN_NAME_FOLDER"], 0, 10, True)
+    write_intermediate_section(configMap, flowCellProperties, myRows, wb, sheet)   
     
-    createRow(configMap, wb, sheet, myRows)
-    createRow(configMap, wb, sheet, myRows)
-    
-    # needed to start on the first column again
-    pool_columns = uniqueColumn()
-    sample_pool_header = sheet.createRow(myRows.getNextRow())
-    sample_pool_header.createCell(pool_columns.getNextColumn()).setCellValue("Sample Code")
-    sample_pool_header.getCell(pool_columns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
-    for c in columnHeadersList:
-        sample_pool_header.createCell(pool_columns.getNextColumn()).setCellValue(columnHeadersMap[c])
-        sample_pool_header.getCell(pool_columns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
-        
-    for pool in sample_pools:
-        value = write_samples(configMap, myRows, wb, sheet, setFont, pool, sample_pools[pool])       
+    write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet)            
+    for pool in pool_samples:
+        value = write_samples(configMap, myRows, wb, sheet, setFont, pool, pool_samples[pool], working_column_headers_dict)       
     
     write_flowcell_details(configMap, flowCellProperties, myRows, sequencerVocabulary, runModeVocabulary, flowcell, wb, sheet, createRow)
     
@@ -356,7 +376,7 @@ def sanitizeString(myString):
     myString = myString.replace(u'ä', 'ae')
     myString = myString.replace(u'ü', 'ue')
     myString = myString.replace(u'ö', 'oe')
-    return re.sub('[^A-Za-z0-9]+', '_', myString.strip())
+    return re.sub('[^A-Za-z0-9]+', '_', myString.strip()).lower()
 
 
 def setUpLogger(logPath, logLevel=logging.INFO):
