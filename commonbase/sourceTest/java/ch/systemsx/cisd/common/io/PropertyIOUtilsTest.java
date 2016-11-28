@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Test cases for {@link PropertyIOUtils} class.
@@ -36,7 +37,7 @@ public class PropertyIOUtilsTest extends AbstractFileSystemTestCase
     public void testLoadProperties()
     {
         File propertiesFile = new File(workingDirectory, "p.properties");
-        PropertyIOUtils.writeToFile(propertiesFile, "answer = 42\n\n# comment\n  key=4711  ");
+        FileUtilities.writeToFile(propertiesFile, "answer = 42\n\n# comment\n  key=4711  ");
         Properties properties = PropertyIOUtils.loadProperties(propertiesFile);
 
         assertEquals("42", properties.getProperty("answer"));
@@ -47,7 +48,7 @@ public class PropertyIOUtilsTest extends AbstractFileSystemTestCase
     public void testLoadInvalidProperties()
     {
         File propertiesFile = new File(workingDirectory, "p.properties");
-        PropertyIOUtils.writeToFile(propertiesFile, "answer=42\nquestion");
+        FileUtilities.writeToFile(propertiesFile, "answer=42\nquestion");
 
         try
         {
@@ -64,7 +65,7 @@ public class PropertyIOUtilsTest extends AbstractFileSystemTestCase
     public void testLoadPropertiesWithEmptyLineWithASpace()
     {
         File propertiesFile = new File(workingDirectory, "p.properties");
-        PropertyIOUtils.writeToFile(propertiesFile, "  answer =  42 \n \n");
+        FileUtilities.writeToFile(propertiesFile, "  answer =  42 \n \n");
 
         Properties properties = PropertyIOUtils.loadProperties(propertiesFile);
 

@@ -16,25 +16,19 @@
 
 package ch.systemsx.cisd.common.io;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
@@ -46,48 +40,6 @@ public class PropertyIOUtils
 {
 
     /**
-     * Loads a text file line by line to a {@link List} of {@link String}s.
-     * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
-     * @return The content of the file line by line.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
-     */
-    private final static List<String> loadToStringList(final File file) throws IOExceptionUnchecked
-    {
-        assert file != null : "Unspecified file.";
-
-        FileReader fileReader = null;
-        try
-        {
-            fileReader = new FileReader(file);
-            return readStringList(new BufferedReader(fileReader));
-        } catch (final IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(fileReader);
-        }
-    }
-
-    private final static List<String> readStringList(final BufferedReader reader) throws IOExceptionUnchecked
-    {
-        assert reader != null : "Unspecified BufferedReader.";
-        final List<String> list = new ArrayList<String>();
-        try
-        {
-            for (String line = reader.readLine(); line != null; line = reader.readLine())
-            {
-                list.add(line);
-            }
-            return list;
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    /**
      * Loads properties from the specified file and adds them to the specified properties.
      * <ul>
      * <li>Empty lines and lines starting with a hash symbol '#' are ignored.
@@ -96,7 +48,7 @@ public class PropertyIOUtils
      */
     public static void loadAndAppendProperties(Properties properties, File propertiesFile)
     {
-        List<String> lines = loadToStringList(propertiesFile);
+        List<String> lines = FileUtilities.loadToStringList(propertiesFile);
         for (int i = 0; i < lines.size(); i++)
         {
             String line = lines.get(i).trim();
@@ -179,30 +131,6 @@ public class PropertyIOUtils
     }
 
     /**
-     * Writes the specified string to the specified file.
-     * 
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}.
-     */
-    public static void writeToFile(final File file, final String str) throws IOExceptionUnchecked
-    {
-        assert file != null : "Unspecified file.";
-        assert str != null : "Unspecified string.";
-
-        FileWriter fileWriter = null;
-        try
-        {
-            fileWriter = new FileWriter(file);
-            fileWriter.write(str);
-        } catch (final IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(fileWriter);
-        }
-    }
-
-    /**
      * Saves the given <var>properties</var> to the given <var>propertiesFile</var>.
      */
     public static void saveProperties(File propertiesFile, Properties properties)
@@ -217,7 +145,7 @@ public class PropertyIOUtils
             builder.append(value);
             builder.append('\n');
         }
-        writeToFile(propertiesFile, builder.toString());
+        FileUtilities.writeToFile(propertiesFile, builder.toString());
     }
 
 }

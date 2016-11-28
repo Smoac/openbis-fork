@@ -52,7 +52,7 @@ public class CollectionIO
 {
 
     private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
+            LogFactory.getLogger(LogCategory.MACHINE, CollectionIO.class);
 
     /**
      * Reads a collection of {@link String}s from a <var>resource</var>. One line in the resource corresponds to one entry in the collection.
@@ -78,7 +78,7 @@ public class CollectionIO
     public static <T> boolean readCollectionFromResource(String resource, Collection<T> collection,
             IFromStringConverter<T> converter)
     {
-        InputStream resourceStream = FileUtilities.class.getResourceAsStream(resource);
+        InputStream resourceStream = CollectionIO.class.getResourceAsStream(resource);
         if (resourceStream == null)
         {
             machineLog.error(String.format("Resource '%s' not found.", resource));

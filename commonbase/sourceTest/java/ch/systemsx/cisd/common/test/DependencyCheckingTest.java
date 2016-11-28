@@ -26,7 +26,8 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.io.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+
 import classycle.Analyser;
 import classycle.dependency.DefaultResultRenderer;
 import classycle.dependency.DependencyChecker;

@@ -26,11 +26,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.collection.CollectionStyle;
-import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.collection.IKeyExtractor;
-import ch.systemsx.cisd.common.collection.ToStringDefaultConverter;
-import ch.systemsx.cisd.common.collection.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
  * Test cases for the {@link CollectionUtils} class.

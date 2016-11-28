@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Test cases for the {@link PersistentExtendedBlockingQueueDecorator}.

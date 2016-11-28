@@ -19,18 +19,15 @@ package ch.systemsx.cisd.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.io.FileUtils;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
@@ -282,41 +279,6 @@ public class MonitoredIOStreamCopier
             }
         }
 
-        private static final NumberFormat SIZE_FORMAT = new DecimalFormat("0.00");
-
-        /**
-         * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
-         * <p>
-         * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this version is more exact.
-         * </p>
-         * 
-         * @param size the number of bytes
-         * @return a human-readable display value (includes units)
-         * @see FileUtils#byteCountToDisplaySize(long)
-         */
-        private final static String byteCountToDisplaySize(final long size)
-        {
-            assert size > -1 : "Negative size value";
-            final String displaySize;
-            if (size / FileUtils.ONE_GB > 0)
-            {
-                displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_GB) + " GB";
-            } else if (size / FileUtils.ONE_MB > 0)
-            {
-                displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_MB) + " MB";
-            } else if (size / FileUtils.ONE_KB > 0)
-            {
-                displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_KB) + " KB";
-            } else if (size != 1)
-            {
-                displaySize = size + " bytes";
-            } else
-            {
-                displaySize = "1 byte";
-            }
-            return displaySize;
-        }
-
         @Override
         public String toString()
         {
@@ -336,17 +298,17 @@ public class MonitoredIOStreamCopier
             if (speed.isEmpty() == false)
             {
                 long medianBytesPerSecond = Math.round(calculateMedian(speed));
-                medianSpeedInfo = " Median speed: " + byteCountToDisplaySize(medianBytesPerSecond)
+                medianSpeedInfo = " Median speed: " + FileUtilities.byteCountToDisplaySize(medianBytesPerSecond)
                         + "/sec.";
             }
             String averageSpeedInfo = "";
             if (totalNumberOfBytes >= minNumberOfBytes && totalTime > 0)
             {
                 long averageBytesPerSecond = Math.round((1000.0 * totalNumberOfBytes) / totalTime);
-                averageSpeedInfo = " Average speed: " + byteCountToDisplaySize(averageBytesPerSecond)
+                averageSpeedInfo = " Average speed: " + FileUtilities.byteCountToDisplaySize(averageBytesPerSecond)
                         + "/sec.";
             }
-            return byteCountToDisplaySize(totalNumberOfBytes) + " in " + data.size()
+            return FileUtilities.byteCountToDisplaySize(totalNumberOfBytes) + " in " + data.size()
                     + " chunks took " + DateTimeUtils.renderDuration(totalTime) + "."
                     + averageSpeedInfo + medianSpeedInfo;
         }
