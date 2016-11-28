@@ -296,8 +296,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 																			parentsAnyTypeDisabled);
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"]) {
-			if(!sampleTypeDefinitionsExtension.showParents ||
-			  (sampleTypeDefinitionsExtension.showParents && sampleTypeDefinitionsExtension.showParents(this._sampleFormModel.sample))) {
+			if(sampleTypeDefinitionsExtension &&
+				(!sampleTypeDefinitionsExtension.showParents ||
+			  (sampleTypeDefinitionsExtension.showParents && sampleTypeDefinitionsExtension.showParents(this._sampleFormModel.sample))
+			  )) {
 				this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
 			}
 		}
