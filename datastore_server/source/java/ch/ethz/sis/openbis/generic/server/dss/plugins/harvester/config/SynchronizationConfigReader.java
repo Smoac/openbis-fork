@@ -64,9 +64,13 @@ public class SynchronizationConfigReader
 
     private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME = "last-sync-timestamp-file";
 
+    private static final String HARVESTER_NOT_SYNCED_DATA_SETS_FILE_NAME = "not-synced-data-sets-file";
+
     private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
 
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
+
+    private String defaultNotSyncedDataSetsFileName = "not-synced-datasets_{alias}.txt";
 
     private static final String LOG_FILE_PROPERTY_NAME = "log-file";
 
@@ -111,18 +115,18 @@ public class SynchronizationConfigReader
                 createDataSourceToHarvesterSpaceMappings(config);
             }
 
-            setDefaultLastSyncTimestampFileName(config);
             config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, DEFAULT_HARVESTER_TEMP_DIR, false));
-            config.setLastSyncTimestampFileName(reader.getString(section, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME,
-                    defaultLastSyncTimestampFileName, false));
+
+            defaultLastSyncTimestampFileName = defaultLastSyncTimestampFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            config.setLastSyncTimestampFileName(
+                    reader.getString(section, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME, defaultLastSyncTimestampFileName, false));
+
+            defaultNotSyncedDataSetsFileName = defaultNotSyncedDataSetsFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            config.setNotSyncedDataSetsFileName(
+                    reader.getString(section, HARVESTER_NOT_SYNCED_DATA_SETS_FILE_NAME, defaultNotSyncedDataSetsFileName, false));
             configs.add(config);
         }
         return configs;
-    }
-
-    private void setDefaultLastSyncTimestampFileName(SyncConfig config)
-    {
-        this.defaultLastSyncTimestampFileName = defaultLastSyncTimestampFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
     }
 
     private void configureFileAppender(SyncConfig config, Logger logger)

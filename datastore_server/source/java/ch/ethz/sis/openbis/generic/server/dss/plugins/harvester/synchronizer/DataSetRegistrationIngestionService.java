@@ -40,7 +40,6 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSe
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.systemsx.cisd.common.io.IOUtilities;
-import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
@@ -57,7 +56,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 {
     private static final long serialVersionUID = 1L;
 
-    private List<String> dataSetCodes;
+    private List<String> notSyncedDataSetCodes;
 
     private final NewExternalData dataSet;
 
@@ -77,11 +76,11 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
     private final Logger log;
 
-    public DataSetRegistrationIngestionService(Properties properties, File storeRoot, List<String> dataSetCodes, NewExternalData ds,
+    public DataSetRegistrationIngestionService(Properties properties, File storeRoot, List<String> notSyncedDataSetCodes, NewExternalData ds,
             Logger operationLog)
     {
         super(properties, storeRoot);
-        this.dataSetCodes = dataSetCodes;
+        this.notSyncedDataSetCodes = notSyncedDataSetCodes;
         this.dataSet = ds;
         this.loginUser = properties.getProperty("user");
         this.loginPass = properties.getProperty("pass");
@@ -94,36 +93,35 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
     @Override
     protected TableModel process(IDataSetRegistrationTransactionV2 transaction, Map<String, Object> parameters, DataSetProcessingContext context)
     {
-        IDataSetUpdatable dataSetForUpdate = transaction.getDataSetForUpdate(dataSet.getCode());
-        ISampleImmutable sample = null;
-
-        if (dataSet.getSampleIdentifierOrNull() != null)
+        String dataSetCode = dataSet.getCode();
+        try
         {
-            sample = transaction.getSampleForUpdate(dataSet.getSampleIdentifierOrNull().toString());
-        }
-        IExperimentImmutable experiment = null;
-        if (dataSet.getExperimentIdentifierOrNull() != null)
-        {
-            experiment = transaction.getExperimentForUpdate(dataSet.getExperimentIdentifierOrNull().toString());
-        }
-
-        List<NewProperty> dataSetProperties = dataSet.getDataSetProperties();
-
-        if (dataSetForUpdate == null)
-        {
-            String dataSetCode = dataSet.getCode();
-            File storeRoot = transaction.getGlobalState().getStoreRootDir();
-            File temp = new File(storeRoot, this.harvesterTempDir);
-            temp.mkdirs();
-            File dir = new File(temp, dataSetCode);
-            dir.mkdirs();
-
-            int status = downloadDataSetFiles(dir, dataSetCode);
-            if (status == SUCCESS)
+            ISampleImmutable sample = null;
+            if (dataSet.getSampleIdentifierOrNull() != null)
             {
-                // REGISTER NEW DATA SET
+                sample = transaction.getSampleForUpdate(dataSet.getSampleIdentifierOrNull().toString());
+            }
+            IExperimentImmutable experiment = null;
+            if (dataSet.getExperimentIdentifierOrNull() != null)
+            {
+                experiment = transaction.getExperimentForUpdate(dataSet.getExperimentIdentifierOrNull().toString());
+            }
+
+            List<NewProperty> dataSetProperties = dataSet.getDataSetProperties();
+
+            IDataSetUpdatable dataSetForUpdate = transaction.getDataSetForUpdate(dataSetCode);
+            if (dataSetForUpdate == null)
+            {
+                // REGISTER NEW DATA SET after downloading the data set files
+                File storeRoot = transaction.getGlobalState().getStoreRootDir();
+                File temp = new File(storeRoot, this.harvesterTempDir);
+                temp.mkdirs();
+                File dir = new File(temp, dataSetCode);
+                dir.mkdirs();
+
+                downloadDataSetFiles(dir, dataSetCode);
+
                 IDataSet ds = transaction.createNewDataSet(dataSet.getDataSetType().getCode(), dataSet.getCode());
-                dataSetCodes.add(dataSetCode);
                 ds.setSample(sample);
                 ds.setExperiment(experiment);
                 ds.setParentDatasets(dataSet.getParentDataSetCodes());
@@ -139,20 +137,21 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             }
             else
             {
-                log.error("Data set with code :" + dataSetCode
-                        + " could not be synced because one or more files could not be downloaded correctly");
+                // UPDATE data set meta data excluding the container/contained relationships
+                dataSetForUpdate.setSample(sample);
+                dataSetForUpdate.setExperiment(experiment);
+                dataSetForUpdate.setParentDatasets(dataSet.getParentDataSetCodes());
+                for (NewProperty newProperty : dataSetProperties)
+                {
+                    dataSetForUpdate.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
+                }
             }
         }
-        else
+ catch (Exception e)
         {
-            // UPDATE data set meta data excluding the container/contained relationships
-            dataSetForUpdate.setSample(sample);
-            dataSetForUpdate.setExperiment(experiment);
-            dataSetForUpdate.setParentDatasets(dataSet.getParentDataSetCodes());
-            for (NewProperty newProperty : dataSetProperties)
-            {
-                dataSetForUpdate.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
-            }
+            notSyncedDataSetCodes.add(dataSetCode);
+            log.error("Data set with code :" + dataSetCode
+                    + " could not be synced because one or more files could not be downloaded correctly");
         }
         return null;
     }
@@ -181,7 +180,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         }
     }
 
-    private int downloadDataSetFiles(File dir, String dataSetCode)
+    private void downloadDataSetFiles(File dir, String dataSetCode) throws Exception
     {
         DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
         String sessionToken = dssFileUtils.login(loginUser, loginPass);
@@ -220,32 +219,22 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
                 DataSetFilePermId filePermId = orgFile.getPermId();
                 FileDetails fileDetails = fileDetailsMap.get(filePermId);
 
-                System.out.println("Downloaded " + orgFile.getPath() + " "
-                        + MemorySizeFormatter.format(orgFile.getFileLength()));
+                // System.out.println("Downloaded " + orgFile.getPath() + " "
+                // + MemorySizeFormatter.format(orgFile.getFileLength()));
 
                 Path path = Paths.get(dir.getAbsolutePath(), filePath);
-
-                try
+                InputStream inputStream = fileDownload.getInputStream();
+                OutputStream outputStream = Files.newOutputStream(path);
+                int checksumCRC32 = IOUtilities.copyAndGetChecksumCRC32(inputStream, outputStream);
+                File copiedFile = new File(path.normalize().toString());
+                if (checksumCRC32 != fileDetails.getCrc32checksum()
+                        || copiedFile.length() != fileDetails.getFileLength())
                 {
-                    InputStream inputStream = fileDownload.getInputStream();
-                    OutputStream outputStream = Files.newOutputStream(path);
-                    int checksumCRC32 = IOUtilities.copyAndGetChecksumCRC32(inputStream, outputStream);
-                    File copiedFile = new File(path.normalize().toString());
-                    if (checksumCRC32 != fileDetails.getCrc32checksum()
-                            || copiedFile.length() != fileDetails.getFileLength())
-                    {
-                        log.error("Crc32 or file length does not match for  " + orgFile.getPath() + " calculated:" + checksumCRC32
-                                + " expected:"
-                                + fileDetails.getCrc32checksum());
-                        return FAILURE;
-                    }
-                } catch (IOException e)
-                {
-                    log.error(e.getMessage());
-                    return FAILURE;
+                    throw new IOException("Crc32 or file length does not match for  " + orgFile.getPath() + " calculated:" + checksumCRC32
+                            + " expected:"
+                            + fileDetails.getCrc32checksum());
                 }
             }
         }
-        return SUCCESS;
     }
 }

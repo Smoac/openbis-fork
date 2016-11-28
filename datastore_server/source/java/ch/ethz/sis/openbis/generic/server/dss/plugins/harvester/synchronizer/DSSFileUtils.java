@@ -35,9 +35,9 @@ import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
  *
  * @author Ganime Betul Akin
  */
-class DSSFileUtils
+public class DSSFileUtils
 {
-    public static final int TIMEOUT = 10000;
+    public static final int TIMEOUT = 100000;
 
     private final IDataStoreServerApi dss;
     private final IApplicationServerApi as;
@@ -52,7 +52,7 @@ class DSSFileUtils
         SslCertificateHelper.trustAnyCertificate(asUrl);
         SslCertificateHelper.trustAnyCertificate(dssUrl);
 
-        this.dss =HttpInvokerUtils.createStreamSupportingServiceStub(IDataStoreServerApi.class, dssUrl + IDataStoreServerApi.SERVICE_URL, timeout);
+        this.dss = HttpInvokerUtils.createStreamSupportingServiceStub(IDataStoreServerApi.class, dssUrl + IDataStoreServerApi.SERVICE_URL, timeout);
         this.as = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asUrl + IApplicationServerApi.SERVICE_URL, timeout);    
      }
 

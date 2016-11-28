@@ -72,6 +72,16 @@ public class SyncConfig
         this.lastSyncTimestampFileName = lastSyncTimestampFileName;
     }
 
+    public String getNotSyncedDataSetsFileName()
+    {
+        return notSyncedDataSetsFileName;
+    }
+
+    public void setNotSyncedDataSetsFileName(String notSyncedDataSetsFileName)
+    {
+        this.notSyncedDataSetsFileName = notSyncedDataSetsFileName;
+    }
+
     public String getDataSourceAlias()
     {
         return dataSourceAlias;
@@ -156,6 +166,8 @@ public class SyncConfig
     private String dataSourceDSSURL;
 
     private String lastSyncTimestampFileName;
+
+    private String notSyncedDataSetsFileName;
 
     private String dataSourceAlias;
 

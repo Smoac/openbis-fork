@@ -78,6 +78,7 @@ import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
@@ -332,12 +333,19 @@ public class EntitySynchronizer
     private void registerPhysicalDataSets(Map<String, DataSetWithConnections> physicalDSMap)
     {
         List<DataSetWithConnections> dsList = new ArrayList<DataSetWithConnections>(physicalDSMap.values());
-        List<String> dataSetCodes = Collections.synchronizedList(new ArrayList<String>());
+        List<String> notSyncedDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
 
         // TODO this parallelization needs to be revisited: In case of a data set appearing before DSs it is dependent on,
         // the parallelization will result in an error, i.e. The graph needs to be topologically sorted before it can be
         // parallelized
-        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dataSetCodes), 0.5, 10, "register data sets", 0, false);
+        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(notSyncedDataSetCodes), 0.5, 10, "register data sets", 0, false);
+
+        File notSyncedDataSetsFile = new File(config.getNotSyncedDataSetsFileName());
+        for (String dsCode : notSyncedDataSetCodes)
+        {
+            FileUtilities.appendToFile(notSyncedDataSetsFile, dsCode, true);
+        }
+
     }
 
     private void processMetaData(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
@@ -831,11 +839,11 @@ public class EntitySynchronizer
     private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<DataSetWithConnections>
     {
 
-        private List<String> dataSetCodes;
+        private List<String> notSyncedDataSetCodes;
 
-        public DataSetRegistrationTaskExecutor(List<String> dataSetCodes)
+        public DataSetRegistrationTaskExecutor(List<String> notSyncedDataSetCodes)
         {
-            this.dataSetCodes = dataSetCodes;
+            this.notSyncedDataSetCodes = notSyncedDataSetCodes;
         }
 
         @Override
@@ -846,9 +854,8 @@ public class EntitySynchronizer
             Properties props = setProperties();
 
             DataSetRegistrationIngestionService ingestionService =
-                    new DataSetRegistrationIngestionService(props, storeRoot, dataSetCodes, dataSet.getDataSet(), operationLog);
+                    new DataSetRegistrationIngestionService(props, storeRoot, notSyncedDataSetCodes, dataSet.getDataSet(), operationLog);
             ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
-            dataSetCodes.add(dataSet.getDataSet().getCode());
             return Status.OK;
         }
 
