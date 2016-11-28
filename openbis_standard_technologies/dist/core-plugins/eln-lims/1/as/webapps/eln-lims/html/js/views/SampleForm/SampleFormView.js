@@ -545,7 +545,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 						
 					var changeEvent = function(propertyType) {
-						return function() {
+						return function(jsEvent, newValue) {
 							var propertyTypeCode = null;
 							propertyTypeCode = propertyType.code;
 							_this._sampleFormModel.isFormDirty = true;
@@ -556,7 +556,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								_this._sampleFormModel.sample.properties[propertyTypeCode] = timeValue;
 							} else {
-								_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								if(newValue) {
+									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+								} else {
+									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								}
 							}
 						}
 					}

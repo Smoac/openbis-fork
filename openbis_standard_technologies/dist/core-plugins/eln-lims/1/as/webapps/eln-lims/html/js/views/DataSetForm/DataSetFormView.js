@@ -443,7 +443,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						
 						//Update model
 						var changeEvent = function(propertyType) {
-							return function() {
+							return function(jsEvent, newValue) {
 								var propertyTypeCode = null;
 								propertyTypeCode = propertyType.code;
 								_this._dataSetFormModel.isFormDirty = true;
@@ -454,7 +454,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
 									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
 								} else {
-									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+									if(newValue) {
+										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+									} else {
+										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+									}
 								}
 							}
 						}

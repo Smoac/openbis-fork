@@ -328,7 +328,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					}
 						
 					var changeEvent = function(propertyType) {
-						return function() {
+						return function(jsEvent, newValue) {
 							var propertyTypeCode = null;
 							propertyTypeCode = propertyType.code;
 							_this._experimentFormModel.isFormDirty = true;
@@ -339,7 +339,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								_this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
 							} else {
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								if(newValue) {
+									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+								} else {
+									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								}
 							}
 						}
 					}

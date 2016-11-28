@@ -731,44 +731,15 @@ var FormUtil = new function() {
 	
 	
 	//
-	// Rich Text Editor Support - (Summernote)
+	// Rich Text Editor Support - (CKEditor)
 	//
 	this.activateRichTextProperties = function($component, componentOnChange) {
-		var _this = this;
-		$("body").append($component);
-		
-		$component.summernote({
-			toolbar: [
-		['Font Style', ['fontname', 'fontsize', 'color', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
-		['Insert', ['link', 'table', 'hr', 'specialCharacter']],
-		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
-		disableDragAndDrop: true,
-		callbacks: {
-	        onPaste: function (e) {
-	        	if(profile.copyPastePlainText) {
-	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/plain");
-		        	e.preventDefault();
-		            setTimeout( function(){
-		                document.execCommand( 'insertText', false, bufferText );
-		            }, 10 );
-	        	} else {
-//	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/html");
-//	        		bufferText = _this.sanitizeRichHTMLText(bufferText);
-//	        		((e.originalEvent || e).clipboardData || window.clipboardData).setData("text/html", bufferText);
-	        	}
-	        }
-	    }});
-		
-		$component.on("summernote.change", componentOnChange);
-		
-		$('.note-editable.panel-body').css({ "min-height" : "200px" });
-		
-		var $editor = $component.next();
-		$component.detach();
-		$editor.detach();
-		
-		return $editor;
+		var editor = $component.ckeditor().editor;
+		editor.on('change', function(event) {
+			var value = event.editor.getData();
+			componentOnChange(event, value);
+		});
+		return $component;
 	}
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
