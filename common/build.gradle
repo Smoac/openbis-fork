@@ -1,7 +1,10 @@
+evaluationDependsOn(':commonbase')
+
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-	compile	'springframework:spring-webmvc:+',
+	compile	project(':commonbase'),
+			'springframework:spring-webmvc:+',
 			'springframework:spring-aop:+',
 			'javax:servlet-api:+',
 			'cisd:cisd-args4j:+',

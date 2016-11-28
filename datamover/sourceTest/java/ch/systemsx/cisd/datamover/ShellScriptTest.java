@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 
 /**
@@ -213,7 +214,7 @@ public class ShellScriptTest
         ProcessResult result =
                 ProcessExecutionHelper.run(command, operationLog, machineLog,
                         ConcurrencyUtilities.NO_TIMEOUT,
-                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+                        ProcessIOStrategy.TEXT_IO_STRATEGY, true);
         return result;
     }
 }

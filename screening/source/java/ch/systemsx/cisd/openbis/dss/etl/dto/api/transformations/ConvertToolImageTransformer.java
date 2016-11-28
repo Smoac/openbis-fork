@@ -36,6 +36,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.image.IStreamingImageTransformer;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -212,8 +213,8 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
             {
 
                 @Override
-                public void handle(AtomicBoolean processRunning, OutputStream stdin,
-                        InputStream stdout, InputStream stderr) throws IOException
+                public void handle(AtomicBoolean processRunning, IActivityObserver activityObserver, 
+                        OutputStream stdin, InputStream stdout, InputStream stderr) throws IOException
                 {
                     int n = 0;
                     final BufferedReader stdErrReader =
@@ -238,6 +239,7 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
                     ProcessExecutionHelper.readBytesIfAvailable(stdout, output, buffer, -1, false);
                     ProcessExecutionHelper.readTextIfAvailable(stdErrReader, errorLines, false);
                 }
+
             });
     }
 
