@@ -29,7 +29,7 @@ import com.marathon.util.spring.StreamSupportingRemoteInvocationResult;
 
 public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor
 {
-    private static final long RESPONSE_BUFFER_SIZE = 100 * FileUtils.ONE_MB;
+    private static final long RESPONSE_BUFFER_SIZE = 1000 * FileUtils.ONE_MB;
 
     private static final Log log =
             LogFactory.getLog(JettyHttpInvokerRequestExecutor.class);
