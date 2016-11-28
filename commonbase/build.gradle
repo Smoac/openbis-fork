@@ -13,3 +13,10 @@ dependencies {
 				'testng:testng:+',
 				'jmock:jmock:+'
 } 
+
+jar {
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
+}
+
