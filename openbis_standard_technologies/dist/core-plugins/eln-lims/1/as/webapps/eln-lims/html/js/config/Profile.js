@@ -119,6 +119,12 @@ $.extend(DefaultProfile.prototype, {
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
+		
+		this.isELNIdentifier = function(identifier) {
+			var space = identifier.split("/")[1];
+			return !this.isInventorySpace(space);
+		}
+		
 		this.isInventorySpace = function(spaceCode) {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1) || ($.inArray(spaceCode, this.inventorySpacesReadOnly) !== -1);
 		}

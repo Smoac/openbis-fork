@@ -346,6 +346,22 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null,
     	    		function(searchResult) {
     	    			var samples = searchResult.objects;
+    	    			var samplesWithoutELNParents = [];
+    	    			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+    	    				var sample = samples[sIdx];
+    	    				if(sample.parents) {
+    	    					var parentInELN = false;
+    	    					for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
+    	    						var parentIdentifier = sample.parents[pIdx].identifier.identifier;
+    	    						parentInELN = parentInELN || profile.isELNIdentifier(parentIdentifier);
+    	    					}
+    	    					if(!parentInELN) {
+	    							samplesWithoutELNParents.push(sample);
+	    						}
+    	    				} else {
+    	    					samplesWithoutELNParents.push(sample);
+    	    				}
+    	    			}
     	    			
     	    			var getOkResultsFunction = function(dfd, samples) {
     	                	return function() {
@@ -375,43 +391,67 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                	}
     	                }
     	                
-    	                if(samples.length > 50) {
+    	                if(samplesWithoutELNParents.length > 50) {
     	                	var toExecute = function() {
-        	                	Util.blockUIConfirm("Do you want to show " + samples.length + " " + ELNDictionary.Samples + " on the tree?", 
-        	    	                	getOkResultsFunction(dfd, samples),
+        	                	Util.blockUIConfirm("Do you want to show " + samplesWithoutELNParents.length + " " + ELNDictionary.Samples + " on the tree?", 
+        	    	                	getOkResultsFunction(dfd, samplesWithoutELNParents),
         	    	                	getCancelResultsFunction(dfd));
         	                }
     	                	
     	                	setTimeout(toExecute, 1000);
     	                } else {
-    	                	getOkResultsFunction(dfd, samples)();
+    	                	getOkResultsFunction(dfd, samplesWithoutELNParents)();
     	                }
     	    		});
     	    		break;
     	    	case "SAMPLE":
-    	    		var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+    	    		var sampleRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } };
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null, function(searchResult) {
     	    			var results = [];
-    	                var datasets = searchResult.objects;
-    	                
-    	                if(datasets.length > 30) {
-    	                	Util.showInfo("More than 30 Datasets, please use the dataset viewer on the sample to navigate them.");
-    	                } else {
-    	                	for (var i = 0; i < datasets.length; i++) {
-        	                    var dataset = datasets[i];
-        	                    var datasetDisplayName = dataset.code;
-        	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
-        	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
-        	                    }
-        	                    
-        	                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
-        	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId() });
+    	    			var samples = searchResult.objects;
+    	    			if(samples && samples[0] && samples[0].children) {
+    	    				if(samples[0].children.length > 50) {
+        	                	Util.showInfo("More than 50 Samples, please use the children table to navigate them.");
+        	                } else {
+        	                	for(var cIdx = 0; cIdx < samples[0].children.length; cIdx++) {
+        	    					var sample = samples[0].children[cIdx];
+        	    					
+        	    					var sampleDisplayName = sample.code;
+            	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+            	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+            	                    }
+            	                    
+        	    					var sampleLink = _this.getLinkForNode("Child: " + sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
+            	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
+            	                    results.push(sampleNode);
+        	    				}
         	                }
-    	                }
-    	                
-    	                
-    	                dfd.resolve(results);
+    	    			}
+    	    			
+    	    			var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
+        	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+        	    			
+        	                var datasets = searchResult.objects;
+        	                if(datasets.length > 50) {
+        	                	Util.showInfo("More than 50 Datasets, please use the dataset viewer on the sample to navigate them.");
+        	                } else {
+        	                	for (var i = 0; i < datasets.length; i++) {
+            	                    var dataset = datasets[i];
+            	                    var datasetDisplayName = dataset.code;
+            	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+            	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+            	                    }
+            	                    
+            	                    var datasetLink = _this.getLinkForNode("DataSet: " + datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+            	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId() });
+            	                }
+        	                }
+        	                
+        	                
+        	                dfd.resolve(results);
+        	    		});
     	    		});
+    	    		
     	    		break;
     	    	case "DATASET":
     	    		break;
