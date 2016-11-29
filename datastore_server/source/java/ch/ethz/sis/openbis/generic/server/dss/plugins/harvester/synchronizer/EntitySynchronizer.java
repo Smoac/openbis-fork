@@ -107,6 +107,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -855,7 +857,22 @@ public class EntitySynchronizer
 
             DataSetRegistrationIngestionService ingestionService =
                     new DataSetRegistrationIngestionService(props, storeRoot, notSyncedDataSetCodes, dataSet.getDataSet(), operationLog);
-            ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
+            TableModel resultTable = ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
+            if (resultTable != null)
+            {
+                List<TableModelColumnHeader> headers = resultTable.getHeader();
+                String[] stringArray = new String[headers.size()];
+                for (int i = 0; i < stringArray.length; i++)
+                {
+                    if (headers.get(i).getTitle().startsWith("Error"))
+                    {
+                        String message = resultTable.getRows().get(0).getValues().toString();
+                        notSyncedDataSetCodes.add(dataSet.getDataSet().getCode());
+                        operationLog.error(message);
+                        return Status.createError(message);
+                    }
+                }
+            }
             return Status.OK;
         }
 
