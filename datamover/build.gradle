@@ -20,7 +20,7 @@ jar {
     from('targets/dist') {
         include 'BUILD*INFO'
     }
-    from (project(':commonbase').files('source/java').getAsFileTree().plus(
+    from (project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
         project(':common').compileJava.outputs.getFiles().getAsFileTree()).matching {
         include 'ch/systemsx/cisd/common/**/*.class'    
     })
