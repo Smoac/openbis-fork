@@ -26,7 +26,7 @@ import java.util.LinkedList;
  */
 public class IdentitySet<T>
 {
-    IdentityHashMap<T, Object> map = new IdentityHashMap<>();
+    IdentityHashMap<T, Object> map = new IdentityHashMap<T, Object>();
 
     public void add(T t)
     {
