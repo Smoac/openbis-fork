@@ -23,8 +23,6 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
-
 /**
  * Helper class which allows to record method invocations.
  * 
@@ -190,9 +188,13 @@ public class InvocationRecordingWrapper<T>
 
     private String record(String prefix, Method method, Object[] parameters)
     {
-        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        StringBuilder builder = new StringBuilder();
         if (parameters != null)
         {
+            if (builder.length() > 0)
+            {
+                builder.append(", ");
+            }
             for (Object parameter : parameters)
             {
                 builder.append(parameter);

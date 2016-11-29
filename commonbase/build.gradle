@@ -14,6 +14,9 @@ dependencies {
 				'jmock:jmock:+'
 } 
 
+sourceCompatibility='1.6'
+targetCompatibility='1.6'
+
 jar {
     from('targets/dist') {
         include 'BUILD*INFO'
