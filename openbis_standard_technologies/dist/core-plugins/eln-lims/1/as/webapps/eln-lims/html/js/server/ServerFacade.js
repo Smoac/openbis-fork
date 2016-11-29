@@ -751,8 +751,8 @@ function ServerFacade(openbisServer) {
 				if(fetchOptions.withParents) {
 					fetchOptions.withParents();
 				}
-				if(fetchOptions.withProjects) {
-					fetchOptions.withProjects();
+				if(fetchOptions.withChildren) {
+					fetchOptions.withChildren();
 				}
 				if(fetchOptions.withProjects) {
 					fetchOptions.withProjects();
@@ -939,15 +939,27 @@ function ServerFacade(openbisServer) {
 	// Search Samples
 	//
 	
-	this.getV3SamplesAsV1 = function(v3Samples) {
+	this.getV3SamplesAsV1 = function(v3Samples, alreadyConverted) {
+		if(!alreadyConverted) {
+			alreadyConverted = {};
+		}
 		var v1Samples = [];
 		for(var sIdx = 0; sIdx < v3Samples.length; sIdx++) {
-			v1Samples.push(this.getV3SampleAsV1(v3Samples[sIdx]));
+			var permId = (v3Samples[sIdx].permId)?v3Samples[sIdx].permId.permId:null;
+			if(alreadyConverted[permId]) {
+				v1Samples.push(alreadyConverted[permId]);
+			} else {
+				v1Samples.push(this.getV3SampleAsV1(v3Samples[sIdx], alreadyConverted));
+			}
 		}
 		return v1Samples;
 	}
 	
-	this.getV3SampleAsV1 = function(v3Sample) {
+	this.getV3SampleAsV1 = function(v3Sample, alreadyConverted) {
+		if(!alreadyConverted) {
+			alreadyConverted = {};
+		}
+		
 		var CONST_UNSUPPORTED_NUMBER = -1;
 		var CONST_UNSUPPORTED_OBJ = null;
 		var CONST_UNSUPPORTED_BOOL = false;
@@ -978,13 +990,15 @@ function ServerFacade(openbisServer) {
 		v1Sample["registrationDetails"]["modificationDate"] = v3Sample.modificationDate;
 		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
 		
+		alreadyConverted[v1Sample["permId"]] = v1Sample;
+		
 		v1Sample["parents"] = null;
 		if(v3Sample.parents) {
-			v1Sample["parents"] = this.getV3SamplesAsV1(v3Sample.parents);
+			v1Sample["parents"] = this.getV3SamplesAsV1(v3Sample.parents, alreadyConverted);
 		}
 		v1Sample["children"] = null;
 		if(v3Sample.children) {
-			v1Sample["children"] = this.getV3SamplesAsV1(v3Sample.children);
+			v1Sample["children"] = this.getV3SamplesAsV1(v3Sample.children, alreadyConverted);
 		} 
 		
 		v1Sample["stub"] = CONST_UNSUPPORTED_BOOL;
