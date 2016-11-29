@@ -2,11 +2,12 @@
 task queryApiJar(type: Jar) {
 	baseName 'openBIS-query-API'
 	includeEmptyDirs false
-	from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+	from project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
          project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus( 
          project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
          project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
-         project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree())))).matching {
+         project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
 	        include "ch/systemsx/cisd/common/exceptions/**/*.class"
 	        include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
 	        include "ch/systemsx/cisd/common/api/**/*.class"
@@ -26,11 +27,12 @@ task queryApiJar(type: Jar) {
 
 task queryApiSources(type: Zip) {
 	archiveName 'sources-query-api.zip'
-	from project(':common').files('source/java').getAsFileTree().plus(
+	from project(':commonbase').files('source/java').getAsFileTree().plus(
+		project(':common').files('source/java').getAsFileTree().plus(
 		project(':openbis-common').files('source/java').getAsFileTree().plus(
 		project(':openbis').files('source/java').getAsFileTree().plus(
 		project(':openbis_api').files('source/java').getAsFileTree().plus(
-		project(':datastore_server').files('source/java').getAsFileTree())))).matching {
+		project(':datastore_server').files('source/java').getAsFileTree()))))).matching {
 	       	include "ch/systemsx/cisd/common/exceptions/**/*.java"
 	        include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
 	        include "ch/systemsx/cisd/common/api/**/*.java"
