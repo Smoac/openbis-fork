@@ -1,3 +1,4 @@
+evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
