@@ -18,10 +18,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.task;
 
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
  * @author pkupczyk
@@ -37,9 +38,8 @@ public class OperationExecutionMarkTimeOutPendingMaintenanceTask extends Abstrac
 
     private void markTimeoutPending()
     {
-        final IOperationContext context = createOperationContext();
         final List<OperationExecution> executions =
-                getExecutionStore().getExecutionsToBeTimeOutPending(context, new OperationExecutionFetchOptions());
+                getExecutionStore().getExecutionsToBeTimeOutPending(getOperationContext(), new OperationExecutionFetchOptions());
 
         if (false == executions.isEmpty())
         {
@@ -56,19 +56,19 @@ public class OperationExecutionMarkTimeOutPendingMaintenanceTask extends Abstrac
                 {
                     if (execution.getFinishDate() != null)
                     {
-                        if (now > execution.getFinishDate().getTime() + execution.getAvailabilityTime())
+                        if (now > execution.getFinishDate().getTime() + execution.getAvailabilityTime() * DateUtils.MILLIS_PER_SECOND)
                         {
-                            getExecutionStore().executionAvailability(context, execution.getPermId(),
+                            getExecutionStore().executionAvailability(getOperationContext(), execution.getPermId(),
                                     OperationExecutionAvailability.TIME_OUT_PENDING);
                         }
-                        if (now > execution.getFinishDate().getTime() + execution.getSummaryAvailabilityTime())
+                        if (now > execution.getFinishDate().getTime() + execution.getSummaryAvailabilityTime() * DateUtils.MILLIS_PER_SECOND)
                         {
-                            getExecutionStore().executionSummaryAvailability(context, execution.getPermId(),
+                            getExecutionStore().executionSummaryAvailability(getOperationContext(), execution.getPermId(),
                                     OperationExecutionAvailability.TIME_OUT_PENDING);
                         }
-                        if (now > execution.getFinishDate().getTime() + execution.getDetailsAvailabilityTime())
+                        if (now > execution.getFinishDate().getTime() + execution.getDetailsAvailabilityTime() * DateUtils.MILLIS_PER_SECOND)
                         {
-                            getExecutionStore().executionDetailsAvailability(context, execution.getPermId(),
+                            getExecutionStore().executionDetailsAvailability(getOperationContext(), execution.getPermId(),
                                     OperationExecutionAvailability.TIME_OUT_PENDING);
                         }
                     }

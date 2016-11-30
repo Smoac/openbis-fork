@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store.IOperationExecutionStore;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -52,6 +53,8 @@ public abstract class AbstractOperationExecutionMarkMaintenanceTask implements I
 
     private long timeLimit;
 
+    private Session session;
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
@@ -63,11 +66,30 @@ public abstract class AbstractOperationExecutionMarkMaintenanceTask implements I
         operationLog.info("Task " + pluginName + " initialized.");
     }
 
-    protected OperationContext createOperationContext()
+    protected OperationContext getOperationContext()
+    {
+        if (session == null)
+        {
+            session = createSession();
+        } else
+        {
+            try
+            {
+                // Touches the session if exists, otherwise throws an exception.
+                // It does not log anything. It's good - we don't want to spam the log file.
+                CommonServiceProvider.getCommonServer().getAuthSession(session.getSessionToken());
+            } catch (InvalidSessionException e)
+            {
+                session = createSession();
+            }
+        }
+        return new OperationContext(session);
+    }
+
+    private Session createSession()
     {
         SessionContextDTO sessionDTO = CommonServiceProvider.getCommonServer().tryToAuthenticateAsSystem();
-        Session session = getSessionManager().getSession(sessionDTO.getSessionToken());
-        return new OperationContext(session);
+        return getSessionManager().getSession(sessionDTO.getSessionToken());
     }
 
     @Override

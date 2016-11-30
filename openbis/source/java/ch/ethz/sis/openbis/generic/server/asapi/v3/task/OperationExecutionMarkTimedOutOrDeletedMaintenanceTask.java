@@ -21,7 +21,6 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
  * @author pkupczyk
@@ -38,8 +37,8 @@ public class OperationExecutionMarkTimedOutOrDeletedMaintenanceTask extends Abst
 
     private void markTimedOut()
     {
-        final IOperationContext context = createOperationContext();
-        final List<OperationExecution> executions = getExecutionStore().getExecutionsToBeTimedOut(context, new OperationExecutionFetchOptions());
+        final List<OperationExecution> executions =
+                getExecutionStore().getExecutionsToBeTimedOut(getOperationContext(), new OperationExecutionFetchOptions());
 
         if (false == executions.isEmpty())
         {
@@ -53,17 +52,18 @@ public class OperationExecutionMarkTimedOutOrDeletedMaintenanceTask extends Abst
                 {
                     if (OperationExecutionAvailability.TIME_OUT_PENDING.equals(execution.getAvailability()))
                     {
-                        getExecutionStore().executionAvailability(context, execution.getPermId(), OperationExecutionAvailability.TIMED_OUT);
+                        getExecutionStore().executionAvailability(getOperationContext(), execution.getPermId(),
+                                OperationExecutionAvailability.TIMED_OUT);
                     } else
                     {
                         if (OperationExecutionAvailability.TIME_OUT_PENDING.equals(execution.getSummaryAvailability()))
                         {
-                            getExecutionStore().executionSummaryAvailability(context, execution.getPermId(),
+                            getExecutionStore().executionSummaryAvailability(getOperationContext(), execution.getPermId(),
                                     OperationExecutionAvailability.TIMED_OUT);
                         }
                         if (OperationExecutionAvailability.TIME_OUT_PENDING.equals(execution.getDetailsAvailability()))
                         {
-                            getExecutionStore().executionDetailsAvailability(context, execution.getPermId(),
+                            getExecutionStore().executionDetailsAvailability(getOperationContext(), execution.getPermId(),
                                     OperationExecutionAvailability.TIMED_OUT);
                         }
                     }
@@ -73,10 +73,13 @@ public class OperationExecutionMarkTimedOutOrDeletedMaintenanceTask extends Abst
 
     private void markDeleted()
     {
-        final IOperationContext context = createOperationContext();
-        final List<OperationExecution> executions = getExecutionStore().getExecutionsToBeDeleted(context, new OperationExecutionFetchOptions());
+        final List<OperationExecution> executions =
+                getExecutionStore().getExecutionsToBeDeleted(getOperationContext(), new OperationExecutionFetchOptions());
 
-        getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.DELETED);
+        if (false == executions.isEmpty())
+        {
+            getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.DELETED);
+        }
 
         markOperationExecutions(executions, new MarkAction()
             {
@@ -86,16 +89,19 @@ public class OperationExecutionMarkTimedOutOrDeletedMaintenanceTask extends Abst
                 {
                     if (OperationExecutionAvailability.DELETE_PENDING.equals(execution.getAvailability()))
                     {
-                        getExecutionStore().executionAvailability(context, execution.getPermId(), OperationExecutionAvailability.DELETED);
+                        getExecutionStore().executionAvailability(getOperationContext(), execution.getPermId(),
+                                OperationExecutionAvailability.DELETED);
                     } else
                     {
                         if (OperationExecutionAvailability.DELETE_PENDING.equals(execution.getSummaryAvailability()))
                         {
-                            getExecutionStore().executionSummaryAvailability(context, execution.getPermId(), OperationExecutionAvailability.DELETED);
+                            getExecutionStore().executionSummaryAvailability(getOperationContext(), execution.getPermId(),
+                                    OperationExecutionAvailability.DELETED);
                         }
                         if (OperationExecutionAvailability.DELETE_PENDING.equals(execution.getDetailsAvailability()))
                         {
-                            getExecutionStore().executionDetailsAvailability(context, execution.getPermId(), OperationExecutionAvailability.DELETED);
+                            getExecutionStore().executionDetailsAvailability(getOperationContext(), execution.getPermId(),
+                                    OperationExecutionAvailability.DELETED);
                         }
                     }
                 }
