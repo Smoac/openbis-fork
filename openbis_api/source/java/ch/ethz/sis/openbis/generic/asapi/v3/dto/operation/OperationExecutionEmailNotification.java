@@ -28,6 +28,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class OperationExecutionEmailNotification implements IOperationExecutionNotification
 {
 
+    private static final long serialVersionUID = 1L;
+
     private List<String> emails;
 
     @SuppressWarnings("unused")

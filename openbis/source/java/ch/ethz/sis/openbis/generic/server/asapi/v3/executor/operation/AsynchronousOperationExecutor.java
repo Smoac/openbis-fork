@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionResults;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionError;
@@ -108,10 +109,29 @@ public class AsynchronousOperationExecutor implements IAsynchronousOperationExec
                     @Override
                     public Void call() throws Exception
                     {
-                        // Transaction from the thread where the execution was scheduled is not available here,
-                        // therefore we need to call a bean with @Transactional annotation again.
-                        poolExecutor.execute(context, executionId, operations);
-                        return null;
+                        try
+                        {
+                            // Transaction from the thread where the execution was scheduled is not available here,
+                            // therefore we need to call beans with @Transactional annotation again. That's why we need the poolExecutor.
+
+                            // Execution store is annotated to always create its own transactions to be independent from the execution
+                            // (information about the execution must remain in operation_executions table even if the execution fails).
+
+                            // The try/catch block wraps around poolExecutor because at the end of its execute method
+                            // a transaction is flushed and any potential problems with the database commit
+                            // will be thrown from it.
+
+                            executionStore.executionRunning(context, executionId);
+                            List<IOperationResult> results = poolExecutor.execute(context, executionId, operations);
+                            executionStore.executionFinished(context, executionId, results);
+                            return null;
+
+                        } catch (Exception e)
+                        {
+                            log.error(e);
+                            executionStore.executionFailed(context, executionId, new OperationExecutionError(e));
+                            throw e;
+                        }
                     }
                 });
 

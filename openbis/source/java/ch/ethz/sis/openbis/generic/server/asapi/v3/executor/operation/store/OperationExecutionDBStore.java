@@ -22,8 +22,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionAvailability;
@@ -50,7 +48,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionNew(String code, Long owner, String description, String notification, List<String> operations, long availabilityTime,
             long summaryAvailabilityTime, long detailsAvailabilityTime)
     {
@@ -81,7 +78,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionScheduled(String code)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
@@ -89,7 +85,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionRunning(String code)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
@@ -98,7 +93,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionProgressed(String code, String progress)
     {
         // This method may be called when the execution state is already FINISHED (progress is reported with some delay by a different thread - other
@@ -109,7 +103,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionFailed(String code, String error)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
@@ -119,7 +112,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionFinished(String code, List<String> results)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
@@ -130,7 +122,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionAvailability(String code, OperationExecutionAvailability availability)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
@@ -154,7 +145,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionSummaryAvailability(String code, OperationExecutionAvailability summaryAvailability)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
@@ -175,7 +165,6 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionDetailsAvailability(String code, OperationExecutionAvailability detailsAvailability)
     {
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);

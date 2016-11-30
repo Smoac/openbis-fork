@@ -30,7 +30,11 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -69,10 +73,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionState;
  * @author pkupczyk
  */
 @Component
-public class OperationExecutionStore implements IOperationExecutionStore, Runnable
+public class OperationExecutionStore implements IOperationExecutionStore, ApplicationContextAware, Runnable
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, OperationExecutionStore.class);
+
+    private ApplicationContext applicationContext;
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -109,11 +115,10 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
         this.dbStore = dbStore;
         this.fsStore = fsStore;
         this.notifier = notifier;
-        init();
     }
 
     @PostConstruct
-    private void init()
+    void init()
     {
         progressThread = new Thread(this);
         progressThread.setName(config.getProgressThreadName());
@@ -122,6 +127,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionNew(final IOperationContext context, final OperationExecutionPermId executionId, final List<? extends IOperation> operations,
             final IOperationExecutionOptions options)
     {
@@ -171,6 +177,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionScheduled(IOperationContext context, OperationExecutionPermId executionId)
     {
         checkContext(context);
@@ -187,6 +194,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionRunning(IOperationContext context, OperationExecutionPermId executionId)
     {
         checkContext(context);
@@ -202,17 +210,8 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
         operationLog.info("Execution " + executionId + " is running");
     }
 
-    private void executionProgressed(OperationExecutionPermId executionId, IProgress progress)
-    {
-        dbStore.executionProgressed(executionId.getPermId(), ProgressFormatter.format(progress));
-        fsStore.executionProgressed(executionId.getPermId(),
-                new OperationExecutionProgress(ProgressFormatter.format(progress), progress.getNumItemsProcessed(),
-                        progress.getTotalItemsToProcess()));
-
-        operationLog.info("Execution " + executionId + " progressed (" + ProgressFormatter.formatShort(progress) + ")");
-    }
-
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionFailed(IOperationContext context, OperationExecutionPermId executionId, IOperationExecutionError error)
     {
         checkContext(context);
@@ -234,6 +233,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionFinished(IOperationContext context, OperationExecutionPermId executionId, List<? extends IOperationResult> results)
     {
         checkContext(context);
@@ -260,6 +260,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionAvailability(IOperationContext context, OperationExecutionPermId executionId, OperationExecutionAvailability availability)
     {
         checkContext(context);
@@ -278,6 +279,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionSummaryAvailability(IOperationContext context, OperationExecutionPermId executionId,
             OperationExecutionAvailability summaryAvailability)
     {
@@ -297,6 +299,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void executionDetailsAvailability(IOperationContext context, OperationExecutionPermId executionId,
             OperationExecutionAvailability detailsAvailability)
     {
@@ -316,6 +319,81 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void synchronizeProgress()
+    {
+        Map<OperationExecutionPermId, IProgress> progressMapCopy = new HashMap<OperationExecutionPermId, IProgress>();
+
+        synchronized (progressMap)
+        {
+            progressMapCopy.putAll(progressMap);
+            progressMap.clear();
+        }
+
+        if (false == progressMapCopy.isEmpty())
+        {
+            operationLog.info("Progress synchronization with database and file system has been started (" + progressMapCopy.size()
+                    + " execution(s) to be synchronized).");
+
+            int successCount = 0;
+            int failureCount = 0;
+
+            for (Map.Entry<OperationExecutionPermId, IProgress> progressEntry : progressMapCopy.entrySet())
+            {
+                OperationExecutionPermId executionId = progressEntry.getKey();
+                IProgress progress = progressEntry.getValue();
+
+                try
+                {
+                    dbStore.executionProgressed(executionId.getPermId(), ProgressFormatter.format(progress));
+                    fsStore.executionProgressed(executionId.getPermId(),
+                            new OperationExecutionProgress(ProgressFormatter.format(progress), progress.getNumItemsProcessed(),
+                                    progress.getTotalItemsToProcess()));
+
+                    operationLog.info("Execution " + executionId + " progressed (" + ProgressFormatter.formatShort(progress) + ")");
+
+                    successCount++;
+
+                } catch (Throwable t)
+                {
+                    operationLog.error("Couldn't synchronize progress for execution with id " + executionId, t);
+                    failureCount++;
+                }
+            }
+
+            operationLog.info("Progress synchronization with database and file system has been finished (" + successCount
+                    + " execution(s) has been successfully synchronized, synchronization of " + failureCount + " execution(s) has failed).");
+        }
+    }
+
+    @Override
+    public void run()
+    {
+        while (false == Thread.currentThread().isInterrupted())
+        {
+            // Transaction is not available in this thread. For a transaction to be created we need to make an "external" call
+            // to OperationExecutionStore bean. Only then the AOP magic gets executed. To make such call we need to
+            // fetch the bean from the context. If we made a call on OperationExecutionStore.this,
+            // then it would not go trough the AOP, any @Transactional annotations would be ignored and a transaction wouldn't be created.
+
+            if (false == progressMap.isEmpty())
+            {
+                IOperationExecutionStore store = applicationContext.getBean(IOperationExecutionStore.class);
+                store.synchronizeProgress();
+            }
+
+            try
+            {
+                Thread.sleep(config.getProgressInterval() * 1000);
+            } catch (InterruptedException ex)
+            {
+                return;
+            }
+        }
+    }
+
+    @Override
+    @Transactional
     public OperationExecution getExecution(IOperationContext context, IOperationExecutionId executionId, OperationExecutionFetchOptions fo)
     {
         checkContext(context);
@@ -333,6 +411,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional
     public List<OperationExecution> getExecutions(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
@@ -343,6 +422,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional
     public List<OperationExecution> getExecutionsToBeTimeOutPending(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
@@ -353,6 +433,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional
     public List<OperationExecution> getExecutionsToBeTimedOut(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
@@ -363,6 +444,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
+    @Transactional
     public List<OperationExecution> getExecutionsToBeDeleted(IOperationContext context, OperationExecutionFetchOptions fetchOptions)
     {
         checkContext(context);
@@ -724,55 +806,9 @@ public class OperationExecutionStore implements IOperationExecutionStore, Runnab
     }
 
     @Override
-    public void run()
+    public void setApplicationContext(ApplicationContext applicationContext)
     {
-        while (false == Thread.currentThread().isInterrupted())
-        {
-            Map<OperationExecutionPermId, IProgress> progressMapCopy = new HashMap<OperationExecutionPermId, IProgress>();
-
-            synchronized (progressMap)
-            {
-                progressMapCopy.putAll(progressMap);
-                progressMap.clear();
-            }
-
-            if (false == progressMapCopy.isEmpty())
-            {
-                operationLog.info("Progress synchronization with database and file system has been started (" + progressMapCopy.size()
-                        + " execution(s) to be synchronized).");
-
-                int successCount = 0;
-                int failureCount = 0;
-
-                for (Map.Entry<OperationExecutionPermId, IProgress> progressEntry : progressMapCopy.entrySet())
-                {
-                    OperationExecutionPermId executionId = progressEntry.getKey();
-                    IProgress progress = progressEntry.getValue();
-
-                    try
-                    {
-                        executionProgressed(executionId, progress);
-
-                        successCount++;
-
-                    } catch (Throwable t)
-                    {
-                        operationLog.error("Couldn't synchronize progress for execution with id " + executionId, t);
-                        failureCount++;
-                    }
-                }
-
-                operationLog.info("Progress synchronization with database and file system has been finished (" + successCount
-                        + " execution(s) has been successfully synchronized, synchronization of " + failureCount + " execution(s) has failed).");
-            }
-            try
-            {
-                Thread.sleep(config.getProgressInterval() * 1000);
-            } catch (InterruptedException ex)
-            {
-                return;
-            }
-        }
+        this.applicationContext = applicationContext;
     }
 
     public void shutdown()

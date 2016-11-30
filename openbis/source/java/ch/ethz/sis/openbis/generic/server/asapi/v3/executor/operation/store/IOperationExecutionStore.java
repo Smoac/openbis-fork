@@ -54,6 +54,8 @@ public interface IOperationExecutionStore
     public void executionDetailsAvailability(IOperationContext context, OperationExecutionPermId executionId,
             OperationExecutionAvailability availability);
 
+    public void synchronizeProgress();
+
     public OperationExecution getExecution(IOperationContext context, IOperationExecutionId executionId, OperationExecutionFetchOptions fetchOptions);
 
     public List<OperationExecution> getExecutions(IOperationContext context, OperationExecutionFetchOptions fetchOptions);

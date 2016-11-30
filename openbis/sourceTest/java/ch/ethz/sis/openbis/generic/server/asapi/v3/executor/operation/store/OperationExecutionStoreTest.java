@@ -25,6 +25,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
+import org.springframework.context.ApplicationContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -66,6 +67,8 @@ public class OperationExecutionStoreTest
 
     private Mockery mockery;
 
+    private ApplicationContext applicationContext;
+
     private IOperationExecutionConfig executionConfig;
 
     private IOperationExecutionAuthorizationExecutor executionAuthorization;
@@ -98,6 +101,7 @@ public class OperationExecutionStoreTest
 
         mockery = new Mockery();
 
+        applicationContext = mockery.mock(ApplicationContext.class);
         executionConfig = mockery.mock(IOperationExecutionConfig.class);
         executionAuthorization = mockery.mock(IOperationExecutionAuthorizationExecutor.class);
         executionDAO = mockery.mock(IOperationExecutionDBStoreDAO.class);
@@ -488,7 +492,18 @@ public class OperationExecutionStoreTest
         OperationExecutionFSStore fsStore = new OperationExecutionFSStore(executionConfig);
         OperationExecutionDBStore dbStore = new OperationExecutionDBStore(executionDAO);
         OperationExecutionNotifier notifier = new OperationExecutionNotifier();
-        OperationExecutionStore store = new OperationExecutionStore(executionConfig, executionAuthorization, dbStore, fsStore, notifier);
+
+        final OperationExecutionStore store = new OperationExecutionStore(executionConfig, executionAuthorization, dbStore, fsStore, notifier);
+        store.setApplicationContext(applicationContext);
+        mockery.checking(new Expectations()
+            {
+                {
+                    allowing(applicationContext).getBean(IOperationExecutionStore.class);
+                    will(returnValue(store));
+                }
+            });
+        store.init();
+        
         stores.add(store);
         return store;
     }

@@ -537,7 +537,7 @@ public class AsynchronousOperationExecutorTest
 
     private AsynchronousOperationExecutor createExecutor()
     {
-        AsynchronousOperationThreadPoolExecutor poolExecutor = new AsynchronousOperationThreadPoolExecutor(executionStore, operationsExecutor);
+        AsynchronousOperationThreadPoolExecutor poolExecutor = new AsynchronousOperationThreadPoolExecutor(operationsExecutor);
         AsynchronousOperationExecutor executor = new AsynchronousOperationExecutor(executionConfig, executionIdFactory, executionStore, poolExecutor);
         executors.add(executor);
         return executor;
