@@ -443,7 +443,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             	                    }
             	                    
             	                    var datasetLink = _this.getLinkForNode("DataSet: " + datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
-            	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId() });
+            	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId(), icon : "fa fa-database" });
             	                }
         	                }
         	                
