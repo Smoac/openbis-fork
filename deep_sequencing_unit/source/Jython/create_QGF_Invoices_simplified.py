@@ -144,6 +144,14 @@ def merge_two_dicts(x, y):
     z.update(y)
     return z
 
+
+def camel_case_string(string):
+    full_name = ""
+    for split in string.split("_"):
+        full_name += split[0].upper() + split[1:] + " "
+    return full_name.strip()
+    
+
 def writeHeader(sheet, myRows, wb, configMap, piName, piSpace):
   # Write header
   row = sheet.createRow(myRows.getNextRow())
@@ -153,11 +161,10 @@ def writeHeader(sheet, myRows, wb, configMap, piName, piSpace):
   row1.createCell(0).setCellValue(getDate())
   row1.getCell(0).setCellStyle(setFont(wb, configMap, 10, True))
   
-  createRow(configMap, wb, sheet, myRows, "Principal Investigator", piName.replace("_", " "), 0, 10, True, columnspace=1)
+  createRow(configMap, wb, sheet, myRows, "Principal Investigator", camel_case_string(piName), 0, 10, True, columnspace=1)
   createRow(configMap, wb, sheet, myRows,"Data Space", piSpace, 0, 10, True, columnspace=1)
   createRow(configMap, wb, sheet, myRows)
   createRow(configMap, wb, sheet, myRows,"Samples", "", 0, 10, True, True)
-
 
 
 def createRow(configMap, wb, sheet, myRows, key="", value="", rowNumber=0, fontSize=10, boldness=False, underline=False, columnspace=0):
@@ -205,9 +212,15 @@ def write_flowcell_details(configMap, flowCellProperties, myRows, sequencerVocab
 
 
 
-def write_samples(configMap, myRows, wb, sheet, setFont, sample, sampleValues, working_column_headers_dict):
+def write_samples(configMap, myRows, wb, sheet, setFont, sample, sampleValues, working_column_headers_dict, lane, write_lane=False):
+    
     singleSampleColumns = uniqueColumn()
     rowN = sheet.createRow(myRows.getNextRow())
+
+    if write_lane:
+        rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(str(sampleValues['LANE']))
+        rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
+    
     rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
     rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
     for code, label in working_column_headers_dict.iteritems():
@@ -249,9 +262,14 @@ def write_intermediate_section(configMap, flowCellProperties, myRows, wb, sheet)
 
 
 
-def write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet):
+def write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet, write_lane=False):
     myColumns = uniqueColumn()
     sampleHeader = sheet.createRow(myRows.getNextRow())
+    
+    if write_lane:
+        sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Flowcell:Lane")
+        sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
+    
     sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Sample Code")
     sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
     for code, label in working_column_headers_dict.iteritems():
@@ -334,13 +352,13 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     
     write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet)
     for reg_sample in regular_samples:     
-        value = write_samples(configMap, myRows, wb, sheet, setFont, reg_sample, regular_samples[reg_sample], working_column_headers_dict)
+        value = write_samples(configMap, myRows, wb, sheet, setFont, reg_sample, regular_samples[reg_sample], working_column_headers_dict, lane)
   
     write_intermediate_section(configMap, flowCellProperties, myRows, wb, sheet)   
     
-    write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet)            
-    for pool in pool_samples:
-        value = write_samples(configMap, myRows, wb, sheet, setFont, pool, pool_samples[pool], working_column_headers_dict)       
+    write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet, write_lane=True)            
+    for pool in sorted(pool_samples):
+        value = write_samples(configMap, myRows, wb, sheet, setFont, pool, pool_samples[pool], working_column_headers_dict, lane, write_lane=True)       
     
     write_flowcell_details(configMap, flowCellProperties, myRows, sequencerVocabulary, runModeVocabulary, flowcell, wb, sheet, createRow)
     
@@ -523,10 +541,17 @@ def getFLowcellData(service, configMap, flowcell, logger):
             for samples in laneParents:
                 sampleCode = samples.getCode()
                 sampleProperties = samples.getProperties()
-                s[sampleCode.split("-")[-1]] = sampleProperties
+                
+                sample_properties_dict={}
+                for key, value in sampleProperties.iteritems():
+                    sample_properties_dict[key] = value
+                
+                
+                sample_properties_dict["LANE"] = lane
+                s[sampleCode.split("-")[-1]] = sample_properties_dict
                 sampleDict[lane] = s
-                pi = sanitizeString(sampleProperties[configMap["pIPropertyName"]])
-                invoiceProperty = sampleProperties['INVOICE']
+                pi = sanitizeString(sample_properties_dict[configMap["pIPropertyName"]])
+                invoiceProperty = sample_properties_dict['INVOICE']
                 # if sample got created via Excel upload, the property could be not set, which is represented by None
                 if (invoiceProperty is None):
                     invoiceProperty = 'false'
