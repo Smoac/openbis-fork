@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.ethz.cisd.hotdeploy.PluginContainer;
 import ch.rinn.restrictions.Private;
@@ -69,7 +70,7 @@ public class DssPropertyParametersUtil
     static final String DSS_TEMP_DIR_PATH = "dss-temp-dir";
 
     @Private
-    static final File EMPTY_TEST_FILE = new File("an-empty-test-file");
+    static final String EMPTY_TEST_FILE_NAME = "an-empty-test-file";
 
     /**
      * Directory for registration log files.
@@ -227,23 +228,36 @@ public class DssPropertyParametersUtil
         return registrationLogDir;
     }
 
+    private static AtomicInteger atomicEmptyFileIndex = new AtomicInteger();
+
     private static void assertDirExistsAndIsLocal(IFileOperations fileOperations, File dir,
             String dirDescription, String pathKey)
     {
-        assertDirExists(fileOperations, dir, dirDescription, pathKey);
-        File emptyTestFileInDir = new File(dir, EMPTY_TEST_FILE.getName());
+        String threadSafeEmptyTestFileName = EMPTY_TEST_FILE_NAME + atomicEmptyFileIndex.incrementAndGet();
+        File threadSafeEmptyTestFile = null;
+        File emptyTestFileInDir = null;
+
         try
         {
-            fileOperations.createNewFile(EMPTY_TEST_FILE);
-            if (fileOperations.rename(EMPTY_TEST_FILE, emptyTestFileInDir) == false)
+            assertDirExists(fileOperations, dir, dirDescription, pathKey);
+            threadSafeEmptyTestFile = new File(threadSafeEmptyTestFileName);
+            fileOperations.createNewFile(threadSafeEmptyTestFile);
+            emptyTestFileInDir = new File(dir, threadSafeEmptyTestFileName);
+            if (fileOperations.rename(threadSafeEmptyTestFile, emptyTestFileInDir) == false)
             {
                 throw createException(NON_LOCAL_DIR_TEMPLATE.createFreshCopy(), dir,
                         dirDescription, pathKey);
             }
         } finally
         {
-            fileOperations.delete(EMPTY_TEST_FILE);
-            fileOperations.delete(emptyTestFileInDir);
+            if (threadSafeEmptyTestFile != null)
+            {
+                fileOperations.delete(threadSafeEmptyTestFile);
+            }
+            if (emptyTestFileInDir != null)
+            {
+                fileOperations.delete(emptyTestFileInDir);
+            }
         }
     }
 
