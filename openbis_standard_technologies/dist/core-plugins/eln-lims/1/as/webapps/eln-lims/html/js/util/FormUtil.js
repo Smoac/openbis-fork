@@ -822,7 +822,8 @@ var FormUtil = new function() {
 		var click = function() {
 			mainController.changeView(view, permIdOrIdentifier, true);
 		}
-		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(displayName);
+		displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
+		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(displayName);
 		link.click(click);
 		return link;
 	}

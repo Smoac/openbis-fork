@@ -179,7 +179,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     
     this.getLinkForNode = function(displayName, menuId, view, viewData) {
     	var href = Util.getURLFor(menuId, view, viewData);
-        var $menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link browser-compatible-javascript-link-tree" }).append(displayName);
+    	displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
+        var $menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link browser-compatible-javascript-link-tree" }).text(displayName);
         return $menuItemLink[0].outerHTML;
     }
     
