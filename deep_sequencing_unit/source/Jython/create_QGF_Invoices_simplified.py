@@ -219,9 +219,11 @@ def write_samples(configMap, myRows, wb, sheet, setFont, sample, sampleValues, w
 
     if write_lane:
         rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(str(sampleValues['LANE']))
-        rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
+        rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))   
+        rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample.split("_")[1])
+    else:
+        rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
     
-    rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
     rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
     for code, label in working_column_headers_dict.iteritems():
         if (code == 'BIOLOGICAL_SAMPLE_ARRIVED'):
@@ -313,29 +315,24 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     logger.debug(listofLanes)
        
     for lane in listofLanes:
-        accumulated_pi_dict = merge_two_dicts(accumulated_pi_dict, sampleDict[lane])
-     
-    # sort the dictionary by keys and taking the key as an integer
-    for sample in sorted(accumulated_pi_dict.iterkeys(), key=int):        
-        sampleValues = accumulated_pi_dict[sample]
-        logger.debug(sampleValues['PRINCIPAL_INVESTIGATOR_NAME'])
-        logger.debug(piName)
-        logger.debug(sample)
-        # if there is a shared lane do not mix them 
-        if (sanitizeString(sampleValues['PRINCIPAL_INVESTIGATOR_NAME']) != sanitizeString(piName)):
-            continue
-        
-        # Find the Pools:
-        try:
-            if sampleValues['BARCODE'] != 'NOINDEX':
-                regular_samples[sample] = sampleValues
-            else:
-                pool_samples[sample] = sampleValues
-        except:
-            if int(sampleValues['NCBI_ORGANISM_TAXONOMY']) != 10847:
-                pool_samples[sample] = sampleValues
-            else:
-                regular_samples[sample] = sampleValues
+        for sample_code in sampleDict[lane]:
+            sampleValues = sampleDict[lane][sample_code]
+
+            # if there is a shared lane do not mix them 
+            if (sanitizeString(sampleValues['PRINCIPAL_INVESTIGATOR_NAME']) != sanitizeString(piName)):
+                continue
+            
+            # Find the Pools:
+            try:
+                if sampleValues['BARCODE'] != 'NOINDEX':
+                    regular_samples[sample_code] = sampleValues
+                else:
+                    pool_samples[lane + "_" + sample_code] = sampleValues
+            except:
+                if int(sampleValues['NCBI_ORGANISM_TAXONOMY']) != 10847:
+                    pool_samples[lane + "_" + sample_code] = sampleValues
+                else:
+                    regular_samples[sample_code] = sampleValues
 
     logger.debug("Found {0} samples.".format(len(regular_samples)))
     logger.debug("Found {0} pools.".format(len(pool_samples)))
@@ -351,7 +348,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     logger.debug("check_empty_columns_dict: {0}".format(check_empty_columns_dict))
     
     write_sample_column_header(configMap, working_column_headers_dict, myRows, wb, sheet)
-    for reg_sample in regular_samples:     
+    for reg_sample in sorted(regular_samples):     
         value = write_samples(configMap, myRows, wb, sheet, setFont, reg_sample, regular_samples[reg_sample], working_column_headers_dict, lane)
   
     write_intermediate_section(configMap, flowCellProperties, myRows, wb, sheet)   
