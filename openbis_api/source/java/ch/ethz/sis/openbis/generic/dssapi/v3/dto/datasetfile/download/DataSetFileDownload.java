@@ -17,14 +17,17 @@
 package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 
 /**
  * @author pkupczyk
  */
-public class DataSetFileDownload
+public class DataSetFileDownload implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private DataSetFile dataSetFile;
 

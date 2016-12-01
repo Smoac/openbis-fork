@@ -22,4 +22,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context;
 public class CustomASServiceContext extends ServiceContext
 {
 
+    private static final long serialVersionUID = 1L;
+
 }

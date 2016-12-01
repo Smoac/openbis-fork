@@ -64,7 +64,8 @@ public class OperationExecutionDBStoreDAO implements IOperationExecutionDBStoreD
                         "update OperationExecutionPE set summaryProgress = :progress where code = :code and state in (:states) and summaryAvailability = 'AVAILABLE'");
         query.setParameter("code", code);
         query.setParameter("progress", progress);
-        query.setParameterList("states", Arrays.asList(OperationExecutionState.RUNNING, OperationExecutionState.FAILED));
+        query.setParameterList("states",
+                Arrays.asList(OperationExecutionState.RUNNING, OperationExecutionState.FAILED, OperationExecutionState.FINISHED));
         query.executeUpdate();
     }
 

@@ -22,14 +22,17 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 
 /**
  * @author pkupczyk
  */
-public class DataSetFileDownloadReader
+public class DataSetFileDownloadReader implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private InputStream in;
 

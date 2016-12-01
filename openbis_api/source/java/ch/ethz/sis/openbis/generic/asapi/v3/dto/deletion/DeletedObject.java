@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion;
 
+import java.io.Serializable;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -23,8 +25,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.deletion.DeletedObject")
-public class DeletedObject
+public class DeletedObject implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private IObjectId id;
 

@@ -16,13 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * @author pkupczyk
  */
-public class SearchCriteriaToStringBuilder
+public class SearchCriteriaToStringBuilder implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private String name;
 

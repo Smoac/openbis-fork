@@ -16,11 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context;
 
+import java.io.Serializable;
+
 /**
  * @author Franz-Josef Elmer
  */
-public class ServiceContext
+public class ServiceContext implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private String sessionToken;
 
     public String getSessionToken()

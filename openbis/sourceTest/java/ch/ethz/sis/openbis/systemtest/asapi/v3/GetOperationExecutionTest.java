@@ -33,6 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecu
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionDetails;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionEmailNotification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionSummary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
@@ -187,7 +188,7 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
     }
 
     @Test
-    public void testGetWithSummary()
+    public void testGetWithSummary() throws Exception
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -196,31 +197,34 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
         List<? extends IOperation> operations = Arrays.asList(new CreateSpacesOperation(creation));
 
         SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        options.setNotification(new OperationExecutionEmailNotification("test1@email.com", "test2@email.com"));
         options.setExecutionId(new OperationExecutionPermId());
 
         v3api.executeOperations(sessionToken, operations, options);
 
         OperationExecutionFetchOptions fo = new OperationExecutionFetchOptions();
+        fo.withNotification();
         fo.withSummary();
         fo.withSummary().withOperations();
         fo.withSummary().withProgress();
         fo.withSummary().withError();
         fo.withSummary().withResults();
 
+        // wait to make sure the progress information gets updated
+        Thread.sleep(config.getProgressInterval() * 1000);
+
         OperationExecution execution = getExecution(sessionToken, options.getExecutionId(), fo);
 
         assertNotNull(execution);
+
+        assertEquals(((OperationExecutionEmailNotification) execution.getNotification()).getEmails(),
+                ((OperationExecutionEmailNotification) options.getNotification()).getEmails());
 
         OperationExecutionSummary summary = execution.getSummary();
 
         assertEquals(summary.getOperations().size(), 1);
         assertEquals(summary.getOperations().get(0), "CreateSpacesOperation 1 creation(s)");
-
-        // reported by a separate thread
-        if (summary.getProgress() != null)
-        {
-            AssertionUtil.assertContains("checking access (1/1)", summary.getProgress());
-        }
+        AssertionUtil.assertContains("checking access (1/1)", summary.getProgress());
         assertEquals(summary.getError(), null);
 
         assertEquals(summary.getResults().size(), 1);
@@ -243,6 +247,7 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
         List<? extends IOperation> operationsBefore = Arrays.asList(operationBefore);
 
         SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        options.setNotification(new OperationExecutionEmailNotification("test1@email.com", "test2@email.com"));
         options.setExecutionId(new OperationExecutionPermId());
 
         // executeOperations
@@ -254,6 +259,7 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
         // getExecution
 
         OperationExecutionFetchOptions fo = new OperationExecutionFetchOptions();
+        fo.withNotification();
         fo.withDetails();
         fo.withDetails().withOperations();
         fo.withDetails().withProgress();
@@ -261,12 +267,14 @@ public class GetOperationExecutionTest extends AbstractOperationExecutionTest
         fo.withDetails().withResults();
 
         // wait to make sure the progress information gets updated
-
         Thread.sleep(config.getProgressInterval() * 1000);
 
         OperationExecution execution = getExecution(sessionToken, options.getExecutionId(), fo);
 
         assertNotNull(execution);
+
+        assertEquals(((OperationExecutionEmailNotification) execution.getNotification()).getEmails(),
+                ((OperationExecutionEmailNotification) options.getNotification()).getEmails());
 
         OperationExecutionDetails details = execution.getDetails();
 

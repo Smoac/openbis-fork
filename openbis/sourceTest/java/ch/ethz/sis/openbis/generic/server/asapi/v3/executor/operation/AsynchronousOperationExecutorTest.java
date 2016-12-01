@@ -38,7 +38,7 @@ public class AsynchronousOperationExecutorTest
 
     private IOperationExecutionStore executionStore;
 
-    private IOperationsExecutor operationsExecutor;
+    private IAsynchronousOperationThreadPoolExecutor poolExecutor;
 
     private IOperationContext context1;
 
@@ -71,7 +71,7 @@ public class AsynchronousOperationExecutorTest
         executionConfig = mockery.mock(IOperationExecutionConfig.class);
         executionIdFactory = mockery.mock(IOperationExecutionIdFactory.class);
         executionStore = mockery.mock(IOperationExecutionStore.class);
-        operationsExecutor = mockery.mock(IOperationsExecutor.class);
+        poolExecutor = mockery.mock(IAsynchronousOperationThreadPoolExecutor.class);
 
         context1 = mockery.mock(IOperationContext.class, "context1");
         context2 = mockery.mock(IOperationContext.class, "context2");
@@ -118,7 +118,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionScheduled(context1, executionId);
                     oneOf(executionStore).executionRunning(context1, executionId);
 
-                    oneOf(operationsExecutor).execute(context1, operations1);
+                    oneOf(poolExecutor).execute(context1, executionId, operations1);
                     will(returnValue(operationResults1));
 
                     oneOf(executionStore).executionFinished(context1, executionId, operationResults1);
@@ -150,7 +150,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionScheduled(context1, executionId1);
                     oneOf(executionStore).executionRunning(context1, executionId1);
 
-                    oneOf(operationsExecutor).execute(context1, operations1);
+                    oneOf(poolExecutor).execute(context1, executionId1, operations1);
                     will(throwException(exception));
 
                     oneOf(executionStore).executionFailed(context1, executionId1, new OperationExecutionError(exception));
@@ -265,7 +265,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionScheduled(context1, executionId1);
                     oneOf(executionStore).executionRunning(context1, executionId1);
 
-                    oneOf(operationsExecutor).execute(context1, operations1);
+                    oneOf(poolExecutor).execute(context1, executionId1, operations1);
                     will(returnValue(operationResults1));
 
                     oneOf(executionStore).executionFinished(context1, executionId1, operationResults1);
@@ -333,7 +333,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionRunning(context1, executionId1);
                     will(new SendChannelMessageAction(executionChannel, "1_running"));
 
-                    oneOf(operationsExecutor).execute(context1, operations1);
+                    oneOf(poolExecutor).execute(context1, executionId1, operations1);
                     will(new TestAction()
                         {
                             @Override
@@ -366,7 +366,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionRunning(context2, executionId2);
                     will(new SendChannelMessageAction(executionChannel, "2_running"));
 
-                    oneOf(operationsExecutor).execute(context2, operations2);
+                    oneOf(poolExecutor).execute(context2, executionId2, operations2);
                     will(new TestAction()
                         {
                             @Override
@@ -439,7 +439,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionRunning(context1, executionId1);
                     will(new SendChannelMessageAction(executionChannel, "1_running"));
 
-                    oneOf(operationsExecutor).execute(context1, operations1);
+                    oneOf(poolExecutor).execute(context1, executionId1, operations1);
                     will(new TestAction()
                         {
                             @Override
@@ -472,7 +472,7 @@ public class AsynchronousOperationExecutorTest
                     oneOf(executionStore).executionRunning(context2, executionId2);
                     will(new SendChannelMessageAction(executionChannel, "2_running"));
 
-                    oneOf(operationsExecutor).execute(context2, operations2);
+                    oneOf(poolExecutor).execute(context2, executionId2, operations2);
                     will(new TestAction()
                         {
                             @Override
@@ -537,7 +537,6 @@ public class AsynchronousOperationExecutorTest
 
     private AsynchronousOperationExecutor createExecutor()
     {
-        AsynchronousOperationThreadPoolExecutor poolExecutor = new AsynchronousOperationThreadPoolExecutor(operationsExecutor);
         AsynchronousOperationExecutor executor = new AsynchronousOperationExecutor(executionConfig, executionIdFactory, executionStore, poolExecutor);
         executors.add(executor);
         return executor;
