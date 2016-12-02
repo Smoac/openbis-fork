@@ -422,8 +422,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
             	                    }
             	                    
-        	    					var sampleLink = _this.getLinkForNode("Child: " + sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
+        	    					var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
             	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
+            	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
+	        	                    	sampleNode.icon = "fa fa-flask";
+	        	                    }
             	                    results.push(sampleNode);
         	    				}
         	                }
@@ -443,7 +446,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
             	                    }
             	                    
-            	                    var datasetLink = _this.getLinkForNode("DataSet: " + datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+            	                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
             	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId(), icon : "fa fa-database" });
             	                }
         	                }

@@ -407,6 +407,11 @@ function ServerFacade(openbisServer) {
 	//
 	// Data Set Related Functions
 	//
+	this.listDataSetsForExperiment = function(experimentToSend, trueOrFalse, callbackFunction) {
+		//Should be a V1 Experiment
+		this.openbisServer.listDataSetsForExperiments([experimentToSend], trueOrFalse, callbackFunction);
+	}
+	
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {
 		var _this = this;
 		var listDataSetsForV1Sample = function(v1Sample) {
@@ -749,10 +754,10 @@ function ServerFacade(openbisServer) {
 					fetchOptions.withModifier();
 				}
 				if(fetchOptions.withParents) {
-					fetchOptions.withParents();
+					fetchOptions.withParentsUsing(fetchOptions);
 				}
 				if(fetchOptions.withChildren) {
-					fetchOptions.withChildren();
+					fetchOptions.withChildrenUsing(fetchOptions);
 				}
 				if(fetchOptions.withProjects) {
 					fetchOptions.withProjects();
