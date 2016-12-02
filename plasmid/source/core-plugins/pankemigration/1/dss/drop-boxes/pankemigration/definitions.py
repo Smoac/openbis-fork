@@ -1,0 +1,1 @@
+/Users/barillac/Documents/workspace/plasmid/trunk/source/core-plugins/pankemigration/1/as/definitions.py
