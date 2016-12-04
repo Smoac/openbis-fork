@@ -204,39 +204,49 @@ public class EntitySynchronizer
         operationLog.info("entity operation result: " + operationResult);
 
         // register physical data sets
-        operationLog.info("Registering data sets...");
+        // first set the parent/child relationship
+        // this way if the parent has failed to register, child will fail too.
+        // Not that container component relationships are established post-reg.
+        setParentDataSetsOnTheChildren(data);
         Map<String, DataSetWithConnections> physicalDSMap = data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp);
+        operationLog.info("Registering data sets...");
         registerPhysicalDataSets(physicalDSMap);
 
         // link physical data sets registered above to container data sets
-        operationLog.info("start linking/un-linking container and contained data sets");
-
-        processDataSetRelationships(data.getDataSetsToProcess(), physicalDSMap);
+        operationLog.info("start linking/un-linking container and component data sets");
+        establishContainerComponentRelationships(data.getDataSetsToProcess(), physicalDSMap);
     }
 
-    private void processDataSetRelationships(Map<String, DataSetWithConnections> dataSetsToProcess, Map<String, DataSetWithConnections> physicalDSMap)
+    private void setParentDataSetsOnTheChildren(ResourceListParserData data)
+    {
+        for (DataSetWithConnections dsWithConn : data.getDataSetsToProcess().values())
+        {
+            for (Connection conn : dsWithConn.getConnections())
+            {
+                NewExternalData dataSet = dsWithConn.getDataSet();
+                if (data.getDataSetsToProcess().containsKey(conn.getToPermId()) && conn.getType().equals("Child"))
+                {
+                    NewExternalData childDataSet = data.getDataSetsToProcess().get(conn.getToPermId()).getDataSet();
+                    List<String> parentDataSetCodes = childDataSet.getParentDataSetCodes();
+                    parentDataSetCodes.add(dataSet.getCode());
+                }
+            }
+        }
+    }
+
+    private void establishContainerComponentRelationships(Map<String, DataSetWithConnections> dataSetsToProcess, Map<String, DataSetWithConnections> physicalDSMap)
     {
         // set parent and container data set codes before everything else
         // container and physical data sets can both be parents/children of each other
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
-        Map<String, Set<String>> dsToParents = new HashMap<String, Set<String>>();
         Map<String, Set<String>> dsToContained = new HashMap<String, Set<String>>();
         for (DataSetWithConnections dsWithConn : dataSetsToProcess.values())
         {
             for (Connection conn : dsWithConn.getConnections())
             {
                 NewExternalData dataSet = dsWithConn.getDataSet();
-                if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Child"))
-                {
-                    NewExternalData childDataSet = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
-                    List<String> parentDataSetCodes = childDataSet.getParentDataSetCodes();
-                    parentDataSetCodes.add(dataSet.getCode());
-
-                    // datasetsToUpdate.put(childDataSet.getCode(), childDataSet);
-                    dsToParents.put(childDataSet.getCode(), new HashSet<String>(parentDataSetCodes));
-                }
-                else if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Component"))
+                if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Component"))
                 {
                     NewExternalData componentDataSet = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
                     NewContainerDataSet containerDataSet = (NewContainerDataSet) dataSet;
@@ -258,7 +268,6 @@ public class EntitySynchronizer
                 }
                 else
                 {
-
                     datasetsToUpdate.put(dataSet.getCode(), dataSet);
                 }
             }
@@ -289,16 +298,16 @@ public class EntitySynchronizer
                 }
                 dsBatchUpdatesDTO.getDetails().setContainerUpdateRequested(true);
             }
-            if (dsToParents.containsKey(dataSet.getCode()))
-            {
-                dsBatchUpdatesDTO.setModifiedParentDatasetCodesOrNull(dsToParents.get(dataSet.getCode()).toArray(
-                        new String[dataSet.getParentDataSetCodes().size()]));
-                // TODO should this always be true or should we flag the ones that require parent update. Same for container
-            }
-            else
-            {
+            // if (dsToParents.containsKey(dataSet.getCode()))
+            // {
+            // dsBatchUpdatesDTO.setModifiedParentDatasetCodesOrNull(dsToParents.get(dataSet.getCode()).toArray(
+            // new String[dataSet.getParentDataSetCodes().size()]));
+            // // TODO should this always be true or should we flag the ones that require parent update. Same for container
+            // }
+            // else
+            // {
                 dsBatchUpdatesDTO.setModifiedParentDatasetCodesOrNull(new String[0]);
-            }
+            // }
             dsBatchUpdatesDTO.getDetails().setParentsUpdateRequested(true);
             SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
             if (sampleIdentifier != null)
@@ -325,7 +334,6 @@ public class EntitySynchronizer
                 dsBatchUpdatesDTO.setExperimentIdentifierOrNull(null);
                 dsBatchUpdatesDTO.getDetails().setExperimentUpdateRequested(true);
             }
-
             builder.dataSetUpdate(dsBatchUpdatesDTO);
         }
         AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
@@ -949,7 +957,6 @@ public class EntitySynchronizer
         ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable = new
                 ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
         DataSetBatchUpdatesDTO dsBatchUpdatesDTO = ConversionUtils.convertToDataSetBatchUpdatesDTO(updateUpdatable);
-        //
         dsBatchUpdatesDTO.setDatasetId(TechId.create(dsInHarvester));
         List<IEntityProperty> entityProperties = new ArrayList<IEntityProperty>();
         for (NewProperty prop : childDS.getDataSetProperties())
