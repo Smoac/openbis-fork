@@ -81,7 +81,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
-import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -270,11 +269,12 @@ public class EntitySynchronizer
         {
             // if the DS could not have been registered for some reason,
             // skip this.
-            if (dataSet.getComplete() != BooleanOrUnknown.T)
+            AbstractExternalData dsInHarvester = service.tryGetDataSet(dataSet.getCode());
+            if (dsInHarvester == null)
             {
                 continue;
             }
-            DataSetBatchUpdatesDTO dsBatchUpdatesDTO = createDataSetBatchUpdateDTO(dataSet);
+            DataSetBatchUpdatesDTO dsBatchUpdatesDTO = createDataSetBatchUpdateDTO(dataSet, dsInHarvester);
             if (dataSet instanceof NewContainerDataSet)
             {
                 NewContainerDataSet containerDS = (NewContainerDataSet) dataSet;
@@ -944,9 +944,8 @@ public class EntitySynchronizer
         return new String(Hex.encodeHex(digest));
     }
 
-    private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData childDS)
+    private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData childDS, AbstractExternalData dsInHarvester)
     {
-        AbstractExternalData dsInHarvester = service.tryGetDataSet(childDS.getCode());
         ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable = new
                 ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
         DataSetBatchUpdatesDTO dsBatchUpdatesDTO = ConversionUtils.convertToDataSetBatchUpdatesDTO(updateUpdatable);
