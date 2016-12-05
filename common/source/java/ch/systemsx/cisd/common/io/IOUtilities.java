@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.Checksum;
@@ -40,24 +41,34 @@ public class IOUtilities
     /**
      * Calculates the CRC32 checksum of specified input stream. Note, that the input stream is closed after invocation of this method.
      */
+    
     public static int getChecksumCRC32(InputStream inputStream)
     {
+        return copyAndGetChecksumCRC32(inputStream, new NullOutputStream());
+    }
+
+    /**
+     * Copies the input stream into the output stream while calculating the CRC32 checksum. Note also that, the input and output streams are closed
+     * after the invocation of this method.
+     */
+    public static int copyAndGetChecksumCRC32(InputStream inputStream, OutputStream out)
+    {
         Checksum checksummer = new CRC32();
-        InputStream in = null;
+        InputStream in = new CheckedInputStream(inputStream, checksummer);
         try
         {
-            in = new CheckedInputStream(inputStream, checksummer);
-            IOUtils.copy(in, new NullOutputStream());
+            IOUtils.copy(in, out);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(out);
         }
         return (int) checksummer.getValue();
     }
-
+    
     /**
      * Converts a CRC32 checksum to a string representation.
      */
