@@ -187,8 +187,8 @@ createExperimentTypeWithProperties("METHOD", "FOLDER FOR ORGANIZING METHODS SAMP
 #annotationsScriptName = createAnnotationsScriptForType("ANTIBODY");
 #createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
 #addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
-annotationsScriptName = createAnnotationsScriptForType("YEAST");
-createSampleTypeWithProperties("YEAST", "", definitions.strainDefinition);
+annotationsScriptName = createAnnotationsScriptForType("STRAIN");
+createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
 # addRepetition(definitions.numberOfRepetitions, "STRAIN");
 #===================================================================================================
 # annotationsScriptName = createAnnotationsScriptForType("PLASMID");
