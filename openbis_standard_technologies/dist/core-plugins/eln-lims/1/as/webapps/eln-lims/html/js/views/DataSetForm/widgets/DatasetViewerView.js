@@ -31,8 +31,12 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var $uploadButton = "";
 		if(this._dataSetViewerModel.enableUpload) {
 			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload New Dataset");
-			$uploadButton.click(function() { 
-				mainController.changeView('showCreateDataSetPageFromPermId',_this._dataSetViewerModel.sample.permId); //TO-DO Fix Global Access
+			$uploadButton.click(function() {
+				if(_this._dataSetViewerModel.isExperiment()) {
+					mainController.changeView('showCreateDataSetPageFromExpPermId',_this._dataSetViewerModel.entity.permId.permId);
+				} else {
+					mainController.changeView('showCreateDataSetPageFromPermId',_this._dataSetViewerModel.entity.permId);
+				}
 			});
 		}
 		
@@ -76,12 +80,15 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		$container.append($tree);
 		
 		var treeModel = [];
-		for(var datasetCode in this._dataSetViewerModel.sampleDataSets) {
-			var displayName = this._dataSetViewerModel.sampleDataSets[datasetCode].properties[profile.propertyReplacingCode];
+		for(var datasetCode in this._dataSetViewerModel.entityDataSets) {
+			var displayName = this._dataSetViewerModel.entityDataSets[datasetCode].properties[profile.propertyReplacingCode];
 			if(!displayName) {
 				displayName = datasetCode;
+			} else {
+				displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
 			}
-			var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
+			
+			var dataset = this._dataSetViewerModel.entityDataSets[datasetCode];
 			var onClick = "mainController.changeView('showViewDataSetPageFromPermId', '" + datasetCode + "');";
 			var dataSetTitle = "<span onclick=\"" + onClick + "\">" 
 					+ dataset.dataSetTypeCode + " : " + displayName + "</span>";

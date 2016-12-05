@@ -27,11 +27,12 @@
  * @param {Map} datasets API result with the datasets to show.
  * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
  */
-function DataSetViewerController(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding) {
-	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding);
+function DataSetViewerController(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding) {
+	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding);
 	this._datasetViewerView = new DataSetViewerView(this, this._datasetViewerModel);
 	
 	this.init = function() {
+		var _this = this;
 		// Loading the datasets
 		if(this._datasetViewerModel.datasets) {
 			if(this._datasetViewerModel.datasets.length > 0) {
@@ -40,17 +41,26 @@ function DataSetViewerController(containerId, profile, sample, serverFacade, dat
 			}
 		} else {
 			var _this = this;
-			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
-				_this.updateDatasets(datasets.result);
-				_this._datasetViewerView.repaintDatasets();
-			});
+			if (this._datasetViewerModel.isExperiment()) {
+				serverFacade.listExperimentsForIdentifiers([this._datasetViewerModel.entity.identifier.identifier], function(data) {
+					serverFacade.listDataSetsForExperiment(data.result[0], function(datasets) {
+						_this.updateDatasets(datasets.result);
+						_this._datasetViewerView.repaintDatasets();
+					});
+				});
+			} else {
+				serverFacade.listDataSetsForSample(this._datasetViewerModel.entity, true, function(datasets) {
+					_this.updateDatasets(datasets.result);
+					_this._datasetViewerView.repaintDatasets();
+				});
+			}
 		}
 	}
 	
 	this.updateDatasets = function(datasets) {
-		for(var i = 0; i < datasets.length; i++) { //DataSets for sample
+		for(var i = 0; i < datasets.length; i++) { //DataSets for entity
 			var dataset = datasets[i];
-			this._datasetViewerModel.sampleDataSets[dataset.code] = dataset;
+			this._datasetViewerModel.entityDataSets[dataset.code] = dataset;
 		}
 	}
 	

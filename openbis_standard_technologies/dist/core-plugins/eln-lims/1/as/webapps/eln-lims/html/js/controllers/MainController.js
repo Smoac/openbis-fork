@@ -55,7 +55,6 @@ function MainController(profile) {
 		});
 	};
 	
-		
 	// Server Facade Object
 	this.serverFacade = new ServerFacade(this.openbisV1); //Client APP Facade, used as control point to know what is used and create utility methods.
 
@@ -356,6 +355,16 @@ function MainController(profile) {
 						window.scrollTo(0,0);
 					});
 					break;
+				case "showCreateDataSetPageFromExpPermId":
+					var _this = this;
+					var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } };
+					var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+					this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
+						document.title = "Create Data Set for " + data.objects[0].code;
+						_this._showCreateDataSetPage(data.objects[0]);
+						window.scrollTo(0,0);
+					});
+					break;
 				case "showEditExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
@@ -432,11 +441,23 @@ function MainController(profile) {
 						if(!dataSetData.result || !dataSetData.result[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
-							_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-								document.title = "Data Set " + dataSetData.result[0].code;
-								_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
-								window.scrollTo(0,0);
-							});
+							if(dataSetData.result[0].sampleIdentifierOrNull) {
+								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+									document.title = "Data Set " + dataSetData.result[0].code;
+									_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+									window.scrollTo(0,0);
+								});
+							} else if(dataSetData.result[0].experimentIdentifier) {
+								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
+									var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
+									var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
+										document.title = "Data Set " + dataSetData.result[0].code;
+										_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+										window.scrollTo(0,0);
+									});
+								});
+							}
 						}
 					});
 					break;
@@ -659,9 +680,9 @@ function MainController(profile) {
 		this.currentView = experimentFormController;
 	}
 	
-	this._showCreateDataSetPage = function(sample) {
+	this._showCreateDataSetPage = function(entity) {
 		//Show Form
-		var newView = new DataSetFormController(this, FormMode.CREATE, sample, null);
+		var newView = new DataSetFormController(this, FormMode.CREATE, entity, null);
 		newView.init($("#mainContainer"));
 		this.currentView = newView;
 	}

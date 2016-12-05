@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-function DataSetFormModel(mode, sample, dataSet, isMini) {
+function DataSetFormModel(mode, entity, dataSet, isMini) {
 	this.mode = mode;
 	this.isMini = isMini;
 	this.isAutoUpload = true;
 	this.isFormDirty = false;
 	
-	this.sample = sample;
+	this.entity = entity;
+	
+	this.isExperiment = function() {
+		return this.entity && this.entity["@type"] === "as.dto.experiment.Experiment";
+	}
+	
 	if(!dataSet) {
 		this.dataSet = { properties : {} };
 	} else {

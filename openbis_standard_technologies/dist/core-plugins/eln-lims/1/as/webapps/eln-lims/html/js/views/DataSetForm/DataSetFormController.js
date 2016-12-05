@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function DataSetFormController(parentController, mode, sample, dataSet, isMini) {
+function DataSetFormController(parentController, mode, entity, dataSet, isMini) {
 	this._parentController = parentController;
-	this._dataSetFormModel = new DataSetFormModel(mode, sample, dataSet, isMini);
+	this._dataSetFormModel = new DataSetFormModel(mode, entity, dataSet, isMini);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
 	this.init = function($container) {
@@ -63,7 +63,11 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 				Util.showError(data.error.message);
 			} else {
 				Util.showSuccess("Data Set Deleted");
-				mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.sample.permId);
+				if(this._dataSetFormModel.isExperiment()) {
+					mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
+				} else {
+					mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
+				}
 			}
 		});
 	}
@@ -108,8 +112,18 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 		}
 		
 		var method = null;
-		var sampleIdentifier = this._dataSetFormModel.sample.identifier;
-		var space = sampleIdentifier.split("/")[1];
+		var space = null;
+		var sampleIdentifier = null;
+		var experimentIdentifier = null;
+		
+		if(this._dataSetFormModel.isExperiment()) {
+			experimentIdentifier = this._dataSetFormModel.entity.identifier.identifier;
+			space = experimentIdentifier.split("/")[1];
+		} else {
+			sampleIdentifier = this._dataSetFormModel.entity.identifier;
+			space = sampleIdentifier.split("/")[1];
+		}
+		
 		var isInventory = profile.isInventorySpace(space);
 		var dataSetTypeCode = null;
 		var dataSetCode = null;
@@ -128,6 +142,7 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 				//Identification Info
 				"dataSetCode" : dataSetCode, //Used for updates
 				"sampleIdentifier" : sampleIdentifier, //Use for creation
+				"experimentIdentifier" : experimentIdentifier, //Use for creation
 				"dataSetType" : dataSetTypeCode,
 				"filenames" : _this._dataSetFormModel.files,
 				"folderName" : folderName,
@@ -161,7 +176,11 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 						_this._dataSetFormModel.isFormDirty = false;
 						Util.unblockUI();
 						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
-							mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.sample.permId);
+							if(_this._dataSetFormModel.isExperiment()) {
+								mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
+							} else {
+								mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
+							}
 						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
 							mainController.changeView('showViewDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 						}

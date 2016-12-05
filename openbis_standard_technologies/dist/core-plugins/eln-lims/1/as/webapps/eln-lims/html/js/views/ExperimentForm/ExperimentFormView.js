@@ -104,6 +104,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 			
+			//Create Dataset
+			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
+				mainController.changeView('showCreateDataSetPageFromExpPermId',_this._experimentFormModel.experiment.permId);
+			});
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
+			
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 				Util.blockUI();
@@ -155,6 +161,19 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			sampleList.init(sampleListContainer);
 		}
 		
+		//
+		// DATASETS
+		//
+		
+		// Viewer
+		$formColumn.append($("<div>").append($("<legend>").text("DataSets")));
+		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
+		$formColumn.append($dataSetViewerContainer);
+		
+		// Uploader
+		var $dataSetUploaderContainer = $("<div>", { 'id' : 'dataSetUploaderContainer', 'style' : 'margin-top:10px;'});
+		$formColumn.append($dataSetUploaderContainer);
+		
 		//Create/Update Buttons
 		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
 			var btnTitle = "";
@@ -176,6 +195,20 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$container.append($form);
 		
 		Util.unblockUI();
+		
+		if(this._experimentFormModel.mode === FormMode.VIEW) {
+			var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : this._experimentFormModel.experiment.permId } };
+			var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+			mainController.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
+				// Viewer
+				_this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, data.objects[0], mainController.serverFacade, profile.getDefaultDataStoreURL(), null, false, true);
+				_this._experimentFormModel.dataSetViewer.init();
+				// Uploader
+				var $dataSetFormController = new DataSetFormController(_this, FormMode.CREATE, data.objects[0], null, true);
+				$dataSetFormController.init($dataSetUploaderContainer);
+				
+			});
+		}
 	}
 	
 	this._paintIdentificationInfo = function($formColumn) {

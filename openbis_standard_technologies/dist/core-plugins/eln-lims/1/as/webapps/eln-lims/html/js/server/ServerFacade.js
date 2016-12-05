@@ -407,9 +407,9 @@ function ServerFacade(openbisServer) {
 	//
 	// Data Set Related Functions
 	//
-	this.listDataSetsForExperiment = function(experimentToSend, trueOrFalse, callbackFunction) {
+	this.listDataSetsForExperiment = function(experimentToSend, callbackFunction) {
 		//Should be a V1 Experiment
-		this.openbisServer.listDataSetsForExperiments([experimentToSend], trueOrFalse, callbackFunction);
+		this.openbisServer.listDataSetsForExperiments([experimentToSend], [ 'PARENTS' ], callbackFunction);
 	}
 	
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {
