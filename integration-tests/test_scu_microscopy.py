@@ -33,38 +33,13 @@ class TestCase(systemtest.testcase.TestCase):
             
     def setUpAndStartOpenbis(self):
         util.printWhoAmI()
-        self.installOpenbis(technologies = ['screening'])
+        self.installOpenbis(technologies = ['microscopy'])
         openbisController = self.createOpenbisController(databasesToDrop=['openbis', 'pathinfo'])
-        self.installMicroscopyPlugin(openbisController)
-        corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbisController.installPath
-        corePluginsProperties = util.readProperties(corePluginsPropertiesFile)
-        corePluginsProperties['disabled-core-plugins'] = 'screening:dropboxes, screening:initialize-master-data, ' \
-            + 'screening:image-overview-plugins, screening:maintenance-tasks, screening:reporting-plugins, ' \
-            + 'openbis:data-sources, openbis:services'
-        util.writeProperties(corePluginsPropertiesFile, corePluginsProperties)
         openbisController.setDssMaxHeapSize("3g")
         openbisController.createTestDatabase("openbis")
         openbisController.allUp()
         return openbisController
-    
-    def installMicroscopyPlugin(self, openbisController):
-        repository = GitArtifactRepository(self.artifactRepository.localRepositoryFolder)
-        path = repository.getPathToArtifact('aarpon/obit_microscopy_core_technology', 'master.zip')
-        util.printAndFlush("path to core plugin in the repository: %s" % path)
-        destination = "%s/servers/core-plugins/openbis/" % openbisController.installPath
-        util.unzipSubfolder(path, 'obit_microscopy_core_technology-master/core-plugins/microscopy/1/', destination)
-        self.setThumbnailResolutions(openbisController, ['256x256'])
-        
-    def setThumbnailResolutions(self, openbisController, resolutions):
-        path = "%s/servers/core-plugins/openbis/1/dss/drop-boxes/MicroscopyDropbox/GlobalSettings.py" % openbisController.installPath
-        with open(path, "r")  as f:
-            content = f.readlines()
-        with open(path, "w") as f:
-            for line in content:
-                if line.find('ImageResolutions') > 0:
-                    line = line.replace('[]', str(resolutions))
-                f.write("%s" % line)
-        
+
     def getTestDataFolder(self, openbisController):
         testDataFolder = "%s/../../test-data/integration_%s" % (self.playgroundFolder, self.name)
         if os.path.exists(testDataFolder):
