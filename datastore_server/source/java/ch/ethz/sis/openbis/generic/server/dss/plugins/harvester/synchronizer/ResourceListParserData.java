@@ -80,13 +80,14 @@ public class ResourceListParserData
         return materialsToProcess;
     }
 
-    public Map<String, DataSetWithConnections> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate)
+    public Map<String, DataSetWithConnections> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate, Set<String> dataSetsCodesToRetry)
     {
         Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
         for (String permId : dataSetsToProcess.keySet())
         {
             DataSetWithConnections ds = dataSetsToProcess.get(permId);
-            if (ds.getKind() == DataSetKind.PHYSICAL && ds.lastModificationDate.after(lastSyncDate))
+            if (ds.getKind() == DataSetKind.PHYSICAL
+                    && (ds.lastModificationDate.after(lastSyncDate) || dataSetsCodesToRetry.contains(ds.getDataSet().getCode())))
             {
                 dsMap.put(permId, ds);
             }

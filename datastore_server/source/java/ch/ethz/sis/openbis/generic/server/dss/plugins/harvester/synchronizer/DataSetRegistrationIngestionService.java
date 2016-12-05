@@ -123,7 +123,6 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             IDataSet ds = transaction.createNewDataSet(dataSet.getDataSetType().getCode(), dataSet.getCode());
             ds.setSample(sample);
             ds.setExperiment(experiment);
-            ds.setParentDatasets(dataSet.getParentDataSetCodes());
             for (NewProperty newProperty : dataSetProperties)
             {
                 ds.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
