@@ -34,11 +34,22 @@ class TestCase(systemtest.testcase.TestCase):
     def setUpAndStartOpenbis(self):
         util.printWhoAmI()
         self.installOpenbis(technologies = ['microscopy'])
+        self.setThumbnailResolutions(openbisController, ['256x256'])
         openbisController = self.createOpenbisController(databasesToDrop=['openbis', 'pathinfo'])
         openbisController.setDssMaxHeapSize("3g")
         openbisController.createTestDatabase("openbis")
         openbisController.allUp()
         return openbisController
+
+    def setThumbnailResolutions(self, openbisController, resolutions):
+        path = "%s/servers/core-plugins/microscopy/1/dss/drop-boxes/MicroscopyDropbox/GlobalSettings.py" % openbisController.installPath
+        with open(path, "r")  as f:
+            content = f.readlines()
+        with open(path, "w") as f:
+            for line in content:
+                if line.find('ImageResolutions') > 0:
+                    line = line.replace('[]', str(resolutions))
+                f.write("%s" % line)
 
     def getTestDataFolder(self, openbisController):
         testDataFolder = "%s/../../test-data/integration_%s" % (self.playgroundFolder, self.name)
