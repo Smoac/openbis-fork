@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<obitXML version="1">
+  <Experiment description="This is an ND2 file with one series." name="Test_Experiment" 
+              openBISIdentifier="/DEFAULT/DEFAULT/MICROSCOPY-EXP1" openBISSpaceIdentifier="/DEFAULT">
+    <MicroscopyFile fileSize="6 MiB" name="example.nd2" 
+                    openBISExperimentIdentifier="/DEFAULT/DEFAULT/MICROSCOPY-EXP1" 
+                    openBISSpaceIdentifier="/DEFAULT" relativeFileName="admin/Experiment/example.nd2"/>
+  </Experiment>
+</obitXML>

@@ -204,6 +204,31 @@
     <li>Now you have a basic lab notebook with an experiment, experimental step and one image used as preview.</li>
   </ol>
   
+<h4 class="microscopy">Microscopy</h4>
+  <ol>
+    <li>At the console execute the command:
+      <div class="sourcecode">
+        cp -R ${DSS_ROOT_DIR}/examples/microscopy_example ${DSS_ROOT_DIR}/incoming-microscopy;<br>
+        touch ${DSS_ROOT_DIR}/incoming-microscopy/.MARKER_is_finished_microscopy_example
+      </div>
+    </li>
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis">openBIS</a> as admin.</li>
+    <li>Open <em>Utilities -> Project viewer</em> and find the example in project DEFAULT of space DEFAULT.</li>
+  </ol>
+
+<h4 class="flow">Flow Cytometry</h4>
+  <ol>
+    <li>At the console execute the command:
+      <div class="sourcecode">
+        cp -R ${DSS_ROOT_DIR}/examples/flow_cytometry_example ${DSS_ROOT_DIR}/incoming-lsrfortessa;<br>
+        touch ${DSS_ROOT_DIR}/incoming-lsrfortessa/.MARKER_is_finished_flow_cytometry_example
+      </div>
+    </li>
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis">openBIS</a> as admin.</li>
+    <li>Open <em>Utilities -> Project viewer</em> and find the example in project DEFAULT of space DEFAULT.</li>
+  </ol>
+
+
   <h3>Importing example data</h3>
 
   <p></p>

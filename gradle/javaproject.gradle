@@ -75,6 +75,10 @@ def execute(command, arguments) {
     }
 }
 
+ext.executeFunction = {
+  command, arguments -> execute(command, arguments)
+}
+
 def execute_working_dir(command, arguments, working_dir) {
     new ByteArrayOutputStream().withStream { os ->
         print "execute: ${command}"

@@ -65,6 +65,12 @@
     <field type="check" variable="ELN-LIMS">
       <spec txt="ELN/LIMS" true="true" false="false"/>
     </field>
+    <field type="check" variable="MICROSCOPY">
+      <spec txt="Microscopy" true="true" false="false"/>
+    </field>
+    <field type="check" variable="FLOW">
+      <spec txt="Flow Cytometry" true="true" false="false"/>
+    </field>
     
     <field type="space"/>
     <field type="staticText" align="left"
