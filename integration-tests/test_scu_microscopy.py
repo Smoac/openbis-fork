@@ -34,8 +34,8 @@ class TestCase(systemtest.testcase.TestCase):
     def setUpAndStartOpenbis(self):
         util.printWhoAmI()
         self.installOpenbis(technologies = ['microscopy'])
-        self.setThumbnailResolutions(openbisController, ['256x256'])
         openbisController = self.createOpenbisController(databasesToDrop=['openbis', 'pathinfo'])
+        self.setThumbnailResolutions(openbisController, ['256x256'])
         openbisController.setDssMaxHeapSize("3g")
         openbisController.createTestDatabase("openbis")
         openbisController.allUp()
