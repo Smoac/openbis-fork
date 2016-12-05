@@ -31,9 +31,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -67,7 +69,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataSetRegistrationTask.class);
 
-    final DateFormat formater = new SimpleDateFormat("dd-MM-yy HH-mm-ss", Locale.ENGLISH);
+    final DateFormat formatter = new SimpleDateFormat("dd-MM-yy HH-mm-ss", Locale.ENGLISH);
 
     private static final String HARVESTER_CONFIG_FILE_PROPERTY_NAME = "harvester-config-file";
 
@@ -84,10 +86,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     private File harvesterConfigFile;
 
     private IMailClient mailClient;
-
-    File lastSyncTimestampFile;
-
-    File newLastSyncTimeStampFile;
 
     private String dataStoreCode;
 
@@ -141,34 +139,21 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                         .info("Start synchronization from data source: " + config.getDataSourceOpenbisURL() + " for user " + config.getUser());
 
                 String fileName = config.getLastSyncTimestampFileName();
-                lastSyncTimestampFile = new File(fileName);
-                newLastSyncTimeStampFile = new File(fileName + ".new");
-
-                if (lastSyncTimestampFile.exists())
-                {
-                    String timeStr = FileUtilities.loadToString(lastSyncTimestampFile).trim();
-                    try
-                    {
-                        lastSyncTimestamp = formater.parse(timeStr);
-                    } catch (ParseException e)
-                    {
-                        operationLog.error("Cannot parse value as time:" + timeStr);
-                        return;
-                    }
-                }
-                else
-                {
-                    lastSyncTimestamp = new Date(0L);
-                }
+                File lastSyncTimestampFile = new File(fileName);
+                lastSyncTimestamp = getLastSyncTimeStamp(lastSyncTimestampFile);
                 // save the current time into a temp file as last sync time
-                FileUtilities.writeToFile(newLastSyncTimeStampFile, formater.format(new Date()));
+                File newLastSyncTimeStampFile = new File(fileName + ".new");
+                FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(new Date()));
+
+                Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(config.getNotSyncedDataSetsFileName());
 
                 EntitySynchronizer synchronizer =
-                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, context, config, operationLog);
+                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes, context, config,
+                                operationLog);
                 synchronizer.syncronizeEntities();
 
                 operationLog.info("Saving the timestamp of sync start to file");
-                saveSyncTimestamp();
+                saveSyncTimestamp(newLastSyncTimeStampFile, lastSyncTimestampFile);
 
                 operationLog.info(this.getClass() + " finished executing.");
 
@@ -180,6 +165,32 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
+    private Date getLastSyncTimeStamp(File lastSyncTimestampFile) throws ParseException
+    {
+        if (lastSyncTimestampFile.exists())
+        {
+            String timeStr = FileUtilities.loadToString(lastSyncTimestampFile).trim();
+            return formatter.parse(timeStr);
+        }
+        else
+        {
+            return new Date(0L);
+        }
+    }
+
+    private Set<String> getNotSyncedDataSetCodes(String fileName)
+    {
+        File notSyncedDataSetsFile = new File(fileName);
+        if (notSyncedDataSetsFile.exists())
+        {
+            List<String> list = FileUtilities.loadToStringList(notSyncedDataSetsFile);
+            return new LinkedHashSet<String>(list);
+        }
+        else
+        {
+            return new LinkedHashSet<String>();
+        }
+    }
     private void sendErrorEmail(SyncConfig config, String subject)
     {
         if (config.getLogFilePath() != null)
@@ -215,7 +226,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
-    private void saveSyncTimestamp()
+    private void saveSyncTimestamp(File newLastSyncTimeStampFile, File lastSyncTimestampFile)
     {
         newLastSyncTimeStampFile.renameTo(lastSyncTimestampFile);
     }

@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -143,18 +144,21 @@ public class EntitySynchronizer
 
     private final Date lastSyncTimestamp;
 
+    private final Set<String> dataSetsCodesToRetry;
+
     private final SyncConfig config;
 
     private final Logger operationLog;
 
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
-            DataSetProcessingContext context,
+            Set<String> dataSetsCodesToRetry, DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
     {
         this.service = service;
         this.dataStoreCode = dataStoreCode;
         this.storeRoot = storeRoot;
         this.lastSyncTimestamp = lastSyncTimestamp;
+        this.dataSetsCodesToRetry = dataSetsCodesToRetry;
         this.context = context;
         this.config = config;
         this.operationLog = operationLog;
@@ -340,7 +344,7 @@ public class EntitySynchronizer
         operationLog.info("entity operation result: " + operationResult);
     }
 
-    private void registerPhysicalDataSets(Map<String, DataSetWithConnections> physicalDSMap)
+    private void registerPhysicalDataSets(Map<String, DataSetWithConnections> physicalDSMap) throws IOException
     {
         List<DataSetWithConnections> dsList = new ArrayList<DataSetWithConnections>(physicalDSMap.values());
         List<String> notSyncedDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
@@ -350,7 +354,12 @@ public class EntitySynchronizer
         // parallelized
         ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(notSyncedDataSetCodes), 0.5, 10, "register data sets", 0, false);
 
+        // backup the current not synced data set codes file, delete the original file
         File notSyncedDataSetsFile = new File(config.getNotSyncedDataSetsFileName());
+        File backupLastSyncTimeStampFile = new File(config.getNotSyncedDataSetsFileName() + ".bk");
+        FileUtils.copyFile(notSyncedDataSetsFile, backupLastSyncTimeStampFile);
+        FileUtilities.delete(notSyncedDataSetsFile);
+
         for (String dsCode : notSyncedDataSetCodes)
         {
             FileUtilities.appendToFile(notSyncedDataSetsFile, dsCode, true);
