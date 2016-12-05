@@ -17,15 +17,19 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.notification;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionEmailNotification;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
@@ -36,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 @Component
 public class OperationExecutionEmailNotifier implements IOperationExecutionEmailNotifier
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, OperationExecutionEmailNotifier.class);
 
     private IMailClient mailClient;
 
@@ -68,6 +74,8 @@ public class OperationExecutionEmailNotifier implements IOperationExecutionEmail
             appendOperationsAndResults(content, operations, results, true, true);
 
             mailClient.sendEmailMessage("Operation execution " + code + " finished", content.toString(), null, null, emailAddresses);
+
+            operationLog.info("Send an email to " + Arrays.toString(emailAddresses) + " to notify that execution " + code + " finised");
         }
     }
 
@@ -86,6 +94,8 @@ public class OperationExecutionEmailNotifier implements IOperationExecutionEmail
             appendError(content, error);
 
             mailClient.sendEmailMessage("Operation execution " + code + " failed", content.toString(), null, null, emailAddresses);
+
+            operationLog.info("Send an email to " + Arrays.toString(emailAddresses) + " to notify that execution " + code + " failed");
         }
     }
 

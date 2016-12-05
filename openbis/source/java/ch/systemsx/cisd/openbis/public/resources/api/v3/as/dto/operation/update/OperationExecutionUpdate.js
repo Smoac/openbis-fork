@@ -4,16 +4,16 @@
 define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, FieldUpdateValue) {
 	var OperationExecutionUpdate = function() {
 		this.description = new FieldUpdateValue();
-		this.deleteSummary = false;
-		this.deleteDetails = false;
+		this.deleteSummaryRequested = false;
+		this.deleteDetailsRequested = false;
 	};
 	stjs.extend(OperationExecutionUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.operation.update.OperationExecutionUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.executionId = null;
 		prototype.description = null;
-		prototype.deleteSummary = null;
-		prototype.deleteDetails = null;
+		prototype.deleteSummaryRequested = null;
+		prototype.deleteDetailsRequested = null;
 
 		prototype.getObjectId = function() {
 			return this.getExecutionId();
@@ -31,16 +31,16 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			this.description.setValue(description);
 		};
 		prototype.deleteSummary = function() {
-			this.deleteSummary = true;
+			this.deleteSummaryRequested = true;
 		};
 		prototype.isDeleteSummary = function() {
-			return this.deleteSummary;
+			return this.deleteSummaryRequested;
 		};
 		prototype.deleteDetails = function() {
-			this.deleteDetails = true;
+			this.deleteDetailsRequested = true;
 		};
 		prototype.isDeleteDetails = function() {
-			return this.deleteDetails;
+			return this.deleteDetailsRequested;
 		};
 	}, {
 		executionId : "IOperationExecutionId",

@@ -41,10 +41,10 @@ public class OperationExecutionUpdate implements IUpdate, IObjectUpdate<IOperati
     private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
 
     @JsonProperty
-    private boolean deleteSummary;
+    private boolean deleteSummaryRequested;
 
     @JsonProperty
-    private boolean deleteDetails;
+    private boolean deleteDetailsRequested;
 
     @Override
     @JsonIgnore
@@ -80,25 +80,25 @@ public class OperationExecutionUpdate implements IUpdate, IObjectUpdate<IOperati
     @JsonIgnore
     public void deleteSummary()
     {
-        this.deleteSummary = true;
+        this.deleteSummaryRequested = true;
     }
 
     @JsonIgnore
     public boolean isDeleteSummary()
     {
-        return deleteSummary;
+        return deleteSummaryRequested;
     }
 
     @JsonIgnore
     public void deleteDetails()
     {
-        this.deleteDetails = true;
+        this.deleteDetailsRequested = true;
     }
 
     @JsonIgnore
     public boolean isDeleteDetails()
     {
-        return deleteDetails;
+        return deleteDetailsRequested;
     }
 
 }

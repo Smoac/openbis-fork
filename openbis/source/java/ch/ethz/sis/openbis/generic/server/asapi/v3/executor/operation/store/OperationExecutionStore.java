@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionState;
  * @author pkupczyk
  */
 @Component
-public class OperationExecutionStore implements IOperationExecutionStore, ApplicationContextAware, Runnable
+public class OperationExecutionStore implements IOperationExecutionStore, ApplicationContextAware
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, OperationExecutionStore.class);
@@ -120,7 +120,34 @@ public class OperationExecutionStore implements IOperationExecutionStore, Applic
     @PostConstruct
     void init()
     {
-        progressThread = new Thread(this);
+        progressThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    while (false == Thread.currentThread().isInterrupted())
+                    {
+                        // Transaction is not available in this thread. For a transaction to be created we need to make an "external" call
+                        // to OperationExecutionStore bean. Only then the AOP magic gets executed. To make such call we need to
+                        // fetch the bean from the context. If we made a call on OperationExecutionStore.this,
+                        // then it would not go trough the AOP, any @Transactional annotations would be ignored and a transaction wouldn't be created.
+
+                        if (false == progressMap.isEmpty())
+                        {
+                            IOperationExecutionStore store = applicationContext.getBean(IOperationExecutionStore.class);
+                            store.synchronizeProgress();
+                        }
+
+                        try
+                        {
+                            Thread.sleep(config.getProgressInterval() * 1000);
+                        } catch (InterruptedException ex)
+                        {
+                            return;
+                        }
+                    }
+                }
+            });
         progressThread.setName(config.getProgressThreadName());
         progressThread.setDaemon(true);
         progressThread.start();
@@ -363,32 +390,6 @@ public class OperationExecutionStore implements IOperationExecutionStore, Applic
 
             operationLog.info("Progress synchronization with database and file system has been finished (" + successCount
                     + " execution(s) has been successfully synchronized, synchronization of " + failureCount + " execution(s) has failed).");
-        }
-    }
-
-    @Override
-    public void run()
-    {
-        while (false == Thread.currentThread().isInterrupted())
-        {
-            // Transaction is not available in this thread. For a transaction to be created we need to make an "external" call
-            // to OperationExecutionStore bean. Only then the AOP magic gets executed. To make such call we need to
-            // fetch the bean from the context. If we made a call on OperationExecutionStore.this,
-            // then it would not go trough the AOP, any @Transactional annotations would be ignored and a transaction wouldn't be created.
-
-            if (false == progressMap.isEmpty())
-            {
-                IOperationExecutionStore store = applicationContext.getBean(IOperationExecutionStore.class);
-                store.synchronizeProgress();
-            }
-
-            try
-            {
-                Thread.sleep(config.getProgressInterval() * 1000);
-            } catch (InterruptedException ex)
-            {
-                return;
-            }
         }
     }
 
