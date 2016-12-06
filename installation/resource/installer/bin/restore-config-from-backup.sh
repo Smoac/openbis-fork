@@ -58,10 +58,3 @@ cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
 copyIfExists $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
 copyIfExists $CONF/ext-lib $ROOT/datastore_server 
-
-# -- ELN-LIMS
-if [ -d $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-  if [ -d $CONF/../eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-    cp $CONF/../eln-lims/1/as/webapps/eln-lims/html/etc/* $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc/
-  fi
-fi

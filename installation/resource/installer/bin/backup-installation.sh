@@ -56,11 +56,4 @@ if [ -d $BACKUP_DIR/datastore_server/data/sessionWorkspace ]; then
   rm -r $BACKUP_DIR/datastore_server/data/sessionWorkspace
 fi
 
-if [ -d $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-  echo "mkdir -p $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html"
-  mkdir -p $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html
-  echo "$ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html"
-  mv $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html
-fi
-
 echo "DONE"
