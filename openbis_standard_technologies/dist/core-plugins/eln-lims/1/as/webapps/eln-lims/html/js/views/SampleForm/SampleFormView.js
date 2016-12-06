@@ -231,6 +231,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$formColumn.append($formTitle);
 		$formColumn.append(FormUtil.getToolbar(toolbarModel));
 		$formColumn.append($("<br>"));
+		
 		//
 		// PREVIEW IMAGE
 		//
@@ -435,7 +436,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// INIT
 		//
-		$container.append($form).append($rightPanel);
+		$container.append($form);
 		if($rightPanel) {
 			$container.append($rightPanel);
 		}

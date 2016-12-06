@@ -22,14 +22,47 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var _this = this;
 		$container.empty();
 		
-		var $form = $("<div>", { "class" : "row"});
+		var columnWith = 12;
+		if(this._experimentFormModel.mode === FormMode.VIEW) {
+			columnWith = 8;
+		}
+		
+		var $form = $("<span>", { "class" : "row col-md-" + columnWith });
 		
 		var $formColumn = $("<form>", { 
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.updateExperiment();'
 		});
+		
+		var $rightPanel = null;
+		if(this._experimentFormModel.mode === FormMode.VIEW) {
+			$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+		}
+		//
+		if($rightPanel) {
+			var windowScrollManager = function($form, $rightPanel) {
+				return function() {
+					if($(window).width() > 1024) { //Min Desktop resolution
+						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
+						$("#mainContainer").css("overflow-y", "hidden");
+						$formColumn.css(scrollablePanelCss);
+						$rightPanel.css(scrollablePanelCss);
+					} else {
+						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
+						$("#mainContainer").css("overflow-y", "auto");
+						$formColumn.css(normalPanelCss);
+						$rightPanel.css(normalPanelCss);
+					}
+				}
+			}
+			windowScrollManager = windowScrollManager($form, $rightPanel);
+			$(window).resize(windowScrollManager);
+			this._experimentFormController._windowHandlers.push(windowScrollManager);
+			$(window).resize();
+		}
+		//
 		
 		$form.append($formColumn);
 		
@@ -44,12 +77,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var entityPath = null;
 		
 		var typeTitle = "" + ELNDictionary.getExperimentKindName(this._experimentFormModel.experiment.identifier) + ": ";
-//		if(this._experimentFormModel.experiment &&
-//		   this._experimentFormModel.experiment.identifier &&
-//		   profile.isInventorySpace(this._experimentFormModel.experiment.identifier.split("/")[1])
-//		) {
-//			typeTitle = "";
-//		}
 		
 		var title = null;
 		switch(this._experimentFormModel.mode) {
@@ -126,6 +153,28 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		$formColumn.append(FormUtil.getToolbar(toolbarModel));
+		$formColumn.append($("<br>"));
+		
+		//
+		// PREVIEW IMAGE
+		//
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
+											 'class' : 'zoomableImage',
+											 'id' : 'preview-image',
+											 'src' : './img/image_loading.gif',
+											 'style' : 'max-width:100%; display:none;'
+											});
+			$previewImage.click(function() {
+				Util.showImage($("#preview-image").attr("src"));
+			});
+			
+			if($rightPanel && $(window).width() > 1024) { //Min Desktop resolution
+				$rightPanel.append($previewImage);
+			} else {
+				$formColumn.append($previewImage);
+			}
+		}
 		
 		//
 		// Identification Info on Create
@@ -145,13 +194,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			}
 		}
 		
-		//
-		// Identification Info on not Create
-		//
-		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			this._paintIdentificationInfo($formColumn);
-		}
-		
 		//Sample List Container
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
 			$formColumn.append($("<legend>").append(ELNDictionary.Samples));
@@ -162,17 +204,27 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		//
+		// Identification Info on not Create
+		//
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			this._paintIdentificationInfo($formColumn);
+		}
+		
+		//
 		// DATASETS
 		//
-		
 		// Viewer
-		$formColumn.append($("<div>").append($("<legend>").text("DataSets")));
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
-		$formColumn.append($dataSetViewerContainer);
-		
 		// Uploader
-		var $dataSetUploaderContainer = $("<div>", { 'id' : 'dataSetUploaderContainer', 'style' : 'margin-top:10px;'});
-		$formColumn.append($dataSetUploaderContainer);
+		var $dataSetUploaderContainer = $("<div>");
+		
+		if($rightPanel) {
+			$rightPanel.append($dataSetViewerContainer);
+			$rightPanel.append($dataSetUploaderContainer);
+		} else {
+			$formColumn.append($dataSetViewerContainer);
+			$formColumn.append($dataSetUploaderContainer);
+		}
 		
 		//Create/Update Buttons
 		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
@@ -192,7 +244,13 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append($updateBtn);
 		}
 		
+		//
+		// INIT
+		//
 		$container.append($form);
+		if($rightPanel) {
+			$container.append($rightPanel);
+		}
 		
 		Util.unblockUI();
 		
