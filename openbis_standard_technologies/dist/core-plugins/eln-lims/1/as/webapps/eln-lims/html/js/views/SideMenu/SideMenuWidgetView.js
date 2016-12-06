@@ -347,20 +347,25 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null,
     	    		function(searchResult) {
     	    			var samples = searchResult.objects;
-    	    			var samplesWithoutELNParents = [];
+    	    			var samplesToShow = [];
     	    			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
     	    				var sample = samples[sIdx];
-    	    				if(sample.parents) {
-    	    					var parentInELN = false;
-    	    					for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
-    	    						var parentIdentifier = sample.parents[pIdx].identifier.identifier;
-    	    						parentInELN = parentInELN || profile.isELNIdentifier(parentIdentifier);
+    	    				var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
+    	    				
+    	    				if(sampleIsExperiment) {
+    	    					var parentIsExperiment = false;
+    	    					if(sample.parents) {
+    	    						for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
+        	    						var parentIdentifier = sample.parents[pIdx].identifier.identifier;
+        	    						var parentInELN = profile.isELNIdentifier(parentIdentifier);
+        	    						if(parentInELN) {
+        	    							parentIsExperiment = parentIsExperiment || sample.parents[pIdx].type.code.indexOf("EXPERIMENT") > -1;
+        	    						}
+        	    					}
     	    					}
-    	    					if(!parentInELN) {
-	    							samplesWithoutELNParents.push(sample);
+    	    					if(!parentIsExperiment) {
+    	    						samplesToShow.push(sample);
 	    						}
-    	    				} else {
-    	    					samplesWithoutELNParents.push(sample);
     	    				}
     	    			}
     	    			
@@ -375,10 +380,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 	        	                    }
 	        	                    
 	        	                    var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
-	        	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
-	        	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
-	        	                    	sampleNode.icon = "fa fa-flask";
-	        	                    }
+	        	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId(), icon : "fa fa-flask" };
 	        	                    results.push(sampleNode);
         	                	}
         	                	dfd.resolve(results);
@@ -392,16 +394,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                	}
     	                }
     	                
-    	                if(samplesWithoutELNParents.length > 50) {
+    	                if(samplesToShow.length > 50) {
     	                	var toExecute = function() {
         	                	Util.blockUIConfirm("Do you want to show " + samplesWithoutELNParents.length + " " + ELNDictionary.Samples + " on the tree?", 
-        	    	                	getOkResultsFunction(dfd, samplesWithoutELNParents),
+        	    	                	getOkResultsFunction(dfd, samplesToShow),
         	    	                	getCancelResultsFunction(dfd));
         	                }
     	                	
     	                	setTimeout(toExecute, 1000);
     	                } else {
-    	                	getOkResultsFunction(dfd, samplesWithoutELNParents)();
+    	                	getOkResultsFunction(dfd, samplesToShow)();
     	                }
     	    		});
     	    		break;
@@ -416,18 +418,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                } else {
         	                	for(var cIdx = 0; cIdx < samples[0].children.length; cIdx++) {
         	    					var sample = samples[0].children[cIdx];
-        	    					
-        	    					var sampleDisplayName = sample.code;
-            	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
-            	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
-            	                    }
-            	                    
-        	    					var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
-            	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
-            	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
-	        	                    	sampleNode.icon = "fa fa-flask";
-	        	                    }
-            	                    results.push(sampleNode);
+        	    					if(sample.type.code.indexOf("EXPERIMENT") > -1) {
+        	    						var sampleDisplayName = sample.code;
+                	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+                	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+                	                    }
+                	                    
+            	    					var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
+                	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId(), icon : "fa fa-flask" };
+                	                    results.push(sampleNode);
+        	    					}
         	    				}
         	                }
     	    			}
