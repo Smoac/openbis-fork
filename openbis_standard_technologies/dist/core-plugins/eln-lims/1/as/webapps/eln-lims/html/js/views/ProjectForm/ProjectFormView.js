@@ -95,7 +95,8 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					_this._projectFormController.createNewExperiment("DEFAULT_EXPERIMENT");
 				}
 				});
-				toolbarModel.push({ component : $createExpBtn, tooltip: "Create Experiment" });
+				
+				toolbarModel.push({ component : $createExpBtn, tooltip: "Create " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode) });
 			}
 			
 			//Edit
