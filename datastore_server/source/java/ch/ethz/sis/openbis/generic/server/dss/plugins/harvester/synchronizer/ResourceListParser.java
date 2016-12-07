@@ -138,6 +138,7 @@ public class ResourceListParser
                     throw new UnsupportedOperationException("Not implemented!!!");
                 }
             });
+        Date resourceListTimestamp = getResourceListTimestamp(doc, xpath);
         List<String> uris = getResourceLocations(doc, xpath);
         for (String uri : uris)
         {
@@ -145,6 +146,23 @@ public class ResourceListParser
         }
 
         return data;
+    }
+
+    private Date getResourceListTimestamp(Document doc, XPath xpath) throws XPathExpressionException
+    {
+        XPathExpression expr = xpath.compile("/s:urlset/rs:md");
+        Object result = expr.evaluate(doc, XPathConstants.NODESET);
+        NodeList nodes = (NodeList) result;
+        for (int i = 0; i < nodes.getLength(); i++)
+        {
+            String capability = nodes.item(i).getAttributes().getNamedItem("capability").getTextContent();
+            if (capability.equals("resourcelist"))
+            {
+                String timestamp = nodes.item(i).getAttributes().getNamedItem("at").getTextContent();
+                return convertFromW3CDate(timestamp);
+            }
+        }
+        throw new XPathExpressionException("The master data resurce list should send a timestamp.");
     }
 
     private List<String> getResourceLocations(Document doc, XPath xpath) throws XPathExpressionException
@@ -243,6 +261,11 @@ public class ResourceListParser
 
         String lastModDataStr = lastModNode.getTextContent().trim();
         // TODO data source servlet that generates the XML on the data source side MUST use the same format
+        return convertFromW3CDate(lastModDataStr);
+    }
+
+    private Date convertFromW3CDate(String lastModDataStr) throws XPathExpressionException
+    {
         DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
         df1.setTimeZone(TimeZone.getTimeZone("GMT"));
         // DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
