@@ -149,8 +149,10 @@ public class EntitySynchronizer
 
     private final Logger operationLog;
 
+    private final Set<String> blackListedDataSetCodes;
+
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
-            Set<String> dataSetsCodesToRetry, DataSetProcessingContext context,
+            Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
     {
         this.service = service;
@@ -158,6 +160,7 @@ public class EntitySynchronizer
         this.storeRoot = storeRoot;
         this.lastSyncTimestamp = lastSyncTimestamp;
         this.dataSetsCodesToRetry = dataSetsCodesToRetry;
+        this.blackListedDataSetCodes = blackListedDataSetCodes;
         this.context = context;
         this.config = config;
         this.operationLog = operationLog;
@@ -374,6 +377,13 @@ public class EntitySynchronizer
         ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(notRegisteredDataSetCodes), 0.5, 10, "register data sets", 0, false);
 
         // backup the current not synced data set codes file, delete the original file
+        saveNotSyncedDataSetsFile(notRegisteredDataSetCodes);
+
+        return notRegisteredDataSetCodes;
+    }
+
+    private void saveNotSyncedDataSetsFile(List<String> notRegisteredDataSetCodes) throws IOException
+    {
         File notSyncedDataSetsFile = new File(config.getNotSyncedDataSetsFileName());
         if (notSyncedDataSetsFile.exists())
         {
@@ -384,7 +394,11 @@ public class EntitySynchronizer
         {
             FileUtilities.appendToFile(notSyncedDataSetsFile, dsCode, true);
         }
-        return notRegisteredDataSetCodes;
+        // append the blacklisted codes to the end of the file
+        for (String dsCode : blackListedDataSetCodes)
+        {
+            FileUtilities.appendToFile(notSyncedDataSetsFile, dsCode, true);
+        }
     }
 
     private void backupAndResetNotSyncedDataSetsFile(File notSyncedDataSetsFile) throws IOException

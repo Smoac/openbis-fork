@@ -53,6 +53,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.parser.ILine;
+import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -145,10 +148,13 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 File newLastSyncTimeStampFile = new File(fileName + ".new");
                 FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(new Date()));
 
-                Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(config.getNotSyncedDataSetsFileName());
+                String notSyncedDataSetsFileName = config.getNotSyncedDataSetsFileName();
+                Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedDataSetsFileName);
+                Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedDataSetsFileName);
 
                 EntitySynchronizer synchronizer =
-                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes, context, config,
+                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes, blackListedDataSetCodes,
+                                context, config,
                                 operationLog);
                 synchronizer.syncronizeEntities();
 
@@ -178,12 +184,12 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         }
     }
 
-    private Set<String> getNotSyncedDataSetCodes(String fileName)
+    private Set<String> getDataSetCodesFromNotSyncedDataSetsFile(String fileName, ILineFilter linefilter)
     {
         File notSyncedDataSetsFile = new File(fileName);
         if (notSyncedDataSetsFile.exists())
         {
-            List<String> list = FileUtilities.loadToStringList(notSyncedDataSetsFile);
+            List<String> list = FileUtilities.loadToStringList(notSyncedDataSetsFile, linefilter);
             return new LinkedHashSet<String>(list);
         }
         else
@@ -191,6 +197,26 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             return new LinkedHashSet<String>();
         }
     }
+
+    private Set<String> getNotSyncedDataSetCodes(String fileName)
+    {
+        return getDataSetCodesFromNotSyncedDataSetsFile(fileName, ExcludeEmptyAndCommentLineFilter.INSTANCE);
+    }
+
+    private Set<String> getBlackListedDataSetCodes(String fileName)
+    {
+        return getDataSetCodesFromNotSyncedDataSetsFile(fileName, new ILineFilter()
+            {
+                @Override
+                public <T> boolean acceptLine(ILine<T> line)
+                {
+                    assert line != null : "Unspecified line";
+                    final String trimmed = line.getText().trim();
+                    return trimmed.length() > 0 && trimmed.startsWith("#") == true;
+                }
+            });
+    }
+
     private void sendErrorEmail(SyncConfig config, String subject)
     {
         if (config.getLogFilePath() != null)
