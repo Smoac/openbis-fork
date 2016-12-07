@@ -140,8 +140,14 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
-			var textBoxEvent = function(event) {
-				_this._projectFormModel.project.description = $(this).val();
+			var textBoxEvent = function(jsEvent, newValue) {
+				var valueToUse = null;
+				if(newValue) {
+					valueToUse = newValue;
+				} else {
+					valueToUse = $(this).val();
+				}
+				_this._projectFormModel.project.description = valueToUse;
 				_this._projectFormModel.isFormDirty = true;
 			};
 			$textBox.val(description);
