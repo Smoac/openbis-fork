@@ -241,13 +241,6 @@ public class ResourceListParser
         {
             parseMaterialMetaData(xpath, extractMaterialCodeFromURI(uri), xdNode, lastModificationDate);
         }
-        // expr = xpath.compile("//s:loc[normalize-space(.) ='" + uri + "']/../x:xd/x:properties/x:property"); //
-        // "//*/text()[normalize-space(.)='" + loc_text + "']/parent::/rs:ln");// "/s:urlset/s:url[/s:loc/text() = '" +
-        // for (int ji = 0; ji < url_node.getLength(); ji++)
-        // {
-        // System.out.print(url_node.item(ji).getNodeName() + ":" + url_node.item(ji).getAttributes().getNamedItem("kind"));
-        // System.out.println();
-        // }
     }
 
     private Date extractLastModificationDate(Document doc, XPath xpath, String uri) throws XPathExpressionException
@@ -535,3 +528,11 @@ public class ResourceListParser
         return parts[parts.length - 2];
     }
 }
+// expr = xpath.compile("//s:loc[normalize-space(.) ='" + uri + "']/../x:xd/x:properties/x:property"); //
+// "//*/text()[normalize-space(.)='" + loc_text + "']/parent::/rs:ln");// "/s:urlset/s:url[/s:loc/text() = '" +
+// for (int ji = 0; ji < url_node.getLength(); ji++)
+// {
+// System.out.print(url_node.item(ji).getNodeName() + ":" + url_node.item(ji).getAttributes().getNamedItem("kind"));
+// System.out.println();
+// }
+
