@@ -47,7 +47,7 @@ public class MaintenanceTaskParameters
 
     // If true the task will be executed exactly one, interval will be ignored. By default set to
     // false.
-    static final String ONE_TIME_EXECUTION_KEY = "execute-only-once";
+    public static final String ONE_TIME_EXECUTION_KEY = "execute-only-once";
 
     private final String pluginName;
 
