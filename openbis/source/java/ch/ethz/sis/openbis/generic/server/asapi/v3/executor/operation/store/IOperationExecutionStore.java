@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
@@ -59,6 +60,9 @@ public interface IOperationExecutionStore
     public OperationExecution getExecution(IOperationContext context, IOperationExecutionId executionId, OperationExecutionFetchOptions fetchOptions);
 
     public List<OperationExecution> getExecutions(IOperationContext context, OperationExecutionFetchOptions fetchOptions);
+
+    public List<OperationExecution> getExecutionsToBeFailedAfterServerRestart(IOperationContext context, Date serverStartDate,
+            OperationExecutionFetchOptions fetchOptions);
 
     public List<OperationExecution> getExecutionsToBeTimeOutPending(IOperationContext context, OperationExecutionFetchOptions fetchOptions);
 

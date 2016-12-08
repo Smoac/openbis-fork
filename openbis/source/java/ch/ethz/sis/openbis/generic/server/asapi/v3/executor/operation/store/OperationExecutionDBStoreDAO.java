@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
@@ -79,6 +80,12 @@ public class OperationExecutionDBStoreDAO implements IOperationExecutionDBStoreD
     public List<OperationExecutionPE> findAllExecutions()
     {
         return refresh(daoFactory.getOperationExecutionDAO().listAllEntities());
+    }
+
+    @Override
+    public List<OperationExecutionPE> findExecutionsToBeFailedAfterServerRestart(Date serverStartDate)
+    {
+        return refresh(daoFactory.getOperationExecutionDAO().getExecutionsToBeFailedAfterServerRestart(serverStartDate));
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionAvailability;
@@ -49,6 +50,8 @@ public interface IOperationExecutionDBStore
     OperationExecutionPE getExecution(String code);
 
     List<OperationExecutionPE> getExecutions();
+
+    List<OperationExecutionPE> getExecutionsToBeFailedAfterServerRestart(Date serverStartDate);
 
     List<OperationExecutionPE> getExecutionsToBeTimeOutPending();
 

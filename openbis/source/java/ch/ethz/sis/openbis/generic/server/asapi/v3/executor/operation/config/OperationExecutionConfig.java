@@ -51,6 +51,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
     private static final String PROGRESS_PREFIX = PREFIX + "progress.";
 
+    private static final String STATE_UPDATE_PREFIX = PREFIX + "state-update.";
+
     private static final String AVAILABILITY_TIME_PREFIX = PREFIX + "availability-time.";
 
     private static final String AVAILABILITY_UPDATE_PREFIX = PREFIX + "availability-update.";
@@ -62,6 +64,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     private static final String MARK_TIMEOUT_PENDING_TASK_PREFIX = AVAILABILITY_UPDATE_PREFIX + "mark-timeout-pending-task.";
 
     private static final String MARK_TIMED_OUT_OR_DELETED_TASK_PREFIX = AVAILABILITY_UPDATE_PREFIX + "mark-timed-out-or-deleted-task.";
+
+    private static final String MARK_FAILED_AFTER_SERVER_RESTART_TASK_PREFIX = STATE_UPDATE_PREFIX + "mark-failed-after-server-restart-task.";
 
     // properties
 
@@ -99,6 +103,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
     public static final String MARK_TIMED_OUT_OR_DELETED_TASK_INTERVAL = MARK_TIMED_OUT_OR_DELETED_TASK_PREFIX + "interval";
 
+    public static final String MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME = MARK_FAILED_AFTER_SERVER_RESTART_TASK_PREFIX + "name";
+
     // defaults
 
     private static final String STORE_PATH_DEFAULT = "operation-execution-store";
@@ -135,6 +141,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
     private static final int MARK_TIMED_OUT_OR_DELETED_TASK_INTERVAL_DEFAULT = 300;
 
+    private static final String MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME_DEFAULT = "operation-execution-mark-failed-after-server-restart-task";
+
     // fields
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
@@ -167,6 +175,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     private int detailsAvailabilityTimeDefault;
 
     private int detailsAvailabilityTimeMax;
+
+    private String markFailedAfterServerRestartTaskName;
 
     private String markTimeOutPendingTaskName;
 
@@ -241,6 +251,10 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
         markTimedOutOrDeletedTaskInterval = getIntegerPropertyOrDefault(properties, MARK_TIMED_OUT_OR_DELETED_TASK_INTERVAL,
                 MARK_TIMED_OUT_OR_DELETED_TASK_INTERVAL_DEFAULT);
         checkPositiveProperty(properties, MARK_TIMED_OUT_OR_DELETED_TASK_INTERVAL, markTimedOutOrDeletedTaskInterval);
+
+        markFailedAfterServerRestartTaskName = getStringPropertyOrDefault(properties, MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME,
+                MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME_DEFAULT);
+
     }
 
     @Override
@@ -353,6 +367,13 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     {
         init();
         return detailsAvailabilityTimeMax;
+    }
+
+    @Override
+    public String getMarkFailedAfterServerRestartTaskName()
+    {
+        init();
+        return markFailedAfterServerRestartTaskName;
     }
 
     @Override

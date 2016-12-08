@@ -194,6 +194,12 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
     }
 
     @Override
+    public List<OperationExecutionPE> getExecutionsToBeFailedAfterServerRestart(Date serverStartDate)
+    {
+        return dao.findExecutionsToBeFailedAfterServerRestart(serverStartDate);
+    }
+
+    @Override
     public List<OperationExecutionPE> getExecutionsToBeTimeOutPending()
     {
         return dao.findExecutionsToBeTimeOutPending();

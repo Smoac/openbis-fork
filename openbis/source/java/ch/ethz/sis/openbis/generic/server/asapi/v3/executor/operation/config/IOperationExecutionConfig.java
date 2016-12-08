@@ -54,6 +54,8 @@ public interface IOperationExecutionConfig
 
     int getDetailsAvailabilityTimeMax();
 
+    String getMarkFailedAfterServerRestartTaskName();
+    
     String getMarkTimeOutPendingTaskName();
 
     int getMarkTimeOutPendingTaskInterval();

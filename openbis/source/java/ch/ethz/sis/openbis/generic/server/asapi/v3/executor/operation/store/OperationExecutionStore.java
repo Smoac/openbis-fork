@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -419,6 +420,18 @@ public class OperationExecutionStore implements IOperationExecutionStore, Applic
         checkAccess(context);
 
         List<OperationExecutionPE> executionPEs = dbStore.getExecutions();
+        return translate(context, filter(context, executionPEs), fetchOptions);
+    }
+
+    @Override
+    @Transactional
+    public List<OperationExecution> getExecutionsToBeFailedAfterServerRestart(IOperationContext context, Date serverStartDate,
+            OperationExecutionFetchOptions fetchOptions)
+    {
+        checkContext(context);
+        checkAccess(context);
+
+        List<OperationExecutionPE> executionPEs = dbStore.getExecutionsToBeFailedAfterServerRestart(serverStartDate);
         return translate(context, filter(context, executionPEs), fetchOptions);
     }
 

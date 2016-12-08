@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -104,6 +105,20 @@ final class OperationExecutionDAO extends AbstractGenericEntityDAO<OperationExec
                     .getCurrentMethod().getName(), list.size()));
         }
         return list;
+    }
+
+    @Override
+    public List<OperationExecutionPE> getExecutionsToBeFailedAfterServerRestart(Date serverStartDate)
+    {
+        DetachedCriteria criteria = DetachedCriteria.forClass(OperationExecutionPE.class);
+        criteria.add(Restrictions.in("state",
+                Arrays.asList(OperationExecutionState.NEW, OperationExecutionState.SCHEDULED, OperationExecutionState.RUNNING)));
+        criteria.add(Restrictions.lt("creationDate", serverStartDate));
+
+        final List<OperationExecutionPE> executions = new ArrayList<OperationExecutionPE>();
+        executions.addAll(findByCriteria(criteria));
+        sortFromOldestToNewest(executions);
+        return executions;
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.task;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -46,34 +47,37 @@ public class OperationExecutionMarkTimeOutPendingMaintenanceTask extends Abstrac
             getOperationLog().info("found " + executions.size() + " execution(s) to be marked " + OperationExecutionAvailability.TIME_OUT_PENDING);
         }
 
-        final long now = System.currentTimeMillis();
-
         markOperationExecutions(executions, new MarkAction()
             {
 
                 @Override
                 public void mark(OperationExecution execution)
                 {
-                    if (execution.getFinishDate() != null)
+                    if (shouldMarkTimeoutPending(execution.getFinishDate(), execution.getAvailability(), execution.getAvailabilityTime()))
                     {
-                        if (now > execution.getFinishDate().getTime() + execution.getAvailabilityTime() * DateUtils.MILLIS_PER_SECOND)
-                        {
-                            getExecutionStore().executionAvailability(getOperationContext(), execution.getPermId(),
-                                    OperationExecutionAvailability.TIME_OUT_PENDING);
-                        }
-                        if (now > execution.getFinishDate().getTime() + execution.getSummaryAvailabilityTime() * DateUtils.MILLIS_PER_SECOND)
-                        {
-                            getExecutionStore().executionSummaryAvailability(getOperationContext(), execution.getPermId(),
-                                    OperationExecutionAvailability.TIME_OUT_PENDING);
-                        }
-                        if (now > execution.getFinishDate().getTime() + execution.getDetailsAvailabilityTime() * DateUtils.MILLIS_PER_SECOND)
-                        {
-                            getExecutionStore().executionDetailsAvailability(getOperationContext(), execution.getPermId(),
-                                    OperationExecutionAvailability.TIME_OUT_PENDING);
-                        }
+                        getExecutionStore().executionAvailability(getOperationContext(), execution.getPermId(),
+                                OperationExecutionAvailability.TIME_OUT_PENDING);
+                    }
+                    if (shouldMarkTimeoutPending(execution.getFinishDate(), execution.getSummaryAvailability(),
+                            execution.getSummaryAvailabilityTime()))
+                    {
+                        getExecutionStore().executionSummaryAvailability(getOperationContext(), execution.getPermId(),
+                                OperationExecutionAvailability.TIME_OUT_PENDING);
+                    }
+                    if (shouldMarkTimeoutPending(execution.getFinishDate(), execution.getDetailsAvailability(),
+                            execution.getDetailsAvailabilityTime()))
+                    {
+                        getExecutionStore().executionDetailsAvailability(getOperationContext(), execution.getPermId(),
+                                OperationExecutionAvailability.TIME_OUT_PENDING);
                     }
                 }
             });
+    }
+
+    private boolean shouldMarkTimeoutPending(Date finishDate, OperationExecutionAvailability availability, int availabilityTime)
+    {
+        return OperationExecutionAvailability.AVAILABLE.equals(availability)
+                && finishDate != null && (System.currentTimeMillis() > finishDate.getTime() + availabilityTime * DateUtils.MILLIS_PER_SECOND);
     }
 
 }
