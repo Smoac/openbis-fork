@@ -49,10 +49,26 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var $filesContainer = $("<div>");
 		$containerContent.append($filesContainer);
 		if (this._dataSetViewerModel.enableDeepUnfolding) {
-			var b = FormUtil.getButtonWithIcon("glyphicon-chevron-down", function() {
-				_this._expandAll();
-			}, null, "Expand all");
-			$filesContainer.append(b);
+			var expandCollapseAll = FormUtil.getButtonWithIcon("glyphicon-chevron-down", function() {
+				var icon = $($(this).children()[0]);
+				
+				if(icon.hasClass("glyphicon-chevron-down")) {
+					_this._expandAll();
+					icon.removeClass("glyphicon-chevron-down");
+					icon.addClass("glyphicon-chevron-up");
+				} else if(icon.hasClass("glyphicon-chevron-up")) {
+					
+					$("#filestree").fancytree("getRootNode").visit(function(node) {
+					    node.setExpanded(false);
+					});
+					
+					icon.removeClass("glyphicon-chevron-up");
+					icon.addClass("glyphicon-chevron-down");
+				}
+				
+			}, null, "Expand/Collapse all");
+			$filesContainer.append(expandCollapseAll);
+			
 			var $treeContainer = $("<div>");
 			$filesContainer.append($treeContainer);
 			$filesContainer = $treeContainer;
