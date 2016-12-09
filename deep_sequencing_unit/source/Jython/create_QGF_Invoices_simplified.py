@@ -133,7 +133,7 @@ def getVocabulary(service, vocabularyCode):
 def identify_sequencer(sequencer_code):
     sequencer_map = {"M": "MiSeq", "NS": "NextSeq"}
     if (sequencer_code[0] in sequencer_map):
-        return sequencer_mapp[sequencer_code[0]]
+        return sequencer_map[sequencer_code[0]]
     else:
         return "HiSeq"
 
@@ -548,7 +548,12 @@ def getFLowcellData(service, configMap, flowcell, logger):
                 s[sampleCode.split("-")[-1]] = sample_properties_dict
                 sampleDict[lane] = s
                 pi = sanitizeString(sample_properties_dict[configMap["pIPropertyName"]])
-                invoiceProperty = sample_properties_dict['INVOICE']
+                try:
+                    invoiceProperty = sample_properties_dict['INVOICE']
+                except:
+                    # Can happen when sample was registered via Excel, the boolean value is not set in the DB
+                    logger.info("Sample {0} has no property 'Invoice'. Setting it to false".format(sampleCode))
+                    invoiceProperty = 'false'
                 # if sample got created via Excel upload, the property could be not set, which is represented by None
                 if (invoiceProperty is None):
                     invoiceProperty = 'false'
