@@ -71,7 +71,6 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			
 			var $treeContainer = $("<div>");
 			$filesContainer.append($treeContainer);
-			$filesContainer = $treeContainer;
 		}
 		this.repaintFilesAsTree($filesContainer);
 	}
