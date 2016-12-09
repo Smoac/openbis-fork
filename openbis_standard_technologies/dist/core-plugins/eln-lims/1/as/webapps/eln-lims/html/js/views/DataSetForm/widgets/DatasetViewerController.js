@@ -44,14 +44,32 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 			if (this._datasetViewerModel.isExperiment()) {
 				serverFacade.listExperimentsForIdentifiers([this._datasetViewerModel.entity.identifier.identifier], function(data) {
 					serverFacade.listDataSetsForExperiment(data.result[0], function(datasets) {
-						_this.updateDatasets(datasets.result);
-						_this._datasetViewerView.repaintDatasets();
+						var results;
+						if(_this._datasetViewerModel.isExperiment()) { //Filter out datasets own by samples
+							results = [];
+							for(var dIdx = 0; dIdx < datasets.result.length; dIdx++) {
+								var dataset = datasets.result[dIdx];
+								if(!dataset.sampleIdentifierOrNull) {
+									results.push(dataset);
+								}
+							}
+						} else {
+							results = datasets.result;
+						}
+						
+						if(results.length > 0) {
+							_this.updateDatasets(results);
+							_this._datasetViewerView.repaintDatasets();
+						}
+						
 					});
 				});
 			} else {
 				serverFacade.listDataSetsForSample(this._datasetViewerModel.entity, true, function(datasets) {
-					_this.updateDatasets(datasets.result);
-					_this._datasetViewerView.repaintDatasets();
+					if(datasets.result.length > 0) {
+						_this.updateDatasets(datasets.result);
+						_this._datasetViewerView.repaintDatasets();
+					}
 				});
 			}
 		}
