@@ -136,6 +136,34 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var toolbarModel = [];
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			//Create Experiment Step
+			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP") {
+				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+					var argsMap = {
+							"sampleTypeCode" : "EXPERIMENTAL_STEP",
+							"experimentIdentifier" : _this._sampleFormModel.sample.experimentIdentifierOrNull
+					}
+					var argsMapStr = JSON.stringify(argsMap);
+					
+					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+					
+					var setParent = function() {
+						mainController.currentView._sampleFormModel.sampleLinksParents.addSample(_this._sampleFormModel.sample);
+						Util.unblockUI();
+					}
+					
+					var repeatUntilSet = function() {
+						if(mainController.currentView.isLoaded()) {
+							setParent();
+						} else {
+							setTimeout(repeatUntilSet, 100);
+						}
+					}
+					
+					repeatUntilSet();
+				});
+				toolbarModel.push({ component : $createBtn, tooltip: "Create Experimental Step" });
+			}
 			
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
