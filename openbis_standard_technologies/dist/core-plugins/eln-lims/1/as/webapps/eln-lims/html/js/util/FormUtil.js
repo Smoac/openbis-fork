@@ -733,20 +733,24 @@ var FormUtil = new function() {
 	//
 	// Rich Text Editor Support - (CKEditor)
 	//
-	var isCKEditorConfigured = false;
-	this.activateRichTextProperties = function($component, componentOnChange) {
-		if(!isCKEditorConfigured) {
-			CKEDITOR.on( 'instanceReady', function( ev ) {
-			    ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+	CKEDITOR.on( 'instanceReady', function( ev ) {
+	    ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+	});
+	
+	this.activateRichTextProperties = function($component, componentOnChange, propertyType) {
+		
+		if(profile.isForcedDisableRTF(propertyType)) {
+			$component.change(function(event) {
+				componentOnChange(event, $(this).val());
 			});
-			isCKEditorConfigured = true;
+		} else {
+			var editor = $component.ckeditor().editor;
+			editor.on('change', function(event) {
+				var value = event.editor.getData();
+				componentOnChange(event, value);
+			});
 		}
 		
-		var editor = $component.ckeditor().editor;
-		editor.on('change', function(event) {
-			var value = event.editor.getData();
-			componentOnChange(event, value);
-		});
 		return $component;
 	}
 	

@@ -113,6 +113,12 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
+		
+		this.forcedDisableRTF = ["NAME", "SEQUENCE"];
+		this.isForcedDisableRTF = function(propertytype) {
+			return (propertytype && $.inArray(propertytype.code, this.forcedDisableRTF) !== -1);
+		}
+		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
 		this.inventorySpacesReadOnly = []; //"STOCK_ORDERS"

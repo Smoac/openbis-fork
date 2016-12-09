@@ -496,7 +496,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						}
 						
 						if(propertyType.dataType === "MULTILINE_VARCHAR") {
-							$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
+							$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
 						} else if(propertyType.dataType === "TIMESTAMP") {
 							$component.on("dp.change", changeEvent(propertyType));
 						} else {
