@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandBuilder;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
@@ -94,7 +95,7 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(command, operationLog, machineLog,
                         millisToWaitForCompletion,
-                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, false);
+                        ProcessIOStrategy.TEXT_IO_STRATEGY, false);
         processResult.log();
         final List<String> processOutput = processResult.getOutput();
         final String commandLine = StringUtils.join(processResult.getCommandLine(), SPACE);

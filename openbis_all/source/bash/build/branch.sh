@@ -17,6 +17,7 @@ ALL_PROJECTS="\
 gradle \
 authentication \
 build_resources \
+commonbase \
 common \
 datamover \
 datastore_server \
@@ -66,6 +67,7 @@ svn checkout --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all
 
 GRADLE_PROJECTS="\
 authentication \
+commonbase \
 common \
 datamover \
 datastore_server \

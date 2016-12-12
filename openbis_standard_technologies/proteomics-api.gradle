@@ -2,11 +2,12 @@
 task proteomicsApiJar(type: Jar) {
 	baseName 'openBIS-proteomics-API'
 	includeEmptyDirs false
-	from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+	from project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
          project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus( 
          project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
          project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
-         project(':rtd_phosphonetx').compileJava.outputs.getFiles().getAsFileTree() )))).matching {
+         project(':rtd_phosphonetx').compileJava.outputs.getFiles().getAsFileTree() ))))).matching {
          	include "ch/systemsx/cisd/common/exceptions/**/*.class"
         	include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
         	include "ch/systemsx/cisd/common/api/**/*.class"
@@ -23,11 +24,12 @@ task proteomicsApiJar(type: Jar) {
 
 task proteomicsApiSources(type: Zip) {
 	archiveName 'sources-proteomics-api.zip'
-	from project(':common').files('source/java').getAsFileTree().plus(
+	from project(':commonbase').files('source/java').getAsFileTree().plus(
+         project(':common').files('source/java').getAsFileTree().plus(
          project(':openbis-common').files('source/java').getAsFileTree().plus( 
          project(':openbis').files('source/java').getAsFileTree().plus(
          project(':openbis_api').files('source/java').getAsFileTree().plus(
-         project(':rtd_phosphonetx').files('source/java').getAsFileTree())))).matching {
+         project(':rtd_phosphonetx').files('source/java').getAsFileTree()))))).matching {
          	include "ch/systemsx/cisd/common/exceptions/**/*.java"
         	include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
         	include "ch/systemsx/cisd/common/api/**/*.java"
