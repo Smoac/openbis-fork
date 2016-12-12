@@ -133,12 +133,14 @@ public class ResourceListParser
                 }
 
                 // This method isn't necessary for XPath processing either.
-                public Iterator getPrefixes(String uri)
+                public Iterator<?> getPrefixes(String uri)
                 {
                     throw new UnsupportedOperationException("Not implemented!!!");
                 }
             });
         Date resourceListTimestamp = getResourceListTimestamp(doc, xpath);
+        data.setResourceListTimestamp(resourceListTimestamp);
+
         List<String> uris = getResourceLocations(doc, xpath);
         for (String uri : uris)
         {

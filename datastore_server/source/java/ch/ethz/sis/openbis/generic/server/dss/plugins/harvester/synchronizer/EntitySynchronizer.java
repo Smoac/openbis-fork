@@ -166,7 +166,7 @@ public class EntitySynchronizer
         this.operationLog = operationLog;
     }
 
-    public void syncronizeEntities() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException, URISyntaxException,
+    public Date syncronizeEntities() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException, URISyntaxException,
             InterruptedException, TimeoutException, ExecutionException, NoSuchAlgorithmException
     {
         // operationLog.info("register master data");
@@ -224,6 +224,8 @@ public class EntitySynchronizer
         // and set parent/child relationships
         operationLog.info("start linking/un-linking container and component data sets");
         establishDataSetRelationships(data.getDataSetsToProcess(), notRegisteredDataSets, physicalDSMap);
+
+        return data.getResourceListTimestamp();
     }
 
     private void establishDataSetRelationships(Map<String, DataSetWithConnections> dataSetsToProcess,
@@ -557,7 +559,6 @@ public class EntitySynchronizer
         IDeletionId smpDeletionId = v3Api.deleteSamples(sessionToken, samplePermIds, sampleDeletionOptions);
 
         // delete experiments
-
         ExperimentDeletionOptions expDeletionOpts = new ExperimentDeletionOptions();
         expDeletionOpts.setReason("sync experiment deletions");
         IDeletionId expDeletionId = v3Api.deleteExperiments(sessionToken, experimentPermIds, expDeletionOpts);
@@ -574,20 +575,37 @@ public class EntitySynchronizer
 
         // confirm deletions
         ArrayList<IDeletionId> deletionIds = new ArrayList<IDeletionId>();
+
+        StringBuffer summary = new StringBuffer();
+        if (projectPermIds.size() > 0)
+        {
+            summary.append(projectPermIds.size() + " projects,");
+        }
+        if (matPermIds.size() > 0)
+        {
+            summary.append(matPermIds.size() + " materials,");
+        }
         if (expDeletionId != null)
         {
             deletionIds.add(expDeletionId);
+            summary.append(experimentPermIds.size() + " experiments,");
         }
         if (smpDeletionId != null)
         {
             deletionIds.add(smpDeletionId);
+            summary.append(samplePermIds.size() + " samples,");
         }
         if (dsDeletionId != null)
         {
             deletionIds.add(dsDeletionId);
+            summary.append(dsPermIds.size() + " data sets");
         }
         v3Api.confirmDeletions(sessionToken, deletionIds); // Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId)
 
+        if (summary.length() > 0)
+        {
+            operationLog.info(summary.substring(0, summary.length() - 1) + " have been deleted:");
+        }
         for (PhysicalDataSet physicalDS : physicalDataSetsDelete)
         {
             operationLog.info("Is going to delete the location: " + physicalDS.getLocation());

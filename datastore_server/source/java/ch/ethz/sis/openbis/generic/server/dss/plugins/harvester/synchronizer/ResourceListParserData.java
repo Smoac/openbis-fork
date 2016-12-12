@@ -38,6 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
  */
 public class ResourceListParserData
 {
+    // Introduced to store the timestamp of any still-running transaction on the data source at the time of
+    // retrieving the resource list.
+    private Date resourceListTimestamp;
+
     private Set<String> harvesterSpaceList = new HashSet<>();
 
     private Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
@@ -49,6 +53,16 @@ public class ResourceListParserData
     private Map<String, DataSetWithConnections> dataSetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
 
     private Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
+
+    public Date getResourceListTimestamp()
+    {
+        return resourceListTimestamp;
+    }
+
+    public void setResourceListTimestamp(Date resourceListTimestamp)
+    {
+        this.resourceListTimestamp = resourceListTimestamp;
+    }
 
     public Set<String> getHarvesterSpaceList()
     {

@@ -144,19 +144,25 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 String fileName = config.getLastSyncTimestampFileName();
                 File lastSyncTimestampFile = new File(fileName);
                 lastSyncTimestamp = getLastSyncTimeStamp(lastSyncTimestampFile);
-                // save the current time into a temp file as last sync time
-                File newLastSyncTimeStampFile = new File(fileName + ".new");
-                FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(new Date()));
 
                 String notSyncedDataSetsFileName = config.getNotSyncedDataSetsFileName();
                 Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedDataSetsFileName);
                 Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedDataSetsFileName);
 
+                // save the current time into a temp file as last sync time
+                File newLastSyncTimeStampFile = new File(fileName + ".new");
+                Date syncStartTimestamp = new Date();
+                FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(syncStartTimestamp));
+
                 EntitySynchronizer synchronizer =
                         new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes, blackListedDataSetCodes,
                                 context, config,
                                 operationLog);
-                synchronizer.syncronizeEntities();
+                Date resourceListTimestamp = synchronizer.syncronizeEntities();
+                if (resourceListTimestamp.before(syncStartTimestamp))
+                {
+                    FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(resourceListTimestamp));
+                }
 
                 operationLog.info("Saving the timestamp of sync start to file");
                 saveSyncTimestamp(newLastSyncTimeStampFile, lastSyncTimestampFile);
