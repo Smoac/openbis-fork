@@ -309,7 +309,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var sampleParentsWidgetId = "sampleParentsWidgetId";
 		var $sampleParentsWidget = $("<div>", { "id" : sampleParentsWidgetId });
-		$formColumn.append($sampleParentsWidget);
+		
+		if(this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.parents.length > 0)) {
+			$formColumn.append($sampleParentsWidget);
+		}
+		
+		
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		
 		var currentParentsLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.parents:null;
@@ -341,7 +346,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 		var sampleChildrenWidgetId = "sampleChildrenWidgetId";
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
-		$formColumn.append($sampleChildrenWidget);
+		
+		if(this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.parents.length > 0)) {
+			$formColumn.append($sampleChildrenWidget);
+		}
 			
 		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
 		
