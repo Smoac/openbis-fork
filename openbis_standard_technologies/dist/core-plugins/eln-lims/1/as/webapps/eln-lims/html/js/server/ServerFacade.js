@@ -747,6 +747,9 @@ function ServerFacade(openbisServer) {
 				if(fetchOptions.withExperiment) {
 					fetchOptions.withExperiment();
 				}
+				if(fetchOptions.withSample) {
+					fetchOptions.withSample();
+				}
 				if(fetchOptions.withRegistrator) {
 					fetchOptions.withRegistrator();
 				}

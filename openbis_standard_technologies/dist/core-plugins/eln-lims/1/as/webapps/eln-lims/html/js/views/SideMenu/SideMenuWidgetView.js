@@ -337,7 +337,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                    }
     	                    
     	                    var experimentLink = _this.getLinkForNode(experimentDisplayName, experiment.getPermId().getPermId(), viewToUse, experiment.getIdentifier().getIdentifier());
-    	                    results.push({ title : experimentLink, entityType: "EXPERIMENT", key : experiment.getPermId().getPermId(), folder : true, lazy : loadSamples, view : viewToUse, viewData: experiment.getIdentifier().getIdentifier() });
+    	                    results.push({ title : experimentLink, entityType: "EXPERIMENT", key : experiment.getPermId().getPermId(), folder : true, lazy : loadSamples, view : viewToUse, viewData: experiment.getIdentifier().getIdentifier(), icon : "fa fa-flask" });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -383,8 +383,38 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 	        	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId(), icon : "fa fa-flask" };
 	        	                    results.push(sampleNode);
         	                	}
-        	                	dfd.resolve(results);
-        	                	Util.unblockUI();
+        	                	
+        	                	var datasetRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
+                	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+                	    			
+                	                var datasets = searchResult.objects;
+                	                var experimentDatasets = [];
+                	                for (var i = 0; i < datasets.length; i++) {
+                	                    var dataset = datasets[i];
+                	                    if(!dataset.sample) {
+                	                    	experimentDatasets.push(dataset);
+                	                    }
+                	                }
+                	                
+                	                if(experimentDatasets.length > 50) {
+                	                	Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
+                	                } else {
+                	                	for (var i = 0; i < experimentDatasets.length; i++) {
+                    	                    var dataset = experimentDatasets[i];
+                    	                    var datasetDisplayName = dataset.code;
+                    	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+                    	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+                    	                    }
+                    	                    
+                    	                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+                    	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId(), icon : "fa fa-database" });
+                    	                }
+                	                }
+                	                
+                	    			dfd.resolve(results);
+            	                	Util.unblockUI();
+                	    		});
+        	                	
     	                	}
     	                }
     	                
