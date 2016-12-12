@@ -1,17 +1,17 @@
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile 'apache:commons-io:+',
-            'apache:commons-lang:+',
-			'apache:log4j:+',
-            'sis:sis-base:+',
-	        'rinn:restrictions:+'
+    compile 'apache:commons-io:1.4',
+            'apache:commons-lang:2.4',
+			'apache:log4j:1.2.15',
+            'sis:sis-base:14.12.0',
+	        'rinn:restrictions:1.0.2'
 
-	testCompile 'fjelmer:classycle:+',
-				'hamcrest:hamcrest-integration:+',
-				'hamcrest:hamcrest-library:+',
-				'testng:testng:+',
-				'jmock:jmock:+'
+	testCompile 'fjelmer:classycle:1.4.2',
+				'hamcrest:hamcrest-integration:1.3',
+				'hamcrest:hamcrest-library:1.3',
+				'testng:testng:6.8-CISD',
+				'jmock:jmock:2.5.1'
 } 
 
 sourceCompatibility='1.6'
