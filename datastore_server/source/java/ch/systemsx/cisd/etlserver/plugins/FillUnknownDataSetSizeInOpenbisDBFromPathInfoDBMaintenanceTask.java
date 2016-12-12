@@ -281,7 +281,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
                 }
             }
         }
-
+        dao.commit(); // Needed because DAO is a TransactionQuery. Otherwise there will be an idle connection
         return map;
     }
 
