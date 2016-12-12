@@ -1,4 +1,4 @@
-includeFlat 'common', 
+includeFlat 'commonbase', 'common', 
     'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 
     'datastore_server', 'screening', 'rtd_yeastx', 'rtd_phosphonetx', 'deep_sequencing_unit', 'plasmid',
     'openbis_standard_technologies'
