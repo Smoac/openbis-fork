@@ -7,7 +7,9 @@
             </run>
         </groups>
         <packages>
-            <package name="ch.systemsx.cisd.common.*" />
+            <package name="ch.systemsx.cisd.common.*">
+                <exclude name="ch.systemsx.cisd.common.process.*"/>
+            </package>
         </packages>
     </test>
 </suite>

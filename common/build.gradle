@@ -1,7 +1,10 @@
+evaluationDependsOn(':commonbase')
+
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-	compile	'springframework:spring-webmvc:4.1.4.RELEASE',
+	compile	project(':commonbase'),
+			'springframework:spring-webmvc:4.1.4.RELEASE',
 			'springframework:spring-aop:4.1.4.RELEASE',
 			'javax:servlet-api:3.1.0',
 			'cisd:cisd-args4j:9.11.2',
@@ -25,10 +28,16 @@ dependencies {
             'eclipse:jetty-client:9.2.10.v20150310',
             'apache:commons-csv:1.2'
 					
-	testCompile 'fjelmer:classycle:1.4.2',
+	testCompile project(path: ':commonbase', configuration: 'tests'),
+				'fjelmer:classycle:1.4.2',
 				'hamcrest:hamcrest-integration:1.3',
 				'hamcrest:hamcrest-library:1.3'
 } 
+ 
+test {
+    systemProperty "openbis.proxyHost", System.getProperty("openbis.proxyHost")
+    systemProperty "openbis.proxyPort", System.getProperty("openbis.proxyPort")
+}
 
 testJar {
 	from "source/java/genericCommonContext.xml"
