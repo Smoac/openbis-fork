@@ -3,8 +3,8 @@
 
 CONF=$1
 if [ "$CONF" == "" ]; then
-	echo Error: directory where configuration should be backed up has not been specified! 
-	exit 1
+  echo Error: directory where configuration should be backed up has not been specified! 
+  exit 1
 fi
 mkdir -p $CONF
 
@@ -42,6 +42,7 @@ if [ -d $ROOT/openBIS-server ]; then
     copyIfExists $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
     copyIfExists $ROOT/openBIS-server/jetty/etc/passwd $CONF/
     copyIfExists $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
+    copyConfig $ROOT/core-plugins "html/etc$" $CONF/core-plugins
     cp -R $ROOT/openBIS-server/jetty/start.d $CONF/start.d
 fi
 
