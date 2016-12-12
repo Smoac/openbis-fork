@@ -728,7 +728,15 @@ function ServerFacade(openbisServer) {
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		require([criteriaClass,
 		         fetchOptionsClass,
-		         'as/dto/common/search/DateObjectEqualToValue'], function(EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
+		         'as/dto/common/search/DateObjectEqualToValue',
+		         'as/dto/experiment/search/ExperimentSearchCriteria',
+		         'as/dto/experiment/fetchoptions/ExperimentFetchOptions',
+		         'as/dto/space/search/SpaceSearchCriteria',
+		         'as/dto/sample/fetchoptions/SampleFetchOptions',
+		         'as/dto/space/search/SpaceSearchCriteria',
+		         'as/dto/space/fetchoptions/SpaceFetchOptions',
+		         'as/dto/project/search/ProjectSearchCriteria',
+		         'as/dto/project/fetchoptions/ProjectFetchOptions'], function(EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
 			try {
 				//Setting the searchCriteria given the advancedSearchCriteria model
 				var searchCriteria = new EntitySearchCriteria();
