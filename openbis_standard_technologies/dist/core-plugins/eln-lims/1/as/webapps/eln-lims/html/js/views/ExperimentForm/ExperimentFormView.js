@@ -267,6 +267,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				
 			});
 		}
+		
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			//Preview image
+			this._reloadPreviewImage();
+		}
 	}
 	
 	this._paintIdentificationInfo = function($formColumn) {
@@ -465,5 +470,50 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		$formColumn.append($fieldset);
+	}
+	
+	//
+	// Preview Image
+	//
+	this._reloadPreviewImage = function() {
+		var _this = this;
+		var previewCallback =  function(data) {
+				if (data.objects.length == 0) {
+					_this._updateLoadingToNotAvailableImage();
+				} else {
+					var listFilesForDataSetCallback = function(dataFiles) {
+							var found = false;
+							if(!dataFiles.result) {
+								//DSS Is not running probably
+							} else {
+								for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
+									if(!dataFiles.result[pathIdx].isDirectory) {
+										var elementId = 'preview-image';
+										var downloadUrl = profile.getDefaultDataStoreURL() + '/' + data.objects[0].code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+										
+										var img = $("#" + elementId);
+										img.attr('src', downloadUrl);
+										img.attr('data-preview-loaded', 'true');
+										img.show();
+										break;
+									}
+								}
+							}
+					};
+					mainController.serverFacade.listFilesForDataSet(data.objects[0].code, "/", true, listFilesForDataSetCallback);
+				}
+		};
+		
+		var datasetRules = { "UUIDv4.1" : { type : "Experiment", name : "ATTR.PERM_ID", value : this._experimentFormModel.experiment.permId },
+							 "UUIDv4.2" : { type : "Attribute", name : "DATA_SET_TYPE", value : "ELN_PREVIEW" },
+							 "UUIDv4.3" : { type : "Sample", name : "NULL.NULL", value : "NULL" }
+							 };
+		
+    	mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, previewCallback);
+	}
+	
+	this._updateLoadingToNotAvailableImage = function() {
+		var notLoadedImages = $("[data-preview-loaded='false']");
+		notLoadedImages.attr('src', "./img/image_unavailable.png");
 	}
 }

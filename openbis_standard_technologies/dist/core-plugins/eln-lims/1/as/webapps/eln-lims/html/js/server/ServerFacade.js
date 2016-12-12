@@ -895,6 +895,9 @@ function ServerFacade(openbisServer) {
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
+								case "NULL":
+									searchCriteria.withoutSample();
+									break;
 							}
 							break;
 						case "Experiment":
@@ -904,6 +907,9 @@ function ServerFacade(openbisServer) {
 									break;
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+								case "NULL":
+									searchCriteria.withoutExperiment();
 									break;
 							}
 							break;
