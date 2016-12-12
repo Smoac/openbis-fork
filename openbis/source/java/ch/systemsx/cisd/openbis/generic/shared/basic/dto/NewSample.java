@@ -79,6 +79,11 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
      */
     private String experimentIdentifier;
 
+    /**
+     * The project identifier.
+     */
+    private String projectIdentifier;
+
     /***
      * The space code for this row home space
      */
@@ -234,6 +239,16 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     public void setExperimentIdentifier(String experimentIdentifier)
     {
         this.experimentIdentifier = toUpperCase(experimentIdentifier);
+    }
+
+    public String getProjectIdentifier()
+    {
+        return projectIdentifier;
+    }
+
+    public void setProjectIdentifier(String projectIdentifier)
+    {
+        this.projectIdentifier = toUpperCase(projectIdentifier);
     }
 
     public String getDefaultSpaceIdentifier()

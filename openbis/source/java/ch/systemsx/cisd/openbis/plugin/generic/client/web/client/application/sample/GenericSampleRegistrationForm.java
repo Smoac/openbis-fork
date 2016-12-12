@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityLinkMessageElement;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -116,6 +118,16 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
                 (experimentField != null && experimentField.tryToGetValue() != null) ? experimentField
                         .tryToGetValue().getIdentifier() : null;
 
+        String projectIdentifier = null;
+        if (projectChooser != null && projectChooser.getValue() != null)
+        {
+            Project project = projectChooser.getValue().get(ModelDataPropertyNames.OBJECT);
+            if (project != null)
+            {
+                projectIdentifier = project.getIdentifier();
+            }
+        }
+
         final String containerOrNull = StringUtils.trimToNull(container.getValue());
         final NewSample newSample =
                 NewSample.createWithParents(createSampleIdentifier(), sampleType, containerOrNull,
@@ -124,6 +136,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
         newSample.setAttachments(attachmentsManager.extractAttachments());
         newSample.setExperimentIdentifier(experimentIdentifier);
+        newSample.setProjectIdentifier(projectIdentifier);
         newSample.setMetaprojectsOrNull(metaprojectArea.tryGetModifiedMetaprojects());
 
         viewContext.getService().registerSample(attachmentsSessionKey, newSample,

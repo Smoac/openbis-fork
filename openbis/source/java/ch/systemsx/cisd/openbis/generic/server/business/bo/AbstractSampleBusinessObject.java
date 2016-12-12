@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
@@ -146,6 +147,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 tryFindExperiment(experimentCacheOrNull, experimentIdentifier,
                         newSample.getDefaultSpaceIdentifier());
         updateModifierAndModificationDate(experimentPE);
+
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
@@ -153,6 +155,14 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setRegistrator(registrator);
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
+
+        String projectIdentifier = newSample.getProjectIdentifier();
+        if (projectIdentifier != null)
+        {
+            ProjectPE project = findProject(new ProjectIdentifierFactory(projectIdentifier).createIdentifier());
+            samplePE.setProject(project);
+        }
+
         RelationshipUtils.updateModificationDateAndModifier(samplePE, registrator, getTransactionTimeStamp());
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifierForNewSample();

@@ -24,10 +24,14 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -40,9 +44,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
@@ -59,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -91,6 +98,10 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected String simpleId;
 
+    private String initialProjectIdentifierOrNull;
+
+    protected ProjectSelectionWidget projectChooser;
+
     protected ExperimentChooserFieldAdaptor experimentField;
 
     private ExperimentIdentifier initialExperimentIdentifierOrNull;
@@ -111,6 +122,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private Sample parentOrNull;
 
+    private boolean projectSamplesEnabled;
+
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext,
             Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
@@ -127,9 +140,10 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         super(viewContext, inputWidgetDescriptions, identifiable, EntityKind.SAMPLE);
         this.simpleId = createSimpleId(identifiable, EntityKind.SAMPLE);
         this.attachmentsSessionKey = simpleId + "_attachments";
-        List<String> sesionKeys = new ArrayList<String>();
-        sesionKeys.add(attachmentsSessionKey);
-        addUploadFeatures(sesionKeys);
+        List<String> sessionKeys = new ArrayList<String>();
+        sessionKeys.add(attachmentsSessionKey);
+        this.projectSamplesEnabled = viewContext.getModel().getApplicationInfo().isProjectSamplesEnabled();
+        addUploadFeatures(sessionKeys);
         extractInitialValues(actionContext);
         saveUploadButton = createSaveAndUploadButton();
         ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
@@ -163,8 +177,30 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     private ExperimentChooserFieldAdaptor createExperimentField()
     {
         String label = viewContext.getMessage(Dict.EXPERIMENT);
-        return ExperimentChooserField.create(label, false, initialExperimentIdentifierOrNull,
+        ExperimentChooserFieldAdaptor experimentField = ExperimentChooserField.create(label, false, initialExperimentIdentifierOrNull,
                 viewContext.getCommonViewContext());
+
+        experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
+        experimentField.getChooserField().addChosenEntityListener(
+                new IChosenEntitiesListener<TableModelRowWithObject<Experiment>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Experiment>> entities)
+                        {
+                            if (entities.isEmpty() == false)
+                            {
+                                groupSelectionWidget.setValue(new SpaceModel(entities.get(0)
+                                        .getObjectOrNull().getProject().getSpace()));
+                                if (projectChooser != null)
+                                {
+                                    projectChooser.setValue(new ProjectSelectionWidget.ProjectComboModel(entities.get(0)
+                                            .getObjectOrNull().getProject(), true));
+                                }
+                            }
+                        }
+                    });
+        return experimentField;
     }
 
     @Override
@@ -245,7 +281,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                     {
                         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
                                 .getCommonViewContext())
-                                .getDataSetUploadTab(sampleIdentifierForUploadOrNull));
+                                        .getDataSetUploadTab(sampleIdentifierForUploadOrNull));
                     }
                     sampleIdentifierForUploadOrNull = null;
                 }
@@ -276,6 +312,10 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(wrapUnaware(experimentField.getField()));
+        if (projectSamplesEnabled)
+        {
+            fields.add(projectChooser.asDatabaseModificationAware());
+        }
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
         fields.add(wrapUnaware(parentsArea));
         fields.add(wrapUnaware(parentButton.getField()));
@@ -327,13 +367,101 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 new SpaceSelectionWidget(viewContext, getId(), true, false, initialSpaceCodeOrNull);
         groupSelectionWidget.setId("register-sample-space-selection");
         FieldUtil.markAsMandatory(groupSelectionWidget);
+
+        if (projectSamplesEnabled)
+        {
+            projectChooser =
+                    new ProjectSelectionWidget(viewContext, simpleId, initialProjectIdentifierOrNull);
+            projectChooser.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
+            projectChooser.addSelectionChangedListener(new SelectionChangedListener<ProjectSelectionWidget.ProjectComboModel>()
+                {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ProjectSelectionWidget.ProjectComboModel> se_)
+                    {
+                        final SelectionChangedEvent<ProjectSelectionWidget.ProjectComboModel> se = se_;
+                        Scheduler.get().scheduleDeferred(new ScheduledCommand()
+                            {
+                                @Override
+                                public void execute()
+                                {
+
+                                    if (se.getSelectedItem() == null)
+                                    {
+                                        return;
+                                    }
+
+                                    Project project = se.getSelectedItem().get(ModelDataPropertyNames.OBJECT);
+                                    ExperimentIdentifier currentExperiment = experimentField.tryToGetValue();
+                                    if (currentExperiment != null
+                                            && currentExperiment.getIdentifier().startsWith(project.getIdentifier() + "/") == false)
+                                    {
+                                        experimentField.getChooserField().setValue(null);
+                                    }
+
+                                    SpaceModel currentSpace = groupSelectionWidget.getValue();
+                                    String currentSpaceCode = null;
+                                    if (currentSpace != null)
+                                    {
+                                        currentSpaceCode = currentSpace.getBaseObject().getCode();
+                                    }
+
+                                    String newSpaceCode = project.getSpace().getCode();
+
+                                    if (currentSpace == null || currentSpaceCode.equals(newSpaceCode) == false)
+                                    {
+                                        groupSelectionWidget.setValue(new SpaceModel(project.getSpace()));
+                                    }
+                                }
+                            });
+                    }
+                });
+            FieldUtil.setMandatoryFlag(projectChooser, false);
+        }
+
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
+        groupSelectionWidget.addSelectionChangedListener(new SelectionChangedListener<SpaceModel>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<SpaceModel> se_)
+                {
+                    final SelectionChangedEvent<SpaceModel> se = se_;
+
+                    Scheduler.get().scheduleDeferred(new ScheduledCommand()
+                        {
+                            @Override
+                            public void execute()
+                            {
+                                ExperimentIdentifier currentExperiment = experimentField.tryToGetValue();
+                                if (currentExperiment != null
+                                        && currentExperiment.getIdentifier()
+                                                .startsWith("/" + se.getSelectedItem().getBaseObject().getCode() + "/") == false)
+                                {
+                                    experimentField.getChooserField().setValue(null);
+                                }
+
+                                if (projectChooser != null && projectChooser.getValue() != null &&
+                                        ((Project) projectChooser.getValue().get(ModelDataPropertyNames.OBJECT)).getSpace().getCode() != se
+                                                .getSelectedItem().getBaseObject().getCode())
+                                {
+                                    String currentProjectSpace =
+                                            ((Project) projectChooser.getValue().get(ModelDataPropertyNames.OBJECT)).getSpace().getCode();
+                                    String newSpace = se.getSelectedItem().getBaseObject().getCode();
+                                    if (currentProjectSpace.equals(newSpace) == false)
+                                    {
+                                        projectChooser.setValue(null);
+                                    }
+                                }
+                            }
+                        });
+                }
+            });
         parentButton =
                 SampleChooserButton.create(null, viewContext.getMessage(Dict.ADD_PARENT), true,
                         false, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_PARENT,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
-                                .withSuffix(getSampleTypeCode()), true);
+                                .withSuffix(getSampleTypeCode()),
+                        true);
         parentsArea = new ParentSamplesArea(viewContext, getId());
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
         parentChooserButton
@@ -353,23 +481,9 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         true, false, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_CONTAINER,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_CONTAINER_CHOOSER
-                                .withSuffix(getSampleTypeCode()), false);
+                                .withSuffix(getSampleTypeCode()),
+                        false);
         experimentField = createExperimentField();
-        experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
-        experimentField.getChooserField().addChosenEntityListener(
-                new IChosenEntitiesListener<TableModelRowWithObject<Experiment>>()
-                    {
-                        @Override
-                        public void entitiesChosen(
-                                List<TableModelRowWithObject<Experiment>> entities)
-                        {
-                            if (entities.isEmpty() == false)
-                            {
-                                groupSelectionWidget.setValue(new SpaceModel(entities.get(0)
-                                        .getObjectOrNull().getProject().getSpace()));
-                            }
-                        }
-                    });
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {

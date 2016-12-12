@@ -474,6 +474,7 @@ public abstract class AbstractClientService implements IClientService,
         applicationInfo.setCustomImports(extractCustomImportProperties());
         applicationInfo.setWebapps(extractWebAppsProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
+        applicationInfo.setProjectSamplesEnabled(isProjectSamplesEnabled());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
     }
@@ -545,6 +546,18 @@ public abstract class AbstractClientService implements IClientService,
         try
         {
             return getServer().isArchivingConfigured(getSessionToken());
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        }
+        return false;
+    }
+
+    private boolean isProjectSamplesEnabled()
+    {
+        try
+        {
+            return getServer().isProjectSamplesEnabled(getSessionToken());
         } catch (InvalidSessionException e)
         {
             // ignored

@@ -350,6 +350,13 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
+    public boolean isProjectSamplesEnabled(String sessionToken)
+    {
+        // Do not log that
+        return false;
+    }
+
+    @Override
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
             int maxEntityVisits)
     {
@@ -400,8 +407,7 @@ public abstract class AbstractServerLogger implements IServer
     @Override
     public void setSessionUser(String sessionToken, String userID)
     {
-        logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[]
-        { userID });
+        logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[] { userID });
     }
 
     public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)

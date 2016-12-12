@@ -55,6 +55,12 @@ public interface IServer extends ISessionProvider
     public boolean isArchivingConfigured(final String sessionToken);
 
     /**
+     * @return 'true' if project samples are enabled.
+     */
+    @Transactional(readOnly = true)
+    public boolean isProjectSamplesEnabled(final String sessionToken);
+
+    /**
      * Tries to authenticate the specified user with given password.
      * 
      * @return <code>null</code> if authentication failed.
@@ -127,8 +133,7 @@ public interface IServer extends ISessionProvider
      * Deactivates specified persons.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.PERSON, ObjectKind.AUTHORIZATION_GROUP, ObjectKind.ROLE_ASSIGNMENT })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.PERSON, ObjectKind.AUTHORIZATION_GROUP, ObjectKind.ROLE_ASSIGNMENT })
     public void deactivatePersons(String sessionToken, List<String> personsCodes);
 
     /**

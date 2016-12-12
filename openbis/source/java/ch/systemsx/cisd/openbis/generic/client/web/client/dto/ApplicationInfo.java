@@ -45,6 +45,8 @@ public final class ApplicationInfo implements IsSerializable
 
     private boolean archivingConfigured;
 
+    private boolean projectSamplesEnabled;
+
     private WebClientConfiguration webClientConfiguration;
 
     private Set<String> enabledTechnologies;
@@ -165,6 +167,16 @@ public final class ApplicationInfo implements IsSerializable
         {
             return webapps;
         }
+    }
+
+    public boolean isProjectSamplesEnabled()
+    {
+        return projectSamplesEnabled;
+    }
+
+    public void setProjectSamplesEnabled(boolean projectSamplesEnabled)
+    {
+        this.projectSamplesEnabled = projectSamplesEnabled;
     }
 
 }
