@@ -43,12 +43,13 @@ task createOpenbisJar(type: Jar) {
     archiveName = openbisClientJarName
     destinationDir = file(jarsToBeSignedFolder)
     outputs.file new File(jarsToBeSignedFolder, archiveName)
-    from zipTree(project(':common').jar.archivePath).plus(
+    from zipTree(project(':commonbase').jar.archivePath).plus(
+         zipTree(project(':common').jar.archivePath).plus(
          zipTree(project(':openbis-common').jar.archivePath).plus( 
          zipTree(project(':openbis_api').jar.archivePath).plus( 
          zipTree(project(':datastore_server').jar.archivePath).plus( 
          zipTree(project(':screening').jar.archivePath).plus( 
-         zipTree(project(':openbis').jar.archivePath)))))).matching {
+         zipTree(project(':openbis').jar.archivePath))))))).matching {
             include '**/ch/systemsx/cisd/common/**/*.class'
             include '**/ch/systemsx/cisd/openbis/common/**/*.class'
             include '**/ch/systemsx/cisd/openbis/generic/client/api/**/*.class'
@@ -72,11 +73,12 @@ task createDssClientJar(type: Jar) {
     destinationDir = file(jarsToBeSignedFolder)
     outputs.file new File(jarsToBeSignedFolder, archiveName)
     
-    from (project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+    from (project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
+          project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
           project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
           project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
           project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
-          project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree())))).matching {
+          project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
         include 'ch/systemsx/cisd/common/**/*.class'    
         include 'ch/systemsx/cisd/openbis/common/**/*.class'
         include 'ch/systemsx/cisd/openbis/generic/shared/**/*.class'
