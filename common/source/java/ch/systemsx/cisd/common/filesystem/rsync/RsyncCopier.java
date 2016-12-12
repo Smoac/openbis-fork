@@ -748,7 +748,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 operationLog.debug(String.format("Running command '%s'", commandLine));
             }
             processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
+                    ProcessExecutionHelper.runNonblocking(commandLine, operationLog, machineLog,
                             ProcessIOStrategy.DEFAULT_IO_STRATEGY, stdoutHandlerOrNull, stderrHandlerOrNull);
             rsyncTerminator.set(processHandler);
         }
@@ -757,7 +757,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             operationLog.trace(String.format("Waiting for process of command '%s' to finish.",
                     commandLine));
         }
-        final ProcessResult processResult = processHandler.getResult(millisToWaitForCompletion);
+        final ProcessResult processResult = processHandler.getResult(millisToWaitForCompletion, false);
         processResult.log();
         return processResult;
     }
