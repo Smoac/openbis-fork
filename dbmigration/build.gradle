@@ -1,3 +1,4 @@
+evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 
 apply from: '../gradle/javaproject.gradle'
