@@ -118,6 +118,8 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(dao).listDataSetFilesWithUnkownChecksum();
                     will(returnValue(Arrays.asList(e4, e2, e3, e1)));
 
+                    one(dao).commit();
+                    
                     one(contentProvider).asContentWithoutModifyingAccessTimestamp("1");
                     will(returnValue(content1));
 

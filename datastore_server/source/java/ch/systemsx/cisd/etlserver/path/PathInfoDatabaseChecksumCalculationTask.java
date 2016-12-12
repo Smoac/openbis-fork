@@ -78,22 +78,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
     @Override
     public void execute()
     {
-        List<PathEntryDTO> entries = dao.listDataSetFilesWithUnkownChecksum();
-        Map<String, List<PathEntryDTO>> entriesOrderedByDataSets =
-                new TreeMap<String, List<PathEntryDTO>>();
-        for (PathEntryDTO pathEntryDTO : entries)
-        {
-            String dataSetCode = pathEntryDTO.getDataSetCode();
-            List<PathEntryDTO> list = entriesOrderedByDataSets.get(dataSetCode);
-            if (list == null)
-            {
-                list = new ArrayList<PathEntryDTO>();
-                entriesOrderedByDataSets.put(dataSetCode, list);
-            }
-            list.add(pathEntryDTO);
-        }
-        operationLog.info("Start calculating checksums of " + entries.size() + " files in "
-                + entriesOrderedByDataSets.size() + " data sets.");
+        Map<String, List<PathEntryDTO>> entriesOrderedByDataSets = getPathEntries();
 
         Set<Entry<String, List<PathEntryDTO>>> entrySet = entriesOrderedByDataSets.entrySet();
         int dataSetCounter = 0;
@@ -135,6 +120,28 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
         }
         operationLog.info("Checksums of " + fileCounter + " files in " + dataSetCounter
                 + " data sets have been calculated.");
+    }
+
+    private Map<String, List<PathEntryDTO>> getPathEntries()
+    {
+        List<PathEntryDTO> entries = dao.listDataSetFilesWithUnkownChecksum();
+        Map<String, List<PathEntryDTO>> entriesOrderedByDataSets =
+                new TreeMap<String, List<PathEntryDTO>>();
+        for (PathEntryDTO pathEntryDTO : entries)
+        {
+            String dataSetCode = pathEntryDTO.getDataSetCode();
+            List<PathEntryDTO> list = entriesOrderedByDataSets.get(dataSetCode);
+            if (list == null)
+            {
+                list = new ArrayList<PathEntryDTO>();
+                entriesOrderedByDataSets.put(dataSetCode, list);
+            }
+            list.add(pathEntryDTO);
+        }
+        dao.commit(); // Needed because DAO is a TransactionQuery. Otherwise there will be an idle connection
+        operationLog.info("Start calculating checksums of " + entries.size() + " files in "
+                + entriesOrderedByDataSets.size() + " data sets.");
+        return entriesOrderedByDataSets;
     }
 
 }

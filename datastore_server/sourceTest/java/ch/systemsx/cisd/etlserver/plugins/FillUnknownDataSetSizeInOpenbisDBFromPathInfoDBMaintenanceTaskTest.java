@@ -198,6 +198,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Collections.emptyList()));
+                    
+                    one(dao).commit();
 
                     one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
@@ -223,6 +225,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(null));
+                    
+                    one(dao).commit();
 
                     one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
@@ -250,6 +254,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                             with(containsExactly(dataSet1.getDataSetCode(), dataSet2.getDataSetCode(), dataSet3
                                     .getDataSetCode())));
                     will(returnValue(Arrays.asList(entry1, entry2)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -283,6 +289,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     one(dao).listDataSetsSize(
                             with(containsExactly(dataSet1.getDataSetCode(), dataSet2.getDataSetCode())));
                     will(returnValue(Arrays.asList(entry1, entry2)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -294,6 +302,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet3.getDataSetCode() });
                     will(returnValue(Collections.emptyList()));
+                    
+                    one(dao).commit();
 
                     one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, dataSet3.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
@@ -322,6 +332,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry1)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -373,6 +385,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry1)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -387,6 +401,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet2.getDataSetCode() });
                     will(returnValue(Collections.emptyList()));
+                    
+                    one(dao).commit();
 
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(12L));
@@ -418,6 +434,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry1)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -457,6 +475,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(with(containsExactly(dataSet2.getDataSetCode(), dataSet3.getDataSetCode())));
                     will(returnValue(Arrays.asList(entry2)));
+                    
+                    one(dao).commit();
 
                     one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet3.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
@@ -495,6 +515,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(with(containsExactly(dataSet1.getDataSetCode(), dataSet2.getDataSetCode(), dataSet3.getDataSetCode())));
                     will(returnValue(Arrays.asList(entry1, entry2)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -547,6 +569,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry1)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -579,6 +603,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry1)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
@@ -590,6 +616,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet4.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry4)));
+                    
+                    one(dao).commit();
 
                     sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet4.getDataSetCode(), entry4.getSizeInBytes());
@@ -628,6 +656,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
                     one(dao).listDataSetsSize(new String[] { dataSet4.getDataSetCode() });
                     will(returnValue(Arrays.asList(entry4)));
+                    
+                    one(dao).commit();
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
                     sizeMap.put(dataSet4.getDataSetCode(), entry4.getSizeInBytes());
