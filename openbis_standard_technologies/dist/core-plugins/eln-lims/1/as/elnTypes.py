@@ -700,7 +700,7 @@ OLIGO = [FIRST_TIME_VERSIONED, True, "OLIGO", "", [
         [FIRST_TIME_VERSIONED, "DIRECTION",                 "Details",            "Direction",                DataType.CONTROLLEDVOCABULARY, "DIRECTION",            "Direction of the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "RESTRICTION_ENZYME",         "Details",            "Restriction Enzyme",        DataType.MULTILINE_VARCHAR,        None,                "Restriction sites in the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "MODIFICATIONS",             "Details",            "Modifications",            DataType.MULTILINE_VARCHAR,        None,                "Modifications of the ordered oligonucleotide", None, None],
-        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",            "Sequence",                    DataType.VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
+        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",            "Sequence",                    DataType.MULTILINE_VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "XMLCOMMENTS",             "Comments",            "Comments List",            DataType.XML,                    None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
         [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", "ANNOTATIONS_OLIGO", None]
     ]];
@@ -713,7 +713,7 @@ RNA = [FIRST_TIME_VERSIONED, True, "RNA", "", [
         [FIRST_TIME_VERSIONED, "STRAND",                     "Details",                "Strand",                DataType.CONTROLLEDVOCABULARY,    "STRAND",            "Double or single strand RNA", None, None],
         [FIRST_TIME_VERSIONED, "BACKBONE_TYPE",             "Details",                "Backbone type",        DataType.CONTROLLEDVOCABULARY,    "RNA_BACKBONE",        "Type of backbone, modifications in the backbone", None, None],
         [FIRST_TIME_VERSIONED, "MODIFICATIONS",             "Details",                "Modifications",        DataType.VARCHAR,                None,                "Modifications of the ordered oligonucleotide", None, None],
-        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",                "Sequence",                DataType.VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
+        [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",                "Sequence",                DataType.MULTILINE_VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "SUPPLIER",                 "Supplier and storage",    "Supplier",                DataType.MULTILINE_VARCHAR,        None,                "Supplier of the product", None, None],
         [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",             "Supplier and storage",    "Art. Number",            DataType.MULTILINE_VARCHAR,        None,                "Article number of the product", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",                 "Supplier and storage",    "Storage",                DataType.CONTROLLEDVOCABULARY,    "STORAGE",            "Storage conditions of the product", None, None],
