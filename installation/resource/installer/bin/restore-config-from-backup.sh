@@ -4,8 +4,8 @@
 
 CONF=$1
 if [ "$CONF" == "" ]; then
-	echo Error: directory from which configuration should be restored has not been specified! 
-	exit 1
+  echo Error: directory from which configuration should be restored has not been specified! 
+  exit 1
 fi
 
 if [ -n "$(readlink $0)" ]; then
@@ -47,6 +47,7 @@ if [ -d $ROOT/openBIS-server ]; then
     copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
     copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
     copyIfExists $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc/
+    copyConfig $CONF/core-plugins "html/etc$" $ROOT/core-plugins
     copyFolderIfExists $CONF/start.d $ROOT/openBIS-server/jetty/start.d
 fi
 
@@ -57,10 +58,3 @@ cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
 copyIfExists $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
 copyIfExists $CONF/ext-lib $ROOT/datastore_server 
-
-# -- ELN-LIMS
-if [ -d $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-	if [ -d $CONF/../eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-		cp $CONF/../eln-lims/1/as/webapps/eln-lims/html/etc/* $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc/
-	fi
-fi
