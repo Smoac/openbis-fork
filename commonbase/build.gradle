@@ -1,0 +1,25 @@
+apply from: '../gradle/javaproject.gradle'
+
+dependencies {
+    compile 'apache:commons-io:+',
+            'apache:commons-lang:+',
+			'apache:log4j:+',
+            'sis:sis-base:+',
+	        'rinn:restrictions:+'
+
+	testCompile 'fjelmer:classycle:+',
+				'hamcrest:hamcrest-integration:+',
+				'hamcrest:hamcrest-library:+',
+				'testng:testng:+',
+				'jmock:jmock:+'
+} 
+
+sourceCompatibility='1.6'
+targetCompatibility='1.6'
+
+jar {
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
+}
+

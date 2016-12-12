@@ -1,0 +1,38 @@
+{package} = ch.systemsx.cisd.common
+
+[exception] = ${package}.exceptions.*
+check sets [exception]
+
+[collection] = ${package}.collection.*
+check sets [collection]
+
+[logging] = ${package}.logging.*
+check sets [logging]
+
+[parser] = ${package}.parser.*
+check sets [parser]
+
+[properties] = ${package}.properties.*
+check sets [properties]
+
+[io] = ${package}.io.*
+check sets [io]
+
+[reflection] = ${package}.reflection.*
+check sets [reflection]
+
+[process] = ${package}.process.*
+check sets [process]
+
+layer layer0 = [logging] [reflection]
+layer layer1 = [exception]  
+layer layer2 = [collection]  
+layer layer2b = [properties]
+layer layer3 = [process]
+layer layer4 = [io]
+layer layer5 = [parser]
+
+check layeringOf layer0 layer1 layer2 layer2b layer3 layer4 layer5
+
+check [parser] independentOf ${package}.exceptions.UserFailureException
+
