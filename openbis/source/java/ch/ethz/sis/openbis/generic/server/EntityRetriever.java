@@ -561,7 +561,8 @@ public class EntityRetriever
     {
         DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
+        // withPropertyAssignments.withPropertyType();
 
         SearchResult<DataSetType> searchResult = v3Api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
         return searchResult.getObjects();
@@ -571,7 +572,7 @@ public class EntityRetriever
     {
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
         SearchResult<SampleType> searchResult = v3Api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
         return searchResult.getObjects();
@@ -581,7 +582,7 @@ public class EntityRetriever
     {
         ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
         SearchResult<ExperimentType> searchResult = v3Api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
         return searchResult.getObjects();
@@ -591,7 +592,7 @@ public class EntityRetriever
     {
         MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
         SearchResult<MaterialType> searchResult = v3Api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
         return searchResult.getObjects();
