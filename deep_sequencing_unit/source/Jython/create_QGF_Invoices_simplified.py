@@ -131,12 +131,12 @@ def getVocabulary(service, vocabularyCode):
 
 
 def identify_sequencer(sequencer_code):
-    sequencer_map = {"M": "MiSeq", "NS": "NextSeq"}
+    sequencer_map = {"M": "MiSeq", "N": "NextSeq"}
     if (sequencer_code[0] in sequencer_map):
         return sequencer_map[sequencer_code[0]]
     else:
         return "HiSeq"
-
+    
 
 def merge_two_dicts(x, y):
     '''Given two dicts, merge them into a new dict as a shallow copy.'''
