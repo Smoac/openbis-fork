@@ -61,7 +61,18 @@ task compileGWTToTemp(type: JavaExec, dependsOn: prepareGWT) {
 
     main = 'com.google.gwt.dev.Compiler'
     maxHeapSize = '1024m'
-    classpath { configurations.getByName('gwt') }
+    classpath {
+      [
+        sourceSets.main.java.srcDirs,   
+        project(":openbis").sourceSets.main.java.srcDirs,
+        project(":openbis").sourceSets.main.output.resourcesDir,
+        project(":openbis").sourceSets.main.output.classesDir,
+        project(":openbis").sourceSets.main.compileClasspath,
+        project(":common").sourceSets.main.java.srcDirs,
+        project(":openbis_api").sourceSets.main.java.srcDirs,
+        configurations.gwt
+      ]   
+    }
     args = [ '-war',
              'targets/www/gwt-temp',
              "ch.systemsx.cisd.openbis.OpenBISSafari",
