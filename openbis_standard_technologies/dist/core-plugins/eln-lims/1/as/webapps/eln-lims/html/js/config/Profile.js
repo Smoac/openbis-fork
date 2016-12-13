@@ -114,7 +114,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.isAdmin = false;
 		
-		this.forcedDisableRTF = ["NAME", "SEQUENCE"];
+		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.isForcedDisableRTF = function(propertytype) {
 			return (propertytype && $.inArray(propertytype.code, this.forcedDisableRTF) !== -1);
 		}

@@ -134,9 +134,11 @@ def getProperties(tr, parameters):
 	properties = infService.listPropertyTypes(sessionToken, False);
 	return properties
 
+rtpropertiesToIgnore = ["FREEFORM_TABLE_STATE", "NAME", "SEQUENCE"];
+
 def isPropertyRichText(properties, propertyCode):
 	for property in properties:
-		if property.getCode() == propertyCode and property.getCode() != "FREEFORM_TABLE_STATE":
+		if property.getCode() == propertyCode and property.getCode() not in rtpropertiesToIgnore:
 			return property.getDataType() == DataTypeCode.MULTILINE_VARCHAR;
 	return None;
 
