@@ -153,7 +153,7 @@ public class OperationExecutionStoreTest
                     addDefaultProgressConfigExpectations();
                     addDefaultAvailabilityConfigExpectations();
 
-                    oneOf(executionConfig).getStorePath();
+                    allowing(executionConfig).getStorePath();
                     will(returnValue(STORE_PATH));
 
                     oneOf(executionDAO).findPersonById(context.getSession().tryGetPerson().getId());
@@ -503,7 +503,7 @@ public class OperationExecutionStoreTest
                 }
             });
         store.init();
-        
+
         stores.add(store);
         return store;
     }
@@ -515,12 +515,12 @@ public class OperationExecutionStoreTest
 
     private File getExecutionDirectory()
     {
-        return new File(STORE_PATH + "/" + executionId.getPermId());
+        return new OperationExecutionDirectory(STORE_PATH, executionId.getPermId()).getFile();
     }
 
     private void assertExecutionDirectoryExistsWithFiles(boolean exists, String... expectedFileNames)
     {
-        File directory = new File(STORE_PATH + "/" + executionId.getPermId());
+        File directory = getExecutionDirectory();
         assertEquals(directory.exists(), exists);
 
         String[] actualFileNames = directory.list() != null ? directory.list() : new String[] {};

@@ -49,7 +49,7 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
 
     @Override
     public void executionNew(String code, Long owner, String description, String notification, List<String> operations, long availabilityTime,
-            long summaryAvailabilityTime, long detailsAvailabilityTime)
+            long summaryAvailabilityTime, long detailsAvailabilityTime, String detailsPath)
     {
         OperationExecutionPE executionPE = new OperationExecutionPE();
 
@@ -67,6 +67,7 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
 
         executionPE.setDetailsAvailability(initialAvailability(detailsAvailabilityTime));
         executionPE.setDetailsAvailabilityTime(detailsAvailabilityTime);
+        executionPE.setDetailsPath(detailsPath);
 
         try
         {

@@ -29,6 +29,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResul
 public class OperationExecutionFS
 {
 
+    private String relativePath;
+
     private List<? extends IOperation> operations;
 
     private IOperationExecutionProgress progress;
@@ -36,6 +38,16 @@ public class OperationExecutionFS
     private IOperationExecutionError error;
 
     private List<? extends IOperationResult> results;
+
+    public void setRelativePath(String relativePath)
+    {
+        this.relativePath = relativePath;
+    }
+
+    public String getRelativePath()
+    {
+        return relativePath;
+    }
 
     public void setOperations(List<? extends IOperation> operations)
     {

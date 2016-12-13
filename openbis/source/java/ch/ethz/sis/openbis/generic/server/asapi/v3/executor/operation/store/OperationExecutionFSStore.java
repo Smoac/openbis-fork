@@ -69,7 +69,7 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
     @Override
     public void executionNew(String code, List<? extends IOperation> operations)
     {
-        File dir = getExecutionDirectory(code);
+        File dir = getExecutionDirectory(code).getFile();
         dir.mkdirs();
         File file = new File(dir, OPERATIONS_FILE_NAME);
         writeToFile(file, operations, true);
@@ -82,7 +82,7 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
         // maintenance task or an explicit cleanup request (progress is reported with some delay by a different thread - other than the execution
         // thread). Therefore we should not fail when the execution directory no longer exists.
 
-        File dir = getExecutionDirectory(code);
+        File dir = getExecutionDirectory(code).getFile();
         File file = new File(dir, PROGRESS_FILE_NAME);
 
         writeToFile(file, progress, false);
@@ -91,7 +91,7 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
     @Override
     public void executionFailed(String code, IOperationExecutionError error)
     {
-        File dir = getExecutionDirectory(code);
+        File dir = getExecutionDirectory(code).getFile();
         File file = new File(dir, ERROR_FILE_NAME);
         writeToFile(file, error, true);
     }
@@ -99,7 +99,7 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
     @Override
     public void executionFinished(String code, List<? extends IOperationResult> results)
     {
-        File dir = getExecutionDirectory(code);
+        File dir = getExecutionDirectory(code).getFile();
         File file = new File(dir, RESULTS_FILE_NAME);
         writeToFile(file, results, true);
     }
@@ -109,7 +109,7 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
     {
         if (OperationExecutionAvailability.DELETED.equals(availability) || OperationExecutionAvailability.TIMED_OUT.equals(availability))
         {
-            File dir = getExecutionDirectory(code);
+            File dir = getExecutionDirectory(code).getFile();
 
             if (dir.exists())
             {
@@ -144,39 +144,40 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
         // not fail when the execution directory no longer exists.
 
         OperationExecutionFS execution = new OperationExecutionFS();
+        OperationExecutionDirectory executionDir = getExecutionDirectory(code);
 
-        File dir = getExecutionDirectory(code);
+        execution.setRelativePath(executionDir.getRelativePath());
 
         if (fo.hasOperations())
         {
-            File file = new File(dir, OPERATIONS_FILE_NAME);
+            File file = new File(executionDir.getFile(), OPERATIONS_FILE_NAME);
             execution.setOperations((List<? extends IOperation>) readFromFile(file, false));
         }
 
         if (fo.hasProgress())
         {
-            File file = new File(dir, PROGRESS_FILE_NAME);
+            File file = new File(executionDir.getFile(), PROGRESS_FILE_NAME);
             execution.setProgress((IOperationExecutionProgress) readFromFile(file, false));
         }
 
         if (fo.hasError())
         {
-            File file = new File(dir, ERROR_FILE_NAME);
+            File file = new File(executionDir.getFile(), ERROR_FILE_NAME);
             execution.setError((IOperationExecutionError) readFromFile(file, false));
         }
 
         if (fo.hasResults())
         {
-            File file = new File(dir, RESULTS_FILE_NAME);
+            File file = new File(executionDir.getFile(), RESULTS_FILE_NAME);
             execution.setResults((List<? extends IOperationResult>) readFromFile(file, false));
         }
 
         return execution;
     }
 
-    private File getExecutionDirectory(String code)
+    private OperationExecutionDirectory getExecutionDirectory(String code)
     {
-        return new File(new File(config.getStorePath()), code);
+        return new OperationExecutionDirectory(config.getStorePath(), code);
     }
 
     private void writeToFile(File file, Object object, boolean failOnFileNotFound)

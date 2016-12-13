@@ -195,9 +195,11 @@ public class OperationExecutionStore implements IOperationExecutionStore, Applic
         int summaryAvailabilityTime = config.getSummaryAvailabilityTimeOrDefault(options.getSummaryAvailabilityTime());
         int detailsAvailabilityTime = config.getDetailsAvailabilityTimeOrDefault(options.getDetailsAvailabilityTime());
 
+        OperationExecutionFS executionFS = fsStore.getExecution(executionId.getPermId(), new OperationExecutionFSFetchOptions());
+
         dbStore.executionNew(executionId.getPermId(), context.getSession().tryGetPerson().getId(), options.getDescription(),
                 translateNotification(executionId, options.getNotification()), operationsMessages,
-                availabilityTime, summaryAvailabilityTime, detailsAvailabilityTime);
+                availabilityTime, summaryAvailabilityTime, detailsAvailabilityTime, executionFS.getRelativePath());
         fsStore.executionNew(executionId.getPermId(), operations);
         notifier.executionNew(executionId.getPermId(), options.getNotification());
 

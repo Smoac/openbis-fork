@@ -29,7 +29,7 @@ public interface IOperationExecutionDBStore
 {
 
     void executionNew(String code, Long owner, String description, String notification, List<String> operations, long availabilityTime,
-            long summaryAvailabilityTime, long detailsAvailabilityTime);
+            long summaryAvailabilityTime, long detailsAvailabilityTime, String detailsPath);
 
     void executionScheduled(String code);
 
