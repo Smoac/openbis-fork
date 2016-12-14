@@ -65,12 +65,12 @@ var SampleDataGridUtil = new function() {
 			sortable : false
 		});
 		
-		columnsFirst.push({
-			label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
-			property : 'experiment',
-			isExportable: true,
-			sortable : false
-		});
+//		columnsFirst.push({
+//			label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
+//			property : 'experiment',
+//			isExportable: true,
+//			sortable : false
+//		});
 		
 		columnsFirst.push({
 			label : 'Preview',
@@ -257,7 +257,7 @@ var SampleDataGridUtil = new function() {
 										'sampleTypeCode' : sample.sampleTypeCode,
 										'default_space' : sample.spaceCode,
 										'permId' : sample.permId,
-										'experiment' : sample.experimentIdentifierOrNull,
+//										'experiment' : sample.experimentIdentifierOrNull,
 										'registrationDate' : registrationDate,
 										'modificationDate' : modificationDate
 									};
@@ -289,7 +289,9 @@ var SampleDataGridUtil = new function() {
 				});
 			}
 			
-			var fetchOptions = {};
+			var fetchOptions = {
+					minTableInfo : true
+			};
 			
 			if(options) {
 				fetchOptions.count = options.pageSize;

@@ -743,20 +743,11 @@ function ServerFacade(openbisServer) {
 			
 				//Setting the fetchOptions given standard settings
 				var fetchOptions = new EntityFetchOptions();
-				if(fetchOptions.withTags) {
-					fetchOptions.withTags();
-				}
 				if(fetchOptions.withType) {
 					fetchOptions.withType();
 				}
 				if(fetchOptions.withSpace) {
 					fetchOptions.withSpace();
-				}
-				if(fetchOptions.withExperiment) {
-					fetchOptions.withExperiment();
-				}
-				if(fetchOptions.withSample) {
-					fetchOptions.withSample();
 				}
 				if(fetchOptions.withRegistrator) {
 					fetchOptions.withRegistrator();
@@ -764,18 +755,37 @@ function ServerFacade(openbisServer) {
 				if(fetchOptions.withModifier) {
 					fetchOptions.withModifier();
 				}
-				if(fetchOptions.withParents) {
-					fetchOptions.withParentsUsing(fetchOptions);
-				}
-				if(fetchOptions.withChildren) {
-					fetchOptions.withChildrenUsing(fetchOptions);
-				}
-				if(fetchOptions.withProjects) {
-					fetchOptions.withProjects();
-				}
 				if(fetchOptions.withProperties) {
 					fetchOptions.withProperties();
 				}
+				
+				//Optional fetchOptions
+				if(!advancedFetchOptions || !advancedFetchOptions.minTableInfo) {
+					if(fetchOptions.withProjects) {
+						fetchOptions.withProjects();
+					}
+					if(fetchOptions.withSample) {
+						fetchOptions.withSample();
+					}
+					if(fetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+					}
+					if(fetchOptions.withTags) {
+						fetchOptions.withTags();
+					}
+					if(fetchOptions.withParents) {
+						fetchOptions.withParentsUsing(fetchOptions);
+					}
+					if(fetchOptions.withChildren) {
+						fetchOptions.withChildrenUsing(fetchOptions);
+					}
+				} else if(advancedFetchOptions.minTableInfo) {
+					if(fetchOptions.withParents) {
+						fetchOptions.withParents();
+					}
+				}
+				
+				
 				
 				if(advancedFetchOptions && advancedFetchOptions.cache) {
 					fetchOptions.cacheMode(advancedFetchOptions.cache);
@@ -877,7 +887,9 @@ function ServerFacade(openbisServer) {
 				
 					switch(fieldType) {
 						case "All":
-							searchCriteria.withAnyField().thatContains(fieldValue);
+							if(fieldValue !== "*") {
+								searchCriteria.withAnyField().thatContains(fieldValue);
+							}
 							break;
 						case "Property":
 							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
