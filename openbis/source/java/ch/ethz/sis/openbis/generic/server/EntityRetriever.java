@@ -80,6 +80,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
 
 public class EntityRetriever 
 {
@@ -87,19 +89,28 @@ public class EntityRetriever
 
     private final IApplicationServerApi v3Api;
 
+    private final IMasterDataRegistrationTransaction masterDataRegistrationTransaction;
+
     private final String sessionToken;
 
     private static final int TIMEOUT = 10000;
 
-    private EntityRetriever(IApplicationServerApi v3Api, String sessionToken)
+    private EntityRetriever(IApplicationServerApi v3Api, String sessionToken, IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
         this.v3Api = v3Api;
         this.sessionToken = sessionToken;
+        this.masterDataRegistrationTransaction = masterDataRegistrationTransaction;
     }
     
+    public static EntityRetriever createWithMasterDataRegistationTransaction(IApplicationServerApi v3Api, String sessionToken,
+            IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
+    {
+        return new EntityRetriever(v3Api, sessionToken, masterDataRegistrationTransaction);
+    }
+
     public static EntityRetriever createWithSessionToken(IApplicationServerApi v3Api, String sessionToken)
     {
-        return new EntityRetriever(v3Api, sessionToken);
+        return new EntityRetriever(v3Api, sessionToken, null);
     }
 
     public EntityGraph<Node<?>> getEntityGraph(String spaceId)
@@ -557,12 +568,16 @@ public class EntityRetriever
         }
     }
 
+    public List<IPropertyTypeImmutable> listPropertyTypes()
+    {
+        return masterDataRegistrationTransaction.listPropertyTypes();
+    }
+
     private List<DataSetType> getDataSetTypes()
     {
         DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
-        // withPropertyAssignments.withPropertyType();
 
         SearchResult<DataSetType> searchResult = v3Api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
         return searchResult.getObjects();

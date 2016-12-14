@@ -15,10 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.ethz.sis.openbis.generic.server.EntityRetriever;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IRequestHandlerPluginScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationService;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -32,8 +40,19 @@ public class ResourceSyncRequestHandler extends JythonBasedRequestHandler
     protected void setVariables(IRequestHandlerPluginScriptRunner runner, SessionContextDTO session)
     {
         super.setVariables(runner, session);
-        String url = ServiceProvider.getConfigProvider().getOpenBisServerUrl() + properties.get("server-url");
+
+        String openBisUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
+        SslCertificateHelper.trustAnyCertificate(openBisUrl);
+        ICommonServer commonService =
+                HttpInvokerUtils.createServiceStub(ICommonServer.class, openBisUrl + "/openbis/rmi-common",
+                        5 * DateUtils.MILLIS_PER_MINUTE);
+
+        EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create(commonService, session.getSessionToken());
+        MasterDataRegistrationService service = new MasterDataRegistrationService(encapsulatedServer);
+        IMasterDataRegistrationTransaction masterDataRegistrationTransaction = service.transaction();
+
         runner.setVariable(V3_ENTITY_RETRIEVER_VARIABLE_NAME,
-                EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), session.getSessionToken()));
+                EntityRetriever.createWithMasterDataRegistationTransaction(ServiceProvider.getV3ApplicationService(), session.getSessionToken(),
+                        masterDataRegistrationTransaction));
     }
 }
