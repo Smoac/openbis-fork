@@ -479,6 +479,38 @@ var FormUtil = new function() {
 		return $btn;
 	}
 	
+	this.getShowHideButton = function($elementToHide, key) {
+		var $showHideButton = FormUtil.getButtonWithIcon('glyphicon-chevron-down', function() {
+			$elementToHide.slideToggle();
+			var $thisButton = $($(this).children()[0]);
+			
+			if($thisButton.hasClass("glyphicon-chevron-right")) {
+				$thisButton.removeClass("glyphicon-chevron-right");
+				$thisButton.addClass("glyphicon-chevron-down");
+				mainController.serverFacade.setSetting(key,"true");
+			} else {
+				$thisButton.removeClass("glyphicon-chevron-down");
+				$thisButton.addClass("glyphicon-chevron-right");
+				mainController.serverFacade.setSetting(key,"false");
+			}
+			
+		}, null, "Show/Hide section");
+		
+		mainController.serverFacade.getSetting(key, function(value) {
+			if(value === "false") {
+				var $thisButton = $($showHideButton.children()[0]);
+				$thisButton.removeClass("glyphicon-chevron-down");
+				$thisButton.addClass("glyphicon-chevron-right");
+				$elementToHide.toggle();
+			}
+		});
+		
+		$showHideButton.addClass("btn-showhide");
+		$showHideButton.css({ "border" : "none", "margin-bottom" : "4px", "margin-left" : "-11px" });
+		
+		return $showHideButton;
+	}
+	
 	this.getHierarchyButton = function(permId) {
 		var $hierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
 									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))

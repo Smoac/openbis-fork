@@ -410,11 +410,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Storage
 		//
 		if(isStorageAvailable) {
+			var $fieldsetOwner = $("<div>");
+			var $legend = $("<legend>").append("Storage");
 			var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
-			$formColumn.append($("<legend>").append("Storage"));
-			$formColumn.append(storageListContainer);
-			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);
+			$fieldsetOwner.append($legend);
+			$fieldsetOwner.append(storageListContainer);
+			$formColumn.append($fieldsetOwner);
+			
+			$legend.prepend(FormUtil.getShowHideButton(storageListContainer, "SAMPLE-" + this._sampleFormModel.sample.sampleTypeCode + "-storage"));
+			
+			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);	
 			storageListController.init(storageListContainer);
+			
 		}
 		
 		//
@@ -507,10 +514,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
+		var $fieldsetOwner = $('<div>');
 		var $fieldset = $('<div>');
-		var $legend = $('<legend>'); 
-		$fieldset.append($legend);
-			
+		var $legend = $('<legend>');
+		
+		$fieldsetOwner.append($legend).append($fieldset);
+		
 		if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
 			$legend.text(propertyTypeGroup.name);
 		} else if((i === 0) || ((i !== 0) && (sampleType.propertyTypeGroups[i-1].name !== null) && (sampleType.propertyTypeGroups[i-1].name !== ""))) {
@@ -629,7 +638,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$legend.remove();
 		}
 		
-		$formColumn.append($fieldset);
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + sampleTypeCode + "-" + propertyTypeGroup.name));
+		$formColumn.append($fieldsetOwner);
 			
 		return false;
 	}
@@ -639,9 +649,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Identification Info
 		//
-		$formColumn.append($("<legend>").append("Identification Info"));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName("/" + this._sampleFormModel.sample.spaceCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
+		var $fieldsetOwner = $("<div>");
+		var $legend = $("<legend>").append("Identification Info");
+		var $fieldset = $("<div>");
+		
+		$fieldsetOwner.append($legend);
+		$fieldsetOwner.append($fieldset);
+		
+		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
+		$fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName("/" + this._sampleFormModel.sample.spaceCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
 		
 		//
 		// Identification Info - Code
@@ -670,7 +686,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
 		}
 		
-		$formColumn.append($codeField);
+		$fieldset.append($codeField);
 		
 		//
 		// Identification Info - Registration and modification times
@@ -679,17 +695,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var registrationDetails = this._sampleFormModel.sample.registrationDetails;
 			
 			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
-			$formColumn.append($registrator);
+			$fieldset.append($registrator);
 			
 			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)))
-			$formColumn.append($registationDate);
+			$fieldset.append($registationDate);
 			
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
-			$formColumn.append($modifier);
+			$fieldset.append($modifier);
 			
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
-			$formColumn.append($modificationDate);
+			$fieldset.append($modificationDate);
 		}
+		
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + this._sampleFormModel.sample.sampleTypeCode + "-identificationInfo"));
+		$formColumn.append($fieldsetOwner);
 	}
 	
 	//
