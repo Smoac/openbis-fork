@@ -129,8 +129,14 @@ function LinksView(linksController, linksModel) {
 	}
 	
 	this.repaint = function($container) {
-		$savedContainer = $container;
+		var $fieldsetOwner = $("<div>");
+		var $legend = $("<legend>");
+		var $fieldset = $("<div>");
+		$fieldsetOwner.append($legend).append($fieldset);
+		
 		$container.empty();
+		$container.append($fieldsetOwner);
+		$savedContainer = $fieldset;
 		
 		var addAnyBtn = null;
 		if(linksModel.disableAddAnyType) {
@@ -139,8 +145,11 @@ function LinksView(linksController, linksModel) {
 			addAnyBtn = linksView.getAddAnyBtn();
 		}
 		
-		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(addAnyBtn).css("margin-top", "20px").css("margin-bottom", "20px"));
-		$container.append($samplePicker);
+		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
+		
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + linksModel.sampleTypeCode + "-" + linksModel.title));
+		
+		$fieldset.append($samplePicker);
 	}
 	
 	//

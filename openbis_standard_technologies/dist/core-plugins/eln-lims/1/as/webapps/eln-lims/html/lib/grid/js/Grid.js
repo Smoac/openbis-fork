@@ -679,8 +679,8 @@ $.extend(Grid.prototype, {
 				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
 				
 				// HACK: Fix that only works if there is only one table at a time (dont works Safari)
-				var newWidth = $(".repeater-list-wrapper > .table").width();
-				$(".repeater").width(newWidth);
+//				var newWidth = $(".repeater-list-wrapper > .table").width();
+//				$(".repeater").width(newWidth);
 				
 				var optionsDropdowns = $(".dropdown.table-options-dropdown");
 				for(var i = 0; i < optionsDropdowns.length; i++) {

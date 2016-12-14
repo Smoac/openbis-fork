@@ -328,7 +328,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			isDisabled,
 																			currentParentsLinks,
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
-																			parentsAnyTypeDisabled);
+																			parentsAnyTypeDisabled,
+																			sampleTypeCode);
 		if( !sampleTypeDefinitionsExtension || 
 				(!sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"] ||
 				!sampleTypeDefinitionsExtension.showParents) ||
@@ -363,7 +364,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															isDisabled,
 															currentChildrenLinks,
 															this._sampleFormModel.mode === FormMode.CREATE,
-															childrenAnyTypeDisabled);
+															childrenAnyTypeDisabled,
+															sampleTypeCode);
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}
