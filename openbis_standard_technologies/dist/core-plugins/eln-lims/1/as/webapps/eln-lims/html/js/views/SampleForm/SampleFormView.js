@@ -347,7 +347,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleChildrenWidgetId = "sampleChildrenWidgetId";
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
 		
-		if(this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.parents.length > 0)) {
+		if(this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.children.length > 0)) {
 			$formColumn.append($sampleChildrenWidget);
 		}
 			
