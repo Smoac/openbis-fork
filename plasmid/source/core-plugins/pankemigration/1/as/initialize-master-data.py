@@ -18,7 +18,7 @@
 ## Configuration
 ##
 #PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
-PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-panke/servers/core-plugins/pankemigration/1/compatibility/";
+PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-panke/servers/core-plugins/filemaker_migration/1/compatibility/";
 
 # MasterDataRegistrationTransaction Class
 import definitions
@@ -176,32 +176,23 @@ for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.ite
 ##
 ## Experiment Types
 ##
-createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", definitions.experimentDefinition);
-createExperimentTypeWithProperties("MATERIAL", "FOLDER FOR ORGANIZING MATERIALS SAMPLES", []);
-createExperimentTypeWithProperties("METHOD", "FOLDER FOR ORGANIZING METHODS SAMPLES", []);
+#createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", definitions.experimentDefinition);
+#createExperimentTypeWithProperties("MATERIAL", "FOLDER FOR ORGANIZING MATERIALS SAMPLES", []);
+#createExperimentTypeWithProperties("METHOD", "FOLDER FOR ORGANIZING METHODS SAMPLES", []);
 
-
+#createDatasetTypeWithProperties("SEQ_FILE", "Sequence fasta files", []);
+createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "Sequence fasta files", definitions.seqFileDefinition);
 ##
 ## Sample Types
 ##
-#annotationsScriptName = createAnnotationsScriptForType("ANTIBODY");
-#createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
-#addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 annotationsScriptName = createAnnotationsScriptForType("STRAIN");
 createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
-# addRepetition(definitions.numberOfRepetitions, "STRAIN");
 #===================================================================================================
-# annotationsScriptName = createAnnotationsScriptForType("PLASMID");
-# createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
-# # addStorageGroups(definitions.numberOfStorageGroups, "PLASMID");
-# annotationsScriptName = createAnnotationsScriptForType("OLIGO");
-# createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
-# annotationsScriptName = createAnnotationsScriptForType("CHEMICAL");
-# createSampleTypeWithProperties("CHEMICAL", "", definitions.chemicalDefinition);
-# annotationsScriptName = createAnnotationsScriptForType("RESTRICTION_ENZYME");
-# createSampleTypeWithProperties("RESTRICTION_ENZYME", "", definitions.RestrictionEnzymeDefinition);
-annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
-createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", definitions.ExperimentalStepDefinition);
+annotationsScriptName = createAnnotationsScriptForType("PLASMID");
+createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
+annotationsScriptName = createAnnotationsScriptForType("OLIGO");
+createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
+
 #===================================================================================================
 
 

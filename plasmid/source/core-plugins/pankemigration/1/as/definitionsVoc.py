@@ -59,27 +59,26 @@ def createVocabularyTerm(tr, vocabularyCode, termCode, termLabel):
 vocabularyDefinitions = {
                           "LAB_MEMBERS": [
                                             ["TANIA_ROBERTS", "Tania Roberts"],
+                                            ["Andreas_Meyer", "Andreas Meyer"],
+                                            ["Sonja_Billerbeck", "Sonja Billerbeck"],
+                                            ["Marcel_Walser", "Marcel Walser"],
+                                            ["Angelika_Ress", "Angelika Ress"],
+                                            ["Andreas_Bosshart", "Andreas Bosshart"],
+                                            ["Alex_Nilsson", "Alex Nilsson"],
+                                            ["Matthias_Bujara", "Matthias Bujara"],
+                                            ["Michael_Eichenberger", "Michael Eichenberger"],
+                                            ["Jaroslav_Michalko", "Jaroslav Michalko"],
+                                            ["Sven_Panke", "Sven Panke"],
+                                            ["Giorgia_Valesia", "Giorgia Valesia"],
+                                            ["Stefan", "Stefan"],
+                                            ["Sonja_Billerback", "Sonja Billerback"],
+                                            ["Johannes_Haerle", "Johannes Haerle"],
+                                            ["Alexandra_Schulz", "Alexandra Schulz"],
+                                            ["Diana_Ostos_Rangel", "Diana Ostos Rangel"],
+                                            ["Sabine_Oesterle", "Sabine Österle"],
+                                            ["Katja_Becker", "Katja Becker"]
 
                                         ],
-                         
-                         "EXPERIMENTAL_READOUT": [
-                                            ["FLOW_CYTOMETRY", "flow citometry"],
-                                            ["SORTING", "cell sorting"],
-                                            ["GROWTH", "growth"],
-                                            ["WESTERN_BLOTTING", "western blotting"],
-                                            ["RT_QPCR", "RT-qPCR"]
-                                        ],
-
-                        "MACHINE":  [
-                                            ["LSRII_FORTESSA", "SRII Fortessa"],
-                                            ["TECAN_READER", "Tecan reader"],
-                                            ["BIOLECTOR", "BioLector"],
-                                            ["LICOR_ODYSSEY", "LI-COR Odyssey"],
-                                            ["TI_ECLIPSE", "TI Eclipse (Nikon)"],
-                                            ["SRX_101A", "Konica Minolta SRX-101A"],
-                                            ["LIGHT_CYCLER", "LightCycler 480"]
-                                        ],
-                         
                          "STORAGE_NAMES":   [
                                                 ["BENCH", "Bench"],
                                                 ["DEFAULT_STORAGE", "Default Storage"]
