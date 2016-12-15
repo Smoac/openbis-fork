@@ -6,8 +6,8 @@ java.lang.IllegalArgumentException: No dump file found.
 
 Solution:
 
-ssh hudson
-cd ~/hudson/gradle/deep_sequencing_unit/resource/test-db
+ssh jenkins (i.e. ci@bs-ci01.ethz.ch)
+cd ~/jenkins/workspace_fast/deep_sequencing_unit/resource/test-db
 ln -s ../../../../test-db/openbis_test_qgf.dmp openbis_test_qgf.dmp
 ls -la
 
@@ -20,6 +20,6 @@ Caused by: ch.systemsx.cisd.common.exceptions.ConfigurationFailureException: Sto
 
 Solution:
 
-ssh hudson
-cd ~/hudson/gradle/deep_sequencing_unit/targets
+ssh jenkins (i.e. ci@bs-ci01.ethz.ch)
+cd ~/jenkins/workspace_fast/deep_sequencing_unit/targets
 mkdir -p playground/store
