@@ -60,6 +60,11 @@ public class ProjectIdentifier extends SpaceIdentifier
     {
         this.projectCode = projectCode;
     }
+    
+    public String asProjectIdentifierString()
+    {
+        return new ProjectIdentifier(getSpaceCode(), getProjectCode()).toString();
+    }
 
     @Override
     public boolean equals(final Object obj)

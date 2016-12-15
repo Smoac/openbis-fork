@@ -95,7 +95,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     {
         if (isProjectLevel())
         {
-            return projectIdentifier.toString() + Constants.IDENTIFIER_SEPARATOR;
+            return projectIdentifier.asProjectIdentifierString() + Constants.IDENTIFIER_SEPARATOR;
         } else if (isSpaceLevel())
         {
             if (isInsideHomeSpace())
