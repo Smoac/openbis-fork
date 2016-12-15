@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Utility methods to convert transaction-layer DTOs to objects accepted by openBIS.
@@ -171,7 +172,7 @@ public class ConversionUtils
         {
             experimentIdentifier = ExperimentIdentifierFactory.parse(sample.getExperiment()
                     .getIdentifier());
-            sampleIdentifier = new SampleIdentifier(experimentIdentifier, sampleIdentifier.getSampleCode());
+            sampleIdentifier = new SampleIdentifier((SpaceIdentifier) experimentIdentifier, sampleIdentifier.getSampleCode());
         }
         String containerIdentifier =
                 (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
