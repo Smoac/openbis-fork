@@ -22,7 +22,6 @@ import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CONNECTION;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -412,13 +411,6 @@ public class EntityRetriever
 
     public String fetchMetaDataAsXML() throws ParserConfigurationException, TransformerException
     {
-        MasterData md = new MasterData();
-
-        md.addSampleTypes(this.getSampleTypes());
-        md.addExperimentTypes(this.getExperimentTypes());
-        md.addDataSetTypes(this.getDataSetTypes());
-        md.addMaterialTypes(this.getMaterialTypes());
-
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.newDocument();
@@ -472,18 +464,18 @@ public class EntityRetriever
         }
 
         // append sample types
-        List<SampleType> sampleTypes = md.getSampleTypes();
+        List<SampleType> sampleTypes = this.getSampleTypes();
         appendSampleTypes(doc, rootElement, sampleTypes);
 
         // append experiment types
-        List<ExperimentType> experimentTypes = md.getExperimentTypes();
+        List<ExperimentType> experimentTypes = this.getExperimentTypes();
         appendExperimentTypes(doc, rootElement, experimentTypes);
 
         // append data set types
-        List<DataSetType> dataSetTypes = md.getDataSetTypes();
+        List<DataSetType> dataSetTypes = this.getDataSetTypes();
         appendDataSetTypes(doc, rootElement, dataSetTypes);
 
-        List<MaterialType> materialTypes = md.getMaterialTypes();
+        List<MaterialType> materialTypes = this.getMaterialTypes();
         appendMaterialTypes(doc, rootElement, materialTypes);
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -577,6 +569,9 @@ public class EntityRetriever
             propertyAssignmentsElement.appendChild(propertyAssigmentElement);
             propertyAssigmentElement.setAttribute("property_type_code", propAssignment.getPropertyType().getCode());
             propertyAssigmentElement.setAttribute("data_type_code", propAssignment.getPropertyType().getDataType().toString());
+            propertyAssigmentElement.setAttribute("mandatory", String.valueOf(propAssignment.isMandatory()));
+            propertyAssigmentElement.setAttribute("section", propAssignment.getSection());
+            propertyAssigmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
         }
         return propertyAssignmentsElement;
     }
@@ -598,46 +593,6 @@ public class EntityRetriever
         List<DataSetType> dataSetTypes = new ArrayList<DataSetType>();
 
         List<MaterialType> materialTypes = new ArrayList<MaterialType>();
-
-        public List<SampleType> getSampleTypes()
-        {
-            return sampleTypes;
-        }
-
-        void addSampleTypes(Collection<SampleType> sampleTypes)
-        {
-            this.sampleTypes.addAll(sampleTypes);
-        }
-
-        public List<ExperimentType> getExperimentTypes()
-        {
-            return experimentTypes;
-        }
-
-        void addExperimentTypes(Collection<ExperimentType> expTypes)
-        {
-            this.experimentTypes.addAll(expTypes);
-        }
-
-        void addDataSetTypes(Collection<DataSetType> dsTypes)
-        {
-            this.dataSetTypes.addAll(dsTypes);
-        }
-
-        public List<DataSetType> getDataSetTypes()
-        {
-            return dataSetTypes;
-        }
-
-        void addMaterialTypes(Collection<MaterialType> matTypes)
-        {
-            this.materialTypes.addAll(matTypes);
-        }
-
-        public List<MaterialType> getMaterialTypes()
-        {
-            return materialTypes;
-        }
     }
 
     public List<IPropertyTypeImmutable> listPropertyTypes()
