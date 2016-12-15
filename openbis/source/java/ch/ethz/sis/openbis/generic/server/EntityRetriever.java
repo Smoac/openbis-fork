@@ -422,49 +422,53 @@ public class EntityRetriever
         Document doc = docBuilder.newDocument();
         Element rootElement = doc.createElement("masterData");
         doc.appendChild(rootElement);
+
+        // append property types
+        List<IPropertyTypeImmutable> propertyTypes = listPropertyTypes();
+        if (propertyTypes.size() > 0)
+        {
+            Element propertyTypesElement = doc.createElement("propertyTypes");
+            rootElement.appendChild(propertyTypesElement);
+            for (IPropertyTypeImmutable propertyTypeImmutable : propertyTypes)
+            {
+                Element propertyTypeElement = doc.createElement("propertyType");
+                propertyTypeElement.setAttribute("code", propertyTypeImmutable.getCode());
+                propertyTypeElement.setAttribute("label", propertyTypeImmutable.getLabel());
+                propertyTypeElement.setAttribute("dataType", propertyTypeImmutable.getDataType().name());
+                propertyTypeElement.setAttribute("internalNamespace", String.valueOf(propertyTypeImmutable.isInternalNamespace()));
+                propertyTypeElement.setAttribute("managedInternally", String.valueOf(propertyTypeImmutable.isManagedInternally()));
+                propertyTypeElement.setAttribute("description", propertyTypeImmutable.getDescription());
+                propertyTypesElement.appendChild(propertyTypeElement);
+            }
+        }
+
+        // append sample types
         List<SampleType> sampleTypes = md.getSampleTypes();
-        if (sampleTypes.size() > 0)
-        {
-            Element sampleTypesElement = doc.createElement("sampleTypes");
-            rootElement.appendChild(sampleTypesElement);
-            for (SampleType sampleType : sampleTypes)
-            {
-                Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "sampleType");
-                sampleTypesElement.appendChild(sampleTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, sampleType.getPropertyAssignments());
-                sampleTypeElement.appendChild(propertyAssignmentsElement);
-            }
-        }
+        appendSampleTypes(doc, rootElement, sampleTypes);
 
+        // append experiment types
         List<ExperimentType> experimentTypes = md.getExperimentTypes();
-        if (experimentTypes.size() > 0)
-        {
-            Element expTypesElement = doc.createElement("experimentTypes");
-            rootElement.appendChild(expTypesElement);
-            for (ExperimentType expType : experimentTypes)
-            {
-                Element experimentTypeElement = getEntityTypeXML(doc, expType, "experimentType");
-                expTypesElement.appendChild(experimentTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, expType.getPropertyAssignments());
-                experimentTypeElement.appendChild(propertyAssignmentsElement);
-            }
-        }
+        appendExperimentTypes(doc, rootElement, experimentTypes);
 
+        // append data set types
         List<DataSetType> dataSetTypes = md.getDataSetTypes();
-        if (dataSetTypes.size() > 0)
-        {
-            Element dataSetTypesElement = doc.createElement("dataSetTypes");
-            rootElement.appendChild(dataSetTypesElement);
-            for (DataSetType dsType : dataSetTypes)
-            {
-                Element dsTypeElement = getEntityTypeXML(doc, dsType, "dataSetType");
-                dataSetTypesElement.appendChild(dsTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, dsType.getPropertyAssignments());
-                dsTypeElement.appendChild(propertyAssignmentsElement);
-            }
-        }
+        appendDataSetTypes(doc, rootElement, dataSetTypes);
 
         List<MaterialType> materialTypes = md.getMaterialTypes();
+        appendMaterialTypes(doc, rootElement, materialTypes);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        DOMSource source = new DOMSource(doc);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        transformer.transform(source, result);
+        return writer.toString();
+    }
+
+    private void appendMaterialTypes(Document doc, Element rootElement, List<MaterialType> materialTypes)
+    {
         if (materialTypes.size() > 0)
         {
             Element materialTypesElement = doc.createElement("materialTypes");
@@ -477,23 +481,62 @@ public class EntityRetriever
                 matTypeElement.appendChild(propertyAssignmentsElement);
             }
         }
+    }
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        DOMSource source = new DOMSource(doc);
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        transformer.transform(source, result);
-        return writer.toString();
+    private void appendDataSetTypes(Document doc, Element rootElement, List<DataSetType> dataSetTypes)
+    {
+        if (dataSetTypes.size() > 0)
+        {
+            Element dataSetTypesElement = doc.createElement("dataSetTypes");
+            rootElement.appendChild(dataSetTypesElement);
+            for (DataSetType dsType : dataSetTypes)
+            {
+                Element dsTypeElement = getEntityTypeXML(doc, dsType, "dataSetType");
+                dataSetTypesElement.appendChild(dsTypeElement);
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, dsType.getPropertyAssignments());
+                dsTypeElement.appendChild(propertyAssignmentsElement);
+            }
+        }
+    }
+
+    private void appendExperimentTypes(Document doc, Element rootElement, List<ExperimentType> experimentTypes)
+    {
+        if (experimentTypes.size() > 0)
+        {
+            Element expTypesElement = doc.createElement("experimentTypes");
+            rootElement.appendChild(expTypesElement);
+            for (ExperimentType expType : experimentTypes)
+            {
+                Element experimentTypeElement = getEntityTypeXML(doc, expType, "experimentType");
+                expTypesElement.appendChild(experimentTypeElement);
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, expType.getPropertyAssignments());
+                experimentTypeElement.appendChild(propertyAssignmentsElement);
+            }
+        }
+    }
+
+    private void appendSampleTypes(Document doc, Element rootElement, List<SampleType> sampleTypes)
+    {
+        if (sampleTypes.size() > 0)
+        {
+            Element sampleTypesElement = doc.createElement("sampleTypes");
+            rootElement.appendChild(sampleTypesElement);
+            for (SampleType sampleType : sampleTypes)
+            {
+                Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "sampleType");
+                sampleTypesElement.appendChild(sampleTypeElement);
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, sampleType.getPropertyAssignments());
+                sampleTypeElement.appendChild(propertyAssignmentsElement);
+            }
+        }
     }
 
     private <E extends ICodeHolder> Element getEntityTypeXML(Document doc, E entityType,
             String elementName)
     {
-        Element sampleTypeElement = doc.createElement(elementName);
-        sampleTypeElement.setAttribute("code", entityType.getCode());
-        return sampleTypeElement;
+        Element typeElement = doc.createElement(elementName);
+        typeElement.setAttribute("code", entityType.getCode());
+        return typeElement;
     }
 
     private Element getPropertyAssignmentXML(Document doc, List<PropertyAssignment> propertyAssignments)
