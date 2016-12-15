@@ -79,9 +79,12 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
      * Returns the samples for the given ids.
      */
     @Select(sql = "select s.id as id, s.perm_id as perm_id, s.code as s_code, s.del_id as del_id, "
-            + "           st.code as st_code, g.code as spc_code, c.code as c_code"
+            + "           st.code as st_code, g.code as spc_code, c.code as c_code,"
+            + "           p.id as proj_id, p.code as proj_code, ps.code as proj_space_code"
             + "   from samples s join sample_types st on s.saty_id=st.id"
             + "                  join spaces g on s.space_id=g.id "
+            + "                  left join projects p on s.proj_id=p.id "
+            + "                  left join spaces ps on p.space_id=ps.id "
             + "                  left join samples c on s.samp_id_part_of=c.id "
             + "        where s.id = any(?{1})", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)

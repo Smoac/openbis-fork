@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier.Co
  * Parses the given text in the constructor to extract the database instance, the group and the sample code.
  * 
  * <pre>
- * [[&lt;database instance code&gt;:][/&lt;group code&gt;]/]&lt;sample code&gt;
+ * /[&lt;space code&gt;/][&lt;project code&gt;/]&lt;sample code&gt;
  * </pre>
  * 
  * @author Tomasz Pylak
@@ -220,13 +220,14 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             String spaceCode = tokens[1];
             return new SampleOwnerIdentifier(new SpaceIdentifier(
                     assertValidCode(spaceCode)));
+        } else if (tokens.length == 3)
+        {
+            // case: originalText is e.g. "/space/project/CP1"
+            String spaceCode = tokens[1];
+            String projectCode = tokens[2];
+            return new SampleOwnerIdentifier(new ProjectIdentifier(
+                    assertValidCode(spaceCode), assertValidCode(projectCode)));
         } else
             throw createTooManyTokensExcp(originalText);
-    }
-
-    public static String getOwnerSchema()
-    {
-        return "[" + Constants.IDENTIFIER_SEPARATOR
-                + "<space-code>]" + Constants.IDENTIFIER_SEPARATOR + "]";
     }
 }

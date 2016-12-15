@@ -228,26 +228,27 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
 
     private void linkProject()
     {
-        registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.PROJECT,
-                new ICellListenerAndLinkGenerator<Experiment>()
-                    {
-                        @Override
-                        public void handle(TableModelRowWithObject<Experiment> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            final Project project = rowItem.getObjectOrNull().getProject();
-                            final String href = LinkExtractor.tryExtract(project);
-                            OpenEntityDetailsTabHelper.open(viewContext, project,
-                                    specialKeyPressed, href);
-                        }
+        ICellListenerAndLinkGenerator<Experiment> listenerAndLinkGenerator = new ICellListenerAndLinkGenerator<Experiment>()
+            {
+                @Override
+                public void handle(TableModelRowWithObject<Experiment> rowItem,
+                        boolean specialKeyPressed)
+                {
+                    final Project project = rowItem.getObjectOrNull().getProject();
+                    final String href = LinkExtractor.tryExtract(project);
+                    OpenEntityDetailsTabHelper.open(viewContext, project,
+                            specialKeyPressed, href);
+                }
 
-                        @Override
-                        public String tryGetLink(Experiment entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            return LinkExtractor.tryExtract(entity.getProject());
-                        }
-                    });
+                @Override
+                public String tryGetLink(Experiment entity,
+                        ISerializableComparable comparableValue)
+                {
+                    return LinkExtractor.tryExtract(entity.getProject());
+                }
+            };
+        registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.PROJECT, listenerAndLinkGenerator);
+        registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.PROJECT_IDENTIFIER, listenerAndLinkGenerator);
     }
 
     private void extendBottomToolbar()

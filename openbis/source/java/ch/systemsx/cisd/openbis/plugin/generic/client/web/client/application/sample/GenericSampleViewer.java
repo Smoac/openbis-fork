@@ -153,6 +153,10 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             Widget spaceBreadcrumb = createSpaceLink(originalData.getSpace());
             widgets.add(spaceBreadcrumb);
         }
+        if (originalData.getProject() != null && originalData.getExperiment() == null)
+        {
+            widgets.add(createProjectLink(originalData.getProject()));
+        }
         if (originalData.getExperiment() != null)
         {
             Widget projectBreadcrumb = createProjectLink(originalData.getExperiment().getProject());

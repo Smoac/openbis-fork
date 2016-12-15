@@ -26,6 +26,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -60,6 +61,8 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      */
     List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
             String containerCodeOrNull);
+
+    SamplePE tryfindByCodeAndProject(String sampleCode, ProjectPE project);
 
     /**
      * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.

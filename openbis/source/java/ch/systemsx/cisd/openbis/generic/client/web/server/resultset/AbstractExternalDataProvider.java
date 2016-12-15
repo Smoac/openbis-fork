@@ -42,6 +42,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRESENT_IN_ARCHIVE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRODUCTION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROJECT;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROJECT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROPERTIES_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.REGISTRATOR;
@@ -70,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -106,6 +108,7 @@ public abstract class AbstractExternalDataProvider extends
                 .hideByDefault();
         builder.addColumn(EXPERIMENT_TYPE).withDefaultWidth(120).hideByDefault();
         builder.addColumn(PROJECT);
+        builder.addColumn(PROJECT_IDENTIFIER);
         builder.addColumn(REGISTRATOR);
         builder.addColumn(MODIFIER);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
@@ -177,6 +180,7 @@ public abstract class AbstractExternalDataProvider extends
                             sample.getIdentifier());
                     SampleType sampleType = dataSet.getSampleType();
                     builder.column(SAMPLE_TYPE).addString(sampleType.getCode());
+                    addProject(builder, sample.getProject());
                 }
                 Experiment experiment = dataSet.getExperiment();
                 if (experiment != null)
@@ -185,7 +189,10 @@ public abstract class AbstractExternalDataProvider extends
                     builder.column(EXTERNAL_DATA_EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
                             experiment.getIdentifier());
                     builder.column(EXPERIMENT_TYPE).addString(experiment.getEntityType().getCode());
-                    builder.column(PROJECT).addString(experiment.getProject().getCode());
+                    if (sample == null)
+                    {
+                        addProject(builder, experiment.getProject());
+                    }
                 }
                 builder.column(REGISTRATOR).addPerson(dataSet.getRegistrator());
                 builder.column(MODIFIER).addPerson(dataSet.getModifier());
@@ -230,6 +237,15 @@ public abstract class AbstractExternalDataProvider extends
 
         }
         return builder.getModel();
+    }
+
+    private void addProject(TypedTableModelBuilder<AbstractExternalData> builder, Project project)
+    {
+        if (project != null)
+        {
+            builder.column(PROJECT).addString(project.getCode());
+            builder.column(PROJECT_IDENTIFIER).addString(project.getIdentifier());
+        }
     }
 
     private TableMap<String, DataSetType> getDataSetTypes()

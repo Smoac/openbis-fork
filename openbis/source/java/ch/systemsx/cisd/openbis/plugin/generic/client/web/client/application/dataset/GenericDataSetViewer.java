@@ -67,6 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -143,9 +145,15 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             widgets.add(experimentBreadcrumb);
         }
 
-        if (originalData.getSample() != null)
+        Sample sample = originalData.getSample();
+        if (sample != null)
         {
-            Widget sampleBreadcrumb = createEntityLink(originalData.getSample());
+            Project project = sample.getProject();
+            if (project != null && experiment == null)
+            {
+                widgets.add(createProjectLink(project));
+            }
+            Widget sampleBreadcrumb = createEntityLink(sample);
             widgets.add(sampleBreadcrumb);
         }
 

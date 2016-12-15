@@ -312,6 +312,7 @@ var common = {
   space: "Space",
   groups: "Spaces",
   project: "Project",
+  project_identifier: "Project Identifier",
   experiment: entityTypes.experiment,
   experiments: entityTypes.experiments,
   experiment_identifier: entityTypes.experiment + " Identifier",

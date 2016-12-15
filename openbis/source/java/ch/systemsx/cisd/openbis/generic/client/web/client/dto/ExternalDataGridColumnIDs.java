@@ -51,6 +51,8 @@ public class ExternalDataGridColumnIDs
     public static final String EXPERIMENT_TYPE = "EXPERIMENT_TYPE";
 
     public static final String PROJECT = "PROJECT";
+    
+    public static final String PROJECT_IDENTIFIER = "PROJECT_IDENTIFIER";
 
     public static final String REGISTRATOR = "REGISTRATOR";
 

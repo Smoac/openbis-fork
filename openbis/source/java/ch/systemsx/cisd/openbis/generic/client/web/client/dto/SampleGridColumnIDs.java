@@ -51,6 +51,8 @@ public class SampleGridColumnIDs
 
     public static final String PROJECT = "PROJECT";
 
+    public static final String PROJECT_IDENTIFIER = "PROJECT_IDENTIFIER";
+
     public static final String PERM_ID = "PERM_ID";
 
     public static final String SHOW_DETAILS_LINK_COLUMN_NAME = "SHOW_DETAILS_LINK";

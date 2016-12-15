@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -343,43 +344,22 @@ class PlateDatasetLoader
         return datastoreUrl;
     }
 
-    protected static SampleIdentifier createSampleIdentifier(PlateIdentifier plate,
-            String homeSpaceCodeOrNull)
-    {
-        SampleOwnerIdentifier owner;
-        String spaceCode = plate.tryGetSpaceCode();
-        if (StringUtils.isNotBlank(spaceCode))
-        {
-            final SpaceIdentifier space =
-                    new SpaceIdentifier(spaceCode);
-            owner = new SampleOwnerIdentifier(space);
-        } else
-        {
-            if (spaceCode == null)
-            {
-                owner = new SampleOwnerIdentifier();
-            } else
-            {
-                if (homeSpaceCodeOrNull == null)
-                {
-                    throw new UserFailureException("No space given and user has no home space.");
-                }
-                final SpaceIdentifier space =
-                        new SpaceIdentifier(homeSpaceCodeOrNull);
-                owner = new SampleOwnerIdentifier(space);
-            }
-        }
-        return SampleIdentifier.createOwnedBy(owner, plate.getPlateCode());
-    }
-
     protected static SampleIdentifier createSampleIdentifier(Sample sample)
     {
         SampleOwnerIdentifier owner;
         Space spaceOrNull = sample.getSpace();
-        String spaceCode = (null == spaceOrNull) ? null : spaceOrNull.getCode();
-        if (spaceCode != null)
+        Project project = sample.getProject();
+        if (project != null)
         {
-            SpaceIdentifier space = new SpaceIdentifier(spaceCode);
+            Space projectSpace = project.getSpace();
+            if (projectSpace == null)
+            {
+                throw new IllegalArgumentException("Missing project space of sample " + sample.getIdentifier());
+            }
+            owner = new SampleOwnerIdentifier(new ProjectIdentifier(projectSpace.getCode(), project.getCode()));
+        } else if (spaceOrNull != null)
+        {
+            SpaceIdentifier space = new SpaceIdentifier(spaceOrNull.getCode());
             owner = new SampleOwnerIdentifier(space);
         } else
         {

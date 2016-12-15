@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -86,31 +87,43 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Abstra
 
     private void linkProject()
     {
-        registerListenerAndLinkGenerator(ExternalDataGridColumnIDs.PROJECT,
-                new ICellListenerAndLinkGenerator<AbstractExternalData>()
-                    {
-                        @Override
-                        public void handle(TableModelRowWithObject<AbstractExternalData> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            Experiment experiment = rowItem.getObjectOrNull().getExperiment();
-                            if (experiment != null)
-                            {
-                                final Project project = experiment.getProject();
-                                final String href = LinkExtractor.tryExtract(project);
-                                OpenEntityDetailsTabHelper.open(viewContext, project,
-                                        specialKeyPressed, href);
-                            }
-                        }
+        ICellListenerAndLinkGenerator<AbstractExternalData> listenerAndLinkGenerator = new ICellListenerAndLinkGenerator<AbstractExternalData>()
+            {
+                @Override
+                public void handle(TableModelRowWithObject<AbstractExternalData> rowItem,
+                        boolean specialKeyPressed)
+                {
+                    Project project = tryGetProject(rowItem.getObjectOrNull());
+                    final String href = LinkExtractor.tryExtract(project);
+                    OpenEntityDetailsTabHelper.open(viewContext, project,
+                            specialKeyPressed, href);
+                }
+                
+                @Override
+                public String tryGetLink(AbstractExternalData entity,
+                        ISerializableComparable comparableValue)
+                {
+                    Project project = tryGetProject(entity);
+                    return project == null ? null : LinkExtractor.tryExtract(project);
+                }
 
-                        @Override
-                        public String tryGetLink(AbstractExternalData entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            final Experiment exp = entity.getExperiment();
-                            return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
-                        }
-                    });
+                private Project tryGetProject(AbstractExternalData dataSet)
+                {
+                    Experiment experiment = dataSet.getExperiment();
+                    Sample sample = dataSet.getSample();
+                    Project project = null;
+                    if (experiment != null)
+                    {
+                        project = experiment.getProject();
+                    } else if (sample != null)
+                    {
+                        project = sample.getProject();
+                    }
+                    return project;
+                }
+            };
+        registerListenerAndLinkGenerator(ExternalDataGridColumnIDs.PROJECT, listenerAndLinkGenerator);
+        registerListenerAndLinkGenerator(ExternalDataGridColumnIDs.PROJECT_IDENTIFIER, listenerAndLinkGenerator);
     }
 
     @Override

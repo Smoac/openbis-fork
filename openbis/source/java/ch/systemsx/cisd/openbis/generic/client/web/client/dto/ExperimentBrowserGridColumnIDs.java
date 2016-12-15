@@ -33,6 +33,8 @@ public class ExperimentBrowserGridColumnIDs
 
     public static final String PROJECT = "PROJECT";
 
+    public static final String PROJECT_IDENTIFIER = "PROJECT_IDENTIFIER";
+
     public static final String REGISTRATOR = "REGISTRATOR";
 
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";

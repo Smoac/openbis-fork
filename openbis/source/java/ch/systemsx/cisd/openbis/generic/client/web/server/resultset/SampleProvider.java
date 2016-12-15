@@ -28,6 +28,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROPERTIES_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.REGISTRATOR;
@@ -87,6 +88,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(EXPERIMENT);
         builder.addColumn(EXPERIMENT_IDENTIFIER).withDefaultWidth(200).hideByDefault();
         builder.addColumn(PROJECT);
+        builder.addColumn(PROJECT_IDENTIFIER);
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK_COLUMN_NAME).hideByDefault();
         builder.addColumn(PARENTS);
@@ -130,7 +132,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                     builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
                             experiment.getIdentifier());
                 }
-                builder.column(PROJECT).addString(getProjectCode(sample));
+                addProject(builder, sample);
                 builder.column(PERM_ID).addString(sample.getPermId());
                 builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
                 builder.column(PARENTS).addEntityLink(sample.getParents());
@@ -170,14 +172,22 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         return sampleTypMap;
     }
 
-    private String getProjectCode(Sample sample)
+    private void addProject(TypedTableModelBuilder<Sample> builder, Sample sample)
     {
         Project project = sample.getProject();
-        if (project == null) {
+        if (project == null)
+        {
             Experiment experiment = sample.getExperiment();
-            return experiment == null ? "" : experiment.getProject().getCode();
-        } else {
-            return project.getCode();
+            if (experiment != null)
+            {
+                project = experiment.getProject();
+            }
+        }
+        if (project != null)
+        {
+            builder.column(PROJECT).addString(project.getCode());
+            builder.column(PROJECT_IDENTIFIER).addString(project.getIdentifier());
+            
         }
     }
 

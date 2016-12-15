@@ -25,6 +25,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentB
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.METAPROJECTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.SHOW_DETAILS_LINK;
@@ -93,6 +94,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         builder.addColumn(EXPERIMENT_IDENTIFIER).hideByDefault().withDefaultWidth(150);
         builder.addColumn(SPACE).hideByDefault();
         builder.addColumn(PROJECT).hideByDefault();
+        builder.addColumn(PROJECT_IDENTIFIER).hideByDefault();
         builder.addColumn(REGISTRATOR);
         builder.addColumn(MODIFIER);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
@@ -117,6 +119,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
                         experiment.getIdentifier());
                 builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
                 builder.column(PROJECT).addString(experiment.getProject().getCode());
+                builder.column(PROJECT_IDENTIFIER).addString(experiment.getProject().getIdentifier());
                 builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
                 builder.column(MODIFIER).addPerson(experiment.getModifier());
                 builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());

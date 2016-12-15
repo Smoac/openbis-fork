@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
@@ -62,9 +63,10 @@ public final class IdentifierHelper
     public final static SampleIdentifier createSampleIdentifier(final SamplePE samplePE)
     {
         assert samplePE != null : "Unspecified sample";
-        final SpacePE group = samplePE.getSpace();
+        ProjectPE project = samplePE.getProject();
+        final SpacePE space = samplePE.getSpace();
         final String sampleCode = extractCode(samplePE);
-        return createSampleIdentifier(group, sampleCode);
+        return createSampleIdentifier(project, space, sampleCode);
     }
 
     public static final SampleIdentifier sample(final SamplePE sample)
@@ -101,9 +103,9 @@ public final class IdentifierHelper
             final DeletedSamplePE deletedSamplePE)
     {
         assert deletedSamplePE != null : "Unspecified sample";
-        final SpacePE group = deletedSamplePE.getSpace();
+        final SpacePE space = deletedSamplePE.getSpace();
         final String sampleCode = deletedSamplePE.getCode();
-        return createSampleIdentifier(group, sampleCode);
+        return createSampleIdentifier(null, space, sampleCode);
     }
 
     public final static SampleIdentifier createSampleIdentifier(SpaceIdentifier spaceIdentifier, String sampleCode, String sampleContainerCode)
@@ -119,14 +121,20 @@ public final class IdentifierHelper
         }
     }
 
-    private static SampleIdentifier createSampleIdentifier(final SpacePE group, final String sampleCode)
+    private static SampleIdentifier createSampleIdentifier(ProjectPE project, final SpacePE space, final String sampleCode)
     {
-        if (group == null)
+        if (project != null)
+        {
+            SpaceIdentifier spaceIdentifier = createGroupIdentifier(project.getSpace());
+            ProjectIdentifier projectIdentifier = new ProjectIdentifier(spaceIdentifier, project.getCode());
+            return new SampleIdentifier(projectIdentifier, sampleCode);
+        }
+        if (space == null)
         {
             return new SampleIdentifier(sampleCode);
         } else
         {
-            return new SampleIdentifier(createGroupIdentifier(group), sampleCode);
+            return new SampleIdentifier(createGroupIdentifier(space), sampleCode);
         }
     }
 
@@ -138,15 +146,24 @@ public final class IdentifierHelper
     public static SampleIdentifier createSampleIdentifier(Sample sample)
     {
         assert sample != null : "Unspecified sample";
+        Project project = sample.getProject();
+        String sampleCode = sample.getCode();
+        if (project != null)
+        {
+            Space space = project.getSpace();
+            if (space == null)
+            {
+                throw new IllegalArgumentException("Missing space code of project sample " + sample);
+            }
+            return new SampleIdentifier(new ProjectIdentifier(space.getCode(), project.getCode()), sampleCode);
+        }
         final Space space = sample.getSpace();
         if (space != null)
         {
-            SpaceIdentifier groupIdentifier =
-                    new SpaceIdentifier(space.getCode());
-            return new SampleIdentifier(groupIdentifier, sample.getCode());
+            return new SampleIdentifier(new SpaceIdentifier(space.getCode()), sampleCode);
         } else
         {
-            return new SampleIdentifier(sample.getCode());
+            return new SampleIdentifier(sampleCode);
         }
     }
 

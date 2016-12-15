@@ -1,23 +1,35 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Determines who is the <i>owner</i> of the sample: the space or to the database instance.
+ * Determines who is the <i>owner</i> of the sample: project, space or non
  * <p>
  * Stores the owner <i>PEs</i>.
  * </p>
  */
 public final class SampleOwner
 {
-    // if filled, databaseInstanceOrNull must be null
+    private ProjectPE projectOrNull;
     private SpacePE spaceOrNull;
+    
+    public SampleOwner(ProjectPE projectOrNull)
+    {
+        this.projectOrNull = projectOrNull;
+    }
 
     public SampleOwner(final SpacePE spaceOrNull)
     {
         this.spaceOrNull = spaceOrNull;
+    }
+    
+    public static SampleOwner createProject(ProjectPE project)
+    {
+        return new SampleOwner(project);
     }
 
     public static SampleOwner createSpace(final SpacePE group)
@@ -27,17 +39,27 @@ public final class SampleOwner
 
     public static SampleOwner createDatabaseInstance()
     {
-        return new SampleOwner(null);
+        return new SampleOwner((SpacePE) null);
+    }
+    
+    public boolean isProjectLevel()
+    {
+        return projectOrNull != null;
     }
 
     public boolean isSpaceLevel()
     {
-        return spaceOrNull != null;
+        return projectOrNull == null && spaceOrNull != null;
     }
 
     public boolean isDatabaseInstanceLevel()
     {
-        return spaceOrNull == null;
+        return projectOrNull == null &&  spaceOrNull == null;
+    }
+    
+    public ProjectPE tryGetProject()
+    {
+        return projectOrNull;
     }
 
     public SpacePE tryGetSpace()
@@ -52,6 +74,10 @@ public final class SampleOwner
     @Override
     public String toString()
     {
+        if (isProjectLevel())
+        {
+            return "project: " + projectOrNull;
+        }
         if (isSpaceLevel())
         {
             return "space: " + spaceOrNull;
@@ -73,19 +99,17 @@ public final class SampleOwner
             return false;
         }
         final SampleOwner that = (SampleOwner) obj;
-        if (isSpaceLevel())
-        {
-            return this.spaceOrNull.equals(that.spaceOrNull);
-        } else
-        {
-            return that.isDatabaseInstanceLevel();
-        }
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(projectOrNull, that.tryGetProject());
+        builder.append(spaceOrNull, that.tryGetSpace());
+        return builder.isEquals();
     }
 
     @Override
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(projectOrNull);
         builder.append(spaceOrNull);
         return builder.toHashCode();
     }

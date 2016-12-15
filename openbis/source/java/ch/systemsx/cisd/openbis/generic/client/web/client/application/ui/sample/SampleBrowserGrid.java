@@ -380,39 +380,40 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     private void linkProject()
     {
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT,
-                new ICellListenerAndLinkGenerator<Sample>()
+        ICellListenerAndLinkGenerator<Sample> listenerAndLinkGenerator = new ICellListenerAndLinkGenerator<Sample>()
+            {
+                @Override
+                public void handle(TableModelRowWithObject<Sample> rowItem,
+                        boolean specialKeyPressed)
+                {
+                    Project project =
+                            rowItem.getObjectOrNull().getProject();
+                    if (project == null)
                     {
-                        @Override
-                        public void handle(TableModelRowWithObject<Sample> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            Project project =
-                                    rowItem.getObjectOrNull().getProject();
-                            if (project == null)
-                            {
-                                project = rowItem.getObjectOrNull().getExperiment().getProject();
-                            }
-                            final String href = LinkExtractor.tryExtract(project);
-                            OpenEntityDetailsTabHelper.open(viewContext, project,
-                                    specialKeyPressed, href);
-                        }
+                        project = rowItem.getObjectOrNull().getExperiment().getProject();
+                    }
+                    final String href = LinkExtractor.tryExtract(project);
+                    OpenEntityDetailsTabHelper.open(viewContext, project,
+                            specialKeyPressed, href);
+                }
 
-                        @Override
-                        public String tryGetLink(Sample entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            final Project proj = entity.getProject();
-                            if (proj == null)
-                            {
-                                final Experiment exp = entity.getExperiment();
-                                return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
-                            } else
-                            {
-                                return LinkExtractor.tryExtract(proj);
-                            }
-                        }
-                    });
+                @Override
+                public String tryGetLink(Sample entity,
+                        ISerializableComparable comparableValue)
+                {
+                    final Project proj = entity.getProject();
+                    if (proj == null)
+                    {
+                        final Experiment exp = entity.getExperiment();
+                        return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
+                    } else
+                    {
+                        return LinkExtractor.tryExtract(proj);
+                    }
+                }
+            };
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT, listenerAndLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT_IDENTIFIER, listenerAndLinkGenerator);
     }
 
     @Override

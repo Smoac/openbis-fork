@@ -42,6 +42,15 @@ public class SampleReferenceRecord
     /** space code */
     public String spc_code;
 
+    /** project tech id */
+    public Long proj_id;
+    
+    /** project code */
+    public String proj_code;
+    
+    /** project space code */
+    public String proj_space_code;
+    
     /** container code */
     public String c_code;
 }

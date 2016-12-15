@@ -365,6 +365,7 @@ public class DataSetTranslator
         sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
         sample.setModifier(PersonTranslator.translate(samplePE.getModifier()));
         sample.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
+        sample.setProject(ProjectTranslator.translate(samplePE.getProject()));
         sample.setExperiment(experiment);
         if (loadSampleProperties)
         {

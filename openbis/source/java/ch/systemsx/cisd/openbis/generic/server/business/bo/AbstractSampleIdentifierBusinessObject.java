@@ -107,6 +107,9 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
             {
                 result =
                         sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode);
+            } else if (sampleOwner.isProjectLevel())
+            {
+                result = sampleDAO.tryfindByCodeAndProject(sampleCode, sampleOwner.tryGetProject());
             } else
             {
                 assert sampleOwner.isSpaceLevel() : "Must be of space level.";
@@ -115,6 +118,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
             if (result != null)
             {
                 HibernateUtils.initialize(result.getExperiment());
+                HibernateUtils.initialize(result.getProject());
                 sampleByIdentifierCache.put(sampleIdentifier, result);
             }
             return result;

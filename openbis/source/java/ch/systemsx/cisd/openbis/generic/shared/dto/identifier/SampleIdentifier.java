@@ -38,22 +38,29 @@ public class SampleIdentifier extends SampleOwnerIdentifier
 
     private String containerCodeOrNull;
 
+    public SampleIdentifier(final ProjectIdentifier projectIdentifier, final String sampleCode)
+    {
+        super(projectIdentifier);
+        setSampleCode(sampleCode);
+    }
+
     public SampleIdentifier(final SpaceIdentifier spaceIdentOrNull, final String sampleCode)
     {
         super(spaceIdentOrNull);
         setSampleCode(sampleCode);
     }
-
+    
     public static SampleIdentifier createOwnedBy(final SampleOwnerIdentifier owner,
             final String sampleCode)
     {
         if (owner.isDatabaseInstanceLevel())
         {
             return new SampleIdentifier(sampleCode);
-        } else
+        } else if (owner.isSpaceLevel())
         {
             return new SampleIdentifier(owner.getSpaceLevel(), sampleCode);
         }
+        return new SampleIdentifier(owner.getProjectLevel(), sampleCode);
     }
 
     /** Database-instance level {@link SampleIdentifier}. */
@@ -96,7 +103,10 @@ public class SampleIdentifier extends SampleOwnerIdentifier
      */
     public SampleOwnerIdentifier createSampleOwnerIdentifier()
     {
-        if (getSpaceLevel() != null)
+        if (getProjectLevel() != null)
+        {
+            return new SampleOwnerIdentifier(getProjectLevel());
+        } else if (getSpaceLevel() != null)
         {
             return new SampleOwnerIdentifier(getSpaceLevel());
         } else

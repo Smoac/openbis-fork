@@ -228,7 +228,8 @@ public class SecondaryEntityDAO
         sample.setCode(IdentifierHelper.convertCode(record.s_code, record.c_code));
         sample.setSampleType(createSampleType(record.st_code, databaseInstance));
         sample.setDeletion(createDeletion(record.del_id));
-        sample.setSpace(tryCreateGroup(record.spc_code, databaseInstance));
+        sample.setSpace(tryCreateSpace(record.spc_code, databaseInstance));
+        sample.setProject(tryCreateProject(record.proj_id, record.proj_space_code, record.proj_code));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.spc_code, databaseInstance));
         sample.setPermId(record.perm_id);
         sample.setIdentifier(createIdentifier(sample).toString());
@@ -251,8 +252,22 @@ public class SecondaryEntityDAO
             return null;
         }
     }
+    
+    private static Project tryCreateProject(Long proj_id, String spaceCode, String projectCode)
+    {
+        if (projectCode == null)
+        {
+            return null;
+        }
+        Project project = new Project();
+        project.setId(proj_id);
+        project.setSpace(tryCreateSpace(spaceCode, null));
+        project.setCode(projectCode);
+        project.setIdentifier(new ProjectIdentifier(spaceCode, projectCode).toString());
+        return project;
+    }
 
-    private static Space tryCreateGroup(String codeOrNull, DatabaseInstance databaseInstance)
+    private static Space tryCreateSpace(String codeOrNull, DatabaseInstance databaseInstance)
     {
         if (codeOrNull == null)
         {

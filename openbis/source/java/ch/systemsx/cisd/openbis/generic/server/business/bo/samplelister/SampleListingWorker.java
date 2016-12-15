@@ -704,7 +704,8 @@ final class SampleListingWorker extends AbstractLister
             }
             if (row.proj_id != null)
             {
-                sample.setProject(getOrCreateProject(row));
+                Project project = getOrCreateProject(row);
+                setProject(sample, project);
             }
         }
         // prepare loading related samples
@@ -738,6 +739,12 @@ final class SampleListingWorker extends AbstractLister
             final Deletion deletion = new Deletion();
             sample.setDeletion(deletion);
         }
+    }
+
+    private void setProject(final Sample sample, Project project)
+    {
+        sample.setProject(project);
+        sample.setIdentifier(IdentifierHelper.createSampleIdentifier(sample).toString());
     }
 
     private void setSpace(final Sample sample, final Space space)

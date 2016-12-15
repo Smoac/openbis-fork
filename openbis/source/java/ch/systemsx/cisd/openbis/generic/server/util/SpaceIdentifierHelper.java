@@ -18,9 +18,12 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
@@ -108,5 +111,13 @@ public final class SpaceIdentifierHelper
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
         final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
         return groupDAO.tryFindSpaceByCode(spaceCode);
+    }
+    
+    public static ProjectPE tryGetProject(ProjectIdentifier projectIdentifier,
+            final PersonPE person, final IAuthorizationDAOFactory daoFactory)
+    {
+        String spaceCode = SpaceCodeHelper.getSpaceCode(person, projectIdentifier);
+        IProjectDAO projectDAO = daoFactory.getProjectDAO();
+        return projectDAO.tryFindProject(spaceCode, projectIdentifier.getProjectCode());
     }
 }

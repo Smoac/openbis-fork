@@ -23,7 +23,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier.Constants;
 
 /**
- * Identifies an owner of a sample: space or database instance.
+ * Identifies an owner of a sample: project, space or non.
+ * <ol><li>Project if <code>projectIdentifier != null</code>
+ * <li>Space if <code>projectIdentifier == null</code> and <code>spaceIdentOrNull != null</code>
+ * <li>Non if <code>projectIdentifier == null</code> and <code>spaceIdentOrNull == null</code>
+ * </ol>
  * 
  * @author Tomasz Pylak
  */
@@ -34,6 +38,8 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
 
     // if not null, sample is defined on the space level
     private SpaceIdentifier spaceIdentOrNull;
+    
+    private ProjectIdentifier projectIdentifier;
 
     /** Database-instance level {@link SampleOwnerIdentifier}. */
     public SampleOwnerIdentifier()
@@ -41,22 +47,28 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     }
 
     /** Space level {@link SampleOwnerIdentifier}. */
-    public SampleOwnerIdentifier(final SpaceIdentifier groupIdentifier)
-    {
-        checkNotNull(groupIdentifier);
-        this.spaceIdentOrNull = groupIdentifier;
-    }
-
-    private static SpaceIdentifier checkNotNull(final SpaceIdentifier identifier)
+    public SampleOwnerIdentifier(final SpaceIdentifier identifier)
     {
         assert identifier != null : "space identifier cannot be null";
-        return identifier;
+        this.spaceIdentOrNull = identifier;
     }
 
+    /** Project level {@link SampleOwnerIdentifier}. */
+    public SampleOwnerIdentifier(final ProjectIdentifier identifier)
+    {
+        assert identifier != null : "project identifier cannot be null";
+        this.projectIdentifier = identifier;
+    }
+    
     /** @return if sample is connected to its home space */
     public boolean isInsideHomeSpace()
     {
         return isSpaceLevel() && spaceIdentOrNull.isHomeSpace();
+    }
+    
+    public boolean isProjectLevel()
+    {
+        return projectIdentifier != null;
     }
 
     /**
@@ -64,7 +76,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
      */
     public boolean isSpaceLevel()
     {
-        return spaceIdentOrNull != null;
+        return projectIdentifier == null && spaceIdentOrNull != null;
     }
 
     /**
@@ -72,7 +84,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
      */
     public boolean isDatabaseInstanceLevel()
     {
-        return this.spaceIdentOrNull == null;
+        return projectIdentifier == null && spaceIdentOrNull == null;
     }
 
     /**
@@ -81,7 +93,10 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     @Override
     public String toString()
     {
-        if (isSpaceLevel())
+        if (isProjectLevel())
+        {
+            return projectIdentifier.toString() + Constants.IDENTIFIER_SEPARATOR;
+        } else if (isSpaceLevel())
         {
             if (isInsideHomeSpace())
             {
@@ -97,6 +112,11 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
         {
             throw new IllegalStateException("sample owner is unknown");
         }
+    }
+    
+    public ProjectIdentifier getProjectLevel()
+    {
+        return projectIdentifier;
     }
 
     /**
@@ -116,8 +136,21 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     @Override
     public int compareTo(final SampleOwnerIdentifier other)
     {
-        if (isSpaceLevel())
+        if (isProjectLevel())
         {
+            if (other.isProjectLevel())
+            {
+                return getProjectLevel().toString().compareTo(other.getProjectLevel().toString());
+            } else
+            {
+                return 1;
+            }
+        } else if (isSpaceLevel())
+        {
+            if (other.isProjectLevel())
+            {
+                return -1;
+            }
             if (other.isSpaceLevel())
             {
                 return getSpaceLevel().compareTo(other.getSpaceLevel());
@@ -127,7 +160,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
             }
         } else if (isDatabaseInstanceLevel())
         {
-            if (other.isSpaceLevel())
+            if (other.isProjectLevel() || other.isSpaceLevel())
             {
                 return -1;
             } else

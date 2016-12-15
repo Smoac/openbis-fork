@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -248,6 +249,29 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     @Override
+    public SamplePE tryfindByCodeAndProject(String sampleCode, ProjectPE project)
+    {
+        assert sampleCode != null : "Unspecified sample code.";
+        assert project != null : "Unspecified project.";
+        
+        Criteria criteria = createProjectCriteria(project);
+        addSampleCodeCriterion(criteria, sampleCode);
+        SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (sample == null && isFullCode(sampleCode) == false)
+        {
+            criteria = createProjectCriteria(project);
+            sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
+        }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following sample '%s' has been found for code '%s' and project '%s'.", sample,
+                    sampleCode, project));
+        }
+        return sample;
+    }
+
+    @Override
     public final SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
     {
         assert sampleCode != null : "Unspecified sample code.";
@@ -313,6 +337,11 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return createFindCriteria(Restrictions.eq("space", space));
     }
 
+    private Criteria createProjectCriteria(final ProjectPE project)
+    {
+        return createFindCriteria(Restrictions.eq("project", project));
+    }
+    
     private void addSampleCodesCriterion(Criteria criteria, List<String> sampleCodes,
             String containerCodeOrNull)
     {

@@ -21,13 +21,14 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Finds a group or database instance for a given owner identifier.
+ * Finds a project or a space instance for a given owner identifier.
  * 
  * @author Tomasz Pylak
  */
@@ -65,8 +66,17 @@ public class SampleOwnerFinder
         } else if (owner.isSpaceLevel())
         {
             return tryFigureSampleGroupOwner(owner);
+        } else if (owner.isProjectLevel())
+        {
+            return tryFigureSampleProjectOwner(owner);
         } else
             throw InternalErr.error();
+    }
+    
+    private SampleOwner tryFigureSampleProjectOwner(SampleOwnerIdentifier owner)
+    {
+        ProjectPE project = SpaceIdentifierHelper.tryGetProject(owner.getProjectLevel(), personPE, daoFactory);
+        return project == null ? null : SampleOwner.createProject(project);
     }
 
     private SampleOwner tryFigureSampleGroupOwner(final SampleOwnerIdentifier owner)

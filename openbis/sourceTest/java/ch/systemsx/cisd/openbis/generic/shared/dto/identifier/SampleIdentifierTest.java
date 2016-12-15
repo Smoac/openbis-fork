@@ -40,7 +40,7 @@ public final class SampleIdentifierTest
     }
 
     @Test
-    public final void testToStringGroupLevelHomeBd()
+    public final void testToStringSpaceLevelHomeBd()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new SpaceIdentifier("GR"),
@@ -49,7 +49,7 @@ public final class SampleIdentifierTest
     }
 
     @Test
-    public final void testToStringGroupLevel()
+    public final void testToStringSpaceLevel()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new SpaceIdentifier("GR"), "SAMP");
@@ -57,26 +57,37 @@ public final class SampleIdentifierTest
     }
 
     @Test
-    public final void testToStringHomeGroupLevel()
+    public final void testToStringHomeSpaceLevel()
     {
         final SampleIdentifier sampleIdentifier = SampleIdentifier.createHomeGroup("SAMP");
         assertEquals(sampleIdentifier.toString(), "SAMP");
+    }
+    
+    @Test
+    public final void testToStringProjectLevel()
+    {
+        final SampleIdentifier sampleIdentifier =
+                new SampleIdentifier(new ProjectIdentifier("A", "P1"), "SAMP");
+        assertEquals(sampleIdentifier.toString(), "/A/P1/SAMP");
     }
 
     @Test
     public final void testCompareIdentifiers()
     {
-        String g1 = "AG";
-        String g2 = "BG";
+        String s1 = "AG";
+        String s2 = "BG";
         String c1 = "A";
         String c2 = "B";
         SampleIdentifier[] expectedOrder =
                 new SampleIdentifier[]
                 { SampleIdentifier.createHomeGroup(c1), SampleIdentifier.createHomeGroup(c2),
-                        new SampleIdentifier(new SpaceIdentifier(g1), c1),
-                        new SampleIdentifier(new SpaceIdentifier(g1), c2),
-                        new SampleIdentifier(new SpaceIdentifier(g2), c1),
-                        new SampleIdentifier(new SpaceIdentifier(g2), c2)
+                        new SampleIdentifier(new SpaceIdentifier(s1), c1),
+                        new SampleIdentifier(new SpaceIdentifier(s1), c2),
+                        new SampleIdentifier(new SpaceIdentifier(s2), c1),
+                        new SampleIdentifier(new SpaceIdentifier(s2), c2),
+                        new SampleIdentifier(new ProjectIdentifier(s2, "P1"), c1),
+                        new SampleIdentifier(new ProjectIdentifier(s2, "P1"), c2),
+                        new SampleIdentifier(new ProjectIdentifier(s2, "P2"), c2),
                 };
 
         SampleIdentifier[] idents = revert(expectedOrder);
