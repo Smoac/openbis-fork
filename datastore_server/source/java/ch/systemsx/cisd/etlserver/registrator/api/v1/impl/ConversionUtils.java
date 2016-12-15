@@ -165,14 +165,14 @@ public class ConversionUtils
         }
 
         final List<NewAttachment> attachments = apiSample.getNewAttachments();
+        ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(sample);
         String containerIdentifier =
                 (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
         SampleUpdatesDTO sampleUpdate =
                 new SampleUpdatesDTO(TechId.create(sample), // db id
                         sample.getProperties(), // List<IEntityProperty>
-                        sample.getExperiment() == null ? null
-                                : ExperimentIdentifierFactory.parse(sample.getExperiment()
-                                        .getIdentifier()), // ExperimentIdentifier
+                        experimentIdentifier, // ExperimentIdentifier
+                        null,
                         attachments, // Collection<NewAttachment>
                         sample.getVersion(), // Sample version
                         SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
@@ -180,6 +180,16 @@ public class ConversionUtils
                         parentIdentifiers // Parent Identifiers
                 );
         return sampleUpdate;
+    }
+
+    private static ExperimentIdentifier getExperimentIdentifier(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment = sample.getExperiment();
+        if (experiment == null)
+        {
+            return null;
+        }
+        return ExperimentIdentifierFactory.parse(experiment.getIdentifier());
     }
 
     public static NewExternalData convertToNewExternalData(

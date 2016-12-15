@@ -554,8 +554,10 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
                     createBatchUpdateDetails(updatedSample);
 
             samples.add(new SampleBatchUpdatesDTO(updatedSample.getDefaultSpaceIdentifier(),
-                    extractor.getOldSampleIdentifier(), properties, extractor
-                            .getExperimentIdentifierOrNull(), extractor.getNewSampleIdentifier(),
+                    extractor.getOldSampleIdentifier(), properties, 
+                    extractor.getExperimentIdentifierOrNull(), 
+                    extractor.getProjectIdentifier(),
+                    extractor.getNewSampleIdentifier(),
                     extractor.getContainerIdentifierOrNull(), parentsOrNull, batchUpdateDetails));
         }
         return samples;

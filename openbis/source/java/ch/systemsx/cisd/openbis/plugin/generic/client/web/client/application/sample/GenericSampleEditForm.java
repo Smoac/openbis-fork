@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -71,17 +72,33 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
         final ExperimentIdentifier experimentIdent =
                 experimentField != null ? experimentField.tryToGetValue() : null;
+        String projectIdentifierOrNull = getProjectIdentifierOrNull();
         final String containerOrNull = StringUtils.trimToNull(container.getValue());
         final String[] parents = getParents();
 
         SampleUpdates sampleUpdates =
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
-                        experimentIdent, originalSample.getVersion(), createSampleIdentifier(),
+                        experimentIdent, projectIdentifierOrNull, 
+                        originalSample.getVersion(), createSampleIdentifier(),
                         containerOrNull, parents);
         sampleUpdates.setMetaprojectsOrNull(metaprojectArea.tryGetModifiedMetaprojects());
 
         viewContext.getService().updateSample(sampleUpdates,
                 enrichWithPostRegistration(new UpdateSampleCallback(viewContext)));
+    }
+    
+    private String getProjectIdentifierOrNull()
+    {
+        if (projectSamplesEnabled == false)
+        {
+            return null;
+        }
+        Project project = projectChooser.tryGetSelectedProject();
+        if (project == null)
+        {
+            return null;
+        }
+        return project.getIdentifier();
     }
 
     private final class UpdateSampleCallback extends
@@ -134,10 +151,20 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         ExperimentIdentifier originalExperiment =
                 experiment == null ? null : ExperimentIdentifier.createIdentifier(experiment);
         experimentField.updateValue(originalExperiment);
+        updateProjectField();
         metaprojectArea.setMetaprojects(originalSample.getMetaprojects());
         initializeGroup();
         initializeContainedInParent();
         initializeParents();
+    }
+
+    private void updateProjectField()
+    {
+        if (projectSamplesEnabled)
+        {
+            Project project = originalSample.getProject();
+            projectChooser.selectProjectAndUpdateOriginal(project.getIdentifier());
+        }
     }
 
     private void initializeGroup()

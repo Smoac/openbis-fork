@@ -1028,9 +1028,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_sample",
-                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)",
-                updates.getSampleIdOrNull(), updates.getExperimentIdentifierOrNull(), updates
-                        .getAttachments().size());
+                "SAMPLE(%s) CHANGE_TO_PROJECT(%s) CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)",
+                updates.getSampleIdOrNull(), updates.getProjectIdentifier(), 
+                updates.getExperimentIdentifierOrNull(), updates.getAttachments().size());
         return null;
     }
 

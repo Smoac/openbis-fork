@@ -147,7 +147,7 @@ public class CollectionRegistrator extends BundleDataSetHelper
                     new ExperimentIdentifier(collectionSample.getExperiment());
             // Sample does exist, update the metadata
             SampleUpdatesDTO sampleUpdate =
-                    new SampleUpdatesDTO(TechId.create(collectionSample), properties, experimentId,
+                    new SampleUpdatesDTO(TechId.create(collectionSample), properties, experimentId, null, 
                             new ArrayList<NewAttachment>(), collectionSample.getVersion(),
                             collectionSampleId, null, null);
             getOpenbisService().updateSample(sampleUpdate);

@@ -111,7 +111,7 @@ public class SampleUpdatesDTOBuilder
     public SampleUpdatesDTO get()
     {
         SampleUpdatesDTO sampleUpdate =
-                new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, attachments,
+                new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, null, attachments,
                         version, sampleIdentifier, containerIdentifierOrNull,
                         parentCodes.toArray(new String[0]));
         sampleUpdate.setMetaprojectsOrNull(metaprojects.toArray(new String[0]));

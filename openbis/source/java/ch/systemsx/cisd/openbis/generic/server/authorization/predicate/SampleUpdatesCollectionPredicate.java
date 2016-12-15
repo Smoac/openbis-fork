@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFl
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -91,14 +90,11 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
             {
                 techIds.add(sampleId);
             }
-            ExperimentIdentifier expId = sampleUpdates.getExperimentIdentifierOrNull();
-            if (expId != null)
+            Status result = SampleUpdatesPredicate.evaluateBasedOnExperimentOrProject(spacePredicate, 
+                    person, allowedRoles, sampleUpdates);
+            if (result.isOK() == false)
             {
-                Status result = spacePredicate.doEvaluation(person, allowedRoles, expId);
-                if (result.isOK() == false)
-                {
-                    return result;
-                }
+                return result;
             }
             SampleIdentifier sampleIdentifier = sampleUpdates.getSampleIdentifier();
             if (sampleIdentifier != null)
@@ -115,5 +111,5 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
         return sampleOwnerIdentifierCollectionPredicate.doEvaluation(person, allowedRoles,
                 sampleIdentifiers);
     }
-
+    
 }

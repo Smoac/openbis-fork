@@ -129,7 +129,7 @@ public class EncapsulatedOpenBISServiceTest
     public final void testUpdateSampleAndRegisterDataSet()
     {
         final SampleUpdatesDTO sample =
-                new SampleUpdatesDTO(new TechId(1), Arrays.<IEntityProperty> asList(), null,
+                new SampleUpdatesDTO(new TechId(1), Arrays.<IEntityProperty> asList(), null, null,
                         Arrays.<NewAttachment> asList(), 0, null, null, null);
         final NewExternalData data = new NewExternalData();
         data.setCode("ds1");

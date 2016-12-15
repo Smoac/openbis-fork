@@ -226,7 +226,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                     SampleIdentifierFactory.parse(childSample.getIdentifier());
             SampleUpdatesDTO update =
                     new SampleUpdatesDTO(new TechId(childSample),
-                            Collections.<IEntityProperty> emptyList(), null,
+                            Collections.<IEntityProperty> emptyList(), null, null,
                             Collections.<NewAttachment> emptyList(),
                             childSample.getVersion(), childSampleIdentifier, null, parents);
             update.setUpdateExperimentLink(false);

@@ -383,6 +383,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                         sample.getExperiment() == null ? null
                                 : ExperimentIdentifierFactory.parse(sample.getExperiment()
                                         .getIdentifier()), // ExperimentIdentifier
+                        null,
                         attachments, // Collection<NewAttachment>
                         sample.getVersion(), // Sample version
                         SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier

@@ -264,7 +264,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         @SuppressWarnings("unchecked")
         SampleUpdates updates =
                 new SampleUpdates("session", TechId.create(oldSample), Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST, null, oldSample.getVersion(),
+                        Collections.EMPTY_LIST, null, null, oldSample.getVersion(),
                         oldSample.getIdentifier(), null, null);
 
         final Date dateBefore = new Date();

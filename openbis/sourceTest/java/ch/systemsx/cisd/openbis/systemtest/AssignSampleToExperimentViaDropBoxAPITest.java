@@ -79,7 +79,7 @@ public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmen
             containerIdentifier = sample.getContainer().getIdentifier();
         }
         builder.sampleUpdate(new SampleUpdatesDTO(new TechId(sample), Collections.<IEntityProperty> emptyList(),
-                experimentIdentifier, Collections.<NewAttachment> emptyList(), sample.getVersion(),
+                experimentIdentifier, null, Collections.<NewAttachment> emptyList(), sample.getVersion(),
                 sampleIdentifier, containerIdentifier, null));
         etlService.performEntityOperations(userSessionToken, builder.getDetails());
     }

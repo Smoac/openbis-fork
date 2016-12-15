@@ -34,6 +34,8 @@ public class SampleUpdates extends BasicSampleUpdates
     private String sessionKey;
 
     private List<NewAttachment> attachments;
+    
+    private String projectIdentifierOrNull;
 
     private ExperimentIdentifier experimentIdentifierOrNull;
 
@@ -51,6 +53,7 @@ public class SampleUpdates extends BasicSampleUpdates
 
     public SampleUpdates(String sessionKey, TechId sampleId, List<IEntityProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
+            String projectIdentifierOrNull,
             int version, String sampleIdentifier, String containerIdentifierOrNull,
             String[] modifiedParentCodesOrNull)
     {
@@ -58,6 +61,7 @@ public class SampleUpdates extends BasicSampleUpdates
         this.sessionKey = sessionKey;
         this.attachments = attachments;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+        this.projectIdentifierOrNull = projectIdentifierOrNull;
         this.sampleIdentifier = sampleIdentifier;
     }
 
@@ -83,6 +87,11 @@ public class SampleUpdates extends BasicSampleUpdates
     public void setAttachments(List<NewAttachment> attachments)
     {
         this.attachments = attachments;
+    }
+
+    public String getProjectIdentifierOrNull()
+    {
+        return projectIdentifierOrNull;
     }
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()

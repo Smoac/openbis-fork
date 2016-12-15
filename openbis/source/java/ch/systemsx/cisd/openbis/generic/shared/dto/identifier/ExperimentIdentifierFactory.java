@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Parses the given text in the constructor to extract the database instance, group, project and experiment code. The expected format is the
@@ -37,6 +39,16 @@ public final class ExperimentIdentifierFactory extends AbstractIdentifierFactory
     public ExperimentIdentifierFactory(final String textToParse)
     {
         super(textToParse);
+    }
+
+    public static ExperimentIdentifier tryGetExperimentIdentifier(Sample sample)
+    {
+        Experiment experiment = sample.getExperiment();
+        if (experiment == null)
+        {
+            return null;
+        }
+        return ExperimentIdentifierFactory.parse(experiment.getIdentifier());
     }
 
     public final ExperimentIdentifier createIdentifier() throws UserFailureException

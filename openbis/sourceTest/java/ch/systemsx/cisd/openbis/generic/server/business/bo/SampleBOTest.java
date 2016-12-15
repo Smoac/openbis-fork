@@ -338,7 +338,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
 
         createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                         .<NewAttachment> emptyList(), 0, null, null, new String[] {}));
     }
 
@@ -439,7 +439,7 @@ public final class SampleBOTest extends AbstractBOTest
         String newSampleIdentifierWithoutDb = "/" + sample.getCode();
         assertNotNull(sample.getSpace());
         createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                         .<NewAttachment> emptyList(), VERSION, SampleIdentifierFactory
                         .parse(newSampleIdentifierWithoutDb), null, null));
         context.assertIsSatisfied();
@@ -493,7 +493,7 @@ public final class SampleBOTest extends AbstractBOTest
                 }
             });
         createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier, Collections
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier, null, Collections
                         .<NewAttachment> emptyList(), version, null, null, null));
 
         context.assertIsSatisfied();
@@ -542,7 +542,7 @@ public final class SampleBOTest extends AbstractBOTest
         String[] modifiedParents = new String[]
         { parent.getIdentifier() };
         createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                         .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
                         null, modifiedParents));
         context.assertIsSatisfied();
@@ -609,7 +609,7 @@ public final class SampleBOTest extends AbstractBOTest
                 { parent1Group1.getIdentifier(), parent2Group1.getCode(),
                         parent3Group2.getIdentifier() };
         createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                         .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
                         null, modifiedParents));
         context.assertIsSatisfied();
@@ -666,7 +666,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         assertNull(sample.getContainer());
         createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                         .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
                         container.getSampleIdentifier().toString(), null));
         context.assertIsSatisfied();
@@ -713,7 +713,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         assertNull(sample.getContainer());
         SampleBO bo = createSampleBO();
-        bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+        bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                 .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample), container
                 .getSampleIdentifier().toString(), null));
         bo.save();
@@ -750,7 +750,7 @@ public final class SampleBOTest extends AbstractBOTest
         try
         {
             createSampleBO().update(
-                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, Collections
                             .<NewAttachment> emptyList(), VERSION, null, null, null));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
@@ -774,7 +774,7 @@ public final class SampleBOTest extends AbstractBOTest
         try
         {
             SampleUpdatesDTO updates =
-                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null,
+                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, 
                             Collections.<NewAttachment> emptyList(), VERSION, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
@@ -1098,7 +1098,7 @@ public final class SampleBOTest extends AbstractBOTest
             ExperimentIdentifier experimentIdentifier)
     {
         createSampleBO().update(
-                new SampleUpdatesDTO(sampleId, null, experimentIdentifier, Collections
+                new SampleUpdatesDTO(sampleId, null, experimentIdentifier, null, Collections
                         .<NewAttachment> emptyList(), sample.getVersion(), null, null, null));
     }
 }

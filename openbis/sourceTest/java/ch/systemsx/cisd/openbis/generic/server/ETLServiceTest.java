@@ -987,7 +987,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
 
         final SampleUpdatesDTO sample =
-                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, 0,
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, null, attachments, 0,
                         sampleIdentifier, null, null);
 
         final NewExternalData externalData = new NewExternalData();
@@ -1045,7 +1045,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
         final SampleUpdatesDTO sampleUpdate =
-                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, 0,
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, null, attachments, 0,
                         sampleIdentifier, null, null);
 
         final MaterialPE material = new MaterialPE();
@@ -1290,7 +1290,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
 
         final SampleUpdatesDTO sampleUpdate =
-                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, 0,
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, null, attachments, 0,
                         sampleIdentifier, null, null);
 
         final MaterialPE material = new MaterialPE();

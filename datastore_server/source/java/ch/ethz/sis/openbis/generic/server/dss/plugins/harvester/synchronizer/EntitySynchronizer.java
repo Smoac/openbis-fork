@@ -875,8 +875,8 @@ public class EntitySynchronizer
             Sample sampleWithExperiment = service.tryGetSampleByPermId(newSmp.getPermID());
 
             TechId sampleId = TechId.create(sampleWithExperiment);
-            String expIdentifier = newSmp
-                    .getExperimentIdentifier();
+            ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(newSmp);
+            ProjectIdentifier projectIdentifier = getProjectIdentifier(newSmp);
             String[] modifiedParentIds = newSmp.getParentsOrNull();
             if (modifiedParentIds == null)
             {
@@ -885,17 +885,42 @@ public class EntitySynchronizer
                     modifiedParentIds = new String[0];
                 }
             }
+            String containerIdentifier = getContainerIdentifier(newSmp);
 
             SampleUpdatesDTO updates =
-                    new SampleUpdatesDTO(sampleId, Arrays.asList(newSmp.getProperties()), (expIdentifier == null) ? null
-                            : ExperimentIdentifierFactory.parse(expIdentifier),
-                            Collections.<NewAttachment> emptyList(), sampleWithExperiment.getVersion(),
-                            sampleIdentifier, newSmp.getContainerIdentifier() == null ? null : newSmp.getContainerIdentifier(),
+                    new SampleUpdatesDTO(sampleId, Arrays.asList(newSmp.getProperties()), experimentIdentifier, 
+                            projectIdentifier, Collections.<NewAttachment> emptyList(), 
+                            sampleWithExperiment.getVersion(), sampleIdentifier, containerIdentifier,
                             modifiedParentIds);
             builder.sampleUpdate(updates);
         }
     }
 
+    private String getContainerIdentifier(NewSample newSmp)
+    {
+        String containerIdentifier = newSmp.getContainerIdentifier();
+        return containerIdentifier == null ? null : containerIdentifier;
+    }
+
+    private ExperimentIdentifier getExperimentIdentifier(NewSample newSmp)
+    {
+        String expIdentifier = newSmp.getExperimentIdentifier();
+        if (expIdentifier == null)
+        {
+            return null;
+        }
+        return ExperimentIdentifierFactory.parse(expIdentifier);
+    }
+
+    private ProjectIdentifier getProjectIdentifier(NewSample sample)
+    {
+        String projectIdentifier = sample.getProjectIdentifier();
+        if (projectIdentifier == null)
+        {
+            return null;
+        }
+        return ProjectIdentifierFactory.parse(projectIdentifier);
+    }
     private List<Sample> getChildSamples(Sample sampleWithExperiment)
     {
         ListSampleCriteria criteria = ListSampleCriteria.createForParent(new TechId(sampleWithExperiment.getId()));

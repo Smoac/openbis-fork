@@ -122,7 +122,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private Sample parentOrNull;
 
-    private boolean projectSamplesEnabled;
+    protected boolean projectSamplesEnabled;
 
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext,

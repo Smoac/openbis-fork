@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -35,27 +37,41 @@ class IdentifersExtractor
     private final SampleIdentifier newSampleIdentifier;
 
     private final ExperimentIdentifier experimentIdentifierOrNull;
+    
+    private final ProjectIdentifier projectIdentifierOrNull;
 
     private final String containerIdentifierOrNull;
 
     IdentifersExtractor(NewSample updatedSample)
     {
         oldSampleIdentifier = SampleIdentifierFactory.parse(updatedSample);
-        if (updatedSample.getExperimentIdentifier() != null)
+        String experimentIdentifier = updatedSample.getExperimentIdentifier();
+        String projectIdentifier = updatedSample.getProjectIdentifier();
+        String defaultSpaceIdentifier = updatedSample.getDefaultSpaceIdentifier();
+        String sampleCode = oldSampleIdentifier.getSampleCode();
+        if (experimentIdentifier != null)
         {
             // experiment is provided - new sample identifier takes experiment space
             experimentIdentifierOrNull =
-                    new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
-                            .createIdentifier(updatedSample.getDefaultSpaceIdentifier());
+                    new ExperimentIdentifierFactory(experimentIdentifier)
+                            .createIdentifier(defaultSpaceIdentifier);
             // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break?
             newSampleIdentifier =
                     new SampleIdentifier(new SpaceIdentifier(
                             experimentIdentifierOrNull.getSpaceCode()),
-                            oldSampleIdentifier.getSampleCode());
+                            sampleCode);
+            projectIdentifierOrNull = null;
+        } else if (projectIdentifier != null)
+        {
+            projectIdentifierOrNull =
+                    new ProjectIdentifierFactory(projectIdentifier).createIdentifier(defaultSpaceIdentifier);
+            experimentIdentifierOrNull = null;
+            newSampleIdentifier = new SampleIdentifier(projectIdentifierOrNull, sampleCode);
         } else
         {
             // no experiment - leave sample identifier unchanged
             experimentIdentifierOrNull = null;
+            projectIdentifierOrNull = null;
             newSampleIdentifier = oldSampleIdentifier;
         }
         containerIdentifierOrNull = updatedSample.getContainerIdentifier();
@@ -74,6 +90,11 @@ class IdentifersExtractor
     public ExperimentIdentifier getExperimentIdentifierOrNull()
     {
         return experimentIdentifierOrNull;
+    }
+    
+    public ProjectIdentifier getProjectIdentifier()
+    {
+        return projectIdentifierOrNull;
     }
 
     public String getContainerIdentifierOrNull()

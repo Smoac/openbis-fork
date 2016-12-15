@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -46,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -204,15 +205,13 @@ public class EntityHelper
             Sample sample, Map<String, String> properties)
     {
         List<IEntityProperty> props = translatePropertiesMapToList(properties);
-        Experiment experiment = sample.getExperiment();
-        ExperimentIdentifier experimentIdentifier =
-                experiment == null ? null : ExperimentIdentifierFactory.parse(experiment
-                        .getIdentifier());
+        ExperimentIdentifier experimentIdentifier = ExperimentIdentifierFactory.tryGetExperimentIdentifier(sample);
+        ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.tryGetProjectIdentifier(sample);
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample.getIdentifier());
         Sample container = sample.getContainer();
         String containerIdentifier = container == null ? null : container.getIdentifier();
         SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(new TechId(sample), props, experimentIdentifier,
+                new SampleUpdatesDTO(new TechId(sample), props, experimentIdentifier, projectIdentifier,
                         Collections.<NewAttachment> emptySet(), sample.getVersion(),
                         sampleIdentifier, containerIdentifier, null);
         server.updateSample(sessionToken, updates);

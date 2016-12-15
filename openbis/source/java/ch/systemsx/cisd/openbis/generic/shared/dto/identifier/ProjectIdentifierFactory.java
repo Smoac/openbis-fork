@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Parses the given text in the constructor to extract the database instance, the space and the project code.
@@ -34,6 +36,16 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
     public ProjectIdentifierFactory(final String textToParse)
     {
         super(textToParse);
+    }
+    
+    public static ProjectIdentifier tryGetProjectIdentifier(Sample sample)
+    {
+        Project project = sample.getProject();
+        if (project == null)
+        {
+            return null;
+        }
+        return ProjectIdentifierFactory.parse(project.getIdentifier());
     }
 
     public final ProjectIdentifier createIdentifier() throws UserFailureException

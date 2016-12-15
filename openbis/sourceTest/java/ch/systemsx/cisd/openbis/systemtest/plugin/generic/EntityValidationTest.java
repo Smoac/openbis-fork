@@ -281,7 +281,7 @@ public class EntityValidationTest extends GenericSystemTestCase
         Collection<NewAttachment> attachments = Collections.emptyList();
         SampleUpdatesDTO update =
                 new SampleUpdatesDTO(new TechId(sample.getId()), properties,
-                        experimentIdentifierOrNull, attachments, version, sampleIdentifier,
+                        experimentIdentifierOrNull, null, attachments, version, sampleIdentifier,
                         containerIdentifierOrNull, modifiedParentCodesOrNull);
         return update;
     }

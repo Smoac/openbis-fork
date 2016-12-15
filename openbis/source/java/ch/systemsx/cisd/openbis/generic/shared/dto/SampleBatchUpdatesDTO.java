@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -39,11 +40,12 @@ public class SampleBatchUpdatesDTO extends SampleUpdatesDTO
 
     public SampleBatchUpdatesDTO(String defaultSpaceIdentifierOrNull,
             SampleIdentifier oldSampleIdentifier, List<IEntityProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, SampleIdentifier sampleIdentifier,
+            ExperimentIdentifier experimentIdentifierOrNull, ProjectIdentifier projectIdentifierOrNull,
+            SampleIdentifier sampleIdentifier,
             String containerIdentifierOrNull, String[] modifiedParentCodesOrNull,
             SampleBatchUpdateDetails details)
     {
-        super(null, properties, experimentIdentifierOrNull, null, 0, sampleIdentifier,
+        super(null, properties, experimentIdentifierOrNull, projectIdentifierOrNull, null, 0, sampleIdentifier,
                 containerIdentifierOrNull, modifiedParentCodesOrNull);
         this.defaultSpaceIdentifierOrNull = defaultSpaceIdentifierOrNull;
         this.oldSampleIdentifierOrNull = oldSampleIdentifier;

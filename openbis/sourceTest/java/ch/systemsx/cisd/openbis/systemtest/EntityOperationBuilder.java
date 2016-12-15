@@ -186,7 +186,7 @@ public final class EntityOperationBuilder
     EntityOperationBuilder sampleUpdate(Sample sample)
     {
         sampleUpdates.add(new SampleUpdatesDTO(new TechId(sample), sample.getProperties(),
-                null, null, sample.getVersion(), SampleIdentifierFactory.parse(sample
+                null, null, null, sample.getVersion(), SampleIdentifierFactory.parse(sample
                         .getIdentifier()), null, null));
         return this;
     }

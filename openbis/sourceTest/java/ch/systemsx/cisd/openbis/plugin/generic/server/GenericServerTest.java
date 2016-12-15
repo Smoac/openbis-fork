@@ -734,7 +734,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         sample.setParentRelationships(newParents);
         sample.setVersion(42);
         final SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(sampleId, properties, null, attachments, 0, null, null, null);
+                new SampleUpdatesDTO(sampleId, properties, null, null, attachments, 0, null, null, null);
         context.checking(new Expectations()
             {
                 {

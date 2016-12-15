@@ -146,7 +146,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
             }
         }
         return new SampleUpdatesDTO(this.sampleId, new ArrayList<IEntityProperty>(),
-                this.experimentId, new ArrayList<NewAttachment>(), this.version,
+                this.experimentId, null, new ArrayList<NewAttachment>(), this.version,
                 this.sampleIdentifier, this.container != null ? this.container.getIdentifier()
                         : null, parentIdentifiers);
     }

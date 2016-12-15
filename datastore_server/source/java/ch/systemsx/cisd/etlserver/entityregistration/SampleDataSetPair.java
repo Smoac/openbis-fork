@@ -191,6 +191,7 @@ public class SampleDataSetPair
         SampleUpdatesDTO sampleUpdates = new SampleUpdatesDTO(TechId.create(sample), // db id
                 Arrays.asList(newSample.getProperties()), // List<IEntityProperty>
                 getExperimentIdentifier(), // ExperimentIdentifier
+                null, // TODO: ProjectIdentifier
                 attachments, // Collection<NewAttachment>
                 sample.getVersion(), // Sample version
                 getSampleIdentifier(), // Sample Identifier

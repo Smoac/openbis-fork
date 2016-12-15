@@ -237,7 +237,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         Sample sample = toolBox.createAndLoadSample(1, experiment1);
         SampleUpdatesDTO sampleUpdate =
                 new SampleUpdatesDTO(new TechId(sample), ToolBox.NO_PROPERTIES,
-                        ExperimentIdentifierFactory.parse(experiment2.getIdentifier()),
+                        ExperimentIdentifierFactory.parse(experiment2.getIdentifier()), null,
                         ToolBox.NO_ATTACHMENTS, sample.getVersion(),
                         SampleIdentifierFactory.parse(sample), null, null);
         sampleUpdate.setUpdateExperimentLink(true);

@@ -1081,15 +1081,9 @@ public class GenericClientService extends AbstractClientService implements IGene
                 @Override
                 public void register(Collection<NewAttachment> attachments)
                 {
-                    ExperimentIdentifier convExperimentIdentifierOrNull = null;
                     SampleIdentifier sampleOwner = null;
-                    if (updates.getExperimentIdentifierOrNull() != null)
-                    {
-                        convExperimentIdentifierOrNull =
-                                new ExperimentIdentifierFactory(updates
-                                        .getExperimentIdentifierOrNull().getIdentifier())
-                                        .createIdentifier();
-                    }
+                    ExperimentIdentifier convExperimentIdentifierOrNull = getExperimentIdentifier(updates);
+                    ProjectIdentifier projectIdentifier = getProjectIdentifier(updates);
                     if (StringUtils.isBlank(updates.getSampleIdentifier()) == false)
                     {
                         sampleOwner =
@@ -1100,7 +1094,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     SampleUpdatesDTO updatesDTO =
                             new SampleUpdatesDTO(updates.getSampleIdOrNull(),
                                     updates.getProperties(), convExperimentIdentifierOrNull,
-                                    attachments, updates.getVersion(), sampleOwner,
+                                    projectIdentifier, attachments, updates.getVersion(), sampleOwner,
                                     updates.getContainerIdentifierOrNull(),
                                     updates.getModifiedParentCodesOrNull());
                     updatesDTO.setMetaprojectsOrNull(updates.getMetaprojectsOrNull());
@@ -1110,10 +1104,33 @@ public class GenericClientService extends AbstractClientService implements IGene
 
                     result.copyFrom(updateResult);
                 }
+
             }.process(updates.getSessionKey(), getHttpSession(), updates.getAttachments());
         return result;
     }
 
+    private ExperimentIdentifier getExperimentIdentifier(final SampleUpdates updates)
+    {
+        ExperimentIdentifier convExperimentIdentifierOrNull = null;
+        if (updates.getExperimentIdentifierOrNull() != null)
+        {
+            convExperimentIdentifierOrNull =
+                    new ExperimentIdentifierFactory(updates
+                            .getExperimentIdentifierOrNull().getIdentifier())
+                    .createIdentifier();
+        }
+        return convExperimentIdentifierOrNull;
+    }
+    
+    private ProjectIdentifier getProjectIdentifier(SampleUpdates updates)
+    {
+        String identifier = updates.getParentIdentifierOrNull();
+        if (identifier == null)
+        {
+            return null;
+        }
+        return new ProjectIdentifierFactory(identifier).createIdentifier();
+    }
     @Override
     public Date updateMaterial(TechId materialId, List<IEntityProperty> properties,
             String[] metaprojects, Date version)

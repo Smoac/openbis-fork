@@ -390,7 +390,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         final String containerIdentifierOrNull =
                 (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
         final String[] modifiedParentCodesOrNull = null;
-        return new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, attachments,
+        return new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, null, attachments,
                 version, sampleIdentifier, containerIdentifierOrNull, modifiedParentCodesOrNull);
     }
 

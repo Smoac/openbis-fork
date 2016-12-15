@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -42,13 +43,17 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
 
     private boolean updateExperimentLink = true;
 
+    private ProjectIdentifier projectIdentifier;
+
     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
+            ExperimentIdentifier experimentIdentifierOrNull, ProjectIdentifier projectIdentifier, 
+            Collection<NewAttachment> attachments,
             int version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
             String[] modifiedParentCodesOrNull)
     {
         super(sampleId, properties, version, containerIdentifierOrNull, modifiedParentCodesOrNull);
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+        this.projectIdentifier = projectIdentifier;
         this.attachments = attachments;
         this.sampleIdentifier = sampleIdentifier;
     }
@@ -61,6 +66,11 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     public void setSampleIdentifier(SampleIdentifier sampleIdentifier)
     {
         this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public ProjectIdentifier getProjectIdentifier()
+    {
+        return projectIdentifier;
     }
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()

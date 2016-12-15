@@ -22,6 +22,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link SampleUpdatesDTO}. Checks that: 1) the user has rights to update the sample 2) if sample
@@ -54,17 +56,35 @@ public class SampleUpdatesPredicate extends AbstractSamplePredicate<SampleUpdate
         {
             return status;
         }
-        if (updates.getExperimentIdentifierOrNull() != null)
+        status = evaluateBasedOnExperimentOrProject(spacePredicate, person, allowedRoles, updates);
+        if (status.isOK() == false)
         {
-            status =
-                    spacePredicate.doEvaluation(person, allowedRoles, updates
-                            .getExperimentIdentifierOrNull());
-            if (status.equals(Status.OK) == false)
-                return status;
+            return status;
         }
         status =
                 sampleOwnerPredicate.doEvaluation(person, allowedRoles,
                         updates.getSampleIdentifier());
         return status;
     }
+    
+    static Status evaluateBasedOnExperimentOrProject(SpaceIdentifierPredicate spacePredicate,
+            PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleUpdatesDTO sampleUpdates)
+    {
+        ExperimentIdentifier expId = sampleUpdates.getExperimentIdentifierOrNull();
+        if (expId != null)
+        {
+            Status result = spacePredicate.doEvaluation(person, allowedRoles, expId);
+            if (result.isOK() == false)
+            {
+                return result;
+            }
+        }
+        ProjectIdentifier projId = sampleUpdates.getProjectIdentifier();
+        if (projId != null)
+        {
+            return spacePredicate.doEvaluation(person, allowedRoles, projId);
+        }
+        return Status.OK;
+    }
+
 }
