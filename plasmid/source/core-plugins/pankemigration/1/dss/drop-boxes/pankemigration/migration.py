@@ -12,6 +12,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataTyp
 import java.lang.Class as Class
 import java.sql.DriverManager as DriverManager
 
+
 ##
 ## Generic Process Method
 ##
@@ -49,13 +50,17 @@ def process(tr):
     createDataHierarchy(tr)
     for adaptor in adaptors:
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] START"
+        
+        if adaptor.__class__.__name__ == "PlasmidParentAdaptor":
+            print "check hack, dont do please"
+            adaptor.init();
+
         while adaptor.next():
             entity = adaptor.getEntity()
             print "* ENTITY [" + str(entity.getIdentifier(tr)) + "]"
             try:
                 if not entity.isInOpenBIS(tr):
                     entity.write(tr)
-                    #print entity.getIdentifier(tr) + " - Updated"
                 else:
                     addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
             except Exception, error:
@@ -68,7 +73,6 @@ def process(tr):
     definitionsVoc.printCreatedTerms()
     print "REPORT FINISH"
     print "FINISH!"
-
 ##
 ## Help Methods
 ##
@@ -82,8 +86,8 @@ def setEntityProperties(tr, definition, entity, properties):
                 continue
             
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, origPropertyCode)
-#            print "Prop definition ", propertyDefinition
-#            print "PROP VALUE ", propertyValue
+            #print "Prop definition ", propertyDefinition
+            #print "PROP VALUE ", propertyValue
             if propertyDefinition is not None and propertyValue is not None:
                 propertyValue =  unicode(propertyValue) 
  
@@ -106,6 +110,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     #Uses new vocabulary term
                     newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
                     propertyValue = newTerm.getCode()
+                    #print "NEW CODE", propertyValue
                     print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
 
 
@@ -116,7 +121,6 @@ def setEntityProperties(tr, definition, entity, properties):
 
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
-
 
 
 
@@ -174,14 +178,17 @@ sampleCache = {}
 sampleID2Sample = {}
 globalSequences = {};
 
-def getNextGlobalSequence(id):
+def getNextGlobalSequence(id, startingAt):
     currentSequence = None;
     
     if id in globalSequences:
         currentSequence = globalSequences[id]; #Get existing sequence
     else:
-        currentSequence = 0; # Create a new one
-    
+        if startingAt is not None:
+            currentSequence = startingAt;
+        else:
+            currentSequence = 0; # Create a new one
+
     #Advance and store new step on the sequence
     currentSequence = currentSequence+1;
     globalSequences[id] = currentSequence;
@@ -190,13 +197,13 @@ def getNextGlobalSequence(id):
     return str(currentSequence);
 
 def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
-    experimentType ="MATERIAL"
+    experimentType ="MATERIALS"
     if experimentIdentifier not in experimentCache:
         print "Cache failed " + experimentIdentifier + ":" + str(experimentType)
         experiment = tr.getExperimentForUpdate(experimentIdentifier)
         if experiment is None and experimentType is not None:
             print "Cache Create " + experimentIdentifier + ":" + str(experimentType)
-            experiment = tr.createNewExperiment(experimentIdentifier,         experimentType)
+            experiment = tr.createNewExperiment(experimentIdentifier, experimentType)
         if experiment is not None:
              experimentCache[experimentIdentifier] = experiment
     else:
@@ -213,16 +220,10 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
-             if sampleType == "ANTIBODY":
-                 experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODY_COLLECTION", sampleType, tr)
-             elif sampleType == "YEAST":
-                  experiment = getExperimentForUpdate("/MATERIALS/STRAINS/YEAST_COLLECTION_1", sampleType, tr)              
+             if sampleType == "STRAIN":
+                  experiment = getExperimentForUpdate("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", sampleType, tr)              
              elif sampleType == "PLASMID":
-                  experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
-             elif sampleType == "CHEMICAL":
-                  experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICAL_COLLECTION", sampleType, tr) 
-             elif sampleType == "RESTRICTION_ENZYME":
-                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYME_COLLECTION", sampleType, tr)                  
+                  experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)                         
              elif sampleType == "OLIGO":
                   experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)                  
              sample = tr.createNewSample(sampleIdentifier, sampleType)
@@ -234,7 +235,7 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
         #print "Cache hit " + sampleIdentifier + ":" + str(sampleType)
         
     if sampleIdentifier not in sampleCache:
-         return None
+         raise None
     else:
          return sampleCache[sampleIdentifier]
 
@@ -265,7 +266,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                     values[property[0]] = "";
                 else:
                     propertyCode = property[0];
-                    print "propertyCode IS: ", propertyCode
+                    #print "propertyCode IS: ", propertyCode
                     propertyValue = result.getString(property[2]);
                     if property[0].startswith("+"):
                         propertyCode = property[0][1:];
@@ -321,54 +322,27 @@ class FMOpenBISDTO(OpenBISDTO):
             return True
         
         def isInOpenBIS(self, tr):
-            code = self.getIdentifier(tr)
-            if (code is not None) and (' ' not in code):
-                if self.isSampleCacheable():
-                    sampleID2Sample[self.values["NAME"]] = self.values
-                sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
-                return False
-            else:
-                print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
-                raise Exception('Invalid Code found ' + str(code))
-
-##
-## Antibodies
-##
-
-class AntibodyAdaptor(FileMakerEntityAdaptor):
-    
-    def init(self):
-        self.selectQuery = "SELECT * FROM \"Weis Lab  Antibodies\""
-        self.definition = definitions.antibodyDefinition
-        FileMakerEntityAdaptor.init(self)
-    
-    def addEntity(self, values):
-        self.entities.append(AntibodyOpenBISDTO(values, self.definition))
-       
-        
-class AntibodyOpenBISDTO(FMOpenBISDTO):
-    def isSampleCacheable(self):
-        return False
-        
-    def write(self, tr):
-        if self.values["REF_NUM"] is not None:
-            code = "AB" + self.values["REF_NUM"]
-            if code is not None:
-                sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
-                setEntityProperties(tr, self.definition, sample, self.values);
-        else:
-            print  "Sample ", self.values["REF_NUM"], " does not have a REF_NUM"
-    
-    def getIdentifier(self, tr):
-        if self.values["REF_NUM"]:
-            code = "AB"+ self.values["REF_NUM"]
-            return code
-    
+            return False
+            # code = self.getIdentifier(tr)
+            # if (code is not None) and (' ' not in code):
+            #     if self.isSampleCacheable():
+            #         sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
+            #         if (self.values["NAME"] is not None and len(self.values["NAME"]) > 0 and self.values["NAME"] not in sampleID2Sample):
+            #             print "Cached Sample with name: '" + self.values["NAME"] + "' for '" + "/MATERIALS/" + code + "' in dict with size: " + str(len(sampleID2Sample))
+            #             parentName = unicode(self.values["NAME"], "utf-8");
+            #             sampleID2Sample[parentName] = sample
+            #     return False
+            # else:
+            #     print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
+            #     raise Exception('Invalid Code found ' + str(code))
 
 
 ##
 ## Strains
 ##
+
+globalStrainsCodeCheck = {};
+
 class StrainAdaptor(FileMakerEntityAdaptor):
     def init(self):
         self.selectQuery = "SELECT * FROM \"Strain Collection\""
@@ -378,31 +352,54 @@ class StrainAdaptor(FileMakerEntityAdaptor):
     
     def addEntity(self, values):
         self.entities.append(StrainOpenBISDTO(values, self.definition))
-        
+ 
 class StrainOpenBISDTO(FMOpenBISDTO):
-    
+    code = None;
+
     def isSampleCacheable(self):
-            return False
-    
+            return False    
+
     def write(self, tr):
         code = self.getIdentifier(tr);
-        print "New Code To Be Written: " + code
-        sample = getSampleForUpdate("/MATERIALS/"+code,"YEAST", tr)
-        setEntityProperties(tr, self.definition, sample, self.values);
-    
+
+        sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
+        setEntityProperties(tr, self.definition, sample, self.values)
+        
+
     def getIdentifier(self, tr):
-        if "CODE" not in self.values:
-            self.values["CODE"] = "YEA" + getNextGlobalSequence("YEA");
-            print "New Code Generated: " + self.values["CODE"]
-        return self.values["CODE"];
+        if self.code is not None:
+            return self.code;
+        elif (self.values["BBPL_NUM"] is not None and self.values["BBPL_NUM"] not in globalStrainsCodeCheck):
+            self.code = "BBPL" + self.values["BBPL_NUM"]
+            globalStrainsCodeCheck[self.values["BBPL_NUM"]] = True
+        else:
+            nextNum = getNextGlobalSequence("BBPL", 0)
+            self.code = "BBPL_missing_" + nextNum;
+            globalStrainsCodeCheck[nextNum] = True
+        return self.code
+
+    # def getIdentifier(self, tr):
+    #     code=""
+    #     if (self.values["BBPL_NUM"] is not None):
+    #         # print "BBPL num", self.values["BBPL_NUM"]
+    #         code = "BBPL" +self.values["BBPL_NUM"]
+    #     else:
+    #         code="BBPL" + getNextGlobalSequence("BBPL", None);
+    #         # print "CODE 0", code
+    #     return code
 
 
+##
 ## Plasmids
 ##
+
+globalPlasmidsCodeCheck = {};
+globalPlasmidsList = [];
+
 class PlasmidAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Weis Lab Plasmids\""
+        self.selectQuery = "SELECT * FROM \"Strain Collection\""
         self.definition = definitions.plasmidDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -410,29 +407,63 @@ class PlasmidAdaptor(FileMakerEntityAdaptor):
         self.entities.append(PlasmidOpenBISDTO(values, self.definition))
         
 class PlasmidOpenBISDTO(FMOpenBISDTO):
+    code = None;
+    setParents = False; ## Should be true the second time
+
     def write(self, tr):
-        code = "PKW" + self.values["NAME"]
-        if code is not None:
-            sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
+        code = self.getIdentifier(tr)
+        sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
+        if self.setParents is False:
             setEntityProperties(tr, self.definition, sample, self.values)
-            setPlasmidParents(tr, self.definition, sample, self.values)
-            #print "SETPARENTS", setPlasmidParents(tr, self.definition, sample, self.values)
+            globalPlasmidsList.append(self);
+            self.setParents = True;
+            if (self.values["NAME"] is not None and len(self.values["NAME"]) > 0 and self.values["NAME"] not in sampleID2Sample):
+                print "Cached Sample with name: '" + self.values["NAME"] + "' for '" + "/MATERIALS/" + code + "' in dict with size: " + str(len(sampleID2Sample))
+                parentName = unicode(self.values["NAME"], "utf-8");
+                sampleID2Sample[parentName] = sample
         else:
-            print "PLASMID CODE NOT FOUND! "
+            parentsColumn = self.values["DERIVATIVE_OF"];
+            if parentsColumn is not None:
+                print "Looking for parents : '" + parentsColumn + "'"
+                parentsNames = parentsColumn.strip().split(" and ")
+                parentsList = [];
+                for parentName in parentsNames:
+                    parentName = unicode(parentName, "utf-8");
+                    if parentName in sampleID2Sample:
+                        parentObject = sampleID2Sample[parentName]
+                        parentsList.append(parentObject.getSampleIdentifier())
+                    else:
+                        print "Parent name not found : '" + parentName + "' for dict with size : " + str(len(sampleID2Sample))
+                            
+                if len(parentsList) > 0:
+                    sample.setParentSampleIdentifiers(parentsList)
     
     def getIdentifier(self, tr):
-        code = "PKW" +self.values["NAME"]
-        return code
+        if self.code is not None:
+            return self.code;
+        elif (self.values["PL_NUMBER"] is not None and self.values["PL_NUMBER"] not in globalPlasmidsCodeCheck):
+            self.code = "PBPL" + self.values["PL_NUMBER"]
+            globalPlasmidsCodeCheck[self.values["PL_NUMBER"]] = True
+        else:
+            nextNum = getNextGlobalSequence("PBPL", 0)
+            self.code = "PBPL_missing_" + nextNum;
+            globalPlasmidsCodeCheck[nextNum] = True
+        return self.code
 
+class PlasmidParentAdaptor(EntityAdaptor):    
+    def init(self):
+        self.entities = []
+        self.entitiesIdx = -1
+        for plasmid in globalPlasmidsList:
+            self.entities.append(plasmid);
 
 
 ##
 ## Oligos
 ##
 class OligoAdaptor(FileMakerEntityAdaptor):
-    
     def init(self):
-        self.selectQuery = "SELECT * FROM \"WLO\""
+        self.selectQuery = "SELECT * FROM \"Strain Collection\""
         self.definition = definitions.oligoDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -441,88 +472,25 @@ class OligoAdaptor(FileMakerEntityAdaptor):
         
 class OligoOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
-        code = self.values["NAME"]
+        code = "OBPL" + self.values["OBPL_NUMBER"];
+        print "CODE IS:", code
         if code is not None:
-            if re.search("CHCH", code): 
-                code = code.replace("CHCH", "CH")                
-                sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
-            elif re.search("CH", code):
-                sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)                
-            elif re.search("US", code):
-                code = code.replace("US", "UC")
-                sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
-            setEntityProperties(tr, self.definition, sample, self.values);
+            print "/MATERIALS/"+code
+            sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
+            setEntityProperties(tr, self.definition, sample, self.values)
         else:
             print "OLIGO CODE NOT FOUND! "
     
     def getIdentifier(self, tr):
-        code = self.values["NAME"]
+        code=""
+        if (self.values["OBPL_NUMBER"] is not None):
+            code = "OBPL" + self.values["OBPL_NUMBER"]
+        else:
+            code = "OBPL" + getNextGlobalSequence("OBPL", None);
         return code
 
 
 
-##
-## Chemical
-##
-class ChemicalAdaptor(FileMakerEntityAdaptor):
-    
-    def init(self):
-        self.selectQuery = "SELECT * FROM \"Table\""
-        self.definition = definitions.chemicalDefinition
-        FileMakerEntityAdaptor.init(self)
-    
-    def addEntity(self, values):
-        self.entities.append(ChemicalOpenBISDTO(values, self.definition))
-       
-        
-class ChemicalOpenBISDTO(FMOpenBISDTO):
-    def isSampleCacheable(self):
-        return False
-        
-    def write(self, tr):
-        code = "CHEM" + self.values["ID"]
-        if code is not None:
-            sample = getSampleForUpdate("/MATERIALS/"+code,"CHEMICAL", tr)
-            setEntityProperties(tr, self.definition, sample, self.values);
-        else:   
-            print "CHEMICAL CODE NOT FOUND!"
-    
-    def getIdentifier(self, tr):
-        code = "CHEM" + self.values["ID"]
-        return code
-
-##
-## Restriction enzymes
-##
-class EnzymeAdaptor(FileMakerEntityAdaptor):
-    def init(self):
-        self.selectQuery = "SELECT * FROM \"Restriction_Enzymes\""
-        
-        self.definition = definitions.RestrictionEnzymeDefinition
-        FileMakerEntityAdaptor.init(self)
-    
-    def addEntity(self, values):
-        self.entities.append(EnzymeOpenBISDTO(values, self.definition))
-        
-class EnzymeOpenBISDTO(FMOpenBISDTO):
-    
-    def isSampleCacheable(self):
-            return False
-    
-    def write(self, tr):
-        code = self.getIdentifier(tr);
-        print "New Code To Be Written: " + code
-        sample = getSampleForUpdate("/MATERIALS/"+code,"RESTRICTION_ENZYME", tr)
-        setEntityProperties(tr, self.definition, sample, self.values);
-    
-    def getIdentifier(self, tr):
-        if "CODE" not in self.values:
-            self.values["CODE"] = "RE" + getNextGlobalSequence("RE");
-            print "New Code Generated: " + self.values["CODE"]
-        return self.values["CODE"];
-
-
-        
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 #fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 fmUser= "admin"
@@ -530,23 +498,25 @@ fmPass = "kanamycin"
 
 
 
-adaptors = [ 
-             #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
-             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
-             #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
-             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "bBPL_Strain_Collection_2014Copy")
+adaptors = [
+             #OligoAdaptor(fmConnString, fmUser, fmPass, "03_BPL_Oligo_Collection"),
+             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "pBPL_Plasmid_Collection_2014"),
+             #PlasmidParentAdaptor(),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "bBPL_Strain_Collection")
              ]
-                       
-            
+
+
+
+
+
 def createDataHierarchy(tr):
     inventorySpace = tr.getSpace("MATERIALS")
     if inventorySpace == None:
         tr.createNewSpace("MATERIALS", None)
-        #tr.createNewProject("/MATERIALS/REAGENTS")
-        #tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES")
-        #tr.createNewProject("/MATERIALS/PLASMIDS")
-        tr.createNewProject("/MATERIALS/STRAINS")        
-        
-        
+        tr.createNewSpace("METHODS", None)
+        tr.createNewProject("/MATERIALS/STRAINS")
+        tr.createNewProject("/MATERIALS/PLASMIDS")
+        tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES")
+        tr.createNewExperiment("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", "MATERIALS")
+        tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1","MATERIALS")
+        tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1","MATERIALS")                                   
