@@ -163,7 +163,10 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         if (projectSamplesEnabled)
         {
             Project project = originalSample.getProject();
-            projectChooser.selectProjectAndUpdateOriginal(project.getIdentifier());
+            if (project != null)
+            {
+                projectChooser.selectProjectAndUpdateOriginal(project.getIdentifier());
+            }
         }
     }
 
