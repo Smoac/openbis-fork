@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.datasourceconnector;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,7 +27,6 @@ import java.util.concurrent.TimeoutException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.AuthenticationStore;
@@ -46,7 +45,7 @@ import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
  *
  * @author Ganime Betul Akin
  */
-public class DataSourceConnector
+public class DataSourceConnector implements IDataSourceConnector
 {
     private final String dataSourceUrl;
 
@@ -58,10 +57,7 @@ public class DataSourceConnector
         this.authCredentials = authCredentials;
     }
 
-    public Document getResourceListAsXMLDoc(List<String> spaceBlackList) throws ParserConfigurationException, SAXException, IOException,
-            XPathExpressionException,
-            URISyntaxException,
-            InterruptedException, TimeoutException, ExecutionException
+    public Document getResourceListAsXMLDoc(List<String> spaceBlackList) throws Exception
     {
         HttpClient client = JettyHttpClientFactory.getHttpClient();
         addAuthenticationCredentials(client);

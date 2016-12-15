@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -33,18 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -72,6 +65,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.Res
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.datasourceconnector.DataSourceConnector;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.INameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.PrefixBasedNameTranslator;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
@@ -166,8 +160,7 @@ public class EntitySynchronizer
         this.operationLog = operationLog;
     }
 
-    public Date syncronizeEntities() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException, URISyntaxException,
-            InterruptedException, TimeoutException, ExecutionException, NoSuchAlgorithmException
+    public Date syncronizeEntities() throws Exception
     {
         // operationLog.info("register master data");
         // registerMasterData();
