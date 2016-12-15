@@ -71,8 +71,8 @@ CSV = ".csv"
 
 
 class Sequencers:
-    HISEQ_4000, HISEQ_3000, HISEQ_2500, HISEQ_2000, HISEQ_X, NEXTSEQ_500, MISEQ , UNIDENTIFIED= \
-        ('Illumina HiSeq 4000','Illumina HiSeq 3000','Illumina HiSeq 2500','Illumina HiSeq 2000',
+    HISEQ_4000, HISEQ_3000, HISEQ_2500, HISEQ_2000, HISEQ_X, NEXTSEQ_500, MISEQ , UNIDENTIFIED = \
+        ('Illumina HiSeq 4000', 'Illumina HiSeq 3000', 'Illumina HiSeq 2500', 'Illumina HiSeq 2000',
          'Illumina HiSeq X', 'Illumina NextSeq 500', 'Illumina MiSeq', 'Unidentified')
 HISEQ_LIST = [Sequencers.HISEQ_2000, Sequencers.HISEQ_2500, Sequencers.HISEQ_3000, Sequencers.HISEQ_4000, Sequencers.HISEQ_X]
 
@@ -249,10 +249,11 @@ def get_vocabulary(vocabulary_code, service):
             vocabulary_dict[term.getCode()] = term.getLabel()
     else:
         print ('No vocabulary found for ' + vocabulary_code)
+    print(vocabulary_dict)
     return vocabulary_dict
 
 
-def send_email(emails, files, flowCellName, config_dict, logger):
+def send_email(emails, flowCellName, config_dict, logger, subject, body, files=""):
     """
     Send out an email to the specified recipients
     """
@@ -263,9 +264,9 @@ def send_email(emails, files, flowCellName, config_dict, logger):
     msg['From'] = config_dict['mailFrom']
     msg['To'] = COMMASPACE.join(emails_list)
     msg['Date'] = formatdate(localtime=True)
-    msg['Subject'] = 'Generated Sample Sheet for flowcell ' + flowCellName
+    msg['Subject'] = subject
     
-    msg.attach(MIMEText('Sample Sheet for ' + flowCellName + ' attached.'))
+    msg.attach(MIMEText(body))
     
     for f in files:
         part = MIMEBase('application', 'octet-stream')
@@ -486,26 +487,26 @@ def write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDic
 
 def create_header_section (model, config_dict, parentDict, flowCellDict, index_length_dict, lane):
 
-    kitsDict = {"CHIP_SEQ_SAMPLE_PREP" : ["",""],
-                "TRUSEQ_RNA_SAMPLEPREPKIT_V2_ILLUMINA" : ["A","TruSeq LT"],
+    kitsDict = {"CHIP_SEQ_SAMPLE_PREP" : ["", ""],
+                "TRUSEQ_RNA_SAMPLEPREPKIT_V2_ILLUMINA" : ["A", "TruSeq LT"],
                 "NEXTERA_XT_DNA_SAMPLE_PREPARATION_KIT_ILLUMINA" : ["S", "Nextera XT"],
-                "TRUSEQ_CHIP_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
-                "MRNA_SEQ_SAMPLE_PREP" : ["",""],
-                "TRUSEQRNA_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
-                "NEBNEXT_DNA_SAMPLE_PREP_MASTER_MIX_SET1" : ["A","TruSeq LT"],
-                "NEBNEXT_CHIP-SEQ_LIBRARY_PREP_REAGENT_SET" : ["A","TruSeq LT"],
-                "RIBOZERO_SCRIPTSEQ_MRNA-SEQ_KIT" : ["",""],
+                "TRUSEQ_CHIP_SAMPLE_PREP_KIT" : ["A", "TruSeq LT"],
+                "MRNA_SEQ_SAMPLE_PREP" : ["", ""],
+                "TRUSEQRNA_SAMPLE_PREP_KIT" : ["A", "TruSeq LT"],
+                "NEBNEXT_DNA_SAMPLE_PREP_MASTER_MIX_SET1" : ["A", "TruSeq LT"],
+                "NEBNEXT_CHIP-SEQ_LIBRARY_PREP_REAGENT_SET" : ["A", "TruSeq LT"],
+                "RIBOZERO_SCRIPTSEQ_MRNA-SEQ_KIT" : ["", ""],
                 "NEXTERA_DNA_SAMPLE_PREPARATION_KIT_ILLUMINA" : ["N", "Nextera"],
-                "GENOMICDNA_SAMPLE_PREP" : ["",""],
-                "AGILENT_SURESELECTXT_AUTOMATEDLIBRARYPREP" : ["",""],
-                "TRUSEQ_DNA_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
+                "GENOMICDNA_SAMPLE_PREP" : ["", ""],
+                "AGILENT_SURESELECTXT_AUTOMATEDLIBRARYPREP" : ["", ""],
+                "TRUSEQ_DNA_SAMPLE_PREP_KIT" : ["A", "TruSeq LT"],
                 "NEXTERA_DNA_SAMPLE_PREP_KITS" : ["N", "Nextera"],
-                "AGILENT_SURESELECT_ENRICHMENTSYSTEM" : ["",""],
-                "TRUSEQ_DNA_SAMPLE_PREP_KIT_V2" : ["A","TruSeq LT"],
-                "AGILENT_SURESELECT_HUMAN_ALL_EXON_V5_UTRS" : ["",""],
-                "POLYA_SCRIPTSEQ_MRNA-SEQ_KIT" : ["",""],
-                "AGILENT_SURESELECTXT2_MOUSE_ALL_EXON" : ["",""],
-                "PAIRED_END_DNA_SAMPLE_PREP" : ["",""],
+                "AGILENT_SURESELECT_ENRICHMENTSYSTEM" : ["", ""],
+                "TRUSEQ_DNA_SAMPLE_PREP_KIT_V2" : ["A", "TruSeq LT"],
+                "AGILENT_SURESELECT_HUMAN_ALL_EXON_V5_UTRS" : ["", ""],
+                "POLYA_SCRIPTSEQ_MRNA-SEQ_KIT" : ["", ""],
+                "AGILENT_SURESELECTXT2_MOUSE_ALL_EXON" : ["", ""],
+                "PAIRED_END_DNA_SAMPLE_PREP" : ["", ""],
                 "NEXTERA_DNA_SAMPLE_PREP_KIT_BUFFER_HMW" : ["N", "Nextera"]
     }
     
@@ -549,11 +550,11 @@ def create_header_section (model, config_dict, parentDict, flowCellDict, index_l
     settings_section = config_dict['settingsSection'].split(separator)
     settings_section.reverse()
     header_list.append(settings_section.pop())
-    if ('nextera' in assay.lower()):
-        header_list.append(config_dict['nexteraAdapter'])
-    if ('truseq' in assay.lower()):
-        header_list.append(config_dict['truSeqAdapter1'])
-        header_list.append(config_dict['truSeqAdapter2'])
+#     if ('nextera' in assay.lower()):
+#         header_list.append(config_dict['nexteraAdapter'])
+#     if ('truseq' in assay.lower()):
+#         header_list.append(config_dict['truSeqAdapter1'])
+#         header_list.append(config_dict['truSeqAdapter2'])
     header_list.append('')
 
     if int(flowCellDict['INDEXREAD2']) > 0 and len_index2 > 0:
@@ -583,7 +584,7 @@ def verify_index_length (parentDict, flowCellDict, config_dict, logger):
     
     logger.info("Flowcell has index length [" + str(flowcell_len_index1) + ", " + str(flowcell_len_index2) + "]")
 
-    for lane in range(1,int(flowCellDict['LANECOUNT'])+1):
+    for lane in range(1, int(flowCellDict['LANECOUNT']) + 1):
         index1_set = set ()
         index2_set = set ()
         index1_length = 0
@@ -597,7 +598,7 @@ def verify_index_length (parentDict, flowCellDict, config_dict, logger):
             if (config_dict['index1Name'] not in sample) or (sample[config_dict['index1Name']] == 'NOINDEX'):
                 continue
             index1 = sample[config_dict['index1Name']]
-            index2=""
+            index2 = ""
             if config_dict['index2Name'] in sample:
                 index2 = sample[config_dict['index2Name']]
             
@@ -622,7 +623,7 @@ def verify_index_length (parentDict, flowCellDict, config_dict, logger):
         logger.info("Index2 Length Set: " + str(index2_set))
         logger.info("Final length of index1 " + str(index1_length))
         logger.info("Final length of index2 " + str(index2_length))
-        #print("Lane " + str(lane) + " [" + str(index1_length) + "," + str(index2_length) + "]")
+        # print("Lane " + str(lane) + " [" + str(index1_length) + "," + str(index2_length) + "]")
                     
     return index_length_dict
 
@@ -645,11 +646,11 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
             for key in lane_sample_properties.keys():
                 if lane_sample_properties[key][u'NCBI_ORGANISM_TAXONOMY'] != u'10847' and not single_index_set: 
                     index1 = ""
-                    lane_string =""
+                    lane_string = ""
                     if model in HISEQ_LIST or model in Sequencers.MISEQ:
                         lane_string = lane_int + separator
 
-                    line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]),"", "", "", "", key, ""])
+                    line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]), "", "", "", "", key, ""])
                     sampleSheetDict[lane_int + '_' + key] = [line]
                     single_index_set = True
 
@@ -660,23 +661,23 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
             if ((config_dict['index1Name'] not in lane_sample_properties[key] or lane_sample_properties[key][config_dict['index1Name']] == 'NOINDEX')):
                 continue
             
-            index1 = lane_sample_properties[key][config_dict['index1Name']]
-            index2=""
+            index1 = index1Vocabulary[lane_sample_properties[key][config_dict['index1Name']]]
+            index2 = ""
             if config_dict['index2Name'] in lane_sample_properties[key]:
                 index2 = lane_sample_properties[key][config_dict['index2Name']]
                 # Not needed, won't use it any more
                 indexNumber = index2Vocabulary[lane_sample_properties[key][config_dict['index2Name']]].split()[2]
         
-            #try:
+            # try:
             #    kit = lane_sample_properties[key][config_dict['kit']]
             #    prefix = kitsDict[kit][0]
-            #except:
+            # except:
             #    prefix = ""
     
             len_index1 = index_length_dict[int(lane_int)][0]
             len_index2 = index_length_dict[int(lane_int)][1]
     
-            lane_string =""
+            lane_string = ""
             if model in HISEQ_LIST or model in Sequencers.MISEQ:
                 lane_string = lane_int + separator
             
@@ -688,12 +689,12 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
               
                 line = separator.join([lane_string + key,
                                     key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2],
-                                    "", "","", index1[0:len_index1],"", index2_processed, key, ""])
+                                    "", "", "", index1[0:len_index1], "", index2_processed, key, ""])
                 sampleSheetDict[lane_int + '_' + key] = [line]
 
             else:
                 line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1],
-                                       "", "","", index1[0:len_index1], key, ""])
+                                       "", "", "", index1[0:len_index1], key, ""])
                 sampleSheetDict[lane_int + '_' + key] = [line]
     
     csv_file_name = config_dict['SampleSheetFileName'] + '_' + flowCellName
@@ -736,8 +737,14 @@ def main ():
                                                                         samplesPerLaneDict, model, parentDict, index_length_dict,
                                                                         flowCellDict, config_dict, index1Vocabulary, index2Vocabulary,
                                                                         flowCellName, logger)
-    
-    write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDict, index_length_dict,
+    if len(ordered_sample_sheet_dict) < len(containedSamples):
+        subject = "Warning: Creation of Sample Sheet (" + flowCellName + ") failed. No indices found."
+        body = "Warning: No parents/libraries assigned to one of the flowlanes of " + flowCellName + \
+        ". Either it is a non-indexed lane or the parents are not set.\n" + \
+        "Check in the following map for missing lanes:\n" + str(ordered_sample_sheet_dict)
+        send_email(config_dict['mailList'], flowCellName, config_dict, logger, subject, body)
+    else:
+        write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDict, index_length_dict,
                                           parentDict, config_dict, myoptions, logger, csv_file_name)
 
     logout(service, logger)
