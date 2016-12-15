@@ -632,8 +632,6 @@ void rsyncDemultiplexedFiles (int [] laneCount) {
             string newFolderName = "Undetermined_" + cleanString(fcName) + "_" + lane
             #Undetermined_000000000_AH4PH_1
             string newFolderPath = searchFolder + "/" + newFolderName
-            newFolderPath.mkdir()
-            print("Created $newFolderPath\n")
 
             # Assuming it is only one lane
             if (listOfLanes.size() == 1 && listOfLanes[0] == 1) {
@@ -643,9 +641,15 @@ void rsyncDemultiplexedFiles (int [] laneCount) {
                 filesPerLane = searchFolder.dir("*L00" + lane + "*.fastq.gz")
             }
 
+            newFolderPath.mkdir()
+            print("Created $newFolderPath\n")
+
             for (string fastqFile : filesPerLane) {
-                sys mv "$searchFolder/$fastqFile" "$searchFolder/$newFolderName"
-                sys ln -s "$searchFolder/$newFolderName/$fastqFile" "$searchFolder/$fastqFile"
+                string moveAndLinkID task ( canFail := true, cpus := 1 ){
+                    # sys echo "$searchFolder/$fastqFile" "$searchFolder/$newFolderName" 
+                    sys [[ -f "$searchFolder/$fastqFile" ]] && mv "$searchFolder/$fastqFile" "$searchFolder/$newFolderName/"
+                    sys [[ ! -f "$searchFolder/$fastqFile" ]] && ln -s "$searchFolder/$newFolderName/$fastqFile" "$searchFolder/$fastqFile"
+                }
             }
             sys chmod -R 774 "$newFolderPath"
 
@@ -674,7 +678,6 @@ void rsyncDemultiplexedFiles (int [] laneCount) {
                          "$nohupFile", \
                          "$unalignedData/$sampleFolder", \
                          "$unalignedData/$marker$sampleFolder")
-
             }
     }
 }
