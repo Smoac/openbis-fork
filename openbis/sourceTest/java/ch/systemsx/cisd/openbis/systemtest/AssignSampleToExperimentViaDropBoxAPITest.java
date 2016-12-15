@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperatio
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -69,7 +70,7 @@ public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmen
         if (experimentIdentifierOrNull != null)
         {
             experimentIdentifier = ExperimentIdentifierFactory.parse(experimentIdentifierOrNull);
-            sampleIdentifier = new SampleIdentifier(experimentIdentifier, sampleIdentifier.getSampleCode());
+            sampleIdentifier = new SampleIdentifier((SpaceIdentifier) experimentIdentifier, sampleIdentifier.getSampleCode());
         }
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         String containerIdentifier = null;
