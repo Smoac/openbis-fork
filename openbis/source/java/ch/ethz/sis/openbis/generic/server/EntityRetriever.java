@@ -82,6 +82,8 @@ import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTermImmutable;
 
 public class EntityRetriever 
 {
@@ -423,6 +425,33 @@ public class EntityRetriever
         Element rootElement = doc.createElement("masterData");
         doc.appendChild(rootElement);
 
+        // append vocabularies
+        List<IVocabularyImmutable> vocabularies = listVocabularies();
+        if (vocabularies.size() > 0)
+        {
+            Element vocabsElement = doc.createElement("vocabularies");
+            rootElement.appendChild(vocabsElement);
+            for (IVocabularyImmutable vocabImmutable : vocabularies)
+            {
+                Element vocabElement = doc.createElement("vocabulary");
+                vocabElement.setAttribute("code", vocabImmutable.getCode());
+                vocabElement.setAttribute("description", vocabImmutable.getDescription());
+                vocabElement.setAttribute("urlTemplate", vocabImmutable.getUrlTemplate());
+                vocabsElement.appendChild(vocabElement);
+                List<IVocabularyTermImmutable> terms = vocabImmutable.getTerms();
+                for (IVocabularyTermImmutable vocabTermImmutable : terms)
+                {
+                    Element termElement = doc.createElement("term");
+                    termElement.setAttribute("code", vocabTermImmutable.getCode());
+                    termElement.setAttribute("label", vocabTermImmutable.getLabel());
+                    termElement.setAttribute("description", vocabTermImmutable.getDescription());
+                    termElement.setAttribute("ordinal", String.valueOf(vocabTermImmutable.getOrdinal()));
+                    termElement.setAttribute("url", vocabTermImmutable.getUrl());
+                    vocabElement.appendChild(termElement);
+                }
+            }
+        }
+
         // append property types
         List<IPropertyTypeImmutable> propertyTypes = listPropertyTypes();
         if (propertyTypes.size() > 0)
@@ -614,6 +643,11 @@ public class EntityRetriever
     public List<IPropertyTypeImmutable> listPropertyTypes()
     {
         return masterDataRegistrationTransaction.listPropertyTypes();
+    }
+
+    public List<IVocabularyImmutable> listVocabularies()
+    {
+        return masterDataRegistrationTransaction.listVocabularies();
     }
 
     private List<DataSetType> getDataSetTypes()
