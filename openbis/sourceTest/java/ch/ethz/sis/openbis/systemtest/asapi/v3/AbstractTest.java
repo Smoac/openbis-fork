@@ -900,6 +900,18 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualSet, expectedIdentifiers);
     }
 
+    protected static void assertExperimentIdentifiersInOrder(Collection<Experiment> experiments, String... expectedIdentifiers)
+    {
+        List<String> identifiers = new LinkedList<String>();
+
+        for (Experiment experiment : experiments)
+        {
+            identifiers.add(experiment.getIdentifier().getIdentifier());
+        }
+
+        assertEquals(identifiers, Arrays.asList(expectedIdentifiers));
+    }
+
     protected static void assertDataSetCodes(Collection<DataSet> dataSets, String... expectedCodes)
     {
         Set<String> actualSet = new HashSet<String>();

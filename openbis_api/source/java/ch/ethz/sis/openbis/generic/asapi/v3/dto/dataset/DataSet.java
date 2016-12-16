@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
@@ -54,7 +55,7 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.dataset.DataSet")
-public class DataSet implements Serializable, ICodeHolder, IExperimentHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISampleHolder, ITagsHolder
+public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IExperimentHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISampleHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -179,6 +180,7 @@ public class DataSet implements Serializable, ICodeHolder, IExperimentHolder, IM
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public DataSetType getType()
     {
         if (getFetchOptions() != null && getFetchOptions().hasType())

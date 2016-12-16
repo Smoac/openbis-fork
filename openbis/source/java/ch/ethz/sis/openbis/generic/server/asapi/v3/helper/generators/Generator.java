@@ -10,7 +10,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.Attachme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
@@ -112,12 +115,12 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("sample", "Sample", SampleFetchOptions.class);
 
         addPermId(gen, SamplePermId.class);
-        gen.addSimpleField(SampleIdentifier.class, "identifier");
+        gen.addSimpleField(SampleIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
         addRegistrationDate(gen);
         addModificationDate(gen);
 
-        gen.addFetchedField(SampleType.class, "type", "Sample type", SampleTypeFetchOptions.class);
+        gen.addFetchedField(SampleType.class, "type", "Sample type", SampleTypeFetchOptions.class).withInterface(IEntityTypeHolder.class);
         gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
         addSpace(gen);
         addExperiment(gen);
@@ -155,6 +158,7 @@ public class Generator extends AbstractGenerator
         // type.getValidationScript();
 
         DtoGenerator gen = new DtoGenerator("sample", "SampleType", SampleTypeFetchOptions.class);
+        gen.addImplementedInterface(IEntityType.class);
 
         addPermId(gen, EntityTypePermId.class);
         addCode(gen);
@@ -200,12 +204,12 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("experiment", "Experiment", ExperimentFetchOptions.class);
 
         addPermId(gen, ExperimentPermId.class);
-        gen.addSimpleField(ExperimentIdentifier.class, "identifier");
+        gen.addSimpleField(ExperimentIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
         addRegistrationDate(gen);
         addModificationDate(gen);
 
-        gen.addFetchedField(ExperimentType.class, "type", "Experiment type", ExperimentTypeFetchOptions.class);
+        gen.addFetchedField(ExperimentType.class, "type", "Experiment type", ExperimentTypeFetchOptions.class).withInterface(IEntityTypeHolder.class);
         gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class).withInterface(IProjectHolder.class);
 
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class)
@@ -233,6 +237,7 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createExperimentTypeGenerator()
     {
         DtoGenerator gen = new DtoGenerator("experiment", "ExperimentType", ExperimentTypeFetchOptions.class);
+        gen.addImplementedInterface(IEntityType.class);
 
         addPermId(gen, EntityTypePermId.class);
         addCode(gen);
@@ -252,7 +257,7 @@ public class Generator extends AbstractGenerator
 
         addPermId(gen, DataSetPermId.class);
         addCode(gen);
-        gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
+        gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class).withInterface(IEntityTypeHolder.class);
         gen.addFetchedField(DataStore.class, "dataStore", "Data store", DataStoreFetchOptions.class);
         gen.addBooleanField("measured");
         gen.addBooleanField("postRegistered");
@@ -294,6 +299,7 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createDataSetTypeGenerator()
     {
         DtoGenerator gen = new DtoGenerator("dataset", "DataSetType", DataSetTypeFetchOptions.class);
+        gen.addImplementedInterface(IEntityType.class);
 
         addPermId(gen, EntityTypePermId.class);
         gen.addSimpleField(DataSetKind.class, "kind");
@@ -449,7 +455,7 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("project", "Project", ProjectFetchOptions.class);
 
         addPermId(gen, ProjectPermId.class);
-        gen.addSimpleField(ProjectIdentifier.class, "identifier");
+        gen.addSimpleField(ProjectIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
         addDescription(gen);
         addRegistrationDate(gen);
@@ -533,9 +539,10 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createMaterialGenerator()
     {
         DtoGenerator gen = new DtoGenerator("material", "Material", MaterialFetchOptions.class);
+
         addPermId(gen, MaterialPermId.class);
         addCode(gen);
-        gen.addFetchedField(MaterialType.class, "type", "Material type", MaterialTypeFetchOptions.class);
+        gen.addFetchedField(MaterialType.class, "type", "Material type", MaterialTypeFetchOptions.class).withInterface(IEntityTypeHolder.class);
 
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
@@ -554,6 +561,7 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createMaterialTypeGenerator()
     {
         DtoGenerator gen = new DtoGenerator("material", "MaterialType", MaterialTypeFetchOptions.class);
+        gen.addImplementedInterface(IEntityType.class);
 
         addPermId(gen, EntityTypePermId.class);
         addCode(gen);

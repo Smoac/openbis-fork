@@ -4,6 +4,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions" ], fu
 	};
 
 	var fields = {
+		TYPE : "TYPE",
 		PROPERTY : "PROPERTY"
 	};
 
@@ -11,6 +12,12 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions" ], fu
 		prototype['@type'] = 'as.dto.common.fetchoptions.EntityWithPropertiesSortOptions';
 		constructor.serialVersionUID = 1;
 
+		prototype.type = function() {
+			return this.getOrCreateSorting(fields.TYPE);
+		};
+		prototype.getType = function() {
+			return this.getSorting(fields.TYPE);
+		};
 		prototype.property = function(propertyName) {
 			return this.getOrCreateSorting(fields.PROPERTY + propertyName);
 		};

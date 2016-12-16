@@ -1464,3 +1464,12 @@ OperationExecutionNotificationFetchOptions
 OperationExecutionNotificationSortOptions
 withNotification
 withNotificationUsing
+identifier
+IDENTIFIER
+IEntityType
+IEntityTypeHolder
+IIdentifierHolder
+PERM_ID
+permId
+type
+TYPE

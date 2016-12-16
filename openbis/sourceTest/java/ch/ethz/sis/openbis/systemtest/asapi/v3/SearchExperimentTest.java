@@ -608,6 +608,87 @@ public class SearchExperimentTest extends AbstractExperimentTest
         testSearch(TEST_SPACE_USER, criteria, 0);
     }
 
+    @Test
+    public void testSearchWithSortingByCode()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/DEFAULT/EXP-WELLS"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Experiment> experiments1 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertExperimentIdentifiersInOrder(experiments1, "/CISD/DEFAULT/EXP-REUSE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
+                "/CISD/DEFAULT/EXP-WELLS");
+
+        fo.sortBy().code().desc();
+        List<Experiment> experiments2 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertExperimentIdentifiersInOrder(experiments2, "/CISD/DEFAULT/EXP-WELLS", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
+                "/CISD/DEFAULT/EXP-REUSE");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByIdentifier()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/DEFAULT/EXP-WELLS"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+
+        fo.sortBy().identifier().asc();
+        List<Experiment> experiments1 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertExperimentIdentifiersInOrder(experiments1, "/CISD/DEFAULT/EXP-REUSE", "/CISD/DEFAULT/EXP-WELLS",
+                "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        fo.sortBy().identifier().desc();
+        List<Experiment> experiments2 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertExperimentIdentifiersInOrder(experiments2, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/CISD/DEFAULT/EXP-WELLS",
+                "/CISD/DEFAULT/EXP-REUSE");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByType()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+        fo.withType();
+
+        fo.sortBy().type().asc();
+        fo.sortBy().code().asc();
+        List<Experiment> experiments1 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertExperimentIdentifiersInOrder(experiments1, "/CISD/NEMO/EXP-TEST-1", "/CISD/DEFAULT/EXP-REUSE",
+                "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        fo.sortBy().type().desc();
+        fo.sortBy().code().desc();
+        List<Experiment> experiments2 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertExperimentIdentifiersInOrder(experiments2, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/CISD/DEFAULT/EXP-REUSE",
+                "/CISD/NEMO/EXP-TEST-1");
+
+        v3api.logout(sessionToken);
+    }
+
     private void testSearch(String user, ExperimentSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);

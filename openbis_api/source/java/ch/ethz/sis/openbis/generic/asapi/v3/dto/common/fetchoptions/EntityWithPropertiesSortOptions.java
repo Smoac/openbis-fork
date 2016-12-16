@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,14 +29,27 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.common.fetchoptions.EntityWithPropertiesSortOptions")
-public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder>
+public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermIdHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder>
         extends EntitySortOptions<OBJECT>
 {
 
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
+    public static final String TYPE = "TYPE";
+
+    @JsonIgnore
     public static final String PROPERTY = "PROPERTY";
+
+    public SortOrder type()
+    {
+        return getOrCreateSorting(TYPE);
+    }
+
+    public SortOrder getType()
+    {
+        return getSorting(TYPE);
+    }
 
     public SortOrder property(String propertyName)
     {

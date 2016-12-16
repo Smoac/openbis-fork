@@ -21,12 +21,13 @@ import java.util.Comparator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntitySortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 
 /**
  * @author pkupczyk
  */
-public class EntityComparatorFactory<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder> extends
+public class EntityComparatorFactory<OBJECT extends ICodeHolder & IPermIdHolder & IRegistrationDateHolder & IModificationDateHolder> extends
         ComparatorFactory
 {
 
@@ -42,6 +43,9 @@ public class EntityComparatorFactory<OBJECT extends ICodeHolder & IRegistrationD
         if (EntitySortOptions.CODE.equals(field))
         {
             return new CodeComparator<OBJECT>();
+        } else if (EntitySortOptions.PERM_ID.equals(field))
+        {
+            return new PermIdComparator<OBJECT>();
         } else if (EntitySortOptions.REGISTRATION_DATE.equals(field))
         {
             return new RegistrationDateComparator<OBJECT>();

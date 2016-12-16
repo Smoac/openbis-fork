@@ -19,6 +19,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
@@ -55,7 +57,7 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.experiment.Experiment")
-public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder, ITagsHolder
+public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IEntityTypeHolder, IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -139,6 +141,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public ExperimentIdentifier getIdentifier()
     {
         return identifier;
@@ -194,6 +197,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public ExperimentType getType()
     {
         if (getFetchOptions() != null && getFetchOptions().hasType())

@@ -16,7 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOrder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,5 +31,18 @@ public class SampleSortOptions extends EntityWithPropertiesSortOptions<Sample>
 {
 
     private static final long serialVersionUID = 1L;
+
+    @JsonIgnore
+    public static final String IDENTIFIER = "IDENTIFIER";
+
+    public SortOrder identifier()
+    {
+        return getOrCreateSorting(IDENTIFIER);
+    }
+
+    public SortOrder getIdentifier()
+    {
+        return getSorting(IDENTIFIER);
+    }
 
 }

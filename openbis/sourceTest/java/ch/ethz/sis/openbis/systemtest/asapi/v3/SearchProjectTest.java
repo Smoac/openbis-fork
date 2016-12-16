@@ -157,6 +157,54 @@ public class SearchProjectTest extends AbstractTest
         testSearch(TEST_SPACE_USER, criteria);
     }
 
+    @Test
+    public void testSearchWithSortingByCode()
+    {
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ProjectIdentifier("/CISD/NEMO"));
+        criteria.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        criteria.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/PROJECT-TO-DELETE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectFetchOptions fo = new ProjectFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Project> projects1 = v3api.searchProjects(sessionToken, criteria, fo).getObjects();
+        assertProjectIdentifiers(projects1, "/CISD/NEMO", "/TEST-SPACE/PROJECT-TO-DELETE", "/TEST-SPACE/TEST-PROJECT");
+
+        fo.sortBy().code().desc();
+        List<Project> projects2 = v3api.searchProjects(sessionToken, criteria, fo).getObjects();
+        assertProjectIdentifiers(projects2, "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/PROJECT-TO-DELETE", "/CISD/NEMO");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByIdentifier()
+    {
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ProjectIdentifier("/CISD/NOE"));
+        criteria.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
+        criteria.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/PROJECT-TO-DELETE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectFetchOptions fo = new ProjectFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Project> projects1 = v3api.searchProjects(sessionToken, criteria, fo).getObjects();
+        assertProjectIdentifiers(projects1, "/CISD/NOE", "/TEST-SPACE/NOE", "/TEST-SPACE/PROJECT-TO-DELETE");
+
+        fo.sortBy().code().desc();
+        List<Project> projects2 = v3api.searchProjects(sessionToken, criteria, fo).getObjects();
+        assertProjectIdentifiers(projects2, "/TEST-SPACE/PROJECT-TO-DELETE", "/TEST-SPACE/NOE", "/CISD/NOE");
+
+        v3api.logout(sessionToken);
+    }
+
     private void testSearch(String user, ProjectSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);

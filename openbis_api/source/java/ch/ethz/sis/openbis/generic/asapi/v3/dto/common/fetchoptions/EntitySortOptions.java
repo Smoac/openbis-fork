@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -27,13 +28,17 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.common.fetchoptions.EntitySortOptions")
-public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder> extends SortOptions<OBJECT>
+public class EntitySortOptions<OBJECT extends ICodeHolder & IPermIdHolder & IRegistrationDateHolder & IModificationDateHolder>
+        extends SortOptions<OBJECT>
 {
 
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
     public static final String CODE = "CODE";
+
+    @JsonIgnore
+    public static final String PERM_ID = "PERM_ID";
 
     @JsonIgnore
     public static final String MODIFICATION_DATE = "MODIFICATION_DATE";
@@ -49,6 +54,16 @@ public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHol
     public SortOrder getCode()
     {
         return getSorting(CODE);
+    }
+
+    public SortOrder permId()
+    {
+        return getOrCreateSorting(PERM_ID);
+    }
+
+    public SortOrder getPermId()
+    {
+        return getSorting(PERM_ID);
     }
 
     public SortOrder registrationDate()

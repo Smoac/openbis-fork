@@ -19,7 +19,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
@@ -58,7 +60,7 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IExperimentHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IEntityTypeHolder, IExperimentHolder, IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -157,6 +159,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public SampleIdentifier getIdentifier()
     {
         return identifier;
@@ -212,6 +215,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public SampleType getType()
     {
         if (getFetchOptions() != null && getFetchOptions().hasType())

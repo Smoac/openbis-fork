@@ -38,7 +38,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
@@ -613,9 +612,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
-        criteria.withPermId().thatEquals("200902091219327-1025");
-        criteria.withPermId().thatEquals("200902091225616-1027");
-        criteria.withPermId().thatEquals("200902091250077-1026");
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-2"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-3"));
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -628,6 +627,57 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.sortBy().code().desc();
         List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByIdentifier()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/CP-TEST-4"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/3V-125"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.sortBy().identifier().asc();
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/CP-TEST-1", "/TEST-SPACE/CP-TEST-4");
+
+        fo.sortBy().identifier().desc();
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
+        assertSampleIdentifiersInOrder(samples2, "/TEST-SPACE/CP-TEST-4", "/CISD/CP-TEST-1", "/CISD/3V-125");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByType()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/CP-TEST-4"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/3V-125"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+
+        fo.sortBy().type().asc();
+        fo.sortBy().code().asc();
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/TEST-SPACE/CP-TEST-4", "/CISD/3V-125");
+
+        fo.sortBy().type().desc();
+        fo.sortBy().code().desc();
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
+        assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/TEST-SPACE/CP-TEST-4", "/CISD/CP-TEST-1");
 
         v3api.logout(sessionToken);
     }
@@ -982,9 +1032,9 @@ public class SearchSampleTest extends AbstractSampleTest
         Collections.sort(identifiers);
         assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
         criteria.withType().withListable().thatEquals(true);
-        
+
         samples = search(sessionToken, criteria, fo);
-        
+
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
         assertEquals(identifiers.toString(), "[/CISD/CL1]");
@@ -1002,9 +1052,9 @@ public class SearchSampleTest extends AbstractSampleTest
         Collections.sort(identifiers);
         assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
         criteria.withType().withListable().thatEquals(false);
-        
+
         samples = search(sessionToken, criteria, fo);
-        
+
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
         assertEquals(identifiers.toString(), "[/CISD/CL1:A01, /CISD/CL1:A03]");
@@ -1032,7 +1082,7 @@ public class SearchSampleTest extends AbstractSampleTest
                 v3api.searchSamples(sessionToken, criteria, fetchOptions);
         return searchResult.getObjects();
     }
-    
+
     private List<String> extractIndentifiers(List<Sample> samples)
     {
         List<String> identifiers = new ArrayList<>();

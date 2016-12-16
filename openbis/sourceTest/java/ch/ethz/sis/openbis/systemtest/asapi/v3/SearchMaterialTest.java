@@ -297,6 +297,61 @@ public class SearchMaterialTest extends AbstractTest
         testSearch(TEST_USER, criteria, new MaterialPermId("SRM_1", "SELF_REF"), new MaterialPermId("SRM_1A", "SELF_REF"));
     }
 
+    @Test
+    public void testSearchWithSortingByCode()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new MaterialPermId("FLU", "VIRUS"));
+        criteria.withId().thatEquals(new MaterialPermId("MYGENE1", "GENE"));
+        criteria.withId().thatEquals(new MaterialPermId("MYGENE2", "GENE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fo = new MaterialFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Material> materials1 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+        assertMaterialPermIds(materials1, new MaterialPermId("FLU", "VIRUS"), new MaterialPermId("MYGENE1", "GENE"),
+                new MaterialPermId("MYGENE2", "GENE"));
+
+        fo.sortBy().code().desc();
+        List<Material> materials2 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+        assertMaterialPermIds(materials2, new MaterialPermId("MYGENE2", "GENE"), new MaterialPermId("MYGENE1", "GENE"),
+                new MaterialPermId("FLU", "VIRUS"));
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByType()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new MaterialPermId("FLU", "VIRUS"));
+        criteria.withId().thatEquals(new MaterialPermId("MYGENE1", "GENE"));
+        criteria.withId().thatEquals(new MaterialPermId("MYGENE2", "GENE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fo = new MaterialFetchOptions();
+        fo.withType();
+
+        fo.sortBy().type().asc();
+        fo.sortBy().code().asc();
+        List<Material> materials1 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+        assertMaterialPermIds(materials1, new MaterialPermId("MYGENE1", "GENE"), new MaterialPermId("MYGENE2", "GENE"),
+                new MaterialPermId("FLU", "VIRUS"));
+
+        fo.sortBy().type().desc();
+        fo.sortBy().code().desc();
+        List<Material> materials2 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+        assertMaterialPermIds(materials2, new MaterialPermId("FLU", "VIRUS"), new MaterialPermId("MYGENE2", "GENE"),
+                new MaterialPermId("MYGENE1", "GENE"));
+
+        v3api.logout(sessionToken);
+    }
+
     private void testSearch(String user, MaterialSearchCriteria criteria, MaterialPermId... expectedPermIds)
     {
         String sessionToken = v3api.login(user, PASSWORD);
