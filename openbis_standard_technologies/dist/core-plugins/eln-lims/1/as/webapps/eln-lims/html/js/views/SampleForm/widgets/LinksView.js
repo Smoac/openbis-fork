@@ -123,7 +123,15 @@ function LinksView(linksController, linksModel) {
 			}
 		}
 		
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, "ANNOTATIONS", linksModel.isDisabled, false);
+		var postFix = null;
+		if(containerCode) {
+			postFix = "ANNOTATIONS";
+		} else {
+			containerCode = mainController.currentView._sampleFormModel.sample.sampleTypeCode;
+			postFix = "ANNOTATIONS_ALL" + linksModel.title;
+		}
+		
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, postFix, linksModel.isDisabled, false);
 		dataGrid.init($dataGridContainer);
 		linksModel.writeState(sample, null, null, false);
 	}
