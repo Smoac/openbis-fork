@@ -44,7 +44,8 @@ public class ResourceSyncRequestHandler extends JythonBasedRequestHandler
         String openBisUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
         SslCertificateHelper.trustAnyCertificate(openBisUrl);
         ICommonServer commonService =
-                HttpInvokerUtils.createServiceStub(ICommonServer.class, openBisUrl + "/openbis/rmi-common",
+                HttpInvokerUtils.createServiceStub(ICommonServer.class, ((String.valueOf(properties.get("server-url")).trim()))
+                        + "/rmi-common",
                         5 * DateUtils.MILLIS_PER_MINUTE);
 
         EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create(commonService, session.getSessionToken());
