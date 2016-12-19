@@ -675,6 +675,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         builder.append(getCode(), that.getCode());
         builder.append(getContainer(), that.getContainer());
         builder.append(getSpace(), that.getSpace());
+        builder.append(getProject(), that.getProject());
         return builder.isEquals();
     }
 
@@ -684,6 +685,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
         builder.append(getSpace());
+        builder.append(getProject());
         return builder.toHashCode();
     }
 
