@@ -303,6 +303,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), null);
         }
+        updateProject(sample, updates.getProjectIdentifier(), null);
         setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull(),
                 null);
         addAttachments(sample, updates.getAttachments(), attachments);

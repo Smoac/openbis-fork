@@ -1124,7 +1124,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     
     private ProjectIdentifier getProjectIdentifier(SampleUpdates updates)
     {
-        String identifier = updates.getParentIdentifierOrNull();
+        String identifier = updates.getProjectIdentifierOrNull();
         if (identifier == null)
         {
             return null;

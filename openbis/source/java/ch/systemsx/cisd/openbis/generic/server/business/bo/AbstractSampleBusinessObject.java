@@ -232,6 +232,37 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         return experimentPE;
     }
+    
+    private ProjectPE tryFindProject(Map<String, ProjectPE> projectCache, ProjectIdentifier projectIdentifier)
+    {
+        if (projectIdentifier == null)
+        {
+            return null;
+        }
+        return tryFindProject(projectCache, projectIdentifier.toString(), null);
+    }
+    
+    private ProjectPE tryFindProject(Map<String, ProjectPE> projectCache, String projectIdentifier, 
+            String defaultSpace)
+    {
+        if (projectIdentifier == null)
+        {
+            return null;
+        }
+        ProjectIdentifier identifier = new ProjectIdentifierFactory(projectIdentifier).createIdentifier(defaultSpace);
+        fillSpaceIdentifier(identifier);
+        String key = identifier.toString();
+        ProjectPE project = projectCache == null ? null : projectCache.get(key);
+        if (project == null)
+        {
+            project = findProject(identifier);
+            if (projectCache != null)
+            {
+                projectCache.put(key, project);
+            }
+        }
+        return project;
+    }
 
     protected void setContainer(final SampleIdentifier sampleIdentifier, final SamplePE samplePE,
             String containerIdentifier, final String defaultSpace)
@@ -559,7 +590,32 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
         assignSampleAndRelatedDataSetsToExperiment(sample, newExperiment);
     }
+    
+    protected void updateProject(SamplePE sample, ProjectIdentifier projectIdentifierOrNull,
+            Map<String, ProjectPE> projectCache)
+    {
+        if (sample.getProject() == null && projectIdentifierOrNull == null)
+        {
+            return;
+        }
+        ProjectPE newProject = tryFindProject(projectCache, projectIdentifierOrNull);
+        if (EntityHelper.equalEntities(newProject, sample.getProject()) == false)
+        {
+            ensureSampleAttachableToProject(sample, newProject);
+            assignSampleToProject(sample, newProject);
+        }
+    }
 
+    private void ensureSampleAttachableToProject(SamplePE sample, ProjectPE project)
+    {
+        if (sample.getSpace() == null && project != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "It is not allowed to connect a shared sample '%s' to a project.",
+                    sample.getIdentifier());
+        }
+    }
+    
     private void ensureSampleAttachableToExperiment(SamplePE sample, ExperimentPE newExperiment)
     {
         if (sample.getSpace() == null && newExperiment != null)

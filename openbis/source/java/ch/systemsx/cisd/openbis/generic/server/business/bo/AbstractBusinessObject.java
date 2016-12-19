@@ -107,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -834,6 +835,17 @@ abstract class AbstractBusinessObject implements IDAOFactory
             relationshipService.unassignSampleFromExperiment(session, sample);
         }
         assignmentManager.performAssignment(relationshipService, session);
+    }
+    
+    protected void assignSampleToProject(SamplePE sample, ProjectPE project)
+    {
+        if (project != null)
+        {
+            relationshipService.assignSampleToProject(session, sample, project);
+        } else
+        {
+            relationshipService.unassignSampleFromProject(session, sample);
+        }
     }
 
     protected void assignDataSetToSampleAndExperiment(DataPE data, SamplePE newSample, ExperimentPE experiment)
