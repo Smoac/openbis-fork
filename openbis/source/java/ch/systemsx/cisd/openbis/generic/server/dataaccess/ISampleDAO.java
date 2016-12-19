@@ -69,7 +69,7 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      */
     SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
             throws DataAccessException;
-
+    
     /**
      * Returns a list of samples with given <var>space</var> and one of given codes.
      * 
@@ -78,6 +78,9 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      */
     List<SamplePE> listByCodesAndSpace(final List<String> sampleCodes, String containerCodeOrNull,
             final SpacePE space);
+
+    List<SamplePE> listByCodesAndProject(final List<String> sampleCodes, String containerCodeOrNull,
+            final ProjectPE project);
 
     /**
      * Inserts or updates given list of {@link SamplePE} into the database in one go.

@@ -155,13 +155,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setRegistrator(registrator);
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
-
-        String projectIdentifier = newSample.getProjectIdentifier();
-        if (projectIdentifier != null)
-        {
-            ProjectPE project = findProject(new ProjectIdentifierFactory(projectIdentifier).createIdentifier());
-            samplePE.setProject(project);
-        }
+        setProject(samplePE, newSample);
 
         RelationshipUtils.updateModificationDateAndModifier(samplePE, registrator, getTransactionTimeStamp());
         defineSampleProperties(samplePE, newSample.getProperties());
@@ -176,6 +170,24 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setPermId(getOrCreatePermID(newSample));
         setMetaprojects(samplePE, newSample.getMetaprojectsOrNull());
         return samplePE;
+    }
+
+    private void setProject(SamplePE samplePE, NewSample newSample)
+    {
+        SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSample);
+        if (sampleIdentifier.isProjectLevel())
+        {
+            ProjectPE project = findProject(sampleIdentifier.getProjectLevel());
+            samplePE.setProject(project);
+            samplePE.setSpace(project.getSpace());
+        }
+        String projectIdentifier = newSample.getProjectIdentifier();
+        if (projectIdentifier != null)
+        {
+            ProjectPE project = findProject(new ProjectIdentifierFactory(projectIdentifier).createIdentifier());
+            samplePE.setProject(project);
+            samplePE.setSpace(project.getSpace());
+        }
     }
 
     private void updateModifierAndModificationDate(ExperimentPE experimentOrNull)
@@ -730,6 +742,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             {
                 samples =
                         sampleDAO.listByCodesAndDatabaseInstance(sampleCodes, containerCodeOrNull);
+            } else if (sampleOwner.isProjectLevel())
+            {
+                ProjectPE project = sampleOwner.tryGetProject();
+                samples = sampleDAO.listByCodesAndProject(sampleCodes, containerCodeOrNull, project);
             } else
             {
                 assert sampleOwner.isSpaceLevel() : "Must be of space level.";

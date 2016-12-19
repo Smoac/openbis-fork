@@ -16,130 +16,176 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * @author anttil
  */
 public class NormalizedSampleIdentifier
 {
-    private String containerSpace = "";
-
-    private String containerCode = "";
-
-    private String space;
-
-    private String code;
+    private static final class IdentifierParts
+    {
+        private String space;
+        private String project;
+        private String code;
+        
+        private void extractPartsFrom(String identifier)
+        {
+            if (identifier == null)
+            {
+                return;
+            }
+            if (identifier.startsWith("/"))
+            {
+                String[] splittedIdentifier = identifier.split("/");
+                code = splittedIdentifier[splittedIdentifier.length - 1];
+                if (splittedIdentifier.length == 4)
+                {
+                    project = splittedIdentifier[2];
+                    space = splittedIdentifier[1];
+                } else if (splittedIdentifier.length == 3)
+                {
+                    space = splittedIdentifier[1];
+                }
+            } else
+            {
+                code = identifier;
+            }
+        }
+        
+        private void extractPartsFrom(Sample sample)
+        {
+            code = sample.getCode();
+            Project p = sample.getProject();
+            Space s = sample.getSpace();
+            if (p != null)
+            {
+                project = p.getCode();
+                Space ps = p.getSpace();
+                if (ps != null)
+                {
+                    s = ps;
+                }
+            }
+            if (s != null)
+            {
+                space = s.getCode();
+            }
+        }
+        
+        public String getIdentifier()
+        {
+            if (code == null)
+            {
+                return null;
+            }
+            if (space == null)
+            {
+                return "/" + code;
+            }
+            if (project == null)
+            {
+                return "/" + space + "/" + code;
+            }
+            return "/" + space + "/" + project + "/" + code;
+        }
+        
+    }
+    
+    private IdentifierParts containerIdentifierParts = new IdentifierParts();
+    
+    private IdentifierParts identifierParts = new IdentifierParts();
 
     public NormalizedSampleIdentifier(Sample sample)
     {
-        if (sample.getContainer() != null)
+        Sample container = sample.getContainer();
+        if (container != null)
         {
-            this.containerSpace = sample.getContainer().getSpace().getCode();
-            this.containerCode = sample.getContainer().getCode();
+            containerIdentifierParts.extractPartsFrom(container);
         }
-
-        this.space = sample.getSpace().getCode();
-        if (sample.getCode().contains(":"))
+        identifierParts.extractPartsFrom(sample);
+        if (identifierParts.code.contains(":"))
         {
-            this.code = sample.getCode().split(":")[1];
-        } else
-        {
-            this.code = sample.getCode();
+            identifierParts.code = identifierParts.code.split(":")[1];
         }
     }
 
     public NormalizedSampleIdentifier(NewSample sample, String homeSpace)
     {
 
-        String identifier = sample.getIdentifier();
+        String identifier = sample.getIdentifier().toUpperCase();
+        identifierParts.extractPartsFrom(identifier);
 
-        if (identifier.startsWith("/"))
+        if (identifierParts.space == null)
         {
-            String[] split = identifier.split("/");
-            space = split[1];
-            code = split[2];
-        } else
-        {
-            code = identifier;
+            identifierParts.space = normalizeSpaceCode(sample.getDefaultSpaceIdentifier());
         }
 
-        if (space == null)
+        if (identifierParts.space == null)
         {
-            space = normalizeSpaceCode(sample.getDefaultSpaceIdentifier());
+            identifierParts.space = normalizeSpaceCode(homeSpace);
         }
 
-        if (space == null)
+        if (identifierParts.space == null)
         {
-            space = normalizeSpaceCode(homeSpace);
+//            throw UserFailureException.fromTemplate("Cannot determine space for sample " + sample);
         }
 
-        if (space == null)
+        if (identifierParts.code.contains(":"))
         {
-            throw UserFailureException.fromTemplate("Cannot determine space for sample "
-                    + sample);
-        }
-
-        if (code.contains(":"))
-        {
-            String[] split = code.split(":");
-            containerCode = split[0];
-            code = split[1];
-            containerSpace = space;
+            String[] split = identifierParts.code.split(":");
+            containerIdentifierParts.code = split[0];
+            identifierParts.code = split[1];
+            containerIdentifierParts.space = identifierParts.space;
+            containerIdentifierParts.project = identifierParts.project;
 
             if (identifier.contains("/") == false)
             {
-                throw new UserFailureException("Invalid sample identifier: "
-                        + identifier);
+//                throw new UserFailureException("Invalid sample identifier: " + identifier);
             }
         }
 
-        if (sample.getCurrentContainerIdentifier() != null && containerSpace.isEmpty() == false)
+        if (sample.getCurrentContainerIdentifier() != null && containerIdentifierParts.space != null)
         {
             throw new UserFailureException("Container specified twice: " + sample.getIdentifier()
-                    + " and " + sample.getContainerIdentifier());
+                    + " and " + sample.getCurrentContainerIdentifier());
         } else if (sample.getCurrentContainerIdentifier() != null)
         {
             String containerIdentifier = sample.getCurrentContainerIdentifier();
-            if (containerIdentifier.contains("/"))
+            containerIdentifierParts.extractPartsFrom(containerIdentifier);
+            if (containerIdentifierParts.space == null)
             {
-                String[] split = sample.getCurrentContainerIdentifier().split("/");
-                this.containerSpace = split[1];
-                this.containerCode = split[2];
-            } else
-            {
-                this.containerSpace = space;
-                this.containerCode = containerIdentifier;
+                containerIdentifierParts.space = identifierParts.space;
+                containerIdentifierParts.project = identifierParts.project;
             }
         }
     }
 
     public String getSampleIdentifier()
     {
-        return "/" + space + "/" + code;
+        return identifierParts.getIdentifier();
     }
 
     public String getContainerIdentifier()
     {
-        if (containerSpace.isEmpty())
-        {
-            return null;
-        } else
-        {
-            return "/" + containerSpace + "/" + containerCode;
-        }
+        return containerIdentifierParts.getIdentifier();
     }
 
     public String getContainerCode()
     {
-        return containerCode;
+        return containerIdentifierParts.code;
     }
 
     public String getCode()
     {
-        return code;
+        return identifierParts.code;
     }
 
     private String normalizeSpaceCode(String spaceCode)
@@ -152,26 +198,43 @@ public class NormalizedSampleIdentifier
             return spaceCode;
         }
     }
-
+    
     @Override
     public int hashCode()
     {
-        return containerSpace.toUpperCase().hashCode() + containerCode.toUpperCase().hashCode()
-                + space.toUpperCase().hashCode()
-                + code.toUpperCase().hashCode();
+        HashCodeBuilder builder = new HashCodeBuilder();
+        appendTo(builder, identifierParts);
+        appendTo(builder, containerIdentifierParts);
+        return builder.toHashCode();
+    }
+    
+    private void appendTo(HashCodeBuilder builder, IdentifierParts parts)
+    {
+        builder.append(parts.space).append(parts.project).append(parts.code);
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (!(o instanceof NormalizedSampleIdentifier))
+        if (o == this)
+        {
+            return true;
+        }
+        if (o instanceof NormalizedSampleIdentifier == false)
         {
             return false;
         }
-        NormalizedSampleIdentifier nsi = (NormalizedSampleIdentifier) o;
-        return nsi.containerSpace.equalsIgnoreCase(containerSpace) &&
-                nsi.containerCode.equalsIgnoreCase(containerCode) &&
-                nsi.space.equalsIgnoreCase(space) &&
-                nsi.code.equalsIgnoreCase(code);
+        NormalizedSampleIdentifier that = (NormalizedSampleIdentifier) o;
+        EqualsBuilder builder = new EqualsBuilder();
+        appendTo(builder, identifierParts, that.identifierParts);
+        appendTo(builder, containerIdentifierParts, that.containerIdentifierParts);
+        return builder.isEquals();
+    }
+    
+    private void appendTo(EqualsBuilder builder, IdentifierParts parts1, IdentifierParts parts2)
+    {
+        builder.append(parts1.space, parts2.space);
+        builder.append(parts1.project, parts2.project);
+        builder.append(parts1.code, parts2.code);
     }
 }

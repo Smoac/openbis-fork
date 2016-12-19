@@ -239,13 +239,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         assert sampleCodes != null : "Unspecified sample codes.";
 
         final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
-        addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
-        List<SamplePE> result = cast(criteria.list());
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%s samples has been found", result.size()));
-        }
-        return result;
+        return listByCodes(criteria, sampleCodes, containerCodeOrNull);
     }
 
     @Override
@@ -302,6 +296,21 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         assert space != null : "Unspecified space.";
 
         Criteria criteria = createSpaceCriteria(space);
+        return listByCodes(criteria, sampleCodes, containerCodeOrNull);
+    }
+
+    @Override
+    public List<SamplePE> listByCodesAndProject(List<String> sampleCodes, String containerCodeOrNull, ProjectPE project)
+    {
+        assert sampleCodes != null : "Unspecified sample codes.";
+        assert project != null : "Unspecified project.";
+
+        Criteria criteria = createProjectCriteria(project);
+        return listByCodes(criteria, sampleCodes, containerCodeOrNull);
+    }
+
+    private List<SamplePE> listByCodes(Criteria criteria, List<String> sampleCodes, String containerCodeOrNull)
+    {
         addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
@@ -334,7 +343,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     private Criteria createSpaceCriteria(final SpacePE space)
     {
-        return createFindCriteria(Restrictions.eq("space", space));
+        Criteria criteria = createFindCriteria(Restrictions.eq("space", space));
+        criteria.add(Restrictions.isNull("project"));
+        return criteria;
     }
 
     private Criteria createProjectCriteria(final ProjectPE project)

@@ -26,9 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -72,7 +74,16 @@ public class SampleBuilder
         sample.setCode(sampleIdentifier.getSampleCode());
         String sampleSubCode = sampleIdentifier.getSampleSubCode();
         sample.setSubCode(sampleSubCode);
-        if (sampleIdentifier.isSpaceLevel())
+        if (sampleIdentifier.isProjectLevel())
+        {
+            Project project = new Project();
+            ProjectIdentifier projectIdentifier = sampleIdentifier.getProjectLevel();
+            project.setCode(projectIdentifier.getProjectCode());
+            Space space = new Space();
+            space.setCode(projectIdentifier.getSpaceCode());
+            project.setSpace(space);
+            sample.setProject(project);
+        } else if (sampleIdentifier.isSpaceLevel())
         {
             Space space = new Space();
             SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();

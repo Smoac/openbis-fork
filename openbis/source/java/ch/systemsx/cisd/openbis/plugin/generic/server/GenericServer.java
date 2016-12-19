@@ -376,24 +376,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
         {
             String homeSpace = session.tryGetHomeGroupCode();
 
-            // Normalize identifiers of incoming data
-            // Collect codes of all container samples
-            Set<String> containerCodes = new HashSet<String>();
-            for (NewSample sample : newSamples)
-            {
-                NormalizedSampleIdentifier id =
-                        new NormalizedSampleIdentifier(sample, homeSpace);
-                sample.setIdentifier(id.getSampleIdentifier());
-                sample.setCurrentContainerIdentifier(id.getContainerIdentifier());
-
-                if (id.getContainerIdentifier() != null && id.getContainerIdentifier().length() != 0)
-                {
-                    containerCodes.add(id.getContainerCode());
-                } else
-                {
-                    containerCodes.add(id.getCode());
-                }
-            }
+            Set<String> containerCodes = normalizeIdentifiersAndGatherContainerCodes(newSamples, homeSpace);
 
             // Get codes of container samples already present in database
             Set<NormalizedSampleIdentifier> existingSampleCodes =
@@ -431,6 +414,30 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
             registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister),
                     session.tryGetPerson());
             updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
+        }
+
+        private Set<String> normalizeIdentifiersAndGatherContainerCodes(List<NewSample> newSamples, String homeSpace)
+        {
+            // Normalize identifiers of incoming data
+            // Collect codes of all container samples
+            Set<String> containerCodes = new HashSet<String>();
+            for (NewSample sample : newSamples)
+            {
+                NormalizedSampleIdentifier id =
+                        new NormalizedSampleIdentifier(sample, homeSpace);
+                sample.setIdentifier(id.getSampleIdentifier());
+                String containerIdentifier = id.getContainerIdentifier();
+                sample.setCurrentContainerIdentifier(containerIdentifier);
+
+                if (containerIdentifier != null && containerIdentifier.length() != 0)
+                {
+                    containerCodes.add(id.getContainerCode());
+                } else
+                {
+                    containerCodes.add(id.getCode());
+                }
+            }
+            return containerCodes;
         }
 
         @Override
