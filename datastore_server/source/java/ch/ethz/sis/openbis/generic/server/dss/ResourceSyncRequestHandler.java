@@ -15,11 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss;
 
-import org.apache.commons.lang.time.DateUtils;
-
 import ch.ethz.sis.openbis.generic.server.EntityRetriever;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
+import ch.systemsx.cisd.openbis.common.api.client.IServicePinger;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IRequestHandlerPluginScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -40,15 +38,18 @@ public class ResourceSyncRequestHandler extends JythonBasedRequestHandler
     protected void setVariables(IRequestHandlerPluginScriptRunner runner, SessionContextDTO session)
     {
         super.setVariables(runner, session);
-
-        String openBisUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
-        SslCertificateHelper.trustAnyCertificate(openBisUrl);
-        ICommonServer commonService =
-                HttpInvokerUtils.createServiceStub(ICommonServer.class, ((String.valueOf(properties.get("server-url")).trim()))
-                        + "/rmi-common",
-                        5 * DateUtils.MILLIS_PER_MINUTE);
-
-        EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create(commonService, session.getSessionToken());
+        ServiceFinder finder = new ServiceFinder("openbis", "/rmi-common");
+        ICommonServer commonServer =
+                finder.createService(ICommonServer.class, ServiceProvider.getConfigProvider().getOpenBisServerUrl(),
+                        new IServicePinger<ICommonServer>()
+                            {
+                                @Override
+                                public void ping(ICommonServer service)
+                                {
+                                    service.getVersion();
+                                }
+                            });
+        EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create(commonServer, session.getSessionToken());
         MasterDataRegistrationService service = new MasterDataRegistrationService(encapsulatedServer);
         IMasterDataRegistrationTransaction masterDataRegistrationTransaction = service.transaction();
 
