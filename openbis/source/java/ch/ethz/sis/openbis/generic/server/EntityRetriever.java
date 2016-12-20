@@ -79,6 +79,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
@@ -459,6 +460,10 @@ public class EntityRetriever
                 propertyTypeElement.setAttribute("internalNamespace", String.valueOf(propertyTypeImmutable.isInternalNamespace()));
                 propertyTypeElement.setAttribute("managedInternally", String.valueOf(propertyTypeImmutable.isManagedInternally()));
                 propertyTypeElement.setAttribute("description", propertyTypeImmutable.getDescription());
+                if (propertyTypeImmutable.getDataType().name().equals(DataType.CONTROLLEDVOCABULARY.name()))
+                {
+                    propertyTypeElement.setAttribute("vocabulary", propertyTypeImmutable.getVocabulary().getCode());
+                }
                 propertyTypesElement.appendChild(propertyTypeElement);
             }
         }
