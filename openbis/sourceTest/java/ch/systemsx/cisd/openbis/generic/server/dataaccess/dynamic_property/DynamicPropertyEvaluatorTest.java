@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.hibernate.Query;
@@ -28,6 +30,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
@@ -70,6 +73,9 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
     public void setUp()
     {
         LogInitializer.init();
+        Properties properties = new Properties();
+        properties.setProperty(JythonEvaluatorSpringComponent.JYTHON_VERSION_KEY, "2.7");
+        new JythonEvaluatorSpringComponent(properties); // set up Jython evaluator factory
 
         final Session session = context.mock(Session.class);
         sessionProvider = new IHibernateSessionProvider()
@@ -396,8 +402,8 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample, sessionProvider.getSession());
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp1), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp1), dp2.getValue());
 
         // dp1 -> dp2 -> dp3 -> dp1
         properties = new LinkedHashSet<SamplePropertyPE>();
@@ -411,9 +417,9 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample, sessionProvider.getSession());
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp2.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp3.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp3, dp1, dp2, dp3), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp3, dp1, dp2, dp3), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp3, dp1, dp2, dp3), dp3.getValue());
     }
 
     //
