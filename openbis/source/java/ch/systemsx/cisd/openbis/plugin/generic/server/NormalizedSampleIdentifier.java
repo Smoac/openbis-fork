@@ -35,6 +35,7 @@ public class NormalizedSampleIdentifier
         private String space;
         private String project;
         private String code;
+        private boolean codeOnly;
         
         private void extractPartsFrom(String identifier)
         {
@@ -57,6 +58,7 @@ public class NormalizedSampleIdentifier
             } else
             {
                 code = identifier;
+                codeOnly = true;
             }
         }
         
@@ -123,19 +125,22 @@ public class NormalizedSampleIdentifier
         String identifier = sample.getIdentifier().toUpperCase();
         identifierParts.extractPartsFrom(identifier);
 
-        if (identifierParts.space == null)
+        if (identifierParts.codeOnly)
         {
-            identifierParts.space = normalizeSpaceCode(sample.getDefaultSpaceIdentifier());
-        }
-
-        if (identifierParts.space == null)
-        {
-            identifierParts.space = normalizeSpaceCode(homeSpace);
-        }
-
-        if (identifierParts.space == null)
-        {
-//            throw UserFailureException.fromTemplate("Cannot determine space for sample " + sample);
+            if (identifierParts.space == null)
+            {
+                identifierParts.space = normalizeSpaceCode(sample.getDefaultSpaceIdentifier());
+            }
+            
+            if (identifierParts.space == null)
+            {
+                identifierParts.space = normalizeSpaceCode(homeSpace);
+            }
+            
+            if (identifierParts.space == null)
+            {
+                throw UserFailureException.fromTemplate("Cannot determine space for sample " + sample);
+            }
         }
 
         if (identifierParts.code.contains(":"))

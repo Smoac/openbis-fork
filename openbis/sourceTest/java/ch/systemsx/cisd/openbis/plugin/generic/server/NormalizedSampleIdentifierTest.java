@@ -58,6 +58,21 @@ public class NormalizedSampleIdentifierTest
     }
     
     @Test
+    public void testNewSharedSampleWithCodeNoHomeSpaceNoDefaultSpace()
+    {
+        newSample.setIdentifier("a");
+        newSample.setDefaultSpaceIdentifier(null);
+        
+        try
+        {
+            new NormalizedSampleIdentifier(newSample, null);
+        } catch (UserFailureException ex)
+        {
+            assertEquals(ex.getMessage(), "Cannot determine space for sample A");
+        }
+    }
+    
+    @Test
     public void testNewSharedSampleComponent()
     {
         newSample.setIdentifier("/a:b");
