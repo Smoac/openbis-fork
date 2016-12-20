@@ -545,6 +545,7 @@ public class EntityRetriever
             for (SampleType sampleType : sampleTypes)
             {
                 Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "sampleType");
+                sampleTypeElement.setAttribute("generatedCodePrefix", sampleType.getGeneratedCodePrefix());
                 sampleTypesElement.appendChild(sampleTypeElement);
                 Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, sampleType.getPropertyAssignments());
                 sampleTypeElement.appendChild(propertyAssignmentsElement);
