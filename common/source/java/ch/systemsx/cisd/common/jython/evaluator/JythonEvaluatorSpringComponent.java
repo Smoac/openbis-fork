@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.jython.evaluator;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanInitializationException;
 
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  */
 public class JythonEvaluatorSpringComponent
 {
+    public static final String JYTHON_VERSION_KEY = "jython-version";
 
     @Private
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -38,7 +41,12 @@ public class JythonEvaluatorSpringComponent
 
     public JythonEvaluatorSpringComponent(ExposablePropertyPlaceholderConfigurer propertyConfigurer)
     {
-        String jythonVersion = propertyConfigurer.getResolvedProps().getProperty("jython-version");
+        this(propertyConfigurer.getResolvedProps());
+    }
+
+    public JythonEvaluatorSpringComponent(Properties resolvedProps)
+    {
+        String jythonVersion = resolvedProps.getProperty(JYTHON_VERSION_KEY);
         if ("2.7".equals(jythonVersion))
         {
             Evaluator.setFactory(createJython27EvaluatorFactory());
