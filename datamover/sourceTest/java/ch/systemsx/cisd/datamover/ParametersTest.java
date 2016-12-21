@@ -30,6 +30,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.Parameters.HostAwareFileWithHighwaterMarkHandler;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
@@ -57,6 +58,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     @BeforeClass
     public void init()
     {
+        LogInitializer.init();
         SystemExit.setThrowException(true);
     }
 

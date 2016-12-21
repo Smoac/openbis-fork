@@ -34,6 +34,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.datamover.testhelper.FileStructEngine;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
@@ -75,6 +76,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     public void setUp() throws IOException
     {
         super.setUp();
+        LogInitializer.init();
         scriptFile = new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
         FileOperations.getInstance().copyFile(ORIGINAL_SCRIPT_FILE, scriptFile);
     }
