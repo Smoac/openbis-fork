@@ -164,6 +164,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
             SampleImmutable sample = (SampleImmutable) sampleOrNull;
 
             Sample sampleDTO = sample.getSample();
+            dataSetInformation.setSample(sampleDTO);
             dataSetInformation.setSampleIdentifier(sampleDTO.getIdentifier());
 
             if (sampleDTO.getExperiment() != null)
