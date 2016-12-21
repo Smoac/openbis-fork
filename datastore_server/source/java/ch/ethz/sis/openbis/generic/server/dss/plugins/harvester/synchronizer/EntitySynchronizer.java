@@ -36,6 +36,7 @@ import java.util.Set;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -66,6 +67,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.Res
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.datasourceconnector.DataSourceConnector;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.datasourceconnector.IDataSourceConnector;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.INameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.PrefixBasedNameTranslator;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
@@ -75,6 +77,7 @@ import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -84,6 +87,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationTransactionWrapper;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -145,6 +153,8 @@ public class EntitySynchronizer
 
     private final Set<String> blackListedDataSetCodes;
 
+    private final MasterDataRegistrationTransactionWrapper masterDataRegistrationTransaction;
+
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
             Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
@@ -158,17 +168,20 @@ public class EntitySynchronizer
         this.context = context;
         this.config = config;
         this.operationLog = operationLog;
+        this.masterDataRegistrationTransaction = getMasterDataRegistrationTransactionWrapper();
     }
 
     public Date syncronizeEntities() throws Exception
     {
-        // operationLog.info("register master data");
-        // registerMasterData();
+        DataSourceConnector dataSourceConnector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials());
+        return syncronizeEntities(dataSourceConnector);
+    }
 
+    public Date syncronizeEntities(IDataSourceConnector dataSourceConnector) throws Exception
+    {
         // retrieve the document from the data source
         operationLog.info("Retrieving the resource list..");
-        DataSourceConnector connector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials());
-        Document doc = connector.getResourceListAsXMLDoc(Arrays.asList(ArrayUtils.EMPTY_STRING_ARRAY));
+        Document doc = dataSourceConnector.getResourceListAsXMLDoc(Arrays.asList(ArrayUtils.EMPTY_STRING_ARRAY));
 
         // Parse the resource list: This sends back all projects,
         // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
@@ -180,10 +193,14 @@ public class EntitySynchronizer
             nameTranslator = new PrefixBasedNameTranslator(dataSourcePrefix);
         }
 
-        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode); // , lastSyncTimestamp
+        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode, masterDataRegistrationTransaction); // ,
+                                                                                                                                 // lastSyncTimestamp
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
         processDeletions(data);
+
+        operationLog.info("registering master data");
+        // registerMasterData();
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
 
@@ -416,11 +433,28 @@ public class EntitySynchronizer
 
     private void registerMasterData()
     {
-        // EncapsulatedCommonServer encapsulatedServer = EncapsulatedCommonServer.create("http://localhost:8888/openbis/openbis", "admin", "a");
-        // MasterDataRegistrationService service = new MasterDataRegistrationService(encapsulatedServer);
-        // IMasterDataRegistrationTransaction transaction = service.transaction();
-        // transaction.getOrCreateNewDataSetType("test dataset type");
-        // service.commit();
+        masterDataRegistrationTransaction.execute();
+        MasterDataTransactionErrors transactionErrors = masterDataRegistrationTransaction.getTransactionErrors();
+        if (false == transactionErrors.getErrors().isEmpty())
+        {
+            MasterDataRegistrationException masterDataRegistrationException =
+                    new MasterDataRegistrationException("Master data synchronization finished with errors:",
+                            Collections
+                                    .<MasterDataTransactionErrors> singletonList(transactionErrors));
+            operationLog.info("Master data synchronizatio finished with errors");
+            masterDataRegistrationException.logErrors(new Log4jSimpleLogger(operationLog));
+        }
+    }
+
+    private MasterDataRegistrationTransactionWrapper getMasterDataRegistrationTransactionWrapper()
+    {
+        ICommonServer commonService =
+                HttpInvokerUtils.createServiceStub(ICommonServer.class, ServiceProvider.getConfigProvider().getOpenBisServerUrl() +
+                        "/openbis/rmi-common",
+                        5 * DateUtils.MILLIS_PER_MINUTE);
+        EncapsulatedCommonServer encapsulatedServer =
+                EncapsulatedCommonServer.create(commonService, ServiceProvider.getOpenBISService().getSessionToken());
+        return new MasterDataRegistrationTransactionWrapper(encapsulatedServer);
     }
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException

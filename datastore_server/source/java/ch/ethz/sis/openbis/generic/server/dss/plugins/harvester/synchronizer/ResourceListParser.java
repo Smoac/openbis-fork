@@ -49,6 +49,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.Res
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.translator.INameTranslator;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -80,30 +81,35 @@ public class ResourceListParser
 
     private final String dataStoreCode;
 
+    private final IMasterDataRegistrationTransaction masterDataRegistrationTransaction;
+
     public INameTranslator getNameTranslator()
     {
         return nameTranslator;
     }
 
-    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode)
+    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode,
+            IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
         this.data = new ResourceListParserData();
         this.nameTranslator = nameTranslator;
         this.dataStoreCode = dataStoreCode;
+        this.masterDataRegistrationTransaction = masterDataRegistrationTransaction;
     }
 
-    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode)
+    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode,
+            IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
         if (nameTranslator == null)
         {
-            return create(dataStoreCode);
+            return create(dataStoreCode, masterDataRegistrationTransaction);
         }
-        return new ResourceListParser(nameTranslator, dataStoreCode);
+        return new ResourceListParser(nameTranslator, dataStoreCode, masterDataRegistrationTransaction);
     }
 
-    public static ResourceListParser create(String dataStoreCode)
+    public static ResourceListParser create(String dataStoreCode, IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
-        return create(new DefaultNameTranslator(), dataStoreCode);
+        return create(new DefaultNameTranslator(), dataStoreCode, masterDataRegistrationTransaction);
     }
 
     public ResourceListParserData parseResourceListDocument(Document doc) throws XPathExpressionException
@@ -152,19 +158,16 @@ public class ResourceListParser
 
     private Date getResourceListTimestamp(Document doc, XPath xpath) throws XPathExpressionException
     {
-        XPathExpression expr = xpath.compile("/s:urlset/rs:md");
-        Object result = expr.evaluate(doc, XPathConstants.NODESET);
-        NodeList nodes = (NodeList) result;
-        for (int i = 0; i < nodes.getLength(); i++)
+        XPathExpression expr = xpath.compile("*[name() = 'urlset']/*[name() = 'rs:md']");
+        Node mdNode = (Node) expr.evaluate(doc, XPathConstants.NODE);
+        String timestamp = mdNode.getAttributes().getNamedItem("at").getTextContent();
+        try
         {
-            String capability = nodes.item(i).getAttributes().getNamedItem("capability").getTextContent();
-            if (capability.equals("resourcelist"))
-            {
-                String timestamp = nodes.item(i).getAttributes().getNamedItem("at").getTextContent();
-                return convertFromW3CDate(timestamp);
-            }
+            return convertFromW3CDate(timestamp);
+        } catch (ParseException e)
+        {
+            throw new XPathExpressionException("Last modification date cannot be parsed:" + timestamp);
         }
-        throw new XPathExpressionException("The master data resurce list should send a timestamp.");
     }
 
     private List<String> getResourceLocations(Document doc, XPath xpath) throws XPathExpressionException
@@ -176,14 +179,12 @@ public class ResourceListParser
         List<String> list = new ArrayList<String>();
         for (int i = 0; i < nodes.getLength(); i++)
         {
-            // System.out.print(nodes.item(i).getNodeName() + ":" + nodes.item(i).getAttributes().getNamedItem("href"));
             String uri = nodes.item(i).getTextContent();
-            // if (uri.endsWith("MASTER_DATA/MASTER_DATA/M"))
-            // {
-            // // parseMasterData(doc, xpath, uri);
-            // }
-            // else
-            if (uri.endsWith("/M"))
+            if (uri.endsWith("MASTER_DATA/MASTER_DATA/M"))
+            {
+                parseMasterData(doc, xpath, uri);
+            }
+            else if (uri.endsWith("/M"))
             {
                 list.add(uri);
             }
@@ -193,27 +194,8 @@ public class ResourceListParser
 
     private void parseMasterData(Document doc, XPath xpath, String uri) throws XPathExpressionException
     {
-        XPathExpression expr =
-                xpath.compile("//s:url/s:loc[normalize-space(.)='" + uri + "']//following-sibling::*[local-name() = 'masterData'][1]");
-        Node xdNode = (Node) expr.evaluate(doc, XPathConstants.NODE);
-        if (xdNode == null)
-        {
-            throw new XPathExpressionException("The master data resurce list should contain 1 master data element");
-        }
-        Element docElement = (Element) xdNode;
-        NodeList sampleTypesNode = docElement.getElementsByTagName("sampleTypes");
-        if (sampleTypesNode.getLength() == 1)
-        {
-            Element sampleTypesElement = (Element) sampleTypesNode.item(0);
-            NodeList sampleTypeNodes = sampleTypesElement.getElementsByTagName("sampleType");
-            for (int i = 0; i < sampleTypeNodes.getLength(); i++)
-            {
-                Element sampleTypeElement = (Element) sampleTypeNodes.item(i);
-                // TODO proper error handling needed below in case the XML is not correct and item 0 does not exist
-                String code = sampleTypeElement.getElementsByTagName("code").item(0).getTextContent();
-
-            }
-        }
+        MasterDataParser mdParser = new MasterDataParser(masterDataRegistrationTransaction);
+        mdParser.parseMasterData(doc, xpath, uri);
     }
 
     private void parseUriMetaData(Document doc, XPath xpath, String uri) throws XPathExpressionException
@@ -255,23 +237,20 @@ public class ResourceListParser
         }
 
         String lastModDataStr = lastModNode.getTextContent().trim();
-        // TODO data source servlet that generates the XML on the data source side MUST use the same format
-        return convertFromW3CDate(lastModDataStr);
+        try
+        {
+            return convertFromW3CDate(lastModDataStr);
+        } catch (ParseException e)
+        {
+            throw new XPathExpressionException("Last modification date cannot be parsed:" + lastModDataStr);
+        }
     }
 
-    private Date convertFromW3CDate(String lastModDataStr) throws XPathExpressionException
+    private Date convertFromW3CDate(String lastModDataStr) throws ParseException
     {
         DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
         df1.setTimeZone(TimeZone.getTimeZone("GMT"));
-        // DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        try
-        {
-            return df1.parse(lastModDataStr);
-        } catch (ParseException e)
-        {
-            e.printStackTrace();
-            throw new XPathExpressionException("Lastmod date cannot be parsed");
-        }
+        return df1.parse(lastModDataStr);
     }
 
     private Node extractXdNode(Document doc, XPath xpath, String uri) throws XPathExpressionException
