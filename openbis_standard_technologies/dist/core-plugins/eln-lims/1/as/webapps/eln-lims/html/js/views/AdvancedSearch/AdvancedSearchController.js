@@ -123,6 +123,14 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "code";
 						break;
+					case "identifier":
+						fetchOptions.sort.type = "Attribute";
+						fetchOptions.sort.name = "identifier";
+						break;
+					case "entityType":
+						fetchOptions.sort.type = "Attribute";
+						fetchOptions.sort.name = "type";
+						break;
 					case "registrationDate":
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "registrationDate"

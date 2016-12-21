@@ -452,7 +452,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Type',
 				property : 'entityType',
 				isExportable: true,
-				sortable : false
+				sortable : true
 			}, {
 				label : 'Name',
 				property : 'NAME',
@@ -473,7 +473,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Identifier',
 				property : 'identifier',
 				isExportable: true,
-				sortable : false,
+				sortable : true,
 				render : function(data) {
 					return getLinkOnClick(data.identifier, data);
 				}
