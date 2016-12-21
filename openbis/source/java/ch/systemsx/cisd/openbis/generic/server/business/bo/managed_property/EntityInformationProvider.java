@@ -29,9 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.EntityLinkElementTranslator;
@@ -117,6 +119,16 @@ public class EntityInformationProvider implements IEntityInformationProvider
 
         return space;
     }
+    
+    private ProjectPE tryGetProjectByCode(String spaceCode, String projectCode)
+    {
+        ProjectPE project = daoFactory.getProjectDAO().tryFindProject(spaceCode, projectCode);
+        if (project == null)
+        {
+            throw new UserFailureException("Project /" + spaceCode + "/" + projectCode + " doesn't exist.");
+        }
+        return project;
+    }
 
     @Override
     public String getSamplePermId(String spaceCode, String sampleCode)
@@ -127,10 +139,26 @@ public class EntityInformationProvider implements IEntityInformationProvider
     }
 
     @Override
+    public String getProjectSamplePermId(String spaceCode, String projectCode, String sampleCode)
+    {
+        
+        ProjectPE project = tryGetProjectByCode(spaceCode, projectCode);
+        SamplePE sample = daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, project);
+        return (sample != null) ? sample.getPermId() : null;
+    }
+
+    @Override
     public String getSamplePermId(String sampleIdentifier)
     {
         SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
         String sampleCode = identifier.getSampleCode();
+        if (identifier.isProjectLevel())
+        {
+            ProjectIdentifier projectIdentifier = identifier.getProjectLevel();
+            String spaceCode = projectIdentifier.getSpaceCode();
+            String projectCode = projectIdentifier.getProjectCode();
+            return getProjectSamplePermId(spaceCode, projectCode, sampleCode);
+        }
         if (identifier.isSpaceLevel())
         {
             String spaceCode = identifier.getSpaceLevel().getSpaceCode();
@@ -182,6 +210,19 @@ public class EntityInformationProvider implements IEntityInformationProvider
                     sampleCode, spaceCode);
         }
 
+        return getSamplesPermIds(sample.getParents());
+    }
+
+    @Override
+    public List<String> getProjectSampleParentPermIds(String spaceCode, String projectCode, String sampleCode)
+    {
+        ProjectPE project = tryGetProjectByCode(spaceCode, projectCode);
+        SamplePE sample = daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, project);
+        if (sample == null)
+        {
+            throw new UserFailureException("Sample /" + spaceCode + "/" + projectCode + "/" 
+                    + sampleCode + " doesn't exist.");
+        }
         return getSamplesPermIds(sample.getParents());
     }
 

@@ -125,6 +125,11 @@ public class DataSetTranslator
             {
                 description.setSampleTypeCode(sampleType.getCode());
             }
+            Project project = sample.getProject();
+            if (project != null)
+            {
+                description.setProjectCode(project.getCode());
+            }
             Space space = sample.getSpace();
             if (space != null)
             {
@@ -465,6 +470,11 @@ public class DataSetTranslator
             description.setSampleCode(sample.getCode());
             description.setSampleIdentifier(sample.getIdentifier());
             description.setSampleTypeCode(sample.getSampleType().getCode());
+            ProjectPE project = sample.getProject();
+            if (project != null)
+            {
+                description.setProjectCode(project.getCode());
+            }
             description.setSpaceCode(sample.getSpace().getCode());
         }
         ExperimentPE experiment = dataSet.getExperiment();

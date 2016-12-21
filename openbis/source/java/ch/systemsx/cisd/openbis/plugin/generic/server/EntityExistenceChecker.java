@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -189,6 +191,19 @@ class EntityExistenceChecker
                                 }
                                 return sampleDAO.tryFindByCodeAndSpace(sampleCode,
                                         spaceExistenceManager.tryGet(spaceLevel));
+                            }
+                            if (identifier.isProjectLevel())
+                            {
+                                ProjectIdentifier projectIdentifier = identifier.getProjectLevel();
+                                IProjectDAO projectDAO = daoFactory.getProjectDAO();
+                                String spaceCode = projectIdentifier.getSpaceCode();
+                                String projectCode = projectIdentifier.getProjectCode();
+                                ProjectPE project = projectDAO.tryFindProject(spaceCode, projectCode);
+                                if (project == null)
+                                {
+                                    return null;
+                                }
+                                return sampleDAO.tryfindByCodeAndProject(sampleCode, project);
                             }
                             return sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode);
                         }

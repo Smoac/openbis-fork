@@ -37,6 +37,11 @@ public interface IEntityInformationProvider
     String getSamplePermId(String spaceCode, String sampleCode);
 
     /**
+     * @return permId of project sample specified by given space, project and code, <code>null</code> if such a sample doesn't exist
+     */
+    String getProjectSamplePermId(String spaceCode, String projectCode, String sampleCode);
+    
+    /**
      * @return permId of sample specified by given identifier, <code>null</code> if such a sample doesn't exist
      */
     String getSamplePermId(String sampleIdentifier);
@@ -46,6 +51,11 @@ public interface IEntityInformationProvider
      */
     List<String> getSampleParentPermIds(String spaceCode, String sampleCode);
 
+    /**
+     * @return list of permIds of parents of a project sample with given space, project and code
+     */
+    List<String> getProjectSampleParentPermIds(String spaceCode, String projectCode, String sampleCode);
+    
     /**
      * @return list of permIds of parents of a sample with given permId
      */

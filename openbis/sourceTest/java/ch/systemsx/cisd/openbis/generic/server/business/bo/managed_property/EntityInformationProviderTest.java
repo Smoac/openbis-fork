@@ -27,7 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
 
@@ -116,6 +118,110 @@ public class EntityInformationProviderTest extends AbstractBOTest
         assertNull(provider.getIdentifier(elementFactory.createMaterialLink(fakeMCode,
                 fakeMTypeCode)));
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetProjectSamplePermId()
+    {
+        final SamplePE sample = new SamplePE();
+        final ProjectPE project = new ProjectPE();
+        SpacePE space = new SpacePE();
+        space.setCode("S1");
+        project.setSpace(space);
+        project.setCode("P1");
+        sample.setProject(project);
+        sample.setCode("SAMP1");
+        sample.setPermId("123");
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).tryFindProject("S1", "P1");
+                    will(returnValue(project));
+
+                    one(sampleDAO).tryfindByCodeAndProject("SAMP1", project);
+                    will(returnValue(sample));
+                }
+            });
+
+        String permId = provider.getProjectSamplePermId("S1", "P1", "SAMP1");
+
+        assertEquals("123", permId);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetProjectSampleByIdentifier()
+    {
+        final SamplePE sample = new SamplePE();
+        final ProjectPE project = new ProjectPE();
+        SpacePE space = new SpacePE();
+        space.setCode("S1");
+        project.setSpace(space);
+        project.setCode("P1");
+        sample.setProject(project);
+        sample.setCode("SAMP1");
+        sample.setPermId("123");
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).tryFindProject("S1", "P1");
+                    will(returnValue(project));
+
+                    one(sampleDAO).tryfindByCodeAndProject("SAMP1", project);
+                    will(returnValue(sample));
+                }
+            });
+
+        String permId = provider.getSamplePermId("/S1/P1/SAMP1");
+
+        assertEquals("123", permId);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetSpaceSampleByIdentifier()
+    {
+        final SamplePE sample = new SamplePE();
+        final SpacePE space = new SpacePE();
+        space.setCode("S1");
+        sample.setSpace(space);
+        sample.setCode("SAMP1");
+        sample.setPermId("123");
+        context.checking(new Expectations()
+            {
+                {
+                    one(spaceDAO).tryFindSpaceByCode("S1");
+                    will(returnValue(space));
+
+                    one(sampleDAO).tryFindByCodeAndSpace("SAMP1", space);
+                    will(returnValue(sample));
+                }
+            });
+
+        String permId = provider.getSamplePermId("/S1/SAMP1");
+
+        assertEquals("123", permId);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetSharedSampleByIdentifier()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setCode("SAMP1");
+        sample.setPermId("123");
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("SAMP1");
+                    will(returnValue(sample));
+                }
+            });
+
+        String permId = provider.getSamplePermId("/SAMP1");
+        
+        assertEquals("123", permId);
         context.assertIsSatisfied();
     }
 }

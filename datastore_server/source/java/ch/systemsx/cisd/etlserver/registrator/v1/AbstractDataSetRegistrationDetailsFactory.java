@@ -94,8 +94,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         SampleIdentifier sampleId = userProvidedDataSetInformationOrNull.getSampleIdentifier();
         if (null != sampleId)
         {
-            dataSetInfo.setSampleCode(sampleId.getSampleCode());
-            dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+            dataSetInfo.setSampleIdentifier(sampleId);
         }
 
         if (null != userProvidedDataSetInformationOrNull.tryToGetSample())

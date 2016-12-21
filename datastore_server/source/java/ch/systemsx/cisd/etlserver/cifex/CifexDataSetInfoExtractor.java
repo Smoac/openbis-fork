@@ -78,12 +78,7 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
         SampleIdentifier sampleIdentifierOrNull = tryGetSampleIdentifier(info);
         if (sampleIdentifierOrNull != null)
         {
-            dataSetInformation.setSampleCode(sampleIdentifierOrNull.getSampleCode());
-            if (sampleIdentifierOrNull.isSpaceLevel())
-            {
-                dataSetInformation.setSpaceCode(sampleIdentifierOrNull.getSpaceLevel()
-                        .getSpaceCode());
-            }
+            dataSetInformation.setSampleIdentifier(sampleIdentifierOrNull);
         } else
         {
             ExperimentIdentifier experimentIdentifier =

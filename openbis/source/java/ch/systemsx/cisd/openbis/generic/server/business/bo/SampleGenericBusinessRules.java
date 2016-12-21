@@ -45,8 +45,9 @@ public class SampleGenericBusinessRules
         {
             if (child.getSpace() == null)
             {
+                String kind = parent.getProject() == null ? "space" : "project";
                 throwUserFailureException("The database instance sample '%s' "
-                        + "can not be %s the space sample '%s'.", child, parent, childRelationName);
+                        + "can not be %s the " + kind + " sample '%s'.", child, parent, childRelationName);
             }
         }
     }
@@ -60,14 +61,15 @@ public class SampleGenericBusinessRules
         // new identifier of a parent is needed for comparison
         SampleIdentifier parentId = IdentifierHelper.createSampleIdentifier(parent);
 
-        if (parentId.isSpaceLevel())
+        if (parentId.isSpaceLevel() || parentId.isProjectLevel())
         {
+            String kind = parentId.isProjectLevel() ? "project" : "sample";
             for (SamplePE child : children)
             {
                 SampleIdentifier childId = child.getSampleIdentifier();
                 if (childId.isDatabaseInstanceLevel())
                 {
-                    throwUserFailureException("Sample '%s' can not be a space sample because of "
+                    throwUserFailureException("Sample '%s' can not be a space " + kind + " because of "
                             + "a %s database instance sample '%s'.", parent, child,
                             childRelationName);
                 }

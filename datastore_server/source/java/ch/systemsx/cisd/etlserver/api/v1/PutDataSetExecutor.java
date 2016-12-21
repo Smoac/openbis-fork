@@ -282,9 +282,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                 break;
             case SAMPLE:
                 SampleIdentifier sampleId = trySampleIdentifier();
-
-                dataSetInfo.setSampleCode(sampleId.getSampleCode());
-                dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                dataSetInfo.setSampleIdentifier(sampleId);
                 break;
             case DATA_SET:
                 String dataSetCode = tryGetDataSetCode();
@@ -735,9 +733,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                         break;
                     case SAMPLE:
                         SampleIdentifier sampleId = trySampleIdentifier();
-
-                        dataSetInfo.setSampleCode(sampleId.getSampleCode());
-                        dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                        dataSetInfo.setSampleIdentifier(sampleId);
                         break;
                     case DATA_SET:
                         String dataSetCode = tryGetDataSetCode();

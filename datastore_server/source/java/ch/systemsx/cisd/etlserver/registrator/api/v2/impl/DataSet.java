@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCode
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -165,13 +164,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
             SampleImmutable sample = (SampleImmutable) sampleOrNull;
 
             Sample sampleDTO = sample.getSample();
-            dataSetInformation.setSample(sampleDTO);
-            dataSetInformation.setSampleCode(sampleDTO.getCode());
-            Space space = sampleDTO.getSpace();
-            if (null != space)
-            {
-                dataSetInformation.setSpaceCode(space.getCode());
-            }
+            dataSetInformation.setSampleIdentifier(sampleDTO.getIdentifier());
 
             if (sampleDTO.getExperiment() != null)
             {

@@ -413,14 +413,23 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 return false;
             }
+            if (sampleIdentifier.isProjectLevel())
+            {
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectDTO = sampleDTO.getProject();
+                if (projectDTO == null)
+                {
+                    return false;
+                }
+                ProjectIdentifier project = sampleIdentifier.getProjectLevel();
+                return project.getProjectCode().equals(projectDTO.getCode()) 
+                        && project.getSpaceCode().equals(projectDTO.getSpace().getCode());
+            } 
             if (sampleIdentifier.isSpaceLevel())
             {
                 return sampleIdentifier.getSpaceLevel().getSpaceCode()
                         .equals(sampleDTO.getSpace().getCode());
             }
-            {
-                return sampleDTO.getSpace() == null;
-            }
+            return sampleDTO.getSpace() == null;
         }
 
         public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)

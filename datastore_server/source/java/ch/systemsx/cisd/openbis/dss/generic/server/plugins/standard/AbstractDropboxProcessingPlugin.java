@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -200,23 +201,35 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
 
     private DataSetInformation createDatasetInfo(DatasetDescription dataset)
     {
-        DataSetInformation datasetInfo = new DataSetInformation();
         String datasetTypeCode = dataset.getDataSetTypeCode();
+        String spaceCode = dataset.getSpaceCode();
+        String projectCode = dataset.getProjectCode();
+        String sampleCode = dataset.getSampleCode();
+        String experimentCode = dataset.getExperimentCode();
+        DataSetInformation datasetInfo = new DataSetInformation();
         datasetInfo.setDataSetType(new DataSetType(datasetTypeCode));
-        datasetInfo.setSampleCode(dataset.getSampleCode());
-        datasetInfo.setSpaceCode(dataset.getSpaceCode());
+        datasetInfo.setSampleCode(sampleCode);
+        datasetInfo.setProjectCode(projectCode);
+        datasetInfo.setSpaceCode(spaceCode);
         datasetInfo.setDataSetCode(dataset.getDataSetCode());
-        if (dataset.getExperimentCode() != null)
+        if (experimentCode != null)
         {
-            ExperimentIdentifier expIdent =
-                    new ExperimentIdentifier(dataset.getSpaceCode(), dataset.getProjectCode(),
-                            dataset.getExperimentCode());
+            ExperimentIdentifier expIdent = new ExperimentIdentifier(spaceCode, projectCode, experimentCode);
             datasetInfo.setExperimentIdentifier(expIdent);
         }
-        if (dataset.getSampleCode() != null)
+        if (sampleCode != null)
         {
-            SpaceIdentifier spaceIdentifier = new SpaceIdentifier(dataset.getSpaceCode());
-            datasetInfo.setSampleIdentifier(new SampleIdentifier(spaceIdentifier, dataset.getSampleCode()));
+            SampleIdentifier sampleIdentifier;
+            if (projectCode != null)
+            {
+                ProjectIdentifier projectIdentifier = new ProjectIdentifier(spaceCode, projectCode);
+                sampleIdentifier = new SampleIdentifier(projectIdentifier, sampleCode);
+            } else
+            {
+                SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
+                sampleIdentifier = new SampleIdentifier(spaceIdentifier, sampleCode);
+            }
+            datasetInfo.setSampleIdentifier(sampleIdentifier);
         }
         return datasetInfo;
     }

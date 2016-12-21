@@ -26,9 +26,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -58,7 +60,17 @@ public class Sample extends SampleImmutable implements ISample
         sample.setCode(sampleIdentifier.getSampleCode());
         String sampleSubCode = sampleIdentifier.getSampleSubCode();
         sample.setSubCode(sampleSubCode);
-        if (sampleIdentifier.isSpaceLevel())
+        if (sampleIdentifier.isProjectLevel())
+        {
+            ProjectIdentifier projectLevel = sampleIdentifier.getProjectLevel();
+            Space space = new Space();
+            space.setCode(projectLevel.getSpaceCode());
+            Project project = new Project();
+            project.setSpace(space);
+            project.setCode(projectLevel.getProjectCode());
+            sample.setSpace(space);
+            sample.setProject(project);
+        } else if (sampleIdentifier.isSpaceLevel())
         {
             Space space = new Space();
             SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();

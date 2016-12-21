@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -67,11 +68,8 @@ public class DataSetInformation implements Serializable
      */
     private String instanceUUID;
 
-    /**
-     * The database instance code.
-     */
-    private String instanceCode;
-
+    private String projectCode;
+    
     private String spaceCode;
 
     /** An object that uniquely identifies the experiment. Can be <code>null</code>. */
@@ -252,6 +250,10 @@ public class DataSetInformation implements Serializable
         {
             return null;
         }
+        if (projectCode != null)
+        {
+            return new SampleIdentifier(new ProjectIdentifier(spaceCode, projectCode), sampleCode);
+        }
         if (spaceCode == null)
         {
             return new SampleIdentifier(sampleCode);
@@ -263,13 +265,23 @@ public class DataSetInformation implements Serializable
     /**
      * Sets the sample identifier.
      */
-    public final void setSampleIdentifier(SampleIdentifier sampleIdentifier)
+    public final void setSampleIdentifier(SampleIdentifier sampleIdentifierOrNull)
     {
-        setSampleCode(sampleIdentifier.getSampleCode());
-        final SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
-        if (spaceLevel != null)
+        if (sampleIdentifierOrNull != null)
         {
-            setSpaceCode(spaceLevel.getSpaceCode());
+            setSampleCode(sampleIdentifierOrNull.getSampleCode());
+            if (sampleIdentifierOrNull.isProjectLevel())
+            {
+                setProjectCode(sampleIdentifierOrNull.getProjectLevel().getProjectCode());
+                setSpaceCode(sampleIdentifierOrNull.getProjectLevel().getSpaceCode());
+            } else
+            {
+                final SpaceIdentifier spaceLevel = sampleIdentifierOrNull.getSpaceLevel();
+                if (spaceLevel != null)
+                {
+                    setSpaceCode(spaceLevel.getSpaceCode());
+                }
+            }
         }
     }
 
@@ -346,6 +358,16 @@ public class DataSetInformation implements Serializable
     public final void setParentDataSetCodes(List<String> parentDataSetCodes)
     {
         extractableData.setParentDataSetCodes(parentDataSetCodes);
+    }
+
+    public String getProjectCode()
+    {
+        return projectCode;
+    }
+
+    public void setProjectCode(String projectCode)
+    {
+        this.projectCode = projectCode;
     }
 
     public final void setSpaceCode(final String spaceCode)
