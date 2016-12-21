@@ -459,7 +459,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: true,
 				sortable : !isGlobalSearch,
 				render : function(data) {
-					return getLinkOnClick(data.NAME, data);
+					if(data.NAME) {
+						return getLinkOnClick(data.NAME, data);
+					} else {
+						return "";
+					}
 				}
 			}, {
 				label : 'Code',
