@@ -36,7 +36,6 @@ import java.util.Set;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -59,6 +58,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.EntityRetriever;
+import ch.ethz.sis.openbis.generic.server.dss.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
@@ -77,7 +77,6 @@ import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -91,7 +90,6 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCo
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationTransactionWrapper;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -448,13 +446,10 @@ public class EntitySynchronizer
 
     private MasterDataRegistrationTransactionWrapper getMasterDataRegistrationTransactionWrapper()
     {
-        ICommonServer commonService =
-                HttpInvokerUtils.createServiceStub(ICommonServer.class, ServiceProvider.getConfigProvider().getOpenBisServerUrl() +
-                        "/openbis/rmi-common",
-                        5 * DateUtils.MILLIS_PER_MINUTE);
-        EncapsulatedCommonServer encapsulatedServer =
-                EncapsulatedCommonServer.create(commonService, ServiceProvider.getOpenBISService().getSessionToken());
-        return new MasterDataRegistrationTransactionWrapper(encapsulatedServer);
+        String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
+        String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
+        EncapsulatedCommonServer encapsulatedCommonServer = ServiceFinderUtils.getEncapsulatedCommonServer(sessionToken, openBisServerUrl);
+        return new MasterDataRegistrationTransactionWrapper(encapsulatedCommonServer);
     }
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
