@@ -298,86 +298,18 @@ public class OperationsExecutor implements IOperationsExecutor
 
         try
         {
-            // delete
-            resultMap.putAll(deleteDataSetsExecutor.execute(context, operations));
-            resultMap.putAll(deleteSamplesExecutor.execute(context, operations));
-            resultMap.putAll(deleteExperimentsExecutor.execute(context, operations));
-            resultMap.putAll(deleteProjectsExecutor.execute(context, operations));
-            resultMap.putAll(deleteSpacesExecutor.execute(context, operations));
-            resultMap.putAll(deleteMaterialsExecutor.execute(context, operations));
-            resultMap.putAll(deleteTagsExecutor.execute(context, operations));
-            resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
-            resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));
-
-            // create
-            resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
-            resultMap.putAll(createTagsExecutor.execute(context, operations));
-            resultMap.putAll(createMaterialsExecutor.execute(context, operations));
-            resultMap.putAll(createSpacesExecutor.execute(context, operations));
-            resultMap.putAll(createProjectsExecutor.execute(context, operations));
-            resultMap.putAll(createExperimentsExecutor.execute(context, operations));
-            resultMap.putAll(createSamplesExecutor.execute(context, operations));
-            resultMap.putAll(createDataSetsExecutor.execute(context, operations));
-
-            // update
-            resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
-            resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
-            resultMap.putAll(updateTagsExecutor.execute(context, operations));
-            resultMap.putAll(updateMaterialsExecutor.execute(context, operations));
-            resultMap.putAll(updateSpacesExecutor.execute(context, operations));
-            resultMap.putAll(updateProjectsExecutor.execute(context, operations));
-            resultMap.putAll(updateExperimentsExecutor.execute(context, operations));
-            resultMap.putAll(updateSamplesExecutor.execute(context, operations));
-            resultMap.putAll(updateDataSetsExecutor.execute(context, operations));
-
-            // internal
+            executeDeletions(operations, resultMap, context);
+            executeCreations(operations, resultMap, context);
+            executeUpdates(operations, resultMap, context);
             resultMap.putAll(internalOperationExecutor.execute(context, operations));
 
             flushCurrentSession();
 
-            // verify
-            verifyMaterialsExecutor.verify(context, operations, resultMap);
-            verifyExperimentsExecutor.verify(context, operations, resultMap);
-            verifySamplesExecutor.verify(context, operations, resultMap);
-            verifyDataSetsExecutor.verify(context, operations, resultMap);
+            verify(operations, resultMap, context);
 
-            // get
-            resultMap.putAll(getSpacesExecutor.execute(context, operations));
-            resultMap.putAll(getProjectsExecutor.execute(context, operations));
-            resultMap.putAll(getExperimentsExecutor.execute(context, operations));
-            resultMap.putAll(getSamplesExecutor.execute(context, operations));
-            resultMap.putAll(getDataSetsExecutor.execute(context, operations));
-            resultMap.putAll(getMaterialsExecutor.execute(context, operations));
-            resultMap.putAll(getTagsExecutor.execute(context, operations));
-            resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
-            resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));
-
-            // search
-            resultMap.putAll(searchSpacesExecutor.execute(context, operations));
-            resultMap.putAll(searchProjectsExecutor.execute(context, operations));
-            resultMap.putAll(searchExperimentsExecutor.execute(context, operations));
-            resultMap.putAll(searchSamplesExecutor.execute(context, operations));
-            resultMap.putAll(searchDataSetsExecutor.execute(context, operations));
-            resultMap.putAll(searchMaterialsExecutor.execute(context, operations));
-            resultMap.putAll(searchTagsExecutor.execute(context, operations));
-            resultMap.putAll(searchVocabularyTermsExecutor.execute(context, operations));
-            resultMap.putAll(searchExperimentTypesExecutor.execute(context, operations));
-            resultMap.putAll(searchSampleTypesExecutor.execute(context, operations));
-            resultMap.putAll(searchDataSetTypesExecutor.execute(context, operations));
-            resultMap.putAll(searchMaterialTypesExecutor.execute(context, operations));
-            resultMap.putAll(searchCustomASServicesExecutor.execute(context, operations));
-            resultMap.putAll(searchDeletionsExecutor.execute(context, operations));
-            resultMap.putAll(searchGloballyExecutor.execute(context, operations));
-            resultMap.putAll(searchObjectKindModificationsExecutor.execute(context, operations));
-            resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
-
-            // others
-            resultMap.putAll(executeCustomASServiceExecutor.execute(context, operations));
-            resultMap.putAll(revertDeletionsExecutor.execute(context, operations));
-            resultMap.putAll(confirmDeletionsExecutor.execute(context, operations));
-            resultMap.putAll(archiveDataSetsExecutor.execute(context, operations));
-            resultMap.putAll(unarchiveDataSetsExecutor.execute(context, operations));
-            resultMap.putAll(getSessionInformationExecutor.execute(context, operations));
+            executeGets(operations, resultMap, context);
+            executeSearches(operations, resultMap, context);
+            executeOthers(operations, resultMap, context);
 
             List<IOperationResult> resultList = new ArrayList<IOperationResult>();
             for (IOperation operation : operations)
@@ -393,6 +325,103 @@ public class OperationsExecutor implements IOperationsExecutor
         {
             clearCurrentSession();
         }
+    }
+
+    private void executeOthers(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        resultMap.putAll(executeCustomASServiceExecutor.execute(context, operations));
+        resultMap.putAll(revertDeletionsExecutor.execute(context, operations));
+        resultMap.putAll(confirmDeletionsExecutor.execute(context, operations));
+        resultMap.putAll(archiveDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(unarchiveDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(getSessionInformationExecutor.execute(context, operations));
+    }
+
+    private void executeSearches(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        resultMap.putAll(searchSpacesExecutor.execute(context, operations));
+        resultMap.putAll(searchProjectsExecutor.execute(context, operations));
+        resultMap.putAll(searchExperimentsExecutor.execute(context, operations));
+        resultMap.putAll(searchSamplesExecutor.execute(context, operations));
+        resultMap.putAll(searchDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(searchMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(searchTagsExecutor.execute(context, operations));
+        resultMap.putAll(searchVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(searchExperimentTypesExecutor.execute(context, operations));
+        resultMap.putAll(searchSampleTypesExecutor.execute(context, operations));
+        resultMap.putAll(searchDataSetTypesExecutor.execute(context, operations));
+        resultMap.putAll(searchMaterialTypesExecutor.execute(context, operations));
+        resultMap.putAll(searchCustomASServicesExecutor.execute(context, operations));
+        resultMap.putAll(searchDeletionsExecutor.execute(context, operations));
+        resultMap.putAll(searchGloballyExecutor.execute(context, operations));
+        resultMap.putAll(searchObjectKindModificationsExecutor.execute(context, operations));
+        resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
+    }
+
+    private void executeGets(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        resultMap.putAll(getSpacesExecutor.execute(context, operations));
+        resultMap.putAll(getProjectsExecutor.execute(context, operations));
+        resultMap.putAll(getExperimentsExecutor.execute(context, operations));
+        resultMap.putAll(getSamplesExecutor.execute(context, operations));
+        resultMap.putAll(getDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(getMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(getTagsExecutor.execute(context, operations));
+        resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));
+    }
+
+    private void verify(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        verifyMaterialsExecutor.verify(context, operations, resultMap);
+        verifyExperimentsExecutor.verify(context, operations, resultMap);
+        verifySamplesExecutor.verify(context, operations, resultMap);
+        verifyDataSetsExecutor.verify(context, operations, resultMap);
+    }
+
+    private void executeUpdates(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
+        resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(updateTagsExecutor.execute(context, operations));
+        resultMap.putAll(updateMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(updateSpacesExecutor.execute(context, operations));
+        resultMap.putAll(updateProjectsExecutor.execute(context, operations));
+        resultMap.putAll(updateExperimentsExecutor.execute(context, operations));
+        resultMap.putAll(updateSamplesExecutor.execute(context, operations));
+        resultMap.putAll(updateDataSetsExecutor.execute(context, operations));
+    }
+
+    private void executeCreations(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(createTagsExecutor.execute(context, operations));
+        resultMap.putAll(createMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(createSpacesExecutor.execute(context, operations));
+        resultMap.putAll(createProjectsExecutor.execute(context, operations));
+        resultMap.putAll(createExperimentsExecutor.execute(context, operations));
+        resultMap.putAll(createSamplesExecutor.execute(context, operations));
+        resultMap.putAll(createDataSetsExecutor.execute(context, operations));
+    }
+
+    private void executeDeletions(List<? extends IOperation> operations, 
+            Map<IOperation, IOperationResult> resultMap, IOperationContext context)
+    {
+        resultMap.putAll(deleteDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(deleteSamplesExecutor.execute(context, operations));
+        resultMap.putAll(deleteExperimentsExecutor.execute(context, operations));
+        resultMap.putAll(deleteProjectsExecutor.execute(context, operations));
+        resultMap.putAll(deleteSpacesExecutor.execute(context, operations));
+        resultMap.putAll(deleteMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(deleteTagsExecutor.execute(context, operations));
+        resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));
     }
 
     protected void clearCurrentSession()
