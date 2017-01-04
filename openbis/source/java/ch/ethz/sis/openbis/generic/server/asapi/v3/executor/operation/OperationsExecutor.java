@@ -304,6 +304,7 @@ public class OperationsExecutor implements IOperationsExecutor
             resultMap.putAll(internalOperationExecutor.execute(context, operations));
 
             flushCurrentSession();
+            clearCurrentSession();
 
             verify(operations, resultMap, context);
 
@@ -401,13 +402,13 @@ public class OperationsExecutor implements IOperationsExecutor
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
-        resultMap.putAll(createTagsExecutor.execute(context, operations));
         resultMap.putAll(createMaterialsExecutor.execute(context, operations));
         resultMap.putAll(createSpacesExecutor.execute(context, operations));
         resultMap.putAll(createProjectsExecutor.execute(context, operations));
         resultMap.putAll(createExperimentsExecutor.execute(context, operations));
         resultMap.putAll(createSamplesExecutor.execute(context, operations));
         resultMap.putAll(createDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(createTagsExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations, 

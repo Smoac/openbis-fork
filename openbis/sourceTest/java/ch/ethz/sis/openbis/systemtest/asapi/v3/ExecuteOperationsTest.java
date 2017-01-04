@@ -53,6 +53,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionOptions;
@@ -405,6 +411,47 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
 
         assertEquals(historyEntry.getPropertyName(), "COMMENT");
         assertEquals(historyEntry.getPropertyValue(), "created");
+    }
+    
+    @Test
+    public void testUpdateDataSetAndRelatedSample()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetUpdate dataSetUpdate = new DataSetUpdate();
+        DataSetPermId dataSetId = new DataSetPermId("20081105092159111-1");
+        dataSetUpdate.setDataSetId(dataSetId);
+        dataSetUpdate.setProperty("COMMENT", "test data set");
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        SamplePermId sampleId = new SamplePermId("200902091219327-1025");
+        sampleUpdate.setSampleId(sampleId);
+        sampleUpdate.setProperty("COMMENT", "test comment");
+        List<? extends IOperation> operations = Arrays.asList(new UpdateDataSetsOperation(dataSetUpdate), new UpdateSamplesOperation(sampleUpdate));
+        SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+
+        SynchronousOperationExecutionResults results = (SynchronousOperationExecutionResults) v3api.executeOperations(sessionToken,
+                operations, options);
+
+        assertEquals(results.getResults().size(), 2);
+        DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
+        dataSetFetchOptions.withProperties();
+        dataSetFetchOptions.withHistory();
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), dataSetFetchOptions);
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(dataSetId);
+        assertEquals(dataSet.getProperty("COMMENT"), "test data set");
+        PropertyHistoryEntry historyEntry = (PropertyHistoryEntry) dataSet.getHistory().get(0);
+        assertEquals(historyEntry.getPropertyName(), "COMMENT");
+        assertEquals(historyEntry.getPropertyValue(), "no comment");
+        SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+        sampleFetchOptions.withHistory();
+        Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(sampleId), sampleFetchOptions);
+        assertEquals(samples.size(), 1);
+        Sample updatedSample = samples.get(sampleId);
+        assertEquals(updatedSample.getProperty("COMMENT"), "test comment");
+        historyEntry = (PropertyHistoryEntry) updatedSample.getHistory().get(0);
+        assertEquals(historyEntry.getPropertyName(), "COMMENT");
+        assertEquals(historyEntry.getPropertyValue(), "very advanced stuff");
     }
 
     @Test
