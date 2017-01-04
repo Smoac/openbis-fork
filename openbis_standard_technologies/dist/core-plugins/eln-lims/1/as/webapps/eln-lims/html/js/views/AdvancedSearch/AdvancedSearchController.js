@@ -56,8 +56,14 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 						}
 					}
 					
+					if(!entity) {
+						continue;
+					}
+					
 					//properties
-					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					if(entity["@type"]) {
+						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					}
 					
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
