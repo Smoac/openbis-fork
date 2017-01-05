@@ -26,6 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.EntityUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -73,7 +74,7 @@ public class VerifySampleDataSetsExecutor implements IVerifySampleDataSetsExecut
         if (dataSetsNeedingExperiment.isEmpty() == false)
         {
             throw new UserFailureException("Operation cannot be performed, because the sample "
-                    + sample.getIdentifier() + " has the following datasets which need an experiment: "
+                    + EntityUtils.render(sample) + " has the following datasets which need an experiment: "
                     + CollectionUtils.abbreviate(dataSetsNeedingExperiment, 10));
         }
 

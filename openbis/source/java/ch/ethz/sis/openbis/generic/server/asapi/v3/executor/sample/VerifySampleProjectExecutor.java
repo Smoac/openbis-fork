@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.EntityUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -46,12 +47,12 @@ public class VerifySampleProjectExecutor implements IVerifySampleProjectExecutor
                     if (project != null && sample.getSpace() == null)
                     {
                         throw new UserFailureException("Shared samples cannot be attached to projects. Sample: "
-                                + sample.getIdentifier() + ", Project: " + project.getIdentifier());
+                                + EntityUtils.render(sample) + ", Project: " + EntityUtils.render(project));
                     }
                     if (project != null && project.getSpace().equals(sample.getSpace()) == false)
                     {
                         throw new UserFailureException("Sample space must be the same as project space. Sample: "
-                                + sample.getIdentifier() + ", Project: " + project.getIdentifier());
+                                + EntityUtils.render(sample) + ", Project: " + EntityUtils.render(project));
                     }
                 }
 

@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.EntityUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
@@ -102,7 +103,7 @@ public class VerifyDataSetSampleAndExperimentExecutor implements IVerifyDataSetS
         if (experiment != null && experiment.getDeletion() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is in trash.");
+                    + EntityUtils.render(experiment) + "' is in trash.");
         }
     }
 

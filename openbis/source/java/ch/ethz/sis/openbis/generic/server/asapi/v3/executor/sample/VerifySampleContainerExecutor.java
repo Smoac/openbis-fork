@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.EntityUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleGenericBusinessRules;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -48,8 +49,8 @@ public class VerifySampleContainerExecutor implements IVerifySampleContainerExec
                     {
                         if (sample.equals(containerCandidate))
                         {
-                            throw UserFailureException.fromTemplate("'%s' cannot be it's own container.",
-                                    sample.getIdentifier());
+                            throw UserFailureException.fromTemplate("Sample %s cannot be it's own container.",
+                                    EntityUtils.render(sample));
                         }
                         containerCandidate = containerCandidate.getContainer();
                     }

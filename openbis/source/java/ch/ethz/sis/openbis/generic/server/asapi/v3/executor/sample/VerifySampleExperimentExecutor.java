@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.EntityUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
@@ -79,26 +80,26 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
                     {
                         throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
                                 + "because there are already datasets attached to the sample.",
-                                sample.getIdentifier());
+                                EntityUtils.render(sample));
                     }
 
                     if (experiment != null && sample.getSpace() == null)
                     {
                         throw new UserFailureException("Shared samples cannot be attached to experiments. Sample: "
-                                + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
+                                + EntityUtils.render(sample) + ", Experiment: " + EntityUtils.render(experiment));
                     }
 
                     if (experiment != null && experiment.getProject().getSpace().equals(sample.getSpace()) == false)
                     {
                         throw new UserFailureException("Sample space must be the same as experiment space. "
-                                + "Sample: " + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
+                                + "Sample: " + EntityUtils.render(sample) + ", Experiment: " + EntityUtils.render(experiment));
                     }
                     if (experiment != null && sample.getProject() != null
                             && experiment.getProject().equals(sample.getProject()) == false)
                     {
                         throw new UserFailureException("Sample project must be the same as experiment project. "
-                                + "Sample: " + sample.getIdentifier() + ", Project: " + sample.getProject().getIdentifier()
-                                + ", Experiment: " + experiment.getIdentifier());
+                                + "Sample: " + EntityUtils.render(sample) + ", Project: " + EntityUtils.render(sample.getProject())
+                                + ", Experiment: " + EntityUtils.render(experiment));
                     }
                 }
 
