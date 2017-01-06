@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-function DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
+function DataSetViewerModel(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, 
+		enableUpload, enableDeepUnfolding) {
 	this.containerId = containerId;
 	this.containerIdTitle = containerId + "-title";
 	this.containerIdContent = containerId + "-content";
@@ -22,12 +23,16 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	this.profile = profile;
 	this.serverFacade = serverFacade;
 	
-	this.sample = sample;
+	this.entity = entity;
+	this.isExperiment = function() {
+		return this.entity && this.entity["@type"] === "as.dto.experiment.Experiment";
+	}
+	
 	this.datasets = datasets;
 	
 	this.enableUpload = enableUpload;
-	this.enableOpenDataset = enableOpenDataset;
-	this.sampleDataSets = {};
+	this.enableDeepUnfolding = enableDeepUnfolding;
+	this.entityDataSets = {};
 	this.datastoreDownloadURL = datastoreDownloadURL;
 	
 	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
@@ -67,10 +72,17 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 		return false;
 	}
 	
-	this.getDirectDirectoryLink = function(datasetCode, datasetFile) {
+	this.getDirectDirectoryLink = function(datasetCode, pathInDataSet) {
 		var directLinkComponent = null;
 		if(profile.directLinkEnabled && profile.directFileServer) {
-			var path = this.sample.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "/";
+			var path = null;
+			
+			if(this.isExperiment()) {
+				path = this.entity.identifier.identifier.substring(1) + "/" + datasetCode + "/" + pathInDataSet + "/";
+			} else {
+				path = this.entity.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + pathInDataSet + "/";
+			}
+			
 			directLinkComponent = "<span onclick=\"" + "Util.showDirectLink('" + path + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
 		}
 		return directLinkComponent;

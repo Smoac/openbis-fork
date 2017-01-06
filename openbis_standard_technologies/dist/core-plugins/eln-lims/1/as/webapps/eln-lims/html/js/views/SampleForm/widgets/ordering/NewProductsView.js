@@ -15,7 +15,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 		var $newProductsTableHead = $("<thead>");
 		var $newProductsTableHeaders = $("<tr>")
 											.append($("<th>").append("Name"))
-											.append($("<th>").append("Catalog Code"))
+											.append($("<th>").append("Catalog Num"))
 											.append($("<th>").append("Price"))
 											.append($("<th>").append("Currency"))
 											.append($("<th>").append("Supplier"))
@@ -34,7 +34,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 		mainController.serverFacade.searchWithType("SUPPLIER", null, false, function(suppliers){
 			var supplierTerms = [];
 			for(var sIdx = 0; sIdx < suppliers.length; sIdx++) {
-				supplierTerms.push({code : suppliers[sIdx].identifier, label : suppliers[sIdx].properties["COMPANY_NAME"]});
+				supplierTerms.push({code : suppliers[sIdx].identifier, label : suppliers[sIdx].properties["NAME"]});
 			}
 			var supplierDropdown = FormUtil.getDropDownForTerms(null, supplierTerms, "Select a supplier", true);
 			
@@ -58,30 +58,32 @@ function NewProductsView(newProductsController, newProductsModel) {
 				}
 			});
 			
-			var priceField = FormUtil.getRealInputField(null, "Price", true);
+			var priceField = FormUtil.getRealInputField(null, "Price", false);
 				priceField.change(function() {
 					var value = $(this).val();
-					try {
-						var valueParsed = parseFloat(value);
-						if("" + valueParsed === "NaN") {
+					if(value) {
+						try {
+							var valueParsed = parseFloat(value);
+							if("" + valueParsed === "NaN") {
+								Util.showError("Please input a correct price.");
+								$(this).val("");
+							} else {
+								$(this).val(valueParsed);
+							}
+						} catch(err) {
 							Util.showError("Please input a correct price.");
 							$(this).val("");
-						} else {
-							$(this).val(valueParsed);
 						}
-					} catch(err) {
-						Util.showError("Please input a correct price.");
-						$(this).val("");
 					}
 				});
 			
-			var codeField = FormUtil.getTextInputField(null, "Code", true);
+			var catalogNumField = FormUtil.getTextInputField(null, "Catalog Num", true);
 			
 			var nameField = FormUtil.getTextInputField(null, "Name", true);
 			
 			var $newProductsTableRow = $("<tr>")
 			.append($("<td>").append(nameField))
-			.append($("<td>").append(codeField))
+			.append($("<td>").append(catalogNumField))
 			.append($("<td>").append(priceField))
 			.append($("<td>").append(currencyDropdown))
 			.append($("<td>").append(supplierDropdown))

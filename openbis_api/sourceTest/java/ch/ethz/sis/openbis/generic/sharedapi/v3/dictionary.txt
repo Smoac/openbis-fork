@@ -1222,3 +1222,12 @@ with Property Type
 with Property Type Using
 I Property Assignments Holder
 I Property Type Holder
+identifier
+IDENTIFIER
+IEntityType
+IEntityTypeHolder
+IIdentifierHolder
+PERM_ID
+permId
+type
+TYPE

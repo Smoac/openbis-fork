@@ -10,6 +10,28 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.hideCodes = true;
 		
+//
+//		Template to populate multiple storage groups
+//
+//		var getStoragGroupFromTemplate = function(groupNumber) {
+//			return {
+//				"STORAGE_PROPERTY_GROUP" : "Physical Storage " + groupNumber, //Where the storage will be painted.
+//				"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage " + groupNumber, //Storage Group Name
+//				"NAME_PROPERTY" : 		"STORAGE_NAME_" + groupNumber, //Should be a Vocabulary.
+//				"ROW_PROPERTY" : 		"STORAGE_ROW_" + groupNumber, //Should be an integer.
+//				"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_" + groupNumber,  //Should be an integer.
+//				"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_" + groupNumber, //Should be text.
+//				"USER_PROPERTY" : 		"STORAGE_USER_" + groupNumber, //Should be text.
+//				"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_" + groupNumber, //Should be Vocabulary.
+//				"POSITION_PROPERTY" : 	"STORAGE_BOX_POSITION_" + groupNumber //Should be text.
+//			};
+//		}
+//		
+//		var numberOfStorageGroups = 65;
+//		for(var sIdx = 1; sIdx <= numberOfStorageGroups; sIdx++) {
+//			this.storagesConfiguration["STORAGE_PROPERTIES"].push(getStoragGroupFromTemplate(sIdx));
+//		}
+		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
@@ -269,7 +291,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 												],
 				},
 				"REQUEST" : {
-					"SAMPLE_PARENTS_TITLE" : "Add Product from Catalog",
+					"SAMPLE_PARENTS_TITLE" : "Products from Catalog",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
 					"SAMPLE_CHILDREN_DISABLED" : true,
 					"SAMPLE_PARENTS_HINT" : [{
@@ -283,6 +305,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"SAMPLE_PARENTS_TITLE" : "Requests",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
 					"SAMPLE_CHILDREN_DISABLED" : true,
+					showParents : function(sample) { 
+						var orderStatus = sample.properties["ORDER_STATUS"];
+						var orderSummary = sample.properties["ORDER_STATE"];
+						return orderStatus !== "ORDERED" && orderStatus !== "DELIVERED" && orderStatus !== "PAID" && !orderSummary;
+					},
 					"SAMPLE_PARENTS_HINT" : [{
 						"LABEL" : "Requests",
 						"TYPE": "REQUEST",
@@ -406,15 +433,24 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		this.sampleFormOnSubmit = function(sample, action) {
 			if(sample.sampleTypeCode === "ORDER") {
 				var orderStatus = sample.properties["ORDER_STATUS"];
-				if(orderStatus === "ORDERED") {
-					delete sample.properties["ORDER_STATE"];
+				var samplesToDelete = null;
+				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["ORDER_STATE"]) {
+					//Set property
 					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
+					//Delete requests
+					samplesToDelete = [];
+					var requests = sample.parents;
+					if(requests) {
+						for(var rIdx = 0; rIdx < requests.length; rIdx++) {
+							samplesToDelete.push(requests[rIdx].permId);
+						}
+					}
 				}
-				action(sample, null);
+				action(sample, null, samplesToDelete);
 			} else if(sample.sampleTypeCode === "REQUEST") {
 				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
 			} else if(action) {
-				action(sample, null);
+				action(sample);
 			}
 		}
 		
@@ -478,7 +514,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							if(!absoluteTotalForCurrency) {
 								absoluteTotalForCurrency = 0;
 							}
-							absoluteTotalForCurrency += requestProduct.properties["PRICE_PER_UNIT"] * quantity;
+							
+							if(requestProduct.properties["PRICE_PER_UNIT"]) {
+								absoluteTotalForCurrency += parseFloat(requestProduct.properties["PRICE_PER_UNIT"]) * quantity;
+							}
+							
 							absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]] = absoluteTotalForCurrency;
 							
 							quantityByProductPermId[requestProduct.permId] = quantity;
@@ -511,32 +551,52 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								registrationDate = mainController.currentView._sampleFormModel.sample.registrationDetails.modificationDate;
 							}
 							
-							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date(registrationDate));
-								page += "\n";
-								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["COMPANY_NAME"];
-								page += "\n";
-								page += languageLabels["CONTACT_INFO_LABEL"] + ":";
-								page += "\n";
-								page += "- " + languageLabels["CONTACT_INFO_LABEL"] + ":";
-								page += "\n";
-								page += "- " + languageLabels["ORDER_MANAGER_LABEL"] + ": " + order.properties["ORDER_MANAGER"];
-								page += "\n";
-								page += "- " + languageLabels["ORDER_MANAGER_CONTACT_DETAILS_LABEL"] + ": " + order.properties["ORDER_MANAGER_CONTACT_DETAILS"];
-								page += "\n";
-								page += "- " + languageLabels["SUPPLIER_FAX_LABEL"] + ": " + provider.properties["COMPANY_FAX"];
-								page += "\n";
-								page += "- " + languageLabels["SUPPLIER_EMAIL_LABEL"] + ": " + provider.properties["COMPANY_EMAIL"];
-								page += "\n";
-								page += languageLabels["ORDER_INFO_LABEL"] + ":";
-								page += "\n";
-								page += "- " + languageLabels["ACCOUNT_LABEL"] + ": " + provider.properties["ACCOUNT_NUMBER"];
-								page += "\n";
-								page += "- " + languageLabels["PREFERRED_LANGUAGE_LABEL"] + ": " + provider.properties["COMPANY_LANGUAGE"];
-								page += "\n";
-								page += "- " + languageLabels["PREFERRED_ORDER_METHOD_LABEL"] + ": " + provider.properties["PREFERRED_ORDER_METHOD"];
+							var page = languageLabels["ORDER_FORM"];
 								page += "\n";
 								page += "\n";
-								page += languageLabels["REQUESTED_PRODUCTS_LABEL"] + ":";
+								page += languageLabels["ORDER_INFORMATION"];
+								page += "\n";
+								page += "- " + languageLabels["ORDER_DATE"] + ": " + Util.getFormatedDate(new Date(registrationDate));
+								page += "\n";
+								page += "- " + languageLabels["ORDER_STATUS"] + ": " + order.properties["ORDER_STATUS"];
+								page += "\n";
+								page += "- " + languageLabels["ORDER_CODE"] + ": " + order.code;
+								page += "\n";
+								page += "\n";
+								page += "\n";
+								page += languageLabels["COSTUMER_INFORMATION"];
+								page += "\n";
+								page += "- " + languageLabels["SHIP_TO"] + ": " + order.properties["SHIP_TO"];
+								page += "\n";
+								page += "- " + languageLabels["BILL_TO"] + ": " + order.properties["BILL_TO"];
+								page += "\n";
+								page += "- " + languageLabels["SHIP_ADDRESS"] + ": " + order.properties["SHIP_ADDRESS"];
+								page += "\n";
+								page += "- " + languageLabels["PHONE"] + ": " + order.properties["CONTACT_PHONE"];
+								page += "\n";
+								page += "- " + languageLabels["FAX"] + ": " + order.properties["CONTACT_FAX"];
+								page += "\n";
+								page += "\n";
+								page += "\n";
+								page += languageLabels["SUPPLIER_INFORMATION"];
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties["NAME"];
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER_ADDRESS_LINE_1"] + ": " + provider.properties["COMPANY_ADDRESS_LINE_1"]
+								page += "\n";
+								page += "  " + languageLabels["SUPPLIER_ADDRESS_LINE_2"] + "  " + provider.properties["COMPANY_ADDRESS_LINE_2"]
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER_PHONE"] + ": " + provider.properties["COMPANY_PHONE"];
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER_FAX"] + ": " + provider.properties["COMPANY_FAX"];
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER_EMAIL"] + ": " + provider.properties["COMPANY_EMAIL"];
+								page += "\n";
+								page += "- " + languageLabels["CUSTOMER_NUMBER"] + ": " + provider.properties["CUSTOMER_NUMBER"];
+								page += "\n";
+								page += "\n";
+								page += "\n";
+								page += languageLabels["REQUESTED_PRODUCTS_LABEL"];
 								page += "\n";
 								page += languageLabels["PRODUCTS_COLUMN_NAMES_LABEL"];
 								page += "\n";
@@ -544,24 +604,50 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 									var product = providerProducts[pIdx];
 									var quantity = quantityByProductPermId[product.permId];
-									var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
-									page += product.properties["NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
-									page += "\n";
-									var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
-									if(!totalForCurrency) {
-										totalForCurrency = 0;
+									var unitPriceAsString = product.properties["PRICE_PER_UNIT"];
+									var unitPrice = "N/A";
+									if(unitPriceAsString) {
+										unitPrice = parseFloat(unitPriceAsString);
 									}
-									totalForCurrency += unitPrice * quantity;
-									providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_NUM"] + "\t\t" + unitPrice + " " + product.properties["CURRENCY"];
+									page += "\n";
+									
+									if(unitPriceAsString) {
+										var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
+										if(!totalForCurrency) {
+											totalForCurrency = 0;
+										}
+										totalForCurrency += unitPrice * quantity;
+										
+										providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+									} else {
+										providerTotalByCurrency[product.properties["CURRENCY"]] = "N/A";
+									}
 								}
 								page += "\n";
-								page += languageLabels["PRICE_TOTALS_LABEL"] + ":";
 								page += "\n";
+								page += "\n";
+								
+								var showTotals = false;
 								for(var currency in providerTotalByCurrency) {
-									page += providerTotalByCurrency[currency] + " " + currency;
+									if(providerTotalByCurrency[currency] > 0) {
+										showTotals = true;
+									}
+								}
+								if(showTotals) {
+									page += languageLabels["PRICE_TOTALS_LABEL"] + ":";
+									page += "\n";
+									for(var currency in providerTotalByCurrency) {
+										page += providerTotalByCurrency[currency] + " " + currency;
+										page += "\n";
+									}
+									page += "\n";
+									page += "\n";
 									page += "\n";
 								}
-								page += languageLabels["ADDITIONAL_INFO_LABEL"] + ": " + order.properties["ADDITIONAL_INFORMATION"];
+								page += languageLabels["ADDITIONAL_INFO_LABEL"];
+								page += "\n";
+								page += order.properties["ADDITIONAL_INFORMATION"];
 							orderPages.push(page);
 						}
 						
@@ -576,12 +662,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					// Order Summary Grid
 					//
 					var columns = [ {
-						label : 'Code',
-						property : 'code',
+						label : 'Catalog Num',
+						property : 'catalogNum',
 						isExportable: true,
 						sortable : true,
 						render : function(data) {
-							return FormUtil.getFormLink(data.code, "SAMPLE", data.permId);
+							return FormUtil.getFormLink(data.catalogNum, "Sample", data.permId);
 						}
 					},{
 						label : 'Supplier',
@@ -623,16 +709,23 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 								var product = providerProducts[pIdx];
 								var quantity = quantityByProductPermId[product.permId];
-								var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
-								
+								var unitPriceAsString = product.properties["PRICE_PER_UNIT"];
+								var unitPrice = "N/A";
+								if(unitPriceAsString) {
+									unitPrice = parseFloat(unitPriceAsString);
+								}
 								var rowData = {};
 								rowData.permId = product.permId;
-								rowData.supplier = provider.properties["COMPANY_NAME"];
+								rowData.supplier = provider.properties["NAME"];
 								rowData.name = product.properties["NAME"];
-								rowData.code =  product.properties["CATALOG_CODE"];
+								rowData.catalogNum =  product.properties["CATALOG_NUM"];
 								rowData.quantity = quantity;
-								rowData.unitPrice = product.properties["PRICE_PER_UNIT"];
-								rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
+								rowData.unitPrice = unitPrice;
+								if(unitPrice !== "N/A") {
+									rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
+								} else {
+									rowData.totalProductCost = "N/A";
+								}
 								rowData.currency = product.properties["CURRENCY"];
 								rows.push(rowData);
 							}
@@ -647,7 +740,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						repTitle += " (as saved when ordered)"
 					}
 					
-					var orderSummary = new DataGridController(repTitle, columns, getDataRows, null, false, "ORDER_SUMMARY");
+					var orderSummary = new DataGridController(repTitle, columns, [], null, getDataRows, null, false, "ORDER_SUMMARY");
 					orderSummary.init(orderSummaryContainer);
 					
 					var totalsByCurrencyContainer = $("<div>").append($("<br>")).append($("<legend>").append("Total:"));

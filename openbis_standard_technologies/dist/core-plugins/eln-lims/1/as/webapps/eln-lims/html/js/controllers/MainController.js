@@ -35,8 +35,28 @@ function MainController(profile) {
 	// Atributes
 	//
 	
+	this.openbisV1 = new openbis();
+	this.openbisV3 = null;
+	
+	
+	this.loadV3 = function(callback) {
+		require(['openbis'], function(openbis) {
+			//Boilerplate
+			var testProtocol = window.location.protocol;
+			var testHost = window.location.hostname;
+			var testPort = window.location.port;
+			
+			var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+			var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+			
+			mainController.openbisV3 = new openbis(testApiUrl);
+			mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+			callback();
+		});
+	};
+	
 	// Server Facade Object
-	this.serverFacade = new ServerFacade(new openbis()); //Client APP Facade, used as control point to know what is used and create utility methods.
+	this.serverFacade = new ServerFacade(this.openbisV1); //Client APP Facade, used as control point to know what is used and create utility methods.
 
 	// Configuration
 	this.profile = profile;
@@ -119,62 +139,64 @@ function MainController(profile) {
 		$("#main").show();
 		
 		//Get Metadata from all sample types before showing the main menu
-		this.serverFacade.listSampleTypes (
-			function(result) {
-				//Load Sample Types
-				localReference.profile.allSampleTypes = result.result;
-				
-				//Load datastores for automatic DSS configuration, the first one will be used
-				localReference.serverFacade.listDataStores(function(dataStores) {
-						localReference.profile.allDataStores = dataStores.result;
+		this.loadV3(function() {
+			_this.serverFacade.listSampleTypes (
+					function(result) {
+						//Load Sample Types
+						localReference.profile.allSampleTypes = result.result;
 						
-						var nextInit = function() {
-							//Load display settings
-							localReference.serverFacade.getUserDisplaySettings( function(response) {
-								if(response.result) {
-									localReference.profile.displaySettings = response.result;
+						//Load datastores for automatic DSS configuration, the first one will be used
+						localReference.serverFacade.listDataStores(function(dataStores) {
+								localReference.profile.allDataStores = dataStores.result;
+								
+								var nextInit = function() {
+									//Load display settings
+									localReference.serverFacade.getUserDisplaySettings( function(response) {
+										if(response.result) {
+											localReference.profile.displaySettings = response.result;
+										}
+										
+										//Load Experiment Types
+										localReference.serverFacade.listExperimentTypes(function(experiments) {
+											localReference.profile.allExperimentTypes = experiments.result;
+											
+											
+											//Init profile
+											var startAppFunc = function() {
+												//Start App
+												localReference.sideMenu = new SideMenuWidgetController(localReference);
+												localReference.sideMenu.init($("#sideMenu"), function() {
+													//Page reload using the URL info
+													var queryString = Util.queryString();
+													var menuUniqueId = queryString.menuUniqueId;
+													var viewName = queryString.viewName;
+													var viewData = queryString.viewData;
+													var hideMenu = queryString.hideMenu;
+													
+													if(viewName && viewData) {
+														localReference.sideMenu.moveToNodeId(menuUniqueId);
+														localReference.changeView(viewName, viewData);
+														
+														if(hideMenu === "true") {
+															localReference.sideMenu.hideSideMenu();
+														}
+													} else {
+														localReference.changeView("showBlancPage", null);
+													}
+													Util.unblockUI();
+												});
+											};
+											
+											localReference.profile.init(startAppFunc);
+										});
+									});
 								}
 								
-								//Load Experiment Types
-								localReference.serverFacade.listExperimentTypes(function(experiments) {
-									localReference.profile.allExperimentTypes = experiments.result;
-									
-									
-									//Init profile
-									var startAppFunc = function() {
-										//Start App
-										localReference.sideMenu = new SideMenuWidgetController(localReference);
-										localReference.sideMenu.init($("#sideMenu"), function() {
-											//Page reload using the URL info
-											var queryString = Util.queryString();
-											var menuUniqueId = queryString.menuUniqueId;
-											var viewName = queryString.viewName;
-											var viewData = queryString.viewData;
-											var hideMenu = queryString.hideMenu;
-											
-											if(viewName && viewData) {
-												localReference.sideMenu.moveToNodeId(menuUniqueId);
-												localReference.changeView(viewName, viewData);
-												
-												if(hideMenu === "true") {
-													localReference.sideMenu.hideSideMenu();
-												}
-											} else {
-												localReference.changeView("showBlancPage", null);
-											}
-											Util.unblockUI();
-										});
-									};
-									
-									localReference.profile.init(startAppFunc);
-								});
-							});
-						}
-						
-						nextInit();
-				});
-			}
-		);
+								nextInit();
+						});
+					}
+				);
+		});
 	}
 	
 	//
@@ -213,7 +235,7 @@ function MainController(profile) {
 		try {
 			switch (newViewChange) {
 				case "showExportTreePage":
-					document.title = "Export";
+					document.title = "Export Builder";
 					var newView = new ExportTreeController(this);
 					newView.init($("#mainContainer"));
 					this.currentView = newView;
@@ -245,12 +267,12 @@ function MainController(profile) {
 					window.scrollTo(0,0);
 					break;
 				case "showVocabularyManagerPage":
-					document.title = "Vocabulary Manager";
+					document.title = "Vocabulary Browser";
 					this._showVocabularyManager();
 					window.scrollTo(0,0);
 					break;
 				case "showTrashcanPage":
-					document.title = "Trashcan Manager";
+					document.title = "Trashcan";
 					this._showTrashcan();
 					window.scrollTo(0,0);
 					break;
@@ -333,6 +355,16 @@ function MainController(profile) {
 						window.scrollTo(0,0);
 					});
 					break;
+				case "showCreateDataSetPageFromExpPermId":
+					var _this = this;
+					var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } };
+					var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+					this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
+						document.title = "Create Data Set for " + data.objects[0].code;
+						_this._showCreateDataSetPage(data.objects[0]);
+						window.scrollTo(0,0);
+					});
+					break;
 				case "showEditExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
@@ -409,11 +441,23 @@ function MainController(profile) {
 						if(!dataSetData.result || !dataSetData.result[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
-							_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-								document.title = "Data Set " + dataSetData.result[0].code;
-								_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
-								window.scrollTo(0,0);
-							});
+							if(dataSetData.result[0].sampleIdentifierOrNull) {
+								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+									document.title = "Data Set " + dataSetData.result[0].code;
+									_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+									window.scrollTo(0,0);
+								});
+							} else if(dataSetData.result[0].experimentIdentifier) {
+								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
+									var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
+									var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
+										document.title = "Data Set " + dataSetData.result[0].code;
+										_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+										window.scrollTo(0,0);
+									});
+								});
+							}
 						}
 					});
 					break;
@@ -636,9 +680,9 @@ function MainController(profile) {
 		this.currentView = experimentFormController;
 	}
 	
-	this._showCreateDataSetPage = function(sample) {
+	this._showCreateDataSetPage = function(entity) {
 		//Show Form
-		var newView = new DataSetFormController(this, FormMode.CREATE, sample, null);
+		var newView = new DataSetFormController(this, FormMode.CREATE, entity, null);
 		newView.init($("#mainContainer"));
 		this.currentView = newView;
 	}
@@ -662,7 +706,7 @@ function MainController(profile) {
 		var newView = null;
 		
 		if(freeText) {
-			newView = new AdvancedSearchController(this, "*" + freeText + "*");
+			newView = new AdvancedSearchController(this, freeText);
 		} else {
 			newView = new AdvancedSearchController(this);
 		}
@@ -701,7 +745,63 @@ function MainController(profile) {
 							$("#search").removeClass("search-query-searching");
 							localReference.changeView("showAdvancedSearchPage", value);
 						}
-					} else { //Search Domain
+					} else if(searchDomain == "data-set-file-search") { 
+						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
+							
+							if(localSearchId === localReference.lastSearchId) {
+								$("#search").removeClass("search-query-searching");
+								
+								var columns = [ {
+									label : 'Entity Kind',
+									property : 'entityKind',
+									sortable : true
+								}, {
+									label : 'Entity Type',
+									property : 'entityType',
+									sortable : true
+								}, {
+									label : 'Code',
+									property : 'code',
+									sortable : true
+								}, {
+									label : 'Path',
+									property : 'pathInDataSet',
+									sortable : true
+								}];
+								
+								var getDataList = function(callback) {
+									var dataList = [];
+									if(data.result) {
+										for(var i = 0; i < data.result.length; i++) {
+											var result = data.result[i];
+											
+											dataList.push({
+												entityKind : result.resultLocation.entityKind,
+												entityType : result.resultLocation.entityType,
+												permId : result.resultLocation.permId,
+												code : result.resultLocation.code,
+												pathInDataSet : result.resultLocation.pathInDataSet
+											});
+										}
+									}
+									callback(dataList);
+								};
+								
+								var rowClick = function(e) {
+									switch(e.data.entityKind) {
+										case "DATA_SET":
+											mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
+											break;
+									}
+								}
+								
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+								localReference.currentView = dataGrid;
+								dataGrid.init($("#mainContainer"));
+								history.pushState(null, "", ""); //History Push State
+							}
+						});
+					} else {
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 							var dataSetCodes = [];
 							for(var i = 0; i < data.result.length; i++) {
@@ -821,7 +921,7 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
 									localReference.currentView = dataGrid;
 									dataGrid.init($("#mainContainer"));
 									history.pushState(null, "", ""); //History Push State
@@ -992,7 +1092,7 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick, true, "SEARCH_OPENBIS");
+			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS");
 			localReference.currentView = dataGrid;
 			dataGrid.init($("#mainContainer"));
 			history.pushState(null, "", ""); //History Push State

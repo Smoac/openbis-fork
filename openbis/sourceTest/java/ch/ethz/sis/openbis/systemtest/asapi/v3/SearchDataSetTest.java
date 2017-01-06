@@ -667,6 +667,57 @@ public class SearchDataSetTest extends AbstractDataSetTest
         testSearch(TEST_SPACE_USER, criteria, 0);
     }
 
+    @Test
+    public void testSearchWithSortingByCode()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new DataSetPermId("COMPONENT_1B"));
+        criteria.withId().thatEquals(new DataSetPermId("COMPONENT_1A"));
+        criteria.withId().thatEquals(new DataSetPermId("COMPONENT_2A"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<DataSet> dataSets1 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+        assertDataSetCodes(dataSets1, "COMPONENT_1A", "COMPONENT_1B", "COMPONENT_2A");
+
+        fo.sortBy().code().desc();
+        List<DataSet> dataSets2 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+        assertDataSetCodes(dataSets2, "COMPONENT_2A", "COMPONENT_1B", "COMPONENT_1A");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByType()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new DataSetPermId("ROOT_CONTAINER"));
+        criteria.withId().thatEquals(new DataSetPermId("COMPONENT_1A"));
+        criteria.withId().thatEquals(new DataSetPermId("COMPONENT_2A"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withType();
+
+        fo.sortBy().type().asc();
+        fo.sortBy().code().asc();
+        List<DataSet> dataSets1 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+        assertDataSetCodes(dataSets1, "ROOT_CONTAINER", "COMPONENT_1A", "COMPONENT_2A");
+
+        fo.sortBy().type().desc();
+        fo.sortBy().code().desc();
+        List<DataSet> dataSets2 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+        assertDataSetCodes(dataSets2, "COMPONENT_2A", "COMPONENT_1A", "ROOT_CONTAINER");
+
+        v3api.logout(sessionToken);
+    }
+
     private void testSearch(String user, DataSetSearchCriteria criteria, String... expectedIdentifiers)
     {
         List<DataSet> dataSets = searchDataSets(user, criteria, new DataSetFetchOptions());

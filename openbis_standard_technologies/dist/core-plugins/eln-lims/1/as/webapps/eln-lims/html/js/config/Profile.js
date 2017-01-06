@@ -50,58 +50,87 @@ $.extend(DefaultProfile.prototype, {
 				showUserManager : true
 		}
 		
+		this.orderLabInfo = {
+				
+		}
 		this.orderLanguage = {
 				"ENGLISH" : {
-					"DATE_LABEL" : "Date",
-					"SUPPLIER_LABEL" : "Supplier",
-					"CONTACT_INFO_LABEL" : "Contact Information",
-					"ORDER_INFO_LABEL" : "Order Information",
-					"ACCOUNT_LABEL" : "Account Number",
+					"ORDER_FORM" : "Order Form",
+					"ORDER_INFORMATION" : "Order Information",
+					"ORDER_DATE" : "Date",
+					"ORDER_STATUS" : "Status",
+					"ORDER_CODE" : "Code",
 					
-					"PREFERRED_LANGUAGE_LABEL" : "Preferred Supplier Language",
-					"PREFERRED_ORDER_METHOD_LABEL" : "Preferred Supplier Order Method",
+					"COSTUMER_INFORMATION" : "Costumer Information",
+					"SHIP_TO" : "Ship To",
+					"BILL_TO" : "Bill To",
+					"SHIP_ADDRESS" : "Address",
+					"PHONE" : "Phone",
+					"FAX" : "Fax",
 					
-					"ORDER_MANAGER_LABEL" : "Order Manager",
-					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Order Manager Contact Details",
+					"SUPPLIER_INFORMATION" : "Supplier Information",
+					"SUPPLIER" : "Supplier",
+					"SUPPLIER_ADDRESS_LINE_1" : "Address",
+					"SUPPLIER_ADDRESS_LINE_2" : "       ",
+					"SUPPLIER_PHONE" : "Phone",
+					"SUPPLIER_FAX" : "Fax",
+					"SUPPLIER_EMAIL" : "Email",
+					"CUSTOMER_NUMBER" : "Customer No",
 					
 					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tQuantity\tUnit Price\tCurrency",
-					
-					"SUPPLIER_FAX_LABEL" : "Supplier fax",
-					"SUPPLIER_EMAIL_LABEL" : "Supplier Email",
-					
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCatalog Num\t\tUnit Price",
 					"PRICE_TOTALS_LABEL" : "Total Price",
 					"ADDITIONAL_INFO_LABEL" : "Additional Information"
 				},
 				"GERMAN" : {
-					"DATE_LABEL" : "Datum",
-					"SUPPLIER_LABEL" : "Lieferant",
-					"CONTACT_INFO_LABEL" : "Kontaktdetails",
-					"ORDER_INFO_LABEL" : "Bestellungdetails",
-					"ACCOUNT_LABEL" : "Account Nummer",
-					 
-					"PREFERRED_LANGUAGE_LABEL" : "Bevorzugte Lieferanten-Sprache",
-					"PREFERRED_ORDER_METHOD_LABEL" : "Bevorzugte Bestellungsart",
-					 
-					"ORDER_MANAGER_LABEL" : "Besteller",
-					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Besteller Kontaktdetails",
-					 
-					"REQUESTED_PRODUCTS_LABEL" : "Bestellte Produkte",
-					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tMenge\tPreis pro Einheit\tWährung",
-					"SUPPLIER_FAX_LABEL" : "Lieferant Fax",
-					"SUPPLIER_EMAIL_LABEL" : "Lieferant Email",
-					 
+					"ORDER_FORM" : "Bestellformular",
+					"ORDER_INFORMATION" : "Bestellinformation",
+					"ORDER_DATE" : "Bestelldatum",
+					"ORDER_STATUS" : "Bestellstatus",
+					"ORDER_CODE" : "Bestellcode",
+
+					"COSTUMER_INFORMATION" : "Kundeninformation",
+					"SHIP_TO" : "Lieferung an",
+					"BILL_TO" : "Rechnung an",
+					"SHIP_ADDRESS" : "Addresse",
+					"PHONE" : "Telefon",
+					"FAX" : "Fax",
+
+					"SUPPLIER_INFORMATION" : "Lieferanteninformation",
+					"SUPPLIER" : "Lieferant",
+					"SUPPLIER_ADDRESS_LINE_1" : "Addresse",
+					"SUPPLIER_ADDRESS_LINE_2" : "       ",
+					"SUPPLIER_PHONE" : "Lieferant Telefon",
+					"SUPPLIER_FAX" : "Lieferant Fax",
+					"SUPPLIER_EMAIL" : "Lieferant Email",
+					"CUSTOMER_NUMBER" : "Kundennummer",
+
+					"REQUESTED_PRODUCTS_LABEL" : "Angeforderte Produkte",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Anzahl\t\tName\t\tCatalog Num\t\tPreis pro Einheit",
 					"PRICE_TOTALS_LABEL" : "Gesamtpreis",
-					"ADDITIONAL_INFO_LABEL" : "Zusätzliches Informationen"
+					"ADDITIONAL_INFO_LABEL" : "Zusätzliche Informationen"
 				}
 		}
 		
+		this.isAdmin = false;
+		
+		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
+		this.isForcedDisableRTF = function(propertytype) {
+			return (propertytype && $.inArray(propertytype.code, this.forcedDisableRTF) !== -1);
+		}
+		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS", "STOCK_CATALOG"];
-		this.inventorySpacesReadOnly = ["STOCK_ORDERS"];
+		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
+		this.inventorySpacesReadOnly = []; //"STOCK_ORDERS"
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
+		
+		this.isELNIdentifier = function(identifier) {
+			var space = identifier.split("/")[1];
+			return !this.isInventorySpace(space);
+		}
+		
 		this.isInventorySpace = function(spaceCode) {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1) || ($.inArray(spaceCode, this.inventorySpacesReadOnly) !== -1);
 		}
@@ -722,6 +751,14 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
+		this.initIsAdmin = function(callback) {
+			var _this = this;
+			this.serverFacade.listPersons(function(data) {
+				_this.isAdmin = !(data.error);
+				callback();
+			});
+		}
+		
 		//
 		// Initializes
 		//
@@ -732,7 +769,9 @@ $.extend(DefaultProfile.prototype, {
 				_this.initVocabulariesForSampleTypes(function() {
 					_this.initSearchDomains(function() {
 						_this.initDirectLinkURL(function() {
-							callbackWhenDone();
+							_this.initIsAdmin(function() {
+								callbackWhenDone();
+							});
 						});
 					});
 				});

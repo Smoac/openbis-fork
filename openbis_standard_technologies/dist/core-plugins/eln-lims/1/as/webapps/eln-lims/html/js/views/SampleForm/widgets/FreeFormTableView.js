@@ -366,7 +366,15 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	
 	this.repaint = function($container) {
 		var _this = this;
-		this._container = $container;
+		
+		var $fieldsetOwner = $("<div>");
+		var $legend = $("<legend>");
+		var $fieldset = $("<div>");
+		
+		$fieldsetOwner.append($legend).append($fieldset);
+		$container.append($fieldsetOwner);
+		
+		this._container = $fieldset;
 		$container.attr("style", "border-radius:4px 4px 4px 4px;");
 		
 		var $addTableWhenEmptyBtn = "";
@@ -378,8 +386,8 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			$addTableWhenEmptyBtn.click(addTableFunc(null, null));
 		}
 		
-		
-		$container.append($("<legend>").text("Free Form Tables ").append($addTableWhenEmptyBtn));
+		$legend.text("Free Form Tables ").append($addTableWhenEmptyBtn);
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + this._freeFormTableModel.sample.sampleTypeCode + "-freeFormTable"));
 		
 		var tables = this._freeFormTableModel.tables;
 		var lastTable = null;

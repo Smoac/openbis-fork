@@ -177,35 +177,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         this.repaintTreeMenuDinamic();
     };
     
-    this._getDisplayNameLinkForNode = function(menuItem, isTreeMenu) {
-        var menuItemDisplayName = menuItem.displayName;
-        if (!menuItemDisplayName) {
-            menuItemDisplayName = menuItem.unqueId;
-        }
-        
-    	var hrefMenu = null;
-        if(menuItem.newMenuIfSelected && menuItem.newMenuIfSelected.children.length !== 0) {
-        	hrefMenu = menuItem.uniqueId;
-        } else {
-        	hrefMenu = menuItem.parent.uniqueId;
-        }
-        var href = Util.getURLFor(hrefMenu, menuItem.newViewIfSelected, menuItem.newViewIfSelectedData);
-        
-        var cssClass;
-        if(isTreeMenu) {
-        	cssClass = "browser-compatible-javascript-link browser-compatible-javascript-link-tree";
-        } else {
-        	cssClass = "browser-compatible-javascript-link  browser-compatible-javascript-link-menu";
-        }
-        	
-        var $menuItemLink = null;
-        if (menuItem.isSelectable) {
-        	$menuItemLink = $("<a>", {"href": href, "class" : cssClass }).append(menuItemDisplayName);
-        	$menuItemLink = $menuItemLink[0];
-        } else {
-        	$menuItemLink = menuItemDisplayName;
-        }
-        return $menuItemLink;
+    this.getLinkForNode = function(displayName, menuId, view, viewData) {
+    	var href = Util.getURLFor(menuId, view, viewData);
+    	displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
+        var $menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link browser-compatible-javascript-link-tree" }).text(displayName);
+        return $menuItemLink[0].outerHTML;
     }
     
     this.repaintTreeMenuDinamic = function() {
@@ -220,48 +196,58 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var treeModel = [];
         
         if(profile.mainMenu.showLabNotebook) {
-        	treeModel.push({ title : "Lab Notebook", entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage", icon : "glyphicon glyphicon-book" });
+        	var labNotebookLink = _this.getLinkForNode("Lab Notebook", "LAB_NOTEBOOK", "showLabNotebookPage", null);
+        	treeModel.push({ title : labNotebookLink, entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage", icon : "glyphicon glyphicon-book" });
         }
         
         if(profile.mainMenu.showInventory) {
-        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
+        	var inventoryLink = _this.getLinkForNode("Inventory", "INVENTORY", "showInventoryPage", null);
+        	treeModel.push({ title : inventoryLink, entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
         }
         
         var treeModelUtils = [];
         
         if(profile.mainMenu.showDrawingBoard) {
-        	treeModelUtils.push({ title : "Drawing Board", entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
+        	var drawingBoardLink = _this.getLinkForNode("Drawing Board", "DRAWING_BOARD", "showDrawingBoard", null);
+        	treeModelUtils.push({ title : drawingBoardLink, entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
         }
         
         if(profile.mainMenu.showSampleBrowser) {
-        	treeModelUtils.push({ title : "" + ELNDictionary.Sample + " Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
+        	var sampleBrowserLink = _this.getLinkForNode("" + ELNDictionary.Sample + " Browser", "SAMPLE_BROWSER", "showSamplesPage", null);
+        	treeModelUtils.push({ title : sampleBrowserLink, entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showVocabularyViewer) {
-        	treeModelUtils.push({ title : "Vocabulary Browser", entityType: "VOCABULARY_BROWSER", key : "VOCABULARY_BROWSER", folder : false, lazy : false, view : "showVocabularyManagerPage", icon : "glyphicon glyphicon-list-alt" });
+        	var vocabularyBrowserLink = _this.getLinkForNode("Vocabulary Browser", "VOCABULARY_BROWSER", "showVocabularyManagerPage", null);
+        	treeModelUtils.push({ title : vocabularyBrowserLink, entityType: "VOCABULARY_BROWSER", key : "VOCABULARY_BROWSER", folder : false, lazy : false, view : "showVocabularyManagerPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showAdvancedSearch) {
-        	treeModelUtils.push({ title : "Advanced Search", entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
+        	var advancedSearchLink = _this.getLinkForNode("Advanced Search", "ADVANCED_SEARCH", "showAdvancedSearchPage", null);
+        	treeModelUtils.push({ title : advancedSearchLink, entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
         }
         
         if(profile.mainMenu.showExports) {
-        	treeModelUtils.push({ title : "Export Builder", entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage", icon : "glyphicon glyphicon-export" });
+        	var exportBuilderLink = _this.getLinkForNode("Export Builder", "EXPORT_BUILDER", "showExportTreePage", null);
+        	treeModelUtils.push({ title : exportBuilderLink, entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage", icon : "glyphicon glyphicon-export" });
         }
         
         if(profile.mainMenu.showStorageManager) {
-        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
+        	var storageManagerLink = _this.getLinkForNode("Storage Manager", "STORAGE_MANAGER", "showStorageManager", null);
+        	treeModelUtils.push({ title : storageManagerLink, entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
         }
         
-        if(profile.mainMenu.showUserManager) {
-        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
+        if(profile.mainMenu.showUserManager && profile.isAdmin) {
+        	var userManagerLink = _this.getLinkForNode("User Manager", "USER_MANAGER", "showUserManagerPage", null);
+        	treeModelUtils.push({ title : userManagerLink, entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
         }
         
         if(profile.mainMenu.showTrashcan) {
-        	treeModelUtils.push({ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
+        	var trashCanLink = _this.getLinkForNode("Trashcan", "TRASHCAN", "showTrashcanPage", null);
+        	treeModelUtils.push({ title : trashCanLink, entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
         }
         
-        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
+        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, expanded : true, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
         treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         
 		var glyph_opts = {
@@ -293,7 +279,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    	case "LAB_NOTEBOOK":
     	    	case "INVENTORY":
     	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
-    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, function(searchResult) {
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
     	    			var results = [];
     	                var spaces = searchResult.objects;
     	                for (var i = 0; i < spaces.length; i++) {
@@ -302,7 +288,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
         	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
         	                	
-        	                    var spaceNode = { title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
+        	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
+        	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
         	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
         	                    	spaceNode.icon = "fa fa-shopping-cart";
         	                    }
@@ -314,13 +301,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "SPACE":
     	    		var projectRules = { "UUIDv4" : { type : "Attribute", name : "SPACE", value : permId } };
-    	    		mainController.serverFacade.searchForProjectsAdvanced({ entityKind : "PROJECT", logicalOperator : "AND", rules : projectRules }, function(searchResult) {
+    	    		mainController.serverFacade.searchForProjectsAdvanced({ entityKind : "PROJECT", logicalOperator : "AND", rules : projectRules }, null, function(searchResult) {
     	    			var results = [];
     	                var projects = searchResult.objects;
     	                for (var i = 0; i < projects.length; i++) {
     	                    var project = projects[i];
     	                    var normalizedProjectTitle = Util.getDisplayNameFromCode(project.code);
-    	                    results.push({ title : normalizedProjectTitle, entityType: "PROJECT", key : project.getPermId().getPermId(), folder : true, lazy : true, view : "showProjectPageFromPermId", viewData: project.getPermId().getPermId() });
+    	                    var projectLink = _this.getLinkForNode(normalizedProjectTitle, project.getPermId().getPermId(), "showProjectPageFromPermId", project.getPermId().getPermId());
+    	                    results.push({ title : projectLink, entityType: "PROJECT", key : project.getPermId().getPermId(), folder : true, lazy : true, view : "showProjectPageFromPermId", viewData: project.getPermId().getPermId() });
     	                    
     	                }
     	                dfd.resolve(results);
@@ -328,7 +316,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "PROJECT":
     	    		var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PROJECT_PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForExperimentsAdvanced({ entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules }, function(searchResult) {
+    	    		mainController.serverFacade.searchForExperimentsAdvanced({ entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules }, null, function(searchResult) {
     	    			var results = [];
     	                var experiments = searchResult.objects;
     	                for (var i = 0; i < experiments.length; i++) {
@@ -348,16 +336,38 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                    	loadSamples = true;
     	                    }
     	                    
-    	                    results.push({ title : experimentDisplayName, entityType: "EXPERIMENT", key : experiment.getPermId().getPermId(), folder : true, lazy : loadSamples, view : viewToUse, viewData: experiment.getIdentifier().getIdentifier() });
+    	                    var experimentLink = _this.getLinkForNode(experimentDisplayName, experiment.getPermId().getPermId(), viewToUse, experiment.getIdentifier().getIdentifier());
+    	                    results.push({ title : experimentLink, entityType: "EXPERIMENT", key : experiment.getPermId().getPermId(), folder : true, lazy : loadSamples, view : viewToUse, viewData: experiment.getIdentifier().getIdentifier() });
     	                }
     	                dfd.resolve(results);
     	    		});
     	    		break;
     	    	case "EXPERIMENT":
     	    		var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null,
     	    		function(searchResult) {
     	    			var samples = searchResult.objects;
+    	    			var samplesToShow = [];
+    	    			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+    	    				var sample = samples[sIdx];
+    	    				var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
+    	    				
+    	    				if(sampleIsExperiment) {
+    	    					var parentIsExperiment = false;
+    	    					if(sample.parents) {
+    	    						for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
+        	    						var parentIdentifier = sample.parents[pIdx].identifier.identifier;
+        	    						var parentInELN = profile.isELNIdentifier(parentIdentifier);
+        	    						if(parentInELN) {
+        	    							parentIsExperiment = parentIsExperiment || sample.parents[pIdx].type.code.indexOf("EXPERIMENT") > -1;
+        	    						}
+        	    					}
+    	    					}
+    	    					if(!parentIsExperiment) {
+    	    						samplesToShow.push(sample);
+	    						}
+    	    				}
+    	    			}
     	    			
     	    			var getOkResultsFunction = function(dfd, samples) {
     	                	return function() {
@@ -369,14 +379,42 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 	        	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
 	        	                    }
 	        	                    
-	        	                    var sampleNode = { title : sampleDisplayName, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
-	        	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
-	        	                    	sampleNode.icon = "fa fa-flask";
-	        	                    }
+	        	                    var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
+	        	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId(), icon : "fa fa-flask" };
 	        	                    results.push(sampleNode);
         	                	}
-        	                	dfd.resolve(results);
-        	                	Util.unblockUI();
+        	                	
+        	                	var datasetRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
+                	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+                	    			
+                	                var datasets = searchResult.objects;
+                	                var experimentDatasets = [];
+                	                for (var i = 0; i < datasets.length; i++) {
+                	                    var dataset = datasets[i];
+                	                    if(!dataset.sample) {
+                	                    	experimentDatasets.push(dataset);
+                	                    }
+                	                }
+                	                
+                	                if(experimentDatasets.length > 50) {
+                	                	Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
+                	                } else {
+                	                	for (var i = 0; i < experimentDatasets.length; i++) {
+                    	                    var dataset = experimentDatasets[i];
+                    	                    var datasetDisplayName = dataset.code;
+                    	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+                    	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+                    	                    }
+                    	                    
+                    	                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+                    	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId(), icon : "fa fa-database" });
+                    	                }
+                	                }
+                	                
+                	    			dfd.resolve(results);
+            	                	Util.unblockUI();
+                	    		});
+        	                	
     	                	}
     	                }
     	                
@@ -386,42 +424,68 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                	}
     	                }
     	                
-    	                if(samples.length > 50) {
+    	                if(samplesToShow.length > 50) {
     	                	var toExecute = function() {
-        	                	Util.blockUIConfirm("Do you want to show " + samples.length + " " + ELNDictionary.Samples + " on the tree?", 
-        	    	                	getOkResultsFunction(dfd, samples),
+        	                	Util.blockUIConfirm("Do you want to show " + samplesWithoutELNParents.length + " " + ELNDictionary.Samples + " on the tree?", 
+        	    	                	getOkResultsFunction(dfd, samplesToShow),
         	    	                	getCancelResultsFunction(dfd));
         	                }
     	                	
     	                	setTimeout(toExecute, 1000);
     	                } else {
-    	                	getOkResultsFunction(dfd, samples)();
+    	                	getOkResultsFunction(dfd, samplesToShow)();
     	                }
     	    		});
     	    		break;
     	    	case "SAMPLE":
-    	    		var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, function(searchResult) {
+    	    		var sampleRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } };
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null, function(searchResult) {
     	    			var results = [];
-    	                var datasets = searchResult.objects;
-    	                
-    	                if(datasets.length > 30) {
-    	                	Util.showInfo("More than 30 Datasets, please use the dataset viewer on the sample to navigate them.");
-    	                } else {
-    	                	for (var i = 0; i < datasets.length; i++) {
-        	                    var dataset = datasets[i];
-        	                    var datasetDisplayName = dataset.code;
-        	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
-        	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
-        	                    }
-        	                    
-        	                    results.push({ title : datasetDisplayName, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId() });
+    	    			var samples = searchResult.objects;
+    	    			if(samples && samples[0] && samples[0].children) {
+    	    				if(samples[0].children.length > 50) {
+        	                	Util.showInfo("More than 50 Samples, please use the children table to navigate them.");
+        	                } else {
+        	                	for(var cIdx = 0; cIdx < samples[0].children.length; cIdx++) {
+        	    					var sample = samples[0].children[cIdx];
+        	    					if(sample.type.code.indexOf("EXPERIMENT") > -1) {
+        	    						var sampleDisplayName = sample.code;
+                	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+                	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+                	                    }
+                	                    
+            	    					var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
+                	                    var sampleNode = { title : sampleLink, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId(), icon : "fa fa-flask" };
+                	                    results.push(sampleNode);
+        	    					}
+        	    				}
         	                }
-    	                }
-    	                
-    	                
-    	                dfd.resolve(results);
+    	    			}
+    	    			
+    	    			var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
+        	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+        	    			
+        	                var datasets = searchResult.objects;
+        	                if(datasets.length > 50) {
+        	                	Util.showInfo("More than 50 Datasets, please use the dataset viewer on the sample to navigate them.");
+        	                } else {
+        	                	for (var i = 0; i < datasets.length; i++) {
+            	                    var dataset = datasets[i];
+            	                    var datasetDisplayName = dataset.code;
+            	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+            	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+            	                    }
+            	                    
+            	                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+            	                    results.push({ title : datasetLink, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId(), icon : "fa fa-database" });
+            	                }
+        	                }
+        	                
+        	                
+        	                dfd.resolve(results);
+        	    		});
     	    		});
+    	    		
     	    		break;
     	    	case "DATASET":
     	    		break;
@@ -457,5 +521,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 		
         this._sideMenuWidgetModel.menuDOMBody.append($tree);
         this._sideMenuWidgetModel.tree = $tree;
+        
+        $tree.fancytree("getTree").getNodeByKey("LAB_NOTEBOOK").setExpanded(true);
+        var inventoryNode = $tree.fancytree("getTree").getNodeByKey("INVENTORY");
+        inventoryNode.setExpanded(true).done(function(){
+            inventoryNode.visit(function(node){
+                node.setExpanded(true).done(function(){
+                    node.visit(function(node2){
+                        node2.setExpanded(true);
+                    })
+                });
+            })
+        });
     }
 }

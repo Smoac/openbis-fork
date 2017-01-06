@@ -147,6 +147,30 @@ public class SearchSpaceTest extends AbstractTest
         testSearch(TEST_SPACE_USER, criteria);
     }
 
+    @Test
+    public void testSearchWithSortingByCode()
+    {
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SpacePermId("CISD"));
+        criteria.withId().thatEquals(new SpacePermId("TESTGROUP"));
+        criteria.withId().thatEquals(new SpacePermId("TEST-SPACE"));
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SpaceFetchOptions fo = new SpaceFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Space> spaces1 = v3api.searchSpaces(sessionToken, criteria, fo).getObjects();
+        assertSpaceCodes(spaces1, "CISD", "TEST-SPACE", "TESTGROUP");
+
+        fo.sortBy().code().desc();
+        List<Space> spaces2 = v3api.searchSpaces(sessionToken, criteria, fo).getObjects();
+        assertSpaceCodes(spaces2, "TESTGROUP", "TEST-SPACE", "CISD");
+
+        v3api.logout(sessionToken);
+    }
+
     private void testSearch(String user, SpaceSearchCriteria criteria, String... expectedCodes)
     {
         String sessionToken = v3api.login(user, PASSWORD);

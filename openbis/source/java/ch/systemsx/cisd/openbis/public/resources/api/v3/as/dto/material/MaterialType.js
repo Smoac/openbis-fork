@@ -54,6 +54,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setModificationDate = function(modificationDate) {
 			this.modificationDate = modificationDate;
 		};
+		prototype.toString = function() {
+			return this.getCode();
+		};
 	}, {
 		fetchOptions : "MaterialTypeFetchOptions",
 		permId : "EntityTypePermId",

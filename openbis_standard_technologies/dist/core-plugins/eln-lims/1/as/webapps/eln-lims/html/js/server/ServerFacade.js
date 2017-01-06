@@ -362,8 +362,26 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}
 	
-	this.deleteSamples = function(sampleIds, reason, callback) {
-		this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", callback);
+	this.deleteSamples = function(samplePermIds, reason, callback, confirmDeletions) {
+		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
+		        function(SamplePermId, SampleDeletionOptions) {
+		            var samplePermIdsObj = [];
+		            for(var sPIdx = 0; sPIdx < samplePermIds.length; sPIdx++) {
+		            	samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
+		            }
+		 
+		            var deletionOptions = new SampleDeletionOptions();
+		            deletionOptions.setReason(reason);
+		 
+		            // logical deletion (move objects to the trash can)
+		            mainController.openbisV3.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
+		            	if(confirmDeletions) {
+		            		mainController.openbisV3.confirmDeletions([deletionId]).then(callback);
+		            	} else {
+		            		callback(deletionId);
+		            	}
+		            });
+		 });
 	}
 	
 	this.deleteExperiments = function(experimentIds, reason, callback) {
@@ -389,6 +407,11 @@ function ServerFacade(openbisServer) {
 	//
 	// Data Set Related Functions
 	//
+	this.listDataSetsForExperiment = function(experimentToSend, callbackFunction) {
+		//Should be a V1 Experiment
+		this.openbisServer.listDataSetsForExperiments([experimentToSend], [ 'PARENTS' ], callbackFunction);
+	}
+	
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {
 		var _this = this;
 		var listDataSetsForV1Sample = function(v1Sample) {
@@ -667,75 +690,64 @@ function ServerFacade(openbisServer) {
 	// New Advanced Search
 	//
 	
-	this.searchForDataSetsAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForDataSetsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/dataset/search/DataSetSearchCriteria';
 		var fetchOptionsClass = 'as/dto/dataset/fetchoptions/DataSetFetchOptions';
 		var searchMethodName = 'searchDataSets';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForExperimentsAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForExperimentsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/experiment/search/ExperimentSearchCriteria';
 		var fetchOptionsClass = 'as/dto/experiment/fetchoptions/ExperimentFetchOptions';
 		var searchMethodName = 'searchExperiments';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForSamplesAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/sample/search/SampleSearchCriteria';
 		var fetchOptionsClass = 'as/dto/sample/fetchoptions/SampleFetchOptions';
 		var searchMethodName = 'searchSamples';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForSpacesAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForSpacesAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/space/search/SpaceSearchCriteria';
 		var fetchOptionsClass = 'as/dto/space/fetchoptions/SpaceFetchOptions';
 		var searchMethodName = 'searchSpaces';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForProjectsAdvanced = function(advancedSearchCriteria, callback) {
+	this.searchForProjectsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/project/search/ProjectSearchCriteria';
 		var fetchOptionsClass = 'as/dto/project/fetchoptions/ProjectFetchOptions';
 		var searchMethodName = 'searchProjects';
-		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForEntityAdvanced = function(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
-		require(['openbis', 
-		         criteriaClass,
+	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
+		require([criteriaClass,
 		         fetchOptionsClass,
-		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
-			
+		         'as/dto/common/search/DateObjectEqualToValue',
+		         'as/dto/experiment/search/ExperimentSearchCriteria',
+		         'as/dto/experiment/fetchoptions/ExperimentFetchOptions',
+		         'as/dto/space/search/SpaceSearchCriteria',
+		         'as/dto/sample/fetchoptions/SampleFetchOptions',
+		         'as/dto/space/search/SpaceSearchCriteria',
+		         'as/dto/space/fetchoptions/SpaceFetchOptions',
+		         'as/dto/project/search/ProjectSearchCriteria',
+		         'as/dto/project/fetchoptions/ProjectFetchOptions'], function(EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
 			try {
-				//Boilerplate
-				var testProtocol = window.location.protocol;
-				var testHost = window.location.hostname;
-				var testPort = window.location.port;
-				
-				var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-				var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-				
-				var v3Api = new openbis(testApiUrl);
-				v3Api._private.sessionToken = mainController.serverFacade.getSession();
-				
 				//Setting the searchCriteria given the advancedSearchCriteria model
 				var searchCriteria = new EntitySearchCriteria();
-				
+			
 				//Setting the fetchOptions given standard settings
 				var fetchOptions = new EntityFetchOptions();
-				if(fetchOptions.withTags) {
-					fetchOptions.withTags();
-				}
 				if(fetchOptions.withType) {
 					fetchOptions.withType();
 				}
 				if(fetchOptions.withSpace) {
 					fetchOptions.withSpace();
-				}
-				if(fetchOptions.withExperiment) {
-					fetchOptions.withExperiment();
 				}
 				if(fetchOptions.withRegistrator) {
 					fetchOptions.withRegistrator();
@@ -743,26 +755,73 @@ function ServerFacade(openbisServer) {
 				if(fetchOptions.withModifier) {
 					fetchOptions.withModifier();
 				}
-				if(fetchOptions.withParents) {
-					fetchOptions.withParents();
-				}
-				if(fetchOptions.withProjects) {
-					fetchOptions.withProjects();
-				}
-				if(fetchOptions.withProjects) {
-					fetchOptions.withProjects();
-				}
 				if(fetchOptions.withProperties) {
 					fetchOptions.withProperties();
 				}
 				
-				//Operator
-				var operator = advancedSearchCriteria.logicalOperator;
-				if (!operator) {
-					operator = "AND";
+				//Optional fetchOptions
+				if(!advancedFetchOptions || !advancedFetchOptions.minTableInfo) {
+					if(fetchOptions.withProjects) {
+						fetchOptions.withProjects();
+					}
+					if(fetchOptions.withSample) {
+						fetchOptions.withSample();
+					}
+					if(fetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+					}
+					if(fetchOptions.withTags) {
+						fetchOptions.withTags();
+					}
+					if(fetchOptions.withParents) {
+						fetchOptions.withParentsUsing(fetchOptions);
+					}
+					if(fetchOptions.withChildren) {
+						fetchOptions.withChildrenUsing(fetchOptions);
+					}
+				} else if(advancedFetchOptions.minTableInfo) {
+					if(fetchOptions.withParents) {
+						fetchOptions.withParents();
+					}
 				}
-				searchCriteria.withOperator(operator);
 				
+				
+				
+				if(advancedFetchOptions && advancedFetchOptions.cache) {
+					fetchOptions.cacheMode(advancedFetchOptions.cache);
+				}
+				
+				if(advancedFetchOptions && 
+						advancedFetchOptions.count != null &&
+						advancedFetchOptions.count != undefined && 
+						advancedFetchOptions.from != null &&
+						advancedFetchOptions.from != undefined) {
+					fetchOptions.from(advancedFetchOptions.from);
+					fetchOptions.count(advancedFetchOptions.count);
+				}
+				
+				if(advancedFetchOptions && advancedFetchOptions.sort) {
+					switch(advancedFetchOptions.sort.type) {
+						case "Attribute":
+							fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
+							break;
+						case "Property":
+							fetchOptions.sortBy().property(advancedFetchOptions.sort.name)[advancedFetchOptions.sort.direction]();
+							break;
+					}
+				}
+				
+				var setOperator = function(criteria, operator) {
+					//Operator
+					if (!operator) {
+						operator = "AND";
+					}
+					criteria.withOperator(operator);
+					return criteria;
+				}
+				
+				searchCriteria = setOperator(searchCriteria, advancedSearchCriteria.logicalOperator);
+			
 				//Rules
 				var ruleKeys = Object.keys(advancedSearchCriteria.rules);
 				for (var idx = 0; idx < ruleKeys.length; idx++)
@@ -771,21 +830,21 @@ function ServerFacade(openbisServer) {
 					var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
 					var fieldNameType = null;
 					var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-					
+				
 					if(fieldName) {
 						var firstDotIndex = fieldName.indexOf(".");
 						fieldNameType = fieldName.substring(0, firstDotIndex);
 						fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
 					}
-					
+				
 					if(!fieldValue) {
 						fieldValue = "*";
 					}
-					
+				
 					var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
-						criteria.withProperty(propertyName).thatEquals(propertyValue);
+						criteria.withProperty(propertyName).thatContains(propertyValue);
 					}
-					
+				
 					var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
 						switch(attributeName) {
 							//Used by all entities
@@ -825,63 +884,81 @@ function ServerFacade(openbisServer) {
 								break;
 						}
 					}
-					
+				
 					switch(fieldType) {
 						case "All":
-							searchCriteria.withAnyField().thatEquals(fieldValue);
+							if(fieldValue !== "*") {
+								searchCriteria.withAnyField().thatContains(fieldValue);
+							}
 							break;
 						case "Property":
-							setPropertyCriteria(searchCriteria, fieldName, fieldValue);
+							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 							break;
 						case "Attribute":
-							setAttributeCriteria(searchCriteria, fieldName, fieldValue);
+							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+							break;
+						case "Property/Attribute":
+							switch(fieldNameType) {
+								case "PROP":
+									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+								case "ATTR":
+									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+							}
 							break;
 						case "Sample":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withSample(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withSample(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+								case "NULL":
+									searchCriteria.withoutSample();
 									break;
 							}
 							break;
 						case "Experiment":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withExperiment(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withExperiment(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									break;
+								case "NULL":
+									searchCriteria.withoutExperiment();
 									break;
 							}
 							break;
 						case "Parent":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 							}
 							break;
 						case "Children":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 								case "ATTR":
-									setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
 									break;
 							}
 							break;
 					}
 				}
-				
-				v3Api[searchMethodName](searchCriteria, fetchOptions)
+			
+				mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 				.done(function(result) {
-					callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
+					callback(result);
 				})
 				.fail(function(result) {
 					Util.showError("Call failed to server: " + JSON.stringify(result));
@@ -896,15 +973,27 @@ function ServerFacade(openbisServer) {
 	// Search Samples
 	//
 	
-	this.getV3SamplesAsV1 = function(v3Samples) {
+	this.getV3SamplesAsV1 = function(v3Samples, alreadyConverted) {
+		if(!alreadyConverted) {
+			alreadyConverted = {};
+		}
 		var v1Samples = [];
 		for(var sIdx = 0; sIdx < v3Samples.length; sIdx++) {
-			v1Samples.push(this.getV3SampleAsV1(v3Samples[sIdx]));
+			var permId = (v3Samples[sIdx].permId)?v3Samples[sIdx].permId.permId:null;
+			if(alreadyConverted[permId]) {
+				v1Samples.push(alreadyConverted[permId]);
+			} else {
+				v1Samples.push(this.getV3SampleAsV1(v3Samples[sIdx], alreadyConverted));
+			}
 		}
 		return v1Samples;
 	}
 	
-	this.getV3SampleAsV1 = function(v3Sample) {
+	this.getV3SampleAsV1 = function(v3Sample, alreadyConverted) {
+		if(!alreadyConverted) {
+			alreadyConverted = {};
+		}
+		
 		var CONST_UNSUPPORTED_NUMBER = -1;
 		var CONST_UNSUPPORTED_OBJ = null;
 		var CONST_UNSUPPORTED_BOOL = false;
@@ -912,36 +1001,38 @@ function ServerFacade(openbisServer) {
 		var v1Sample = {};
 		v1Sample["@type"] = "Sample";
 		v1Sample["@id"] = CONST_UNSUPPORTED_NUMBER;
-		v1Sample["spaceCode"] = v3Sample.space.code;
-		v1Sample["permId"] = v3Sample.permId.permId;
+		v1Sample["spaceCode"] = (v3Sample.space)?v3Sample.space.code:null;
+		v1Sample["permId"] = (v3Sample.permId)?v3Sample.permId.permId:null;
 		v1Sample["code"] = v3Sample.code;
-		v1Sample["identifier"] = v3Sample.identifier.identifier;
+		v1Sample["identifier"] = (v3Sample.identifier)?v3Sample.identifier.identifier:null;
 		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
-		v1Sample["sampleTypeCode"] = v3Sample.type.code;
+		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
 		v1Sample["properties"] = v3Sample.properties;
 		
 		v1Sample["registrationDetails"] = {};
 		v1Sample["registrationDetails"]["@type"] = "EntityRegistrationDetails";
 		v1Sample["registrationDetails"]["@id"] = CONST_UNSUPPORTED_NUMBER;
-		v1Sample["registrationDetails"]["userFirstName"] = v3Sample.registrator.firstName;
-		v1Sample["registrationDetails"]["userLastName"] = v3Sample.registrator.lastName;
-		v1Sample["registrationDetails"]["userEmail"] = v3Sample.registrator.email;
-		v1Sample["registrationDetails"]["userId"] = v3Sample.registrator.userId;
+		v1Sample["registrationDetails"]["userFirstName"] = (v3Sample.registrator)?v3Sample.registrator.firstName:null;
+		v1Sample["registrationDetails"]["userLastName"] = (v3Sample.registrator)?v3Sample.registrator.lastName:null;
+		v1Sample["registrationDetails"]["userEmail"] = (v3Sample.registrator)?v3Sample.registrator.email:null;
+		v1Sample["registrationDetails"]["userId"] = (v3Sample.registrator)?v3Sample.registrator.userId:null;
 		v1Sample["registrationDetails"]["modifierFirstName"]  = (v3Sample.modifier)?v3Sample.modifier.firstName:null;
 		v1Sample["registrationDetails"]["modifierLastName"] = (v3Sample.modifier)?v3Sample.modifier.lastName:null;
 		v1Sample["registrationDetails"]["modifierEmail"] = (v3Sample.modifier)?v3Sample.modifier.email:null;
 		v1Sample["registrationDetails"]["modifierUserId"] = (v3Sample.modifier)?v3Sample.modifier.userId:null;
-		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrator.registrationDate;
-		v1Sample["registrationDetails"]["modificationDate"] = (v3Sample.modifier)?v3Sample.modifier.registrationDate:null;
+		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrationDate;
+		v1Sample["registrationDetails"]["modificationDate"] = v3Sample.modificationDate;
 		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
+		
+		alreadyConverted[v1Sample["permId"]] = v1Sample;
 		
 		v1Sample["parents"] = null;
 		if(v3Sample.parents) {
-			v1Sample["parents"] = this.getV3SamplesAsV1(v3Sample.parents);
+			v1Sample["parents"] = this.getV3SamplesAsV1(v3Sample.parents, alreadyConverted);
 		}
 		v1Sample["children"] = null;
 		if(v3Sample.children) {
-			v1Sample["children"] = this.getV3SamplesAsV1(v3Sample.children);
+			v1Sample["children"] = this.getV3SamplesAsV1(v3Sample.children, alreadyConverted);
 		} 
 		
 		v1Sample["stub"] = CONST_UNSUPPORTED_BOOL;
@@ -1271,7 +1362,7 @@ function ServerFacade(openbisServer) {
 	
 		for(var i = 0; i < propertyTypeCodes.length ;i++) {
 			var propertyTypeCode = propertyTypeCodes[i];
-			var propertyTypeValue = "\"" + propertyValues[i] + "\"";
+			var propertyTypeValue = propertyValues[i];
 			var newMap = {};
 				newMap[propertyTypeCode] = propertyTypeValue;
 				
@@ -1417,21 +1508,16 @@ function ServerFacade(openbisServer) {
 	//
 	// Global Search
 	//
-	this.searchGlobally = function(freeText, callbackFunction)
+	this.searchGlobally = function(freeText, advancedFetchOptions, callbackFunction)
 	{
 		var _this = this;
-		require(['openbis', 'as/dto/global/search/GlobalSearchCriteria', 
+		require(['as/dto/global/search/GlobalSearchCriteria', 
 		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'], 
-		         function(openbis, GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
-			var protocol = window.location.protocol;
-			var host = window.location.hostname;
-			var port = window.location.port;
-			var url = protocol + "//" + host + ":" + port;
-			var v3api = new openbis(url + "/openbis/openbis/rmi-application-server-v3.json");
-			v3api._private.sessionToken = mainController.serverFacade.getSession();
+		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
-			searchCriteria.withWildCards();
-			searchCriteria.withText().thatContains(freeText);
+			searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+			searchCriteria.withOperator("AND");
+			
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			var sampleFetchOptions = fetchOptions.withSample();
 			sampleFetchOptions.withSpace();
@@ -1453,7 +1539,20 @@ function ServerFacade(openbisServer) {
 			dataSetFetchOptions.withModifier();
 			dataSetFetchOptions.withProperties();
 			
-			v3api.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
+			if(advancedFetchOptions && advancedFetchOptions.cache) {
+				fetchOptions.cacheMode(advancedFetchOptions.cache);
+			}
+			
+			if(advancedFetchOptions && 
+					advancedFetchOptions.count != null &&
+					advancedFetchOptions.count != undefined && 
+					advancedFetchOptions.from != null &&
+					advancedFetchOptions.from != undefined) {
+				fetchOptions.from(advancedFetchOptions.from);
+				fetchOptions.count(advancedFetchOptions.count);
+			}
+			
+			mainController.openbisV3.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
 				callbackFunction(results);
 			}).fail(function(error) {
 				Util.showError("Call failed to server: " + JSON.stringify(error));

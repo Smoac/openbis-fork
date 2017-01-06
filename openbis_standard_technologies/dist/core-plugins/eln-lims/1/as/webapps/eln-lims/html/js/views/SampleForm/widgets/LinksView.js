@@ -20,7 +20,6 @@ function LinksView(linksController, linksModel) {
 	var linksView = this;
 	
 	var sampleGridContainerByType = {};
-	var samplesByTypeCache = {};
 	
 	var $samplePicker = $("<div>");
 	var $savedContainer = null;
@@ -124,14 +123,28 @@ function LinksView(linksController, linksModel) {
 			}
 		}
 		
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, "ANNOTATIONS", linksModel.isDisabled, false);
+		var postFix = null;
+		if(containerCode) {
+			postFix = "ANNOTATIONS";
+		} else {
+			containerCode = mainController.currentView._sampleFormModel.sample.sampleTypeCode;
+			postFix = "ANNOTATIONS_ALL" + linksModel.title;
+		}
+		
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, postFix, linksModel.isDisabled, false);
 		dataGrid.init($dataGridContainer);
 		linksModel.writeState(sample, null, null, false);
 	}
 	
 	this.repaint = function($container) {
-		$savedContainer = $container;
+		var $fieldsetOwner = $("<div>");
+		var $legend = $("<legend>");
+		var $fieldset = $("<div>");
+		$fieldsetOwner.append($legend).append($fieldset);
+		
 		$container.empty();
+		$container.append($fieldsetOwner);
+		$savedContainer = $fieldset;
 		
 		var addAnyBtn = null;
 		if(linksModel.disableAddAnyType) {
@@ -140,8 +153,11 @@ function LinksView(linksController, linksModel) {
 			addAnyBtn = linksView.getAddAnyBtn();
 		}
 		
-		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(addAnyBtn).css("margin-top", "20px").css("margin-bottom", "20px"));
-		$container.append($samplePicker);
+		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
+		
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + linksModel.sampleTypeCode + "-" + linksModel.title));
+		
+		$fieldset.append($samplePicker);
 	}
 	
 	//
@@ -356,33 +372,27 @@ function LinksView(linksController, linksModel) {
 		$container.append($gridContainer);
 		
 		//Show Table Logic
-		var showTableFunction = function(samples) {
-			samplesByTypeCache[sampleTypeCode] = samples;
-			
-			var rowClick = function(e) {
-				linksController.addSample(e.data["$object"]);
-				$container.empty().hide();
+		var extraOptions = [];
+		extraOptions.push({ name : "Add selected", action : function(selected) {
+			for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+				linksController.addSample(selected[sIdx]);
 			}
-			
-			var extraOptions = [];
-			extraOptions.push({ name : "Add selected", action : function(selected) {
-				for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-					linksController.addSample(selected[sIdx]);
-				}
-				$container.empty().hide();
-			}});
-			
-			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick, null, null, null, true, true, true);
-			dataGrid.init($gridContainer, extraOptions);
+			$container.empty().hide();
+		}});
+		
+		var advancedSampleSearchCriteria = {
+				entityKind : "SAMPLE",
+				logicalOperator : "AND",
+				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode } }
 		}
 		
-		//Check Cache and Show Table
-		var sampleTypeCache = samplesByTypeCache[sampleTypeCode];
-		if(sampleTypeCache) {
-			showTableFunction(sampleTypeCache);
-		} else {
-			mainController.serverFacade.searchWithType(sampleTypeCode, null, false, showTableFunction);
+		var rowClick = function(e) {
+			linksController.addSample(e.data["$object"]);
+			$container.empty().hide();
 		}
+		
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, advancedSampleSearchCriteria, rowClick, null, null, null, true, true, true);
+		dataGrid.init($gridContainer, extraOptions);
 	}
 			
 	linksView.getAddBtn = function($container, sampleTypeCode) {

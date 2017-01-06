@@ -20,14 +20,16 @@ import java.util.Comparator;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 
 /**
  * @author pkupczyk
  */
-public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder>
+public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & IPermIdHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder & IEntityTypeHolder>
         extends EntityComparatorFactory<OBJECT>
 {
 
@@ -40,7 +42,10 @@ public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & 
     @Override
     public Comparator<OBJECT> getComparator(String field)
     {
-        if (field.startsWith(EntityWithPropertiesSortOptions.PROPERTY))
+        if (field.equals(EntityWithPropertiesSortOptions.TYPE))
+        {
+            return new TypeComparator<OBJECT>();
+        } else if (field.startsWith(EntityWithPropertiesSortOptions.PROPERTY))
         {
             return new PropertyComparator<OBJECT>(field.substring(EntityWithPropertiesSortOptions.PROPERTY.length()));
         } else

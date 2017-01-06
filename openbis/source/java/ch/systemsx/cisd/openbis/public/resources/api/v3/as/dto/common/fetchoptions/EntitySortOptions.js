@@ -5,6 +5,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/SortOptions" ], function
 
 	var fields = {
 		CODE : "CODE",
+		PERM_ID : "PERM_ID",
 		REGISTRATION_DATE : "REGISTRATION_DATE",
 		MODIFICATION_DATE : "MODIFICATION_DATE"
 	};
@@ -17,6 +18,12 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/SortOptions" ], function
 		};
 		prototype.getCode = function() {
 			return this.getSorting(fields.CODE);
+		};
+		prototype.permId = function() {
+			return this.getOrCreateSorting(fields.PERM_ID);
+		};
+		prototype.getPermId = function() {
+			return this.getSorting(fields.PERM_ID);
 		};
 		prototype.registrationDate = function() {
 			return this.getOrCreateSorting(fields.REGISTRATION_DATE);
