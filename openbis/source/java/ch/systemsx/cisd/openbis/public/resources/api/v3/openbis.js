@@ -132,6 +132,10 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			}));
 		}
 
+		this.loginFromContext = function() {
+			this._private.sessionToken = this.getWebAppContext().getSessionId();
+		}
+		
 		this.logout = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
