@@ -175,6 +175,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			}, fo);
 		});
 
+		QUnit.test("searchProjects() with sorting by identifier", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.ProjectSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withId().thatEquals(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+			criteria.withId().thatEquals(new c.ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+
+			var fo = c.createProjectFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchProjects(criteria, fo);
+			}, fo, "identifier");
+		});
+
 		QUnit.test("searchExperiments()", function(assert) {
 			var c = new common(assert);
 
@@ -209,6 +224,36 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
 				return facade.searchExperiments(criteria, fo);
 			}, fo);
+		});
+
+		QUnit.test("searchExperiments() with sorting by identifier", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.ExperimentSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withId().thatEquals(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+			criteria.withId().thatEquals(new c.ExperimentIdentifier("/PLATONIC/SCREENING-EXAMPLES/EXP-2"));
+
+			var fo = c.createExperimentFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchExperiments(criteria, fo);
+			}, fo, "identifier");
+		});
+
+		QUnit.test("searchExperiments() with sorting by type", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.ExperimentSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withId().thatEquals(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+			criteria.withId().thatEquals(new c.ExperimentIdentifier("/PLATONIC/SCREENING-EXAMPLES/EXP-2"));
+
+			var fo = c.createExperimentFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchExperiments(criteria, fo);
+			}, fo, "type");
 		});
 
 		QUnit.test("searchExperimentTypes()", function(assert) {
@@ -392,6 +437,36 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchSamples() with sorting by identifier", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.SampleSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
+
+			var fo = c.createSampleFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchSamples(criteria, fo);
+			}, fo, "identifier");
+		});
+
+		QUnit.test("searchSamples() with sorting by type", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.SampleSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
+
+			var fo = c.createSampleFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchSamples(criteria, fo);
+			}, fo, "type");
+		});
+
 		QUnit.test("searchSampleTypes()", function(assert) {
 			var c = new common(assert);
 
@@ -512,6 +587,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchDataSets(criteria, fo);
 			}, fo, "property", "RESOLUTION");
+		});
+
+		QUnit.test("searchDataSets() with sorting by type", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.DataSetSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withPermId().thatEquals("20130412142543232-197");
+			criteria.withPermId().thatEquals("20130412143121081-200");
+
+			var fo = c.createDataSetFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchDataSets(criteria, fo);
+			}, fo, "type");
 		});
 
 		QUnit.test("searchDataSets() withoutSample", function(assert) {
@@ -693,6 +783,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
 				return facade.searchMaterials(criteria, fo);
 			}, fo);
+		});
+
+		QUnit.test("searchMaterials() with sorting by type", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.MaterialSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("ABC");
+			criteria.withCode().thatEquals("SIRNA-2");
+
+			var fo = c.createMaterialFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchMaterials(criteria, fo);
+			}, fo, "type");
 		});
 
 		QUnit.test("searchMaterialTypes()", function(assert) {

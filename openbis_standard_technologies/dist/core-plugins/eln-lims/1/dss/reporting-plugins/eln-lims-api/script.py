@@ -32,7 +32,7 @@ from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 
-from ch.ethz.ssdm.eln import PlasmapperConnector
+from ch.ethz.sis import PlasmapperConnector
 
 import time
 import subprocess
@@ -134,9 +134,11 @@ def getProperties(tr, parameters):
 	properties = infService.listPropertyTypes(sessionToken, False);
 	return properties
 
+rtpropertiesToIgnore = ["FREEFORM_TABLE_STATE", "NAME", "SEQUENCE"];
+
 def isPropertyRichText(properties, propertyCode):
 	for property in properties:
-		if property.getCode() == propertyCode and property.getCode() != "FREEFORM_TABLE_STATE":
+		if property.getCode() == propertyCode and property.getCode() not in rtpropertiesToIgnore:
 			return property.getDataType() == DataTypeCode.MULTILINE_VARCHAR;
 	return None;
 
@@ -509,6 +511,8 @@ def updateDataSet(tr, parameters, tableBuilder):
 def insertDataSet(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String
+	experimentIdentifier = parameters.get("experimentIdentifier"); #String
+	
 	dataSetType = parameters.get("dataSetType"); #String
 	folderName = parameters.get("folderName"); #String
 	fileNames = parameters.get("filenames"); #List<String>
@@ -517,9 +521,13 @@ def insertDataSet(tr, parameters, tableBuilder):
 	properties = getProperties(tr, parameters);
 	
 	#Create Dataset
-	dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
 	dataSet = tr.createNewDataSet(dataSetType);
-	dataSet.setSample(dataSetSample);
+	if sampleIdentifier is not None:
+		dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
+		dataSet.setSample(dataSetSample);
+	elif experimentIdentifier is not None:
+		dataSetExperiment = tr.getExperiment(experimentIdentifier);
+		dataSet.setExperiment(dataSetExperiment);
 	
 	#Assign Data Set properties
 	for key in metadata.keySet():
@@ -566,10 +574,11 @@ def insertDataSet(tr, parameters, tableBuilder):
 			futureSVG = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"));
 			futureHTML = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html"));
 			try:
-				PlasmapperConnector.downloadPlasmidMap(
+				PlasmapperConnector.createPlasmidDataSet(
 					PLASMAPPER_BASE_URL,
 					tempDir + "/" + folderName + "/" + temFile.getName(),
 					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"),
+					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".gb"),
 					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html")
 				);
 			except:

@@ -26,30 +26,59 @@
  * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
  * @param {Map} datasets API result with the datasets to show.
  * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
- * @param {Boolean} enableOpenDataset If true, pressing on a row opens the dataset form on view mode for the given dataset.
  */
-function DataSetViewerController(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
-	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset);
+function DataSetViewerController(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding) {
+	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding);
 	this._datasetViewerView = new DataSetViewerView(this, this._datasetViewerModel);
 	
 	this.init = function() {
+		var _this = this;
 		// Loading the datasets
 		if(this._datasetViewerModel.datasets) {
-			this.updateDatasets(this._datasetViewerModel.datasets);
-			this._datasetViewerView.repaintDatasets();
+			if(this._datasetViewerModel.datasets.length > 0) {
+				this.updateDatasets(this._datasetViewerModel.datasets);
+				this._datasetViewerView.repaintDatasets();
+			}
 		} else {
 			var _this = this;
-			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
-				_this.updateDatasets(datasets.result);
-				_this._datasetViewerView.repaintDatasets();
-			});
+			if (this._datasetViewerModel.isExperiment()) {
+				serverFacade.listExperimentsForIdentifiers([this._datasetViewerModel.entity.identifier.identifier], function(data) {
+					serverFacade.listDataSetsForExperiment(data.result[0], function(datasets) {
+						var results;
+						if(_this._datasetViewerModel.isExperiment()) { //Filter out datasets own by samples
+							results = [];
+							for(var dIdx = 0; dIdx < datasets.result.length; dIdx++) {
+								var dataset = datasets.result[dIdx];
+								if(!dataset.sampleIdentifierOrNull) {
+									results.push(dataset);
+								}
+							}
+						} else {
+							results = datasets.result;
+						}
+						
+						if(results.length > 0) {
+							_this.updateDatasets(results);
+							_this._datasetViewerView.repaintDatasets();
+						}
+						
+					});
+				});
+			} else {
+				serverFacade.listDataSetsForSample(this._datasetViewerModel.entity, true, function(datasets) {
+					if(datasets.result.length > 0) {
+						_this.updateDatasets(datasets.result);
+						_this._datasetViewerView.repaintDatasets();
+					}
+				});
+			}
 		}
 	}
 	
 	this.updateDatasets = function(datasets) {
-		for(var i = 0; i < datasets.length; i++) { //DataSets for sample
+		for(var i = 0; i < datasets.length; i++) { //DataSets for entity
 			var dataset = datasets[i];
-			this._datasetViewerModel.sampleDataSets[dataset.code] = dataset;
+			this._datasetViewerModel.entityDataSets[dataset.code] = dataset;
 		}
 	}
 	

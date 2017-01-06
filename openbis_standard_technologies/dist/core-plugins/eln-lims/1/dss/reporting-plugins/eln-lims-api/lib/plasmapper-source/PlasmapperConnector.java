@@ -1,4 +1,4 @@
-package ch.ethz.ssdm.eln;
+package ch.ethz.sis;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,85 +17,135 @@ import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 
 public class PlasmapperConnector
 {
-    public static void main(String[] args) throws Exception {
-        //URL to the server without the dash '/'
+    public static void main(String[] args) throws Exception
+    {
+        // URL to the server without the dash '/'
         String serverURL = "http://wishart.biology.ualberta.ca";
-        //Path to input fasta file
+        // Path to input fasta file
         String fastaInputFilePath = "FRP1955.fasta";
-        //Path to output svg file
+        // Path to output svg file
         String svgOutputFilePath = "FRP1955.svg";
-        //Path to output html file
+        // Path to output gb file
+        String gbOutputFilePath = "FRP1955.gb";
+        // Path to output html file
         String htmlOutputFilePath = "FRP1955.html";
-        
-        downloadPlasmidMap(
+
+        createPlasmidDataSet(
                 serverURL,
                 fastaInputFilePath,
                 svgOutputFilePath,
+                gbOutputFilePath,
                 htmlOutputFilePath);
     }
-    
-    
+
     private static final String VECTOR_MAP_URL = "/PlasMapper/servlet/DrawVectorMap";
-    
-    public static void downloadPlasmidMap(
+
+    private static final String GENBANK_URL = "/PlasMapper/servlet/GenbankOutput";
+
+    public static void createPlasmidDataSet(
             final String serverURL,
             final String fastaInputFilePath,
             final String svgOutputFilePath,
-            final String htmlOutputFilePath) {
-        HttpClient client = JettyHttpClientFactory.getHttpClient();
-        Request requestEntity = client.newRequest(serverURL + VECTOR_MAP_URL).method("POST");
-        
-        try {
-            setPlasmidFormOptions(requestEntity, fastaInputFilePath);
-            ContentResponse contentResponse = requestEntity.send();
-            
-            int statusCode = contentResponse.getStatus();
-            
-            if (statusCode != HttpStatus.Code.OK.getCode())
-            {
-                throw new RuntimeException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
-            }
-            
-            String svgFileURLPath = contentResponse.getContentAsString();
-            if (svgFileURLPath == null || !svgFileURLPath.contains("PlasMapper")) {
-                throw new RuntimeException("PlasMapper service failed returning incorrect path to file: " + svgFileURLPath);
-            } else if (svgFileURLPath.endsWith("\r\n"))
-            {
-                svgFileURLPath = svgFileURLPath.substring(0, svgFileURLPath.lastIndexOf("\r\n"));
-            } else if (svgFileURLPath.endsWith("\n"))
-            {
-                svgFileURLPath = svgFileURLPath.substring(0, svgFileURLPath.lastIndexOf("\n"));
-            }
-//            System.out.println("Downloading SVG file: " + serverURL + "/" + svgFileURLPath + " to " + svgOutputFile);
-            
-            if(svgFileURLPath.startsWith("/")) {
-                svgFileURLPath = svgFileURLPath.substring(1);
-            }
-            URL svgFileURL = new URL(serverURL + "/" + svgFileURLPath);
-            
-            File svgOutputFile = new File(svgOutputFilePath);
-            FileUtils.copyURLToFile(svgFileURL, svgOutputFile);
-//            System.out.println("Generating HTML file: " + htmlOutputFile);
-            String htmlFileContents = "<html>"
-                                    + "<head>"
-                                    + "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">"
-                                    + "<title>PlasMapper - Graphic Map</title>"
-                                    + "</head>"
-                                    + "<body>"
-                                    + "<embed src=\"" + svgOutputFile.getName() + "\" type=\"image/svg+xml\" pluginspage=\"http://www.adobe.com/svg/viewer/install/\" id=\"Panel\" height=\"1010\" width=\"1010\">"
-                                    + "<br>"
-                                    + "<a href=\"" + svgOutputFile.getName() + "\" target=\"_blank\">Download Link</a>"
-                                    + "</body>"
-                                    + "</html>";
-            FileUtils.writeStringToFile(new File(htmlOutputFilePath), htmlFileContents, "UTF-8");
-        } catch(Exception ex) {
+            final String gbOutputFilePath,
+            final String htmlOutputFilePath)
+    {
+        File svgOutputFile = new File(svgOutputFilePath);
+
+        try
+        {
+            downloadFromService(serverURL, GENBANK_URL, fastaInputFilePath, gbOutputFilePath, Boolean.TRUE);
+            downloadFromService(serverURL, VECTOR_MAP_URL, fastaInputFilePath, svgOutputFilePath, Boolean.FALSE);
+            generateHTML(htmlOutputFilePath, svgOutputFile);
+        } catch (Exception ex)
+        {
             throw new RuntimeException(ex);
-        } finally {
-            
+        } finally
+        {
+
         }
     }
-    
-    
+
+    public static void downloadFromService(
+            final String serverURL,
+            final String service,
+            final String fastaInputFilePath,
+            final String outputFilePath,
+            final Boolean allowContentToFile) throws Exception
+    {
+        HttpClient client = JettyHttpClientFactory.getHttpClient();
+        Request requestEntity = client.newRequest(serverURL + service).method("POST");
+
+        setPlasmidFormOptions(requestEntity, fastaInputFilePath);
+        ContentResponse contentResponse = requestEntity.send();
+
+        int statusCode = contentResponse.getStatus();
+
+        if (statusCode != HttpStatus.Code.OK.getCode())
+        {
+            throw new RuntimeException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
+        }
+
+        String contentAsString = contentResponse.getContentAsString();
+
+        try
+        {
+            downloadFileFromResponse(serverURL, contentAsString, outputFilePath);
+        } catch (Exception ex)
+        {
+            if (allowContentToFile)
+            {
+                FileUtils.writeStringToFile(new File(outputFilePath), contentAsString, "UTF-8");
+            } else
+            {
+                throw ex;
+            }
+        }
+    }
+
+    private static void downloadFileFromResponse(
+            final String serverURL,
+            final String contentAsString,
+            final String outputFilePath) throws Exception
+    {
+        String outputFileURLPath = contentAsString;
+        if (outputFileURLPath == null || !outputFileURLPath.contains("PlasMapper"))
+        {
+            throw new RuntimeException("PlasMapper service failed returning incorrect path to file: " + outputFileURLPath);
+        } else if (outputFileURLPath.endsWith("\r\n"))
+        {
+            outputFileURLPath = outputFileURLPath.substring(0, outputFileURLPath.lastIndexOf("\r\n"));
+        } else if (outputFileURLPath.endsWith("\n"))
+        {
+            outputFileURLPath = outputFileURLPath.substring(0, outputFileURLPath.lastIndexOf("\n"));
+        }
+
+        if (outputFileURLPath.startsWith("/"))
+        {
+            outputFileURLPath = outputFileURLPath.substring(1);
+        }
+        URL outputFileURL = new URL(serverURL + "/" + outputFileURLPath);
+
+        File svgOutputFile = new File(outputFilePath);
+        FileUtils.copyURLToFile(outputFileURL, svgOutputFile);
+    }
+
+    private static void generateHTML(String htmlOutputFilePath, File svgOutputFile) throws Exception
+    {
+        String htmlFileContents = "<html>"
+                + "<head>"
+                + "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">"
+                + "<title>PlasMapper - Graphic Map</title>"
+                + "</head>"
+                + "<body>"
+                + "<embed src=\"" + svgOutputFile.getName()
+                + "\" type=\"image/svg+xml\" pluginspage=\"http://www.adobe.com/svg/viewer/install/\" id=\"Panel\" height=\"1010\" width=\"1010\">"
+                + "<br>"
+                + "<a href=\"" + svgOutputFile.getName() + "\" target=\"_blank\">Download Link</a>"
+                + "</body>"
+                + "</html>";
+        FileUtils.writeStringToFile(new File(htmlOutputFilePath), htmlFileContents, "UTF-8");
+    }
+
     private static void setPlasmidFormOptions(final Request requestEntity, final String fastaInputFile) throws FileNotFoundException
     {
         requestEntity.param("vendor", "Amersham%20Pharmacia");
@@ -140,15 +190,15 @@ public class PlasmapperConnector
         requestEntity.param("backbone", "medium");
         requestEntity.param("arc", "medium");
         requestEntity.param("biomoby", "true");
-        
+
         final String CRLF = "\r\n";
         final String BOUNDARY = "MMMMM___MP_BOUNDARY___MMMMM";
         final String FILE_PART_NAME = "fastaFile";
-        
+
         File fastaFile = new File(fastaInputFile);
         String fileContent = FileUtilities.loadToString(fastaFile);
         ContentProvider content = new StringContentProvider("--" + BOUNDARY + CRLF
-                + "Content-Disposition: form-data; name=\"" + FILE_PART_NAME + "\"; filename=\"" 
+                + "Content-Disposition: form-data; name=\"" + FILE_PART_NAME + "\"; filename=\""
                 + fastaFile.getName() + "\"" + CRLF
                 + "Content-Type: application/octet-stream" + CRLF + CRLF
                 + fileContent + CRLF + "--" + BOUNDARY + "--" + CRLF);

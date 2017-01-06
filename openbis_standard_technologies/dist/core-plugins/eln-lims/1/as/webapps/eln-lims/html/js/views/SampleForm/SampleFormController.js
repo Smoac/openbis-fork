@@ -90,7 +90,7 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.deleteSample = function(reason) {
 		var _this = this;
-		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.id], reason, function(data) {
+		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.permId], reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
@@ -111,14 +111,17 @@ function SampleFormController(mainController, mode, sample) {
 		//
 		// Parents/Children Links
 		//
-		if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
-			return;
+		if(!isCopyWithNewCode) {
+			if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
+				return;
+			}
+			if(!_this._sampleFormModel.sampleLinksChildren.isValid()) {
+				return;
+			}
 		}
+		
 		var sampleParentsFinal = _this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
 		
-		if(!_this._sampleFormModel.sampleLinksChildren.isValid()) {
-			return;
-		}
 		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
 		
 		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
@@ -155,7 +158,7 @@ function SampleFormController(mainController, mode, sample) {
 		
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
-		var continueSampleCreation = function(sample, newSampleParents) {
+		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete) {
 			
 			//
 			//Identification Info
@@ -312,7 +315,7 @@ function SampleFormController(mainController, mode, sample) {
 			if(profile.getDefaultDataStoreCode()) {
 				
 				mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
-					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
+					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response, samplesToDelete);
 				});
 				
 			} else {
@@ -324,7 +327,7 @@ function SampleFormController(mainController, mode, sample) {
 		return false;
 	}
 	
-	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response) {
+	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response, samplesToDelete) {
 		if(response.error) { //Error Case 1
 			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") { //Error Case 2
@@ -376,8 +379,21 @@ function SampleFormController(mainController, mode, sample) {
 				
 				searchUntilFound(); //First call
 			}
-			Util.showSuccess(message, callbackOk);
-			_this._sampleFormModel.isFormDirty = false;
+			
+			if(samplesToDelete) {
+				mainController.serverFacade.deleteSamples(samplesToDelete, 
+															"Order " + _this._sampleFormModel.sample.code + " Created", 
+															function() {
+																Util.showSuccess(message, callbackOk);
+																_this._sampleFormModel.isFormDirty = false;
+															}, 
+															true);
+			} else {
+				Util.showSuccess(message, callbackOk);
+				_this._sampleFormModel.isFormDirty = false;
+			}
+			
+			
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}

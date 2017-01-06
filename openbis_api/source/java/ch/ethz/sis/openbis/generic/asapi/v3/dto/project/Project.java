@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
@@ -44,7 +45,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.project.Project")
-public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IExperimentsHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IExperimentsHolder, IIdentifierHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -119,6 +120,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public ProjectIdentifier getIdentifier()
     {
         return identifier;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyType) {
+function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyType, sampleTypeCode) {
 	this.title = title;
 	this.sampleTypeHints = sampleTypeHints;
 	this.isDisabled = isDisabled;
@@ -23,6 +23,7 @@ function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyT
 	this.samplesRemoved = [];
 	this.samplesByType = {};
 	this.stateObj = {};
+	this.sampleTypeCode = sampleTypeCode;
 	
  	this.writeState = function(sample, propertyTypeCode, propertyValue, isDelete) {
 		this.loadState();

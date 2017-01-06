@@ -20,8 +20,14 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.dataset.DataSetComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.experiment.ExperimentComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSearchObjectComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.material.MaterialComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.project.ProjectComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyAssignmentComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.SampleComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.space.SpaceComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.VocabularyTermComparatorFactory;
 
@@ -39,8 +45,12 @@ public abstract class ComparatorFactory
         factories.add(new GlobalSearchObjectComparatorFactory());
         factories.add(new TagComparatorFactory());
         factories.add(new VocabularyTermComparatorFactory());
-        factories.add(new EntityWithPropertiesComparatorFactory());
-        factories.add(new EntityComparatorFactory());
+        factories.add(new SpaceComparatorFactory());
+        factories.add(new ProjectComparatorFactory());
+        factories.add(new ExperimentComparatorFactory());
+        factories.add(new SampleComparatorFactory());
+        factories.add(new DataSetComparatorFactory());
+        factories.add(new MaterialComparatorFactory());
         factories.add(new PropertyAssignmentComparatorFactory());
     }
 

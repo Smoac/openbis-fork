@@ -97,7 +97,7 @@ function StorageListView(storageListController, storageListModel) {
 			}
 		}
 		
-		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick, false, "STORAGE_WIDGET");
+		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET");
 		
 		var $dataGridContainer = $("<div>");
 		this._dataGrid.init($dataGridContainer);
@@ -187,7 +187,9 @@ function StorageListView(storageListController, storageListModel) {
 				'height' : '90%'
 		};
 		
-		var container = "<div class='row col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-accept'>Accept</a> <a class='btn btn-default' id='storage-cancel'>Cancel</a>"
+		var container = "<div class='row col-md-12 form-horizontal' id='storage-pop-up-container'></div>";
+		var containerButtons = "<a class='btn btn-default' id='storage-accept'>Accept</a> <a class='btn btn-default' id='storage-cancel'>Cancel</a>";
+			
 		Util.blockUI(container, css);
 		
 		
@@ -211,8 +213,11 @@ function StorageListView(storageListController, storageListModel) {
 		storageController.getModel().storagePropertyGroup = storagePropGroup;
 		this._storageListController._saveState(storagePropGroup);
 		storageController.bindSample(this._storageListModel.sample, this._storageListModel.isDisabled);
-		storageController.getView().repaint($("#storage-pop-up-container"));
 		
+		var storageContainer = $("#storage-pop-up-container");
+		storageController.getView().repaint(storageContainer);
+		
+		storageContainer.append(containerButtons);
 		$("#storage-accept").on("click", function(event) {
 			storageController.isValid(function(isValid) {
 				if(isValid) {

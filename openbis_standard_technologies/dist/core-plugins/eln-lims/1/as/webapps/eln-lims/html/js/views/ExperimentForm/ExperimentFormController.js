@@ -18,9 +18,17 @@ function ExperimentFormController(mainController, mode, experiment) {
 	this._mainController = mainController;
 	this._experimentFormModel = new ExperimentFormModel(mode, experiment);
 	this._experimentFormView = new ExperimentFormView(this, this._experimentFormModel);
+	this._windowHandlers = [];
 	
 	this.init = function($container) {
 		this._experimentFormView.repaint($container);
+	}
+	
+	this.finalize = function() {
+		for(var whIdx = 0; whIdx < this._windowHandlers.length; whIdx++) {
+			$(window).off("resize", this._windowHandlers[whIdx]);
+		}
+		$("#mainContainer").css("overflow-y", "auto");
 	}
 	
 	this.isDirty = function() {

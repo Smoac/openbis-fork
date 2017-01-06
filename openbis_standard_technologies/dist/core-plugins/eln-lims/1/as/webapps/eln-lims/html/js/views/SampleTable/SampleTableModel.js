@@ -20,6 +20,5 @@ function SampleTableModel(title, experimentIdentifier, projectPermId, showInProj
 	this.experiment = experiment;
 	this.projectPermId = projectPermId;
 	this.showInProjectOverview = showInProjectOverview;
-	this.sampleTypes = {};
 	this.allSamples = new Array();
 }

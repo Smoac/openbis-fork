@@ -136,6 +136,34 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var toolbarModel = [];
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			//Create Experiment Step
+			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP") {
+				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+					var argsMap = {
+							"sampleTypeCode" : "EXPERIMENTAL_STEP",
+							"experimentIdentifier" : _this._sampleFormModel.sample.experimentIdentifierOrNull
+					}
+					var argsMapStr = JSON.stringify(argsMap);
+					
+					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+					
+					var setParent = function() {
+						mainController.currentView._sampleFormModel.sampleLinksParents.addSample(_this._sampleFormModel.sample);
+						Util.unblockUI();
+					}
+					
+					var repeatUntilSet = function() {
+						if(mainController.currentView.isLoaded()) {
+							setParent();
+						} else {
+							setTimeout(repeatUntilSet, 100);
+						}
+					}
+					
+					repeatUntilSet();
+				});
+				toolbarModel.push({ component : $createBtn, tooltip: "Create Experimental Step" });
+			}
 			
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
@@ -231,6 +259,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$formColumn.append($formTitle);
 		$formColumn.append(FormUtil.getToolbar(toolbarModel));
 		$formColumn.append($("<br>"));
+		
 		//
 		// PREVIEW IMAGE
 		//
@@ -280,7 +309,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var sampleParentsWidgetId = "sampleParentsWidgetId";
 		var $sampleParentsWidget = $("<div>", { "id" : sampleParentsWidgetId });
-		$formColumn.append($sampleParentsWidget);
+		
+		if(this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.parents.length > 0)) {
+			$formColumn.append($sampleParentsWidget);
+		}
+		
+		
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		
 		var currentParentsLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.parents:null;
@@ -294,10 +328,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			isDisabled,
 																			currentParentsLinks,
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
-																			parentsAnyTypeDisabled);
-		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"]) {
-			this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
-		}
+																			parentsAnyTypeDisabled,
+																			sampleTypeCode);
+		if( !sampleTypeDefinitionsExtension || 
+				(!sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"] ||
+				!sampleTypeDefinitionsExtension.showParents) ||
+				(sampleTypeDefinitionsExtension.showParents && sampleTypeDefinitionsExtension.showParents(this._sampleFormModel.sample))) {
+				this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
+			}
 		
 		//
 		// LINKS TO CHILDREN
@@ -309,7 +347,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 		var sampleChildrenWidgetId = "sampleChildrenWidgetId";
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
-		$formColumn.append($sampleChildrenWidget);
+		
+		if(this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.children.length > 0)) {
+			$formColumn.append($sampleChildrenWidget);
+		}
 			
 		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
 		
@@ -323,7 +364,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															isDisabled,
 															currentChildrenLinks,
 															this._sampleFormModel.mode === FormMode.CREATE,
-															childrenAnyTypeDisabled);
+															childrenAnyTypeDisabled,
+															sampleTypeCode);
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}
@@ -370,11 +412,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Storage
 		//
 		if(isStorageAvailable) {
+			var $fieldsetOwner = $("<div>");
+			var $legend = $("<legend>").append("Storage");
 			var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
-			$formColumn.append($("<legend>").append("Storage"));
-			$formColumn.append(storageListContainer);
-			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);
+			$fieldsetOwner.append($legend);
+			$fieldsetOwner.append(storageListContainer);
+			$formColumn.append($fieldsetOwner);
+			
+			$legend.prepend(FormUtil.getShowHideButton(storageListContainer, "SAMPLE-" + this._sampleFormModel.sample.sampleTypeCode + "-storage"));
+			
+			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);	
 			storageListController.init(storageListContainer);
+			
 		}
 		
 		//
@@ -432,7 +481,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// INIT
 		//
-		$container.append($form).append($rightPanel);
+		$container.append($form);
 		if($rightPanel) {
 			$container.append($rightPanel);
 		}
@@ -467,10 +516,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
+		var $fieldsetOwner = $('<div>');
 		var $fieldset = $('<div>');
-		var $legend = $('<legend>'); 
-		$fieldset.append($legend);
-			
+		var $legend = $('<legend>');
+		
+		$fieldsetOwner.append($legend).append($fieldset);
+		
 		if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
 			$legend.text(propertyTypeGroup.name);
 		} else if((i === 0) || ((i !== 0) && (sampleType.propertyTypeGroups[i-1].name !== null) && (sampleType.propertyTypeGroups[i-1].name !== ""))) {
@@ -542,7 +593,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 						
 					var changeEvent = function(propertyType) {
-						return function() {
+						return function(jsEvent, newValue) {
 							var propertyTypeCode = null;
 							propertyTypeCode = propertyType.code;
 							_this._sampleFormModel.isFormDirty = true;
@@ -553,7 +604,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								_this._sampleFormModel.sample.properties[propertyTypeCode] = timeValue;
 							} else {
-								_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								if(newValue) {
+									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+								} else {
+									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								}
 							}
 						}
 					}
@@ -564,7 +619,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 					
 					if(propertyType.dataType === "MULTILINE_VARCHAR") {
-						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
+						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
 					} else if(propertyType.dataType === "TIMESTAMP") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
@@ -585,7 +640,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$legend.remove();
 		}
 		
-		$formColumn.append($fieldset);
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + sampleTypeCode + "-" + propertyTypeGroup.name));
+		$formColumn.append($fieldsetOwner);
 			
 		return false;
 	}
@@ -595,9 +651,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Identification Info
 		//
-		$formColumn.append($("<legend>").append("Identification Info"));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName("/" + this._sampleFormModel.sample.spaceCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
+		var $fieldsetOwner = $("<div>");
+		var $legend = $("<legend>").append("Identification Info");
+		var $fieldset = $("<div>");
+		
+		$fieldsetOwner.append($legend);
+		$fieldsetOwner.append($fieldset);
+		
+		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
+		$fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName("/" + this._sampleFormModel.sample.spaceCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
 		
 		//
 		// Identification Info - Code
@@ -626,7 +688,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
 		}
 		
-		$formColumn.append($codeField);
+		$fieldset.append($codeField);
 		
 		//
 		// Identification Info - Registration and modification times
@@ -635,17 +697,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var registrationDetails = this._sampleFormModel.sample.registrationDetails;
 			
 			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
-			$formColumn.append($registrator);
+			$fieldset.append($registrator);
 			
 			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)))
-			$formColumn.append($registationDate);
+			$fieldset.append($registationDate);
 			
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
-			$formColumn.append($modifier);
+			$fieldset.append($modifier);
 			
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
-			$formColumn.append($modificationDate);
+			$fieldset.append($modificationDate);
 		}
+		
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + this._sampleFormModel.sample.sampleTypeCode + "-identificationInfo"));
+		$formColumn.append($fieldsetOwner);
 	}
 	
 	//

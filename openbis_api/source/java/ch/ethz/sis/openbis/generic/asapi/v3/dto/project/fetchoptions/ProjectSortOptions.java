@@ -16,7 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOrder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,5 +31,18 @@ public class ProjectSortOptions extends EntitySortOptions<Project>
 {
 
     private static final long serialVersionUID = 1L;
+
+    @JsonIgnore
+    public static final String IDENTIFIER = "IDENTIFIER";
+
+    public SortOrder identifier()
+    {
+        return getOrCreateSorting(IDENTIFIER);
+    }
+
+    public SortOrder getIdentifier()
+    {
+        return getSorting(IDENTIFIER);
+    }
 
 }

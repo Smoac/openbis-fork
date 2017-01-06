@@ -95,7 +95,8 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					_this._projectFormController.createNewExperiment("DEFAULT_EXPERIMENT");
 				}
 				});
-				toolbarModel.push({ component : $createExpBtn, tooltip: "Create Experiment" });
+				
+				toolbarModel.push({ component : $createExpBtn, tooltip: "Create " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode) });
 			}
 			
 			//Edit
@@ -140,12 +141,18 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
-			var textBoxEvent = function(event) {
-				_this._projectFormModel.project.description = $(this).val();
+			var textBoxEvent = function(jsEvent, newValue) {
+				var valueToUse = null;
+				if(newValue) {
+					valueToUse = newValue;
+				} else {
+					valueToUse = $(this).val();
+				}
+				_this._projectFormModel.project.description = valueToUse;
 				_this._projectFormModel.isFormDirty = true;
 			};
 			$textBox.val(description);
-			$textBox = FormUtil.activateRichTextProperties($textBox, textBoxEvent);
+			$textBox = FormUtil.activateRichTextProperties($textBox, textBoxEvent, null);
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
 		} else {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", description));

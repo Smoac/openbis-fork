@@ -49,6 +49,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.ExperimentPermId = dtos.ExperimentPermId;
 		this.ExperimentIdentifier = dtos.ExperimentIdentifier;
 		this.SamplePermId = dtos.SamplePermId;
+		this.SampleIdentifier = dtos.SampleIdentifier;
 		this.DataSetPermId = dtos.DataSetPermId;
 		this.FileFormatTypePermId = dtos.FileFormatTypePermId;
 		this.MaterialPermId = dtos.MaterialPermId;

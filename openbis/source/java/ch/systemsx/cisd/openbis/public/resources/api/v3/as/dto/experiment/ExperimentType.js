@@ -54,6 +54,9 @@ define([ "stjs" ], function(stjs) {
 		prototype.setModificationDate = function(modificationDate) {
 			this.modificationDate = modificationDate;
 		};
+		prototype.toString = function() {
+			return this.getCode();
+		};
 	}, {
 		fetchOptions : "ExperimentTypeFetchOptions",
 		permId : "EntityTypePermId",

@@ -466,13 +466,49 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
-	this.getButtonWithIcon = function(iconClass, clickEvent, text) {
-		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+	this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip) {
+		var $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
 		if(text) {
-			$pinBtn.append("&nbsp;").append(text);
+			$btn.append("&nbsp;").append(text);
 		}
-		$pinBtn.click(clickEvent);
-		return $pinBtn;
+		if(tooltip) {
+			$btn.attr("title", tooltip);
+			$btn.tooltipster();
+		}
+		$btn.click(clickEvent);
+		return $btn;
+	}
+	
+	this.getShowHideButton = function($elementToHide, key) {
+		var $showHideButton = FormUtil.getButtonWithIcon('glyphicon-chevron-down', function() {
+			$elementToHide.slideToggle();
+			var $thisButton = $($(this).children()[0]);
+			
+			if($thisButton.hasClass("glyphicon-chevron-right")) {
+				$thisButton.removeClass("glyphicon-chevron-right");
+				$thisButton.addClass("glyphicon-chevron-down");
+				mainController.serverFacade.setSetting(key,"true");
+			} else {
+				$thisButton.removeClass("glyphicon-chevron-down");
+				$thisButton.addClass("glyphicon-chevron-right");
+				mainController.serverFacade.setSetting(key,"false");
+			}
+			
+		}, null, "Show/Hide section");
+		
+		mainController.serverFacade.getSetting(key, function(value) {
+			if(value === "false") {
+				var $thisButton = $($showHideButton.children()[0]);
+				$thisButton.removeClass("glyphicon-chevron-down");
+				$thisButton.addClass("glyphicon-chevron-right");
+				$elementToHide.toggle();
+			}
+		});
+		
+		$showHideButton.addClass("btn-showhide");
+		$showHideButton.css({ "border" : "none", "margin-bottom" : "4px", "margin-left" : "-11px" });
+		
+		return $showHideButton;
 	}
 	
 	this.getHierarchyButton = function(permId) {
@@ -553,7 +589,7 @@ var FormUtil = new function() {
 		}
 		$fieldset.append($controlGroup);
 		
-		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word; white-space: pre-wrap;'});
+		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word;'}); //white-space: pre-wrap;
 		if(cssForText) {
 			$component.css(cssForText);
 		}
@@ -727,44 +763,27 @@ var FormUtil = new function() {
 	
 	
 	//
-	// Rich Text Editor Support - (Summernote)
+	// Rich Text Editor Support - (CKEditor)
 	//
-	this.activateRichTextProperties = function($component, componentOnChange) {
-		var _this = this;
-		$("body").append($component);
+	CKEDITOR.on( 'instanceReady', function( ev ) {
+	    ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+	});
+	
+	this.activateRichTextProperties = function($component, componentOnChange, propertyType) {
 		
-		$component.summernote({
-			toolbar: [
-		['Font Style', ['fontname', 'fontsize', 'color', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
-		['Insert', ['link', 'table', 'hr', 'specialCharacter']],
-		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
-		disableDragAndDrop: true,
-		callbacks: {
-	        onPaste: function (e) {
-	        	if(profile.copyPastePlainText) {
-	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/plain");
-		        	e.preventDefault();
-		            setTimeout( function(){
-		                document.execCommand( 'insertText', false, bufferText );
-		            }, 10 );
-	        	} else {
-//	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/html");
-//	        		bufferText = _this.sanitizeRichHTMLText(bufferText);
-//	        		((e.originalEvent || e).clipboardData || window.clipboardData).setData("text/html", bufferText);
-	        	}
-	        }
-	    }});
+		if(profile.isForcedDisableRTF(propertyType)) {
+			$component.change(function(event) {
+				componentOnChange(event, $(this).val());
+			});
+		} else {
+			var editor = $component.ckeditor().editor;
+			editor.on('change', function(event) {
+				var value = event.editor.getData();
+				componentOnChange(event, value);
+			});
+		}
 		
-		$component.on("summernote.change", componentOnChange);
-		
-		$('.note-editable.panel-body').css({ "min-height" : "200px" });
-		
-		var $editor = $component.next();
-		$component.detach();
-		$editor.detach();
-		
-		return $editor;
+		return $component;
 	}
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
@@ -839,7 +858,8 @@ var FormUtil = new function() {
 		var click = function() {
 			mainController.changeView(view, permIdOrIdentifier, true);
 		}
-		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(displayName);
+		displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
+		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(displayName);
 		link.click(click);
 		return link;
 	}

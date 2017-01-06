@@ -41,10 +41,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		var entityPath = null;
-		if(this._dataSetFormModel.sample && this._dataSetFormModel.sample.experimentIdentifierOrNull) { //Both Sample and Experiment exist
-			entityPath = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code + "/" + this._dataSetFormModel.dataSet.code;
-		} else { //Only Experiment exists (Not Supported on the ELN Yet)
-			entityPath = this._dataSetFormModel.dataSet.code;
+		if(this._dataSetFormModel.isExperiment()) {
+			entityPath = this._dataSetFormModel.entity.identifier.identifier + "/" + this._dataSetFormModel.dataSet.code;
+		} else { //Both Sample and Experiment exist
+			entityPath = this._dataSetFormModel.entity.experimentIdentifierOrNull + "/" + this._dataSetFormModel.entity.code + "/" + this._dataSetFormModel.entity.code;
 		}
 		
 		var titleText = null;
@@ -143,10 +143,18 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
 		}
 		
-		var ownerName = ELNDictionary.Sample;
-		var owner = this._dataSetFormModel.sample.identifier;
-		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
-			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
+		var ownerName = null;
+		var owner = null;
+		if(this._dataSetFormModel.isExperiment()) { 
+			ownerName = ELNDictionary.ExperimentELN; //Only experiments on the ELN have datasets
+			owner = this._dataSetFormModel.entity.identifier.identifier;
+		} else {
+			ownerName = ELNDictionary.Sample;
+			if(this._dataSetFormModel.entity.experimentIdentifierOrNull) {
+				owner = this._dataSetFormModel.entity.experimentIdentifierOrNull + "/" + this._dataSetFormModel.entity.code;
+			} else {
+				owner = this._dataSetFormModel.entity.identifier;
+			}
 		}
 		
 		if(!this._dataSetFormModel.isMini) {
@@ -297,7 +305,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, false);
+			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.entity, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, true);
 			dataSetViewer.init();
 		}
 	}
@@ -405,7 +413,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					}
 				} else {
 					if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
-						if(!(profile.inventorySpaces.length > 0 && $.inArray(this._dataSetFormModel.sample.identifier.split("/")[1], profile.inventorySpaces) === -1)) {
+						var identifier = null;
+						if(this._dataSetFormModel.isExperiment()) { 
+							identifier = this._dataSetFormModel.entity.identifier.identifier;
+						} else {
+							identifier = this._dataSetFormModel.entity.identifier;
+						}
+						
+						if(!(profile.inventorySpaces.length > 0 && $.inArray(identifier.split("/")[1], profile.inventorySpaces) === -1)) {
 							continue;
 						}
 					}
@@ -443,7 +458,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						
 						//Update model
 						var changeEvent = function(propertyType) {
-							return function() {
+							return function(jsEvent, newValue) {
 								var propertyTypeCode = null;
 								propertyTypeCode = propertyType.code;
 								_this._dataSetFormModel.isFormDirty = true;
@@ -454,7 +469,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
 									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
 								} else {
-									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+									if(newValue) {
+										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+									} else {
+										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+									}
 								}
 							}
 						}
@@ -477,7 +496,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						}
 						
 						if(propertyType.dataType === "MULTILINE_VARCHAR") {
-							$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
+							$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
 						} else if(propertyType.dataType === "TIMESTAMP") {
 							$component.on("dp.change", changeEvent(propertyType));
 						} else {

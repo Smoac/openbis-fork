@@ -69,6 +69,15 @@ h1, h2, legend {
 	margin-top: 10px;	
 }
 
+.btn-showhide {
+	background : none;
+	opacity: 0.5;
+}
+
+.btn-showhide:hover, .btn-showhide:focus, .btn-showhide:active {
+	background : none;
+	opacity: 1;
+}
 
 /* 
  * Scroll management
@@ -687,7 +696,7 @@ table.downloads {
  }
  
  .browser-compatible-javascript-link-tree {
- 	color: #000000;
+ 	color: #333;
  }
  
  .fancytree-active > span > a {

@@ -17,6 +17,7 @@
 function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._advancedSearchController = advancedSearchController;
 	this._advancedSearchModel = advancedSearchModel;
+	this._$andOrDropdownComponent = null;
 	this._$menuPanelContainer = null;
 	this._$searchCriteriaPanelContainer = null;
 	this._$tbody = null;
@@ -73,12 +74,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($entityTypeDropdown, "Search For", null, true));
 
 		var andOrOptions = [{value : "AND", label : "AND", selected : true}, {value : "OR", label : "OR"}];
-		var $andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
+		this._$andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
 		var _this = this;
-		$andOrDropdownComponent.change(function() {
+		this._$andOrDropdownComponent.change(function() {
 			_this._advancedSearchModel.criteria.logicalOperator = $(this).val();
 		});
-		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($andOrDropdownComponent, "Using", null, true));
+		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel(this._$andOrDropdownComponent, "Using", null, true));
 		
 		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
 			_this._advancedSearchController.search();
@@ -141,6 +142,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].value = selectedValue; //Update model
 		});
+		
+		$fieldValue.keypress(function (e) {
+       	 var key = e.which;
+       	 if(key == 13)  // the enter key code
+       	  {
+       		 _this._advancedSearchController.search();
+       	    return false;  
+       	  }
+       });
+        
 		var $newFieldNameContainer = $("<td>");
 		
 			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue)))
@@ -154,29 +165,34 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, entityKind, uuid) {
+		//Update dropdown component
+		this._$andOrDropdownComponent.val("AND");
+		this._advancedSearchModel.criteria.logicalOperator = "AND";
+		this._$andOrDropdownComponent.removeAttr("disabled");
+		//
 		var _this = this;
 		var fieldTypeOptions = null;
 		switch(entityKind) {
 			case "ALL":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }];
+				this._$andOrDropdownComponent.val("OR");
+				this._advancedSearchModel.criteria.logicalOperator = "OR";
+				this._$andOrDropdownComponent.attr("disabled", "");
 				break;
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
-				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Experiment", label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory}, 
 				                    {value : "Parent", label : "Parent"}, 
 				                    {value : "Children", label : "Children"}];
 				break;
 			case "EXPERIMENT":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
-				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"}];
+				                    {value : "Property/Attribute", label : "Property"}];
 				break;
 			case "DATASET":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
-				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
@@ -201,11 +217,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				case "All":
 					//Do Nothing
 				break;
-				case "Property":
-					$newFieldNameContainer.append(_this._getNewPropertyDropdown());
-					break;
-				case "Attribute":
-					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
+				case "Property/Attribute":
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN"));
 					break;
 				case "Sample":
 					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE"));
@@ -240,7 +253,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		attributesModel.push({ value : "", label : "-------------------------", disabled : true });
 		var propertiesModel = this._getFieldNameProperties();
 		model = attributesModel.concat(propertiesModel);
-		var $dropdown = FormUtil.getDropdown(model, "Select a property or attribute");
+		var $dropdown = FormUtil.getDropdown(model, "Select a property");
 		$dropdown.change(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
@@ -286,7 +299,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._getNewAttributeDropdown = function(entityKind) {
 		var _this = this;
 		var model = this._getFieldNameAttributesByEntityKind(entityKind);
-		var $dropdown = FormUtil.getDropdown(model, "Select an attribute");
+		var $dropdown = FormUtil.getDropdown(model, "Select a property");
 		$dropdown.change(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
@@ -402,13 +415,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $minusButton;
 	}
 	
-	this.renderResults = function(results) {
+	this.renderResults = function(criteria) {
 		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL";
-		var dataGridController = this._getGridForResults(results, isGlobalSearch);
+		var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
 		dataGridController.init(this._$dataGridContainer);
 	}
 	
-	this._getGridForResults = function(results, isGlobalSearch) {
+	this._getGridForResults = function(criteria, isGlobalSearch) {
 		
 			var getLinkOnClick = function(code, data) {
 				switch(data.entityKind) {
@@ -425,7 +438,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
-				sortable : true,
+				sortable : false,
 				render : function(data) {
 					if(data.entityKind === "Sample") {
 						return ELNDictionary.Sample;
@@ -439,12 +452,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Type',
 				property : 'entityType',
 				isExportable: true,
-				sortable : true
+				sortable : false
 			}, {
 				label : 'Name',
 				property : 'NAME',
 				isExportable: true,
-				sortable : true,
+				sortable : !isGlobalSearch,
 				render : function(data) {
 					return getLinkOnClick(data.NAME, data);
 				}
@@ -452,7 +465,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Code',
 				property : 'code',
 				isExportable: true,
-				sortable : true,
+				sortable : !isGlobalSearch,
 				render : function(data) {
 					return getLinkOnClick(data.code, data);
 				}
@@ -460,7 +473,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Identifier',
 				property : 'identifier',
 				isExportable: true,
-				sortable : true,
+				sortable : false,
 				render : function(data) {
 					return getLinkOnClick(data.identifier, data);
 				}
@@ -468,7 +481,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
 				property : 'experiment',
 				isExportable: false,
-				sortable : true
+				sortable : false
 			}];
 			
 			if(isGlobalSearch) {
@@ -476,14 +489,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					label : 'Matched',
 					property : 'matched',
 					isExportable: true,
-					sortable : true
+					sortable : false
 				});
 				
 				columns.push({
 					label : 'Score',
 					property : 'score',
 					isExportable: true,
-					sortable : true
+					sortable : false
 				});
 			}
 			
@@ -495,86 +508,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			});
 			
 			//Add properties as columns dynamically depending on the results
-			
-			//1. Get properties with actual data
-			var foundPropertyCodes = {};
-			for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
-				var entity = results.objects[rIdx];
-				if(isGlobalSearch) {
-					switch(entity.objectKind) {
-						case "SAMPLE":
-							entity = entity.sample;
-						break;
-						case "EXPERIMENT":
-							entity = entity.experiment;
-						break;
-						case "DATA_SET":
-							entity = entity.dataSet;
-						break;
-					}
-				}
-				
-				for(var propertyCode in entity.properties) {
-					if(entity.properties[propertyCode]) {
-						foundPropertyCodes[propertyCode] = true;
-					}
-				}
-			}
-			
-			//2. Get columns
-			var propertyColumnsToSort = [];
-			for(var propertyCode in foundPropertyCodes) {
-				var propertiesToSkip = ["NAME", "XMLCOMMENTS", "ANNOTATIONS_STATE"];
-				if($.inArray(propertyCode, propertiesToSkip) !== -1) {
-					continue;
-				}
-				
-				propertyColumnsToSort.push({
-					label : profile.getPropertyType(propertyCode).label,
-					property : propertyCode,
-					sortable : true
-				});
-			}
-			
-			//3. Sort column properties by label
-			propertyColumnsToSort.sort(function(propertyA, propertyB) {
-				return propertyA.label.localeCompare(propertyB.label);
-			});
-			columns = columns.concat(propertyColumnsToSort);
-			
-			//4. Add registration/modification date columns
-			columns.push({
-				label : '---------------',
-				property : null,
-				isExportable: false,
-				sortable : false
-			});
-			
-			columns.push({
-				label : 'Registration Date',
-				property : 'registrationDate',
-				isExportable: true,
-				sortable : true
-			});
-			
-			columns.push({
-				label : 'Modification Date',
-				property : 'modificationDate',
-				isExportable: true,
-				sortable : true
-			});
-			
-			var getDataRows = function(callback) {
-				var rows = [];
-				for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
-					var entity = results.objects[rIdx];
-					
-					var rowData = {};
-					
+			var dynamicColumnsFunc = function(entities) {
+				//1. Get properties with actual data
+				var foundPropertyCodes = {};
+				for(var rIdx = 0; rIdx < entities.length; rIdx++) {
+					var entity = entities[rIdx].entityObject;
 					if(isGlobalSearch) {
-						rowData.matched = entity.match;
-						rowData.score = entity.score;
-						
 						switch(entity.objectKind) {
 							case "SAMPLE":
 								entity = entity.sample;
@@ -585,41 +524,68 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							case "DATA_SET":
 								entity = entity.dataSet;
 							break;
-							case "MATERIAL":
-								continue; //Skip materials, they are not supported on the ELN
-							break;
 						}
 					}
 					
-					//properties
-					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
-					
-					if(entity.experiment) {
-						rowData.experiment = entity.experiment.code;
+					if(!entity) {
+						continue;
 					}
-					
-					rowData.entityType = entity.type.code;
-					rowData.code =  entity.code;
-					rowData.permId = entity.permId.permId;
-					rowData.registrationDate = (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null;
-					rowData.modificationDate = (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null;
-					rowData.entityObject = entity;
-					
-					if(entity.identifier) {
-						rowData.identifier = entity.identifier.identifier;
-					}
-					
 					for(var propertyCode in entity.properties) {
-						rowData[propertyCode] = entity.properties[propertyCode];
+						if(entity.properties[propertyCode]) {
+							foundPropertyCodes[propertyCode] = true;
+						}
+					}
+				}
+				
+				//2. Get columns
+				var propertyColumnsToSort = [];
+				for(var propertyCode in foundPropertyCodes) {
+					var propertiesToSkip = ["NAME", "XMLCOMMENTS", "ANNOTATIONS_STATE"];
+					if($.inArray(propertyCode, propertiesToSkip) !== -1) {
+						continue;
 					}
 					
-					//Add the row data
-					rows.push(rowData);
+					propertyColumnsToSort.push({
+						label : profile.getPropertyType(propertyCode).label,
+						property : propertyCode,
+						sortable : !isGlobalSearch
+					});
 				}
-				callback(rows);
-			};
+				
+				//3. Sort column properties by label
+				propertyColumnsToSort.sort(function(propertyA, propertyB) {
+					return propertyA.label.localeCompare(propertyB.label);
+				});
+				
+				return propertyColumnsToSort;
+			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
+			var columnsLast = [];
+			//4. Add registration/modification date columns
+			columnsLast.push({
+				label : '---------------',
+				property : null,
+				isExportable: false,
+				sortable : false
+			});
+			
+			columnsLast.push({
+				label : 'Registration Date',
+				property : 'registrationDate',
+				isExportable: true,
+				sortable : !isGlobalSearch
+			});
+			
+			columnsLast.push({
+				label : 'Modification Date',
+				property : 'modificationDate',
+				isExportable: true,
+				sortable : !isGlobalSearch
+			});
+			
+			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
+			
+			var dataGrid = new DataGridController("Search Results", columns, columnsLast, dynamicColumnsFunc, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
 			return dataGrid;
 	}
 	
