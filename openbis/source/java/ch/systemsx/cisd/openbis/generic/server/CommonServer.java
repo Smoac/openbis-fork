@@ -808,7 +808,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken)
     {
         List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
