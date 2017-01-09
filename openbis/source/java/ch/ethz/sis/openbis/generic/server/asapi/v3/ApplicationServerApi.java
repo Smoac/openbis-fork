@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -782,6 +783,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
                 (SynchronousOperationExecutionResults) executeOperations(sessionToken, Arrays.asList(operation),
                         new SynchronousOperationExecutionOptions());
         return (T) results.getResults().get(0);
+    }
+
+    @Override
+    public Map<String, String> getServerInfo(String sessionToken)
+    {
+        return new HashMap<String, String>();
     }
 
     @Override

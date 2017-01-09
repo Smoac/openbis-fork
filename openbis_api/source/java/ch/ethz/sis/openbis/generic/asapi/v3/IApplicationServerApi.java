@@ -285,4 +285,5 @@ public interface IApplicationServerApi extends IRpcService
     public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations,
             IOperationExecutionOptions options);
 
+    public Map<String, String> getServerInfo(String sessionToken);
 }

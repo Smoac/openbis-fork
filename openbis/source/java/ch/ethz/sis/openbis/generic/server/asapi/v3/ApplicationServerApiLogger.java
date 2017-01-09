@@ -566,6 +566,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public Map<String, String> getServerInfo(String sessionToken)
+    {
+        logAccess(sessionToken, "session-info");
+        return null;
+    }
+
+    @Override
     public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(String sessionToken,
             List<? extends IOperationExecutionId> executionIds, OperationExecutionFetchOptions fetchOptions)
     {
