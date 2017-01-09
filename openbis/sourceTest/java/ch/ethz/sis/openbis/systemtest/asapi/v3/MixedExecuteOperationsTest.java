@@ -21,16 +21,19 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete.DeleteObjectsWithTrashOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DeleteDataSetsOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DeleteDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
@@ -47,14 +50,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionResults;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.DeleteSamplesOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.DeleteSamplesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.UpdateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.CreateVocabularyTermsOperation;
@@ -68,7 +73,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 
 /**
- * 
+ * System tests for {@link IApplicationServerApi#executeOperations(String, List, ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionOptions)}
+ * for various combinations.
  *
  * @author Franz-Josef Elmer
  */
@@ -135,10 +141,7 @@ public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
         List<IOperation> operations = new ArrayList<IOperation>();
         
         // Create a sample with a data set
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("NORMAL"));
-        sampleCreation.setCode("S-" + time);
-        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        SampleCreation sampleCreation = createSample("S-" + time);
         ISampleId sampleId = getId(sampleCreation);
         operations.add(new CreateSamplesOperation(sampleCreation));
         DataSetCreation dataSetCreation = new DataSetCreation();
@@ -155,14 +158,11 @@ public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
         DataSetDeletionOptions dataSetDeletionOptions = new DataSetDeletionOptions();
         dataSetDeletionOptions.setReason("test data set deletion");
         operations.add(new DeleteDataSetsOperation(Arrays.asList(dataSetPermId), dataSetDeletionOptions));
-        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
-        sampleDeletionOptions.setReason("Test sample deletion");
+        SampleDeletionOptions sampleDeletionOptions = createSampleDeletionOptions();
         operations.add(new DeleteSamplesOperation(Arrays.asList(sampleId), sampleDeletionOptions));
         SynchronousOperationExecutionResults executionResults = execute(sessionToken, operations);
-        DeleteDataSetsOperationResult opResult1 = (DeleteDataSetsOperationResult) executionResults.getResults().get(0);
-        IDeletionId delId1 = opResult1.getDeletionId();
-        DeleteSamplesOperationResult opResult2 = (DeleteSamplesOperationResult) executionResults.getResults().get(1);
-        IDeletionId delId2 = opResult2.getDeletionId();
+        IDeletionId delId1 = getDeletionId(executionResults.getResults().get(0));
+        IDeletionId delId2 = getDeletionId(executionResults.getResults().get(1));
         assertEquals(v3api.getSamples(sessionToken, Arrays.asList(sampleId), new SampleFetchOptions()).size(), 0);
         assertEquals(v3api.getDataSets(sessionToken, Arrays.asList(dataSetPermId), new DataSetFetchOptions()).size(), 0);
         
@@ -172,6 +172,68 @@ public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
         v3api.confirmDeletions(sessionToken, Arrays.asList(delId1, delId2));
 
         v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testDeleteAndReplaceParentSample()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        long time = System.currentTimeMillis();
+        List<IOperation> operations = new ArrayList<IOperation>();
+        
+        // Create parentA and parentB and a child
+        SampleCreation pa = createSample("P-" + time + "_A");
+        ISampleId paId = getId(pa);
+        SampleCreation pb = createSample("P-" + time + "_B");
+        ISampleId pbId = getId(pb);
+        SampleCreation child = createSample("C-" + time);
+        ISampleId childId = getId(child);
+        child.setParentIds(Arrays.asList(paId, pbId));
+        operations.add(new CreateSamplesOperation(pa, pb, child));
+        execute(sessionToken, operations);
+        Sample parentA = getSample(sessionToken, paId);
+        assertEquals(parentA.getCode(), pa.getCode());
+        assertEquals(parentA.getChildren().get(0).getCode(), child.getCode());
+        Sample parentB = getSample(sessionToken, pbId);
+        assertEquals(parentB.getCode(), pb.getCode());
+        assertEquals(parentB.getChildren().get(0).getCode(), child.getCode());
+        Sample childSample = getSample(sessionToken, childId);
+        assertEquals(childSample.getCode(), child.getCode());
+        List<String> parentsCode = extractCodes(childSample.getParents());
+        Collections.sort(parentsCode);
+        assertEquals(parentsCode.toString(), "[" + pa.getCode() + ", " + pb.getCode() + "]");
+        
+        // Create parentC, delete parentB, and replace parentB by parentC
+        operations.clear();
+        SampleCreation pc = createSample("P-" + time + "_C");
+        ISampleId pcId = getId(pc);
+        operations.add(new CreateSamplesOperation(pc));
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(childId);
+        sampleUpdate.getParentIds().add(paId, pcId);
+        operations.add(new UpdateSamplesOperation(sampleUpdate));
+        operations.add(new DeleteSamplesOperation(Arrays.asList(pbId), createSampleDeletionOptions()));
+        SynchronousOperationExecutionResults executionResults = execute(sessionToken, operations);
+        IDeletionId deletionId = getDeletionId(executionResults.getResults().get(2));
+        assertNotNull(deletionId);
+        v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
+        assertEquals(getSample(sessionToken, paId).getChildren().get(0).getCode(), child.getCode());
+        assertEquals(getSample(sessionToken, pbId), null);
+        assertEquals(getSample(sessionToken, pcId).getChildren().get(0).getCode(), child.getCode());
+        parentsCode = extractCodes(getSample(sessionToken, childId).getParents());
+        Collections.sort(parentsCode);
+        assertEquals(parentsCode.toString(), "[" + pa.getCode() + ", " + pc.getCode() + "]");
+        
+        v3api.logout(sessionToken);
+    }
+    
+    private SampleCreation createSample(String code)
+    {
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("NORMAL"));
+        sampleCreation.setCode(code);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        return sampleCreation;
     }
     
     private ISampleId getId(SampleCreation sampleCreation)
@@ -192,6 +254,22 @@ public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
         return new VocabularyTermPermId(vt.getCode(), ((VocabularyPermId) vocabularyId).getPermId());
     }
     
+    private IDeletionId getDeletionId(IOperationResult operationResult)
+    {
+        if (operationResult instanceof DeleteObjectsWithTrashOperationResult)
+        {
+            return ((DeleteObjectsWithTrashOperationResult) operationResult).getDeletionId();
+        }
+        return null;
+    }
+
+    private SampleDeletionOptions createSampleDeletionOptions()
+    {
+        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("Test sample deletion");
+        return sampleDeletionOptions;
+    }
+    
     private VocabularyTermDeletionOptions createVocabularyTermDeletionOptions()
     {
         VocabularyTermDeletionOptions termDeletionOptions = new VocabularyTermDeletionOptions();
@@ -204,6 +282,15 @@ public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
         MaterialFetchOptions materialFetchOptions = new MaterialFetchOptions();
         materialFetchOptions.withProperties();
         return v3api.getMaterials(sessionToken, Arrays.asList(materialId), materialFetchOptions).get(materialId);
+    }
+    
+    private Sample getSample(String sessionToken, ISampleId sampleId)
+    {
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withChildren();
+        fetchOptions.withParents();
+        return v3api.getSamples(sessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
     }
     
     private SynchronousOperationExecutionResults execute(String sessionToken, List<IOperation> operations)
