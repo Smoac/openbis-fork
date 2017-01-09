@@ -1,0 +1,214 @@
+/*
+ * Copyright 2017 ETH Zuerich, SIS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.ethz.sis.openbis.systemtest.asapi.v3;
+
+import static junit.framework.Assert.assertNotNull;
+import static org.testng.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.testng.annotations.Test;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DeleteDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DeleteDataSetsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.DeleteMaterialsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionResults;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.DeleteSamplesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.DeleteSamplesOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.CreateVocabularyTermsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.DeleteVocabularyTermsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
+{
+    private static final String PROPERTY_TYPE = "ORGANISM";
+    private static final String MATERIAL_TYPE = "BACTERIUM";
+    private static final EntityTypePermId MATERIAL_TYPE_ID = new EntityTypePermId(MATERIAL_TYPE);
+    private static final VocabularyPermId VOCABULARY_ID = new VocabularyPermId(PROPERTY_TYPE);
+
+    @Test
+    public void testReplaceVocabularyTermForMaterialProperty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        long time = System.currentTimeMillis();
+        List<IOperation> operations = new ArrayList<IOperation>();
+        
+        // create new material and two new vocabulary terms, one is a property value of the created material
+        VocabularyTermCreation vt1 = new VocabularyTermCreation();
+        vt1.setCode("ORG-" + time);
+        vt1.setVocabularyId(VOCABULARY_ID);
+        IVocabularyTermId id1 = getId(vt1);
+        VocabularyTermCreation vt2 = new VocabularyTermCreation();
+        vt2.setCode("ORG-" + time + "_2");
+        vt2.setVocabularyId(VOCABULARY_ID);
+        IVocabularyTermId id2 = getId(vt2);
+        operations.add(new CreateVocabularyTermsOperation(vt1, vt2));
+        MaterialCreation materialCreation = new MaterialCreation();
+        materialCreation.setCode("BAC-" + time);
+        materialCreation.setTypeId(MATERIAL_TYPE_ID);
+        materialCreation.setProperty(PROPERTY_TYPE, vt1.getCode());
+        materialCreation.setProperty("description", "test");
+        IMaterialId materialId = getId(materialCreation);
+        operations.add(new CreateMaterialsOperation(materialCreation));
+        execute(sessionToken, operations);
+        assertEquals(getMaterial(sessionToken, materialId).getProperty(PROPERTY_TYPE), vt1.getCode());
+        
+        // Delete first vocabulary term and replace it by the second one
+        operations.clear();
+        VocabularyTermDeletionOptions termDeletionOptions = createVocabularyTermDeletionOptions();
+        termDeletionOptions.replace(id1, id2);
+        operations.add(new DeleteVocabularyTermsOperation(Arrays.asList(id1), termDeletionOptions));
+        execute(sessionToken, operations);
+        assertEquals(getMaterial(sessionToken, materialId).getProperty(PROPERTY_TYPE), vt2.getCode());
+        
+        // Delete both vocabulary terms and the material
+        operations.clear();
+        operations.add(new DeleteVocabularyTermsOperation(Arrays.asList(id1, id2), createVocabularyTermDeletionOptions()));
+        MaterialDeletionOptions materialDeletionOptions = new MaterialDeletionOptions();
+        materialDeletionOptions.setReason("test material deletion");
+        operations.add(new DeleteMaterialsOperation(Arrays.asList(materialId), materialDeletionOptions));
+        execute(sessionToken, operations);
+        assertEquals(v3api.getVocabularyTerms(sessionToken, Arrays.asList(id1, id2), new VocabularyTermFetchOptions()).size(), 0);
+        assertEquals(v3api.getMaterials(sessionToken, Arrays.asList(materialId), new MaterialFetchOptions()).size(), 0);
+        
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testDeleteSampleWithDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        long time = System.currentTimeMillis();
+        List<IOperation> operations = new ArrayList<IOperation>();
+        
+        // Create a sample with a data set
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("NORMAL"));
+        sampleCreation.setCode("S-" + time);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        ISampleId sampleId = getId(sampleCreation);
+        operations.add(new CreateSamplesOperation(sampleCreation));
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
+        dataSetCreation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
+        dataSetCreation.setCode("DS-" + time);
+        dataSetCreation.setSampleId(sampleId);
+        DataSetPermId dataSetPermId = new DataSetPermId(dataSetCreation.getCode());
+        operations.add(new CreateDataSetsOperation(dataSetCreation));
+        execute(sessionToken, operations);
+        
+        // Delete sample and data set
+        operations.clear();
+        DataSetDeletionOptions dataSetDeletionOptions = new DataSetDeletionOptions();
+        dataSetDeletionOptions.setReason("test data set deletion");
+        operations.add(new DeleteDataSetsOperation(Arrays.asList(dataSetPermId), dataSetDeletionOptions));
+        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("Test sample deletion");
+        operations.add(new DeleteSamplesOperation(Arrays.asList(sampleId), sampleDeletionOptions));
+        SynchronousOperationExecutionResults executionResults = execute(sessionToken, operations);
+        DeleteDataSetsOperationResult opResult1 = (DeleteDataSetsOperationResult) executionResults.getResults().get(0);
+        IDeletionId delId1 = opResult1.getDeletionId();
+        DeleteSamplesOperationResult opResult2 = (DeleteSamplesOperationResult) executionResults.getResults().get(1);
+        IDeletionId delId2 = opResult2.getDeletionId();
+        assertEquals(v3api.getSamples(sessionToken, Arrays.asList(sampleId), new SampleFetchOptions()).size(), 0);
+        assertEquals(v3api.getDataSets(sessionToken, Arrays.asList(dataSetPermId), new DataSetFetchOptions()).size(), 0);
+        
+        // Clear trash
+        assertEquals(delId1, null);
+        assertNotNull(delId2);
+        v3api.confirmDeletions(sessionToken, Arrays.asList(delId1, delId2));
+
+        v3api.logout(sessionToken);
+    }
+    
+    private ISampleId getId(SampleCreation sampleCreation)
+    {
+        ISpaceId spaceId = sampleCreation.getSpaceId();
+        return new SampleIdentifier("/" + ((SpacePermId) spaceId).getPermId() + "/" + sampleCreation.getCode());
+    }
+    
+    private IMaterialId getId(MaterialCreation materialCreation)
+    {
+        IEntityTypeId typeId = materialCreation.getTypeId();
+        return new MaterialPermId(materialCreation.getCode(), ((EntityTypePermId) typeId).getPermId());
+    }
+    
+    private IVocabularyTermId getId(VocabularyTermCreation vt)
+    {
+        IVocabularyId vocabularyId = vt.getVocabularyId();
+        return new VocabularyTermPermId(vt.getCode(), ((VocabularyPermId) vocabularyId).getPermId());
+    }
+    
+    private VocabularyTermDeletionOptions createVocabularyTermDeletionOptions()
+    {
+        VocabularyTermDeletionOptions termDeletionOptions = new VocabularyTermDeletionOptions();
+        termDeletionOptions.setReason("test vocabulary term deletion");
+        return termDeletionOptions;
+    }
+    
+    private Material getMaterial(String sessionToken, IMaterialId materialId)
+    {
+        MaterialFetchOptions materialFetchOptions = new MaterialFetchOptions();
+        materialFetchOptions.withProperties();
+        return v3api.getMaterials(sessionToken, Arrays.asList(materialId), materialFetchOptions).get(materialId);
+    }
+    
+    private SynchronousOperationExecutionResults execute(String sessionToken, List<IOperation> operations)
+    {
+        SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        return (SynchronousOperationExecutionResults) v3api.executeOperations(sessionToken, operations, options);
+    }
+}

@@ -414,9 +414,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private void executeDeletions(List<? extends IOperation> operations, 
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
-        resultMap.putAll(deleteDataSetsExecutor.execute(context, operations));
-        resultMap.putAll(deleteSamplesExecutor.execute(context, operations));
         resultMap.putAll(deleteExperimentsExecutor.execute(context, operations));
+        resultMap.putAll(deleteSamplesExecutor.execute(context, operations));
+        resultMap.putAll(deleteDataSetsExecutor.execute(context, operations));
         resultMap.putAll(deleteProjectsExecutor.execute(context, operations));
         resultMap.putAll(deleteSpacesExecutor.execute(context, operations));
         resultMap.putAll(deleteMaterialsExecutor.execute(context, operations));
