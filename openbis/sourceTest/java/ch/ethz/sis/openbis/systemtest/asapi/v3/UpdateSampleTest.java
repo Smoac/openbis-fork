@@ -318,8 +318,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Cannot detach the sample '/CISD/CP-TEST-1' from the space because there are already datasets attached to the sample",
-                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CP-TEST-1'")));
+            }, "Cannot detach the sample /CP-TEST-1 (perm id: 200902091219327-1025) from the space because there are already datasets attached to the sample",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CP-TEST-1'")));
     }
 
     @Test
@@ -435,7 +435,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Sample space must be the same as experiment space. Sample: /CISD/SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
+            }, "Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (perm id: 201206190940555-1032)",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE'")));
     }
 
@@ -461,7 +461,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Shared samples cannot be attached to experiments. Sample: /SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
+            }, "Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (perm id: 201206190940555-1032)",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SAMPLE'")));
     }
 
@@ -744,7 +744,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "'/CISD/A01:CL1' cannot be it's own container", patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/A01:CL1'")));
+            }, "/CISD/A01:CL1 (perm id: 200811050919915-8) cannot be it's own container", patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/A01:CL1'")));
     }
 
     @Test
@@ -920,7 +920,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "'/CISD/CL1:A01' cannot be it's own container", patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CL1:A01'")));
+            }, "/CISD/CL1:A01 (perm id: 200811050919915-9) cannot be it's own container", 
+            patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CL1:A01'")));
     }
 
     @Test

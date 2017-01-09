@@ -78,7 +78,7 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
 
                     if (hasDatasets && sample.getSpace() == null)
                     {
-                        throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
+                        throw UserFailureException.fromTemplate("Cannot detach the sample %s from the space "
                                 + "because there are already datasets attached to the sample.",
                                 EntityUtils.render(sample));
                     }

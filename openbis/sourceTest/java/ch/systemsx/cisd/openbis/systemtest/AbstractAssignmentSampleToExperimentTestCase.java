@@ -403,10 +403,11 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Operation cannot be performed, because the sample "
-                    + entityGraphManager.getSample(g.s(1)).getIdentifier()
-                    + " has the following datasets which need an experiment: ["
-                    + entityGraphManager.getDataSet(g.ds(2)).getCode() + "]", getErrorMessage(ex));
+            String errorMessage = getErrorMessage(ex);
+            AssertionUtil.assertContains("Operation cannot be performed, because the sample "
+                    + entityGraphManager.getSample(g.s(1)).getIdentifier(), errorMessage);
+            AssertionUtil.assertContains(" has the following datasets which need an experiment: ["
+                    + entityGraphManager.getDataSet(g.ds(2)).getCode() + "]", errorMessage);
         }
     }
 
@@ -494,12 +495,21 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            String expected1 = "Samples with following codes do not exist in the space 'S2': '["
-                    + entityGraphManager.getSample(g.s(1)).getCode() + "]'.";
-            String expected2 =
-                    "Sample space must be the same as experiment space. Sample: " + entityGraphManager.getSample(g.s(1)).getIdentifier()
-                            + ", Experiment: " + entityGraphManager.getExperimentIdentifierOrNull(g.e(1));
-            AssertionUtil.assertCollectionContains(Arrays.asList(expected1, expected2), getErrorMessage(ex));
+            String errorMessage = getErrorMessage(ex);
+            if (errorMessage.startsWith("Samples"))
+            {
+                AssertionUtil.assertContains("Samples with following codes do not exist in the space 'S2': '["
+                        + entityGraphManager.getSample(g.s(1)).getCode(), errorMessage);
+            } else if (errorMessage.startsWith("Sample space"))
+            {
+                AssertionUtil.assertContains("Sample space must be the same as experiment space. Sample: "
+                        + entityGraphManager.getSample(g.s(1)).getIdentifier(), errorMessage);
+                String experimentIdentifier = entityGraphManager.getExperimentIdentifierOrNull(g.e(1));
+                AssertionUtil.assertContains("Experiment: " + experimentIdentifier, errorMessage);
+            } else
+            {
+                fail("Starts neither with 'Samples' nor with 'Sample space': " + errorMessage);
+            }
         }
     }
 
@@ -632,12 +642,21 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            String expected1 = "Samples with following codes do not exist in the space 'S1': '["
-                    + entityGraphManager.getSample(g.s(1)).getCode() + "]'.";
-            String expected2 =
-                    "Shared samples cannot be attached to experiments. Sample: " + entityGraphManager.getSample(g.s(1)).getIdentifier()
-                            + ", Experiment: " + entityGraphManager.getExperimentIdentifierOrNull(g.e(1));
-            AssertionUtil.assertCollectionContains(Arrays.asList(expected1, expected2), getErrorMessage(ex));
+            String errorMessage = getErrorMessage(ex);
+            if (errorMessage.startsWith("Samples"))
+            {
+                AssertionUtil.assertContains("Samples with following codes do not exist in the space 'S1': '["
+                    + entityGraphManager.getSample(g.s(1)).getCode(), errorMessage);
+            } else if (errorMessage.startsWith("Shared samples"))
+            {
+                AssertionUtil.assertContains("Shared samples cannot be attached to experiments. Sample: " 
+                        + entityGraphManager.getSample(g.s(1)).getIdentifier(), errorMessage);
+                String experimentIdentifier = entityGraphManager.getExperimentIdentifierOrNull(g.e(1));
+                AssertionUtil.assertContains("Experiment: " + experimentIdentifier, errorMessage);
+            } else
+            {
+                fail("Starts neither with 'Samples' nor with 'Shared samples': " + errorMessage);
+            }
         }
     }
 
