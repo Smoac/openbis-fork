@@ -950,7 +950,7 @@ SUPPLIER = [MANDATORY_ITEM_VERSION, False, "SUPPLIER", "", [
         [MANDATORY_ITEM_VERSION, "COMPANY_LANGUAGE",                    "General",            "Company language",       DataType.CONTROLLEDVOCABULARY,      "LANGUAGE",                 "Company language",             None,       None, True],
         [MANDATORY_ITEM_VERSION, "CUSTOMER_NUMBER",                      "General",            "Customer number",         DataType.VARCHAR,                   None,                       "Customer number",               None,       None],
         [MANDATORY_ITEM_VERSION, "PREFERRED_ORDER_METHOD",              "General",            "Preferred Order Method", DataType.CONTROLLEDVOCABULARY,      "PREFERRED_ORDER_METHOD",   "Preferred Order Method",       None,       None, True],
-        [MANDATORY_ITEM_VERSION, "URL",                                 "General",            "URL",                    DataType.VARCHAR,                   None,                       "URL",                          None,       None],
+        [MANDATORY_ITEM_VERSION, "URL",                                 "General",            "URL",                    DataType.HYPERLINK,                   None,                       "URL",                          None,       None],
         [MANDATORY_ITEM_VERSION, "ADDITIONAL_INFORMATION",              "General",            "Additional Information", DataType.VARCHAR,         None,                       "Additional Information",       None,       None],
         [MANDATORY_ITEM_VERSION, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
