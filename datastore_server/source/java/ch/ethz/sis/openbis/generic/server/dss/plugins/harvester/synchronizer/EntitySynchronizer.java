@@ -88,7 +88,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationTransactionWrapper;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -151,7 +151,7 @@ public class EntitySynchronizer
 
     private final Set<String> blackListedDataSetCodes;
 
-    private final MasterDataRegistrationTransactionWrapper masterDataRegistrationTransaction;
+    private final MasterDataRegistrationTransaction masterDataRegistrationTransaction;
 
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
             Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, DataSetProcessingContext context,
@@ -166,7 +166,7 @@ public class EntitySynchronizer
         this.context = context;
         this.config = config;
         this.operationLog = operationLog;
-        this.masterDataRegistrationTransaction = getMasterDataRegistrationTransactionWrapper();
+        this.masterDataRegistrationTransaction = getMasterDataRegistrationTransaction();
     }
 
     public Date syncronizeEntities() throws Exception
@@ -431,7 +431,7 @@ public class EntitySynchronizer
 
     private void registerMasterData()
     {
-        masterDataRegistrationTransaction.execute();
+        masterDataRegistrationTransaction.commit();
         MasterDataTransactionErrors transactionErrors = masterDataRegistrationTransaction.getTransactionErrors();
         if (false == transactionErrors.getErrors().isEmpty())
         {
@@ -444,12 +444,12 @@ public class EntitySynchronizer
         }
     }
 
-    private MasterDataRegistrationTransactionWrapper getMasterDataRegistrationTransactionWrapper()
+    private MasterDataRegistrationTransaction getMasterDataRegistrationTransaction()
     {
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
         String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
         EncapsulatedCommonServer encapsulatedCommonServer = ServiceFinderUtils.getEncapsulatedCommonServer(sessionToken, openBisServerUrl);
-        return new MasterDataRegistrationTransactionWrapper(encapsulatedCommonServer);
+        return new MasterDataRegistrationTransaction(encapsulatedCommonServer);
     }
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
