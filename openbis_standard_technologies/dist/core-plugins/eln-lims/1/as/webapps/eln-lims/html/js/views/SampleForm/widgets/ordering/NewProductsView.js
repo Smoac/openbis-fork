@@ -39,7 +39,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 			var supplierDropdown = FormUtil.getDropDownForTerms(null, supplierTerms, "Select a supplier", true);
 			
 			var currencyVocabulary = profile.getVocabularyByCode("CURRENCY");
-			var currencyDropdown = FormUtil.getDropDownForTerms(null, currencyVocabulary.terms, "Select a currency", true);
+			var currencyDropdown = FormUtil.getDropDownForTerms(null, currencyVocabulary.terms, "Select a currency", false);
 			
 			var quantityField = FormUtil.getIntegerInputField(null, "Quantiy", true);
 			quantityField.change(function() {

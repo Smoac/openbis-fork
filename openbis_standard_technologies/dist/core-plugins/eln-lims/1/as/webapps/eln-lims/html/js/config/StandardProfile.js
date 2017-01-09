@@ -509,8 +509,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " does not have a quantity, FIX IT!.");
 								return;
 							}
+							var currencyCode = requestProduct.properties["CURRENCY"];
+							if(!currencyCode) {
+								currencyCode = "N/A";
+							}
 							
-							var absoluteTotalForCurrency = absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]];
+							var absoluteTotalForCurrency = absoluteTotalByCurrency[currencyCode];
 							if(!absoluteTotalForCurrency) {
 								absoluteTotalForCurrency = 0;
 							}
@@ -519,7 +523,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								absoluteTotalForCurrency += parseFloat(requestProduct.properties["PRICE_PER_UNIT"]) * quantity;
 							}
 							
-							absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]] = absoluteTotalForCurrency;
+							absoluteTotalByCurrency[currencyCode] = absoluteTotalForCurrency;
 							
 							quantityByProductPermId[requestProduct.permId] = quantity;
 							providerProducts.push(requestProduct);
@@ -566,34 +570,58 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								page += "\n";
 								page += languageLabels["COSTUMER_INFORMATION"];
 								page += "\n";
-								page += "- " + languageLabels["SHIP_TO"] + ": " + order.properties["SHIP_TO"];
-								page += "\n";
-								page += "- " + languageLabels["BILL_TO"] + ": " + order.properties["BILL_TO"];
-								page += "\n";
-								page += "- " + languageLabels["SHIP_ADDRESS"] + ": " + order.properties["SHIP_ADDRESS"];
-								page += "\n";
-								page += "- " + languageLabels["PHONE"] + ": " + order.properties["CONTACT_PHONE"];
-								page += "\n";
-								page += "- " + languageLabels["FAX"] + ": " + order.properties["CONTACT_FAX"];
-								page += "\n";
+								if(order.properties["SHIP_TO"]) {
+									page += "- " + languageLabels["SHIP_TO"] + ": " + order.properties["SHIP_TO"];
+									page += "\n";
+								}
+								if(order.properties["BILL_TO"]) {
+									page += "- " + languageLabels["BILL_TO"] + ": " + order.properties["BILL_TO"];
+									page += "\n";
+								}
+								if(order.properties["SHIP_ADDRESS"]) {
+									page += "- " + languageLabels["SHIP_ADDRESS"] + ": " + order.properties["SHIP_ADDRESS"];
+									page += "\n";
+								}
+								if(order.properties["CONTACT_PHONE"]) {
+									page += "- " + languageLabels["PHONE"] + ": " + order.properties["CONTACT_PHONE"];
+									page += "\n";
+								}
+								if(order.properties["CONTACT_FAX"]) {
+									page += "- " + languageLabels["FAX"] + ": " + order.properties["CONTACT_FAX"];
+									page += "\n";
+								}
 								page += "\n";
 								page += "\n";
 								page += languageLabels["SUPPLIER_INFORMATION"];
 								page += "\n";
-								page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties["NAME"];
-								page += "\n";
-								page += "- " + languageLabels["SUPPLIER_ADDRESS_LINE_1"] + ": " + provider.properties["COMPANY_ADDRESS_LINE_1"]
-								page += "\n";
-								page += "  " + languageLabels["SUPPLIER_ADDRESS_LINE_2"] + "  " + provider.properties["COMPANY_ADDRESS_LINE_2"]
-								page += "\n";
-								page += "- " + languageLabels["SUPPLIER_PHONE"] + ": " + provider.properties["COMPANY_PHONE"];
-								page += "\n";
-								page += "- " + languageLabels["SUPPLIER_FAX"] + ": " + provider.properties["COMPANY_FAX"];
-								page += "\n";
-								page += "- " + languageLabels["SUPPLIER_EMAIL"] + ": " + provider.properties["COMPANY_EMAIL"];
-								page += "\n";
-								page += "- " + languageLabels["CUSTOMER_NUMBER"] + ": " + provider.properties["CUSTOMER_NUMBER"];
-								page += "\n";
+								if(provider.properties["NAME"]) {
+									page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties["NAME"];
+									page += "\n";
+								}
+								if(provider.properties["COMPANY_ADDRESS_LINE_1"]) {
+									page += "- " + languageLabels["SUPPLIER_ADDRESS_LINE_1"] + ": " + provider.properties["COMPANY_ADDRESS_LINE_1"]
+									page += "\n";
+								}
+								if(provider.properties["COMPANY_ADDRESS_LINE_2"]) {
+									page += "  " + languageLabels["SUPPLIER_ADDRESS_LINE_2"] + "  " + provider.properties["COMPANY_ADDRESS_LINE_2"]
+									page += "\n";
+								}
+								if(provider.properties["COMPANY_PHONE"]) {
+									page += "- " + languageLabels["SUPPLIER_PHONE"] + ": " + provider.properties["COMPANY_PHONE"];
+									page += "\n";
+								}
+								if(provider.properties["COMPANY_FAX"]) {
+									page += "- " + languageLabels["SUPPLIER_FAX"] + ": " + provider.properties["COMPANY_FAX"];
+									page += "\n";
+								}
+								if(provider.properties["COMPANY_EMAIL"]) {
+									page += "- " + languageLabels["SUPPLIER_EMAIL"] + ": " + provider.properties["COMPANY_EMAIL"];
+									page += "\n";
+								}
+								if(provider.properties["CUSTOMER_NUMBER"]) {
+									page += "- " + languageLabels["CUSTOMER_NUMBER"] + ": " + provider.properties["CUSTOMER_NUMBER"];
+									page += "\n";
+								}
 								page += "\n";
 								page += "\n";
 								page += languageLabels["REQUESTED_PRODUCTS_LABEL"];
@@ -609,7 +637,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									if(unitPriceAsString) {
 										unitPrice = parseFloat(unitPriceAsString);
 									}
-									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_NUM"] + "\t\t" + unitPrice + " " + product.properties["CURRENCY"];
+									var currencyCode = product.properties["CURRENCY"];
+									if(!currencyCode) {
+										currencyCode = "N/A";
+									}
+									page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_NUM"] + "\t\t" + unitPrice + " " + currencyCode;
 									page += "\n";
 									
 									if(unitPriceAsString) {
@@ -647,7 +679,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								}
 								page += languageLabels["ADDITIONAL_INFO_LABEL"];
 								page += "\n";
-								page += order.properties["ADDITIONAL_INFORMATION"];
+								var additionalInfo = order.properties["ADDITIONAL_INFORMATION"];
+								if(!additionalInfo) {
+									additionalInfo = "N/A";
+								}
+								page += additionalInfo;
 							orderPages.push(page);
 						}
 						
@@ -726,7 +762,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								} else {
 									rowData.totalProductCost = "N/A";
 								}
-								rowData.currency = product.properties["CURRENCY"];
+								var currencyCode = product.properties["CURRENCY"];
+								if(!currencyCode) {
+									currencyCode = "N/A";
+								}
+								rowData.currency = currencyCode;
 								rows.push(rowData);
 							}
 							
