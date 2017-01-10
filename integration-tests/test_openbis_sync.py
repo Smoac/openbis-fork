@@ -211,12 +211,21 @@ class TestCase(systemtest.testcase.TestCase):
 
     def installDataSourcePlugin(self, openbisController, dss_port):
         self.installPlugin(openbisController, "datasource")
+        '''update datasource service plugin.properties'''
         datasource_core_plugin_properties = "%s/1/dss/services/resource-sync/plugin.properties" % openbisController.instanceName
         plugin_properties_file = os.path.join(openbisController.installPath, "servers", "core-plugins", datasource_core_plugin_properties)
         util.printAndFlush("Updating %s" % plugin_properties_file)
         pluginProps = util.readProperties(plugin_properties_file)
         pluginProps['request-handler.server-url'] = "https://localhost:%s/openbis" % dss_port
         pluginProps['request-handler.download-url'] = "https://localhost:%s" % dss_port
+        util.writeProperties(plugin_properties_file, pluginProps)
+        
+        '''update db source plugin.properties'''
+        datasource_core_plugin_properties = "%s/1/dss/data-sources/openbis-db/plugin.properties" % openbisController.instanceName
+        plugin_properties_file = os.path.join(openbisController.installPath, "servers", "core-plugins", datasource_core_plugin_properties)
+        util.printAndFlush("Updating %s" % plugin_properties_file)
+        pluginProps = util.readProperties(plugin_properties_file)
+        pluginProps['databaseKind'] = openbisController.databaseKind
         util.writeProperties(plugin_properties_file, pluginProps)
         
     def installEntityRegistrationPlugin(self, openbisController):
