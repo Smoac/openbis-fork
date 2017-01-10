@@ -1488,7 +1488,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_VOCABULARY_TERM")
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal,
