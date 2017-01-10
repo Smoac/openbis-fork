@@ -786,7 +786,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
-    public Map<String, String> getServerInfo(String sessionToken)
+    public Map<String, String> getServerInformation(String sessionToken)
     {
         return new HashMap<String, String>();
     }

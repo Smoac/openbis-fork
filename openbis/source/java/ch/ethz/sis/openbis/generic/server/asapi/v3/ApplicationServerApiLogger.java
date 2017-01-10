@@ -566,7 +566,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public Map<String, String> getServerInfo(String sessionToken)
+    public Map<String, String> getServerInformation(String sessionToken)
     {
         logAccess(sessionToken, "session-info");
         return null;
