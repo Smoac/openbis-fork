@@ -1473,3 +1473,4 @@ PERM_ID
 permId
 type
 TYPE
+get Server Information
