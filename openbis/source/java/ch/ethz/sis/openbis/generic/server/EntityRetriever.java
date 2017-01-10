@@ -22,6 +22,7 @@ import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CONNECTION;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,19 +45,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHo
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
@@ -66,7 +64,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
@@ -80,8 +77,13 @@ import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IEntityType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTermImmutable;
 
@@ -94,8 +96,6 @@ public class EntityRetriever
     private final IMasterDataRegistrationTransaction masterDataRegistrationTransaction;
 
     private final String sessionToken;
-
-    private static final int TIMEOUT = 10000;
 
     private EntityRetriever(IApplicationServerApi v3Api, String sessionToken, IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
@@ -410,7 +410,7 @@ public class EntityRetriever
         return searchResult.getObjects();
     }
 
-    public String fetchMetaDataAsXML() throws ParserConfigurationException, TransformerException
+    public String fetchMasterDataAsXML() throws ParserConfigurationException, TransformerException
     {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -419,7 +419,7 @@ public class EntityRetriever
         doc.appendChild(rootElement);
 
         // append vocabularies
-        List<IVocabularyImmutable> vocabularies = listVocabularies();
+        List<IVocabularyImmutable> vocabularies = masterDataRegistrationTransaction.listVocabularies();
         if (vocabularies.size() > 0)
         {
             Element vocabsElement = doc.createElement("vocabularies");
@@ -430,7 +430,11 @@ public class EntityRetriever
                 vocabElement.setAttribute("code", vocabImmutable.getCode());
                 vocabElement.setAttribute("description", vocabImmutable.getDescription());
                 vocabElement.setAttribute("urlTemplate", vocabImmutable.getUrlTemplate());
+                vocabElement.setAttribute("managedInternally", String.valueOf(vocabImmutable.isManagedInternally()));
+                vocabElement.setAttribute("internalNamespace", String.valueOf(vocabImmutable.isInternalNamespace()));
+                vocabElement.setAttribute("chosenFromList", String.valueOf(vocabImmutable.isChosenFromList()));
                 vocabsElement.appendChild(vocabElement);
+                
                 List<IVocabularyTermImmutable> terms = vocabImmutable.getTerms();
                 for (IVocabularyTermImmutable vocabTermImmutable : terms)
                 {
@@ -446,7 +450,7 @@ public class EntityRetriever
         }
 
         // append property types
-        List<IPropertyTypeImmutable> propertyTypes = listPropertyTypes();
+        List<IPropertyTypeImmutable> propertyTypes = masterDataRegistrationTransaction.listPropertyTypes();
         if (propertyTypes.size() > 0)
         {
             Element propertyTypesElement = doc.createElement("propertyTypes");
@@ -469,18 +473,18 @@ public class EntityRetriever
         }
 
         // append sample types
-        List<SampleType> sampleTypes = this.getSampleTypes();
+        List<ISampleTypeImmutable> sampleTypes = masterDataRegistrationTransaction.listSampleTypes();
         appendSampleTypes(doc, rootElement, sampleTypes);
 
         // append experiment types
-        List<ExperimentType> experimentTypes = this.getExperimentTypes();
+        List<IExperimentTypeImmutable> experimentTypes = masterDataRegistrationTransaction.listExperimentTypes();
         appendExperimentTypes(doc, rootElement, experimentTypes);
 
         // append data set types
-        List<DataSetType> dataSetTypes = this.getDataSetTypes();
+        List<IDataSetTypeImmutable> dataSetTypes = masterDataRegistrationTransaction.listDataSetTypes();
         appendDataSetTypes(doc, rootElement, dataSetTypes);
 
-        List<MaterialType> materialTypes = this.getMaterialTypes();
+        List<IMaterialTypeImmutable> materialTypes = masterDataRegistrationTransaction.listMaterialTypes();
         appendMaterialTypes(doc, rootElement, materialTypes);
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -493,72 +497,82 @@ public class EntityRetriever
         return writer.toString();
     }
 
-    private void appendMaterialTypes(Document doc, Element rootElement, List<MaterialType> materialTypes)
+    private void appendMaterialTypes(Document doc, Element rootElement, List<IMaterialTypeImmutable> materialTypes)
     {
         if (materialTypes.size() > 0)
         {
             Element materialTypesElement = doc.createElement("materialTypes");
             rootElement.appendChild(materialTypesElement);
-            for (MaterialType matType : materialTypes)
+            Map<String, List<PropertyAssignment>> materialTypeCodePropAssignmentMap = loadMaterialTypesUsingV3WithPropertyAssignments();
+            for (IMaterialTypeImmutable matType : materialTypes)
             {
                 Element matTypeElement = getEntityTypeXML(doc, matType, "materialType");
                 materialTypesElement.appendChild(matTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, matType.getPropertyAssignments());
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, materialTypeCodePropAssignmentMap.get(matType.getCode()));
                 matTypeElement.appendChild(propertyAssignmentsElement);
             }
         }
     }
 
-    private void appendDataSetTypes(Document doc, Element rootElement, List<DataSetType> dataSetTypes)
+    private void appendDataSetTypes(Document doc, Element rootElement, List<IDataSetTypeImmutable> dataSetTypes)
     {
         if (dataSetTypes.size() > 0)
         {
             Element dataSetTypesElement = doc.createElement("dataSetTypes");
             rootElement.appendChild(dataSetTypesElement);
-            for (DataSetType dsType : dataSetTypes)
+            Map<String, List<PropertyAssignment>> dsTypeCodePropAssignmentMap = loadDataSetTypesUsingV3WithPropertyAssignments();
+            for (IDataSetTypeImmutable dsType : dataSetTypes)
             {
                 Element dsTypeElement = getEntityTypeXML(doc, dsType, "dataSetType");
                 dataSetTypesElement.appendChild(dsTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, dsType.getPropertyAssignments());
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, dsTypeCodePropAssignmentMap.get(dsType.getCode()));
                 dsTypeElement.appendChild(propertyAssignmentsElement);
             }
         }
     }
-
-    private void appendExperimentTypes(Document doc, Element rootElement, List<ExperimentType> experimentTypes)
+    private void appendExperimentTypes(Document doc, Element rootElement, List<IExperimentTypeImmutable> experimentTypes)
     {
         if (experimentTypes.size() > 0)
         {
             Element expTypesElement = doc.createElement("experimentTypes");
             rootElement.appendChild(expTypesElement);
-            for (ExperimentType expType : experimentTypes)
+            Map<String, List<PropertyAssignment>> expTypeCodePropAssignmentMap = loadExperimentTypesUsingV3WithPropertyAssignments();
+            for (IExperimentTypeImmutable expType : experimentTypes)
             {
                 Element experimentTypeElement = getEntityTypeXML(doc, expType, "experimentType");
                 expTypesElement.appendChild(experimentTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, expType.getPropertyAssignments());
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, expTypeCodePropAssignmentMap.get(expType.getCode()));
                 experimentTypeElement.appendChild(propertyAssignmentsElement);
             }
         }
     }
 
-    private void appendSampleTypes(Document doc, Element rootElement, List<SampleType> sampleTypes)
+    private void appendSampleTypes(Document doc, Element rootElement, List<ISampleTypeImmutable> sampleTypes)
     {
         if (sampleTypes.size() > 0)
         {
             Element sampleTypesElement = doc.createElement("sampleTypes");
             rootElement.appendChild(sampleTypesElement);
-            for (SampleType sampleType : sampleTypes)
+
+            Map<String, List<PropertyAssignment>> sampleTypeCodePropAssignmentMap = loadSampleTypesUsingV3WithPropertyAssignments();
+            for (ISampleTypeImmutable sampleType : sampleTypes)
             {
                 Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "sampleType");
+                sampleTypeElement.setAttribute("description", sampleType.getDescription());
+                sampleTypeElement.setAttribute("listable", String.valueOf(sampleType.isListable()));
+                sampleTypeElement.setAttribute("showContainer", String.valueOf(sampleType.isShowContainer()));
+                sampleTypeElement.setAttribute("showParents", String.valueOf(sampleType.isShowParents()));
+                sampleTypeElement.setAttribute("showParentMetadata", String.valueOf(sampleType.isShowParentMetadata()));
                 sampleTypeElement.setAttribute("generatedCodePrefix", sampleType.getGeneratedCodePrefix());
+                sampleTypeElement.setAttribute("subcodeUnique", String.valueOf(sampleType.isSubcodeUnique()));
                 sampleTypesElement.appendChild(sampleTypeElement);
-                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, sampleType.getPropertyAssignments());
+                Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, sampleTypeCodePropAssignmentMap.get(sampleType.getCode()));
                 sampleTypeElement.appendChild(propertyAssignmentsElement);
             }
         }
     }
 
-    private <E extends ICodeHolder> Element getEntityTypeXML(Document doc, E entityType,
+    private <E extends IEntityType> Element getEntityTypeXML(Document doc, E entityType,
             String elementName)
     {
         Element typeElement = doc.createElement(elementName);
@@ -575,16 +589,13 @@ public class EntityRetriever
             propertyAssignmentsElement.appendChild(propertyAssigmentElement);
             propertyAssigmentElement.setAttribute("property_type_code", propAssignment.getPropertyType().getCode());
             propertyAssigmentElement.setAttribute("data_type_code", propAssignment.getPropertyType().getDataType().toString());
-            propertyAssigmentElement.setAttribute("mandatory", String.valueOf(propAssignment.isMandatory()));
-            propertyAssigmentElement.setAttribute("section", propAssignment.getSection());
             propertyAssigmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
+            propertyAssigmentElement.setAttribute("section", propAssignment.getSection());
+            propertyAssigmentElement.setAttribute("showInEdit", String.valueOf(propAssignment.isShowInEditView()));
+            propertyAssigmentElement.setAttribute("mandatory", String.valueOf(propAssignment.isMandatory()));
+            propertyAssigmentElement.setAttribute("showRawValueInForms", String.valueOf(propAssignment.isShowRawValueInForms()));
         }
         return propertyAssignmentsElement;
-    }
-
-    public void printSamples()
-    {
-        buildEntityGraph("SYNC");
     }
 
     // @XmlRootElement
@@ -592,63 +603,78 @@ public class EntityRetriever
     private static class MasterData
     {
         // @XmlElement(name = "sampleType")
-        List<SampleType> sampleTypes = new ArrayList<SampleType>();
-
-        List<ExperimentType> experimentTypes = new ArrayList<ExperimentType>();
-
-        List<DataSetType> dataSetTypes = new ArrayList<DataSetType>();
-
-        List<MaterialType> materialTypes = new ArrayList<MaterialType>();
     }
 
-    public List<IPropertyTypeImmutable> listPropertyTypes()
+    private Map<String, List<PropertyAssignment>> loadDataSetTypesUsingV3WithPropertyAssignments()
     {
-        return masterDataRegistrationTransaction.listPropertyTypes();
-    }
-
-    public List<IVocabularyImmutable> listVocabularies()
-    {
-        return masterDataRegistrationTransaction.listVocabularies();
-    }
-
-    private List<DataSetType> getDataSetTypes()
-    {
+        // We are mixing up v1 and v3 here because using v3 api to get property assignments is easier
+        Map<String, List<PropertyAssignment>> dsTypeCodePropAssignmentMap = new HashMap<String, List<PropertyAssignment>>();
         DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
-        SearchResult<DataSetType> searchResult = v3Api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
-        return searchResult.getObjects();
+        SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType> searchResult =
+                v3Api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType> objects = searchResult.getObjects();
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType dataSetType : objects)
+        {
+            dsTypeCodePropAssignmentMap.put(dataSetType.getCode(), dataSetType.getPropertyAssignments());
+        }
+        return dsTypeCodePropAssignmentMap;
     }
 
-    private List<SampleType> getSampleTypes()
+    private Map<String, List<PropertyAssignment>> loadSampleTypesUsingV3WithPropertyAssignments()
     {
+        // We are mixing up v1 and v3 here because using v3 api to get property assignments is easier
+        Map<String, List<PropertyAssignment>> sampleTypeCodePropAssignmentMap = new HashMap<String, List<PropertyAssignment>>();
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
-        SearchResult<SampleType> searchResult = v3Api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        return searchResult.getObjects();
+        SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType> searchResult =
+                v3Api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType> objects = searchResult.getObjects();
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType sampleType : objects)
+        {
+            sampleTypeCodePropAssignmentMap.put(sampleType.getCode(), sampleType.getPropertyAssignments());
+        }
+        return sampleTypeCodePropAssignmentMap;
     }
 
-    private List<ExperimentType> getExperimentTypes()
+    private Map<String, List<PropertyAssignment>> loadExperimentTypesUsingV3WithPropertyAssignments()
     {
+        // We are mixing up v1 and v3 here because using v3 api to get property assignments is easier
+        Map<String, List<PropertyAssignment>> expTypeCodePropAssignmentMap = new HashMap<String, List<PropertyAssignment>>();
         ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
-        SearchResult<ExperimentType> searchResult = v3Api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
-        return searchResult.getObjects();
+        SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType> searchResult =
+                v3Api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType> objects = searchResult.getObjects();
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType experimentType : objects)
+        {
+            expTypeCodePropAssignmentMap.put(experimentType.getCode(), experimentType.getPropertyAssignments());
+        }
+        return expTypeCodePropAssignmentMap;
     }
 
-    private List<MaterialType> getMaterialTypes()
+    private Map<String, List<PropertyAssignment>> loadMaterialTypesUsingV3WithPropertyAssignments()
     {
+        // We are mixing up v1 and v3 here because using v3 api to get property assignments is easier
+        Map<String, List<PropertyAssignment>> matTypeCodePropAssignmentMap = new HashMap<String, List<PropertyAssignment>>();
         MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 
-        SearchResult<MaterialType> searchResult = v3Api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
-        return searchResult.getObjects();
+        SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType> searchResult =
+                v3Api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
+        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType> objects = searchResult.getObjects();
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType materialType : objects)
+        {
+            matTypeCodePropAssignmentMap.put(materialType.getCode(), materialType.getPropertyAssignments());
+        }
+        return matTypeCodePropAssignmentMap;
     }
 
     protected List<String> extractCodes(List<? extends ICodeHolder> codeHolders)
