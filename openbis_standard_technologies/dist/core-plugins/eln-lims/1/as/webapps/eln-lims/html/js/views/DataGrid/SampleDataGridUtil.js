@@ -287,6 +287,7 @@ var SampleDataGridUtil = new function() {
 					objects : dataList,
 					totalCount : result.totalCount
 				});
+				Util.unblockUI();
 			}
 			
 			var fetchOptions = {

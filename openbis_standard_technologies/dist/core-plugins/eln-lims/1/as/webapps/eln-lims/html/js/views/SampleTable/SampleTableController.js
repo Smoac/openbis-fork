@@ -25,7 +25,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 		
 		var callback = function() {
 			_this._sampleTableView.repaint($container);
-			Util.unblockUI();
+			//Util.unblockUI();
 		};
 		
 		if(this._sampleTableModel.experimentIdentifier || projectPermId) {
