@@ -570,7 +570,7 @@ $.extend(Grid.prototype, {
 		
 		if(thisGrid.firstLoad) {
 			$(thisGrid.panel).hide();
-			thisGrid.firstLoad = false;
+			Util.blockUI();
 		}
 		
 		thisGrid.getDataList(function(dataListResult) {
@@ -683,7 +683,12 @@ $.extend(Grid.prototype, {
 				
 				//HACK:	Legacy Hacks no longer needed
 				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
-				$(thisGrid.panel).show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
+				if(thisGrid.firstLoad) {
+					Util.unblockUI();
+					$(thisGrid.panel).show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
+					thisGrid.firstLoad = false;
+				}
+				
 				
 				// HACK: Fix that only works if there is only one table at a time (dont works Safari)
 //				var newWidth = $(".repeater-list-wrapper > .table").width();
