@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
 
 /**
  * 
@@ -82,11 +83,16 @@ public class MasterDataParser
             for (int i = 0; i < vocabNodes.getLength(); i++)
             {
                 Element vocabElement = (Element) vocabNodes.item(i);
-                String code = vocabElement.getAttributes().getNamedItem("code").getTextContent();
+                String code = getAttribute(vocabElement, "code");
                 if (code.startsWith("$"))
                     continue;
                 //TODO complete other attributes
                 IVocabulary newVocabulary = masterDataRegistrationTransaction.getOrCreateNewVocabulary(code);
+                newVocabulary.setDescription(getAttribute(vocabElement, "description"));
+                newVocabulary.setUrlTemplate(getAttribute(vocabElement, "urlTemplate"));
+                newVocabulary.setInternalNamespace(Boolean.valueOf(getAttribute(vocabElement, "internalNamespace")));
+                newVocabulary.setManagedInternally(Boolean.valueOf(getAttribute(vocabElement, "managedInternally")));
+                newVocabulary.setChosenFromList(Boolean.valueOf(getAttribute(vocabElement, "chosenFromList")));
                 vocabularyMap.put(code, newVocabulary);
                 parseVocabularyTerms(vocabElement, newVocabulary);
             }
@@ -99,10 +105,19 @@ public class MasterDataParser
         for (int i = 0; i < termNodes.getLength(); i++)
         {
             Element termElement = (Element) termNodes.item(i);
-            // TODO set other attributes
-            String code = termElement.getAttributes().getNamedItem("code").getTextContent();
-            newVocabulary.addTerm(masterDataRegistrationTransaction.createNewVocabularyTerm(code));
+            String code = getAttribute(termElement, "code");
+            IVocabularyTerm newVocabularyTerm = masterDataRegistrationTransaction.createNewVocabularyTerm(code);
+            newVocabularyTerm.setLabel(getAttribute(termElement, "label"));
+            newVocabularyTerm.setDescription(getAttribute(termElement, "description"));
+            newVocabularyTerm.setOrdinal(Long.valueOf(getAttribute(termElement, "ordinal")));
+            // TODO setUrl?
+            newVocabulary.addTerm(newVocabularyTerm);
         }
+    }
+
+    private String getAttribute(Element termElement, String attr)
+    {
+        return termElement.getAttributes().getNamedItem(attr).getTextContent();
     }
 
     private void parseSampleTypes(NodeList sampleTypesNode)
@@ -114,7 +129,7 @@ public class MasterDataParser
             for (int i = 0; i < sampleTypeNodes.getLength(); i++)
             {
                 Element sampleTypeElement = (Element) sampleTypeNodes.item(i);
-                String code = sampleTypeElement.getAttributes().getNamedItem("code").getTextContent();
+                String code = getAttribute(sampleTypeElement, "code");
                 ISampleType newSampleType = masterDataRegistrationTransaction.getOrCreateNewSampleType(code);
                 newSampleType.setGeneratedCodePrefix("S");
 
@@ -133,18 +148,20 @@ public class MasterDataParser
             {
                 Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
                 // TODO set other attributes
-                String property_type_code = propertyAssignmentElement.getAttributes().getNamedItem("property_type_code").getTextContent();
-                String data_type_code = propertyAssignmentElement.getAttributes().getNamedItem("data_type_code").getTextContent();
+                String property_type_code = getAttribute(propertyAssignmentElement, "property_type_code");
+                String data_type_code = getAttribute(propertyAssignmentElement, "data_type_code");
                 if (property_type_code.startsWith("$"))
                     continue;
-                boolean mandatory = Boolean.valueOf(propertyAssignmentElement.getAttributes().getNamedItem("mandatory").getTextContent());
-                int ordinal = Integer.valueOf(propertyAssignmentElement.getAttributes().getNamedItem("ordinal").getTextContent());
+                boolean mandatory = Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory"));
+                long ordinal = Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal"));
+                String section = getAttribute(propertyAssignmentElement, "section");
 
                 if (propertyTypeMap.get(property_type_code) != null)
                 {
                     IPropertyAssignment assignment =
                             masterDataRegistrationTransaction.assignPropertyType(newSampleType, propertyTypeMap.get(property_type_code));
                     assignment.setMandatory(mandatory);
+                    assignment.setSection(section);
                 }
             }
         }
@@ -159,15 +176,15 @@ public class MasterDataParser
             for (int i = 0; i < propertyTypeNodes.getLength(); i++)
             {
                 Element propertyTypeElement = (Element) propertyTypeNodes.item(i);
-                String code = propertyTypeElement.getAttributes().getNamedItem("code").getTextContent();
+                String code = getAttribute(propertyTypeElement, "code");
                 // TODO handle internal properties
                 if (code.startsWith("$"))
                     continue;
-                String label = propertyTypeElement.getAttributes().getNamedItem("label").getTextContent();
-                String dataType = propertyTypeElement.getAttributes().getNamedItem("dataType").getTextContent();
-                String description = propertyTypeElement.getAttributes().getNamedItem("description").getTextContent();
-                boolean internalNamespace = Boolean.valueOf(propertyTypeElement.getAttributes().getNamedItem("internalNamespace").getTextContent());
-                boolean managedInternally = Boolean.valueOf(propertyTypeElement.getAttributes().getNamedItem("managedInternally").getTextContent());
+                String label = getAttribute(propertyTypeElement, "label");
+                String dataType = getAttribute(propertyTypeElement, "dataType");
+                String description = getAttribute(propertyTypeElement, "description");
+                boolean internalNamespace = Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace"));
+                boolean managedInternally = Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally"));
                 String vocabulary = null;
                 Node namedItem = propertyTypeElement.getAttributes().getNamedItem("vocabulary");
                 if (namedItem != null)
