@@ -79,8 +79,8 @@ class TestCase(systemtest.testcase.TestCase):
         
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
                                   "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
-        monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
-        monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
+        monitor.addNotificationCondition(util.RegexCondition('OPERATION.HarvesterMaintenanceTask'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Saving the timestamp of sync start to file'))
         
         '''read entity graph from datasource'''
         datasource_graph_response = self.getResourceListForComparison('8444', 'harvester1', '123')
@@ -145,8 +145,8 @@ class TestCase(systemtest.testcase.TestCase):
         
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
                                   "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
-        monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetRegistrationTask'))
-        monitor.waitUntilEvent(util.RegexCondition('OPERATION.DataSetRegistrationTask - Saving the timestamp of sync start to file'))
+        monitor.addNotificationCondition(util.RegexCondition('OPERATION.HarvesterMaintenanceTask'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Saving the timestamp of sync start to file'))
         
         '''read entity graph from datasource'''
         datasource_graph_response = self.getResourceListForComparison('8444', 'harvester1', '123')
