@@ -788,7 +788,18 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     public Map<String, String> getServerInformation(String sessionToken)
     {
-        return new HashMap<String, String>();
+        checkSession(sessionToken);
+        Map<String, String> info = new HashMap<String, String>();
+//        info.put("api-version", getMajorVersion() + "." + getMinorVersion());
+//        info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
+//        info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
+//        info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
+//        String disabledText = tryGetDisabledText();
+//        if (disabledText != null)
+//        {
+//            info.put("server-disabled-info", disabledText);
+//        }
+        return info;
     }
 
     @Override
@@ -806,6 +817,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     public int getMinorVersion()
     {
-        return 1;
+        return 2;
     }
 }

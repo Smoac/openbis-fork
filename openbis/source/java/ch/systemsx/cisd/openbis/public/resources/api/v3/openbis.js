@@ -886,6 +886,28 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 		
+		this.getMajorVersion = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getMajorVersion",
+					"params" : []
+				}
+			})
+		}
+		
+		this.getMinorVersion = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getMinorVersion",
+					"params" : []
+				}
+			})
+		}
+		
 		/**
 		 * =======================
 		 * OpenBIS webapp context 
