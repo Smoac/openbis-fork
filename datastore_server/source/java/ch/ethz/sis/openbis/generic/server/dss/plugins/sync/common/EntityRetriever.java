@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.openbis.generic.server;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common;
 
 import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CHILD;
 import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.COMPONENT;
