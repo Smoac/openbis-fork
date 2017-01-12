@@ -30,12 +30,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IEntityType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 
 /**
  * 
@@ -71,7 +76,10 @@ public class MasterDataParser
 
         parseVocabularies(docElement.getElementsByTagName("vocabularies"));
         parsePropertyTypes(docElement.getElementsByTagName("propertyTypes"));
+        parseMaterialTypes(docElement.getElementsByTagName("materialTypes"));
         parseSampleTypes(docElement.getElementsByTagName("sampleTypes"));
+        parseDataSetTypes(docElement.getElementsByTagName("dataSetTypes"));
+        parseExperimentTypes(docElement.getElementsByTagName("experimentTypes"));
     }
 
     private void parseVocabularies(NodeList vocabulariesNode)
@@ -86,12 +94,11 @@ public class MasterDataParser
                 String code = getAttribute(vocabElement, "code");
                 if (code.startsWith("$"))
                     continue;
-                //TODO complete other attributes
                 IVocabulary newVocabulary = masterDataRegistrationTransaction.getOrCreateNewVocabulary(code);
                 newVocabulary.setDescription(getAttribute(vocabElement, "description"));
                 newVocabulary.setUrlTemplate(getAttribute(vocabElement, "urlTemplate"));
-                newVocabulary.setInternalNamespace(Boolean.valueOf(getAttribute(vocabElement, "internalNamespace")));
                 newVocabulary.setManagedInternally(Boolean.valueOf(getAttribute(vocabElement, "managedInternally")));
+                newVocabulary.setInternalNamespace(Boolean.valueOf(getAttribute(vocabElement, "internalNamespace")));
                 newVocabulary.setChosenFromList(Boolean.valueOf(getAttribute(vocabElement, "chosenFromList")));
                 vocabularyMap.put(code, newVocabulary);
                 parseVocabularyTerms(vocabElement, newVocabulary);
@@ -110,7 +117,7 @@ public class MasterDataParser
             newVocabularyTerm.setLabel(getAttribute(termElement, "label"));
             newVocabularyTerm.setDescription(getAttribute(termElement, "description"));
             newVocabularyTerm.setOrdinal(Long.valueOf(getAttribute(termElement, "ordinal")));
-            // TODO setUrl?
+            // TODO setUrl? There is no way to set it
             newVocabulary.addTerm(newVocabularyTerm);
         }
     }
@@ -118,6 +125,42 @@ public class MasterDataParser
     private String getAttribute(Element termElement, String attr)
     {
         return termElement.getAttributes().getNamedItem(attr).getTextContent();
+    }
+
+    private void parseMaterialTypes(NodeList matTypesNode)
+    {
+        if (matTypesNode.getLength() == 1)
+        {
+            Element matTypesElement = (Element) matTypesNode.item(0);
+            NodeList matTypeNodes = matTypesElement.getElementsByTagName("materialType");
+            for (int i = 0; i < matTypeNodes.getLength(); i++)
+            {
+                Element materialTypeElement = (Element) matTypeNodes.item(i);
+                String code = getAttribute(materialTypeElement, "code");
+                IMaterialType materialType = masterDataRegistrationTransaction.getOrCreateNewMaterialType(code);
+                materialType.setDescription(getAttribute(materialTypeElement, "description"));
+
+                handlePropertyAssignments(materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
+            }
+        }
+    }
+
+    private void parseExperimentTypes(NodeList expTypesNode)
+    {
+        if (expTypesNode.getLength() == 1)
+        {
+            Element expTypesElement = (Element) expTypesNode.item(0);
+            NodeList expTypeNodes = expTypesElement.getElementsByTagName("experimentType");
+            for (int i = 0; i < expTypeNodes.getLength(); i++)
+            {
+                Element expTypeElement = (Element) expTypeNodes.item(i);
+                String code = getAttribute(expTypeElement, "code");
+                IExperimentType expType = masterDataRegistrationTransaction.getOrCreateNewExperimentType(code);
+                expType.setDescription(getAttribute(expTypeElement, "description"));
+
+                handlePropertyAssignments(expType, expTypeElement.getElementsByTagName("propertyAssignments"));
+            }
+        }
     }
 
     private void parseSampleTypes(NodeList sampleTypesNode)
@@ -130,15 +173,59 @@ public class MasterDataParser
             {
                 Element sampleTypeElement = (Element) sampleTypeNodes.item(i);
                 String code = getAttribute(sampleTypeElement, "code");
-                ISampleType newSampleType = masterDataRegistrationTransaction.getOrCreateNewSampleType(code);
-                newSampleType.setGeneratedCodePrefix("S");
+                ISampleType sampleType = masterDataRegistrationTransaction.getOrCreateNewSampleType(code);
+                sampleType.setDescription(getAttribute(sampleTypeElement, "description"));
+                sampleType.setListable(Boolean.valueOf(getAttribute(sampleTypeElement, "listable")));
+                sampleType.setShowContainer(Boolean.valueOf(getAttribute(sampleTypeElement, "showContainer")));
+                sampleType.setShowParents(Boolean.valueOf(getAttribute(sampleTypeElement, "showParents")));
+                sampleType.setShowParentMetadata(Boolean.valueOf(getAttribute(sampleTypeElement, "showParentMetadata")));
+                sampleType.setSubcodeUnique(Boolean.valueOf(getAttribute(sampleTypeElement, "subcodeUnique")));
+                sampleType.setAutoGeneratedCode(Boolean.valueOf(getAttribute(sampleTypeElement, "autoGeneratedCode")));
+                sampleType.setGeneratedCodePrefix(getAttribute(sampleTypeElement, "generatedCodePrefix"));
 
-                handlePropertyAssignments(newSampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
+                handlePropertyAssignments(sampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
             }
         }
     }
 
-    private void handlePropertyAssignments(ISampleType newSampleType, NodeList propertyAssignmentsNode)
+    private void parseDataSetTypes(NodeList dataSetTypesNode)
+    {
+        if (dataSetTypesNode.getLength() == 1)
+        {
+            Element dataSetTypesElement = (Element) dataSetTypesNode.item(0);
+            NodeList dataSetTypeNodes = dataSetTypesElement.getElementsByTagName("dataSetType");
+            for (int i = 0; i < dataSetTypeNodes.getLength(); i++)
+            {
+                Element dataSetTypeElement = (Element) dataSetTypeNodes.item(i);
+                String code = getAttribute(dataSetTypeElement, "code");
+                IDataSetType dataSetType = masterDataRegistrationTransaction.getOrCreateNewDataSetType(code);
+                dataSetType.setDescription(getAttribute(dataSetTypeElement, "description"));
+                dataSetType.setDataSetKind(DataSetKind.valueOf(getAttribute(dataSetTypeElement, "dataSetKind")).toString());
+                String mainDataSetPattern = getAttribute(dataSetTypeElement, "mainDataSetPattern");
+                if (mainDataSetPattern.length() < 1)
+                {
+                    dataSetType.setMainDataSetPattern(null);
+                }
+                else
+                {
+                    dataSetType.setMainDataSetPattern(mainDataSetPattern);
+                }
+                if (mainDataSetPattern.length() < 1)
+                {
+                    dataSetType.setMainDataSetPath(null);
+                }
+                else
+                {
+                    dataSetType.setMainDataSetPath(mainDataSetPattern);
+                }
+                dataSetType.setDeletionDisallowed(Boolean.valueOf(getAttribute(dataSetTypeElement, "deletionDisallowed")));
+
+                handlePropertyAssignments(dataSetType, dataSetTypeElement.getElementsByTagName("propertyAssignments"));
+            }
+        }
+    }
+
+    private void handlePropertyAssignments(IEntityType entityType, NodeList propertyAssignmentsNode)
     {
         if (propertyAssignmentsNode.getLength() == 1)
         {
@@ -147,21 +234,18 @@ public class MasterDataParser
             for (int i = 0; i < propertyAssignmentNodes.getLength(); i++)
             {
                 Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
-                // TODO set other attributes
                 String property_type_code = getAttribute(propertyAssignmentElement, "property_type_code");
-                String data_type_code = getAttribute(propertyAssignmentElement, "data_type_code");
+                // TODO handle $ types
                 if (property_type_code.startsWith("$"))
                     continue;
-                boolean mandatory = Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory"));
-                long ordinal = Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal"));
-                String section = getAttribute(propertyAssignmentElement, "section");
-
                 if (propertyTypeMap.get(property_type_code) != null)
                 {
                     IPropertyAssignment assignment =
-                            masterDataRegistrationTransaction.assignPropertyType(newSampleType, propertyTypeMap.get(property_type_code));
-                    assignment.setMandatory(mandatory);
-                    assignment.setSection(section);
+                            masterDataRegistrationTransaction.assignPropertyType(entityType, propertyTypeMap.get(property_type_code));
+                    assignment.setMandatory(Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory")));
+                    assignment.setSection(getAttribute(propertyAssignmentElement, "section"));
+                    assignment.setPositionInForms(Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal")));
+                    assignment.setShownEdit(Boolean.valueOf(getAttribute(propertyAssignmentElement, "showInEdit")));
                 }
             }
         }
