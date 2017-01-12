@@ -92,6 +92,68 @@ public class MasterDataExtractor
 
         // append vocabularies
         List<IVocabularyImmutable> vocabularies = masterDataRegistrationTransaction.listVocabularies();
+        appendVocabularies(doc, rootElement, vocabularies);
+
+        // append property types
+        List<IPropertyTypeImmutable> propertyTypes = masterDataRegistrationTransaction.listPropertyTypes();
+        appendPropertyTypes(doc, rootElement, propertyTypes);
+
+        // append sample types
+        List<ISampleTypeImmutable> sampleTypes = masterDataRegistrationTransaction.listSampleTypes();
+        appendSampleTypes(doc, rootElement, sampleTypes);
+
+        // append experiment types
+        List<IExperimentTypeImmutable> experimentTypes = masterDataRegistrationTransaction.listExperimentTypes();
+        appendExperimentTypes(doc, rootElement, experimentTypes);
+
+        // append data set types
+        List<IDataSetTypeImmutable> dataSetTypes = masterDataRegistrationTransaction.listDataSetTypes();
+        appendDataSetTypes(doc, rootElement, dataSetTypes);
+
+        List<IMaterialTypeImmutable> materialTypes = masterDataRegistrationTransaction.listMaterialTypes();
+        appendMaterialTypes(doc, rootElement, materialTypes);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        DOMSource source = new DOMSource(doc);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        transformer.transform(source, result);
+        return writer.toString();
+    }
+
+    private void appendPropertyTypes(Document doc, Element rootElement, List<IPropertyTypeImmutable> propertyTypes)
+    {
+        if (propertyTypes.size() > 0)
+        {
+            Element propertyTypesElement = doc.createElement("propertyTypes");
+            rootElement.appendChild(propertyTypesElement);
+            for (IPropertyTypeImmutable propertyTypeImmutable : propertyTypes)
+            {
+                Element propertyTypeElement = doc.createElement("propertyType");
+                propertyTypeElement.setAttribute("code", propertyTypeImmutable.getCode());
+                propertyTypeElement.setAttribute("label", propertyTypeImmutable.getLabel());
+                propertyTypeElement.setAttribute("dataType", propertyTypeImmutable.getDataType().name());
+                propertyTypeElement.setAttribute("internalNamespace", String.valueOf(propertyTypeImmutable.isInternalNamespace()));
+                propertyTypeElement.setAttribute("managedInternally", String.valueOf(propertyTypeImmutable.isManagedInternally()));
+                propertyTypeElement.setAttribute("description", propertyTypeImmutable.getDescription());
+                if (propertyTypeImmutable.getDataType().name().equals(DataType.CONTROLLEDVOCABULARY.name()))
+                {
+                    propertyTypeElement.setAttribute("vocabulary", propertyTypeImmutable.getVocabulary().getCode());
+                }
+                else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name())
+                        && propertyTypeImmutable.getMaterialType() != null)
+                {
+                    propertyTypeElement.setAttribute("material", propertyTypeImmutable.getMaterialType().getCode());
+                }
+                propertyTypesElement.appendChild(propertyTypeElement);
+            }
+        }
+    }
+
+    private void appendVocabularies(Document doc, Element rootElement, List<IVocabularyImmutable> vocabularies)
+    {
         if (vocabularies.size() > 0)
         {
             Element vocabsElement = doc.createElement("vocabularies");
@@ -120,53 +182,6 @@ public class MasterDataExtractor
                 }
             }
         }
-
-        // append property types
-        List<IPropertyTypeImmutable> propertyTypes = masterDataRegistrationTransaction.listPropertyTypes();
-        if (propertyTypes.size() > 0)
-        {
-            Element propertyTypesElement = doc.createElement("propertyTypes");
-            rootElement.appendChild(propertyTypesElement);
-            for (IPropertyTypeImmutable propertyTypeImmutable : propertyTypes)
-            {
-                Element propertyTypeElement = doc.createElement("propertyType");
-                propertyTypeElement.setAttribute("code", propertyTypeImmutable.getCode());
-                propertyTypeElement.setAttribute("label", propertyTypeImmutable.getLabel());
-                propertyTypeElement.setAttribute("dataType", propertyTypeImmutable.getDataType().name());
-                propertyTypeElement.setAttribute("internalNamespace", String.valueOf(propertyTypeImmutable.isInternalNamespace()));
-                propertyTypeElement.setAttribute("managedInternally", String.valueOf(propertyTypeImmutable.isManagedInternally()));
-                propertyTypeElement.setAttribute("description", propertyTypeImmutable.getDescription());
-                if (propertyTypeImmutable.getDataType().name().equals(DataType.CONTROLLEDVOCABULARY.name()))
-                {
-                    propertyTypeElement.setAttribute("vocabulary", propertyTypeImmutable.getVocabulary().getCode());
-                }
-                propertyTypesElement.appendChild(propertyTypeElement);
-            }
-        }
-
-        // append sample types
-        List<ISampleTypeImmutable> sampleTypes = masterDataRegistrationTransaction.listSampleTypes();
-        appendSampleTypes(doc, rootElement, sampleTypes);
-
-        // append experiment types
-        List<IExperimentTypeImmutable> experimentTypes = masterDataRegistrationTransaction.listExperimentTypes();
-        appendExperimentTypes(doc, rootElement, experimentTypes);
-
-        // append data set types
-        List<IDataSetTypeImmutable> dataSetTypes = masterDataRegistrationTransaction.listDataSetTypes();
-        appendDataSetTypes(doc, rootElement, dataSetTypes);
-
-        List<IMaterialTypeImmutable> materialTypes = masterDataRegistrationTransaction.listMaterialTypes();
-        appendMaterialTypes(doc, rootElement, materialTypes);
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        DOMSource source = new DOMSource(doc);
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        transformer.transform(source, result);
-        return writer.toString();
     }
 
     private void appendMaterialTypes(Document doc, Element rootElement, List<IMaterialTypeImmutable> materialTypes)
