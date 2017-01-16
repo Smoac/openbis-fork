@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -37,8 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * 
  * @author Izabela Adamczyk
  */
-@Test(groups =
-{ "db", "script" })
+@Test(groups = { "db", "script" })
 @Friend(toClasses = SpacePE.class)
 public final class ScriptDAOTest extends AbstractDAOTest
 {
@@ -46,8 +46,7 @@ public final class ScriptDAOTest extends AbstractDAOTest
     @DataProvider
     private final static Object[][] scriptTypes()
     {
-        return new Object[][]
-        {
+        return new Object[][] {
                 { ScriptType.DYNAMIC_PROPERTY },
                 { ScriptType.MANAGED_PROPERTY }
 
@@ -154,12 +153,19 @@ public final class ScriptDAOTest extends AbstractDAOTest
         int scriptNumber = 1;
         createScriptInDB(scriptType, createScriptName(scriptNumber),
                 createScriptText(scriptNumber), createScriptDescription(scriptNumber), entityKind);
-        final List<ScriptPE> scripts = daoFactory.getScriptDAO().listAllEntities();
-        assertEquals(1 + initialNumberOfScripts, scripts.size());
-        for (ScriptPE s : scripts)
+
+        final List<ScriptPE> allScripts = daoFactory.getScriptDAO().listAllEntities();
+        final List<ScriptPE> sampleCompatibleScripts = new ArrayList<ScriptPE>();
+
+        for (ScriptPE s : allScripts)
         {
-            AssertJUnit.assertTrue(s.getEntityKind() == null || s.getEntityKind() == entityKind);
+            if (s.getEntityKind() == null || s.getEntityKind() == entityKind)
+            {
+                sampleCompatibleScripts.add(s);
+            }
         }
+
+        assertEquals(1 + initialNumberOfScripts, sampleCompatibleScripts.size());
     }
 
     @Test(dataProvider = "scriptTypes")
