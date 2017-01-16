@@ -142,10 +142,16 @@ public class MasterDataExtractor
                 {
                     propertyTypeElement.setAttribute("vocabulary", propertyTypeImmutable.getVocabulary().getCode());
                 }
-                else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name())
-                        && propertyTypeImmutable.getMaterialType() != null)
-                {
-                    propertyTypeElement.setAttribute("material", propertyTypeImmutable.getMaterialType().getCode());
+                else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name())) {
+                    if (propertyTypeImmutable.getMaterialType() != null)
+                    {
+                        propertyTypeElement.setAttribute("material", propertyTypeImmutable.getMaterialType().getCode());
+                    }
+                    else
+                    {
+                        // for properties like "inhibitor_of" where it is of Material of Any Type
+                        propertyTypeElement.setAttribute("material", "");
+                    }
                 }
                 propertyTypesElement.appendChild(propertyTypeElement);
             }
