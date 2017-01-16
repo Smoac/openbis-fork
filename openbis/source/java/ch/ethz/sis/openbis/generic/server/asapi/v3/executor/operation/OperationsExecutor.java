@@ -65,6 +65,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IDeleteProje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSampleTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IDeleteSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IGetSamplesOperationExecutor;
@@ -152,6 +153,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ICreateVocabularyTermsOperationExecutor createVocabularyTermsExecutor;
+
+    @Autowired
+    private ICreateSampleTypesOperationExecutor createSampleTypesExecutor;
 
     @Autowired
     private IUpdateSpacesOperationExecutor updateSpacesExecutor;
@@ -328,7 +332,7 @@ public class OperationsExecutor implements IOperationsExecutor
         }
     }
 
-    private void executeOthers(List<? extends IOperation> operations, 
+    private void executeOthers(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(executeCustomASServiceExecutor.execute(context, operations));
@@ -339,7 +343,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getSessionInformationExecutor.execute(context, operations));
     }
 
-    private void executeSearches(List<? extends IOperation> operations, 
+    private void executeSearches(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(searchSpacesExecutor.execute(context, operations));
@@ -361,7 +365,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
     }
 
-    private void executeGets(List<? extends IOperation> operations, 
+    private void executeGets(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(getSpacesExecutor.execute(context, operations));
@@ -375,7 +379,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));
     }
 
-    private void verify(List<? extends IOperation> operations, 
+    private void verify(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         verifyMaterialsExecutor.verify(context, operations, resultMap);
@@ -384,7 +388,7 @@ public class OperationsExecutor implements IOperationsExecutor
         verifyDataSetsExecutor.verify(context, operations, resultMap);
     }
 
-    private void executeUpdates(List<? extends IOperation> operations, 
+    private void executeUpdates(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
@@ -398,10 +402,11 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateDataSetsExecutor.execute(context, operations));
     }
 
-    private void executeCreations(List<? extends IOperation> operations, 
+    private void executeCreations(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(createSampleTypesExecutor.execute(context, operations));
         resultMap.putAll(createMaterialsExecutor.execute(context, operations));
         resultMap.putAll(createSpacesExecutor.execute(context, operations));
         resultMap.putAll(createProjectsExecutor.execute(context, operations));
@@ -411,7 +416,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createTagsExecutor.execute(context, operations));
     }
 
-    private void executeDeletions(List<? extends IOperation> operations, 
+    private void executeDeletions(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(deleteExperimentsExecutor.execute(context, operations));

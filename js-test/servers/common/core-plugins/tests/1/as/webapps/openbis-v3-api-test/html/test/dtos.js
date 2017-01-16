@@ -329,6 +329,8 @@ var sources = [
 	'as/dto/project/update/UpdateProjectsOperation',
 	'as/dto/project/update/UpdateProjectsOperationResult',
 	
+	'as/dto/property/create/PropertyAssignmentCreation',
+	'as/dto/property/id/PropertyTypePermId',
 	'as/dto/property/fetchoptions/PropertyAssignmentFetchOptions',
 	'as/dto/property/fetchoptions/PropertyAssignmentSortOptions',
 	'as/dto/property/fetchoptions/PropertyFetchOptions',
@@ -338,9 +340,14 @@ var sources = [
 	'as/dto/property/PropertyAssignment',
 	'as/dto/property/PropertyType',
 	
+	'as/dto/plugin/id/PluginPermId',
+	
 	'as/dto/sample/create/SampleCreation',
 	'as/dto/sample/create/CreateSamplesOperation',
 	'as/dto/sample/create/CreateSamplesOperationResult',
+	'as/dto/sample/create/SampleTypeCreation',
+	'as/dto/sample/create/CreateSampleTypesOperation',
+	'as/dto/sample/create/CreateSampleTypesOperationResult',
 	'as/dto/sample/delete/SampleDeletionOptions',
 	'as/dto/sample/delete/DeleteSamplesOperation',
 	'as/dto/sample/delete/DeleteSamplesOperationResult',

@@ -1473,4 +1473,25 @@ PERM_ID
 permId
 type
 TYPE
+createSampleTypes
+CreateSampleTypesOperation
+CreateSampleTypesOperationResult
+getInitialValueForExistingEntities
+getPluginId
+getPropertyTypeId
+getValidationPluginId
+IPluginId
+IPropertyTypeId
+isShowContainer
+isShowParents
+PluginPermId
+PropertyAssignmentCreation
+PropertyTypePermId
+SampleTypeCreation
+setInitialValueForExistingEntities
+setPluginId
+setPropertyTypeId
+setShowContainer
+setShowParents
+setValidationPluginId
 get Server Information

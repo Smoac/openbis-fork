@@ -63,6 +63,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.revert.RevertDeletionsO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.SearchDeletionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.SearchDeletionsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentsOperation;
@@ -150,9 +151,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.UpdateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSampleTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSampleTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.DeleteSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.DeleteSamplesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
@@ -328,6 +332,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             List<SampleCreation> creations)
     {
         CreateSamplesOperationResult result = executeOperation(sessionToken, new CreateSamplesOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
+    @Transactional
+    public List<EntityTypePermId> createSampleTypes(String sessionToken,
+            List<SampleTypeCreation> creations)
+    {
+        CreateSampleTypesOperationResult result = executeOperation(sessionToken, new CreateSampleTypesOperation(creations));
         return result.getObjectIds();
     }
 

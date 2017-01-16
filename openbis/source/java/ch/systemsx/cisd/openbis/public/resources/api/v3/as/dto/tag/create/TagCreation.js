@@ -13,7 +13,6 @@ define([ "stjs" ], function(stjs) {
 		prototype.sampleIds = null;
 		prototype.dataSetIds = null;
 		prototype.materialIds = null;
-		prototype.creationId = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -51,12 +50,6 @@ define([ "stjs" ], function(stjs) {
 		prototype.setMaterialIds = function(materialIds) {
 			this.materialIds = materialIds;
 		};
-		prototype.getCreationId = function() {
-			return this.creationId;
-		};
-		prototype.setCreationId = function(creationId) {
-			this.creationId = creationId;
-		};
 	}, {
 		experimentIds : {
 			name : "List",
@@ -73,8 +66,7 @@ define([ "stjs" ], function(stjs) {
 		materialIds : {
 			name : "List",
 			arguments : [ "Object" ]
-		},
-		creationId : "CreationId"
+		}
 	});
 	return TagCreation;
 })

@@ -97,6 +97,10 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
 		this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
 		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
+		this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
+		this.PropertyTypePermId = dtos.PropertyTypePermId;
+		this.PluginPermId = dtos.PluginPermId;
+		this.SampleTypeCreation = dtos.SampleTypeCreation;
 
 		// operations
 
@@ -114,6 +118,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateProjectsOperation = dtos.CreateProjectsOperation;
 		this.CreateExperimentsOperation = dtos.CreateExperimentsOperation;
 		this.CreateSamplesOperation = dtos.CreateSamplesOperation;
+		this.CreateSampleTypesOperation = dtos.CreateSampleTypesOperation;
 		this.CreateMaterialsOperation = dtos.CreateMaterialsOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
@@ -327,6 +332,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.findSampleType = function(facade, id) {
+			var c = this;
+			var criteria = new c.SampleTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchSampleTypes(criteria, c.createSampleTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
+			});
+		}.bind(this);
+
 		this.findDataSet = function(facade, id) {
 			var c = this;
 			return facade.getDataSets([ id ], c.createDataSetFetchOptions()).then(function(dataSets) {
@@ -514,6 +528,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withModifier();
 			fo.withAttachments().withContent();
 			fo.withChildrenUsing(fo);
+			return fo;
+		};
+
+		this.createSampleTypeFetchOptions = function() {
+			var fo = new dtos.SampleTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
 			return fo;
 		};
 

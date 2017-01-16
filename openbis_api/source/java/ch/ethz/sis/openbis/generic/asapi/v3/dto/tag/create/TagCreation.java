@@ -20,8 +20,6 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
@@ -32,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.tag.create.TagCreation")
-public class TagCreation implements ICreation, ICreationIdHolder, IObjectCreation
+public class TagCreation implements ICreation, IObjectCreation
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,8 +45,6 @@ public class TagCreation implements ICreation, ICreationIdHolder, IObjectCreatio
     private List<? extends IDataSetId> dataSetIds;
 
     private List<? extends IMaterialId> materialIds;
-
-    private CreationId creationId;
 
     public String getCode()
     {
@@ -108,17 +104,6 @@ public class TagCreation implements ICreation, ICreationIdHolder, IObjectCreatio
     public void setMaterialIds(List<? extends IMaterialId> materialIds)
     {
         this.materialIds = materialIds;
-    }
-
-    @Override
-    public CreationId getCreationId()
-    {
-        return creationId;
-    }
-
-    public void setCreationId(CreationId creationId)
-    {
-        this.creationId = creationId;
     }
 
 }

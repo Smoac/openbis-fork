@@ -220,6 +220,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
+		
+		this.createSampleTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createSampleTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
+				}
+			});
+		}
 
 		this.createMaterials = function(creations) {
 			var thisFacade = this;

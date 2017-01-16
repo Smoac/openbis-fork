@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation & ICreationIdHolder, PE extends IIdentityHolder, PERM_ID extends IObjectId>
+public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, PE extends IIdentityHolder, PERM_ID extends IObjectId>
         implements ICreateEntityExecutor<CREATION, PERM_ID>
 {
 
@@ -166,9 +166,13 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation & 
             PERM_ID permId = createPermId(context, entity);
             permIdsAll.add(permId);
 
-            if (creation.getCreationId() != null)
+            if (creation instanceof ICreationIdHolder)
             {
-                creationIdCache.putIds(creation.getCreationId(), permId);
+                ICreationIdHolder creationIdHolder = (ICreationIdHolder) creation;
+                if (creationIdHolder.getCreationId() != null)
+                {
+                    creationIdCache.putIds(creationIdHolder.getCreationId(), permId);
+                }
             }
         }
 
