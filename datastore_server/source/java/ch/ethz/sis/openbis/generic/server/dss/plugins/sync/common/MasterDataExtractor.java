@@ -290,15 +290,15 @@ public class MasterDataExtractor
         Element propertyAssignmentsElement = doc.createElement("propertyAssignments");
         for (PropertyAssignment propAssignment : propertyAssignments)
         {
-            Element propertyAssigmentElement = doc.createElement("propertyAssigment");
-            propertyAssignmentsElement.appendChild(propertyAssigmentElement);
-            propertyAssigmentElement.setAttribute("property_type_code", propAssignment.getPropertyType().getCode());
+            Element propertyAssignmentElement = doc.createElement("propertyAssignment");
+            propertyAssignmentsElement.appendChild(propertyAssignmentElement);
+            propertyAssignmentElement.setAttribute("property_type_code", propAssignment.getPropertyType().getCode());
             // propertyAssigmentElement.setAttribute("data_type_code", propAssignment.getPropertyType().getDataType().toString());
-            propertyAssigmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
-            propertyAssigmentElement.setAttribute("section", propAssignment.getSection());
-            propertyAssigmentElement.setAttribute("showInEdit", String.valueOf(propAssignment.isShowInEditView()));
-            propertyAssigmentElement.setAttribute("mandatory", String.valueOf(propAssignment.isMandatory()));
-            propertyAssigmentElement.setAttribute("showRawValueInForms", String.valueOf(propAssignment.isShowRawValueInForms()));
+            propertyAssignmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
+            propertyAssignmentElement.setAttribute("section", propAssignment.getSection());
+            propertyAssignmentElement.setAttribute("showInEdit", String.valueOf(propAssignment.isShowInEditView()));
+            propertyAssignmentElement.setAttribute("mandatory", String.valueOf(propAssignment.isMandatory()));
+            propertyAssignmentElement.setAttribute("showRawValueInForms", String.valueOf(propAssignment.isShowRawValueInForms()));
         }
         return propertyAssignmentsElement;
     }

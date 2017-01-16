@@ -55,6 +55,10 @@ public class MasterDataParser
 
     private Map<String, IVocabulary> vocabularyMap = new HashMap<String, IVocabulary>();
 
+    private Map<String, IMaterialType> materialTypeMap = new HashMap<String, IMaterialType>();
+
+    private Map<String, NodeList> materialTypePropertyAssignmentsMap = new HashMap<String, NodeList>();
+
     /**
      * @param masterDataRegistrationTransaction
      */
@@ -75,11 +79,21 @@ public class MasterDataParser
         Element docElement = (Element) xdNode;
 
         parseVocabularies(docElement.getElementsByTagName("vocabularies"));
-        parsePropertyTypes(docElement.getElementsByTagName("propertyTypes"));
         parseMaterialTypes(docElement.getElementsByTagName("materialTypes"));
+        parsePropertyTypes(docElement.getElementsByTagName("propertyTypes"));
         parseSampleTypes(docElement.getElementsByTagName("sampleTypes"));
         parseDataSetTypes(docElement.getElementsByTagName("dataSetTypes"));
         parseExperimentTypes(docElement.getElementsByTagName("experimentTypes"));
+        handleMaterialPropertyAssignments();
+
+    }
+
+    private void handleMaterialPropertyAssignments()
+    {
+        for (IMaterialType materialType : materialTypeMap.values())
+        {
+            handlePropertyAssignments(materialType, materialTypePropertyAssignmentsMap.get(materialType.getCode()));
+        }
     }
 
     private void parseVocabularies(NodeList vocabulariesNode)
@@ -139,8 +153,9 @@ public class MasterDataParser
                 String code = getAttribute(materialTypeElement, "code");
                 IMaterialType materialType = masterDataRegistrationTransaction.getOrCreateNewMaterialType(code);
                 materialType.setDescription(getAttribute(materialTypeElement, "description"));
-
-                handlePropertyAssignments(materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
+                materialTypeMap.put(code, materialType);
+                // defer material property assignments until after property types are parsed
+                materialTypePropertyAssignmentsMap.put(code, materialTypeElement.getElementsByTagName("propertyAssignments"));
             }
         }
     }
@@ -230,7 +245,7 @@ public class MasterDataParser
         if (propertyAssignmentsNode.getLength() == 1)
         {
             Element propertyAssignmentsElement = (Element) propertyAssignmentsNode.item(0);
-            NodeList propertyAssignmentNodes = propertyAssignmentsElement.getElementsByTagName("propertyAssigment");
+            NodeList propertyAssignmentNodes = propertyAssignmentsElement.getElementsByTagName("propertyAssignment");
             for (int i = 0; i < propertyAssignmentNodes.getLength(); i++)
             {
                 Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
@@ -269,12 +284,6 @@ public class MasterDataParser
                 String description = getAttribute(propertyTypeElement, "description");
                 boolean internalNamespace = Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace"));
                 boolean managedInternally = Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally"));
-                String vocabulary = null;
-                Node namedItem = propertyTypeElement.getAttributes().getNamedItem("vocabulary");
-                if (namedItem != null)
-                {
-                    vocabulary = namedItem.getTextContent();
-                }
                 
                 IPropertyType newPropertyType = masterDataRegistrationTransaction.getOrCreateNewPropertyType(code, DataType.valueOf(dataType));
                 propertyTypeMap.put(code, newPropertyType);
@@ -282,11 +291,23 @@ public class MasterDataParser
                 newPropertyType.setManagedInternally(managedInternally);
                 newPropertyType.setLabel(label);
                 newPropertyType.setDescription(description);
-                if (vocabulary != null)
+                if (dataType.equals(DataType.CONTROLLEDVOCABULARY.name()))
                 {
-                    newPropertyType.setVocabulary(vocabularyMap.get(vocabulary));
+                    String vocabularyCode = getAttribute(propertyTypeElement, "vocabulary");
+                    newPropertyType.setVocabulary(vocabularyMap.get(vocabularyCode));
                 }
-                // TODO handle the case for property types that are of data type material
+                else if (dataType.equals(DataType.MATERIAL.name()))
+                {
+                    String materialCode = getAttribute(propertyTypeElement, "material");
+                    if (materialCode.trim().length() < 1)
+                    {
+                        newPropertyType.setMaterialType(null); // material of any type
+                    }
+                    else
+                    {
+                        newPropertyType.setMaterialType(materialTypeMap.get(materialCode));
+                    }
+                }
             }
         }
     }
