@@ -22,7 +22,6 @@ import java.util.Map;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 
 /**
  * Abstract class that facilitates the implementations of metadata aware {@link IImageReader}-s.
@@ -40,7 +39,7 @@ public abstract class AbstractMetaDataAwareImageReader extends AbstractImageRead
     public Map<String, Object> readMetaData(File file, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
-        IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
+        IRandomAccessFile raf = createRandomAccessFile(file);
         try
         {
             return readMetaData(raf, imageID, params);
