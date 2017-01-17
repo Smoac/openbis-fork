@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmuta
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTermImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
  * 
@@ -292,7 +293,8 @@ public class MasterDataExtractor
         {
             Element propertyAssignmentElement = doc.createElement("propertyAssignment");
             propertyAssignmentsElement.appendChild(propertyAssignmentElement);
-            propertyAssignmentElement.setAttribute("property_type_code", propAssignment.getPropertyType().getCode());
+            propertyAssignmentElement.setAttribute("property_type_code", CodeConverter.tryToBusinessLayer(propAssignment.getPropertyType().getCode(),
+                    propAssignment.getPropertyType().isInternalNameSpace()));
             // propertyAssigmentElement.setAttribute("data_type_code", propAssignment.getPropertyType().getDataType().toString());
             propertyAssignmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
             propertyAssignmentElement.setAttribute("section", propAssignment.getSection());
