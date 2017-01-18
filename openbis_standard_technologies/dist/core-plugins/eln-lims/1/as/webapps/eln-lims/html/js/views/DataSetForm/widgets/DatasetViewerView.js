@@ -232,7 +232,9 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			return false;
 		}
 		var currentLevel = file.pathInDataSet.split('/').length;
-		if(currentLevel === 2 && file.pathInListing.toUpperCase() !== "DEFAULT") {
+		if(currentLevel === 2 && 
+				file.pathInListing.toUpperCase() !== "DEFAULT" &&
+				!profile.isDatasetTypeCode(file.pathInListing.toUpperCase())) {
 			return false;
 		}
 		return currentLevel < this._level

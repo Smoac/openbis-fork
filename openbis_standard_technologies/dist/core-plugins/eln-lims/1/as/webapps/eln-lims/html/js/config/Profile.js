@@ -160,6 +160,7 @@ $.extend(DefaultProfile.prototype, {
 		this.allVocabularies = [];
 		this.allDataStores = [];
 		this.allPropertyTypes = [];
+		this.allDatasetTypeCodes = [];
 		this.displaySettings = {};
 		
 		this.typePropertiesForSmallTable = {};
@@ -168,6 +169,9 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.isDatasetTypeCode = function(datasetTypeCode) {
+			return ($.inArray(datasetTypeCode, this.allDatasetTypeCodes) !== -1);
+		}
 		this.isSampleTypeProtocol = function(sampleTypeCode) {
 			return ($.inArray(sampleTypeCode, this.sampleTypeProtocols) !== -1);
 		}
@@ -759,18 +763,38 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
+		this.initDatasetTypeCodes = function(callback) {
+			var _this = this;
+			this.serverFacade.listDataSetTypes(function(data) {
+				var dataSetTypes = data.result;
+				for(var i = 0; i < dataSetTypes.length; i++) {
+					var datasetType = dataSetTypes[i];
+					_this.allDatasetTypeCodes.push(datasetType.code);
+				}
+				
+				_this.allDatasetTypeCodes.sort(function(a, b){
+				    if(a < b) return -1;
+				    if(a > b) return 1;
+				    return 0;
+				});
+				
+				callback();
+			});
+		}
+		
 		//
 		// Initializes
 		//
 		this.init = function(callbackWhenDone) {
 			var _this = this;
-			
 			this.initPropertyTypes(function(){
 				_this.initVocabulariesForSampleTypes(function() {
 					_this.initSearchDomains(function() {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
-								callbackWhenDone();
+								_this.initDatasetTypeCodes(function() {
+									callbackWhenDone();
+								});
 							});
 						});
 					});
