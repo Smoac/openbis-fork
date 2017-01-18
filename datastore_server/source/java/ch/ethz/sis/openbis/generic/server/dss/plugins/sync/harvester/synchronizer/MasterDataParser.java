@@ -106,8 +106,6 @@ public class MasterDataParser
             {
                 Element vocabElement = (Element) vocabNodes.item(i);
                 String code = getAttribute(vocabElement, "code");
-                if (code.startsWith("$"))
-                    continue;
                 IVocabulary newVocabulary = masterDataRegistrationTransaction.getOrCreateNewVocabulary(code);
                 newVocabulary.setDescription(getAttribute(vocabElement, "description"));
                 newVocabulary.setUrlTemplate(getAttribute(vocabElement, "urlTemplate"));
@@ -250,9 +248,6 @@ public class MasterDataParser
             {
                 Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
                 String property_type_code = getAttribute(propertyAssignmentElement, "property_type_code");
-                // TODO handle $ types
-                if (property_type_code.startsWith("$"))
-                    continue;
                 if (propertyTypeMap.get(property_type_code) != null)
                 {
                     IPropertyAssignment assignment =
@@ -276,14 +271,11 @@ public class MasterDataParser
             {
                 Element propertyTypeElement = (Element) propertyTypeNodes.item(i);
                 String code = getAttribute(propertyTypeElement, "code");
-                // TODO handle internal properties
-                if (code.startsWith("$"))
-                    continue;
                 String label = getAttribute(propertyTypeElement, "label");
                 String dataType = getAttribute(propertyTypeElement, "dataType");
                 String description = getAttribute(propertyTypeElement, "description");
-                boolean internalNamespace = Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace"));
                 boolean managedInternally = Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally"));
+                boolean internalNamespace = Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace"));
                 
                 IPropertyType newPropertyType = masterDataRegistrationTransaction.getOrCreateNewPropertyType(code, DataType.valueOf(dataType));
                 propertyTypeMap.put(code, newPropertyType);
