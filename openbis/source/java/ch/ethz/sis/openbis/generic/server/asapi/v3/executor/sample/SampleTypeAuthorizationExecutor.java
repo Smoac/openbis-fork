@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * @author pkupczyk
@@ -42,7 +41,9 @@ public class SampleTypeAuthorizationExecutor implements ISampleTypeAuthorization
     }
 
     @Override
-    public void canCreate(IOperationContext context, SampleTypePE sample)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_SAMPLE_TYPE")
+    public void canSearch(IOperationContext context)
     {
     }
 

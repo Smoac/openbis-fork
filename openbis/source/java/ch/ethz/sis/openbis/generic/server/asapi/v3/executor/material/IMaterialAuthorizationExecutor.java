@@ -43,6 +43,4 @@ public interface IMaterialAuthorizationExecutor extends IObjectAuthorizationExec
 
     void canSearch(IOperationContext context);
 
-    void canSearchType(IOperationContext context);
-
 }

@@ -7195,8 +7195,8 @@ SELECT pg_catalog.setval('script_id_seq', 2, true);
 --
 
 COPY scripts (id, name, script_type, description, script, registration_timestamp, pers_id_registerer, entity_kind, plugin_type, is_available) FROM stdin;
-1	Diff_time	DYNAMIC_PROPERTY	Calculates the difference of two given dates	from datetime import datetime\n\ndef dateTimeSplitter(openbisDate):\n  dateAndTime, tz = openbisDate.rsplit(" ", 1)\n  pythonDateTime = datetime.strptime(dateAndTime, "%Y-%m-%d %H:%M:%S")  \n  return pythonDateTime\n\ndef calculate():\n  \n  try:\n    start = dateTimeSplitter(entity.propertyValue('FLOW_CELL_SEQUENCED_ON'))\n    end = dateTimeSplitter(entity.propertyValue('SEQUENCER_FINISHED'))\n    diffTime = end-start\n    return str(diffTime)\n  except:\n    return "N/A"\n	2013-04-12 10:04:56.658885+02	1	SAMPLE	JYTHON	t
-2	Has_Parents	ENTITY_VALIDATION	Check if the Entity has a parent	def validate(entity, isNew):\n  parents = entity.entityPE().parents\n  if parents:\n    return None\n  else:\n    return "No Parents have been selected!"\n	2013-04-12 10:04:56.658885+02	1	SAMPLE	JYTHON	t
+1	Diff_time	DYNAMIC_PROPERTY	Calculates the difference of two given dates	from datetime import datetime\n\ndef dateTimeSplitter(openbisDate):\n  dateAndTime, tz = openbisDate.rsplit(" ", 1)\n  pythonDateTime = datetime.strptime(dateAndTime, "%Y-%m-%d %H:%M:%S")  \n  return pythonDateTime\n\ndef calculate():\n  \n  try:\n    start = dateTimeSplitter(entity.propertyValue('FLOW_CELL_SEQUENCED_ON'))\n    end = dateTimeSplitter(entity.propertyValue('SEQUENCER_FINISHED'))\n    diffTime = end-start\n    return str(diffTime)\n  except:\n    return "N/A"\n	2013-04-12 10:04:56.658885+02	1	\N	JYTHON	t
+2	Has_Parents	ENTITY_VALIDATION	Check if the Entity has a parent	def validate(entity, isNew):\n  parents = entity.entityPE().parents\n  if parents:\n    return None\n  else:\n    return "No Parents have been selected!"\n	2013-04-12 10:04:56.658885+02	1	\N	JYTHON	t
 \.
 
 

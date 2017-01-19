@@ -95,8 +95,9 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet dataSetIds);
 
-    @Select(sql = "select dt.id, dt.code, dt.data_set_kind as kind, dt.description, dt.modification_timestamp as modificationDate from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select dt.id, dt.code, dt.data_set_kind as kind, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
+            + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetTypeBaseRecord> getTypes(LongSet dataSetTypeIds);
 
     // PropertyQueryGenerator was used to generate this query
@@ -130,7 +131,7 @@ public interface DataSetQuery extends ObjectQuery
             + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
             + "from data_set_relationships_history drh where drh.valid_until_timestamp is not null and drh.main_data_id = any(?{1})", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds);
 
     @Select(sql = "select ds_id from post_registration_dataset_queue where ds_id = any(?{1})", parameterBindings = {
@@ -152,25 +153,25 @@ public interface DataSetQuery extends ObjectQuery
     @Select(sql = "select dr.data_id_child as objectId, dr.data_id_parent as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'PARENT_CHILD' and dr.data_id_child = any(?{1}) order by dr.ordinal", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getParentIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_parent as objectId, dr.data_id_child as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'PARENT_CHILD' and dr.data_id_parent = any(?{1}) order by dr.ordinal", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getChildIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_child as objectId, dr.data_id_parent as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'CONTAINER_COMPONENT' and dr.data_id_child = any(?{1}) order by dr.ordinal", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getContainerIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_parent as objectId, dr.data_id_child as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'CONTAINER_COMPONENT' and dr.data_id_parent = any(?{1}) order by dr.ordinal", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getComponentIds(LongSet dataSetIds);
 
     @Select(sql = "select ma.data_id as objectId, ma.mepr_id as relatedId from metaproject_assignments ma where ma.data_id = any(?{1})", parameterBindings = {
@@ -185,8 +186,8 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getModifierIds(LongSet dataSetIds);
 
-    @Select(sql = "select dsty_id as objectId, id as relatedId from data_set_type_property_types where dsty_id = any(?{1})",
-            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select dsty_id as objectId, id as relatedId from data_set_type_property_types where dsty_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet dataSetTypeIds);
 
     @Select(sql = "select * from data_set_type_property_types where id = any(?{1})", parameterBindings = {

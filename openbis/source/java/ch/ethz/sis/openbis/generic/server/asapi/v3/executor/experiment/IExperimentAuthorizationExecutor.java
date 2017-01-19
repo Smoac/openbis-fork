@@ -43,6 +43,4 @@ public interface IExperimentAuthorizationExecutor extends IObjectAuthorizationEx
 
     void canSearch(IOperationContext context);
 
-    void canSearchType(IOperationContext context);
-
 }

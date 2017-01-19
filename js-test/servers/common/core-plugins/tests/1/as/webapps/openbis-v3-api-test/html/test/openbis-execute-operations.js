@@ -93,9 +93,13 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		this.createSamples = function(creations) {
 			return this._executeCreateOperation(new c.CreateSamplesOperation(creations));
 		}
-		
+
 		this.createSampleTypes = function(creations) {
 			return this._executeCreateOperation(new c.CreateSampleTypesOperation(creations));
+		}
+
+		this.createDataSetTypes = function(creations) {
+			return this._executeCreateOperation(new c.CreateDataSetTypesOperation(creations));
 		}
 
 		this.createMaterials = function(creations) {

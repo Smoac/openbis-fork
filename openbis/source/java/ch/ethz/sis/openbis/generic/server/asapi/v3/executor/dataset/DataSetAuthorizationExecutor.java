@@ -144,13 +144,6 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("SEARCH_DATASET_TYPE")
-    public void canSearchType(IOperationContext context)
-    {
-    }
-
-    @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("ARCHIVE_DATASET")
     public void canArchive(IOperationContext context)

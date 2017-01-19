@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IArchiveDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IDeleteDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IGetDataSetsOperationExecutor;
@@ -156,6 +157,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ICreateSampleTypesOperationExecutor createSampleTypesExecutor;
+
+    @Autowired
+    private ICreateDataSetTypesOperationExecutor createDataSetTypesExecutor;
 
     @Autowired
     private IUpdateSpacesOperationExecutor updateSpacesExecutor;
@@ -407,6 +411,7 @@ public class OperationsExecutor implements IOperationsExecutor
     {
         resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(createSampleTypesExecutor.execute(context, operations));
+        resultMap.putAll(createDataSetTypesExecutor.execute(context, operations));
         resultMap.putAll(createMaterialsExecutor.execute(context, operations));
         resultMap.putAll(createSpacesExecutor.execute(context, operations));
         resultMap.putAll(createProjectsExecutor.execute(context, operations));

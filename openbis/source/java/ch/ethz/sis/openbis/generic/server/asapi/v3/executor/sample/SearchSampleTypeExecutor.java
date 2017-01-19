@@ -40,12 +40,12 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
 {
 
     @Autowired
-    private ISampleAuthorizationExecutor authorizationExecutor;
+    private ISampleTypeAuthorizationExecutor authorizationExecutor;
 
     @Override
     public List<SampleTypePE> search(IOperationContext context, SampleTypeSearchCriteria criteria)
     {
-        authorizationExecutor.canSearchType(context);
+        authorizationExecutor.canSearch(context);
         return super.search(context, criteria);
     }
 

@@ -11,6 +11,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.Attachme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
@@ -159,7 +160,7 @@ public class AbstractGenerator
 
     public static void addDescription(DtoGenerator gen)
     {
-        gen.addSimpleField(String.class, "description");
+        gen.addSimpleField(String.class, "description").withInterface(IDescriptionHolder.class);
     }
 
 }

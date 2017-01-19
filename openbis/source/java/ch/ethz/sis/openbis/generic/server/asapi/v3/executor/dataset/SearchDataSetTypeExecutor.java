@@ -36,12 +36,12 @@ public class SearchDataSetTypeExecutor extends AbstractSearchEntityTypeExecutor<
 {
 
     @Autowired
-    private IDataSetAuthorizationExecutor authorizationExecutor;
+    private IDataSetTypeAuthorizationExecutor authorizationExecutor;
 
     @Override
     public List<DataSetTypePE> search(IOperationContext context, DataSetTypeSearchCriteria criteria)
     {
-        authorizationExecutor.canSearchType(context);
+        authorizationExecutor.canSearch(context);
         return super.search(context, criteria);
     }
 

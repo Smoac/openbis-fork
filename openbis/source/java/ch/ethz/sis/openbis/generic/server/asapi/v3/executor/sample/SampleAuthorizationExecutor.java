@@ -103,11 +103,4 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     {
     }
 
-    @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("SEARCH_SAMPLE_TYPE")
-    public void canSearchType(IOperationContext context)
-    {
-    }
-
 }

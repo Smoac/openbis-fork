@@ -36,12 +36,12 @@ public class SearchExperimentTypeExecutor extends AbstractSearchEntityTypeExecut
 {
 
     @Autowired
-    private IExperimentAuthorizationExecutor authorizationExecutor;
+    private IExperimentTypeAuthorizationExecutor authorizationExecutor;
 
     @Override
     public List<ExperimentTypePE> search(IOperationContext context, ExperimentTypeSearchCriteria criteria)
     {
-        authorizationExecutor.canSearchType(context);
+        authorizationExecutor.canSearch(context);
         return super.search(context, criteria);
     }
 

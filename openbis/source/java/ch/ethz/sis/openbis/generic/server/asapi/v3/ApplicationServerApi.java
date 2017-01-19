@@ -33,9 +33,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.ArchiveDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DeleteDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DeleteDataSetsOperationResult;
@@ -349,6 +352,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> creations)
     {
         CreateDataSetsOperationResult result = executeOperation(sessionToken, new CreateDataSetsOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
+    public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> creations)
+    {
+        CreateDataSetTypesOperationResult result = executeOperation(sessionToken, new CreateDataSetTypesOperation(creations));
         return result.getObjectIds();
     }
 
@@ -803,15 +813,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         checkSession(sessionToken);
         Map<String, String> info = new HashMap<String, String>();
-//        info.put("api-version", getMajorVersion() + "." + getMinorVersion());
-//        info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
-//        info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
-//        info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
-//        String disabledText = tryGetDisabledText();
-//        if (disabledText != null)
-//        {
-//            info.put("server-disabled-info", disabledText);
-//        }
+        // info.put("api-version", getMajorVersion() + "." + getMinorVersion());
+        // info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
+        // info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
+        // info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
+        // String disabledText = tryGetDisabledText();
+        // if (disabledText != null)
+        // {
+        // info.put("server-disabled-info", disabledText);
+        // }
         return info;
     }
 

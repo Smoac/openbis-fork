@@ -135,7 +135,7 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 		this.loginFromContext = function() {
 			this._private.sessionToken = this.getWebAppContext().getSessionId();
 		}
-		
+
 		this.logout = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -220,13 +220,28 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
-		
+
 		this.createSampleTypes = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "createSampleTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
+				}
+			});
+		}
+
+		this.createDataSetTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createDataSetTypes",
 					"params" : [ thisFacade._private.sessionToken, creations ]
 				},
 				returnType : {
@@ -889,18 +904,18 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
-		
+
 		this.getServerInformation = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "getServerInformation",
-					"params" : [ thisFacade._private.sessionToken]
+					"params" : [ thisFacade._private.sessionToken ]
 				}
 			});
 		}
-		
+
 		this.getMajorVersion = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -911,7 +926,7 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			})
 		}
-		
+
 		this.getMinorVersion = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -922,7 +937,7 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			})
 		}
-		
+
 		/**
 		 * =======================
 		 * OpenBIS webapp context 
@@ -934,22 +949,22 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 		 * 
 		 */
 		var openbisWebAppContext = function() {
-			this.getWebAppParameter = function(parameterName){
-				var match = location.search.match(RegExp("[?|&]"+parameterName+'=(.+?)(&|$)'));
-				if(match && match[1]){
-					return decodeURIComponent(match[1].replace(/\+/g,' '));
-				}else{
+			this.getWebAppParameter = function(parameterName) {
+				var match = location.search.match(RegExp("[?|&]" + parameterName + '=(.+?)(&|$)'));
+				if (match && match[1]) {
+					return decodeURIComponent(match[1].replace(/\+/g, ' '));
+				} else {
 					return null;
 				}
 			}
-			
+
 			this.webappCode = this.getWebAppParameter("webapp-code");
 			this.sessionId = this.getWebAppParameter("session-id");
 			this.entityKind = this.getWebAppParameter("entity-kind");
 			this.entityType = this.getWebAppParameter("entity-type");
 			this.entityIdentifier = this.getWebAppParameter("entity-identifier");
 			this.entityPermId = this.getWebAppParameter("entity-perm-id");
-			
+
 			this.getWebappCode = function() {
 				return this.webappCode;
 			}
@@ -978,7 +993,7 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				return this.getParameter(parameterName);
 			}
 		}
-		
+
 		this.getWebAppContext = function() {
 			return new openbisWebAppContext();
 		}

@@ -1495,3 +1495,15 @@ setShowContainer
 setShowParents
 setValidationPluginId
 get Server Information
+createDataSetTypes
+CreateDataSetTypesOperation
+CreateDataSetTypesOperationResult
+DataSetTypeCreation
+getMainDataSetPath
+getMainDataSetPattern
+IDescriptionHolder
+IEntityTypeCreation
+isDisallowDeletion
+setDisallowDeletion
+setMainDataSetPath
+setMainDataSetPattern

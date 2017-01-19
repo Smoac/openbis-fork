@@ -103,11 +103,4 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     {
     }
 
-    @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("SEARCH_EXPERIMENT_TYPE")
-    public void canSearchType(IOperationContext context)
-    {
-    }
-
 }

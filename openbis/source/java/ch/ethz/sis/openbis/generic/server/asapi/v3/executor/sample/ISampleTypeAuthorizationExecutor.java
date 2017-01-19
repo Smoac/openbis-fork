@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * @author pkupczyk
@@ -28,6 +27,6 @@ public interface ISampleTypeAuthorizationExecutor extends IObjectAuthorizationEx
 
     void canCreate(IOperationContext context);
 
-    void canCreate(IOperationContext context, SampleTypePE sampleType);
+    void canSearch(IOperationContext context);
 
 }

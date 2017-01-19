@@ -36,12 +36,12 @@ public class SearchMaterialTypeExecutor extends AbstractSearchEntityTypeExecutor
 {
 
     @Autowired
-    private IMaterialAuthorizationExecutor authorizationExecutor;
+    private IMaterialTypeAuthorizationExecutor authorizationExecutor;
 
     @Override
     public List<MaterialTypePE> search(IOperationContext context, MaterialTypeSearchCriteria criteria)
     {
-        authorizationExecutor.canSearchType(context);
+        authorizationExecutor.canSearch(context);
         return super.search(context, criteria);
     }
 

@@ -31,6 +31,12 @@ public class DataSetTypeBaseRecord extends ObjectBaseRecord
     public String kind;
 
     public String description;
+    
+    public String mainDataSetPattern;
+    
+    public String mainDataSetPath;
+    
+    public Boolean disallowDeletion;
 
     public Date modificationDate;
 

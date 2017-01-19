@@ -91,11 +91,4 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     {
     }
 
-    @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("SEARCH_MATERIAL_TYPE")
-    public void canSearchType(IOperationContext context)
-    {
-    }
-
 }

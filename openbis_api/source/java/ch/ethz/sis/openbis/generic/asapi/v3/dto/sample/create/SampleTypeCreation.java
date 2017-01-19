@@ -18,8 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create;
 
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,7 +27,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.sample.create.SampleTypeCreation")
-public class SampleTypeCreation implements ICreation, IObjectCreation
+public class SampleTypeCreation implements IEntityTypeCreation
 {
 
     private static final long serialVersionUID = 1L;
@@ -55,11 +54,13 @@ public class SampleTypeCreation implements ICreation, IObjectCreation
 
     private List<PropertyAssignmentCreation> propertyAssignments;
 
+    @Override
     public String getCode()
     {
         return code;
     }
 
+    @Override
     public void setCode(String code)
     {
         this.code = code;
@@ -95,11 +96,13 @@ public class SampleTypeCreation implements ICreation, IObjectCreation
         this.subcodeUnique = subcodeUnique;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
     }
 
+    @Override
     public void setDescription(String description)
     {
         this.description = description;
@@ -145,21 +148,25 @@ public class SampleTypeCreation implements ICreation, IObjectCreation
         this.showParentMetadata = showParentMetadata;
     }
 
+    @Override
     public IPluginId getValidationPluginId()
     {
         return validationPluginId;
     }
 
+    @Override
     public void setValidationPluginId(IPluginId validationPluginId)
     {
         this.validationPluginId = validationPluginId;
     }
 
+    @Override
     public List<PropertyAssignmentCreation> getPropertyAssignments()
     {
         return propertyAssignments;
     }
 
+    @Override
     public void setPropertyAssignments(List<PropertyAssignmentCreation> propertyAssignments)
     {
         this.propertyAssignments = propertyAssignments;

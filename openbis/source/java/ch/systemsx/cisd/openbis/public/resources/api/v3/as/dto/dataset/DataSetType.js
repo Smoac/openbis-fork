@@ -13,6 +13,9 @@ define([ "stjs" ], function(stjs) {
 		prototype.kind = null;
 		prototype.code = null;
 		prototype.description = null;
+		prototype.mainDataSetPattern = null;
+		prototype.mainDataSetPath = null;
+		prototype.disallowDeletion = null;
 		prototype.modificationDate = null;
 		prototype.propertyAssignments = null;
 		prototype.getPropertyAssignments = function() {
@@ -54,6 +57,24 @@ define([ "stjs" ], function(stjs) {
 		};
 		prototype.setDescription = function(description) {
 			this.description = description;
+		};
+		prototype.getMainDataSetPattern = function() {
+			return this.mainDataSetPattern;
+		};
+		prototype.setMainDataSetPattern = function(mainDataSetPattern) {
+			this.mainDataSetPattern = mainDataSetPattern;
+		};
+		prototype.getMainDataSetPath = function() {
+			return this.mainDataSetPath;
+		};
+		prototype.setMainDataSetPath = function(mainDataSetPath) {
+			this.mainDataSetPath = mainDataSetPath;
+		};
+		prototype.isDisallowDeletion = function() {
+			return this.disallowDeletion;
+		};
+		prototype.setDisallowDeletion = function(disallowDeletion) {
+			this.disallowDeletion = disallowDeletion;
 		};
 		prototype.getModificationDate = function() {
 			return this.modificationDate;

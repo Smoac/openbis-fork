@@ -307,6 +307,9 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(DataSetKind.class, "kind");
         addCode(gen);
         addDescription(gen);
+        gen.addStringField("mainDataSetPattern");
+        gen.addStringField("mainDataSetPath");
+        gen.addBooleanField("disallowDeletion");
         addModificationDate(gen);
 
         gen.setToStringMethod("\"DataSetType \" + code");
