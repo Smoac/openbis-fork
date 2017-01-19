@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.INTERNAL_NAMESPACE_PREFIX;
+
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -132,8 +134,12 @@ public class MasterDataExtractor
             rootElement.appendChild(propertyTypesElement);
             for (IPropertyTypeImmutable propertyTypeImmutable : propertyTypes)
             {
+                String code =
+                        (propertyTypeImmutable.isInternalNamespace()
+                        && propertyTypeImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX)) ? CodeConverter.tryToDatabase(propertyTypeImmutable
+                                .getCode()) : propertyTypeImmutable.getCode();
                 Element propertyTypeElement = doc.createElement("propertyType");
-                propertyTypeElement.setAttribute("code", propertyTypeImmutable.getCode());
+                propertyTypeElement.setAttribute("code", code);
                 propertyTypeElement.setAttribute("label", propertyTypeImmutable.getLabel());
                 propertyTypeElement.setAttribute("dataType", propertyTypeImmutable.getDataType().name());
                 propertyTypeElement.setAttribute("internalNamespace", String.valueOf(propertyTypeImmutable.isInternalNamespace()));
@@ -168,7 +174,10 @@ public class MasterDataExtractor
             for (IVocabularyImmutable vocabImmutable : vocabularies)
             {
                 Element vocabElement = doc.createElement("vocabulary");
-                vocabElement.setAttribute("code", vocabImmutable.getCode());
+                String code = vocabImmutable.isInternalNamespace()
+                        && vocabImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX) ? CodeConverter.tryToDatabase(vocabImmutable.getCode())
+                                : vocabImmutable.getCode();
+                vocabElement.setAttribute("code", code);
                 vocabElement.setAttribute("description", vocabImmutable.getDescription());
                 vocabElement.setAttribute("urlTemplate", vocabImmutable.getUrlTemplate());
                 vocabElement.setAttribute("managedInternally", String.valueOf(vocabImmutable.isManagedInternally()));
