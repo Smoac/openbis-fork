@@ -52,6 +52,12 @@ function NewProductsController() {
 							QUANTITY_OF_ITEMS : $($($productProperties[5]).children()[0]).val()
 						}
 				}
+				if(!newProduct.properties.CURRENCY) {
+					delete newProduct.properties.CURRENCY;
+				}
+				if(!newProduct.properties.PRICE_PER_UNIT) {
+					delete newProduct.properties.PRICE_PER_UNIT;
+				}
 				products.push(newProduct);
 				nextCodeNumber++;
 			}

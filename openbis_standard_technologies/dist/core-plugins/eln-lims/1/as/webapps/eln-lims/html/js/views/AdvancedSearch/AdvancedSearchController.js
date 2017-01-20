@@ -56,8 +56,14 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 						}
 					}
 					
+					if(!entity) {
+						continue;
+					}
+					
 					//properties
-					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					if(entity["@type"]) {
+						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					}
 					
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
@@ -122,6 +128,14 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 					case "code":
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "code";
+						break;
+					case "identifier":
+						fetchOptions.sort.type = "Attribute";
+						fetchOptions.sort.name = "identifier";
+						break;
+					case "entityType":
+						fetchOptions.sort.type = "Attribute";
+						fetchOptions.sort.name = "type";
 						break;
 					case "registrationDate":
 						fetchOptions.sort.type = "Attribute";

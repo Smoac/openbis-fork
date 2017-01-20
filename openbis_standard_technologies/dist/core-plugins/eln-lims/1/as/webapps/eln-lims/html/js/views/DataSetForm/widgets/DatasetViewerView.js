@@ -231,6 +231,10 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		if (file.isDirectory == false) {
 			return false;
 		}
-		return file.pathInDataSet.split('/').length < this._level
+		var currentLevel = file.pathInDataSet.split('/').length;
+		if(currentLevel === 2 && file.pathInListing.toUpperCase() !== "DEFAULT") {
+			return false;
+		}
+		return currentLevel < this._level
 	}
 }

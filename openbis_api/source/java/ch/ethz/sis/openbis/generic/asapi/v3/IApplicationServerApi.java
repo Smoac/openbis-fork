@@ -262,4 +262,5 @@ public interface IApplicationServerApi extends IRpcService
 
     public void unarchiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options);
 
+    public Map<String, String> getServerInformation(String sessionToken);
 }

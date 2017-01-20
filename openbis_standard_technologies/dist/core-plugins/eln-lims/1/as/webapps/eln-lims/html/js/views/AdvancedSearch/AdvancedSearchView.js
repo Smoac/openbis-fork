@@ -452,14 +452,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Type',
 				property : 'entityType',
 				isExportable: true,
-				sortable : false
+				sortable : !isGlobalSearch
 			}, {
 				label : 'Name',
 				property : 'NAME',
 				isExportable: true,
 				sortable : !isGlobalSearch,
 				render : function(data) {
-					return getLinkOnClick(data.NAME, data);
+					if(data.NAME) {
+						return getLinkOnClick(data.NAME, data);
+					} else {
+						return "";
+					}
 				}
 			}, {
 				label : 'Code',
@@ -473,7 +477,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Identifier',
 				property : 'identifier',
 				isExportable: true,
-				sortable : false,
+				sortable : !isGlobalSearch,
 				render : function(data) {
 					return getLinkOnClick(data.identifier, data);
 				}

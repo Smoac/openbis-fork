@@ -535,4 +535,10 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
+    public Map<String, String> getServerInformation(String sessionToken)
+    {
+        logAccess(sessionToken, "server-info");
+        return null;
+    }
 }
