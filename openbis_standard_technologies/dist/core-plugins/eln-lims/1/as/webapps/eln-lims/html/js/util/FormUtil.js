@@ -627,7 +627,8 @@ var FormUtil = new function() {
 		if (propertyType.dataType === "BOOLEAN") {
 			$component = this._getBooleanField(propertyType.code, propertyType.description);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			$component = this._getDropDownFieldForVocabulary(propertyType.code, propertyType.vocabulary.terms, propertyType.description, propertyType.mandatory);
+			var vocabulary = profile.getVocabularyByCode(propertyType.vocabulary.code);
+			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "HYPERLINK") {
 			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "INTEGER") {

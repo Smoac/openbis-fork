@@ -132,6 +132,10 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			}));
 		}
 
+		this.loginFromContext = function() {
+			this._private.sessionToken = this.getWebAppContext().getSessionId();
+		}
+		
 		this.logout = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -810,7 +814,98 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
+		this.getServerInfo = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getServerInfo",
+					"params" : [ thisFacade._private.sessionToken]
+				}
+			});
+		}
+		
+		this.getMajorVersion = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getMajorVersion",
+					"params" : []
+				}
+			})
+		}
+		
+		this.getMinorVersion = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getMinorVersion",
+					"params" : []
+				}
+			})
+		}
+		
+		/**
+		 * =======================
+		 * OpenBIS webapp context 
+		 * =======================
+		 * 
+		 * Provides a context information for webapps that are embedded inside the OpenBIS UI.
+		 * 
+		 * @class
+		 * 
+		 */
+		var openbisWebAppContext = function() {
+			this.getWebAppParameter = function(parameterName){
+				var match = location.search.match(RegExp("[?|&]"+parameterName+'=(.+?)(&|$)'));
+				if(match && match[1]){
+					return decodeURIComponent(match[1].replace(/\+/g,' '));
+				}else{
+					return null;
+				}
+			}
+			
+			this.webappCode = this.getWebAppParameter("webapp-code");
+			this.sessionId = this.getWebAppParameter("session-id");
+			this.entityKind = this.getWebAppParameter("entity-kind");
+			this.entityType = this.getWebAppParameter("entity-type");
+			this.entityIdentifier = this.getWebAppParameter("entity-identifier");
+			this.entityPermId = this.getWebAppParameter("entity-perm-id");
+			
+			this.getWebappCode = function() {
+				return this.webappCode;
+			}
 
+			this.getSessionId = function() {
+				return this.sessionId;
+			}
+
+			this.getEntityKind = function() {
+				return this.entityKind;
+			}
+
+			this.getEntityType = function() {
+				return this.entityType;
+			}
+
+			this.getEntityIdentifier = function() {
+				return this.entityIdentifier;
+			}
+
+			this.getEntityPermId = function() {
+				return this.entityPermId;
+			}
+
+			this.getParameter = function(parameterName) {
+				return this.getParameter(parameterName);
+			}
+		}
+		
+		this.getWebAppContext = function() {
+			return new openbisWebAppContext();
+		}
 	}
 
 	return facade;

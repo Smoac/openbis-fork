@@ -86,5 +86,3 @@ else
   exit 1
 fi
 
-
-$BASE/allup.sh

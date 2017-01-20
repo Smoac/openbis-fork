@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss;
+package ch.systemsx.cisd.plasmid;
 
 import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 

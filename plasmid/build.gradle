@@ -26,6 +26,18 @@ sourceSets {
     }
 }
 
+jar {
+    manifest {
+        attributes("Main-Class": "ch.systemsx.cisd.plasmid.BuildAndEnvironmentInfo",
+                   "Version": versionNumber,
+                   "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})")
+    }
+    
+    from('targets/dist') {
+        include 'BUILD-*'
+    }
+}
+
 task plasmidZip(type: Zip) {
 	baseName 'datastore_server_plugin-plasmid'
 	from (jar.archivePath) {

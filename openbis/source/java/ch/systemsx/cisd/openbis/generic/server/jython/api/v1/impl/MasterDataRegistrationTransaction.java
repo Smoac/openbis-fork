@@ -88,7 +88,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
 
     private final MasterDataTransactionErrors transactionErrors = new MasterDataTransactionErrors();
 
-    MasterDataRegistrationTransaction(EncapsulatedCommonServer commonServer)
+    public MasterDataRegistrationTransaction(EncapsulatedCommonServer commonServer)
     {
         this.commonServer = commonServer;
     }
@@ -499,7 +499,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return commonServer.listExternalDataManagementSystems();
     }
 
-    void commit()
+    public void commit()
     {
         registerFileFormatTypes(createdFileTypes);
         registerVocabularies(createdVocabularies);

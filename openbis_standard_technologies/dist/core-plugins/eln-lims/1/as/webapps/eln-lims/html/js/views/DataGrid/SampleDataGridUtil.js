@@ -8,7 +8,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Identifier',
 			property : 'identifier',
 			isExportable: true,
-			sortable : false,
+			sortable : true,
 			render : function(data) {
 				return (isLinksDisabled)?data.identifier:FormUtil.getFormLink(data.identifier, "Sample", data.permId);
 			},
@@ -31,10 +31,10 @@ var SampleDataGridUtil = new function() {
 		});
 		
 		columnsFirst.push({
-			label : 'Sample Type',
+			label : 'Type',
 			property : 'sampleTypeCode',
 			isExportable: false,
-			sortable : false
+			sortable : true
 		});
 		
 		columnsFirst.push({
@@ -326,10 +326,17 @@ var SampleDataGridUtil = new function() {
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "code";
 						break;
+					case "identifier":
+						fetchOptions.sort.type = "Attribute";
+						fetchOptions.sort.name = "identifier";
+						break;
+					case "sampleTypeCode":
+						fetchOptions.sort.type = "Attribute";
+						fetchOptions.sort.name = "type";
+						break;
 					case "registrationDate":
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "registrationDate"
-						
 						break;
 					case "modificationDate":
 						fetchOptions.sort.type = "Attribute";
