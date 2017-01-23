@@ -145,7 +145,7 @@ public class PropertyQueryGenerator
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
         sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
-        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
+        sb.append("case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("p.value as propertyValue, ");
         sb.append("m.code as materialPropertyValueCode, ");
         sb.append("mt.code as materialPropertyValueTypeCode, ");
