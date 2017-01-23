@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -127,5 +126,5 @@ public interface IEntityPropertyTypeDAO
      * the entity type and existing entities need to be updated with a default value for the mandatory property 2. If a property is unassigned from an
      * entity type.
      */
-    public void updateEntityModificationTimestamps(final List<Long> entityIds, final Date timestamp);
+    public void updateEntityModificationTimestamps(final List<Long> entityIds);
 }

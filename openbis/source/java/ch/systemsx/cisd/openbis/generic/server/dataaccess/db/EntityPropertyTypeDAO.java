@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -247,8 +246,15 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void updateEntityModificationTimestamps(final List<Long> entityIds, final Date timestamp)
+    public void updateEntityModificationTimestamps(final List<Long> entityIds)
     {
+        assert entityIds != null : "Null entityId list.";
+
+        if (entityIds.isEmpty())
+        {
+            return;
+        }
+
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
@@ -276,7 +282,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     SQLQuery clearQuery =
                             session.createSQLQuery(
                                     "update " + entityTableName + " set modification_timestamp = :timestamp where id in :entityIds ");
-                    clearQuery.setTimestamp("timestamp", timestamp);
+                    clearQuery.setTimestamp("timestamp", getTransactionTimeStamp());
                     clearQuery.setParameterList("entityIds", entityIds);
                     clearQuery.executeUpdate();
                     return null;
@@ -551,7 +557,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         template.clear();
         template.delete(assignment);
 
-        updateEntityModificationTimestamps(entityIds, getTransactionTimeStamp());
+        updateEntityModificationTimestamps(entityIds);
         scheduleDynamicPropertiesEvaluation(entityIds);
 
         if (operationLog.isInfoEnabled())
