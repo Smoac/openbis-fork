@@ -137,8 +137,8 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                             with(any(PersonPE.class)), with(validatedValue));
                     will(returnValue(property));
 
-                    allowing(entityPropertyTypeDAO).updateEntityModificationTimestamps(with(experimentIds));
                     one(entityPropertyTypeDAO).createProperties(property, experimentIds);
+                    one(entityPropertyTypeDAO).updateEntityModificationTimestamps(with(experimentIds));
                 }
             });
         final EntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(EntityKind.EXPERIMENT);
