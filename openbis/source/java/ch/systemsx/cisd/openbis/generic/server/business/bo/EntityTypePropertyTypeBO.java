@@ -161,6 +161,12 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         }
     }
 
+    private void updateEntityModificationTimestamps(List<Long> entityIds)
+    {
+        IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
+        entityPropertyTypeDAO.updateEntityModificationTimestamps(entityIds, getTransactionTimeStamp());
+    }
+
     private ScriptPE tryFindScript(NewETPTAssignment newAssignment)
     {
         if (newAssignment.getScriptName() == null)
@@ -205,6 +211,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                                 registrator, validatedValue);
 
                 entityPropertyTypeDAO.createProperties(property, entityIds);
+                updateEntityModificationTimestamps(entityIds);
             }
 
             if (operationLog.isDebugEnabled())

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,13 +27,16 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -240,6 +244,44 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     list.size(), assignment.getEntityType(), assignment.getPropertyType()));
         }
         return list;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void updateEntityModificationTimestamps(final List<Long> entityIds, final Date timestamp)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException
+                {
+                    String entityTableName = null;
+
+                    switch (entityKind)
+                    {
+                        case SAMPLE:
+                            entityTableName = TableNames.SAMPLES_ALL_TABLE;
+                            break;
+                        case DATA_SET:
+                            entityTableName = TableNames.DATA_ALL_TABLE;
+                            break;
+                        case MATERIAL:
+                            entityTableName = TableNames.MATERIALS_TABLE;
+                            break;
+                        case EXPERIMENT:
+                            entityTableName = TableNames.EXPERIMENTS_VIEW;
+                            break;
+                        default:
+                            throw new IllegalArgumentException(entityKind.toString());
+                    }
+                    SQLQuery clearQuery =
+                            session.createSQLQuery(
+                                    "update " + entityTableName + " set modification_timestamp = :timestamp where id in :entityIds ");
+                    clearQuery.setTimestamp("timestamp", timestamp);
+                    clearQuery.setParameterList("entityIds", entityIds);
+                    clearQuery.executeUpdate();
+                    return null;
+                }
+            });
     }
 
     @Override
@@ -509,6 +551,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         template.clear();
         template.delete(assignment);
 
+        updateEntityModificationTimestamps(entityIds, getTransactionTimeStamp());
         scheduleDynamicPropertiesEvaluation(entityIds);
 
         if (operationLog.isInfoEnabled())
