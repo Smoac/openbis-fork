@@ -31,22 +31,6 @@ import subprocess
 import os.path
 import re
 
-def getSampleByIdentifierForUpdate(tr, identifier):
-	space = identifier.split("/")[1];
-	code = identifier.split("/")[2];
-	
-	criteria = SearchCriteria();
-	criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, space));
-	criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
-	criteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
-	
-	searchService = tr.getSearchService();
-	found = list(searchService.searchForSamples(criteria));
-	if len(found) == 1:
-		return tr.makeSampleMutable(found[0]);
-	else:
-		raise UserFailureException(identifier + " Not found by search service.");	
-
 def username(sessiontoken):
 	m = re.compile('(.*)-[^-]*').match(sessiontoken)
 	if m:
@@ -108,7 +92,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	#Create Dataset
 	dataSet = tr.createNewDataSet(dataSetType);
 	if sampleIdentifier is not None:
-		dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
+		dataSetSample = tr.getSampleForUpdate(sampleIdentifier);
 		dataSet.setSample(dataSetSample);
 	elif experimentIdentifier is not None:
 		dataSetExperiment = tr.getExperimentForUpdate(experimentIdentifier);
