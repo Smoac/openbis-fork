@@ -586,7 +586,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchDataSets(criteria, fo);
-			}, fo, "property", "RESOLUTION");
+			}, fo, "property", "$RESOLUTION");
 		});
 
 		QUnit.test("searchDataSets() with sorting by type", function(assert) {
