@@ -114,9 +114,9 @@ function DataSetFormController() {
 		};
 		
 		var sampleOrExperimentIdentifier = dataSetFormModel.sampleOrExperiment.identifier;
-		if(sampleOrExperimentIdentifier.split("/").length === 3) {
+		if (dataSetFormModel.sampleOrExperiment.isSample) {
 			parameters["sampleIdentifier"] = sampleOrExperimentIdentifier;
-		} else if(sampleOrExperimentIdentifier.split("/").length === 4) {
+		} else {
 			parameters["experimentIdentifier"] = sampleOrExperimentIdentifier;
 		}
 			
