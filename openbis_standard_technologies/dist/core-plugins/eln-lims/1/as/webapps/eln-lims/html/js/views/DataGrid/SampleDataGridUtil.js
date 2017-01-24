@@ -43,7 +43,11 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				return (isLinksDisabled)?data.NAME:FormUtil.getFormLink(data.NAME, "Sample", data.permId);
+				var nameToUse = "N/A";
+				if(data.Name) {
+					nameToUse = data.Name;
+				}
+				return (isLinksDisabled)?nameToUse:FormUtil.getFormLink(nameToUse, "Sample", data.permId);
 			}
 		});
 		

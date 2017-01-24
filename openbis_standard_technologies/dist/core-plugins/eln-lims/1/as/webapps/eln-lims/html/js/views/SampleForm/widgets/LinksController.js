@@ -29,7 +29,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		
 		if(samplesToEdit) {
 			for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
-				this.addSample(samplesToEdit[sIdx]);
+				this.addSample(samplesToEdit[sIdx], true);
 			}
 		}
 	}
@@ -120,11 +120,11 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		return true;
 	}
 	
-	this.addSample = function(sample) {
+	this.addSample = function(sample, isInit) {
 		Util.blockUI();
 		mainController.serverFacade.searchWithIdentifiers([sample.identifier], function(results) {
 			if(results.length > 0) {
-				linksView.updateSample(results[0], true);
+				linksView.updateSample(results[0], true, isInit);
 				Util.unblockUI();
 			}
 		});
@@ -158,6 +158,10 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 			allSamplesIdentifiers.push(sample.identifier);
 		}
 		return allSamplesIdentifiers;
+	}
+	
+	this.getSamplesAddedIdentifiers = function() {
+		return linksModel.samplesAdded;
 	}
 	
 	this.getSamplesRemovedIdentifiers = function() {

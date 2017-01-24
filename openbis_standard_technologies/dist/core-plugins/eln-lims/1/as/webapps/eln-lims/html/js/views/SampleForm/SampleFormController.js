@@ -125,6 +125,7 @@ function SampleFormController(mainController, mode, sample) {
 		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
 		
 		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
+		var sampleChildrenAddedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesAddedIdentifiers();
 		
 		//
 		// Check that the same sample is not a parent and a child at the same time
@@ -246,8 +247,8 @@ function SampleFormController(mainController, mode, sample) {
 					"sampleParents": sampleParentsFinal,
 					"sampleParentsNew": newSampleParents,
 					//Children links
-					"sampleChildren": sampleChildrenFinal,
 					"sampleChildrenNew": samplesToCreate,
+					"sampleChildrenAdded": sampleChildrenAddedFinal,
 					"sampleChildrenRemoved": sampleChildrenRemovedFinal,
 					//Other Samples
 					"changesToDo" : changesToDo
