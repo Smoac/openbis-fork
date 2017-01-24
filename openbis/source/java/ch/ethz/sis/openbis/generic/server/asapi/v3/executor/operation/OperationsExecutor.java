@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IVerifyDataS
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.IConfirmDeletionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.IRevertDeletionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.ISearchDeletionsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ICreateExperimentTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ICreateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IDeleteExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IGetExperimentsOperationExecutor;
@@ -48,6 +49,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchEx
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IVerifyExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch.ISearchGloballyOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IDeleteMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IGetMaterialsOperationExecutor;
@@ -156,10 +158,16 @@ public class OperationsExecutor implements IOperationsExecutor
     private ICreateVocabularyTermsOperationExecutor createVocabularyTermsExecutor;
 
     @Autowired
+    private ICreateExperimentTypesOperationExecutor createExperimentTypesExecutor;
+
+    @Autowired
     private ICreateSampleTypesOperationExecutor createSampleTypesExecutor;
 
     @Autowired
     private ICreateDataSetTypesOperationExecutor createDataSetTypesExecutor;
+
+    @Autowired
+    private ICreateMaterialTypesOperationExecutor createMaterialTypesExecutor;
 
     @Autowired
     private IUpdateSpacesOperationExecutor updateSpacesExecutor;
@@ -410,8 +418,10 @@ public class OperationsExecutor implements IOperationsExecutor
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
         resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(createExperimentTypesExecutor.execute(context, operations));
         resultMap.putAll(createSampleTypesExecutor.execute(context, operations));
         resultMap.putAll(createDataSetTypesExecutor.execute(context, operations));
+        resultMap.putAll(createMaterialTypesExecutor.execute(context, operations));
         resultMap.putAll(createMaterialsExecutor.execute(context, operations));
         resultMap.putAll(createSpacesExecutor.execute(context, operations));
         resultMap.putAll(createProjectsExecutor.execute(context, operations));

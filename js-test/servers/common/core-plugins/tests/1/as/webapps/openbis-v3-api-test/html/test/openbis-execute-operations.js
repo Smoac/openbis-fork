@@ -90,6 +90,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateExperimentsOperation(creations));
 		}
 
+		this.createExperimentTypes = function(creations) {
+			return this._executeCreateOperation(new c.CreateExperimentTypesOperation(creations));
+		}
+
 		this.createSamples = function(creations) {
 			return this._executeCreateOperation(new c.CreateSamplesOperation(creations));
 		}
@@ -104,6 +108,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.createMaterials = function(creations) {
 			return this._executeCreateOperation(new c.CreateMaterialsOperation(creations));
+		}
+
+		this.createMaterialTypes = function(creations) {
+			return this._executeCreateOperation(new c.CreateMaterialTypesOperation(creations));
 		}
 
 		this.createVocabularyTerms = function(creations) {

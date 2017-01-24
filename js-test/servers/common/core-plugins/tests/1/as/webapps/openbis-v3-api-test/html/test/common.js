@@ -100,8 +100,10 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
 		this.PropertyTypePermId = dtos.PropertyTypePermId;
 		this.PluginPermId = dtos.PluginPermId;
+		this.ExperimentTypeCreation = dtos.ExperimentTypeCreation;
 		this.SampleTypeCreation = dtos.SampleTypeCreation;
 		this.DataSetTypeCreation = dtos.DataSetTypeCreation;
+		this.MaterialTypeCreation = dtos.MaterialTypeCreation;
 
 		// operations
 
@@ -118,10 +120,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateSpacesOperation = dtos.CreateSpacesOperation;
 		this.CreateProjectsOperation = dtos.CreateProjectsOperation;
 		this.CreateExperimentsOperation = dtos.CreateExperimentsOperation;
+		this.CreateExperimentTypesOperation = dtos.CreateExperimentTypesOperation;
 		this.CreateSamplesOperation = dtos.CreateSamplesOperation;
 		this.CreateSampleTypesOperation = dtos.CreateSampleTypesOperation;
 		this.CreateDataSetTypesOperation = dtos.CreateDataSetTypesOperation;
 		this.CreateMaterialsOperation = dtos.CreateMaterialsOperation;
+		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
 
@@ -326,6 +330,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return experiments[id];
 			});
 		}.bind(this);
+		
+		this.findExperimentType = function(facade, id) {
+			var c = this;
+			var criteria = new c.ExperimentTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchExperimentTypes(criteria, c.createExperimentTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
+			});
+		}.bind(this);
 
 		this.findSample = function(facade, id) {
 			var c = this;
@@ -363,6 +376,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			return facade.getMaterials([ id ], c.createMaterialFetchOptions()).then(function(materials) {
 				return materials[id];
+			});
+		}.bind(this);
+		
+		this.findMaterialType = function(facade, id) {
+			var c = this;
+			var criteria = new c.MaterialTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchMaterialTypes(criteria, c.createMaterialTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
 			});
 		}.bind(this);
 
@@ -520,6 +542,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withAttachments().withContent();
 			return fo;
 		};
+		
+		this.createExperimentTypeFetchOptions = function() {
+			var fo = new dtos.ExperimentTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
+			return fo;
+		};
 
 		this.createSampleFetchOptions = function() {
 			var fo = new dtos.SampleFetchOptions();
@@ -586,6 +615,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withProperties();
 			fo.withMaterialProperties();
 			fo.withTags();
+			return fo;
+		};
+		
+		this.createMaterialTypeFetchOptions = function() {
+			var fo = new dtos.MaterialTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
 			return fo;
 		};
 

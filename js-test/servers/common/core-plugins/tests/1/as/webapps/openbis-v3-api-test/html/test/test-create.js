@@ -114,6 +114,50 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findExperiment, fCheck);
 		});
+		
+		QUnit.test("createExperimentTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("EXPERIMENT_TYPE");
+
+			var fCreate = function(facade) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("initial value");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+
+				var creation = new c.ExperimentTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("a new description");
+				creation.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				creation.setPropertyAssignments([ assignmentCreation ]);
+
+				return facade.createExperimentTypes([ creation ]);
+			}
+
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getDescription(), "a new description", "Description");
+
+				c.assertEqual(type.getPropertyAssignments().length, 1, "Assignments count");
+
+				var assignment = type.getPropertyAssignments()[0];
+
+				c.assertEqual(assignment.getSection(), "test section", "Assignment section");
+				c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal");
+				c.assertEqual(assignment.getPropertyType().getCode(), "DESCRIPTION", "Assignment property type code");
+				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
+				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
+				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+			}
+
+			testCreate(c, fCreate, c.findExperimentType, fCheck);
+		});
 
 		QUnit.test("createSamples()", function(assert) {
 			var c = new common(assert, openbis);
@@ -266,6 +310,50 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			testCreate(c, fCreate, c.findMaterial, fCheck);
+		});
+
+		QUnit.test("createMaterialTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("MATERIAL_TYPE");
+
+			var fCreate = function(facade) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("initial value");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+
+				var creation = new c.MaterialTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("a new description");
+				creation.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				creation.setPropertyAssignments([ assignmentCreation ]);
+
+				return facade.createMaterialTypes([ creation ]);
+			}
+
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getDescription(), "a new description", "Description");
+
+				c.assertEqual(type.getPropertyAssignments().length, 1, "Assignments count");
+
+				var assignment = type.getPropertyAssignments()[0];
+
+				c.assertEqual(assignment.getSection(), "test section", "Assignment section");
+				c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal");
+				c.assertEqual(assignment.getPropertyType().getCode(), "DESCRIPTION", "Assignment property type code");
+				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
+				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
+				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+			}
+
+			testCreate(c, fCreate, c.findMaterialType, fCheck);
 		});
 
 		QUnit.test("createVocabularyTerms()", function(assert) {

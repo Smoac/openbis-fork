@@ -206,6 +206,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.createExperimentTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createExperimentTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
+				}
+			});
+		}
+
 		this.createSamples = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -262,6 +277,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				returnType : {
 					name : "List",
 					arguments : [ "MaterialPermId" ]
+				}
+			});
+		}
+
+		this.createMaterialTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createMaterialTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
 				}
 			});
 		}

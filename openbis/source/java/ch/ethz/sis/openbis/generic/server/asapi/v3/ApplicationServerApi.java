@@ -69,9 +69,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.SearchDeletionsO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.DeleteExperimentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.DeleteExperimentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
@@ -96,9 +99,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOper
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.DeleteMaterialsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
@@ -331,6 +337,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    public List<EntityTypePermId> createExperimentTypes(String sessionToken,
+            List<ExperimentTypeCreation> creations)
+    {
+        CreateExperimentTypesOperationResult result = executeOperation(sessionToken, new CreateExperimentTypesOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
+    @Transactional
     public List<SamplePermId> createSamples(String sessionToken,
             List<SampleCreation> creations)
     {
@@ -367,6 +382,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> creations)
     {
         CreateMaterialsOperationResult result = executeOperation(sessionToken, new CreateMaterialsOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
+    public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> creations)
+    {
+        CreateMaterialTypesOperationResult result = executeOperation(sessionToken, new CreateMaterialTypesOperation(creations));
         return result.getObjectIds();
     }
 
