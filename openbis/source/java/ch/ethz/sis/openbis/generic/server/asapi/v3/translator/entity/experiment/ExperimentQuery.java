@@ -65,7 +65,7 @@ public interface ExperimentQuery extends ObjectQuery
     public List<ObjectRelationRecord> getDataSetIds(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.expe_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
+    @Select(sql = "select p.expe_id as objectId, case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
             + "from experiment_properties p "
             + "left join materials m on p.mate_prop_id = m.id "
             + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
@@ -76,7 +76,7 @@ public interface ExperimentQuery extends ObjectQuery
     public List<PropertyRecord> getProperties(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.expe_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.mate_prop_id as propertyValue "
+    @Select(sql = "select p.expe_id as objectId, case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, p.mate_prop_id as propertyValue "
             + "from experiment_properties p "
             + "join experiment_type_property_types etpt on p.etpt_id = etpt.id "
             + "join property_types pt on etpt.prty_id = pt.id "
@@ -84,7 +84,7 @@ public interface ExperimentQuery extends ObjectQuery
     public List<MaterialPropertyRecord> getMaterialProperties(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select ph.expe_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+    @Select(sql = "select ph.expe_id as objectId, ph.pers_id_author as authorId, case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
             + "from experiment_properties_history ph "
             + "join experiment_type_property_types etpt on ph.etpt_id = etpt.id "
             + "join property_types pt on etpt.prty_id = pt.id "
