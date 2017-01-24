@@ -145,7 +145,7 @@ public class PropertyQueryGenerator
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
         sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
-        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
+        sb.append("case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("p.value as propertyValue, ");
         sb.append("m.code as materialPropertyValueCode, ");
         sb.append("mt.code as materialPropertyValueTypeCode, ");
@@ -168,7 +168,7 @@ public class PropertyQueryGenerator
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
         sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
-        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
+        sb.append("case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("p.mate_prop_id as propertyValue \n");
         sb.append("from ");
         sb.append(params.propertyTable + " p \n");
@@ -185,7 +185,7 @@ public class PropertyQueryGenerator
         sb.append("select ");
         sb.append("ph." + params.propertyHistoryTableEntityIdColumn + " as objectId, ");
         sb.append("ph.pers_id_author as authorId, ");
-        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
+        sb.append("case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("ph.value as propertyValue, ");
         sb.append("ph.material as materialPropertyValue, ");
         sb.append("ph.vocabulary_term as vocabularyPropertyValue, ");
