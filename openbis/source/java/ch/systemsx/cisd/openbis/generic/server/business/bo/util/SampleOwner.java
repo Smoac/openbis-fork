@@ -20,6 +20,10 @@ public final class SampleOwner
     public SampleOwner(ProjectPE projectOrNull)
     {
         this.projectOrNull = projectOrNull;
+        if (projectOrNull != null)
+        {
+            spaceOrNull = projectOrNull.getSpace();
+        }
     }
 
     public SampleOwner(final SpacePE spaceOrNull)
