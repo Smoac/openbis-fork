@@ -9,14 +9,15 @@ public enum ExternalDataManagementSystemType
 
     public static ExternalDataManagementSystemType fromString(String str)
     {
-        switch (str)
+        if ("OPENBIS".equals(str))
         {
-            case "OPENBIS":
-                return ExternalDataManagementSystemType.OPENBIS;
-            case "GIT":
-                return ExternalDataManagementSystemType.GIT;
-            default:
-                return ExternalDataManagementSystemType.UNDEFINED;
+            return ExternalDataManagementSystemType.OPENBIS;
+        } else if ("GIT".equals(str))
+        {
+            return ExternalDataManagementSystemType.GIT;
+        } else
+        {
+            return ExternalDataManagementSystemType.UNDEFINED;
         }
     }
 }

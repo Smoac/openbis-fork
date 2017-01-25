@@ -6,4 +6,17 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum ExternalDmsType
 {
     OPENBIS, GIT, UNDEFINED;
+
+    public static ExternalDmsType fromString(String str)
+    {
+        switch (str)
+        {
+            case "OPENBIS":
+                return ExternalDmsType.OPENBIS;
+            case "GIT":
+                return ExternalDmsType.GIT;
+            default:
+                return ExternalDmsType.UNDEFINED;
+        }
+    }
 }

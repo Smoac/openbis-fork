@@ -1526,3 +1526,4 @@ GIT
 OPENBIS
 UNDEFINED
 createExternalDataManagementSystems
+fromString

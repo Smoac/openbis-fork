@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -49,7 +48,7 @@ public class ExternalDms implements Serializable, ICodeHolder
     private Boolean openbis;
 
     @JsonProperty
-    private ExternalDataManagementSystemType type;
+    private ExternalDmsType type;
 
     public ExternalDms()
     {
@@ -121,25 +120,25 @@ public class ExternalDms implements Serializable, ICodeHolder
         this.openbis = openbis;
         if (this.openbis)
         {
-            this.type = ExternalDataManagementSystemType.OPENBIS;
+            this.type = ExternalDmsType.OPENBIS;
         } else if (this.type == null)
         {
-            this.type = ExternalDataManagementSystemType.UNDEFINED;
+            this.type = ExternalDmsType.UNDEFINED;
         }
     }
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    public ExternalDataManagementSystemType getType()
+    public ExternalDmsType getType()
     {
         return this.type;
     }
 
     // Method automatically generated with DtoGenerator
-    public void setType(ExternalDataManagementSystemType type)
+    public void setType(ExternalDmsType type)
     {
         this.type = type;
-        this.openbis = ExternalDataManagementSystemType.OPENBIS == type;
+        this.openbis = ExternalDmsType.OPENBIS == type;
     }
 
     // Method automatically generated with DtoGenerator
