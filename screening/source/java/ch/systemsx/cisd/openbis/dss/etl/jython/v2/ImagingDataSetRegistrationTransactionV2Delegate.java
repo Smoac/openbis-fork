@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
-
-import net.lemnik.eodsql.DynamicTransactionQuery;
+import java.util.Map;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
@@ -54,6 +53,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutab
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+
+import net.lemnik.eodsql.DynamicTransactionQuery;
 
 /**
  * @author Jakub Straszewski
@@ -383,6 +384,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
         return transaction.getGlobalState();
+    }
+
+    @Override
+    public Map<String, String> getServerInformation()
+    {
+        return transaction.getServerInformation();
     }
 
     @Override

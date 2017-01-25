@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,8 @@ public interface IServer extends ISessionProvider
      */
     public int getVersion();
 
+    public Map<String, String> getServerInformation(String sessionToken);
+    
     /**
      * @return 'true' if archiver is configured for at least one data store, 'false' otherwise.
      */

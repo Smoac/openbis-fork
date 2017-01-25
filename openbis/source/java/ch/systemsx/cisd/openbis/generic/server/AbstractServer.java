@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -163,6 +165,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ComponentNames.PROPERTIES_BATCH_MANAGER)
     private IPropertiesBatchManager propertiesBatchManager;
+
+    private IApplicationServerApi v3Api;
 
     protected String CISDHelpdeskEmail;
 
@@ -374,6 +378,21 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     public int getVersion()
     {
         return 1;
+    }
+    
+    @Override
+    public Map<String, String> getServerInformation(String sessionToken)
+    {
+        return getV3Api().getServerInformation(sessionToken);
+    }
+    
+    private IApplicationServerApi getV3Api()
+    {
+        if (v3Api == null)
+        {
+            v3Api = CommonServiceProvider.getApplicationServerApi();
+        }
+        return v3Api;
     }
 
     @Override

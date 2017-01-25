@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -282,6 +283,13 @@ public abstract class AbstractServerLogger implements IServer
     public final int getVersion()
     {
         return IServer.VERSION;
+    }
+
+    @Override
+    public Map<String, String> getServerInformation(String sessionToken)
+    {
+        logAccess(sessionToken, "getServerInformation", "SESSION(%s)", sessionToken);
+        return null;
     }
 
     @Override
