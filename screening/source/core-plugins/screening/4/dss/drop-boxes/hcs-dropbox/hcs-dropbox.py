@@ -12,6 +12,7 @@ EXPERIMENT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(EXPERIMENT_CODE)s" % vars()
 
 PLATE_CODE = "PLATE"
 PLATE_ID = "/%(SPACE_CODE)s/%(PLATE_CODE)s" % vars()
+PLATE_ID_WITH_PROJECT = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(PLATE_CODE)s" % vars()
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
@@ -43,13 +44,17 @@ def create_experiment_if_needed(transaction):
     
 def create_plate_if_needed(transaction):
     """ Get the specified sample or register it if necessary """
+    if transaction.serverInformation['project-samples-enabled'] == 'true':
+        plate_id = PLATE_ID_WITH_PROJECT
+    else:
+        plate_id = PLATE_ID
 
-    samp = transaction.getSample(PLATE_ID)
+    samp = transaction.getSample(plate_id)
 
     if None == samp:
         exp = create_experiment_if_needed(transaction)
-        samp = transaction.createNewSample(PLATE_ID, 'PLATE')
-        transaction.getLogger().info('Creating new plate: ' + PLATE_ID)
+        samp = transaction.createNewSample(plate_id, 'PLATE')
+        transaction.getLogger().info('Creating new plate: ' + plate_id)
         samp.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, PLATE_GEOMETRY)
         samp.setExperiment(exp)
         
