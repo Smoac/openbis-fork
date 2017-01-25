@@ -92,6 +92,6 @@ public class DataSetRecord
 
     public String edms_url_template;
 
-    public Boolean edms_is_openbis;
+    public String edms_type;
 
 }

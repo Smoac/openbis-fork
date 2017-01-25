@@ -89,9 +89,13 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		this.createExperiments = function(creations) {
 			return this._executeCreateOperation(new c.CreateExperimentsOperation(creations));
 		}
-
+		
 		this.createExperimentTypes = function(creations) {
 			return this._executeCreateOperation(new c.CreateExperimentTypesOperation(creations));
+		}
+		
+		this.createExternalDms = function(creations) {
+			return this._executeCreateOperation(new c.CreateExternalDmsOperation(creations));
 		}
 
 		this.createSamples = function(creations) {
@@ -188,6 +192,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.getTags = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetTagsOperation(ids, fetchOptions));
+		}
+
+		this.getExternalDataManagementSystems = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetExternalDmsOperation(ids, fetchOptions));
 		}
 
 		this.getOperationExecutions = function(ids, fetchOptions) {

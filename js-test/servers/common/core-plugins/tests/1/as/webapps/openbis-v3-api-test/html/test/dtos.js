@@ -259,6 +259,12 @@ var sources = [
 	'as/dto/externaldms/fetchoptions/ExternalDmsFetchOptions',
 	'as/dto/externaldms/fetchoptions/ExternalDmsSortOptions',
 	'as/dto/externaldms/id/ExternalDmsPermId',
+	'as/dto/externaldms/create/CreateExternalDmsOperation',
+	'as/dto/externaldms/create/CreateExternalDmsOperationResult',
+	'as/dto/externaldms/create/ExternalDmsCreation',
+	'as/dto/externaldms/ExternalDmsType',
+	'as/dto/externaldms/get/GetExternalDmsOperation',
+	'as/dto/externaldms/get/GetExternalDmsOperationResult',
 	
 	'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions',
 	'as/dto/global/fetchoptions/GlobalSearchObjectSortOptions',

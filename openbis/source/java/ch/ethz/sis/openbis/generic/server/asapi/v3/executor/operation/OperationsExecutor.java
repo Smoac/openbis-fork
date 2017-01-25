@@ -48,6 +48,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchEx
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IVerifyExperimentsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ICreateExternalDmsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IGetExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch.ISearchGloballyOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialsOperationExecutor;
@@ -155,19 +157,22 @@ public class OperationsExecutor implements IOperationsExecutor
     private ICreateTagsOperationExecutor createTagsExecutor;
 
     @Autowired
-    private ICreateVocabularyTermsOperationExecutor createVocabularyTermsExecutor;
+    private ICreateExperimentTypesOperationExecutor createExperimentTypesExecutor;
 
     @Autowired
-    private ICreateExperimentTypesOperationExecutor createExperimentTypesExecutor;
+    private ICreateMaterialTypesOperationExecutor createMaterialTypesExecutor;
+
+    @Autowired
+    private ICreateExternalDmsOperationExecutor createExternalDmsExecutor;
+
+    @Autowired
+    private ICreateVocabularyTermsOperationExecutor createVocabularyTermsExecutor;
 
     @Autowired
     private ICreateSampleTypesOperationExecutor createSampleTypesExecutor;
 
     @Autowired
     private ICreateDataSetTypesOperationExecutor createDataSetTypesExecutor;
-
-    @Autowired
-    private ICreateMaterialTypesOperationExecutor createMaterialTypesExecutor;
 
     @Autowired
     private IUpdateSpacesOperationExecutor updateSpacesExecutor;
@@ -231,6 +236,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IGetTagsOperationExecutor getTagsExecutor;
+
+    @Autowired
+    private IGetExternalDmsOperationExecutor getExternalDmsExecutor;
 
     @Autowired
     private IGetVocabularyTermsOperationExecutor getVocabularyTermsExecutor;
@@ -387,6 +395,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getDataSetsExecutor.execute(context, operations));
         resultMap.putAll(getMaterialsExecutor.execute(context, operations));
         resultMap.putAll(getTagsExecutor.execute(context, operations));
+        resultMap.putAll(getExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));
     }
@@ -429,6 +438,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createSamplesExecutor.execute(context, operations));
         resultMap.putAll(createDataSetsExecutor.execute(context, operations));
         resultMap.putAll(createTagsExecutor.execute(context, operations));
+        resultMap.putAll(createExternalDmsExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations,

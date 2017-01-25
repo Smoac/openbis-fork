@@ -40,7 +40,7 @@ public class ExternalDataManagementSystemTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setLabel(edms.getLabel());
         result.setUrlTemplate(edms.getUrlTemplate());
-        result.setOpenBIS(edms.isOpenBIS());
+        result.setType(edms.getType());
 
         return result;
     }
@@ -51,7 +51,7 @@ public class ExternalDataManagementSystemTranslator
         result.setCode(edms.getCode());
         result.setLabel(edms.getLabel());
         result.setUrlTemplate(edms.getUrlTemplate());
-        result.setOpenBIS(edms.isOpenBIS());
+        result.setType(edms.getType());
 
         return result;
     }

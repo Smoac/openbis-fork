@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.Externa
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /**
  * @author pkupczyk
@@ -47,7 +48,8 @@ public class ExternalDmsTranslator extends AbstractCachingTranslator<Long, Exter
     }
 
     @Override
-    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> externalDmsIds, ExternalDmsFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> externalDmsIds,
+            ExternalDmsFetchOptions fetchOptions)
     {
         TranslationResults relations = new TranslationResults();
 
@@ -66,7 +68,7 @@ public class ExternalDmsTranslator extends AbstractCachingTranslator<Long, Exter
         result.setCode(baseRecord.code);
         result.setLabel(baseRecord.label);
         result.setUrlTemplate(baseRecord.urlTemplate);
-        result.setOpenbis(baseRecord.openbis);
+        result.setType(ExternalDataManagementSystemType.fromString(baseRecord.type));
     }
 
 }

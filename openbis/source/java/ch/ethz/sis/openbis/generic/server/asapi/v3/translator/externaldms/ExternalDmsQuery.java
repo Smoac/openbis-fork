@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.externaldms;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.util.List;
-
-import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectQuery;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.Select;
 
 /**
  * @author pkupczyk
@@ -31,7 +29,7 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 public interface ExternalDmsQuery extends ObjectQuery
 {
 
-    @Select(sql = "select id, code, label, url_template as urlTemplate, is_openbis as openbis "
+    @Select(sql = "select id, code, label, url_template as urlTemplate, type "
             + " from external_data_management_systems where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ExternalDmsBaseRecord> getExternalDmses(LongSet externalDmsIds);
 

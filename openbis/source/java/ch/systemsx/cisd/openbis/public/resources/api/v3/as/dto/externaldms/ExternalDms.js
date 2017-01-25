@@ -13,6 +13,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.label = null;
 		prototype.urlTemplate = null;
 		prototype.openbis = null;
+		prototype.type = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -44,11 +45,18 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setOpenbis = function(openbis) {
 			this.openbis = openbis;
 		};
+		prototype.getType = function() {
+			return this.type;
+		};
+		prototype.setType = function(type) {
+			this.type = type;
+		};
 		prototype.toString = function() {
 			return "ExternalDms " + this.code;
 		};
 	}, {
-		fetchOptions : "ExternalDmsFetchOptions"
+		fetchOptions : "ExternalDmsFetchOptions",
+		type : "ExternalDmsType"
 	});
 	return ExternalDms;
 })

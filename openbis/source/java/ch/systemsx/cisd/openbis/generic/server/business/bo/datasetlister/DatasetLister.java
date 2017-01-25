@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -83,7 +84,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
-
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -545,7 +545,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             String statusAsString = archivingStatus.name();
             if (presentInArchive != null)
             {
-                dataSets = query.getDatasetsByDataStoreIdWithArchivingStatusAndPressentInArchive(dataStoreID, 
+                dataSets = query.getDatasetsByDataStoreIdWithArchivingStatusAndPressentInArchive(dataStoreID,
                         statusAsString, presentInArchive);
             } else
             {
@@ -1296,7 +1296,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         result.setCode(edmsRecord.code);
         result.setLabel(edmsRecord.label);
         result.setUrlTemplate(edmsRecord.url_template);
-        result.setOpenBIS(edmsRecord.is_openbis);
+        result.setType(ExternalDataManagementSystemType.fromString(edmsRecord.type));
 
         return result;
     }

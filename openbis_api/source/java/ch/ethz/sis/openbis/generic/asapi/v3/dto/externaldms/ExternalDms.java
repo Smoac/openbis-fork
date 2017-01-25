@@ -15,13 +15,15 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -45,6 +47,13 @@ public class ExternalDms implements Serializable, ICodeHolder
 
     @JsonProperty
     private Boolean openbis;
+
+    @JsonProperty
+    private ExternalDataManagementSystemType type;
+
+    public ExternalDms()
+    {
+    }
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -110,6 +119,27 @@ public class ExternalDms implements Serializable, ICodeHolder
     public void setOpenbis(Boolean openbis)
     {
         this.openbis = openbis;
+        if (this.openbis)
+        {
+            this.type = ExternalDataManagementSystemType.OPENBIS;
+        } else if (this.type == null)
+        {
+            this.type = ExternalDataManagementSystemType.UNDEFINED;
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public ExternalDataManagementSystemType getType()
+    {
+        return this.type;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setType(ExternalDataManagementSystemType type)
+    {
+        this.type = type;
+        this.openbis = ExternalDataManagementSystemType.OPENBIS == type;
     }
 
     // Method automatically generated with DtoGenerator

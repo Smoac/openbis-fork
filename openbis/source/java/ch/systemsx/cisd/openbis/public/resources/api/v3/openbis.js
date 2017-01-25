@@ -205,7 +205,7 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
-
+		
 		this.createExperimentTypes = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -220,7 +220,22 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
-
+		
+		this.createExternalDms = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createExternalDataManagementSystems",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "ExternalDmsPermId" ]
+				}
+			});
+		}	
+		
 		this.createSamples = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -544,6 +559,22 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
+
+		this.getExternalDataManagementSystems = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getExternalDataManagementSystems",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IExternalDmsId", "ExternalDms" ]
+				}
+			});
+		}
+
 
 		this.getOperationExecutions = function(ids, fetchOptions) {
 			var thisFacade = this;

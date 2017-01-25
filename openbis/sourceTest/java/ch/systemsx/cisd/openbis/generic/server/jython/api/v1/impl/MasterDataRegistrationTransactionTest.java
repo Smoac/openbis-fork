@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -422,7 +423,8 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                             new SampleTypeBuilder()
                                     .code(KNOWN)
                                     .propertyType(KNOWN_PROPERTY, "Description",
-                                            DataTypeCode.VARCHAR).getSampleType()
+                                            DataTypeCode.VARCHAR)
+                                    .getSampleType()
                                     .getAssignedPropertyTypes();
                     one(server).listEntityTypePropertyTypes(SESSION_TOKEN);
                     will(returnValue(assigments));
@@ -440,7 +442,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                     edms.setCode(KNOWN);
                     edms.setLabel("old label");
                     edms.setUrlTemplate("old url template");
-                    edms.setOpenBIS(false);
+                    edms.setType(ExternalDataManagementSystemType.UNDEFINED);
 
                     one(server).getExternalDataManagementSystem(SESSION_TOKEN, KNOWN);
                     will(returnValue(edms));
@@ -451,7 +453,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 transaction.getOrCreateNewExternalDataManagementSystem(KNOWN);
         edms.setLabel("new label");
         edms.setUrlTemplate("new url template");
-        edms.setOpenBIS(true);
+        edms.setType(ExternalDataManagementSystemType.OPENBIS);
 
         assertEquals(KNOWN, edms.getCode());
         assertEquals("old label", edms.getLabel());
@@ -475,7 +477,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 transaction.getOrCreateNewExternalDataManagementSystem(UNKNOWN);
         edms.setLabel("new label");
         edms.setUrlTemplate("new url template");
-        edms.setOpenBIS(true);
+        edms.setType(ExternalDataManagementSystemType.OPENBIS);
 
         assertEquals(UNKNOWN, edms.getCode());
         assertEquals("new label", edms.getLabel());

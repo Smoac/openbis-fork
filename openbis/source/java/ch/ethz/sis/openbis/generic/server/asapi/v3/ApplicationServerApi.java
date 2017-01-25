@@ -92,6 +92,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.UpdateExperimentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.get.GetExternalDmsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.get.GetExternalDmsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
@@ -410,6 +419,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public List<ExternalDmsPermId> createExternalDataManagementSystems(String sessionToken,
+            List<ExternalDmsCreation> creations)
+    {
+        CreateExternalDmsOperationResult result = executeOperation(sessionToken, new CreateExternalDmsOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
     @Transactional
     public void updateSpaces(String sessionToken, List<SpaceUpdate> updates)
     {
@@ -536,6 +553,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
     {
         GetTagsOperationResult result = executeOperation(sessionToken, new GetTagsOperation(tagIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
+            ExternalDmsFetchOptions fetchOptions)
+    {
+        GetExternalDmsOperationResult result = executeOperation(sessionToken, new GetExternalDmsOperation(externalDmsIds, fetchOptions));
         return result.getObjectMap();
     }
 

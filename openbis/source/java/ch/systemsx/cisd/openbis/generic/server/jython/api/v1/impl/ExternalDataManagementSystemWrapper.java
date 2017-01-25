@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /**
  * Wrapper of {@link ExternalDataManagementSystemImmutable} as {@link IExternalDataManagementSystem} where setters do nothing.
@@ -42,7 +43,8 @@ public class ExternalDataManagementSystemWrapper extends ExternalDataManagementS
     }
 
     @Override
-    public void setOpenBIS(boolean openBIS)
+    public void setType(ExternalDataManagementSystemType type)
     {
     }
+
 }

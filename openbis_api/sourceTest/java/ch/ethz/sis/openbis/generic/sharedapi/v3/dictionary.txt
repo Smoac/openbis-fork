@@ -1515,3 +1515,14 @@ CreateMaterialTypesOperation
 CreateMaterialTypesOperationResult
 ExperimentTypeCreation
 MaterialTypeCreation
+CreateExternalDmsOperation
+CreateExternalDmsOperationResult
+ExternalDmsCreation
+ExternalDmsType
+getExternalDataManagementSystems
+GetExternalDmsOperation
+GetExternalDmsOperationResult
+GIT
+OPENBIS
+UNDEFINED
+createExternalDataManagementSystems

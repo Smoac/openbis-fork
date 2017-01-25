@@ -29,6 +29,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.AttachmentCreation = dtos.AttachmentCreation;
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
+		this.ExternalDmsCreation= dtos.ExternalDmsCreation;
 		this.SpaceUpdate = dtos.SpaceUpdate;
 		this.ProjectUpdate = dtos.ProjectUpdate;
 		this.ExperimentUpdate = dtos.ExperimentUpdate;
@@ -116,6 +117,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
+		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
 
 		this.CreateSpacesOperation = dtos.CreateSpacesOperation;
 		this.CreateProjectsOperation = dtos.CreateProjectsOperation;
@@ -128,6 +130,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
+		this.CreateExternalDmsOperation = dtos.CreateExternalDmsOperation;
 
 		this.UpdateSpacesOperation = dtos.UpdateSpacesOperation;
 		this.UpdateProjectsOperation = dtos.UpdateProjectsOperation;
@@ -401,7 +404,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return tags[id];
 			});
 		}.bind(this);
-
+		
+		this.findExternalDms = function(facade, id) {
+			var c = this;
+			return facade.getExternalDataManagementSystems([ id ], c.createExternalDmsFetchOptions()).then(function(edms) {
+				return edms[id];
+			});
+		}.bind(this);
+		
+		
 		this.findOperationExecution = function(facade, id) {
 			var c = this;
 			return facade.getOperationExecutions([ id ], c.createOperationExecutionFetchOptions()).then(function(executions) {
@@ -654,7 +665,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withMaterials();
 			return fo;
 		};
-
+		
+		this.createExternalDmsFetchOptions = function() {
+			var fo = new dtos.ExternalDmsFetchOptions();
+			return fo;
+		};
+		
 		this.createOperationExecutionFetchOptions = function() {
 			var fo = new dtos.OperationExecutionFetchOptions();
 			fo.withOwner().withSpace();

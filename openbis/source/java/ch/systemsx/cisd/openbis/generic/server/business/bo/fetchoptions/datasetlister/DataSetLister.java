@@ -16,17 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -44,12 +39,16 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -256,7 +255,7 @@ public class DataSetLister implements IDataSetLister
             edms.setLabel(dataSet.edms_label);
             edms.setUrlTemplate(dataSet.edms_url_template);
             edms.setDatabaseInstance(db);
-            edms.setOpenBIS(dataSet.edms_is_openbis);
+            edms.setType(ExternalDataManagementSystemType.fromString(dataSet.edms_type));
             initializer.setExternalDataManagementSystem(edms);
         }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
