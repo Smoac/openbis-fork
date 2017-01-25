@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
@@ -400,6 +401,11 @@ public interface IDataSetRegistrationTransactionV2
      * @return Global state for this dropbox, including configuration properties specified by the user.
      */
     TopLevelDataSetRegistratorGlobalState getGlobalState();
+    
+    /**
+     * Returns information about the openBIS server.
+     */
+    Map<String, String> getServerInformation();
 
     /**
      * Returns the file representing the logical incoming file.

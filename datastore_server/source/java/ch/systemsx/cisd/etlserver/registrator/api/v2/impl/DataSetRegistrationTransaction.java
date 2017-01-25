@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
@@ -824,6 +825,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
         return registrationService.getRegistratorContext().getGlobalState();
+    }
+
+    @Override
+    public Map<String, String> getServerInformation()
+    {
+        return getGlobalState().getOpenBisService().getServerInformation();
     }
 
     @Override

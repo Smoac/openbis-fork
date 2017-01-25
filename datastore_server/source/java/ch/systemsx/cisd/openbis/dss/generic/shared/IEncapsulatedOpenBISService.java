@@ -431,6 +431,9 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     @ManagedAuthentication
     public void checkSession(String sessionToken);
 
+    @ManagedAuthentication
+    public Map<String, String> getServerInformation();
+
     /**
      * Return a list of users who could be considered administrators. See {@link IServiceForDataStoreServer#listAdministrators(String)}
      */

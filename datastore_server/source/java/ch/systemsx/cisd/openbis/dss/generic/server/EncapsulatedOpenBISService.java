@@ -785,6 +785,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public Map<String, String> getServerInformation()
+    {
+        return service.getServerInformation(session.getSessionToken());
+    }
+
+    @Override
     public List<String> generateCodes(String prefix, EntityKind entityKind, int size)
     {
         return service.generateCodes(session.getSessionToken(), prefix, entityKind, size);

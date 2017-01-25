@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
@@ -332,6 +333,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
         return transaction.getGlobalState();
+    }
+
+    @Override
+    public Map<String, String> getServerInformation()
+    {
+        return transaction.getServerInformation();
     }
 
     @Override
