@@ -1125,7 +1125,5 @@ REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 REVOKE ALL ON TABLE operation_executions FROM PUBLIC;
-REVOKE ALL ON TABLE operation_executions FROM anttil;
-GRANT ALL ON TABLE operation_executions TO anttil;
 GRANT SELECT ON TABLE operation_executions TO openbis_readonly;
 
