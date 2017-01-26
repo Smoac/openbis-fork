@@ -814,12 +814,13 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
-		this.getServerInfo = function() {
+		
+		this.getServerInformation = function() {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "getServerInfo",
+					"method" : "getServerInformation",
 					"params" : [ thisFacade._private.sessionToken]
 				}
 			});

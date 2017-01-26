@@ -82,6 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -740,6 +741,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isProjectSamplesEnabled(String sessionToken)
+    {
+        return SamplePE.projectSamplesEnabled;
     }
 
     @SuppressWarnings("deprecation")
