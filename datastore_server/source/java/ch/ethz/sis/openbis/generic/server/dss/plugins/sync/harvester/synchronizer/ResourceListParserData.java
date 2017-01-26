@@ -24,11 +24,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.map.MultiKeyMap;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
@@ -44,6 +53,8 @@ public class ResourceListParserData
 
     private Set<String> harvesterSpaceList = new HashSet<>();
 
+    private MasterData masterData = new MasterData();
+
     private Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
 
     private Map<String, ExperimentWithConnections> experimentsToProcess = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
@@ -53,6 +64,11 @@ public class ResourceListParserData
     private Map<String, DataSetWithConnections> dataSetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
 
     private Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
+
+    public MasterData getMasterData()
+    {
+        return masterData;
+    }
 
     public Date getResourceListTimestamp()
     {
@@ -108,6 +124,7 @@ public class ResourceListParserData
         }
         return dsMap;
     }
+
 
     public Map<String, DataSetWithConnections> filterContainerDataSets()
     {
@@ -285,6 +302,93 @@ public class ResourceListParserData
         {
             // TODO do this better
             this.connections = conns;
+        }
+    }
+
+    class MasterData
+    {
+        private Map<String, NewVocabulary> vocabulariesToProcess = new HashMap<String, NewVocabulary>();
+
+        private Map<String, PropertyType> propertyTypesToProcess = new HashMap<String, PropertyType>();
+
+        private Map<String, SampleType> sampleTypesToProcess = new HashMap<String, SampleType>();
+
+        private Map<String, DataSetType> dataSetTypesToProcess = new HashMap<String, DataSetType>();
+
+        private Map<String, ExperimentType> experimentTypesToProcess = new HashMap<String, ExperimentType>();
+
+        private Map<String, MaterialType> materialTypesToProcess = new HashMap<String, MaterialType>();
+
+        private MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = new MultiKeyMap<String, List<NewETPTAssignment>>();
+
+        public MultiKeyMap<String, List<NewETPTAssignment>> getPropertyAssignmentsToProcess()
+        {
+            return propertyAssignmentsToProcess;
+        }
+
+        public Map<String, PropertyType> getPropertyTypesToProcess()
+        {
+            return propertyTypesToProcess;
+        }
+
+        public Map<String, DataSetType> getDataSetTypesToProcess()
+        {
+            return dataSetTypesToProcess;
+        }
+
+        public Map<String, ExperimentType> getExperimentTypesToProcess()
+        {
+            return experimentTypesToProcess;
+        }
+
+        public Map<String, MaterialType> getMaterialTypesToProcess()
+        {
+            return materialTypesToProcess;
+        }
+
+        public Map<String, SampleType> getSampleTypesToProcess()
+        {
+            return sampleTypesToProcess;
+        }
+
+        public Map<String, NewVocabulary> getVocabulariesToProcess()
+        {
+            return vocabulariesToProcess;
+        }
+
+        public void setVocabulariesToProcess(Map<String, NewVocabulary> vocabulariesToProcess)
+        {
+            this.vocabulariesToProcess = vocabulariesToProcess;
+        }
+
+        public void setPropertyTypesToProcess(Map<String, PropertyType> propertyTypesToProcess)
+        {
+            this.propertyTypesToProcess = propertyTypesToProcess;
+        }
+
+        public void setSampleTypesToProcess(Map<String, SampleType> sampleTypesToProcess)
+        {
+            this.sampleTypesToProcess = sampleTypesToProcess;
+        }
+
+        public void setDataSetTypesToProcess(Map<String, DataSetType> dataSetTypesToProcess)
+        {
+            this.dataSetTypesToProcess = dataSetTypesToProcess;
+        }
+
+        public void setExperimentTypesToProcess(Map<String, ExperimentType> experimentTypesToProcess)
+        {
+            this.experimentTypesToProcess = experimentTypesToProcess;
+        }
+
+        public void setMaterialTypesToProcess(Map<String, MaterialType> materialTypesToProcess)
+        {
+            this.materialTypesToProcess = materialTypesToProcess;
+        }
+
+        public void setPropertyAssignmentsToProcess(MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess)
+        {
+            this.propertyAssignmentsToProcess = propertyAssignmentsToProcess;
         }
     }
 

@@ -44,12 +44,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.ExperimentWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MasterData;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -81,35 +81,30 @@ public class ResourceListParser
 
     private final String dataStoreCode;
 
-    private final IMasterDataRegistrationTransaction masterDataRegistrationTransaction;
-
     public INameTranslator getNameTranslator()
     {
         return nameTranslator;
     }
 
-    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode,
-            IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
+    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode)
     {
         this.data = new ResourceListParserData();
         this.nameTranslator = nameTranslator;
         this.dataStoreCode = dataStoreCode;
-        this.masterDataRegistrationTransaction = masterDataRegistrationTransaction;
     }
 
-    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode,
-            IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
+    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode)
     {
         if (nameTranslator == null)
         {
-            return create(dataStoreCode, masterDataRegistrationTransaction);
+            return create(dataStoreCode);
         }
-        return new ResourceListParser(nameTranslator, dataStoreCode, masterDataRegistrationTransaction);
+        return new ResourceListParser(nameTranslator, dataStoreCode);
     }
 
-    public static ResourceListParser create(String dataStoreCode, IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
+    public static ResourceListParser create(String dataStoreCode)
     {
-        return create(new DefaultNameTranslator(), dataStoreCode, masterDataRegistrationTransaction);
+        return create(new DefaultNameTranslator(), dataStoreCode);
     }
 
     public ResourceListParserData parseResourceListDocument(Document doc) throws XPathExpressionException
@@ -194,8 +189,16 @@ public class ResourceListParser
 
     private void parseMasterData(Document doc, XPath xpath, String uri) throws XPathExpressionException
     {
-        MasterDataParser mdParser = new MasterDataParser(masterDataRegistrationTransaction);
+        MasterDataParser mdParser = MasterDataParser.create(nameTranslator);
         mdParser.parseMasterData(doc, xpath, uri);
+        MasterData masterData = data.getMasterData();
+        masterData.setVocabulariesToProcess(mdParser.getVocabularies());
+        masterData.setPropertyTypesToProcess(mdParser.getPropertyTypes());
+        masterData.setSampleTypesToProcess(mdParser.getSampleTypes());
+        masterData.setDataSetTypesToProcess(mdParser.getDataSetTypes());
+        masterData.setExperimentTypesToProcess(mdParser.getExperimentTypes());
+        masterData.setMaterialTypesToProcess(mdParser.getMaterialTypes());
+        masterData.setPropertyAssignmentsToProcess(mdParser.getEntityPropertyAssignments());
     }
 
     private void parseUriMetaData(Document doc, XPath xpath, String uri) throws XPathExpressionException

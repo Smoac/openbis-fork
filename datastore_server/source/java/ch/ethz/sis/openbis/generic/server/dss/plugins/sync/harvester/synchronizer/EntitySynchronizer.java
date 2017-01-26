@@ -58,7 +58,6 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetriever;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
@@ -86,10 +85,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationTransaction;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -151,8 +146,6 @@ public class EntitySynchronizer
 
     private final Set<String> blackListedDataSetCodes;
 
-    private final MasterDataRegistrationTransaction masterDataRegistrationTransaction;
-
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
             Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
@@ -166,7 +159,6 @@ public class EntitySynchronizer
         this.context = context;
         this.config = config;
         this.operationLog = operationLog;
-        this.masterDataRegistrationTransaction = getMasterDataRegistrationTransaction();
     }
 
     public Date syncronizeEntities() throws Exception
@@ -191,14 +183,13 @@ public class EntitySynchronizer
             nameTranslator = new PrefixBasedNameTranslator(dataSourcePrefix);
         }
 
-        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode, masterDataRegistrationTransaction); // ,
-                                                                                                                                 // lastSyncTimestamp
+        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode);
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
         processDeletions(data);
 
         operationLog.info("registering master data");
-        // registerMasterData();
+        // registerMasterData(data);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
 
@@ -429,27 +420,10 @@ public class EntitySynchronizer
         processMaterials(data, builder);
     }
 
-    private void registerMasterData()
+    private void registerMasterData(ResourceListParserData data)
     {
-        masterDataRegistrationTransaction.commit();
-        MasterDataTransactionErrors transactionErrors = masterDataRegistrationTransaction.getTransactionErrors();
-        if (false == transactionErrors.getErrors().isEmpty())
-        {
-            MasterDataRegistrationException masterDataRegistrationException =
-                    new MasterDataRegistrationException("Master data synchronization finished with errors:",
-                            Collections
-                                    .<MasterDataTransactionErrors> singletonList(transactionErrors));
-            operationLog.info("Master data synchronizatio finished with errors");
-            masterDataRegistrationException.logErrors(new Log4jSimpleLogger(operationLog));
-        }
-    }
-
-    private MasterDataRegistrationTransaction getMasterDataRegistrationTransaction()
-    {
-        String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
-        String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
-        EncapsulatedCommonServer encapsulatedCommonServer = ServiceFinderUtils.getEncapsulatedCommonServer(sessionToken, openBisServerUrl);
-        return new MasterDataRegistrationTransaction(encapsulatedCommonServer);
+        MasterDataSynchronizer sync = new MasterDataSynchronizer(data.getMasterData());
+        sync.synchronizeMasterData();
     }
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
