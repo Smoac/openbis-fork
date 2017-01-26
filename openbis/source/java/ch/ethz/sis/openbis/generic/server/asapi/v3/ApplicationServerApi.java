@@ -189,6 +189,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 /**
  * @author pkupczyk
@@ -911,15 +912,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         checkSession(sessionToken);
         Map<String, String> info = new HashMap<String, String>();
-//        info.put("api-version", getMajorVersion() + "." + getMinorVersion());
-//        info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
-//        info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
-//        info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
-//        String disabledText = tryGetDisabledText();
-//        if (disabledText != null)
-//        {
-//            info.put("server-disabled-info", disabledText);
-//        }
+        info.put("api-version", getMajorVersion() + "." + getMinorVersion());
+        info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
+        info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
+        info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
+        // String disabledText = tryGetDisabledText();
+        // if (disabledText != null)
+        // {
+        // info.put("server-disabled-info", disabledText);
+        // }
         return info;
     }
 
