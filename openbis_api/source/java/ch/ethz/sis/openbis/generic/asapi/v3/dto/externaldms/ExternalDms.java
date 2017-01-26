@@ -50,10 +50,6 @@ public class ExternalDms implements Serializable, ICodeHolder
     @JsonProperty
     private ExternalDmsType type;
 
-    public ExternalDms()
-    {
-    }
-
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public ExternalDmsFetchOptions getFetchOptions()
@@ -118,7 +114,7 @@ public class ExternalDms implements Serializable, ICodeHolder
     public void setOpenbis(Boolean openbis)
     {
         this.openbis = openbis;
-        if (this.openbis)
+        if (openbis != null && openbis)
         {
             this.type = ExternalDmsType.OPENBIS;
         } else if (this.type == null)
