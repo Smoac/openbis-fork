@@ -1527,3 +1527,9 @@ OPENBIS
 UNDEFINED
 createExternalDataManagementSystems
 fromString
+FullDataSetCreation
+getFileMetadata
+getMetadataCreation
+setFileMetadata
+setMetadataCreation
+DataSetFileCreation
