@@ -743,12 +743,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return false;
     }
 
-    @Override
-    public boolean isProjectSamplesEnabled(String sessionToken)
-    {
-        return SamplePE.projectSamplesEnabled;
-    }
-
     @SuppressWarnings("deprecation")
     @Override
     public void saveDisplaySettings(String sessionToken, final DisplaySettings displaySettings,
