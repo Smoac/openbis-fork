@@ -4,7 +4,9 @@ import java.io.InputStream;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
@@ -45,6 +47,13 @@ public class DataStoreServerApiLogger extends AbstractServerLogger implements
             DataSetFileDownloadOptions downloadOptions)
     {
         logAccess(sessionToken, "download-files", "FILE_IDS:\n%s\n%s", fileIds, downloadOptions);
+        return null;
+    }
+
+    @Override
+    public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
+    {
+        logAccess(sessionToken, "create-data-sets", "DATA_SETS:\n%s", newDataSets);
         return null;
     }
 
