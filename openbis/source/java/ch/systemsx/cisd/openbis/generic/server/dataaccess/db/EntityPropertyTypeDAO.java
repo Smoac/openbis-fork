@@ -279,12 +279,12 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         default:
                             throw new IllegalArgumentException(entityKind.toString());
                     }
-                    SQLQuery clearQuery =
+                    SQLQuery updateQuery =
                             session.createSQLQuery(
                                     "update " + entityTableName + " set modification_timestamp = :timestamp where id in :entityIds ");
-                    clearQuery.setTimestamp("timestamp", getTransactionTimeStamp());
-                    clearQuery.setParameterList("entityIds", entityIds);
-                    clearQuery.executeUpdate();
+                    updateQuery.setTimestamp("timestamp", getTransactionTimeStamp());
+                    updateQuery.setParameterList("entityIds", entityIds);
+                    updateQuery.executeUpdate();
                     return null;
                 }
             });
