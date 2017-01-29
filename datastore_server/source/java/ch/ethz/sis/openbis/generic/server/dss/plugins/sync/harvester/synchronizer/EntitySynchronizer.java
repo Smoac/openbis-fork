@@ -146,6 +146,8 @@ public class EntitySynchronizer
 
     private final Set<String> blackListedDataSetCodes;
 
+    private MasterDataSynchronizer masterDataSyncronizer;
+
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
             Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
@@ -189,6 +191,8 @@ public class EntitySynchronizer
         processDeletions(data);
 
         operationLog.info("registering master data");
+
+        // masterDataSyncronizer = new MasterDataSynchronizer(data.getMasterData());
         // registerMasterData(data);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
@@ -224,7 +228,21 @@ public class EntitySynchronizer
         operationLog.info("start linking/un-linking container and component data sets");
         establishDataSetRelationships(data.getDataSetsToProcess(), notRegisteredDataSets, physicalDSMap);
 
+        // cleanup();
+
         return data.getResourceListTimestamp();
+    }
+
+    private void cleanup()
+    {
+        operationLog.info("Cleaning up unused master data");
+        try
+        {
+            masterDataSyncronizer.cleanupUnusedMasterData();
+        } catch (Exception e)
+        {
+            operationLog.warn(e.getMessage());
+        }
     }
 
     private void establishDataSetRelationships(Map<String, DataSetWithConnections> dataSetsToProcess,
@@ -422,8 +440,7 @@ public class EntitySynchronizer
 
     private void registerMasterData(ResourceListParserData data)
     {
-        MasterDataSynchronizer sync = new MasterDataSynchronizer(data.getMasterData());
-        sync.synchronizeMasterData();
+        masterDataSyncronizer.synchronizeMasterData();
     }
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException

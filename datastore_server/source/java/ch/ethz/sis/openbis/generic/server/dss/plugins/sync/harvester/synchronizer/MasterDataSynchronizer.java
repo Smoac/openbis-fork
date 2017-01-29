@@ -56,24 +56,36 @@ public class MasterDataSynchronizer
 
     final ResourceListParserData.MasterData masterData;
 
+    final Map<TechId, List<VocabularyTerm>> vocabularyTermsToBeDeleted;
+
     public MasterDataSynchronizer(ResourceListParserData.MasterData masterData)
     {
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
         this.sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
         this.commonServer = ServiceFinderUtils.getCommonServer(sessionToken, openBisServerUrl);
         this.masterData = masterData;
+        vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
     }
     
     public void synchronizeMasterData() {
         MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = masterData.getPropertyAssignmentsToProcess();
         processVocabularies(masterData.getVocabulariesToProcess());
-        // materials are registered but their property assignments are deferred untilafter property types are processed
+        // materials are registered but their property assignments are deferred until after property types are processed
         processEntityTypes(masterData.getMaterialTypesToProcess(), propertyAssignmentsToProcess);
         processPropertyTypes(masterData.getPropertyTypesToProcess());
         processEntityTypes(masterData.getSampleTypesToProcess(), propertyAssignmentsToProcess);
         processEntityTypes(masterData.getDataSetTypesToProcess(), propertyAssignmentsToProcess);
         processEntityTypes(masterData.getExperimentTypesToProcess(), propertyAssignmentsToProcess);
         processDeferredMaterialTypePropertyAssignments(propertyAssignmentsToProcess);
+    }
+
+    public void cleanupUnusedMasterData()
+    {
+        for (TechId vocabularyId : vocabularyTermsToBeDeleted.keySet())
+        {
+            commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, vocabularyTermsToBeDeleted.get(vocabularyId),
+                    Collections.<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement> emptyList());
+        }
     }
 
     private void processDeferredMaterialTypePropertyAssignments(MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess)
@@ -134,7 +146,6 @@ public class MasterDataSynchronizer
   
         List<VocabularyTerm> termsToBeAdded = new ArrayList<VocabularyTerm>();
         List<VocabularyTerm> termsToBeUpdated = new ArrayList<VocabularyTerm>();
-        List<VocabularyTerm> termsToBeDeleted = new ArrayList<VocabularyTerm>();
         for (VocabularyTerm incomingTerm : incomingTerms)
         {
             String termCode = incomingTerm.getCode();
@@ -152,6 +163,7 @@ public class MasterDataSynchronizer
             }
         }
 
+        List<VocabularyTerm> termsToBeDeleted = new ArrayList<VocabularyTerm>();
         for (VocabularyTerm term : existingVocabulary.getTerms())
         {
             String termCode = term.getCode();
@@ -160,15 +172,16 @@ public class MasterDataSynchronizer
                 termsToBeDeleted.add(term);
             }
         }
+
+        // defer deletions of vocabulary terms until after the entities referencing the terms are synced
+        if (termsToBeDeleted.isEmpty() == false)
+        {
+            vocabularyTermsToBeDeleted.put(new TechId(existingVocabulary.getId()), termsToBeDeleted);
+        }
         commonServer.addVocabularyTerms(sessionToken, new TechId(existingVocabulary.getId()), termsToBeAdded, null, true);
         for (VocabularyTerm term : termsToBeUpdated)
         {
             commonServer.updateVocabularyTerm(sessionToken, term);
-        }
-        if (termsToBeDeleted.isEmpty() == false)
-        {
-            commonServer.deleteVocabularyTerms(sessionToken, new TechId(existingVocabulary.getId()), termsToBeDeleted,
-                    Collections.<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement> emptyList());
         }
     }
 
@@ -236,20 +249,13 @@ public class MasterDataSynchronizer
 
     @SuppressWarnings("rawtypes")
     private void processPropertyAssignments(EntityType existingEntityType,
-            List<NewETPTAssignment> list)
+            List<NewETPTAssignment> incomingAssignmentsList)
     {
-        assert list != null : "Null assignments list";
-        for (NewETPTAssignment newETPTAssignment : list)
+        assert incomingAssignmentsList != null : "Null assignments list";
+        List<? extends EntityTypePropertyType> assignedPropertyTypes = existingEntityType.getAssignedPropertyTypes();
+        for (NewETPTAssignment newETPTAssignment : incomingAssignmentsList)
         {
-            List<? extends EntityTypePropertyType> assignedPropertyTypes = existingEntityType.getAssignedPropertyTypes();
-            boolean found = false;
-            for (EntityTypePropertyType entityTypePropertyType : assignedPropertyTypes)
-            {
-                if (entityTypePropertyType.getPropertyType().getCode().equals(newETPTAssignment.getPropertyTypeCode()))
-                {
-                    found = true;
-                }
-            }
+            boolean found = findInExistingPropertyAssignments(newETPTAssignment, assignedPropertyTypes);
             if (found)
             {
                 commonServer.updatePropertyTypeAssignment(sessionToken, newETPTAssignment);
@@ -259,6 +265,42 @@ public class MasterDataSynchronizer
                 commonServer.assignPropertyType(sessionToken, newETPTAssignment);
             }
         }
+        // remove property assignments that are no longer valid
+        for (EntityTypePropertyType etpt : assignedPropertyTypes)
+        {
+            if (findInIncomingPropertyAssignments(etpt, incomingAssignmentsList) == false)
+            {
+                commonServer.unassignPropertyType(sessionToken, existingEntityType.getEntityKind(), etpt.getPropertyType().getCode(), etpt
+                        .getEntityType().getCode());
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private boolean findInIncomingPropertyAssignments(EntityTypePropertyType existingEtpt, List<NewETPTAssignment> incomingAssignmentsList)
+    {
+        for (NewETPTAssignment newETPTAssignment : incomingAssignmentsList)
+        {
+            if (newETPTAssignment.getPropertyTypeCode().equals(existingEtpt.getPropertyType().getCode()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private boolean findInExistingPropertyAssignments(NewETPTAssignment incomingETPTAssignment,
+            List<? extends EntityTypePropertyType> assignedPropertyTypes)
+    {
+        for (EntityTypePropertyType entityTypePropertyType : assignedPropertyTypes)
+        {
+            if (entityTypePropertyType.getPropertyType().getCode().equals(incomingETPTAssignment.getPropertyTypeCode()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void registerEntityType(EntityKind entityKind, EntityType incomingEntityType)

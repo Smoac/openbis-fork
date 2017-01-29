@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -205,7 +206,7 @@ public class MasterDataParser
                 materialType.setDescription(getAttribute(materialTypeElement, "description"));
                 materialTypes.put(materialType.getCode(), materialType);
 
-                parsePropertyAssignments(materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
+                parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
             }
         }
     }
@@ -225,7 +226,7 @@ public class MasterDataParser
                 expType.setDescription(getAttribute(expTypeElement, "description"));
                 experimentTypes.put(expType.getCode(), expType);
 
-                parsePropertyAssignments(expType, expTypeElement.getElementsByTagName("propertyAssignments"));
+                parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement.getElementsByTagName("propertyAssignments"));
             }
         }
     }
@@ -251,7 +252,7 @@ public class MasterDataParser
                 sampleType.setGeneratedCodePrefix(getAttribute(sampleTypeElement, "generatedCodePrefix"));
                 sampleTypes.put(sampleType.getCode(), sampleType);
 
-                parsePropertyAssignments(sampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
+                parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
             }
         }
     }
@@ -290,15 +291,16 @@ public class MasterDataParser
                 dataSetType.setDeletionDisallow(Boolean.valueOf(getAttribute(dataSetTypeElement, "deletionDisallowed")));
                 dataSetTypes.put(dataSetType.getCode(), dataSetType);
 
-                parsePropertyAssignments(dataSetType, dataSetTypeElement.getElementsByTagName("propertyAssignments"));
+                parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement.getElementsByTagName("propertyAssignments"));
             }
         }
     }
 
-    private void parsePropertyAssignments(EntityType entityType, NodeList propertyAssignmentsNode)
+    private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, NodeList propertyAssignmentsNode)
     {
         if (propertyAssignmentsNode.getLength() == 1)
         {
+            List<NewETPTAssignment> list = new ArrayList<NewETPTAssignment>();
             Element propertyAssignmentsElement = (Element) propertyAssignmentsNode.item(0);
             NodeList propertyAssignmentNodes = propertyAssignmentsElement.getElementsByTagName("propertyAssignment");
             for (int i = 0; i < propertyAssignmentNodes.getLength(); i++)
@@ -314,15 +316,9 @@ public class MasterDataParser
                 assignment.setSection(getAttribute(propertyAssignmentElement, "section"));
                 assignment.setOrdinal(Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal")));
                 assignment.setShownInEditView(Boolean.valueOf(getAttribute(propertyAssignmentElement, "showInEdit")));
-
-                List<NewETPTAssignment> list = entityPropertyAssignments.get(entityType.getCode());
-                if (list == null)
-                {
-                    list = new ArrayList<NewETPTAssignment>();
-                    entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
-                }
                 list.add(assignment);
             }
+            entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
         }
     }
 
@@ -346,7 +342,7 @@ public class MasterDataParser
                 newPropertyType.setInternalNamespace(Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace")));
                 newPropertyType.setCode(CodeConverter.tryToBusinessLayer(code, newPropertyType.isInternalNamespace()));
 
-                propertyTypes.put(CodeConverter.tryToDatabase(code), newPropertyType);
+                propertyTypes.put(newPropertyType.getCode(), newPropertyType);
                 if (dataTypeCode.equals(DataTypeCode.CONTROLLEDVOCABULARY))
                 {
                     String vocabularyCode = getAttribute(propertyTypeElement, "vocabulary");
