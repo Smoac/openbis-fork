@@ -44,8 +44,8 @@ var SampleDataGridUtil = new function() {
 			sortable : true,
 			render : function(data) {
 				var nameToUse = "N/A";
-				if(data.Name) {
-					nameToUse = data.Name;
+				if(data.NAME) {
+					nameToUse = data.NAME;
 				}
 				return (isLinksDisabled)?nameToUse:FormUtil.getFormLink(nameToUse, "Sample", data.permId);
 			}
