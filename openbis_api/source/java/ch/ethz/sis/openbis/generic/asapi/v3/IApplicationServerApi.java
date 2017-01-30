@@ -52,11 +52,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
@@ -186,9 +181,6 @@ public interface IApplicationServerApi extends IRpcService
 
     public List<TagPermId> createTags(String sessionToken, List<TagCreation> newTags);
 
-    public List<ExternalDmsPermId> createExternalDataManagementSystems(String sessionToken,
-            List<ExternalDmsCreation> newExternalDataManagementSystems);
-
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates);
 
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates);
@@ -226,9 +218,6 @@ public interface IApplicationServerApi extends IRpcService
             VocabularyTermFetchOptions fetchOptions);
 
     public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions);
-
-    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
-            ExternalDmsFetchOptions fetchOptions);
 
     public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(String sessionToken,
             List<? extends IOperationExecutionId> executionIds, OperationExecutionFetchOptions fetchOptions);

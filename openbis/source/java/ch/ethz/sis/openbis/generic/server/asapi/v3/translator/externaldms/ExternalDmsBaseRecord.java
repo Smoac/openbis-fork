@@ -30,6 +30,6 @@ public class ExternalDmsBaseRecord extends ObjectBaseRecord
 
     public String urlTemplate;
 
-    public String type;
+    public Boolean openbis;
 
 }

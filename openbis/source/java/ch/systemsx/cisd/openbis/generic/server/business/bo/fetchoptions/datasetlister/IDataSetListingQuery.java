@@ -46,7 +46,7 @@ public interface IDataSetListingQuery extends BaseQuery
             + " pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.email as pe_email, pe.user_id as pe_user_id,"
             + " mod.first_name as mod_first_name, mod.last_name as mod_last_name, mod.email as mod_email, mod.user_id as mod_user_id,"
             + " pre.code as pre_code, spe.code as spe_code, sps.code as sps_code,"
-            + " ld.external_code as ld_external_code, edms.id as edms_id, edms.code as edms_code, edms.label as edms_label, edms.url_template as edms_url_template, edms.type as edms_type"
+            + " ld.external_code as ld_external_code, edms.id as edms_id, edms.code as edms_code, edms.label as edms_label, edms.url_template as edms_url_template, edms.is_openbis as edms_is_openbis"
             + " from data ds inner join data_set_types dt on ds.dsty_id = dt.id"
             + " left outer join experiments ex on ds.expe_id = ex.id"
             + " left outer join external_data ed on ds.id = ed.data_id"

@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -255,7 +254,7 @@ public class DataSetLister implements IDataSetLister
             edms.setLabel(dataSet.edms_label);
             edms.setUrlTemplate(dataSet.edms_url_template);
             edms.setDatabaseInstance(db);
-            edms.setType(ExternalDataManagementSystemType.fromString(dataSet.edms_type));
+            edms.setOpenBIS(dataSet.edms_is_openbis);
             initializer.setExternalDataManagementSystem(edms);
         }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));

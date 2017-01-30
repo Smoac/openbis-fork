@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
@@ -44,7 +43,7 @@ public class ExternalDataManagementSystemDAOTest extends AbstractDAOTest
         edms.setCode(EXAMPLE_CODE);
         edms.setUrlTemplate("http://www.google.com/${code}");
         edms.setLabel(EXAMPLE_LABEL);
-        edms.setType(ExternalDataManagementSystemType.OPENBIS);
+        edms.setOpenBIS(true);
         daoFactory.getExternalDataManagementSystemDAO().createOrUpdateExternalDataManagementSystem(
                 edms);
         assertNotNull(edms.getId());

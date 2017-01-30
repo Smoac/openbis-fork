@@ -44,8 +44,6 @@ public class ExternalDataManagementSystem extends Code<ExternalDataManagementSys
 
     private boolean openBIS;
 
-    private ExternalDataManagementSystemType type;
-
     @JsonIgnore
     public Long getId()
     {
@@ -96,24 +94,6 @@ public class ExternalDataManagementSystem extends Code<ExternalDataManagementSys
     public void setOpenBIS(boolean openBIS)
     {
         this.openBIS = openBIS;
-        if (openBIS)
-        {
-            this.type = ExternalDataManagementSystemType.OPENBIS;
-        } else if (this.type == null)
-        {
-            this.type = ExternalDataManagementSystemType.UNDEFINED;
-        }
-    }
-
-    public ExternalDataManagementSystemType getType()
-    {
-        return type;
-    }
-
-    public void setType(ExternalDataManagementSystemType type)
-    {
-        this.type = type;
-        this.openBIS = ExternalDataManagementSystemType.OPENBIS.equals(type);
     }
 
     @JsonProperty("id")

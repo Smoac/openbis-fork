@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperationResult;
@@ -31,7 +30,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.create.Create
 /**
  * @author anttil
  */
-@Component
+// @Component
 public class CreateExternalDmsOperationExecutor extends CreateObjectsOperationExecutor<ExternalDmsCreation, ExternalDmsPermId> implements
         ICreateExternalDmsOperationExecutor
 {

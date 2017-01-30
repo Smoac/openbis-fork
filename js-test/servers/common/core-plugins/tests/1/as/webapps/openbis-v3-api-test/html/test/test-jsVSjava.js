@@ -39,6 +39,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"IDataSetFileId" : "Java class not implemented in JS: ",
 			"DataSetFileFetchOptions" : "Java class not implemented in JS: ",
 			"DataSetFileSortOptions" : "Java class not implemented in JS: ",
+			"ExternalDmsCreation" : "Java class not implemented in JS: ",
+			"FullDataSetCreation" : "Java class not implemented in JS: ",
+			"DataSetFileCreation" : "Java class not implemented in JS: ",
 		}
 
 		//

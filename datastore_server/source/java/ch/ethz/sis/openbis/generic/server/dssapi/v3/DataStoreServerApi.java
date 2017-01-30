@@ -38,14 +38,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.create.DataSetFileCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
@@ -53,13 +50,11 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.download.DataSetFileDownloadInputStream;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
-import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -70,11 +65,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
-import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author Jakub Straszewski
@@ -293,42 +286,42 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         return new DataStoreServerApiLogger(context);
     }
 
-    @Override
-    @Transactional
-    public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
-    {
-        List<String> permIds = getOpenBISService().createPermIds(newDataSets.size());
-
-        IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
-
-        for (int i = 0; i < newDataSets.size(); i++)
-        {
-            String permId = permIds.get(i);
-            List<DataSetFileCreation> files = newDataSets.get(i).getFileMetadata();
-
-            long dataSetId =
-                    dao.createDataSet(permId, newDataSets.get(i).getMetadataCreation().getLinkedData().getExternalDmsId().toString());
-            try
-            {
-                dao.createDataSetFiles(PathInfoDTOCreator.createPathEntries(dataSetId, permId, files));
-            } catch (IllegalArgumentException e)
-            {
-                dao.rollback();
-                dao.close();
-                throw new UserFailureException(e.getMessage());
-            }
-        }
-        dao.commit();
-        dao.close();
-
-        List<DataSetCreation> metadata = new ArrayList<>();
-        for (int i = 0; i < newDataSets.size(); i++)
-        {
-            DataSetCreation creation = newDataSets.get(i).getMetadataCreation();
-            creation.setCode(permIds.get(i));
-            metadata.add(creation);
-        }
-
-        return as.createDataSets(sessionToken, metadata);
-    }
+    // @Override
+    // @Transactional
+    // public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
+    // {
+    // List<String> permIds = getOpenBISService().createPermIds(newDataSets.size());
+    //
+    // IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
+    //
+    // for (int i = 0; i < newDataSets.size(); i++)
+    // {
+    // String permId = permIds.get(i);
+    // List<DataSetFileCreation> files = newDataSets.get(i).getFileMetadata();
+    //
+    // long dataSetId =
+    // dao.createDataSet(permId, newDataSets.get(i).getMetadataCreation().getLinkedData().getExternalDmsId().toString());
+    // try
+    // {
+    // dao.createDataSetFiles(PathInfoDTOCreator.createPathEntries(dataSetId, permId, files));
+    // } catch (IllegalArgumentException e)
+    // {
+    // dao.rollback();
+    // dao.close();
+    // throw new UserFailureException(e.getMessage());
+    // }
+    // }
+    // dao.commit();
+    // dao.close();
+    //
+    // List<DataSetCreation> metadata = new ArrayList<>();
+    // for (int i = 0; i < newDataSets.size(); i++)
+    // {
+    // DataSetCreation creation = newDataSets.get(i).getMetadataCreation();
+    // creation.setCode(permIds.get(i));
+    // metadata.add(creation);
+    // }
+    //
+    // return as.createDataSets(sessionToken, metadata);
+    // }
 }

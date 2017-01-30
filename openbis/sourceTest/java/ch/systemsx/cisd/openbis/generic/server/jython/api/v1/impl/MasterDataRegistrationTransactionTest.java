@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -442,7 +441,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                     edms.setCode(KNOWN);
                     edms.setLabel("old label");
                     edms.setUrlTemplate("old url template");
-                    edms.setType(ExternalDataManagementSystemType.UNDEFINED);
+                    edms.setOpenBIS(false);
 
                     one(server).getExternalDataManagementSystem(SESSION_TOKEN, KNOWN);
                     will(returnValue(edms));
@@ -453,7 +452,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 transaction.getOrCreateNewExternalDataManagementSystem(KNOWN);
         edms.setLabel("new label");
         edms.setUrlTemplate("new url template");
-        edms.setType(ExternalDataManagementSystemType.OPENBIS);
+        edms.setOpenBIS(true);
 
         assertEquals(KNOWN, edms.getCode());
         assertEquals("old label", edms.getLabel());
@@ -477,7 +476,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 transaction.getOrCreateNewExternalDataManagementSystem(UNKNOWN);
         edms.setLabel("new label");
         edms.setUrlTemplate("new url template");
-        edms.setType(ExternalDataManagementSystemType.OPENBIS);
+        edms.setOpenBIS(true);
 
         assertEquals(UNKNOWN, edms.getCode());
         assertEquals("new label", edms.getLabel());

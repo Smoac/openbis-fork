@@ -18,14 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -35,8 +32,6 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -45,9 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 @Entity
 @Table(name = TableNames.EXTERNAL_DATA_MANAGEMENT_SYSTEMS_TABLE)
 public class ExternalDataManagementSystemPE extends
-        AbstractIdAndCodeHolder<ExternalDataManagementSystemPE> implements IIdentityHolder
+        AbstractIdAndCodeHolder<ExternalDataManagementSystemPE>
 {
-
     private static final long serialVersionUID = IServer.VERSION;
 
     private transient Long id;
@@ -58,7 +52,7 @@ public class ExternalDataManagementSystemPE extends
 
     private String urlTemplate;
 
-    private ExternalDataManagementSystemType type;
+    private boolean openBIS;
 
     @Override
     @Id
@@ -112,37 +106,15 @@ public class ExternalDataManagementSystemPE extends
         this.urlTemplate = urlTemplate;
     }
 
-    @Column(name = ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_TYPE_COLUMN)
-    @Enumerated(EnumType.STRING)
+    @Column(name = ColumnNames.IS_OPENBIS_COLUMN)
     @NotNull
-    public ExternalDataManagementSystemType getType()
-    {
-        return type;
-    }
-
-    public void setType(ExternalDataManagementSystemType type)
-    {
-        this.type = type;
-    }
-
-    @Transient
     public boolean isOpenBIS()
     {
-        return ExternalDataManagementSystemType.OPENBIS.equals(type);
+        return openBIS;
     }
 
-    @Override
-    @Transient
-    public String getPermId()
+    public void setOpenBIS(final boolean openBIS)
     {
-        return code;
+        this.openBIS = openBIS;
     }
-
-    @Override
-    @Transient
-    public String getIdentifier()
-    {
-        return code;
-    }
-
 }

@@ -72,7 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -1296,7 +1295,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         result.setCode(edmsRecord.code);
         result.setLabel(edmsRecord.label);
         result.setUrlTemplate(edmsRecord.url_template);
-        result.setType(ExternalDataManagementSystemType.fromString(edmsRecord.type));
+        result.setOpenBIS(edmsRecord.is_openbis);
 
         return result;
     }

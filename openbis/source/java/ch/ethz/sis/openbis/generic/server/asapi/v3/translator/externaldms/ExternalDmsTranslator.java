@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -68,7 +67,7 @@ public class ExternalDmsTranslator extends AbstractCachingTranslator<Long, Exter
         result.setCode(baseRecord.code);
         result.setLabel(baseRecord.label);
         result.setUrlTemplate(baseRecord.urlTemplate);
-        result.setType(ExternalDmsType.fromString(baseRecord.type));
+        result.setOpenbis(baseRecord.openbis);
     }
 
 }

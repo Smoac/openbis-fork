@@ -20,8 +20,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
@@ -50,7 +48,4 @@ public interface IDataStoreServerApi extends IRpcService
 
     public InputStream downloadFiles(String sessionToken, List<? extends IDataSetFileId> fileIds,
             DataSetFileDownloadOptions downloadOptions);
-
-    public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets);
-
 }

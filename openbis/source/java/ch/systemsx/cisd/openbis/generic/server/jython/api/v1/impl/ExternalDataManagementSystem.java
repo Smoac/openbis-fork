@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystem;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /**
  * @author Pawel Glyzewski
@@ -43,8 +42,8 @@ public class ExternalDataManagementSystem extends ExternalDataManagementSystemIm
     }
 
     @Override
-    public void setType(ExternalDataManagementSystemType type)
+    public void setOpenBIS(boolean openBIS)
     {
-        getExternalDataManagementSystem().setType(type);
+        getExternalDataManagementSystem().setOpenBIS(openBIS);
     }
 }

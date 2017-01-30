@@ -1533,3 +1533,5 @@ getMetadataCreation
 setFileMetadata
 setMetadataCreation
 DataSetFileCreation
+isOpenBIS
+setOpenBIS

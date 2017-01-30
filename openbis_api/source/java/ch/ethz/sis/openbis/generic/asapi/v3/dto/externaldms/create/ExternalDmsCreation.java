@@ -20,7 +20,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -37,7 +36,7 @@ public class ExternalDmsCreation implements ICreation, IObjectCreation, ICreatio
 
     private String urlTemplate;
 
-    private ExternalDmsType type;
+    private boolean isOpenBIS;
 
     private CreationId creationId;
 
@@ -71,14 +70,14 @@ public class ExternalDmsCreation implements ICreation, IObjectCreation, ICreatio
         this.urlTemplate = urlTemplate;
     }
 
-    public ExternalDmsType getType()
+    public boolean isOpenBIS()
     {
-        return type;
+        return isOpenBIS;
     }
 
-    public void setType(ExternalDmsType type)
+    public void setOpenBIS(boolean openBIS)
     {
-        this.type = type;
+        this.isOpenBIS = openBIS;
     }
 
     @Override
