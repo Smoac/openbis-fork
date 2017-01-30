@@ -630,9 +630,39 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         {
             for (Map.Entry<Class<? extends IEntityInformationWithPropertiesHolder>, List<Long>> entry : changedEntitiesMap.entrySet())
             {
+                Class<? extends IEntityInformationWithPropertiesHolder> key = entry.getKey();
+                // update modification timestamps of the entities
+                EntityKind entityKind = getEntityKind(key.getClass());
+                IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
+                entityPropertyTypeDAO.updateEntityModificationTimestamps(entry.getValue());
+
                 getPersistencyResources().getDynamicPropertyEvaluationScheduler()
                         .scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entry.getKey(), entry.getValue()));
             }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private EntityKind getEntityKind(Class clazz)
+    {
+        if (clazz.isInstance(ExperimentPE.class))
+        {
+            return EntityKind.EXPERIMENT;
+        }
+        else if (clazz.isInstance(SamplePE.class))
+        {
+            return EntityKind.SAMPLE;
+        }
+        else if (clazz.isInstance(DataPE.class))
+        {
+            return EntityKind.DATA_SET;
+        }
+        else if (clazz.isInstance(MaterialPE.class))
+        {
+            return EntityKind.DATA_SET;
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity class: " + clazz);
         }
     }
 
