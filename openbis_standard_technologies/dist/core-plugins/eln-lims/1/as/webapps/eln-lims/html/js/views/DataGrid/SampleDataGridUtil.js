@@ -43,7 +43,7 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				var nameToUse = "N/A";
+				var nameToUse = "";
 				if(data.NAME) {
 					nameToUse = data.NAME;
 				}
