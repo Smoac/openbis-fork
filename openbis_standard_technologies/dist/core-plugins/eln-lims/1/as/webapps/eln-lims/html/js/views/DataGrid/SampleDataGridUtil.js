@@ -437,26 +437,32 @@ var SampleDataGridUtil = new function() {
 				$dropDownMenu.dropdown();
 				$dropDownMenu.click(clickFunction($dropDownMenu));
 				
-				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
-				$openHierarchy.click(function(e) {
+				var $hierarchyGraph = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
+				$hierarchyGraph.click(function(e) {
 					mainController.changeView('showSampleHierarchyPage', data.permId, true);
 				});
-				$list.append($openHierarchy);
+				$list.append($hierarchyGraph);
 				
-				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
-				$openHierarchy.click(function(e) {
+				var $hierarchyTable = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
+				$hierarchyTable.click(function(e) {
 					mainController.changeView('showSampleHierarchyTablePage', data.permId, true);
 				});
-				$list.append($openHierarchy);
+				$list.append($hierarchyTable);
 				
-				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Move'}).append("Move"));
-				$openHierarchy.click(function(e) {
+				var $upload = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'File Upload'}).append("File Upload"));
+				$upload.click(function(e) {
+					mainController.changeView('showCreateDataSetPageFromPermId', data.permId, true);
+				});
+				$list.append($upload);
+				
+				var $move = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Move'}).append("Move"));
+				$move.click(function(e) {
 					var moveSampleController = new MoveSampleController(data.permId, function() {
 						mainController.refreshView();
 					});
 					moveSampleController.init();
 				});
-				$list.append($openHierarchy);
+				$list.append($move);
 				
 				return $dropDownMenu;
 			},
