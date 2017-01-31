@@ -115,6 +115,12 @@ $.extend(DefaultProfile.prototype, {
 		this.isAdmin = false;
 		
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
+		this.forceMonospaceFont = ["SEQUENCE"];
+		
+		this.isForcedMonospaceFont = function(propertytype) {
+			return (propertytype && $.inArray(propertytype.code, this.forceMonospaceFont) !== -1);
+		}
+		
 		this.isForcedDisableRTF = function(propertytype) {
 			return (propertytype && $.inArray(propertytype.code, this.forcedDisableRTF) !== -1);
 		}
