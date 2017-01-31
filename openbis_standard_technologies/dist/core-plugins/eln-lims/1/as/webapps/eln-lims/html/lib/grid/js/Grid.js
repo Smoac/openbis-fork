@@ -429,7 +429,13 @@ $.extend(Grid.prototype, {
 		});
 
 		if(this.onChangeState) {
-			this.tableSettings.columns = columnsModel;
+			if(this.tableSettings.columns) {
+				for(key in columnsModel) {
+					this.tableSettings.columns[key] = columnsModel[key];
+				}
+			} else {
+				this.tableSettings.columns = columnsModel;
+			}
 			this.onChangeState(this.tableSettings);
 		}
 		
