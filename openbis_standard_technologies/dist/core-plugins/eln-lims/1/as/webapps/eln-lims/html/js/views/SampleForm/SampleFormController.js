@@ -90,7 +90,7 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.deleteSample = function(reason) {
 		var _this = this;
-		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.permId], reason, function(data) {
+		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.id], reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {

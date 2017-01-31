@@ -362,26 +362,33 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}
 	
-	this.deleteSamples = function(samplePermIds, reason, callback, confirmDeletions) {
-		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
-		        function(SamplePermId, SampleDeletionOptions) {
-		            var samplePermIdsObj = [];
-		            for(var sPIdx = 0; sPIdx < samplePermIds.length; sPIdx++) {
-		            	samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
-		            }
-		 
-		            var deletionOptions = new SampleDeletionOptions();
-		            deletionOptions.setReason(reason);
-		 
-		            // logical deletion (move objects to the trash can)
-		            mainController.openbisV3.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
-		            	if(confirmDeletions) {
-		            		mainController.openbisV3.confirmDeletions([deletionId]).then(callback);
-		            	} else {
-		            		callback(deletionId);
-		            	}
-		            });
-		 });
+	
+	this.deleteSamples = function(samplePermIdsOrIds, reason, callback, confirmDeletions) {
+		if(!confirmDeletions) {
+			var sampleIds = samplePermIdsOrIds;
+			this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", callback);
+		} else {
+			var samplePermIds = samplePermIdsOrIds;
+			require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
+			        function(SamplePermId, SampleDeletionOptions) {
+			            var samplePermIdsObj = [];
+			            for(var sPIdx = 0; sPIdx < samplePermIds.length; sPIdx++) {
+			            	samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
+			            }
+			 
+			            var deletionOptions = new SampleDeletionOptions();
+			            deletionOptions.setReason(reason);
+			 
+			            // logical deletion (move objects to the trash can)
+			            mainController.openbisV3.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
+			            	if(confirmDeletions) {
+			            		mainController.openbisV3.confirmDeletions([deletionId]).then(callback);
+			            	} else {
+			            		callback(deletionId);
+			            	}
+			            });
+			 });
+		}
 	}
 	
 	this.deleteExperiments = function(experimentIds, reason, callback) {
