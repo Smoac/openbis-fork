@@ -129,7 +129,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     public void setUp(String pluginName, Properties properties)
     {
         blaster = getBlaster(properties);
-        dataSetTypePatterns = getDataSetTypePatterns(properties);
+        dataSetTypePatterns = PropertyUtils.getPatterns(properties, DATASET_TYPES_PROPERTY);
         fileTypes = Arrays.asList(properties.getProperty(FILE_TYPES_PROPERTY, DEFAULT_FILE_TYPES).split(" +"));
         operationLog.info("File types: " + fileTypes);
         lastSeenDataSetFile = getFile(properties, LAST_SEEN_DATA_SET_FILE_PROPERTY, DEFAULT_LAST_SEEN_DATA_SET_FILE);
@@ -154,27 +154,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     protected BlastUtils getBlaster(Properties properties)
     {
         return new BlastUtils(properties, getConfigProvider().getStoreRoot());
-    }
-
-    private List<Pattern> getDataSetTypePatterns(Properties properties)
-    {
-        List<Pattern> patterns = new ArrayList<Pattern>();
-        List<String> dataSetTypeRegexs = PropertyUtils.tryGetList(properties, DATASET_TYPES_PROPERTY);
-        if (dataSetTypeRegexs != null)
-        {
-            for (String regex : dataSetTypeRegexs)
-            {
-                try
-                {
-                    patterns.add(Pattern.compile(regex));
-                } catch (PatternSyntaxException ex)
-                {
-                    throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY
-                            + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
-                }
-            }
-        }
-        return patterns;
     }
 
     private List<Loader> createLoaders(Properties properties)
