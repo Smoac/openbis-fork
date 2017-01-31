@@ -584,7 +584,14 @@ public class EntitySynchronizer
         // delete materials
         MaterialDeletionOptions matDeletionOptions = new MaterialDeletionOptions();
         matDeletionOptions.setReason("sync materials");
-        v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
+
+        try
+        {
+            v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
+        } catch (Exception e)
+        {
+            operationLog.warn("One or more materials could not be deleted due to: " + e.getMessage());
+        }
 
         // confirm deletions
         ArrayList<IDeletionId> deletionIds = new ArrayList<IDeletionId>();

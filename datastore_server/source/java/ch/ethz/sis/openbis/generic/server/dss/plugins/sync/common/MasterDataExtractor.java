@@ -190,11 +190,11 @@ public class MasterDataExtractor
     {
         if (vocabularies.size() > 0)
         {
-            Element vocabsElement = doc.createElement("vocabularies");
+            Element vocabsElement = doc.createElement("controlledVocabularies");
             rootElement.appendChild(vocabsElement);
             for (IVocabularyImmutable vocabImmutable : vocabularies)
             {
-                Element vocabElement = doc.createElement("vocabulary");
+                Element vocabElement = doc.createElement("controlledVocabulary");
                 String code = vocabImmutable.isInternalNamespace()
                         && vocabImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX) ? CodeConverter.tryToDatabase(vocabImmutable.getCode())
                                 : vocabImmutable.getCode();
@@ -267,12 +267,12 @@ public class MasterDataExtractor
     {
         if (experimentTypes.size() > 0)
         {
-            Element experimentTypesElement = doc.createElement("experimentTypes");
+            Element experimentTypesElement = doc.createElement("collectionTypes");
             rootElement.appendChild(experimentTypesElement);
             Map<String, List<PropertyAssignment>> expTypeCodePropAssignmentMap = loadExperimentTypesUsingV3WithPropertyAssignments();
             for (IExperimentTypeImmutable expType : experimentTypes)
             {
-                Element experimentTypeElement = getEntityTypeXML(doc, expType, "experimentType");
+                Element experimentTypeElement = getEntityTypeXML(doc, expType, "collectionType");
                 experimentTypeElement.setAttribute("description", expType.getDescription());
                 // TODO validation script?
                 experimentTypesElement.appendChild(experimentTypeElement);
@@ -286,13 +286,13 @@ public class MasterDataExtractor
     {
         if (sampleTypes.size() > 0)
         {
-            Element sampleTypesElement = doc.createElement("sampleTypes");
+            Element sampleTypesElement = doc.createElement("objectTypes");
             rootElement.appendChild(sampleTypesElement);
 
             Map<String, List<PropertyAssignment>> sampleTypeCodePropAssignmentMap = loadSampleTypesUsingV3WithPropertyAssignments();
             for (ISampleTypeImmutable sampleType : sampleTypes)
             {
-                Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "sampleType");
+                Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "objectType");
                 sampleTypeElement.setAttribute("description", sampleType.getDescription());
                 sampleTypeElement.setAttribute("listable", String.valueOf(sampleType.isListable()));
                 sampleTypeElement.setAttribute("showContainer", String.valueOf(sampleType.isShowContainer()));

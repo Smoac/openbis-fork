@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -59,6 +60,8 @@ public class MasterDataParser
 {
     private final INameTranslator nameTranslator;
     
+    private Map<String, FileFormatType> fileFormatTypes = new HashMap<String, FileFormatType>();
+
     private Map<String, PropertyType> propertyTypes = new HashMap<String, PropertyType>();
 
     private Map<String, SampleType> sampleTypes = new HashMap<String, SampleType>();
@@ -68,16 +71,10 @@ public class MasterDataParser
     private Map<String, ExperimentType> experimentTypes = new HashMap<String, ExperimentType>();
 
     private Map<String, MaterialType> materialTypes = new HashMap<String, MaterialType>();
-    private Map<String, NodeList> materialTypePropertyAssignmentsMap = new HashMap<String, NodeList>();
 
     private Map<String, NewVocabulary> vocabularies = new HashMap<String, NewVocabulary>();
 
     MultiKeyMap<String, List<NewETPTAssignment>> entityPropertyAssignments = new MultiKeyMap<String, List<NewETPTAssignment>>();
-
-    public Map<String, NewVocabulary> getVocabularies()
-    {
-        return vocabularies;
-    }
 
     private MasterDataParser(INameTranslator nameTranslator)
     {
@@ -108,12 +105,23 @@ public class MasterDataParser
             throw new XPathExpressionException("The master data resurce list should contain 1 master data element");
         }
         Element docElement = (Element) xdNode;
-        parseVocabularies(docElement.getElementsByTagName("vocabularies"));
+        parseFileFormatTypes(docElement.getElementsByTagName("fileFormatTypes"));
+        parseVocabularies(docElement.getElementsByTagName("controlledVocabularies"));
         parseMaterialTypes(docElement.getElementsByTagName("materialTypes"));
         parsePropertyTypes(docElement.getElementsByTagName("propertyTypes"));
-        parseSampleTypes(docElement.getElementsByTagName("sampleTypes"));
+        parseSampleTypes(docElement.getElementsByTagName("objectTypes"));
         parseDataSetTypes(docElement.getElementsByTagName("dataSetTypes"));
-        parseExperimentTypes(docElement.getElementsByTagName("experimentTypes"));
+        parseExperimentTypes(docElement.getElementsByTagName("collectionTypes"));
+    }
+
+    public Map<String, FileFormatType> getFileFormatTypes()
+    {
+        return fileFormatTypes;
+    }
+
+    public Map<String, NewVocabulary> getVocabularies()
+    {
+        return vocabularies;
     }
 
     public Map<String, PropertyType> getPropertyTypes()
@@ -146,28 +154,47 @@ public class MasterDataParser
         return materialTypes;
     }
 
+    private void parseFileFormatTypes(NodeList fileFormatTypesNode)
+    {
+        assert fileFormatTypesNode.getLength() == 1 : "Resource List should contain a single 'fileFormatTypes' node";
+
+        Element fileFormatTypesElement = (Element) fileFormatTypesNode.item(0);
+        NodeList fileFormatTypeNodes = fileFormatTypesElement.getElementsByTagName("fileFormatType");
+
+        for (int i = 0; i < fileFormatTypeNodes.getLength(); i++)
+        {
+            Element typeElement = (Element) fileFormatTypeNodes.item(i);
+
+            FileFormatType type = new FileFormatType();
+            String code = getAttribute(typeElement, "code");
+            type.setCode(code);
+            type.setDescription(getAttribute(typeElement, "description"));
+            
+            fileFormatTypes.put(code, type);
+        }
+    }
+
     private void parseVocabularies(NodeList vocabulariesNode)
     {
-        if (vocabulariesNode.getLength() == 1)
+        assert vocabulariesNode.getLength() == 1 : "Resource List should contain a single 'controlledVocabularies' node";
+
+        Element vocabsElement = (Element) vocabulariesNode.item(0);
+        NodeList vocabNodes = vocabsElement.getElementsByTagName("controlledVocabulary");
+
+        for (int i = 0; i < vocabNodes.getLength(); i++)
         {
-            Element vocabsElement = (Element) vocabulariesNode.item(0);
-            NodeList vocabNodes = vocabsElement.getElementsByTagName("vocabulary");
+            Element vocabElement = (Element) vocabNodes.item(i);
+            String code = getAttribute(vocabElement, "code");
 
-            for (int i = 0; i < vocabNodes.getLength(); i++)
-            {
-                Element vocabElement = (Element) vocabNodes.item(i);
-                String code = getAttribute(vocabElement, "code");
-
-                NewVocabulary newVocabulary = new NewVocabulary();
-                newVocabulary.setCode(code);
-                newVocabulary.setDescription(getAttribute(vocabElement, "description"));
-                newVocabulary.setURLTemplate(getAttribute(vocabElement, "urlTemplate"));
-                newVocabulary.setManagedInternally(Boolean.valueOf(getAttribute(vocabElement, "managedInternally")));
-                newVocabulary.setInternalNamespace(Boolean.valueOf(getAttribute(vocabElement, "internalNamespace")));
-                newVocabulary.setChosenFromList(Boolean.valueOf(getAttribute(vocabElement, "chosenFromList")));
-                vocabularies.put(CodeConverter.tryToBusinessLayer(newVocabulary.getCode(), newVocabulary.isInternalNamespace()), newVocabulary);
-                parseVocabularyTerms(vocabElement, newVocabulary);
-            }
+            NewVocabulary newVocabulary = new NewVocabulary();
+            newVocabulary.setCode(code);
+            newVocabulary.setDescription(getAttribute(vocabElement, "description"));
+            newVocabulary.setURLTemplate(getAttribute(vocabElement, "urlTemplate"));
+            newVocabulary.setManagedInternally(Boolean.valueOf(getAttribute(vocabElement, "managedInternally")));
+            newVocabulary.setInternalNamespace(Boolean.valueOf(getAttribute(vocabElement, "internalNamespace")));
+            newVocabulary.setChosenFromList(Boolean.valueOf(getAttribute(vocabElement, "chosenFromList")));
+            vocabularies.put(CodeConverter.tryToBusinessLayer(newVocabulary.getCode(), newVocabulary.isInternalNamespace()), newVocabulary);
+            parseVocabularyTerms(vocabElement, newVocabulary);
         }
     }
 
@@ -194,172 +221,166 @@ public class MasterDataParser
 
     private void parseMaterialTypes(NodeList matTypesNode)
     {
-        if (matTypesNode.getLength() == 1)
-        {
-            Element matTypesElement = (Element) matTypesNode.item(0);
-            NodeList matTypeNodes = matTypesElement.getElementsByTagName("materialType");
-            for (int i = 0; i < matTypeNodes.getLength(); i++)
-            {
-                Element materialTypeElement = (Element) matTypeNodes.item(i);
-                MaterialType materialType = new MaterialType();
-                materialType.setCode(getAttribute(materialTypeElement, "code"));
-                materialType.setDescription(getAttribute(materialTypeElement, "description"));
-                materialTypes.put(materialType.getCode(), materialType);
+        assert matTypesNode.getLength() == 1 : "Resource List should contain a single 'materialTypes' node";
 
-                parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
-            }
+        Element matTypesElement = (Element) matTypesNode.item(0);
+        NodeList matTypeNodes = matTypesElement.getElementsByTagName("materialType");
+        for (int i = 0; i < matTypeNodes.getLength(); i++)
+        {
+            Element materialTypeElement = (Element) matTypeNodes.item(i);
+            MaterialType materialType = new MaterialType();
+            materialType.setCode(getAttribute(materialTypeElement, "code"));
+            materialType.setDescription(getAttribute(materialTypeElement, "description"));
+            materialTypes.put(materialType.getCode(), materialType);
+
+            parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
     private void parseExperimentTypes(NodeList expTypesNode)
     {
-        if (expTypesNode.getLength() == 1)
-        {
-            Element expTypesElement = (Element) expTypesNode.item(0);
-            NodeList expTypeNodes = expTypesElement.getElementsByTagName("experimentType");
-            for (int i = 0; i < expTypeNodes.getLength(); i++)
-            {
-                Element expTypeElement = (Element) expTypeNodes.item(i);
-                String code = getAttribute(expTypeElement, "code");
-                ExperimentType expType = new ExperimentType();
-                expType.setCode(code);
-                expType.setDescription(getAttribute(expTypeElement, "description"));
-                experimentTypes.put(expType.getCode(), expType);
+        assert expTypesNode.getLength() == 1 : "Resource List should contain a single 'collectionTypes' node";
 
-                parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement.getElementsByTagName("propertyAssignments"));
-            }
+        Element expTypesElement = (Element) expTypesNode.item(0);
+        NodeList expTypeNodes = expTypesElement.getElementsByTagName("collectionType");
+        for (int i = 0; i < expTypeNodes.getLength(); i++)
+        {
+            Element expTypeElement = (Element) expTypeNodes.item(i);
+            String code = getAttribute(expTypeElement, "code");
+            ExperimentType expType = new ExperimentType();
+            expType.setCode(code);
+            expType.setDescription(getAttribute(expTypeElement, "description"));
+            experimentTypes.put(expType.getCode(), expType);
+
+            parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
     private void parseSampleTypes(NodeList sampleTypesNode)
     {
-        if (sampleTypesNode.getLength() == 1)
-        {
-            Element sampleTypesElement = (Element) sampleTypesNode.item(0);
-            NodeList sampleTypeNodes = sampleTypesElement.getElementsByTagName("sampleType");
-            for (int i = 0; i < sampleTypeNodes.getLength(); i++)
-            {
-                Element sampleTypeElement = (Element) sampleTypeNodes.item(i);
-                SampleType sampleType = new SampleType();
-                sampleType.setCode(getAttribute(sampleTypeElement, "code"));
-                sampleType.setDescription(getAttribute(sampleTypeElement, "description"));
-                sampleType.setListable(Boolean.valueOf(getAttribute(sampleTypeElement, "listable")));
-                sampleType.setShowContainer(Boolean.valueOf(getAttribute(sampleTypeElement, "showContainer")));
-                sampleType.setShowParents(Boolean.valueOf(getAttribute(sampleTypeElement, "showParents")));
-                sampleType.setShowParentMetadata(Boolean.valueOf(getAttribute(sampleTypeElement, "showParentMetadata")));
-                sampleType.setSubcodeUnique(Boolean.valueOf(getAttribute(sampleTypeElement, "subcodeUnique")));
-                sampleType.setAutoGeneratedCode(Boolean.valueOf(getAttribute(sampleTypeElement, "autoGeneratedCode")));
-                sampleType.setGeneratedCodePrefix(getAttribute(sampleTypeElement, "generatedCodePrefix"));
-                sampleTypes.put(sampleType.getCode(), sampleType);
+        assert sampleTypesNode.getLength() == 1 : "Resource List should contain a single 'objectTypes' node";
 
-                parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
-            }
+        Element sampleTypesElement = (Element) sampleTypesNode.item(0);
+        NodeList sampleTypeNodes = sampleTypesElement.getElementsByTagName("objectType");
+        for (int i = 0; i < sampleTypeNodes.getLength(); i++)
+        {
+            Element sampleTypeElement = (Element) sampleTypeNodes.item(i);
+            SampleType sampleType = new SampleType();
+            sampleType.setCode(getAttribute(sampleTypeElement, "code"));
+            sampleType.setDescription(getAttribute(sampleTypeElement, "description"));
+            sampleType.setListable(Boolean.valueOf(getAttribute(sampleTypeElement, "listable")));
+            sampleType.setShowContainer(Boolean.valueOf(getAttribute(sampleTypeElement, "showContainer")));
+            sampleType.setShowParents(Boolean.valueOf(getAttribute(sampleTypeElement, "showParents")));
+            sampleType.setShowParentMetadata(Boolean.valueOf(getAttribute(sampleTypeElement, "showParentMetadata")));
+            sampleType.setSubcodeUnique(Boolean.valueOf(getAttribute(sampleTypeElement, "subcodeUnique")));
+            sampleType.setAutoGeneratedCode(Boolean.valueOf(getAttribute(sampleTypeElement, "autoGeneratedCode")));
+            sampleType.setGeneratedCodePrefix(getAttribute(sampleTypeElement, "generatedCodePrefix"));
+            sampleTypes.put(sampleType.getCode(), sampleType);
+
+            parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
     private void parseDataSetTypes(NodeList dataSetTypesNode)
     {
-        if (dataSetTypesNode.getLength() == 1)
-        {
-            Element dataSetTypesElement = (Element) dataSetTypesNode.item(0);
-            NodeList dataSetTypeNodes = dataSetTypesElement.getElementsByTagName("dataSetType");
-            for (int i = 0; i < dataSetTypeNodes.getLength(); i++)
-            {
-                Element dataSetTypeElement = (Element) dataSetTypeNodes.item(i);
-                String code = getAttribute(dataSetTypeElement, "code");
-                DataSetType dataSetType = new DataSetType();
-                dataSetType.setCode(code);
-                dataSetType.setDescription(getAttribute(dataSetTypeElement, "description"));
-                dataSetType.setDataSetKind(DataSetKind.valueOf(getAttribute(dataSetTypeElement, "dataSetKind")));
-                String mainDataSetPattern = getAttribute(dataSetTypeElement, "mainDataSetPattern");
-                if (mainDataSetPattern.length() < 1)
-                {
-                    dataSetType.setMainDataSetPattern(null);
-                }
-                else
-                {
-                    dataSetType.setMainDataSetPattern(mainDataSetPattern);
-                }
-                if (mainDataSetPattern.length() < 1)
-                {
-                    dataSetType.setMainDataSetPath(null);
-                }
-                else
-                {
-                    dataSetType.setMainDataSetPath(mainDataSetPattern);
-                }
-                dataSetType.setDeletionDisallow(Boolean.valueOf(getAttribute(dataSetTypeElement, "deletionDisallowed")));
-                dataSetTypes.put(dataSetType.getCode(), dataSetType);
+        assert dataSetTypesNode.getLength() == 1 : "Resource List should contain a single 'dataSetTypes' node";
 
-                parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement.getElementsByTagName("propertyAssignments"));
+        Element dataSetTypesElement = (Element) dataSetTypesNode.item(0);
+        NodeList dataSetTypeNodes = dataSetTypesElement.getElementsByTagName("dataSetType");
+        for (int i = 0; i < dataSetTypeNodes.getLength(); i++)
+        {
+            Element dataSetTypeElement = (Element) dataSetTypeNodes.item(i);
+            String code = getAttribute(dataSetTypeElement, "code");
+            DataSetType dataSetType = new DataSetType();
+            dataSetType.setCode(code);
+            dataSetType.setDescription(getAttribute(dataSetTypeElement, "description"));
+            dataSetType.setDataSetKind(DataSetKind.valueOf(getAttribute(dataSetTypeElement, "dataSetKind")));
+            String mainDataSetPattern = getAttribute(dataSetTypeElement, "mainDataSetPattern");
+            if (mainDataSetPattern.length() < 1)
+            {
+                dataSetType.setMainDataSetPattern(null);
             }
+            else
+            {
+                dataSetType.setMainDataSetPattern(mainDataSetPattern);
+            }
+            if (mainDataSetPattern.length() < 1)
+            {
+                dataSetType.setMainDataSetPath(null);
+            }
+            else
+            {
+                dataSetType.setMainDataSetPath(mainDataSetPattern);
+            }
+            dataSetType.setDeletionDisallow(Boolean.valueOf(getAttribute(dataSetTypeElement, "deletionDisallowed")));
+            dataSetTypes.put(dataSetType.getCode(), dataSetType);
+
+            parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
     private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, NodeList propertyAssignmentsNode)
     {
-        if (propertyAssignmentsNode.getLength() == 1)
+        assert propertyAssignmentsNode.getLength() == 1 : "Resource List should contain a single property assignments node";
+
+        List<NewETPTAssignment> list = new ArrayList<NewETPTAssignment>();
+        Element propertyAssignmentsElement = (Element) propertyAssignmentsNode.item(0);
+        NodeList propertyAssignmentNodes = propertyAssignmentsElement.getElementsByTagName("propertyAssignment");
+        for (int i = 0; i < propertyAssignmentNodes.getLength(); i++)
         {
-            List<NewETPTAssignment> list = new ArrayList<NewETPTAssignment>();
-            Element propertyAssignmentsElement = (Element) propertyAssignmentsNode.item(0);
-            NodeList propertyAssignmentNodes = propertyAssignmentsElement.getElementsByTagName("propertyAssignment");
-            for (int i = 0; i < propertyAssignmentNodes.getLength(); i++)
-            {
-                Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
-                String propertyTypeCode = getAttribute(propertyAssignmentElement, "property_type_code");
-                NewETPTAssignment assignment = new NewETPTAssignment();
-                assignment.setPropertyTypeCode(propertyTypeCode);
-                assignment.setEntityKind(entityType.getEntityKind());
-                assignment.setEntityTypeCode(entityType.getCode());
-                assignment.setMandatory(Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory")));
-                assignment.setDefaultValue(ERROR_PROPERTY_PREFIX);
-                assignment.setSection(getAttribute(propertyAssignmentElement, "section"));
-                assignment.setOrdinal(Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal")));
-                assignment.setShownInEditView(Boolean.valueOf(getAttribute(propertyAssignmentElement, "showInEdit")));
-                list.add(assignment);
-            }
-            entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
+            Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
+            String propertyTypeCode = getAttribute(propertyAssignmentElement, "propertyTypeCode");
+            NewETPTAssignment assignment = new NewETPTAssignment();
+            assignment.setPropertyTypeCode(propertyTypeCode);
+            assignment.setEntityKind(entityType.getEntityKind());
+            assignment.setEntityTypeCode(entityType.getCode());
+            assignment.setMandatory(Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory")));
+            assignment.setDefaultValue(ERROR_PROPERTY_PREFIX);
+            assignment.setSection(getAttribute(propertyAssignmentElement, "section"));
+            assignment.setOrdinal(Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal")));
+            assignment.setShownInEditView(Boolean.valueOf(getAttribute(propertyAssignmentElement, "showInEdit")));
+            list.add(assignment);
         }
+        entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
     }
 
     private void parsePropertyTypes(NodeList propertyTypesNode)
     {
-        if (propertyTypesNode.getLength() == 1)
-        {
-            Element propertyTypesElement = (Element) propertyTypesNode.item(0);
-            NodeList propertyTypeNodes = propertyTypesElement.getElementsByTagName("propertyType");
-            for (int i = 0; i < propertyTypeNodes.getLength(); i++)
-            {
-                Element propertyTypeElement = (Element) propertyTypeNodes.item(i);
-                PropertyType newPropertyType =  new PropertyType();
-                
-                String code = getAttribute(propertyTypeElement, "code");
-                newPropertyType.setLabel(getAttribute(propertyTypeElement, "label"));
-                DataTypeCode dataTypeCode = DataTypeCode.valueOf(getAttribute(propertyTypeElement, "dataType"));
-                newPropertyType.setDataType(new DataType(dataTypeCode));
-                newPropertyType.setDescription(getAttribute(propertyTypeElement, "description"));
-                newPropertyType.setManagedInternally(Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally")));
-                newPropertyType.setInternalNamespace(Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace")));
-                newPropertyType.setCode(CodeConverter.tryToBusinessLayer(code, newPropertyType.isInternalNamespace()));
+        assert propertyTypesNode.getLength() == 1 : "Resource List should contain a single 'propertyTypes' node";
 
-                propertyTypes.put(newPropertyType.getCode(), newPropertyType);
-                if (dataTypeCode.equals(DataTypeCode.CONTROLLEDVOCABULARY))
+        Element propertyTypesElement = (Element) propertyTypesNode.item(0);
+        NodeList propertyTypeNodes = propertyTypesElement.getElementsByTagName("propertyType");
+        for (int i = 0; i < propertyTypeNodes.getLength(); i++)
+        {
+            Element propertyTypeElement = (Element) propertyTypeNodes.item(i);
+            PropertyType newPropertyType = new PropertyType();
+
+            String code = getAttribute(propertyTypeElement, "code");
+            newPropertyType.setLabel(getAttribute(propertyTypeElement, "label"));
+            DataTypeCode dataTypeCode = DataTypeCode.valueOf(getAttribute(propertyTypeElement, "dataType"));
+            newPropertyType.setDataType(new DataType(dataTypeCode));
+            newPropertyType.setDescription(getAttribute(propertyTypeElement, "description"));
+            newPropertyType.setManagedInternally(Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally")));
+            newPropertyType.setInternalNamespace(Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace")));
+            newPropertyType.setCode(CodeConverter.tryToBusinessLayer(code, newPropertyType.isInternalNamespace()));
+
+            propertyTypes.put(newPropertyType.getCode(), newPropertyType);
+            if (dataTypeCode.equals(DataTypeCode.CONTROLLEDVOCABULARY))
+            {
+                String vocabularyCode = getAttribute(propertyTypeElement, "vocabulary");
+                newPropertyType.setVocabulary(vocabularies.get(vocabularyCode));
+            }
+            else if (dataTypeCode.equals(DataTypeCode.MATERIAL))
+            {
+                String materialCode = getAttribute(propertyTypeElement, "material");
+                if (materialCode.trim().length() < 1)
                 {
-                    String vocabularyCode = getAttribute(propertyTypeElement, "vocabulary");
-                    newPropertyType.setVocabulary(vocabularies.get(vocabularyCode));
+                    newPropertyType.setMaterialType(null); // material of any type
                 }
-                else if (dataTypeCode.equals(DataTypeCode.MATERIAL))
+                else
                 {
-                    String materialCode = getAttribute(propertyTypeElement, "material");
-                    if (materialCode.trim().length() < 1)
-                    {
-                        newPropertyType.setMaterialType(null); // material of any type
-                    }
-                    else
-                    {
-                        newPropertyType.setMaterialType(materialTypes.get(materialCode));
-                    }
-              }
+                    newPropertyType.setMaterialType(materialTypes.get(materialCode));
+                }
             }
         }
     }

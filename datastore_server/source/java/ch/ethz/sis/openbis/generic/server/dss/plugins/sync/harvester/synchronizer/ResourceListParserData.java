@@ -29,6 +29,7 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -307,6 +308,8 @@ public class ResourceListParserData
 
     class MasterData
     {
+        private Map<String, FileFormatType> fileFormatTypesToProcess = new HashMap<String, FileFormatType>();
+
         private Map<String, NewVocabulary> vocabulariesToProcess = new HashMap<String, NewVocabulary>();
 
         private Map<String, PropertyType> propertyTypesToProcess = new HashMap<String, PropertyType>();
@@ -354,6 +357,16 @@ public class ResourceListParserData
         public Map<String, NewVocabulary> getVocabulariesToProcess()
         {
             return vocabulariesToProcess;
+        }
+
+        public Map<String, FileFormatType> getFileFormatTypesToProcess()
+        {
+            return fileFormatTypesToProcess;
+        }
+
+        public void setFileFormatTypesToProcess(Map<String, FileFormatType> fileFormatTypesToProcess)
+        {
+            this.fileFormatTypesToProcess = fileFormatTypesToProcess;
         }
 
         public void setVocabulariesToProcess(Map<String, NewVocabulary> vocabulariesToProcess)

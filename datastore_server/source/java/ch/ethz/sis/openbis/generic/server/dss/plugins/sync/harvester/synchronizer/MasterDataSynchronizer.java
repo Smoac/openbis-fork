@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -69,6 +70,7 @@ public class MasterDataSynchronizer
     
     public void synchronizeMasterData() {
         MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = masterData.getPropertyAssignmentsToProcess();
+        processFileFormatTypes(masterData.getFileFormatTypesToProcess());
         processVocabularies(masterData.getVocabulariesToProcess());
         // materials are registered but their property assignments are deferred until after property types are processed
         processEntityTypes(masterData.getMaterialTypesToProcess(), propertyAssignmentsToProcess);
@@ -102,6 +104,31 @@ public class MasterDataSynchronizer
         }
     }
     
+    private void processFileFormatTypes(Map<String, FileFormatType> fileFormatTypesToProcess)
+    {
+        List<FileFormatType> fileFormatTypes = commonServer.listFileFormatTypes(sessionToken);
+        Map<String, FileFormatType> typeMap = new HashMap<String, FileFormatType>();
+        for (FileFormatType type : fileFormatTypes)
+        {
+            typeMap.put(type.getCode(), type);
+        }
+
+        for (String typeCode : fileFormatTypesToProcess.keySet())
+        {
+            FileFormatType incomingType = fileFormatTypesToProcess.get(typeCode);
+            FileFormatType existingTypeOrNull = typeMap.get(typeCode);
+            if (existingTypeOrNull != null)
+            {
+                existingTypeOrNull.setDescription(incomingType.getDescription());
+                commonServer.updateFileFormatType(sessionToken, existingTypeOrNull);
+            }
+            else
+            {
+                commonServer.registerFileFormatType(sessionToken, incomingType);
+            }
+        }
+    }
+
     private void processVocabularies(Map<String, NewVocabulary> vocabulariesToProcess)
     {
         List<Vocabulary> existingVocabularies = commonServer.listVocabularies(sessionToken, true, false);
