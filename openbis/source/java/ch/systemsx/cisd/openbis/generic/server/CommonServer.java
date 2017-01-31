@@ -2146,7 +2146,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("DELETE_VOCABULARY")
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
@@ -2159,7 +2159,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -2676,14 +2676,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.DATA_SET, entityTypesCodes);
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.EXPERIMENT, entityTypesCodes);
@@ -2691,7 +2691,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.MATERIAL, entityTypesCodes);
@@ -2699,14 +2699,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.SAMPLE, entityTypesCodes);
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void deleteFileFormatTypes(String sessionToken, List<String> codes)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -2931,7 +2931,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void updateFileFormatType(String sessionToken, AbstractType type)
     {
         checkSession(sessionToken);
