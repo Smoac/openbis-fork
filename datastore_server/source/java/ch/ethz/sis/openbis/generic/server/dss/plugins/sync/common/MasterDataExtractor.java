@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IEntityType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IFileFormatTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
@@ -93,6 +94,10 @@ public class MasterDataExtractor
         Element rootElement = doc.createElement("masterData");
         doc.appendChild(rootElement);
 
+        // append file format types
+        List<IFileFormatTypeImmutable> fileFormatTypes = masterDataRegistrationTransaction.listFileFormatTypes();
+        appendFileFormatTypes(doc, rootElement, fileFormatTypes);
+
         // append vocabularies
         List<IVocabularyImmutable> vocabularies = masterDataRegistrationTransaction.listVocabularies();
         appendVocabularies(doc, rootElement, vocabularies);
@@ -124,6 +129,22 @@ public class MasterDataExtractor
         StreamResult result = new StreamResult(writer);
         transformer.transform(source, result);
         return writer.toString();
+    }
+
+    private void appendFileFormatTypes(Document doc, Element rootElement, List<IFileFormatTypeImmutable> fileFormatTypes)
+    {
+        if (fileFormatTypes.size() > 0)
+        {
+            Element fileFormatTypesElement = doc.createElement("fileFormatTypes");
+            rootElement.appendChild(fileFormatTypesElement);
+            for (IFileFormatTypeImmutable fileFormatType : fileFormatTypes)
+            {
+                Element fileFormatTypeElement = doc.createElement("fileFormatType");
+                fileFormatTypeElement.setAttribute("code", fileFormatType.getCode());
+                fileFormatTypeElement.setAttribute("description", fileFormatType.getCode());
+                fileFormatTypesElement.appendChild(fileFormatTypeElement);
+            }
+        }
     }
 
     private void appendPropertyTypes(Document doc, Element rootElement, List<IPropertyTypeImmutable> propertyTypes)
@@ -302,9 +323,8 @@ public class MasterDataExtractor
         {
             Element propertyAssignmentElement = doc.createElement("propertyAssignment");
             propertyAssignmentsElement.appendChild(propertyAssignmentElement);
-            propertyAssignmentElement.setAttribute("property_type_code", CodeConverter.tryToBusinessLayer(propAssignment.getPropertyType().getCode(),
+            propertyAssignmentElement.setAttribute("propertyTypeCode", CodeConverter.tryToBusinessLayer(propAssignment.getPropertyType().getCode(),
                     propAssignment.getPropertyType().isInternalNameSpace()));
-            // propertyAssigmentElement.setAttribute("data_type_code", propAssignment.getPropertyType().getDataType().toString());
             propertyAssignmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
             propertyAssignmentElement.setAttribute("section", propAssignment.getSection());
             propertyAssignmentElement.setAttribute("showInEdit", String.valueOf(propAssignment.isShowInEditView()));
@@ -312,13 +332,6 @@ public class MasterDataExtractor
             propertyAssignmentElement.setAttribute("showRawValueInForms", String.valueOf(propAssignment.isShowRawValueInForms()));
         }
         return propertyAssignmentsElement;
-    }
-
-    // @XmlRootElement
-    // @XmlAccessorType(XmlAccessType.FIELD)
-    private static class MasterData
-    {
-        // @XmlElement(name = "sampleType")
     }
 
     private Map<String, List<PropertyAssignment>> loadDataSetTypesUsingV3WithPropertyAssignments()
