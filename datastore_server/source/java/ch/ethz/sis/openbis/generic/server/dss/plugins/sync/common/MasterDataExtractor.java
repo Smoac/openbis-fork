@@ -141,7 +141,7 @@ public class MasterDataExtractor
             {
                 Element fileFormatTypeElement = doc.createElement("fileFormatType");
                 fileFormatTypeElement.setAttribute("code", fileFormatType.getCode());
-                fileFormatTypeElement.setAttribute("description", fileFormatType.getCode());
+                fileFormatTypeElement.setAttribute("description", fileFormatType.getDescription());
                 fileFormatTypesElement.appendChild(fileFormatTypeElement);
             }
         }
