@@ -270,6 +270,7 @@ function SampleFormController(mainController, mode, sample) {
 				if(!linkParentsOnCopy) {
 					parameters["sampleParents"] = [];
 				}
+				parameters["sampleChildren"] = sampleChildrenFinal;
 				if(!copyChildrenOnCopy) {
 					parameters["sampleChildren"] = [];
 				} else if(profile.storagesConfiguration["isEnabled"]) {
