@@ -81,23 +81,33 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 					Util.showError("Please select at least one sample to delete!");
 				} else {
 					var warningText = "The next " + ELNDictionary.samples + " will be deleted: ";
-					var sampleTechIds = [];
+					
+					var sampleIdentifiers = [];
 					for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-						sampleTechIds.push(selected[sIdx].id);
-						warningText += selected[sIdx].identifier + " ";
+						sampleIdentifiers.push(selected[sIdx].identifier);
 					}
 					
-					var modalView = new DeleteEntityController(function(reason) {
-						mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
-							if(data.error) {
-								Util.showError(data.error.message);
-							} else {
-								Util.showSuccess("" + ELNDictionary.Sample + "/s Deleted");
-								mainController.refreshView();
-							}
-						});
-					}, true, warningText);
-					modalView.init();
+					Util.blockUI();
+					mainController.serverFacade.searchWithIdentifiers(sampleIdentifiers, function(selectedFinal) {
+						var sampleTechIds = [];
+						for(var sIdx = 0; sIdx < selectedFinal.length; sIdx++) {
+							sampleTechIds.push(selectedFinal[sIdx].id);
+							warningText += selectedFinal[sIdx].identifier + " ";
+						}
+						var modalView = new DeleteEntityController(function(reason) {
+							mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
+								if(data.error) {
+									Util.showError(data.error.message);
+								} else {
+									Util.showSuccess("" + ELNDictionary.Sample + "/s Deleted");
+									mainController.refreshView();
+								}
+							});
+						}, true, warningText);
+						modalView.init();
+					});
+					
+					
 				}
 			}});
 			
