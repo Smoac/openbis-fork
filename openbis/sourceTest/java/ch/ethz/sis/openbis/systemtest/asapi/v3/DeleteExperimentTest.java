@@ -166,7 +166,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testDeleteExperimentWithPowerUserInAnotherSpace()
+    public void testExperimentWithPowerUserInAnotherSpace()
     {
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
@@ -175,7 +175,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
                 @Override
                 public void execute()
                 {
-                    String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
                     ExperimentDeletionOptions options = new ExperimentDeletionOptions();
                     options.setReason("It is just a test");

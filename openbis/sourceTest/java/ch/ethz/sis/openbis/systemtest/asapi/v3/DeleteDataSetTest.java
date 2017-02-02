@@ -129,7 +129,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
                 @Override
                 public void execute()
                 {
-                    String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
                     DataSetDeletionOptions options = new DataSetDeletionOptions();
                     options.setReason("It is just a test");

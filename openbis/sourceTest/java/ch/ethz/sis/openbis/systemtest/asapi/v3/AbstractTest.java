@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import junit.framework.Assert;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,8 +109,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
-import junit.framework.Assert;
-
 /**
  * @author Jakub Straszewski
  */
@@ -120,6 +120,8 @@ public class AbstractTest extends SystemTestCase
     protected static final String NOT_EXISTING_USER = "notexistinguser";
 
     protected static final String TEST_SPACE_USER = "test_space";
+
+    protected static final String TEST_ROLE_V3 = "test_v3";
 
     protected static final String TEST_USER = "test";
 
