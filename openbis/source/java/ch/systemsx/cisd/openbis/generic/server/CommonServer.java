@@ -1356,7 +1356,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1436,7 +1436,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerPropertyType(final String sessionToken, final PropertyType propertyType)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1461,7 +1461,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("REGISTER_VOCABULARY")
     public void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)
     {
@@ -1859,7 +1859,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerSampleType(String sessionToken, SampleType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1887,7 +1887,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerMaterialType(String sessionToken, MaterialType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1904,7 +1904,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1921,7 +1921,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerFileFormatType(String sessionToken, FileFormatType type)
     {
         checkSession(sessionToken);
@@ -1939,7 +1939,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSession(sessionToken);
