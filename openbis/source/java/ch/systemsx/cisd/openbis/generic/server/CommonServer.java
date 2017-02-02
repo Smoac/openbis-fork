@@ -556,7 +556,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<SampleType> listSampleTypes(String sessionToken)
     {
         checkSession(sessionToken);
@@ -788,7 +788,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<PropertyType> listPropertyTypes(final String sessionToken, boolean withRelations)
     {
         final Session session = getSession(sessionToken);
@@ -808,7 +808,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken)
     {
         List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
@@ -1066,7 +1066,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExperimentType> listExperimentTypes(String sessionToken)
     {
         final List<ExperimentTypePE> experimentTypes =
@@ -1075,7 +1075,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<MaterialType> listMaterialTypes(String sessionToken)
     {
         final List<MaterialTypePE> materialTypes =
@@ -1123,7 +1123,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1143,7 +1143,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Vocabulary> listVocabularies(final String sessionToken, final boolean withTerms,
             boolean excludeInternal)
     {
@@ -1391,7 +1391,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updatePropertyTypeAssignment(final String sessionToken,
             NewETPTAssignment assignmentUpdates)
     {
@@ -1407,7 +1407,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void unassignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
@@ -1449,7 +1449,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updatePropertyType(final String sessionToken, final IPropertyTypeUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1475,7 +1475,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("WRITE_VOCABULARY")
     public void updateVocabulary(String sessionToken, IVocabularyUpdates updates)
     {
@@ -1488,7 +1488,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal,
@@ -1527,7 +1527,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void updateVocabularyTerm(final String sessionToken, final IVocabularyTermUpdates updates)
     {
@@ -1541,7 +1541,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
@@ -1869,7 +1869,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateSampleType(String sessionToken, EntityType entityType)
     {
         try
@@ -1897,7 +1897,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateMaterialType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.MATERIAL, entityType);
@@ -1914,7 +1914,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateExperimentType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.EXPERIMENT, entityType);
@@ -1950,7 +1950,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateDataSetType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.DATA_SET, entityType);
@@ -2146,7 +2146,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("DELETE_VOCABULARY")
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
@@ -2159,7 +2159,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -2377,7 +2377,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         final List<DataSetTypePE> dataSetTypes = listEntityTypes(sessionToken, EntityKind.DATA_SET);
@@ -2676,14 +2676,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.DATA_SET, entityTypesCodes);
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.EXPERIMENT, entityTypesCodes);
@@ -2691,7 +2691,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.MATERIAL, entityTypesCodes);
@@ -2699,14 +2699,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
     {
         deleteEntityTypes(sessionToken, EntityKind.SAMPLE, entityTypesCodes);
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteFileFormatTypes(String sessionToken, List<String> codes)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -2931,7 +2931,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateFileFormatType(String sessionToken, AbstractType type)
     {
         checkSession(sessionToken);
@@ -3387,7 +3387,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("WRITE_VOCABULARY")
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> terms)
