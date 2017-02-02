@@ -44,7 +44,7 @@ def create_experiment_if_needed(transaction):
     
 def create_plate_if_needed(transaction):
     """ Get the specified sample or register it if necessary """
-    if transaction.serverInformation['project-samples-enabled'] == 'true':
+    if transaction.serverInformation.get('project-samples-enabled') == 'true':
         plate_id = PLATE_ID_WITH_PROJECT
     else:
         plate_id = PLATE_ID
