@@ -22,13 +22,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -76,12 +78,8 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_EXPERIMENT")
-    public void canDelete(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canDelete(IOperationContext context, IExperimentId id, ExperimentPE experiment)
+    public void canDelete(IOperationContext context, IExperimentId id,
+            @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
     {
         if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
         {

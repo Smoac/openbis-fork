@@ -72,11 +72,6 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.METAPROJECT, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_TAG")
-    public void canDelete(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canDelete(IOperationContext context, ITagId id, MetaprojectPE tag)
     {
         new TagAuthorization(context).checkAccess(tag);

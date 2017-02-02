@@ -72,11 +72,6 @@ public class SpaceAuthorizationExecutor implements ISpaceAuthorizationExecutor
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SPACE")
-    public void canDelete(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canDelete(IOperationContext context, ISpaceId id, SpacePE space)
     {
         if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))

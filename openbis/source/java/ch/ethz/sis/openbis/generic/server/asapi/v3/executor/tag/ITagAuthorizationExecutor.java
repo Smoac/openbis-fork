@@ -35,8 +35,6 @@ public interface ITagAuthorizationExecutor extends IObjectAuthorizationExecutor
 
     void canUpdate(IOperationContext context, ITagId id, MetaprojectPE tag);
 
-    void canDelete(IOperationContext context);
-
     void canDelete(IOperationContext context, ITagId id, MetaprojectPE tag);
 
     void canGet(IOperationContext context);

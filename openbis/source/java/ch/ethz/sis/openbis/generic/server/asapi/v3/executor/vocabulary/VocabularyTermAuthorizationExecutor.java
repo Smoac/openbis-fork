@@ -27,10 +27,10 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * @author pkupczyk
@@ -99,15 +99,11 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
         return false;
     }
 
+
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.VOCABULARY_TERM, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_VOCABULARY_TERM")
-    public void canDelete(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canDelete(IOperationContext context, IVocabularyTermId id, VocabularyTermPE term)
     {
         // nothing to do

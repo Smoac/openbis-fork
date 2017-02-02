@@ -41,8 +41,6 @@ public interface IVocabularyTermAuthorizationExecutor extends IObjectAuthorizati
 
     boolean canUpdateInternallyManaged(IOperationContext context);
 
-    void canDelete(IOperationContext context);
-
     void canDelete(IOperationContext context, IVocabularyTermId id, VocabularyTermPE term);
 
     void canGet(IOperationContext context);

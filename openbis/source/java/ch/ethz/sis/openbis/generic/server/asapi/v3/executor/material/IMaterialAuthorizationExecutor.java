@@ -35,8 +35,6 @@ public interface IMaterialAuthorizationExecutor extends IObjectAuthorizationExec
 
     void canUpdate(IOperationContext context, IMaterialId id, MaterialPE material);
 
-    void canDelete(IOperationContext context);
-
     void canDelete(IOperationContext context, IMaterialId id, MaterialPE material);
 
     void canGet(IOperationContext context);

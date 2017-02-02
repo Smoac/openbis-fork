@@ -52,12 +52,6 @@ public class DeleteProjectExecutor extends AbstractDeleteEntityExecutor<Void, IP
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IProjectId entityId, ProjectPE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);

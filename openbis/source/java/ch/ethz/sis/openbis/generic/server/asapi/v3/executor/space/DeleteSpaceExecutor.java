@@ -51,12 +51,6 @@ public class DeleteSpaceExecutor extends AbstractDeleteEntityExecutor<Void, ISpa
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, ISpaceId entityId, SpacePE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);

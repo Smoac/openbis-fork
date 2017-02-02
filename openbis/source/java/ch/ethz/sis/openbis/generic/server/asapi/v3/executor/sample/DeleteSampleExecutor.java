@@ -31,6 +31,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOpti
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -58,12 +60,6 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
     protected Map<ISampleId, SamplePE> map(IOperationContext context, List<? extends ISampleId> entityIds)
     {
         return mapSampleByIdExecutor.map(context, entityIds);
-    }
-
-    @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
     {
         final ProjectPermId permId = createCisdProject();
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -100,7 +100,26 @@ public class DeleteProjectTest extends AbstractDeletionTest
 
                     v3api.deleteProjects(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
 
+    @Test
+    public void testDeleteProjectWithPowerUserInAnotherSpace()
+    {
+        final ProjectPermId permId = new ProjectPermId("20120814110011738-105");
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+                    ProjectDeletionOptions options = new ProjectDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteProjects(sessionToken, Collections.singletonList(permId), options);
+                }
+            });
+    }
 }

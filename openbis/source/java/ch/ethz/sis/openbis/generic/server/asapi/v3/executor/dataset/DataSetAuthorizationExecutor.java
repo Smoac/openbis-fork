@@ -24,8 +24,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
@@ -119,12 +121,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_DATASET")
-    public void canDelete(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canDelete(IOperationContext context, IDataSetId id, DataPE dataSet)
+    public void canDelete(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
         canUpdate(context, id, dataSet);
     }

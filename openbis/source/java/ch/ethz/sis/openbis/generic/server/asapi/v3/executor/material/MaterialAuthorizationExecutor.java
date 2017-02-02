@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capabili
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
@@ -67,11 +67,6 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.MATERIAL, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("DELETE_MATERIAL")
-    public void canDelete(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canDelete(IOperationContext context, IMaterialId id, MaterialPE material)
     {
         // nothing to do

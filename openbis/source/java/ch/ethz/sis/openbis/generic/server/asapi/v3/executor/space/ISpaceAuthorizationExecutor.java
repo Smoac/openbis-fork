@@ -35,8 +35,6 @@ public interface ISpaceAuthorizationExecutor extends IObjectAuthorizationExecuto
 
     void canUpdate(IOperationContext context, ISpaceId id, SpacePE space);
 
-    void canDelete(IOperationContext context);
-
     void canDelete(IOperationContext context, ISpaceId id, SpacePE space);
 
     void canGet(IOperationContext context);

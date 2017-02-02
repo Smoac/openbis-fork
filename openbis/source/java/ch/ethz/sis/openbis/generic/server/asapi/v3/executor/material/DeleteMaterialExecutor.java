@@ -52,12 +52,6 @@ public class DeleteMaterialExecutor extends AbstractDeleteEntityExecutor<Void, I
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IMaterialId entityId, MaterialPE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);

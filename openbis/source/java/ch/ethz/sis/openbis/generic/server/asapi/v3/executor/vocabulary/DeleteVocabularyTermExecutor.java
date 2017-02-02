@@ -61,12 +61,6 @@ public class DeleteVocabularyTermExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IVocabularyTermId entityId, VocabularyTermPE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);

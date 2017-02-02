@@ -19,13 +19,14 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import junit.framework.Assert;
+
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
-
-import junit.framework.Assert;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * @author pkupczyk
@@ -116,6 +117,26 @@ public class DeleteDataSetTest extends AbstractDeletionTest
         assertDataSetDoesNotExist(container);
         assertDataSetDoesNotExist(component1);
         assertDataSetExists(component2);
+    }
+
+    @Test
+    public void testDeleteDSWithPowerUserInAnotherSpace()
+    {
+        final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+                    DataSetDeletionOptions options = new DataSetDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteDataSets(sessionToken, Collections.singletonList(permId), options);
+                }
+            });
     }
     // waiting for better times
     // @Test

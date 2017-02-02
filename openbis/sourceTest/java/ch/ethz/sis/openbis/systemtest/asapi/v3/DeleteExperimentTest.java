@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
 
@@ -35,8 +37,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-
-import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -150,7 +150,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     {
         final ExperimentPermId permId = createCisdExperiment();
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -162,7 +162,27 @@ public class DeleteExperimentTest extends AbstractDeletionTest
 
                     v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
+    }
+
+    @Test
+    public void testDeleteExperimentWithPowerUserInAnotherSpace()
+    {
+        final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+                    ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
+                }
+            });
     }
 
 }

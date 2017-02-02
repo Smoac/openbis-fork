@@ -57,12 +57,6 @@ public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDele
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IExperimentId entityId, ExperimentPE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);

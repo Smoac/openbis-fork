@@ -22,14 +22,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
@@ -76,13 +78,10 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SAMPLE")
-    public void canDelete(IOperationContext context)
+    public void canDelete(IOperationContext context, ISampleId id,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
     {
-    }
 
-    @Override
-    public void canDelete(IOperationContext context, ISampleId id, SamplePE sample)
-    {
         if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
         {
             throw new UnauthorizedObjectAccessException(id);

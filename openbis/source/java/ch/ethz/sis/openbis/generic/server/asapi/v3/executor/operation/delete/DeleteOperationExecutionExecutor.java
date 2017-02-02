@@ -73,12 +73,6 @@ public class DeleteOperationExecutionExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IOperationExecutionId entityId, OperationExecutionPE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);

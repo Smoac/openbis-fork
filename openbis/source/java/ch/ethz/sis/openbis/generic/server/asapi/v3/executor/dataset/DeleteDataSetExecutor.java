@@ -59,12 +59,6 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canDelete(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IDataSetId entityId, DataPE entity)
     {
         authorizationExecutor.canDelete(context, entityId, entity);
