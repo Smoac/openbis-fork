@@ -1,0 +1,160 @@
+ALTER TABLE SAMPLE_RELATIONSHIPS_HISTORY ADD COLUMN PROJ_ID TECH_ID;
+ALTER TABLE SAMPLE_RELATIONSHIPS_HISTORY ADD CONSTRAINT SAMPRELH_PROJECT_FK FOREIGN KEY (PROJ_ID) REFERENCES PROJECTS(ID) ON DELETE SET NULL;
+CREATE INDEX SAMPRELH_MAIN_SAMP_FK_PROJ_FK_I ON SAMPLE_RELATIONSHIPS_HISTORY (MAIN_SAMP_ID, PROJ_ID);
+
+DROP VIEW sample_history_view;
+
+CREATE VIEW sample_history_view AS (
+  SELECT
+    2*id as id,
+    main_samp_id,
+    relation_type,
+    space_id,
+    expe_id,
+    samp_id,
+    proj_id,
+    data_id,
+    entity_perm_id,
+    null as stpt_id,
+    null as value,
+    null as vocabulary_term,
+    null as material,
+    pers_id_author,
+    valid_from_timestamp,
+    valid_until_timestamp
+  FROM
+    SAMPLE_RELATIONSHIPS_HISTORY
+  WHERE
+    valid_until_timestamp IS NOT NULL)
+UNION
+  SELECT
+    2*id+1 as id,
+    samp_id as main_samp_id,
+    null as relation_type,
+    null as space_id,
+    null as expe_id,
+    null as samp_id,
+    null as proj_id,
+    null as data_id,
+    null as entity_perm_id,
+    stpt_id,
+    value,
+    vocabulary_term,
+    material,
+    pers_id_author,
+    valid_from_timestamp,
+    valid_until_timestamp
+  FROM
+    SAMPLE_PROPERTIES_HISTORY;
+
+CREATE OR REPLACE RULE sample_project_update AS
+    ON UPDATE TO samples_all 
+    WHERE (OLD.PROJ_ID != NEW.PROJ_ID OR OLD.PROJ_ID IS NULL OR OLD.EXPE_ID IS NOT NULL) AND NEW.PROJ_ID IS NOT NULL AND NEW.EXPE_ID IS NULL
+    DO ALSO (
+       UPDATE SAMPLE_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = NEW.MODIFICATION_TIMESTAMP 
+         WHERE MAIN_SAMP_ID = OLD.ID AND PROJ_ID = OLD.PROJ_ID AND VALID_UNTIL_TIMESTAMP IS NULL;
+       INSERT INTO SAMPLE_RELATIONSHIPS_HISTORY (
+         ID, 
+         MAIN_SAMP_ID,
+         RELATION_TYPE, 
+         PROJ_ID, 
+         ENTITY_PERM_ID,
+         PERS_ID_AUTHOR,
+         VALID_FROM_TIMESTAMP
+       ) VALUES (
+         nextval('SAMPLE_RELATIONSHIPS_HISTORY_ID_SEQ'), 
+         NEW.ID, 
+         'OWNED', 
+         NEW.PROJ_ID, 
+         (SELECT PERM_ID FROM PROJECTS WHERE ID = NEW.PROJ_ID),
+         NEW.PERS_ID_MODIFIER,
+         NEW.MODIFICATION_TIMESTAMP
+       );
+    );
+
+CREATE OR REPLACE RULE sample_project_remove_update AS
+    ON UPDATE TO samples_all 
+    WHERE OLD.PROJ_ID IS NOT NULL AND (NEW.PROJ_ID IS NULL OR (OLD.EXPE_ID IS NULL AND NEW.EXPE_ID IS NOT NULL))
+    DO ALSO (
+       UPDATE SAMPLE_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = NEW.MODIFICATION_TIMESTAMP 
+         WHERE MAIN_SAMP_ID = OLD.ID AND PROJ_ID = OLD.PROJ_ID AND VALID_UNTIL_TIMESTAMP IS NULL;
+    );
+
+CREATE OR REPLACE RULE sample_project_insert AS
+    ON INSERT TO samples_all 
+    WHERE NEW.EXPE_ID IS NULL AND NEW.PROJ_ID IS NOT NULL
+    DO ALSO (
+      INSERT INTO SAMPLE_RELATIONSHIPS_HISTORY (
+         ID, 
+         MAIN_SAMP_ID,
+         RELATION_TYPE, 
+         PROJ_ID, 
+         ENTITY_PERM_ID,
+         PERS_ID_AUTHOR,
+         VALID_FROM_TIMESTAMP
+       ) VALUES (
+         nextval('SAMPLE_RELATIONSHIPS_HISTORY_ID_SEQ'), 
+         NEW.ID, 
+         'OWNED', 
+         NEW.PROJ_ID, 
+         (SELECT PERM_ID FROM PROJECTS WHERE ID = NEW.PROJ_ID),
+         NEW.PERS_ID_MODIFIER,
+         NEW.MODIFICATION_TIMESTAMP
+       );
+   );
+
+CREATE OR REPLACE RULE sample_space_update AS
+    ON UPDATE TO samples_all 
+    WHERE (OLD.SPACE_ID != NEW.SPACE_ID OR OLD.SPACE_ID IS NULL OR OLD.EXPE_ID IS NOT NULL OR OLD.PROJ_ID IS NOT NULL) AND NEW.SPACE_ID IS NOT NULL AND NEW.EXPE_ID IS NULL AND NEW.PROJ_ID IS NULL
+    DO ALSO (
+       UPDATE SAMPLE_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = NEW.MODIFICATION_TIMESTAMP 
+         WHERE MAIN_SAMP_ID = OLD.ID AND SPACE_ID = OLD.SPACE_ID AND VALID_UNTIL_TIMESTAMP IS NULL;
+       INSERT INTO SAMPLE_RELATIONSHIPS_HISTORY (
+         ID, 
+         MAIN_SAMP_ID,
+         RELATION_TYPE, 
+         SPACE_ID, 
+         ENTITY_PERM_ID,
+         PERS_ID_AUTHOR,
+         VALID_FROM_TIMESTAMP
+       ) VALUES (
+         nextval('SAMPLE_RELATIONSHIPS_HISTORY_ID_SEQ'), 
+         NEW.ID, 
+         'OWNED', 
+         NEW.SPACE_ID, 
+         (SELECT CODE FROM SPACES WHERE ID = NEW.SPACE_ID),
+         NEW.PERS_ID_MODIFIER,
+         NEW.MODIFICATION_TIMESTAMP
+       );
+    );
+
+CREATE OR REPLACE RULE sample_space_remove_update AS
+    ON UPDATE TO samples_all 
+    WHERE OLD.SPACE_ID IS NOT NULL AND (NEW.SPACE_ID IS NULL OR (OLD.EXPE_ID IS NULL AND NEW.EXPE_ID IS NOT NULL) OR (OLD.PROJ_ID IS NULL AND NEW.PROJ_ID IS NOT NULL))
+    DO ALSO (
+       UPDATE SAMPLE_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = NEW.MODIFICATION_TIMESTAMP 
+         WHERE MAIN_SAMP_ID = OLD.ID AND SPACE_ID = OLD.SPACE_ID AND VALID_UNTIL_TIMESTAMP IS NULL;
+    );
+
+CREATE OR REPLACE RULE sample_space_insert AS
+    ON INSERT TO samples_all 
+    WHERE NEW.EXPE_ID IS NULL AND NEW.SPACE_ID IS NOT NULL AND NEW.PROJ_ID IS NULL
+    DO ALSO (
+      INSERT INTO SAMPLE_RELATIONSHIPS_HISTORY (
+         ID, 
+         MAIN_SAMP_ID,
+         RELATION_TYPE, 
+         SPACE_ID, 
+         ENTITY_PERM_ID,
+         PERS_ID_AUTHOR,
+         VALID_FROM_TIMESTAMP
+       ) VALUES (
+         nextval('SAMPLE_RELATIONSHIPS_HISTORY_ID_SEQ'), 
+         NEW.ID, 
+         'OWNED', 
+         NEW.SPACE_ID, 
+         (SELECT CODE FROM SPACES WHERE ID = NEW.SPACE_ID),
+         NEW.PERS_ID_MODIFIER,
+         NEW.MODIFICATION_TIMESTAMP
+       );
+   );

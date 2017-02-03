@@ -44,6 +44,8 @@ public class SampleHistoryPE extends AbstractEntityHistoryPE
 
     private ExperimentPE experiment;
 
+    private ProjectPE project;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
     @JoinColumn(name = ColumnNames.MAIN_SAMPLE_COLUMN)
     SamplePE getEntityInternal()
@@ -124,6 +126,18 @@ public class SampleHistoryPE extends AbstractEntityHistoryPE
     public void setExperiment(ExperimentPE experiment)
     {
         this.experiment = experiment;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ProjectPE.class)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN)
+    public ProjectPE getProject()
+    {
+        return project;
+    }
+
+    public void setProject(ProjectPE project)
+    {
+        this.project = project;
     }
 
     @Override
