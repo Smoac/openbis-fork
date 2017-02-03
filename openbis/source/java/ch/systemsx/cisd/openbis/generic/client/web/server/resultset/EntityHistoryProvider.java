@@ -92,6 +92,12 @@ public class EntityHistoryProvider extends
                     value = entry.getVocabularyTerm();
                 }
             }
+
+            if (value == null && entry.tryGetRelatedProject() != null)
+            {
+                value = entry.tryGetRelatedProject().getIdentifier();
+            }
+
             if (value == null && entry.tryGetRelatedEntity() != null)
             {
                 builder.column(VALUE).addEntityLink(
