@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -44,15 +45,23 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class DeleteVocabularyTermTest extends AbstractVocabularyTermTest
 {
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*None of method roles '\\[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER\\]' could be found in roles of user 'observer'.*")
+    @Test
     public void testDeleteTermUnauthorized()
     {
-        String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+        final VocabularyTermPermId permId = new VocabularyTermPermId("HUMAN", "ORGANISM");
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
 
-        VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
-        options.setReason("Just for testing");
+                    VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
+                    options.setReason("Just for testing");
 
-        v3api.deleteVocabularyTerms(sessionToken, Arrays.asList(new VocabularyTermPermId("HUMAN", "ORGANISM")), options);
+                    v3api.deleteVocabularyTerms(sessionToken, Arrays.asList(permId), options);
+                }
+            }, permId);
     }
 
     @Test
@@ -179,19 +188,27 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTermTest
         v3api.deleteVocabularyTerms(sessionToken, Arrays.asList(termIdFly), options);
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*None of method roles '\\[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER\\]' could be found in roles of user 'observer'.*")
+    @Test
     public void testReplaceTermUnauthorized()
     {
-        String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+        final VocabularyTermPermId termIdReplaced = new VocabularyTermPermId("HUMAN", "ORGANISM");
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
 
-        VocabularyTermPermId termIdReplaced = new VocabularyTermPermId("HUMAN", "ORGANISM");
-        VocabularyTermPermId termIdReplacement = new VocabularyTermPermId("FLY", "ORGANISM");
+                    VocabularyTermPermId termIdReplacement = new VocabularyTermPermId("FLY", "ORGANISM");
 
-        VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
-        options.setReason("Just for testing");
-        options.replace(termIdReplaced, termIdReplacement);
+                    VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
+                    options.setReason("Just for testing");
+                    options.replace(termIdReplaced, termIdReplacement);
 
-        v3api.deleteVocabularyTerms(sessionToken, Arrays.asList(termIdReplaced), options);
+                    v3api.deleteVocabularyTerms(sessionToken, Arrays.asList(termIdReplaced), options);
+                }
+
+            }, termIdReplaced);
     }
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*The following terms where not chosen to be deleted but had replacements specified: \\[VocabularyTermPE\\{code=HUMAN,label=<null>\\}\\].*")

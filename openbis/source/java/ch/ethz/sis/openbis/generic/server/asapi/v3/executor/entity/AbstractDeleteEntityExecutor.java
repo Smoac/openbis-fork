@@ -25,8 +25,11 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.AbstractObjectDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -79,7 +82,14 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
             ENTITY_ID entityId = entry.getKey();
             ENTITY_PE entity = entry.getValue();
 
-            checkAccess(context, entityId, entity);
+            try
+            {
+                checkAccess(context, entityId, entity);
+            } catch (AuthorizationFailureException ex)
+            {
+                throw new UnauthorizedObjectAccessException((IObjectId) entityId);
+            }
+
             updateModificationDateAndModifier(context, entity);
         }
 
@@ -97,8 +107,6 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
     }
 
     protected abstract Map<ENTITY_ID, ENTITY_PE> map(IOperationContext context, List<? extends ENTITY_ID> entityIds);
-
-    // protected abstract void checkAccess(IOperationContext context);
 
     protected abstract void checkAccess(IOperationContext context, ENTITY_ID entityId, ENTITY_PE entity);
 

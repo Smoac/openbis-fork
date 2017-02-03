@@ -19,14 +19,13 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -124,7 +123,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
     {
         final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
 
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -136,7 +135,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
 
                     v3api.deleteDataSets(sessionToken, Collections.singletonList(permId), options);
                 }
-            });
+            }, permId);
     }
     // waiting for better times
     // @Test
