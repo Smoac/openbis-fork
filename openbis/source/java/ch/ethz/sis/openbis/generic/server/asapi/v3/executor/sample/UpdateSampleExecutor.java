@@ -103,12 +103,6 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canUpdate(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, ISampleId id, SamplePE entity)
     {
         authorizationExecutor.canUpdate(context, id, entity);

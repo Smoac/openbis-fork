@@ -55,11 +55,6 @@ public class SpaceAuthorizationExecutor implements ISpaceAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE")
     @DatabaseUpdateModification(value = ObjectKind.SPACE)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canUpdate(IOperationContext context, ISpaceId id, SpacePE space)
     {
         if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))

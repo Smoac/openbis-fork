@@ -31,8 +31,6 @@ public interface IDataSetAuthorizationExecutor extends IObjectAuthorizationExecu
 
     void canCreate(IOperationContext context, DataPE dataSet);
 
-    void canUpdate(IOperationContext context);
-
     void canUpdate(IOperationContext context, IDataSetId id, DataPE dataSet);
 
     void canDelete(IOperationContext context, IDataSetId id, DataPE dataSet);

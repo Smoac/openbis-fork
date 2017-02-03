@@ -94,12 +94,6 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canUpdate(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IExperimentId id, ExperimentPE entity)
     {
         authorizationExecutor.canUpdate(context, id, entity);

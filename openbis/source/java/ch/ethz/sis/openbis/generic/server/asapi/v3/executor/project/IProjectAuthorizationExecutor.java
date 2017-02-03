@@ -31,8 +31,6 @@ public interface IProjectAuthorizationExecutor extends IObjectAuthorizationExecu
 
     void canCreate(IOperationContext context, ProjectPE project);
 
-    void canUpdate(IOperationContext context);
-
     void canUpdate(IOperationContext context, IProjectId id, ProjectPE project);
 
     void canDelete(IOperationContext context, IProjectId id, ProjectPE project);

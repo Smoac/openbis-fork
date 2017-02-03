@@ -31,8 +31,6 @@ public interface ISampleAuthorizationExecutor extends IObjectAuthorizationExecut
 
     void canCreate(IOperationContext context, SamplePE sample);
 
-    void canUpdate(IOperationContext context);
-
     void canUpdate(IOperationContext context, ISampleId id, SamplePE sample);
 
     void canDelete(IOperationContext context, ISampleId id, SamplePE sample);

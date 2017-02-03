@@ -86,12 +86,6 @@ public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, M
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canUpdate(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, ITagId id, MetaprojectPE entity)
     {
         authorizationExecutor.canUpdate(context, id, entity);

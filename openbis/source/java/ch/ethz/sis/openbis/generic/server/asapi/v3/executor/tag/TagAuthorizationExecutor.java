@@ -55,11 +55,6 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_TAG")
     @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canUpdate(IOperationContext context, ITagId id, MetaprojectPE tag)
     {
         if (false == new TagAuthorization(context).canAccess(tag))

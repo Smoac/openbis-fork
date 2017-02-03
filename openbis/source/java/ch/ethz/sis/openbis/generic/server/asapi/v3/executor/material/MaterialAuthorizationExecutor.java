@@ -53,11 +53,6 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("UPDATE_MATERIAL")
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canUpdate(IOperationContext context, IMaterialId id, MaterialPE material)
     {
         // nothing to do

@@ -94,12 +94,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATASET")
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canUpdate(IOperationContext context, IDataSetId id, DataPE dataSet)
+    public void canUpdate(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
         boolean isStorageConfirmed;
         if (dataSet instanceof ExternalDataPE)

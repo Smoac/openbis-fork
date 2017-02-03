@@ -58,7 +58,6 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
     @Override
     public List<PERM_ID> update(IOperationContext context, List<UPDATE> updates)
     {
-        checkAccess(context);
 
         if (updates == null || updates.isEmpty())
         {
@@ -214,8 +213,6 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
     protected abstract PERM_ID getPermId(PE entity);
 
     protected abstract void checkData(IOperationContext context, UPDATE update);
-
-    protected abstract void checkAccess(IOperationContext context);
 
     protected abstract void checkAccess(IOperationContext context, ID id, PE entity);
 

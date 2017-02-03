@@ -61,12 +61,7 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECT")
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canUpdate(IOperationContext context, IProjectId id, ProjectPE project)
+    public void canUpdate(IOperationContext context, IProjectId id, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
         if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
         {

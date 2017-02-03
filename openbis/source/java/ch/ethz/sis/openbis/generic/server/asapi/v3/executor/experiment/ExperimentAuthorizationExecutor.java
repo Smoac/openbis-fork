@@ -61,12 +61,7 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canUpdate(IOperationContext context, IExperimentId id, ExperimentPE experiment)
+    public void canUpdate(IOperationContext context, IExperimentId id, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
     {
         if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
         {

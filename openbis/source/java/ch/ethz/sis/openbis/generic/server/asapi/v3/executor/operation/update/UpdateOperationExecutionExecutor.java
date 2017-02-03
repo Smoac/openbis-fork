@@ -81,12 +81,6 @@ public class UpdateOperationExecutionExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canUpdate(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IOperationExecutionId id, OperationExecutionPE entity)
     {
         authorizationExecutor.canUpdate(context, id, entity);

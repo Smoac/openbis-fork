@@ -85,12 +85,6 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     }
 
     @Override
-    protected void checkAccess(IOperationContext context)
-    {
-        authorizationExecutor.canUpdate(context);
-    }
-
-    @Override
     protected void checkAccess(IOperationContext context, IMaterialId id, MaterialPE entity)
     {
         authorizationExecutor.canUpdate(context, id, entity);

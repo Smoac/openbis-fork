@@ -61,12 +61,8 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SAMPLE")
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void canUpdate(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canUpdate(IOperationContext context, ISampleId id, SamplePE sample)
+    public void canUpdate(IOperationContext context, ISampleId id,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
     {
         if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
         {
@@ -81,7 +77,6 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     public void canDelete(IOperationContext context, ISampleId id,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
     {
-
         if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
         {
             throw new UnauthorizedObjectAccessException(id);
