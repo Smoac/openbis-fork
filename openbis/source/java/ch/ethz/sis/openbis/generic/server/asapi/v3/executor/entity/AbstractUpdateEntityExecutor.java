@@ -33,6 +33,7 @@ import org.springframework.dao.DataAccessException;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
@@ -42,6 +43,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckAccessProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
@@ -119,7 +121,14 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
                 @Override
                 public void process(UPDATE update, PE entity)
                 {
-                    checkAccess(context, getId(update), entity);
+                    ID id = getId(update);
+                    try
+                    {
+                        checkAccess(context, id, entity);
+                    } catch (AuthorizationFailureException ex)
+                    {
+                        throw new UnauthorizedObjectAccessException(id);
+                    }
                 }
 
                 @Override
