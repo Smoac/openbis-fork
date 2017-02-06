@@ -51,6 +51,24 @@ public class DeleteSpaceTest extends AbstractDeletionTest
     }
 
     @Test
+    public void testDeleteSpaceWithAdminUserInAnotherSpace()
+    {
+        final String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+        final SpaceDeletionOptions options = new SpaceDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.deleteSpaces(sessionToken, Arrays.asList(new SpacePermId("TEST-SPACE")), options);
+                }
+            }, new SpacePermId("TEST-SPACE"));
+    }
+
+    @Test
     public void testDeleteEmptySpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
