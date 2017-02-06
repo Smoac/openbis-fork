@@ -205,6 +205,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                                 registrator, validatedValue);
 
                 entityPropertyTypeDAO.createProperties(property, entityIds);
+                entityPropertyTypeDAO.updateEntityModificationTimestamps(entityIds);
             }
 
             if (operationLog.isDebugEnabled())
