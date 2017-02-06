@@ -39,11 +39,6 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_MATERIAL")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public void canCreate(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canCreate(IOperationContext context, MaterialPE material)
     {
         // nothing to do

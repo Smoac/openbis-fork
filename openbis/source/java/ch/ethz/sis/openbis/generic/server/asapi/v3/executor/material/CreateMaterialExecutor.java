@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
@@ -123,7 +124,7 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+
     }
 
     @Override
@@ -170,6 +171,12 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, EntityKind.MATERIAL.getLabel(), EntityKind.MATERIAL);
+    }
+
+    @Override
+    protected IObjectId getId(MaterialPE entity)
+    {
+        return new MaterialPermId(entity.getCode(), entity.getMaterialType().getCode());
     }
 
 }

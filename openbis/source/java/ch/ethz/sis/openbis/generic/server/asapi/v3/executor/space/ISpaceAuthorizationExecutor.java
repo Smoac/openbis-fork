@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public interface ISpaceAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canCreate(IOperationContext context);
-
     void canCreate(IOperationContext context, SpacePE space);
 
     void canUpdate(IOperationContext context, ISpaceId id, SpacePE space);

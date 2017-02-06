@@ -26,9 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public interface ISampleAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
-
-    void canCreate(IOperationContext context);
-
     void canCreate(IOperationContext context, SamplePE sample);
 
     void canUpdate(IOperationContext context, ISampleId id, SamplePE sample);
@@ -38,5 +35,4 @@ public interface ISampleAuthorizationExecutor extends IObjectAuthorizationExecut
     void canSearch(IOperationContext context);
 
     void canGet(IOperationContext context);
-
 }

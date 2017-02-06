@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
@@ -116,7 +117,7 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+
     }
 
     @Override
@@ -185,6 +186,12 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, "space", null);
+    }
+
+    @Override
+    protected IObjectId getId(SpacePE entity)
+    {
+        return new SpacePermId(entity.getPermId());
     }
 
 }

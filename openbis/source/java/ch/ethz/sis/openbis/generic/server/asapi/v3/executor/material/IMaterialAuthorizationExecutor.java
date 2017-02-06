@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 public interface IMaterialAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canCreate(IOperationContext context);
-
     void canCreate(IOperationContext context, MaterialPE material);
 
     void canUpdate(IOperationContext context, IMaterialId id, MaterialPE material);

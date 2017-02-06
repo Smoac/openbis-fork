@@ -105,14 +105,14 @@ public class CreateSpaceTest extends AbstractTest
     @Test
     public void testCreateWithSpaceObserver()
     {
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     testCreateWithUser(TEST_GROUP_OBSERVER);
                 }
-            });
+            }, new SpacePermId("NEW_SPACE"));
     }
 
     private void testCreateWithUser(String userId)

@@ -25,7 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -110,7 +112,7 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+
     }
 
     @Override
@@ -153,6 +155,12 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, "tag", null);
+    }
+
+    @Override
+    protected IObjectId getId(MetaprojectPE entity)
+    {
+        return new TagCode(entity.getCode());
     }
 
 }

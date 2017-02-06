@@ -34,8 +34,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
@@ -279,7 +281,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+
     }
 
     @Override
@@ -338,6 +340,12 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, EntityKind.SAMPLE.getLabel(), EntityKind.SAMPLE);
+    }
+
+    @Override
+    protected IObjectId getId(SamplePE entity)
+    {
+        return new SampleIdentifier(entity.getIdentifier());
     }
 
 }

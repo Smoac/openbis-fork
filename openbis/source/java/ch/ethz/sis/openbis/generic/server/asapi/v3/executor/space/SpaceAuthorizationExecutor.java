@@ -41,11 +41,6 @@ public class SpaceAuthorizationExecutor implements ISpaceAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SPACE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
-    public void canCreate(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canCreate(IOperationContext context, SpacePE space)
     {
         // nothing to do

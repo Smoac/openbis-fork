@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 public interface IProjectAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canCreate(IOperationContext context);
-
     void canCreate(IOperationContext context, ProjectPE project);
 
     void canUpdate(IOperationContext context, IProjectId id, ProjectPE project);

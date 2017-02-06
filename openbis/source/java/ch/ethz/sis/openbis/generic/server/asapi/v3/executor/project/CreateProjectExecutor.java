@@ -29,7 +29,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -123,7 +125,7 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+
     }
 
     @Override
@@ -174,6 +176,12 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, "project", null);
+    }
+
+    @Override
+    protected IObjectId getId(ProjectPE entity)
+    {
+        return new ProjectIdentifier(entity.getIdentifier());
     }
 
 }

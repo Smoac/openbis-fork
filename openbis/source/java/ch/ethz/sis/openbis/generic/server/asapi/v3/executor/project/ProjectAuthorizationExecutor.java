@@ -44,12 +44,7 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
-    public void canCreate(IOperationContext context)
-    {
-    }
-
-    @Override
-    public void canCreate(IOperationContext context, ProjectPE project)
+    public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
         if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
         {

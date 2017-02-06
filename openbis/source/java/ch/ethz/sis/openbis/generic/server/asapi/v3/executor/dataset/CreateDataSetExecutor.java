@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -293,6 +294,12 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, EntityKind.DATA_SET.getLabel(), EntityKind.DATA_SET);
+    }
+
+    @Override
+    protected IObjectId getId(DataPE entity)
+    {
+        return new DataSetPermId(entity.getPermId());
     }
 
 }

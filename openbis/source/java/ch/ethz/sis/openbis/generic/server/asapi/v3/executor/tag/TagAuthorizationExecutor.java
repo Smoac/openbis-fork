@@ -41,11 +41,6 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_TAG")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
-    public void canCreate(IOperationContext context)
-    {
-    }
-
-    @Override
     public void canCreate(IOperationContext context, MetaprojectPE tag)
     {
         new TagAuthorization(context).checkAccess(tag);

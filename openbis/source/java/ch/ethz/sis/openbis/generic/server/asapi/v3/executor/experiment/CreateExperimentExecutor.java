@@ -29,7 +29,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
@@ -133,7 +135,7 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+
     }
 
     @Override
@@ -185,6 +187,12 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     protected void handleException(DataAccessException e)
     {
         DataAccessExceptionTranslator.throwException(e, EntityKind.EXPERIMENT.getLabel(), EntityKind.EXPERIMENT);
+    }
+
+    @Override
+    protected IObjectId getId(ExperimentPE entity)
+    {
+        return new ExperimentIdentifier(entity.getIdentifier());
     }
 
 }

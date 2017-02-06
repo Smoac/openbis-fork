@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
@@ -284,6 +285,13 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
                 }
             }
         }
+    }
+
+    @Override
+    protected IObjectId getId(TYPE_PE entity)
+    {
+        // nothing to do
+        return null;
     }
 
     @Override

@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 public interface IExperimentAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canCreate(IOperationContext context);
-
     void canCreate(IOperationContext context, ExperimentPE experiment);
 
     void canUpdate(IOperationContext context, IExperimentId id, ExperimentPE experiment);

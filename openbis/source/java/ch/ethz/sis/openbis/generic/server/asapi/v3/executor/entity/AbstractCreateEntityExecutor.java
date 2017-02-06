@@ -32,6 +32,7 @@ import org.springframework.dao.DataAccessException;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CreationIdCache;
@@ -42,6 +43,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckAccessProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
@@ -116,7 +118,13 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
                 @Override
                 public void process(CREATION creation, PE entity)
                 {
-                    checkAccess(context, entity);
+                    try
+                    {
+                        checkAccess(context, entity);
+                    } catch (AuthorizationFailureException ex)
+                    {
+                        throw new UnauthorizedObjectAccessException((IObjectId) getId(entity));
+                    }
                 }
 
                 @Override
@@ -202,6 +210,8 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
             entry.setValue(idToEntityMap.get(entry.getValue().getId()));
         }
     }
+
+    protected abstract IObjectId getId(PE entity);
 
     protected abstract void checkData(IOperationContext context, CREATION creation);
 
