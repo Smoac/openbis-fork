@@ -21,8 +21,10 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
@@ -43,14 +45,13 @@ public class SpaceAuthorizationExecutor implements ISpaceAuthorizationExecutor
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public void canCreate(IOperationContext context, SpacePE space)
     {
-        // nothing to do
     }
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE")
     @DatabaseUpdateModification(value = ObjectKind.SPACE)
-    public void canUpdate(IOperationContext context, ISpaceId id, SpacePE space)
+    public void canUpdate(IOperationContext context, ISpaceId id, @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE space)
     {
         if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))
         {
@@ -62,7 +63,7 @@ public class SpaceAuthorizationExecutor implements ISpaceAuthorizationExecutor
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SPACE")
-    public void canDelete(IOperationContext context, ISpaceId id, SpacePE space)
+    public void canDelete(IOperationContext context, ISpaceId id, @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE space)
     {
         if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))
         {
