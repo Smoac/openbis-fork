@@ -409,6 +409,7 @@ task generateJavadoc(type: Javadoc) {
 		include "**/ch/ethz/sis/openbis/generic/asapi/**/*.java"
 		include "**/ch/ethz/sis/openbis/generic/dssapi/**/*.java"
 		include "**/ch/systemsx/cisd/**/api/**/*.java"
+		include "**/ch/systemsx/cisd/common/annotation/*.java"
 		include "**/ch/systemsx/cisd/base/**/*.java"		
 		include "**/OpenBISScreeningML.java"
 		include "**/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
