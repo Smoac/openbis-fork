@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -44,7 +43,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvi
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.CompareMode;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
@@ -58,7 +59,7 @@ import net.lemnik.eodsql.QueryTool;
  */
 public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeedingTask implements IMaintenanceTask
 {
-    static final String DATA_SET_TYPES_KEY = "data-set-types";
+    static final String DATA_SET_TYPE_KEY = "data-set-type";
 
     static final String TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY = "time-stamp-of-youngest-data-set";
 
@@ -96,7 +97,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
 
     private int chunkSize;
 
-    private List<Pattern> dataSetTypePatterns;
+    private String dataSetType;
 
     public PathInfoDatabaseRefreshingTask()
     {
@@ -137,7 +138,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         }
         chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
         computeChecksum = PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, true);
-        dataSetTypePatterns = PropertyUtils.getPatterns(properties, DATA_SET_TYPES_KEY);
+        dataSetType = properties.getProperty(DATA_SET_TYPE_KEY);
     }
     
     private String tryGetTimeStampAndCodeOfYoungestDataSet(Properties properties)
@@ -200,8 +201,13 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
     {
         String timeStampAndCode = getLastTimeStampAndCode();
         SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
         searchCriteria.addMatchClause(MatchClause.createTimeAttributeMatch(MatchClauseTimeAttribute.REGISTRATION_DATE,
                 CompareMode.LESS_THAN_OR_EQUAL, extractTimeStamp(timeStampAndCode), "0"));
+        if (dataSetType != null)
+        {
+            searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, dataSetType));
+        }
         List<AbstractExternalData> dataSets = service.searchForDataSets(searchCriteria);
         Collections.sort(dataSets, REVERSE_REGISTRATION_DATE_COMPARATOR);
         List<PhysicalDataSet> result = new ArrayList<>();
@@ -230,23 +236,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         {
             return false;
         }
-        if (renderTimeStampAndCode(physicalDataSet).compareTo(timeStampAndCode) >= 0)
-        {
-            return false;
-        }
-        if (dataSetTypePatterns.isEmpty())
-        {
-            return true;
-        }
-        String dataSetType = physicalDataSet.getDataSetType().getCode();
-        for (Pattern dataSetTypePattern : dataSetTypePatterns)
-        {
-            if (dataSetTypePattern.matcher(dataSetType).matches())
-            {
-                return true;
-            }
-        }
-        return false;
+        return renderTimeStampAndCode(physicalDataSet).compareTo(timeStampAndCode) < 0;
     }
 
     @Override

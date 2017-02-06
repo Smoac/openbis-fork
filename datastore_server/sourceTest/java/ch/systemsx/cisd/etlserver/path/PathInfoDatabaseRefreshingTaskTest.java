@@ -210,38 +210,37 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
     }
 
     @Test
-    public void testDataSetTypesSecondRun()
+    public void testDataSetTypeAndSecondRun()
     {
         Properties properties = new Properties();
         properties.setProperty(TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY, T5);
         File stateFile = new File(store, "ts.txt");
         FileUtilities.writeToFile(stateFile, T3);
         properties.setProperty(PathInfoDatabaseRefreshingTask.STATE_FILE_KEY, stateFile.getPath());
-        properties.setProperty(PathInfoDatabaseRefreshingTask.DATA_SET_TYPES_KEY, "A.*, B.*");
+        properties.setProperty(PathInfoDatabaseRefreshingTask.DATA_SET_TYPE_KEY, "A");
         task.setUp(null, properties);
-        PhysicalDataSet ds1 = new DataSetBuilder(1).code("wrong-type").type("C1").registrationDate(asDate(T1))
-                .status(AVAILABLE).getDataSet();
-        PhysicalDataSet ds2 = new DataSetBuilder(1).code("ds-2").type("A1").registrationDate(asDate(T1))
+        PhysicalDataSet ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(asDate(T1))
+                .status(AVAILABLE).location("1/ds-1").getDataSet();
+        PhysicalDataSet ds2 = new DataSetBuilder(1).code("ds-2").registrationDate(asDate(T2))
                 .status(AVAILABLE).location("1/ds-2").getDataSet();
-        PhysicalDataSet ds3 = new DataSetBuilder(1).code("ds-3").type("B1").registrationDate(asDate(T2))
-                .status(AVAILABLE).location("1/ds-3").getDataSet();
-        PhysicalDataSet ds4 = new DataSetBuilder(1).code("too-young").type("B1").registrationDate(asDate(T4))
+        PhysicalDataSet ds3 = new DataSetBuilder(1).code("too-young").registrationDate(asDate(T4))
                 .status(AVAILABLE).getDataSet();
-        RecordingMatcher<SearchCriteria> criteriaMatcher = prepareGetPhysicalDataSets(ds1, ds2, ds3, ds4);
+        RecordingMatcher<SearchCriteria> criteriaMatcher = prepareGetPhysicalDataSets(ds1, ds2, ds3);
+        prepareDeleteAndLockDataSet(ds1);
         prepareDeleteAndLockDataSet(ds2);
-        prepareDeleteAndLockDataSet(ds3);
         
         task.execute();
         
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
-                + "ATTRIBUTE,REGISTRATION_DATE," + T3 + ",LESS_THAN_OR_EQUAL]],[]]", 
+                + "ATTRIBUTE,REGISTRATION_DATE," + T3 + ",LESS_THAN_OR_EQUAL], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,A,EQUALS]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
-        assertEquals(T1 + " [ds-2]", FileUtilities.loadToString(stateFile).trim());
+        assertEquals(T1 + " [ds-1]", FileUtilities.loadToString(stateFile).trim());
     }
     
     @Test
