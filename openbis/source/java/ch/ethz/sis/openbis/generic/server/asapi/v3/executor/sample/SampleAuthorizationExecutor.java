@@ -19,14 +19,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -46,10 +43,6 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
-        {
-            throw new UnauthorizedObjectAccessException(new SampleIdentifier(sample.getIdentifier()));
-        }
     }
 
     @Override
@@ -59,10 +52,6 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     public void canUpdate(IOperationContext context, ISampleId id,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override
@@ -72,10 +61,6 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     public void canDelete(IOperationContext context, ISampleId id,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override

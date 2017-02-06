@@ -19,14 +19,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPEPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -46,10 +43,6 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
-        {
-            throw new UnauthorizedObjectAccessException(new ProjectIdentifier(project.getIdentifier()));
-        }
     }
 
     @Override
@@ -58,10 +51,6 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void canUpdate(IOperationContext context, IProjectId id, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override
@@ -70,10 +59,6 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     @Capability("DELETE_PROJECT")
     public void canDelete(IOperationContext context, IProjectId id, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override

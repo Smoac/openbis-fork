@@ -41,7 +41,6 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void canCreate(IOperationContext context, MaterialPE material)
     {
-        // nothing to do
     }
 
     @Override
@@ -50,7 +49,6 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public void canUpdate(IOperationContext context, IMaterialId id, MaterialPE material)
     {
-        // nothing to do
     }
 
     @Override
@@ -59,7 +57,6 @@ public class MaterialAuthorizationExecutor implements IMaterialAuthorizationExec
     @Capability("DELETE_MATERIAL")
     public void canDelete(IOperationContext context, IMaterialId id, MaterialPE material)
     {
-        // nothing to do
     }
 
     @Override

@@ -18,15 +18,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -46,10 +43,6 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-        {
-            throw new UnauthorizedObjectAccessException(new ExperimentIdentifier(experiment.getIdentifier()));
-        }
     }
 
     @Override
@@ -59,10 +52,6 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     public void canUpdate(IOperationContext context, IExperimentId id,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override
@@ -72,10 +61,6 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     public void canDelete(IOperationContext context, IExperimentId id,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override
