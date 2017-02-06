@@ -56,6 +56,10 @@ public class SynchronizationConfigReader
 
     private static final String DATA_SOURCE_AUTH_PASS_PROPERTY_NAME = "data-source-auth-pass";
 
+    private static final String HARVESTER_USER_PROPERTY_NAME = "harvester-user";
+
+    private static final String HARVESTER_PASS_PROPERTY_NAME = "harvester-pass";
+
     private static final String HARVESTER_SPACES_PROPERTY_NAME = "harvester-spaces";
 
     private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "harvester-tmp-dir";
@@ -96,9 +100,12 @@ public class SynchronizationConfigReader
             config.setDataSourceOpenbisURL(reader.getString(section, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null, true));
             config.setDataSourceDSSURL(reader.getString(section, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null, true));
             String realm = reader.getString(section, DATA_SOURCE_AUTH_REALM_PROPERTY_NAME, null, true);
-            String user = reader.getString(section, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null, true);
-            String pass = reader.getString(section, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null, true);
-            config.setAuthCredentials(realm, user, pass);
+            String dataSourceUser = reader.getString(section, DATA_SOURCE_AUTH_USER_PROPERTY_NAME, null, true);
+            String dataSourcePassword = reader.getString(section, DATA_SOURCE_AUTH_PASS_PROPERTY_NAME, null, true);
+            config.setAuthCredentials(realm, dataSourceUser, dataSourcePassword);
+
+            config.setHarvesterUser(reader.getString(section, HARVESTER_USER_PROPERTY_NAME, null, true));
+            config.setHarvesterPass(reader.getString(section, HARVESTER_PASS_PROPERTY_NAME, null, true));
 
             String dsSpaces = reader.getString(section, DATA_SOURCE_SPACES_PROPERTY_NAME, null, false);
             if (dsSpaces != null)

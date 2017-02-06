@@ -136,6 +136,26 @@ public class SyncConfig
         this.harvesterTempDir = harvesterTempDir;
     }
 
+    public String getHarvesterUser()
+    {
+        return harvesterUser;
+    }
+
+    public void setHarvesterUser(String harvesterUser)
+    {
+        this.harvesterUser = harvesterUser;
+    }
+
+    public String getHarvesterPass()
+    {
+        return harvesterPass;
+    }
+
+    public void setHarvesterPass(String harvesterPass)
+    {
+        this.harvesterPass = harvesterPass;
+    }
+
     public void printConfig()
     {
         for (Field field : this.getClass().getDeclaredFields())
@@ -159,7 +179,15 @@ public class SyncConfig
         }
     }
 
-    private BasicAuthCredentials auth;
+    // the credentials to be used in basic authentication against
+    // the data source openbis
+    private BasicAuthCredentials authCredentials;
+
+    // the username/password pair to be used on the harvester side
+    // to get the session token
+    private String harvesterUser;
+
+    private String harvesterPass;
 
     private String dataSourceOpenbisURL;
 
@@ -215,21 +243,21 @@ public class SyncConfig
 
     public void setAuthCredentials(String realm, String user, String pass)
     {
-        this.auth = new BasicAuthCredentials(realm, user, pass);
+        this.authCredentials = new BasicAuthCredentials(realm, user, pass);
     }
 
     public BasicAuthCredentials getAuthenticationCredentials()
     {
-        return auth;
+        return authCredentials;
     }
 
     public String getUser()
     {
-        return this.auth.getUser();
+        return this.authCredentials.getUser();
     }
 
     public String getPassword()
     {
-        return this.auth.getPassword();
+        return this.authCredentials.getPassword();
     }
 }

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
  */
 public class ServiceFinderUtils
 {
-    public static ICommonServer getCommonServer(String sessionToken, String openBisServerUrl)
+    public static ICommonServer getCommonServer(String openBisServerUrl)
     {
         ServiceFinder finder = new ServiceFinder("openbis", "/rmi-common");
         ICommonServer commonServer =
@@ -45,6 +45,6 @@ public class ServiceFinderUtils
     }
     public static EncapsulatedCommonServer getEncapsulatedCommonServer(String sessionToken, String openBisServerUrl)
     {
-        return EncapsulatedCommonServer.create(getCommonServer(sessionToken, openBisServerUrl), sessionToken);
+        return EncapsulatedCommonServer.create(getCommonServer(openBisServerUrl), sessionToken);
     }
 }
