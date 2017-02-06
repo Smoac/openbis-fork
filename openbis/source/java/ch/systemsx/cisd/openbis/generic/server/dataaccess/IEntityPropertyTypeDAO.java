@@ -121,4 +121,10 @@ public interface IEntityPropertyTypeDAO
      */
     public void createProperties(EntityPropertyPE property, List<Long> entityIds);
 
+    /**
+     * Updates the modification time stamps of the entities specified by entityIds This is necessary when 1. A new mandatory property is assigned to
+     * the entity type and existing entities need to be updated with a default value for the mandatory property 2. If a property is unassigned from an
+     * entity type.
+     */
+    public void updateEntityModificationTimestamps(final List<Long> entityIds);
 }

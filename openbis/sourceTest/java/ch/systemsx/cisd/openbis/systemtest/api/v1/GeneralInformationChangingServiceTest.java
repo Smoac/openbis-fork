@@ -28,12 +28,14 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -121,6 +123,60 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         assertEquals(
                 "[ANY_MATERIAL: material:2 [GENE]<a:1>, ORGANISM: term:GORILLA [ORGANISM]<a:1>, SIZE: 321<a:1>]",
                 history.toString());
+    }
+
+    @Test
+    public void testAssignMandatoryProperty()
+    {
+        TechId id = new TechId(1043L);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleBefore = localCommonServer.getSampleInfo(sessionToken, id).getParent();
+        assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                sampleBefore);
+        NewETPTAssignment newETPTAssignment = new NewETPTAssignment();
+        newETPTAssignment.setEntityKind(EntityKind.SAMPLE);
+        newETPTAssignment.setDynamic(false);
+        newETPTAssignment.setMandatory(true);
+        newETPTAssignment.setDefaultValue("BMP_15");
+        newETPTAssignment.setPropertyTypeCode("GENE_SYMBOL");
+        newETPTAssignment.setOrdinal(1L);
+        newETPTAssignment.setEntityTypeCode("CELL_PLATE");
+        newETPTAssignment.setShownInEditView(true);
+        newETPTAssignment.setShowRawValue(true);
+        localCommonServer.assignPropertyType(sessionToken,
+                newETPTAssignment);
+        //we clear the hibernateSession because assignPropertyType
+        //method executes sqls outside hibernate session
+        Session hibernateSession = getHibernateSession();
+        hibernateSession.clear();
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleAfter = localCommonServer.getSampleInfo(sessionToken, id).getParent();
+
+        assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, GENE_SYMBOL: BMP_15, "
+                + "ORGANISM: GORILLA, SIZE: 321]", sampleAfter);
+        assertFalse(sampleBefore.getModificationDate().equals(sampleAfter.getModificationDate()));
+    }
+
+    @Test
+    public void testUnassignProperty()
+    {
+        TechId id = new TechId(1043L);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleBefore = localCommonServer.getSampleInfo(sessionToken, id).getParent();
+        assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                sampleBefore);
+        localCommonServer.unassignPropertyType(sessionToken, EntityKind.SAMPLE, "COMMENT", "CELL_PLATE");
+        getHibernateSession().clear();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleAfter =
+                localCommonServer.getSampleInfo(sessionToken, id).getParent();
+        assertFalse(sampleBefore.getModificationDate().equals(sampleAfter.getModificationDate()));
+    }
+
+    private Session getHibernateSession()
+    {
+        OpenBISHibernateTransactionManager bean = (OpenBISHibernateTransactionManager) applicationContext.getBean("transaction-manager");
+        return bean.getSessionFactory().getCurrentSession();
     }
 
     @Test

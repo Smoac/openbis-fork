@@ -138,6 +138,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                     will(returnValue(property));
 
                     one(entityPropertyTypeDAO).createProperties(property, experimentIds);
+                    one(entityPropertyTypeDAO).updateEntityModificationTimestamps(with(experimentIds));
                 }
             });
         final EntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(EntityKind.EXPERIMENT);
