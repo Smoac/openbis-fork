@@ -22,6 +22,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
@@ -48,7 +50,6 @@ import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
-
 import junit.framework.Assert;
 
 /**
@@ -92,6 +93,28 @@ public class CreateExperimentTest extends AbstractExperimentTest
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
             }, "Code cannot be empty");
+    }
+
+    @Test
+    public void testCreateWithAdminUserInAnotherSpace()
+    {
+        final String code = "WILL-FAIL";
+        final ExperimentIdentifier identifier = new ExperimentIdentifier("/TEST-SPACE/NOE/" + code);
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    final ExperimentCreation experiment = new ExperimentCreation();
+                    experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+                    experiment.setProjectId(new ProjectIdentifier("/TEST-SPACE/NOE"));
+                    experiment.setCode(code);
+
+                    v3api.createExperiments(sessionToken, Collections.singletonList(experiment));
+                }
+            }, identifier);
     }
 
     @Test

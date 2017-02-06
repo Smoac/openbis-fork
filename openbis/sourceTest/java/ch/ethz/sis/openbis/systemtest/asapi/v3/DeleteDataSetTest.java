@@ -119,7 +119,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testDeleteDSWithPowerUserInAnotherSpace()
+    public void testDeleteDSWithAdminUserInAnotherSpace()
     {
         final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
 

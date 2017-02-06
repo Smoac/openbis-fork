@@ -57,7 +57,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testDeleteSampleWithPowerUserInAnotherSpace()
+    public void testDeleteSampleWithAdminUserInAnotherSpace()
     {
         final SamplePermId permId = new SamplePermId("200902091250077-1060");
 

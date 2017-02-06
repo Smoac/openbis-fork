@@ -22,6 +22,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -744,7 +745,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "/CISD/A01:CL1 (perm id: 200811050919915-8) cannot be it's own container", patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/A01:CL1'")));
+            }, "/CISD/A01:CL1 (perm id: 200811050919915-8) cannot be it's own container",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/A01:CL1'")));
     }
 
     @Test
@@ -920,8 +922,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "/CISD/CL1:A01 (perm id: 200811050919915-9) cannot be it's own container", 
-            patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CL1:A01'")));
+            }, "/CISD/CL1:A01 (perm id: 200811050919915-9) cannot be it's own container",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CL1:A01'")));
     }
 
     @Test
@@ -1244,6 +1246,25 @@ public class UpdateSampleTest extends AbstractSampleTest
                 }
             }, "Sample '/CISD/3V-125' can not be a space sample because of a child database instance sample '/MP'",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/3V-125'")));
+    }
+
+    @Test
+    public void testUpdateSampleWithAdminUserInAnotherSpace()
+    {
+        final SamplePermId permId = new SamplePermId("200902091250077-1060");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    final SampleUpdate update = new SampleUpdate();
+                    update.setSampleId(permId);
+                    v3api.updateSamples(sessionToken, Collections.singletonList(update));
+                }
+            }, permId);
     }
 
     @Test

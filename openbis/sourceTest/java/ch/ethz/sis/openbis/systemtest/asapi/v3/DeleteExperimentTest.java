@@ -165,7 +165,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testExperimentWithPowerUserInAnotherSpace()
+    public void testExperimentWithAdminUserInAnotherSpace()
     {
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 

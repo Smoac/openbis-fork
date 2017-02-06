@@ -16,10 +16,11 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,24 @@ public class UpdateProjectTest extends AbstractTest
                 public void execute()
                 {
                     v3api.updateProjects(sessionToken, Arrays.asList(update));
+                }
+            }, projectId);
+    }
+
+    @Test
+    public void testUpdateProjectWithAdminUserInAnotherSpace()
+    {
+        final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+        final ProjectUpdate update = new ProjectUpdate();
+        update.setProjectId(projectId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                    v3api.updateProjects(sessionToken, Collections.singletonList(update));
                 }
             }, projectId);
     }

@@ -104,7 +104,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testDeleteProjectWithPowerUserInAnotherSpace()
+    public void testDeleteProjectWithAdminUserInAnotherSpace()
     {
         final ProjectPermId permId = new ProjectPermId("20120814110011738-105");
 

@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -136,6 +137,26 @@ public class CreateProjectTest extends AbstractTest
                 public void execute()
                 {
                     v3api.createProjects(sessionToken, Arrays.asList(project));
+                }
+            }, spaceId);
+    }
+
+    @Test
+    public void testCreateProjectWithAdminUserInAnotherSpace()
+    {
+
+        final ISpaceId spaceId = new SpacePermId("TEST-SPACE");
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode("TEST_PROJECT_FAIL");
+        project.setSpaceId(spaceId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                    v3api.createProjects(sessionToken, Collections.singletonList(project));
                 }
             }, spaceId);
     }

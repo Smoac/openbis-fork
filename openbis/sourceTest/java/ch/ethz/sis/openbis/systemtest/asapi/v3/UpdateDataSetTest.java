@@ -107,6 +107,26 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateDSWithAdminUserInAnotherSpace()
+    {
+        final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    DataSetUpdate update = new DataSetUpdate();
+                    update.setDataSetId(permId);
+
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, permId);
+    }
+
+    @Test
     public void testUpdateWithDataSetNonexistent()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
