@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
@@ -60,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.systemtest.PropertyHistory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
@@ -123,6 +127,63 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         assertEquals(
                 "[ANY_MATERIAL: material:2 [GENE]<a:1>, ORGANISM: term:GORILLA [ORGANISM]<a:1>, SIZE: 321<a:1>]",
                 history.toString());
+    }
+
+    @Test
+    public void testVocabularyAdditionAndReplacement()
+    {
+        TechId id = new TechId(1043L);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleBefore = localCommonServer.getSampleInfo(sessionToken, id).getParent();
+        assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                sampleBefore);
+        NewETPTAssignment newETPTAssignment = new NewETPTAssignment();
+        newETPTAssignment.setEntityKind(EntityKind.SAMPLE);
+        newETPTAssignment.setDynamic(false);
+        newETPTAssignment.setMandatory(true);
+        newETPTAssignment.setDefaultValue("FEMALE");
+        newETPTAssignment.setPropertyTypeCode("GENDER");
+        newETPTAssignment.setOrdinal(1L);
+        newETPTAssignment.setEntityTypeCode("CELL_PLATE");
+        newETPTAssignment.setShownInEditView(true);
+        newETPTAssignment.setShowRawValue(true);
+        localCommonServer.assignPropertyType(sessionToken, newETPTAssignment);
+
+        Session hibernateSession = getHibernateSession();
+        hibernateSession.clear();
+        assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, GENDER: FEMALE, ORGANISM: GORILLA, SIZE: 321]",
+                localCommonServer.getSampleInfo(sessionToken, id).getParent());
+
+        List<Vocabulary> listVocabularies = generalInformationService.listVocabularies(sessionToken);
+        Vocabulary genderVocab = null;
+        for (Vocabulary vocabulary : listVocabularies)
+        {
+            if (vocabulary.getCode().equals("GENDER"))
+            {
+                genderVocab = vocabulary;
+            }
+        }
+        assertNotNull(genderVocab);
+
+        VocabularyTermReplacement replacement = new VocabularyTermReplacement();
+        VocabularyTerm vocabularyTerm = new VocabularyTerm();
+        vocabularyTerm.setCode("FEMALE");
+        vocabularyTerm.setOrdinal(1L);
+        replacement.setTerm(vocabularyTerm);
+        replacement.setReplacementCode("MALE");
+
+        localCommonServer.deleteVocabularyTerms(sessionToken, new TechId(genderVocab.getId()),
+                Collections.<VocabularyTerm> emptyList(), Arrays.asList(replacement));
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleAfter = localCommonServer.getSampleInfo(sessionToken, id)
+                .getParent();
+        assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, GENDER: MALE, ORGANISM: GORILLA, SIZE: 321]", sampleAfter);
+
+        hibernateSession.clear();
+
+        assertFalse(sampleBefore.getModificationDate().equals(sampleAfter.getModificationDate()));
     }
 
     @Test
