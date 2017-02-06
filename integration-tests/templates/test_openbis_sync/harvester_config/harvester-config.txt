@@ -9,6 +9,13 @@ data-source-alias = DS1
 data-source-auth-realm = OAI-PMH
 data-source-auth-user = harvester1
 data-source-auth-pass = 123
+
+
+#replace the following with proper user on openbis2
+#after switching on master data syncronization
+harvester-user = sync_admin
+harvester-pass = a
+
 harvester-tmp-dir = harvester-tmp
 email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
 #last-sync-timestamp-file = ../../last-sync-timestamp-file_HRVSTR.txt
