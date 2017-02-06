@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
@@ -38,16 +39,19 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_TAG")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
     public void canCreate(IOperationContext context, MetaprojectPE tag)
     {
-        new TagAuthorization(context).checkAccess(tag);
+        if (false == new TagAuthorization(context).canAccess(tag))
+        {
+            throw new UnauthorizedObjectAccessException(new TagPermId(tag.getOwner().getUserId(), tag.getCode()));
+        }
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_TAG")
     @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public void canUpdate(IOperationContext context, ITagId id, MetaprojectPE tag)
@@ -60,11 +64,14 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.METAPROJECT, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_TAG")
     public void canDelete(IOperationContext context, ITagId id, MetaprojectPE tag)
     {
-        new TagAuthorization(context).checkAccess(tag);
+        if (false == new TagAuthorization(context).canAccess(tag))
+        {
+            throw new UnauthorizedObjectAccessException(id);
+        }
     }
 
     @Override
