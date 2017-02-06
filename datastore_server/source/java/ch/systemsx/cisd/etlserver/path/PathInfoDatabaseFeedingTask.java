@@ -16,15 +16,12 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
@@ -44,19 +41,20 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedH
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
+import net.lemnik.eodsql.QueryTool;
+
 /**
  * Maintenance and post registration task which feeds pathinfo database with all data set paths.
  * 
  * @author Franz-Josef Elmer
  */
-public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegistrationTask
+public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegistrationTask
 {
     private static interface IStopCondition
     {
@@ -67,8 +65,6 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
 
-    static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
-    
     static final String CHUNK_SIZE_KEY = "data-set-chunk-size";
     
     static final int DEFAULT_CHUNK_SIZE = 1000;
@@ -96,16 +92,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     private IEncapsulatedOpenBISService service;
 
-    private IDataSetDirectoryProvider directoryProvider;
-
     private ITimeProvider timeProvider;
     
-    private IPathsInfoDAO dao;
-
-    private IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
-
-    private boolean computeChecksum;
-
     private int chunkSize;
 
     private int maxNumerOfChunks;
@@ -215,6 +203,12 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     @Override
     public void clearCache()
     {
+    }
+
+    @Override
+    protected Logger getOperationLog()
+    {
+        return operationLog;
     }
 
     private List<SimpleDataSetInformationDTO> filteredDataSets(List<SimpleDataSetInformationDTO> dataSets, Set<String> processedDataSets)
@@ -346,48 +340,6 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                     }
                 }
             };
-    }
-
-    private void feedPathInfoDatabase(IDatasetLocation dataSet)
-    {
-        IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
-        String dataSetCode = dataSet.getDataSetCode();
-        shareIdManager.lock(dataSetCode);
-
-        try
-        {
-            File dataSetRoot = directoryProvider.getDataSetDirectory(dataSet);
-            if (dataSetRoot.exists() == false)
-            {
-                operationLog.error("Root directory of data set " + dataSetCode
-                        + " does not exists: " + dataSetRoot);
-                shareIdManager.releaseLocks();
-                return;
-            }
-            DatabaseBasedDataSetPathsInfoFeeder feeder =
-                    new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory,
-                            computeChecksum);
-            Long id = dao.tryGetDataSetId(dataSetCode);
-            if (id == null)
-            {
-                feeder.addPaths(dataSetCode, dataSet.getDataSetLocation(), dataSetRoot);
-                feeder.commit();
-                operationLog.info("Paths inside data set " + dataSetCode
-                        + " successfully added to database.");
-            }
-        } catch (Exception ex)
-        {
-            handleException(ex, dataSetCode);
-        } finally
-        {
-            shareIdManager.releaseLocks();
-        }
-    }
-
-    private void handleException(Exception ex, String dataSet)
-    {
-        operationLog.error("Couldn't feed database with path infos of data set " + dataSet, ex);
-        dao.rollback();
     }
 
     private IStopCondition createStopCondition()
