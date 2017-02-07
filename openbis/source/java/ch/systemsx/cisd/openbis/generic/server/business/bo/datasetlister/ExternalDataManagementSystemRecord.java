@@ -25,7 +25,7 @@ public class ExternalDataManagementSystemRecord extends CodeRecord
 {
     public String label;
 
-    public String url_template;
+    public String address;
 
-    public Boolean is_openbis;
+    public String addressType;
 }

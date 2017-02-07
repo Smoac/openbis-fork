@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
@@ -36,8 +37,8 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
         edmsPE.setId(Math.round(10000.0d * Math.random()));
         edmsPE.setCode("TEST_EDMS");
         edmsPE.setLabel("This is only a test");
-        edmsPE.setUrlTemplate("http://www.facebook.com/${code}");
-        edmsPE.setOpenBIS(true);
+        edmsPE.setAddress("http://www.facebook.com/${code}");
+        edmsPE.setAddressType(ExternalDataManagementSystemType.OPENBIS);
 
         ExternalDataManagementSystem edms =
                 ExternalDataManagementSystemTranslator.translate(edmsPE);
@@ -45,7 +46,7 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
         assertEquals(edmsPE.getId(), edms.getId());
         assertEquals(edmsPE.getCode(), edms.getCode());
         assertEquals(edmsPE.getLabel(), edms.getLabel());
-        assertEquals(edmsPE.getUrlTemplate(), edms.getUrlTemplate());
+        assertEquals(edmsPE.getAddress(), edms.getAddress());
         assertTrue(edms.isOpenBIS());
     }
 
@@ -69,7 +70,7 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
         assertNull(edmsPE.getId());
         assertEquals(edms.getCode(), edmsPE.getCode());
         assertEquals(edms.getLabel(), edmsPE.getLabel());
-        assertEquals(edms.getUrlTemplate(), edmsPE.getUrlTemplate());
+        assertEquals(edms.getUrlTemplate(), edmsPE.getAddress());
         assertFalse(edmsPE.isOpenBIS());
     }
 }

@@ -90,8 +90,8 @@ public class DataSetRecord
 
     public String edms_label;
 
-    public String edms_url_template;
+    public String edms_address;
 
-    public Boolean edms_is_openbis;
+    public String edms_address_type;
 
 }

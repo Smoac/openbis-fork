@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
+
 /**
  * @author Pawel Glyzewski
  */
@@ -23,7 +25,7 @@ public interface IExternalDataManagementSystem extends IExternalDataManagementSy
 {
     public void setLabel(String label);
 
-    public void setUrlTemplate(String urlTemplate);
+    public void setAddress(String address);
 
-    public void setOpenBIS(boolean openBIS);
+    public void setAddressType(ExternalDataManagementSystemType addressType);
 }

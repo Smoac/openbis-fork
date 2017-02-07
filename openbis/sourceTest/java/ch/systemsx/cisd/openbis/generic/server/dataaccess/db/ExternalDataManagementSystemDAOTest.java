@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
@@ -41,9 +42,9 @@ public class ExternalDataManagementSystemDAOTest extends AbstractDAOTest
     {
         ExternalDataManagementSystemPE edms = new ExternalDataManagementSystemPE();
         edms.setCode(EXAMPLE_CODE);
-        edms.setUrlTemplate("http://www.google.com/${code}");
+        edms.setAddress("http://www.google.com/${code}");
         edms.setLabel(EXAMPLE_LABEL);
-        edms.setOpenBIS(true);
+        edms.setAddressType(ExternalDataManagementSystemType.OPENBIS);
         daoFactory.getExternalDataManagementSystemDAO().createOrUpdateExternalDataManagementSystem(
                 edms);
         assertNotNull(edms.getId());
@@ -72,14 +73,14 @@ public class ExternalDataManagementSystemDAOTest extends AbstractDAOTest
             {
                 assertEquals("DMS_1", edms.getCode());
                 assertEquals("Test EDMS", edms.getLabel());
-                assertEquals("http://example.edms.pl/code=${code}", edms.getUrlTemplate());
+                assertEquals("http://example.edms.pl/code=${code}", edms.getAddress());
                 assertFalse(edms.isOpenBIS());
             } else
             {
                 assertEquals(2L, edms.getId().longValue());
                 assertEquals("DMS_2", edms.getCode());
                 assertEquals("Test External openBIS instance", edms.getLabel());
-                assertEquals("http://www.openbis.ch/perm_id=${code}", edms.getUrlTemplate());
+                assertEquals("http://www.openbis.ch/perm_id=${code}", edms.getAddress());
                 assertTrue(edms.isOpenBIS());
             }
         }

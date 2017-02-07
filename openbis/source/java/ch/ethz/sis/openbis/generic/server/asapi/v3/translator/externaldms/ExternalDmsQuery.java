@@ -29,7 +29,7 @@ import net.lemnik.eodsql.Select;
 public interface ExternalDmsQuery extends ObjectQuery
 {
 
-    @Select(sql = "select id, code, label, url_template as urlTemplate, is_openbis as openbis "
+    @Select(sql = "select id, code, label, address, address_type as addressType "
             + " from external_data_management_systems where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ExternalDmsBaseRecord> getExternalDmses(LongSet externalDmsIds);
 

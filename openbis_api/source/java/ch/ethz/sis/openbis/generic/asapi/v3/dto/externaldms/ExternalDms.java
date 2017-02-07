@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.annotation.TechPreview;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -45,7 +46,13 @@ public class ExternalDms implements Serializable, ICodeHolder
     private String urlTemplate;
 
     @JsonProperty
+    private String address;
+
+    @JsonProperty
     private Boolean openbis;
+
+    @JsonProperty
+    private ExternalDmsAddressType addressType;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -111,6 +118,32 @@ public class ExternalDms implements Serializable, ICodeHolder
     public void setOpenbis(Boolean openbis)
     {
         this.openbis = openbis;
+    }
+
+    @TechPreview
+    public void setAddressType(ExternalDmsAddressType type)
+    {
+        this.addressType = type;
+    }
+
+    @TechPreview
+    @JsonProperty
+    public ExternalDmsAddressType getAddressType()
+    {
+        return addressType;
+    }
+
+    @TechPreview
+    public void setAddress(String address)
+    {
+        this.address = address;
+    }
+
+    @TechPreview
+    @JsonProperty
+    public String getAddress()
+    {
+        return address;
     }
 
     // Method automatically generated with DtoGenerator

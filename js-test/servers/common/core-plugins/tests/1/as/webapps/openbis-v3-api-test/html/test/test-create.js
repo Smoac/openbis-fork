@@ -159,28 +159,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findExperimentType, fCheck);
 		});
 		
-//		QUnit.test("createExternalDms()", function(assert) {
-//			var c = new common(assert, openbis);
-//			var code = c.generateId("DMS1");
-//
-//			var fCreate = function(facade) {
-//				var externalDmsCreation = new c.ExternalDmsCreation();
-//				externalDmsCreation.setCode(code);
-//				externalDmsCreation.setLabel("LABELI");
-//				externalDmsCreation.setUrlTemplate("HTTP://XXX");
-//				externalDmsCreation.setType("GIT");
-//				return facade.createExternalDms([ externalDmsCreation ]);
-//			}
-//
-//			var fCheck = function(externalDms) {
-//				c.assertEqual(externalDms.getCode(), code, "SOEMTHING?");
-//			}
-//
-//			testCreate(c, fCreate, c.findExternalDms, fCheck);
-//		});
-		
-		
-
 		QUnit.test("createSamples()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("SAMPLE");

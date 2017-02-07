@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -441,6 +442,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                     edms.setCode(KNOWN);
                     edms.setLabel("old label");
                     edms.setUrlTemplate("old url template");
+                    edms.setAddress(edms.getUrlTemplate());
                     edms.setOpenBIS(false);
 
                     one(server).getExternalDataManagementSystem(SESSION_TOKEN, KNOWN);
@@ -451,12 +453,12 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         IExternalDataManagementSystem edms =
                 transaction.getOrCreateNewExternalDataManagementSystem(KNOWN);
         edms.setLabel("new label");
-        edms.setUrlTemplate("new url template");
-        edms.setOpenBIS(true);
+        edms.setAddress("new url template");
+        edms.setAddressType(ExternalDataManagementSystemType.OPENBIS);
 
         assertEquals(KNOWN, edms.getCode());
         assertEquals("old label", edms.getLabel());
-        assertEquals("old url template", edms.getUrlTemplate());
+        assertEquals("old url template", edms.getAddress());
         assertFalse(edms.isOpenBIS());
         context.assertIsSatisfied();
     }
@@ -475,12 +477,12 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         IExternalDataManagementSystem edms =
                 transaction.getOrCreateNewExternalDataManagementSystem(UNKNOWN);
         edms.setLabel("new label");
-        edms.setUrlTemplate("new url template");
-        edms.setOpenBIS(true);
+        edms.setAddress("new url template");
+        edms.setAddressType(ExternalDataManagementSystemType.OPENBIS);
 
         assertEquals(UNKNOWN, edms.getCode());
         assertEquals("new label", edms.getLabel());
-        assertEquals("new url template", edms.getUrlTemplate());
+        assertEquals("new url template", edms.getAddress());
         assertTrue(edms.isOpenBIS());
         context.assertIsSatisfied();
     }

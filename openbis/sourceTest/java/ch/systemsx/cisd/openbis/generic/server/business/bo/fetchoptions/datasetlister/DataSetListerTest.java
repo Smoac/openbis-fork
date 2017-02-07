@@ -46,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import net.lemnik.eodsql.DynamicQuery;
 import net.lemnik.eodsql.TransactionQuery;
 
@@ -275,16 +275,11 @@ public class DataSetListerTest extends AbstractDAOTest
         assertEquals("http://example.edms.pl/code=CODE2", results.get(1).getExternalDataSetLink());
         assertEquals("http://www.openbis.ch/perm_id=CODE3", results.get(2).getExternalDataSetLink());
 
-        DatabaseInstance db = new DatabaseInstance();
-        db.setId(1L);
-        db.setCode("CISD");
-        db.setUuid("57F0FA8F-80AC-42AB-9C6A-AAADBCC37A3E");
-        db.setHomeDatabase(true);
-
         ExternalDataManagementSystem dms1 = new ExternalDataManagementSystem();
         dms1.setId(1L);
         dms1.setCode("DMS_1");
         dms1.setLabel("Test EDMS");
+        dms1.setAddressType(ExternalDataManagementSystemType.URL);
         dms1.setOpenBIS(false);
         dms1.setUrlTemplate("http://example.edms.pl/code=${code}");
 
@@ -292,6 +287,7 @@ public class DataSetListerTest extends AbstractDAOTest
         dms2.setId(2L);
         dms2.setCode("DMS_2");
         dms2.setLabel("Test External openBIS instance");
+        dms2.setAddressType(ExternalDataManagementSystemType.OPENBIS);
         dms2.setOpenBIS(true);
         dms2.setUrlTemplate("http://www.openbis.ch/perm_id=${code}");
 

@@ -326,9 +326,9 @@ public final class ColumnNames
 
     public static final String REGISTRATION_ID = "registration_id";
 
-    public static final String IS_OPENBIS_COLUMN = "is_openbis";
+    public static final String ADDRESS_TYPE_COLUMN = "address_type";
 
-    public static final String URL_TEMPLATE_COLUMN = "url_template";
+    public static final String ADDRESS_COLUMN = "address";
 
     public static final String OWNER_COLUMN = "owner";
 

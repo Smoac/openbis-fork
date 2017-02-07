@@ -28,8 +28,8 @@ public class ExternalDmsBaseRecord extends ObjectBaseRecord
 
     public String label;
 
-    public String urlTemplate;
+    public String address;
 
-    public Boolean openbis;
+    public String addressType;
 
 }

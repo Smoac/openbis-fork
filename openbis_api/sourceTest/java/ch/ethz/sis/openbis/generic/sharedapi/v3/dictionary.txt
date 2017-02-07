@@ -1535,3 +1535,10 @@ setMetadataCreation
 DataSetFileCreation
 isOpenBIS
 setOpenBIS
+URL
+FILE_SYSTEM
+getAddress
+getAddressType
+setAddress
+setAddressType
+ExternalDmsAddressType

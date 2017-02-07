@@ -5,19 +5,22 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("ExternalDataManagementSystemType")
 public enum ExternalDataManagementSystemType
 {
-    OPENBIS, GIT, UNDEFINED;
+    OPENBIS, URL, FILE_SYSTEM;
 
     public static ExternalDataManagementSystemType fromString(String str)
     {
         if ("OPENBIS".equals(str))
         {
             return ExternalDataManagementSystemType.OPENBIS;
-        } else if ("GIT".equals(str))
+        } else if ("URL".equals(str))
         {
-            return ExternalDataManagementSystemType.GIT;
+            return ExternalDataManagementSystemType.URL;
+        } else if ("FILE_SYSTEM".equals(str))
+        {
+            return ExternalDataManagementSystemType.FILE_SYSTEM;
         } else
         {
-            return ExternalDataManagementSystemType.UNDEFINED;
+            throw new IllegalArgumentException("Unknown type " + str);
         }
     }
 }

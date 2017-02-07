@@ -225,7 +225,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     @Select(sql = "select id, code from locator_types")
     public CodeRecord[] getLocatorTypes();
 
-    @Select(sql = "select id, code, label, url_template, is_openbis from external_data_management_systems")
+    @Select(sql = "select id, code, label, address, address_type as addressType from external_data_management_systems")
     public ExternalDataManagementSystemRecord[] getExternalDataManagementSystems();
 
     //

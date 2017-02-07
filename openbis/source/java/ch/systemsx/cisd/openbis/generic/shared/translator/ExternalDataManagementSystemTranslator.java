@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
@@ -39,8 +40,24 @@ public class ExternalDataManagementSystemTranslator
         result.setCode(edms.getCode());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setLabel(edms.getLabel());
-        result.setUrlTemplate(edms.getUrlTemplate());
-        result.setOpenBIS(edms.isOpenBIS());
+        result.setUrlTemplate(edms.getAddress());
+        result.setAddress(edms.getAddress());
+
+        if (edms.getAddressType() != null)
+        {
+            result.setAddressType(edms.getAddressType());
+            result.setOpenBIS(ExternalDataManagementSystemType.OPENBIS.equals(edms.getAddressType()));
+        } else
+        {
+            result.setOpenBIS(edms.isOpenBIS());
+            if (edms.isOpenBIS())
+            {
+                result.setAddressType(ExternalDataManagementSystemType.OPENBIS);
+            } else
+            {
+                result.setAddressType(ExternalDataManagementSystemType.URL);
+            }
+        }
 
         return result;
     }
@@ -50,8 +67,26 @@ public class ExternalDataManagementSystemTranslator
     {
         result.setCode(edms.getCode());
         result.setLabel(edms.getLabel());
-        result.setUrlTemplate(edms.getUrlTemplate());
-        result.setOpenBIS(edms.isOpenBIS());
+        if (edms.getAddress() != null)
+        {
+            result.setAddress(edms.getAddress());
+        } else
+        {
+            result.setAddress(edms.getUrlTemplate());
+        }
+        if (edms.getAddressType() != null)
+        {
+            result.setAddressType(edms.getAddressType());
+        } else
+        {
+            if (edms.isOpenBIS())
+            {
+                result.setAddressType(ExternalDataManagementSystemType.OPENBIS);
+            } else
+            {
+                result.setAddressType(ExternalDataManagementSystemType.URL);
+            }
+        }
 
         return result;
     }

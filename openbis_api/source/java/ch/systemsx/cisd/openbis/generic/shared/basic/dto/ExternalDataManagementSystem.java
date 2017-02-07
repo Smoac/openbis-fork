@@ -42,7 +42,11 @@ public class ExternalDataManagementSystem extends Code<ExternalDataManagementSys
 
     private String urlTemplate;
 
+    private String address;
+
     private boolean openBIS;
+
+    private ExternalDataManagementSystemType addressType;
 
     @JsonIgnore
     public Long getId()
@@ -94,6 +98,26 @@ public class ExternalDataManagementSystem extends Code<ExternalDataManagementSys
     public void setOpenBIS(boolean openBIS)
     {
         this.openBIS = openBIS;
+    }
+
+    public String getAddress()
+    {
+        return address;
+    }
+
+    public void setAddress(String address)
+    {
+        this.address = address;
+    }
+
+    public ExternalDataManagementSystemType getAddressType()
+    {
+        return addressType;
+    }
+
+    public void setAddressType(ExternalDataManagementSystemType addressType)
+    {
+        this.addressType = addressType;
     }
 
     @JsonProperty("id")
