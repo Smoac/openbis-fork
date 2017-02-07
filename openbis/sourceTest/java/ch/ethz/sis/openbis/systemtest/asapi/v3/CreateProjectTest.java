@@ -209,14 +209,27 @@ public class CreateProjectTest extends AbstractTest
     @Test
     public void testCreateWithCapabilitySet()
     {
-        final String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
-
         final ISpaceId spaceId = new SpacePermId("TESTGROUP");
+        final String projectCode = "CAN_I_DO_THIS";
+
         final ProjectCreation project = new ProjectCreation();
-        project.setCode("CAN_I_DO_THIS");
+        project.setCode(projectCode);
         project.setSpaceId(spaceId);
 
-        v3api.createProjects(sessionToken, Arrays.asList(project));
+        boolean succeedAfterException = false;
+        try
+        {
+            // This will fail because being a power user is not enough anymore to create projects
+            String sessionToken = v3api.login(TEST_GROUP_POWERUSER, PASSWORD);
+            v3api.createProjects(sessionToken, Collections.singletonList(project));
+        } catch (Exception ex)
+        {
+            // This will succeed because the capability is now assigned to admins
+            String sessionToken = v3api.login(TEST_GROUP_ADMIN, PASSWORD);
+            v3api.createProjects(sessionToken, Collections.singletonList(project));
+            succeedAfterException = true;
+        }
+        Assert.assertTrue(succeedAfterException);
     }
 
     @Test
