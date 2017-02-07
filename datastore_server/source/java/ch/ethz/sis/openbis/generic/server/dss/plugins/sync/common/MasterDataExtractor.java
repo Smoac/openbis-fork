@@ -56,13 +56,12 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistra
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTermImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
- * 
- *
  * @author Ganime Betul Akin
  */
 public class MasterDataExtractor
@@ -91,8 +90,14 @@ public class MasterDataExtractor
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.newDocument();
-        Element rootElement = doc.createElement("masterData");
+        docFactory.setNamespaceAware(true);
+        Element rootElement = doc.createElementNS("https://sis.id.ethz.ch/software/#openbis/xmdterms/", "xmd:masterData");
+        rootElement.setAttribute("xmlns:xmd", "https://sis.id.ethz.ch/software/#openbis/xmdterms/");
         doc.appendChild(rootElement);
+
+        // append scripts
+        List<IScriptImmutable> scripts = masterDataRegistrationTransaction.listScripts();
+        appendValidationPlugins(doc, rootElement, scripts);
 
         // append file format types
         List<IFileFormatTypeImmutable> fileFormatTypes = masterDataRegistrationTransaction.listFileFormatTypes();
@@ -124,6 +129,12 @@ public class MasterDataExtractor
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS,
+                "validationPlugin");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
         DOMSource source = new DOMSource(doc);
         StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
@@ -131,15 +142,36 @@ public class MasterDataExtractor
         return writer.toString();
     }
 
+    private void appendValidationPlugins(Document doc, Element rootElement, List<IScriptImmutable> scripts)
+    {
+        if (scripts.size() > 0)
+        {
+            Element pluginsElement = doc.createElement("xmd:validationPlugins");
+            rootElement.appendChild(pluginsElement);
+            for (IScriptImmutable script : scripts)
+            {
+                Element pluginElement = doc.createElement("xmd:validationPlugin");
+                pluginElement.setAttribute("code", script.getCode());
+                pluginElement.setAttribute("name", script.getName());
+                pluginElement.setAttribute("description", script.getDescription());
+                pluginElement.setAttribute("type", script.getScriptType());
+                pluginElement.setAttribute("entityKind", script.getEntity());
+
+                pluginElement.appendChild(doc.createCDATASection(script.getScript()));
+                pluginsElement.appendChild(pluginElement);
+            }
+        }
+    }
+
     private void appendFileFormatTypes(Document doc, Element rootElement, List<IFileFormatTypeImmutable> fileFormatTypes)
     {
         if (fileFormatTypes.size() > 0)
         {
-            Element fileFormatTypesElement = doc.createElement("fileFormatTypes");
+            Element fileFormatTypesElement = doc.createElement("xmd:fileFormatTypes");
             rootElement.appendChild(fileFormatTypesElement);
             for (IFileFormatTypeImmutable fileFormatType : fileFormatTypes)
             {
-                Element fileFormatTypeElement = doc.createElement("fileFormatType");
+                Element fileFormatTypeElement = doc.createElement("xmd:fileFormatType");
                 fileFormatTypeElement.setAttribute("code", fileFormatType.getCode());
                 fileFormatTypeElement.setAttribute("description", fileFormatType.getDescription());
                 fileFormatTypesElement.appendChild(fileFormatTypeElement);
@@ -151,7 +183,7 @@ public class MasterDataExtractor
     {
         if (propertyTypes.size() > 0)
         {
-            Element propertyTypesElement = doc.createElement("propertyTypes");
+            Element propertyTypesElement = doc.createElement("xmd:propertyTypes");
             rootElement.appendChild(propertyTypesElement);
             for (IPropertyTypeImmutable propertyTypeImmutable : propertyTypes)
             {
@@ -159,7 +191,7 @@ public class MasterDataExtractor
                         (propertyTypeImmutable.isInternalNamespace()
                         && propertyTypeImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX)) ? CodeConverter.tryToDatabase(propertyTypeImmutable
                                 .getCode()) : propertyTypeImmutable.getCode();
-                Element propertyTypeElement = doc.createElement("propertyType");
+                Element propertyTypeElement = doc.createElement("xmd:propertyType");
                 propertyTypeElement.setAttribute("code", code);
                 propertyTypeElement.setAttribute("label", propertyTypeImmutable.getLabel());
                 propertyTypeElement.setAttribute("dataType", propertyTypeImmutable.getDataType().name());
@@ -170,7 +202,8 @@ public class MasterDataExtractor
                 {
                     propertyTypeElement.setAttribute("vocabulary", propertyTypeImmutable.getVocabulary().getCode());
                 }
-                else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name())) {
+                else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name()))
+                {
                     if (propertyTypeImmutable.getMaterialType() != null)
                     {
                         propertyTypeElement.setAttribute("material", propertyTypeImmutable.getMaterialType().getCode());
@@ -190,14 +223,14 @@ public class MasterDataExtractor
     {
         if (vocabularies.size() > 0)
         {
-            Element vocabsElement = doc.createElement("controlledVocabularies");
+            Element vocabsElement = doc.createElement("xmd:controlledVocabularies");
             rootElement.appendChild(vocabsElement);
             for (IVocabularyImmutable vocabImmutable : vocabularies)
             {
-                Element vocabElement = doc.createElement("controlledVocabulary");
+                Element vocabElement = doc.createElement("xmd:controlledVocabulary");
                 String code = vocabImmutable.isInternalNamespace()
                         && vocabImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX) ? CodeConverter.tryToDatabase(vocabImmutable.getCode())
-                                : vocabImmutable.getCode();
+                        : vocabImmutable.getCode();
                 vocabElement.setAttribute("code", code);
                 vocabElement.setAttribute("description", vocabImmutable.getDescription());
                 vocabElement.setAttribute("urlTemplate", vocabImmutable.getUrlTemplate());
@@ -225,12 +258,12 @@ public class MasterDataExtractor
     {
         if (materialTypes.size() > 0)
         {
-            Element materialTypesElement = doc.createElement("materialTypes");
+            Element materialTypesElement = doc.createElement("xmd:materialTypes");
             rootElement.appendChild(materialTypesElement);
             Map<String, List<PropertyAssignment>> materialTypeCodePropAssignmentMap = loadMaterialTypesUsingV3WithPropertyAssignments();
             for (IMaterialTypeImmutable matType : materialTypes)
             {
-                Element matTypeElement = getEntityTypeXML(doc, matType, "materialType");
+                Element matTypeElement = getEntityTypeXML(doc, matType, "xmd:materialType");
                 matTypeElement.setAttribute("description", matType.getDescription());
                 // TODO validation script
                 materialTypesElement.appendChild(matTypeElement);
@@ -244,12 +277,12 @@ public class MasterDataExtractor
     {
         if (dataSetTypes.size() > 0)
         {
-            Element dataSetTypesElement = doc.createElement("dataSetTypes");
+            Element dataSetTypesElement = doc.createElement("xmd:dataSetTypes");
             rootElement.appendChild(dataSetTypesElement);
             Map<String, List<PropertyAssignment>> dsTypeCodePropAssignmentMap = loadDataSetTypesUsingV3WithPropertyAssignments();
             for (IDataSetTypeImmutable dsType : dataSetTypes)
             {
-                Element dsTypeElement = getEntityTypeXML(doc, dsType, "dataSetType");
+                Element dsTypeElement = getEntityTypeXML(doc, dsType, "xmd:dataSetType");
                 dsTypeElement.setAttribute("description", dsType.getDescription());
                 dsTypeElement.setAttribute("dataSetKind", dsType.getDataSetKind());
                 dsTypeElement.setAttribute("mainDataSetPattern", dsType.getMainDataSetPattern());
@@ -267,12 +300,12 @@ public class MasterDataExtractor
     {
         if (experimentTypes.size() > 0)
         {
-            Element experimentTypesElement = doc.createElement("collectionTypes");
+            Element experimentTypesElement = doc.createElement("xmd:collectionTypes");
             rootElement.appendChild(experimentTypesElement);
             Map<String, List<PropertyAssignment>> expTypeCodePropAssignmentMap = loadExperimentTypesUsingV3WithPropertyAssignments();
             for (IExperimentTypeImmutable expType : experimentTypes)
             {
-                Element experimentTypeElement = getEntityTypeXML(doc, expType, "collectionType");
+                Element experimentTypeElement = getEntityTypeXML(doc, expType, "xmd:collectionType");
                 experimentTypeElement.setAttribute("description", expType.getDescription());
                 // TODO validation script?
                 experimentTypesElement.appendChild(experimentTypeElement);
@@ -286,13 +319,13 @@ public class MasterDataExtractor
     {
         if (sampleTypes.size() > 0)
         {
-            Element sampleTypesElement = doc.createElement("objectTypes");
+            Element sampleTypesElement = doc.createElement("xmd:objectTypes");
             rootElement.appendChild(sampleTypesElement);
 
             Map<String, List<PropertyAssignment>> sampleTypeCodePropAssignmentMap = loadSampleTypesUsingV3WithPropertyAssignments();
             for (ISampleTypeImmutable sampleType : sampleTypes)
             {
-                Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "objectType");
+                Element sampleTypeElement = getEntityTypeXML(doc, sampleType, "xmd:objectType");
                 sampleTypeElement.setAttribute("description", sampleType.getDescription());
                 sampleTypeElement.setAttribute("listable", String.valueOf(sampleType.isListable()));
                 sampleTypeElement.setAttribute("showContainer", String.valueOf(sampleType.isShowContainer()));
@@ -318,10 +351,10 @@ public class MasterDataExtractor
 
     private Element getPropertyAssignmentXML(Document doc, List<PropertyAssignment> propertyAssignments)
     {
-        Element propertyAssignmentsElement = doc.createElement("propertyAssignments");
+        Element propertyAssignmentsElement = doc.createElement("xmd:propertyAssignments");
         for (PropertyAssignment propAssignment : propertyAssignments)
         {
-            Element propertyAssignmentElement = doc.createElement("propertyAssignment");
+            Element propertyAssignmentElement = doc.createElement("xmd:propertyAssignment");
             propertyAssignmentsElement.appendChild(propertyAssignmentElement);
             propertyAssignmentElement.setAttribute("propertyTypeCode", CodeConverter.tryToBusinessLayer(propAssignment.getPropertyType().getCode(),
                     propAssignment.getPropertyType().isInternalNameSpace()));
