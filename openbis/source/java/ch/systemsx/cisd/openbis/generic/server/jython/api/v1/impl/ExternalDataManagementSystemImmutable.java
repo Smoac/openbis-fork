@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /**
  * @author Pawel Glyzewski
@@ -65,5 +66,17 @@ public class ExternalDataManagementSystemImmutable implements
     public boolean isOpenBIS()
     {
         return getExternalDataManagementSystem().isOpenBIS();
+    }
+
+    @Override
+    public String getAddress()
+    {
+        return getExternalDataManagementSystem().getAddress();
+    }
+
+    @Override
+    public ExternalDataManagementSystemType getAddressType()
+    {
+        return getExternalDataManagementSystem().getAddressType();
     }
 }

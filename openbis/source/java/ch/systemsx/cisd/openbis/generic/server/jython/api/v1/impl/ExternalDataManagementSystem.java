@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /**
  * @author Pawel Glyzewski
@@ -36,14 +37,16 @@ public class ExternalDataManagementSystem extends ExternalDataManagementSystemIm
     }
 
     @Override
-    public void setUrlTemplate(String urlTemplate)
+    public void setAddress(String address)
     {
-        getExternalDataManagementSystem().setUrlTemplate(urlTemplate);
+        getExternalDataManagementSystem().setAddress(address);
+        getExternalDataManagementSystem().setUrlTemplate(address);
     }
 
     @Override
-    public void setOpenBIS(boolean openBIS)
+    public void setAddressType(ExternalDataManagementSystemType addressType)
     {
-        getExternalDataManagementSystem().setOpenBIS(openBIS);
+        getExternalDataManagementSystem().setAddressType(addressType);
+        getExternalDataManagementSystem().setOpenBIS(ExternalDataManagementSystemType.OPENBIS.equals(addressType));
     }
 }
