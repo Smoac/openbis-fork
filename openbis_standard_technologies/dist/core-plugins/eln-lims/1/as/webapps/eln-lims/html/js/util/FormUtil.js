@@ -772,6 +772,10 @@ var FormUtil = new function() {
 	
 	this.activateRichTextProperties = function($component, componentOnChange, propertyType) {
 		
+		if(profile.isForcedMonospaceFont(propertyType)) {
+			$component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
+		}
+		
 		if(profile.isForcedDisableRTF(propertyType)) {
 			$component.change(function(event) {
 				componentOnChange(event, $(this).val());
