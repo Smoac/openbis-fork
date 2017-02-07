@@ -701,7 +701,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildrenNew = parameters.get("sampleChildrenNew"); #List<java.util.LinkedHashMap<String, String>>
-	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
+	sampleChildrenAdded = parameters.get("sampleChildrenAdded"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
 	sampleParentsNew = parameters.get("sampleParentsNew");
 	
@@ -790,8 +790,8 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 				child.setPropertyValue(key,propertyValue);
 	
 	#Add sample children that are not newly created
-	if sampleChildren != None:
-		for sampleChildIdentifier in sampleChildren:
+	if sampleChildrenAdded != None:
+		for sampleChildIdentifier in sampleChildrenAdded:
 			if sampleChildIdentifier not in sampleChildrenNewIdentifiers:
 				child = getSampleByIdentifierForUpdate(tr, sampleChildIdentifier); #Retrieve Sample
 				childParents = child.getParentSampleIdentifiers();

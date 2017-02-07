@@ -90,7 +90,7 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.deleteSample = function(reason) {
 		var _this = this;
-		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.permId], reason, function(data) {
+		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.id], reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
@@ -125,6 +125,7 @@ function SampleFormController(mainController, mode, sample) {
 		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
 		
 		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
+		var sampleChildrenAddedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesAddedIdentifiers();
 		
 		//
 		// Check that the same sample is not a parent and a child at the same time
@@ -246,8 +247,8 @@ function SampleFormController(mainController, mode, sample) {
 					"sampleParents": sampleParentsFinal,
 					"sampleParentsNew": newSampleParents,
 					//Children links
-					"sampleChildren": sampleChildrenFinal,
 					"sampleChildrenNew": samplesToCreate,
+					"sampleChildrenAdded": sampleChildrenAddedFinal,
 					"sampleChildrenRemoved": sampleChildrenRemovedFinal,
 					//Other Samples
 					"changesToDo" : changesToDo
@@ -269,6 +270,7 @@ function SampleFormController(mainController, mode, sample) {
 				if(!linkParentsOnCopy) {
 					parameters["sampleParents"] = [];
 				}
+				parameters["sampleChildren"] = sampleChildrenFinal;
 				if(!copyChildrenOnCopy) {
 					parameters["sampleChildren"] = [];
 				} else if(profile.storagesConfiguration["isEnabled"]) {

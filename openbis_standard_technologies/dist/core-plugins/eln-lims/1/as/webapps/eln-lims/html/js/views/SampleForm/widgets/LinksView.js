@@ -60,7 +60,7 @@ function LinksView(linksController, linksModel) {
 		}
 	}
 	
-	this.updateSample = function(sample, isAdd) {
+	this.updateSample = function(sample, isAdd, isInit) {
 		var sampleTypeCode = sample.sampleTypeCode;
 		
 		var containerCode = null;
@@ -86,6 +86,10 @@ function LinksView(linksController, linksModel) {
 					break;
 				}
 			}
+		}
+		
+		if(isAdd && !isInit) {
+			linksModel.samplesAdded.push(sample.identifier);
 		}
 		
 		//Render Grid
