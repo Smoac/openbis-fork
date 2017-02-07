@@ -48,8 +48,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 /**
  * 
@@ -60,6 +63,8 @@ public class MasterDataParser
 {
     private final INameTranslator nameTranslator;
     
+    private Map<String, Script> validationPlugins = new HashMap<String, Script>();
+
     private Map<String, FileFormatType> fileFormatTypes = new HashMap<String, FileFormatType>();
 
     private Map<String, PropertyType> propertyTypes = new HashMap<String, PropertyType>();
@@ -105,18 +110,24 @@ public class MasterDataParser
             throw new XPathExpressionException("The master data resurce list should contain 1 master data element");
         }
         Element docElement = (Element) xdNode;
-        parseFileFormatTypes(docElement.getElementsByTagName("fileFormatTypes"));
-        parseVocabularies(docElement.getElementsByTagName("controlledVocabularies"));
-        parseMaterialTypes(docElement.getElementsByTagName("materialTypes"));
-        parsePropertyTypes(docElement.getElementsByTagName("propertyTypes"));
-        parseSampleTypes(docElement.getElementsByTagName("objectTypes"));
-        parseDataSetTypes(docElement.getElementsByTagName("dataSetTypes"));
-        parseExperimentTypes(docElement.getElementsByTagName("collectionTypes"));
+        parseFileFormatTypes(docElement.getElementsByTagName("xmd:fileFormatTypes"));
+        parseValidationPlugins(docElement.getElementsByTagName("xmd:validationPlugins"));
+        parseVocabularies(docElement.getElementsByTagName("xmd:controlledVocabularies"));
+        parseMaterialTypes(docElement.getElementsByTagName("xmd:materialTypes"));
+        parsePropertyTypes(docElement.getElementsByTagName("xmd:propertyTypes"));
+        parseSampleTypes(docElement.getElementsByTagName("xmd:objectTypes"));
+        parseDataSetTypes(docElement.getElementsByTagName("xmd:dataSetTypes"));
+        parseExperimentTypes(docElement.getElementsByTagName("xmd:collectionTypes"));
     }
 
     public Map<String, FileFormatType> getFileFormatTypes()
     {
         return fileFormatTypes;
+    }
+
+    public Map<String, Script> getValidationPlugins()
+    {
+        return validationPlugins;
     }
 
     public Map<String, NewVocabulary> getVocabularies()
@@ -154,12 +165,37 @@ public class MasterDataParser
         return materialTypes;
     }
 
+    private void parseValidationPlugins(NodeList validationPluginsNode)
+    {
+        assert validationPluginsNode.getLength() == 1 : "Resource List should contain a single 'validationPlugins' node";
+
+        Element validationPluginsElement = (Element) validationPluginsNode.item(0);
+        NodeList pluginNodes = validationPluginsElement.getElementsByTagName("xmd:validationPlugin");
+
+        for (int i = 0; i < pluginNodes.getLength(); i++)
+        {
+            Element pluginElement = (Element) pluginNodes.item(i);
+
+            Script plugin = new Script();
+            // String code = getAttribute(pluginElement, "code");
+            plugin.setName(getAttribute(pluginElement, "name"));
+            plugin.setDescription(getAttribute(pluginElement, "description"));
+            String entityKind = getAttribute(pluginElement, "entityKind").trim();
+            plugin.setScriptType(ScriptType.valueOf(getAttribute(pluginElement, "type")));
+            plugin.setPluginType(PluginType.JYTHON);
+            plugin.setEntityKind(entityKind.equals("") ? null : new EntityKind[] { EntityKind.valueOf(entityKind) });
+            plugin.setScript(pluginElement.getTextContent());
+
+            validationPlugins.put(plugin.getName(), plugin);
+        }
+    }
+
     private void parseFileFormatTypes(NodeList fileFormatTypesNode)
     {
         assert fileFormatTypesNode.getLength() == 1 : "Resource List should contain a single 'fileFormatTypes' node";
 
         Element fileFormatTypesElement = (Element) fileFormatTypesNode.item(0);
-        NodeList fileFormatTypeNodes = fileFormatTypesElement.getElementsByTagName("fileFormatType");
+        NodeList fileFormatTypeNodes = fileFormatTypesElement.getElementsByTagName("xmd:fileFormatType");
 
         for (int i = 0; i < fileFormatTypeNodes.getLength(); i++)
         {

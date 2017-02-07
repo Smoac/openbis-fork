@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
@@ -310,6 +311,8 @@ public class ResourceListParserData
     {
         private Map<String, FileFormatType> fileFormatTypesToProcess = new HashMap<String, FileFormatType>();
 
+        private Map<String, Script> validationPluginsToProcess = new HashMap<String, Script>();
+
         private Map<String, NewVocabulary> vocabulariesToProcess = new HashMap<String, NewVocabulary>();
 
         private Map<String, PropertyType> propertyTypesToProcess = new HashMap<String, PropertyType>();
@@ -327,6 +330,16 @@ public class ResourceListParserData
         public MultiKeyMap<String, List<NewETPTAssignment>> getPropertyAssignmentsToProcess()
         {
             return propertyAssignmentsToProcess;
+        }
+
+        public Map<String, Script> getValidationPluginsToProcess()
+        {
+            return validationPluginsToProcess;
+        }
+
+        public void setValidationPluginsToProcess(Map<String, Script> validationPluginsToProcess)
+        {
+            this.validationPluginsToProcess = validationPluginsToProcess;
         }
 
         public Map<String, PropertyType> getPropertyTypesToProcess()

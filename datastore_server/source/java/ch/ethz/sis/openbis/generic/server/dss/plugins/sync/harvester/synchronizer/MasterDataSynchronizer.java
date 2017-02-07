@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -82,6 +83,7 @@ public class MasterDataSynchronizer
     public void synchronizeMasterData() {
         MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = masterData.getPropertyAssignmentsToProcess();
         processFileFormatTypes(masterData.getFileFormatTypesToProcess());
+        processValidationPlugins(masterData.getValidationPluginsToProcess());
         processVocabularies(masterData.getVocabulariesToProcess());
         // materials are registered but their property assignments are deferred until after property types are processed
         processEntityTypes(masterData.getMaterialTypesToProcess(), propertyAssignmentsToProcess);
@@ -112,6 +114,33 @@ public class MasterDataSynchronizer
                 processPropertyAssignments(entityType, list);
             }
 
+        }
+    }
+
+    private void processValidationPlugins(Map<String, Script> pluginsToProcess)
+    {
+        List<Script> existingPlugins = commonServer.listScripts(sessionToken, null, null);
+        Map<String, Script> pluginMap = new HashMap<String, Script>();
+        for (Script type : existingPlugins)
+        {
+            pluginMap.put(type.getName(), type);
+        }
+
+        for (String name : pluginsToProcess.keySet())
+        {
+            Script incomingplugin = pluginsToProcess.get(name);
+            Script existingPluginOrNull = pluginMap.get(name);
+            if (existingPluginOrNull != null)
+            {
+                existingPluginOrNull.setName(incomingplugin.getName());
+                existingPluginOrNull.setScript(incomingplugin.getScript());
+                existingPluginOrNull.setDescription(incomingplugin.getDescription());
+                commonServer.updateScript(sessionToken, existingPluginOrNull);
+            }
+            else
+            {
+                commonServer.registerScript(sessionToken, incomingplugin);
+            }
         }
     }
     
