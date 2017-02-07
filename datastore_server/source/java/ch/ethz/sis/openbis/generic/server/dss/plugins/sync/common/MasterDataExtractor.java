@@ -151,11 +151,12 @@ public class MasterDataExtractor
             for (IScriptImmutable script : scripts)
             {
                 Element pluginElement = doc.createElement("xmd:validationPlugin");
-                pluginElement.setAttribute("code", script.getCode());
+                // pluginElement.setAttribute("code", script.getCode());
                 pluginElement.setAttribute("name", script.getName());
                 pluginElement.setAttribute("description", script.getDescription());
                 pluginElement.setAttribute("type", script.getScriptType());
-                pluginElement.setAttribute("entityKind", script.getEntity());
+                pluginElement.setAttribute("entityKind", script.getEntity() == null ? "All" : script.getEntity());
+                // TODO isAvailable? Maybe to be gotten from the internal API?
 
                 pluginElement.appendChild(doc.createCDATASection(script.getScript()));
                 pluginsElement.appendChild(pluginElement);
