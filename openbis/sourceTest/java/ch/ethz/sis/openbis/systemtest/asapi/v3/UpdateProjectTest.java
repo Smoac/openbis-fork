@@ -20,6 +20,7 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,24 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 public class UpdateProjectTest extends AbstractTest
 {
 
+    @Test
+    public void testUpdateProjectWithAdminUserInAnotherSpace()
+    {
+        final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+        final ProjectUpdate update = new ProjectUpdate();
+        update.setProjectId(projectId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                    v3api.updateProjects(sessionToken, Collections.singletonList(update));
+                }
+            }, projectId);
+    }
+    
     @Test
     public void testUpdateWithProjectNull()
     {

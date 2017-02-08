@@ -25,13 +25,33 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * @author pkupczyk
  */
 public class DeleteDataSetTest extends AbstractDeletionTest
 {
+    @Test
+    public void testDeleteDSWithAdminUserInAnotherSpace()
+    {
+        final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
 
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    DataSetDeletionOptions options = new DataSetDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteDataSets(sessionToken, Collections.singletonList(permId), options);
+                }
+            }, permId);
+    }
+    
     private static DataSetDeletionOptions options;
 
     public static DataSetDeletionOptions getOptions()

@@ -32,6 +32,26 @@ public class DeleteProjectTest extends AbstractDeletionTest
 {
 
     @Test
+    public void testDeleteProjectWithAdminUserInAnotherSpace()
+    {
+        final ProjectPermId permId = new ProjectPermId("20120814110011738-105");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    ProjectDeletionOptions options = new ProjectDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteProjects(sessionToken, Collections.singletonList(permId), options);
+                }
+            }, permId);
+    }
+    
+    @Test
     public void testDeleteProject()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

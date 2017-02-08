@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -44,6 +46,29 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 public class CreateProjectTest extends AbstractTest
 {
 
+	@Test
+    public void testCreateProjectWithAdminUserInAnotherSpace()
+    {
+
+        final ISpaceId spaceId = new SpacePermId("TEST-SPACE");
+        final String projectCode = "TEST_PROJECT_FAIL";
+        final ProjectIdentifier projectIdentifier = new ProjectIdentifier("/" + spaceId.toString() + "/" + projectCode);
+
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode(projectCode);
+        project.setSpaceId(spaceId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                    v3api.createProjects(sessionToken, Collections.singletonList(project));
+                }
+            }, projectIdentifier);
+    }
+	
     @Test
     public void testCreateWithCodeNull()
     {
@@ -184,14 +209,27 @@ public class CreateProjectTest extends AbstractTest
     @Test
     public void testCreateWithCapabilitySet()
     {
-        final String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
-
         final ISpaceId spaceId = new SpacePermId("TESTGROUP");
+        final String projectCode = "CAN_I_DO_THIS";
+
         final ProjectCreation project = new ProjectCreation();
-        project.setCode("CAN_I_DO_THIS");
+        project.setCode(projectCode);
         project.setSpaceId(spaceId);
 
-        v3api.createProjects(sessionToken, Arrays.asList(project));
+        boolean succeedAfterException = false;
+        try
+        {
+            // This will fail because being a power user is not enough anymore to create projects
+            String sessionToken = v3api.login(TEST_GROUP_POWERUSER, PASSWORD);
+            v3api.createProjects(sessionToken, Collections.singletonList(project));
+        } catch (Exception ex)
+        {
+            // This will succeed because the capability is now assigned to admins
+            String sessionToken = v3api.login(TEST_GROUP_ADMIN, PASSWORD);
+            v3api.createProjects(sessionToken, Collections.singletonList(project));
+            succeedAfterException = true;
+        }
+        Assert.assertTrue(succeedAfterException);
     }
 
     @Test

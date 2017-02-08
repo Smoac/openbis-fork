@@ -44,6 +44,26 @@ public class DeleteSampleTest extends AbstractDeletionTest
 {
 
     @Test
+    public void testDeleteSampleWithAdminUserInAnotherSpace()
+    {
+        final SamplePermId permId = new SamplePermId("200902091250077-1060");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    SampleDeletionOptions options = new SampleDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
+                }
+            }, permId);
+    }
+    
+    @Test
     public void testDeleteWithIndexCheck() throws Exception
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

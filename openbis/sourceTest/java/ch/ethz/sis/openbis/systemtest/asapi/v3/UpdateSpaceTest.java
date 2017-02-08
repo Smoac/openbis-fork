@@ -36,6 +36,25 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 public class UpdateSpaceTest extends AbstractTest
 {
 
+	@Test
+    public void testUpdateSpaceWithAdminUserInAnotherSpace()
+    {
+        final String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+        final SpacePermId spaceId = new SpacePermId("TEST-SPACE");
+
+        final SpaceUpdate update = new SpaceUpdate();
+        update.setSpaceId(spaceId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSpaces(sessionToken, Arrays.asList(update));
+                }
+            }, spaceId);
+    }
+	
     @Test
     public void testUpdateWithSpaceUnauthorized()
     {
