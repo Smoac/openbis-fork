@@ -42,6 +42,26 @@ import junit.framework.Assert;
 public class DeleteExperimentTest extends AbstractDeletionTest
 {
 
+	@Test
+    public void testExperimentWithAdminUserInAnotherSpace()
+    {
+        final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+                    options.setReason("It is just a test");
+
+                    v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
+                }
+            }, permId);
+    }
+	
     @Test
     public void testDeleteWithIndexCheck() throws Exception
     {

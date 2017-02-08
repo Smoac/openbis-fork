@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,26 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 public class UpdateExperimentTest extends AbstractExperimentTest
 {
 
+    @Test
+    public void testUpdateWithAdminUserInAnotherSpace()
+    {
+        final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    final ExperimentUpdate update = new ExperimentUpdate();
+                    update.setExperimentId(permId);
+
+                    v3api.updateExperiments(sessionToken, Collections.singletonList(update));
+                }
+            }, permId);
+    }
+    
     @Test
     public void testUpdateWithIndexCheck()
     {

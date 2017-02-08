@@ -22,6 +22,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,25 @@ import junit.framework.Assert;
 public class UpdateSampleTest extends AbstractSampleTest
 {
 
+	@Test
+    public void testUpdateSampleWithAdminUserInAnotherSpace()
+    {
+        final SamplePermId permId = new SamplePermId("200902091250077-1060");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    final SampleUpdate update = new SampleUpdate();
+                    update.setSampleId(permId);
+                    v3api.updateSamples(sessionToken, Collections.singletonList(update));
+                }
+            }, permId);
+    }
+	
     @Test
     public void testUpdateBiggerThanPostgresDriverArgumentsLimitWithIndexCheck()
     {
