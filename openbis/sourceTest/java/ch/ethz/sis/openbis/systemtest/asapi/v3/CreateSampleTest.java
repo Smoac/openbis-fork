@@ -66,9 +66,8 @@ public class CreateSampleTest extends AbstractSampleTest
     public void testCreateSampleWithAdminUserInAnotherSpace()
     {
         final String code = "TEST_TO_FAIL";
-        final SampleIdentifier identifier = new SampleIdentifier("/TEST-SPACE/" + code);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -83,7 +82,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, identifier);
+            });
     }
 	
     @Test
@@ -381,15 +380,14 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(spaceId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, spaceId,
-                patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/UNAUTHORIZED_SPACE'")));
+            });
     }
 
     @Test
@@ -403,14 +401,14 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(spaceId);
 
-        assertObjectNotFoundException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, spaceId, patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/NONEXISTENT_SPACE'")));
+            });
     }
 
     @Test

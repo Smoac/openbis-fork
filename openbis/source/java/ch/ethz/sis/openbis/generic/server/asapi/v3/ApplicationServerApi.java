@@ -176,6 +176,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateTagMet
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateVocabularyTermMethodExecutor;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -190,6 +191,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectCreationPredicate;
 
 /**
  * @author pkupczyk
@@ -419,7 +423,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
-    public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> creations)
+    public List<ProjectPermId> createProjects(String sessionToken, @AuthorizationGuard(guardClass = V3ProjectCreationPredicate.class) List<ProjectCreation> creations)
     {
         return createProjectExecutor.create(sessionToken, creations);
     }
@@ -429,8 +433,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
-    public List<ExperimentPermId> createExperiments(String sessionToken,
-            List<ExperimentCreation> creations)
+    public List<ExperimentPermId> createExperiments(String sessionToken, @AuthorizationGuard(guardClass = V3ExperimentCreationPredicate.class) List<ExperimentCreation> creations)
     {
         return createExperimentExecutor.create(sessionToken, creations);
     }
@@ -440,8 +443,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SAMPLE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public List<SamplePermId> createSamples(String sessionToken,
-            List<SampleCreation> creations)
+    public List<SamplePermId> createSamples(String sessionToken, @AuthorizationGuard(guardClass = V3SampleCreationPredicate.class) List<SampleCreation> creations)
     {
         return createSampleExecutor.create(sessionToken, creations);
     }
@@ -449,7 +451,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     // @RolesAllowed intentionally omitted. Authorization is done in CreateDataSetMethodExecutor.
-    @Capability("CREATE_DATASET")
+    @Capability("CREATE_DATASET") 
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> creations)
     {

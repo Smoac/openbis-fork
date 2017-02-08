@@ -1,0 +1,37 @@
+package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
+
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.SpaceIdTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+
+public class V3SampleCreationPredicate extends AbstractPredicate<SampleCreation> {
+
+    protected final SpaceIdentifierPredicate spacePredicate;
+    
+    public V3SampleCreationPredicate()
+    {
+        this.spacePredicate = new SpaceIdentifierPredicate();
+    }
+
+    @Override
+    public final void init(IAuthorizationDataProvider provider)
+    {
+        spacePredicate.init(provider);
+    }
+    
+	@Override
+	public String getCandidateDescription() {
+		return "sample creation object";
+	}
+
+	@Override
+	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleCreation value) {
+		assert spacePredicate.initialized : "Predicate has not been initialized";
+		return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value.getSpaceId()));
+	}
+}

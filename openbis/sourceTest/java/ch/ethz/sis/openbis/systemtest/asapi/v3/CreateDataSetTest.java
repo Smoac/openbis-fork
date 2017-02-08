@@ -105,7 +105,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
                     v3api.createDataSets(sessionToken, Collections.singletonList(creation));
                 }
-            }, "Data set creation can be only executed by a system user or a user with at least SPACE_ETL_SERVER role");
+            }, "Data set creation can be only executed by a user with ETL_SERVER role");
     }
 	
     @Test

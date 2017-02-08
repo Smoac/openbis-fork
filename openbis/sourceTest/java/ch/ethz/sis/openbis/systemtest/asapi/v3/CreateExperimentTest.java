@@ -37,7 +37,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
@@ -62,8 +61,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
     public void testCreateWithAdminUserInAnotherSpace()
     {
         final String code = "WILL-FAIL";
-        final ExperimentIdentifier identifier = new ExperimentIdentifier("/TEST-SPACE/NOE/" + code);
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -77,7 +75,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
 
                     v3api.createExperiments(sessionToken, Collections.singletonList(experiment));
                 }
-            }, identifier);
+            });
     }
 	
     @Test
@@ -169,14 +167,14 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setCode("TEST_EXPERIMENT1");
         experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
 
-        assertUserFailureException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, "Project id cannot be null");
+            });
     }
 
     @Test
@@ -190,14 +188,14 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         experiment.setProjectId(projectId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, projectId);
+            });
     }
 
     @Test
@@ -211,14 +209,14 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         experiment.setProjectId(projectId);
 
-        assertObjectNotFoundException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, projectId);
+            });
     }
 
     @Test
