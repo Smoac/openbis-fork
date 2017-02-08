@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -52,13 +51,12 @@ public class CreateProjectTest extends AbstractTest
 
         final ISpaceId spaceId = new SpacePermId("TEST-SPACE");
         final String projectCode = "TEST_PROJECT_FAIL";
-        final ProjectIdentifier projectIdentifier = new ProjectIdentifier("/" + spaceId.toString() + "/" + projectCode);
 
         final ProjectCreation project = new ProjectCreation();
         project.setCode(projectCode);
         project.setSpaceId(spaceId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -66,7 +64,7 @@ public class CreateProjectTest extends AbstractTest
                     String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
                     v3api.createProjects(sessionToken, Collections.singletonList(project));
                 }
-            }, projectIdentifier);
+            });
     }
 	
     @Test
@@ -155,14 +153,14 @@ public class CreateProjectTest extends AbstractTest
         project.setCode("TEST_PROJECT");
         project.setSpaceId(spaceId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createProjects(sessionToken, Arrays.asList(project));
                 }
-            }, spaceId);
+            });
     }
 
     @Test
