@@ -57,7 +57,7 @@ public class UpdateProjectTest extends AbstractTest
         final ProjectUpdate update = new ProjectUpdate();
         update.setProjectId(projectId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -65,7 +65,7 @@ public class UpdateProjectTest extends AbstractTest
                     String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
                     v3api.updateProjects(sessionToken, Collections.singletonList(update));
                 }
-            }, projectId);
+            });
     }
     
     @Test
@@ -75,14 +75,14 @@ public class UpdateProjectTest extends AbstractTest
 
         final ProjectUpdate update = new ProjectUpdate();
 
-        assertUserFailureException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateProjects(sessionToken, Arrays.asList(update));
                 }
-            }, "Project id cannot be null");
+            });
     }
 
     @Test
@@ -94,14 +94,14 @@ public class UpdateProjectTest extends AbstractTest
         final ProjectUpdate update = new ProjectUpdate();
         update.setProjectId(projectId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateProjects(sessionToken, Arrays.asList(update));
                 }
-            }, projectId);
+            });
     }
 
     @Test

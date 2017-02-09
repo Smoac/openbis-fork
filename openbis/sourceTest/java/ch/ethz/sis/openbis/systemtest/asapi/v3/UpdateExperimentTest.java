@@ -63,7 +63,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -75,7 +75,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
                     v3api.updateExperiments(sessionToken, Collections.singletonList(update));
                 }
-            }, permId);
+            });
     }
     
     @Test
@@ -102,14 +102,14 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         final ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId);
+            });
     }
 
     @Test

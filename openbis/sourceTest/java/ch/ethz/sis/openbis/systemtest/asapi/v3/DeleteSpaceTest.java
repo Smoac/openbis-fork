@@ -46,14 +46,14 @@ public class DeleteSpaceTest extends AbstractDeletionTest
         final SpaceDeletionOptions options = new SpaceDeletionOptions();
         options.setReason("It is just a test");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.deleteSpaces(sessionToken, Arrays.asList(new SpacePermId("TEST-SPACE")), options);
                 }
-            }, new SpacePermId("TEST-SPACE"));
+            });
     }
 	
     @Test
@@ -114,14 +114,14 @@ public class DeleteSpaceTest extends AbstractDeletionTest
         final SpaceDeletionOptions options = new SpaceDeletionOptions();
         options.setReason("It is just a test");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.deleteSpaces(sessionToken, permIds, options);
                 }
-            }, permIds.get(0));
+            });
     }
 
 }

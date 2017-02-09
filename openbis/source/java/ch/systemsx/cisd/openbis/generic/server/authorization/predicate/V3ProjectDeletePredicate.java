@@ -7,30 +7,31 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.ProjectIdTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 
-public class V3ExperimentCreationPredicate extends AbstractPredicate<ExperimentCreation> {
+public class V3ProjectDeletePredicate extends AbstractPredicate<IProjectId> {
 
-    protected final ProjectIdPredicate projectIdPredicate;
+    protected final ProjectIdPredicate projectPredicate;
     
-    public V3ExperimentCreationPredicate()
+    public V3ProjectDeletePredicate()
     {
-        this.projectIdPredicate = new ProjectIdPredicate();
+        this.projectPredicate = new ProjectIdPredicate();
     }
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-    	projectIdPredicate.init(provider);
+    	projectPredicate.init(provider);
     }
     
 	@Override
 	public String getCandidateDescription() {
-		return "v3 experiment creation object";
+		return "v3 project id object";
 	}
 
 	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, ExperimentCreation value) {
-		return projectIdPredicate.doEvaluation(person, allowedRoles, ProjectIdTranslator.translate(value.getProjectId()));
+	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, IProjectId value) {
+		assert projectPredicate.initialized : "Predicate has not been initialized";
+		return projectPredicate.doEvaluation(person, allowedRoles, ProjectIdTranslator.translate(value));
 	}
 }
