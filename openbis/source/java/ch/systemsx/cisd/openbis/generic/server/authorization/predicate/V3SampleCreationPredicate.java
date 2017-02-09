@@ -9,10 +9,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.Sp
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 
-public class V3SampleCreationPredicate extends AbstractPredicate<SampleCreation> {
+public class V3SampleCreationPredicate extends AbstractPredicate<SampleCreation>
+{
 
     protected final SpaceIdentifierPredicate spacePredicate;
-    
+
     public V3SampleCreationPredicate()
     {
         this.spacePredicate = new SpaceIdentifierPredicate();
@@ -23,15 +24,17 @@ public class V3SampleCreationPredicate extends AbstractPredicate<SampleCreation>
     {
         spacePredicate.init(provider);
     }
-    
-	@Override
-	public String getCandidateDescription() {
-		return "v3 sample creation object";
-	}
 
-	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleCreation value) {
-		assert spacePredicate.initialized : "Predicate has not been initialized";
-		return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value.getSpaceId()));
-	}
+    @Override
+    public String getCandidateDescription()
+    {
+        return "v3 sample creation object";
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleCreation value)
+    {
+        assert spacePredicate.initialized : "Predicate has not been initialized";
+        return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value.getSpaceId()));
+    }
 }

@@ -9,10 +9,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.Sp
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 
-public class V3ProjectCreationPredicate extends AbstractPredicate<ProjectCreation> {
+public class V3ProjectCreationPredicate extends AbstractPredicate<ProjectCreation>
+{
 
     protected final SpaceIdentifierPredicate spacePredicate;
-    
+
     public V3ProjectCreationPredicate()
     {
         this.spacePredicate = new SpaceIdentifierPredicate();
@@ -23,15 +24,17 @@ public class V3ProjectCreationPredicate extends AbstractPredicate<ProjectCreatio
     {
         spacePredicate.init(provider);
     }
-    
-	@Override
-	public String getCandidateDescription() {
-		return "v3 project creation object";
-	}
 
-	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, ProjectCreation value) {
-		assert spacePredicate.initialized : "Predicate has not been initialized";
-		return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value.getSpaceId()));
-	}
+    @Override
+    public String getCandidateDescription()
+    {
+        return "v3 project creation object";
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, ProjectCreation value)
+    {
+        assert spacePredicate.initialized : "Predicate has not been initialized";
+        return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value.getSpaceId()));
+    }
 }
