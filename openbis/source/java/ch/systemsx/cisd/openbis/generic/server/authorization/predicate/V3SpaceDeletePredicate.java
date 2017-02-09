@@ -9,10 +9,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.Sp
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 
-public class V3SpaceDeletePredicate extends AbstractPredicate<ISpaceId> {
+public class V3SpaceDeletePredicate extends AbstractPredicate<ISpaceId>
+{
 
     protected final SpaceIdentifierPredicate spacePredicate;
-    
+
     public V3SpaceDeletePredicate()
     {
         this.spacePredicate = new SpaceIdentifierPredicate();
@@ -23,15 +24,17 @@ public class V3SpaceDeletePredicate extends AbstractPredicate<ISpaceId> {
     {
         spacePredicate.init(provider);
     }
-    
-	@Override
-	public String getCandidateDescription() {
-		return "v3 space id object";
-	}
 
-	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, ISpaceId value) {
-		assert spacePredicate.initialized : "Predicate has not been initialized";
-		return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value));
-	}
+    @Override
+    public String getCandidateDescription()
+    {
+        return "v3 space id object";
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, ISpaceId value)
+    {
+        assert spacePredicate.initialized : "Predicate has not been initialized";
+        return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value));
+    }
 }

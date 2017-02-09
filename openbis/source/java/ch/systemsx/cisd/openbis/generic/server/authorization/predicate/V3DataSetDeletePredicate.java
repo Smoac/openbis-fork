@@ -9,10 +9,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.Da
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;;
 
-public class V3DataSetDeletePredicate extends AbstractPredicate<IDataSetId> {
+public class V3DataSetDeletePredicate extends AbstractPredicate<IDataSetId>
+{
 
     protected final DataSetCodePredicate datasetCodePredicate;
-    
+
     public V3DataSetDeletePredicate()
     {
         this.datasetCodePredicate = new DataSetCodePredicate();
@@ -21,17 +22,19 @@ public class V3DataSetDeletePredicate extends AbstractPredicate<IDataSetId> {
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-    	datasetCodePredicate.init(provider);
+        datasetCodePredicate.init(provider);
     }
-    
-	@Override
-	public String getCandidateDescription() {
-		return "v3 dataset id object";
-	}
 
-	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, IDataSetId value) {
-		assert datasetCodePredicate.initialized : "Predicate has not been initialized";
-		return datasetCodePredicate.doEvaluation(person, allowedRoles, DataSetIdTranslator.translate(value));
-	}
+    @Override
+    public String getCandidateDescription()
+    {
+        return "v3 dataset id object";
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, IDataSetId value)
+    {
+        assert datasetCodePredicate.initialized : "Predicate has not been initialized";
+        return datasetCodePredicate.doEvaluation(person, allowedRoles, DataSetIdTranslator.translate(value));
+    }
 }

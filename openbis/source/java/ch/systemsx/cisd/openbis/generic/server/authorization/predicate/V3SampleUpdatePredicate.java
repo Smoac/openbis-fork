@@ -9,10 +9,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.Sa
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 
-public class V3SampleUpdatePredicate extends AbstractPredicate<SampleUpdate> {
+public class V3SampleUpdatePredicate extends AbstractPredicate<SampleUpdate>
+{
 
     protected final SampleIdPredicate sampleIdPredicate;
-    
+
     public V3SampleUpdatePredicate()
     {
         this.sampleIdPredicate = new SampleIdPredicate();
@@ -21,17 +22,19 @@ public class V3SampleUpdatePredicate extends AbstractPredicate<SampleUpdate> {
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-    	sampleIdPredicate.init(provider);
+        sampleIdPredicate.init(provider);
     }
-    
-	@Override
-	public String getCandidateDescription() {
-		return "v3 sample update object";
-	}
 
-	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleUpdate value) {
-		assert sampleIdPredicate.initialized : "Predicate has not been initialized";
-		return sampleIdPredicate.doEvaluation(person, allowedRoles, SampleIdTranslator.translate(value.getSampleId()));
-	}
+    @Override
+    public String getCandidateDescription()
+    {
+        return "v3 sample update object";
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleUpdate value)
+    {
+        assert sampleIdPredicate.initialized : "Predicate has not been initialized";
+        return sampleIdPredicate.doEvaluation(person, allowedRoles, SampleIdTranslator.translate(value.getSampleId()));
+    }
 }
