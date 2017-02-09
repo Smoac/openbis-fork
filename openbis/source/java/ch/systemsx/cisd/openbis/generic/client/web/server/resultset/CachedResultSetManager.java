@@ -28,16 +28,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -118,9 +115,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final Map<K, Future<?>> unfinishedLoadings = Collections
             .synchronizedMap(new HashMap<K, Future<?>>());
 
-    private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
-            "Background Table Loader").corePoolSize(10).daemonize();
-
     private final XMLPropertyTransformer xmlPropertyTransformer = new XMLPropertyTransformer();
 
     private final IColumnCalculator columnCalculator;
@@ -156,47 +150,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private static final <T> T cast(final Object object)
     {
         return (T) object;
-    }
-
-    private static final class BackgroundTableDataLoading<T, K> implements Callable<TableData<K, T>>
-    {
-        private final K dataKey;
-
-        private final Map<K, Future<?>> unfinishedLoadings;
-
-        private final IOriginalDataProvider<T> dataProvider;
-
-        private final ICustomColumnsProvider customColumnsProvider;
-
-        private final IColumnCalculator columnCalculator;
-
-        private final XMLPropertyTransformer xmlPropertyTransformer;
-
-        private final CachedResultSetManager<K> cachedResultSetManager;
-
-        private BackgroundTableDataLoading(K dataKey, Map<K, Future<?>> unfinishedLoadings,
-                IOriginalDataProvider<T> dataProvider,
-                ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator,
-                XMLPropertyTransformer xmlPropertyTransformer,
-                CachedResultSetManager<K> cachedResultSetManager)
-        {
-            this.dataKey = dataKey;
-            this.unfinishedLoadings = unfinishedLoadings;
-            this.dataProvider = dataProvider;
-            this.customColumnsProvider = customColumnsProvider;
-            this.columnCalculator = columnCalculator;
-            this.xmlPropertyTransformer = xmlPropertyTransformer;
-            this.cachedResultSetManager = cachedResultSetManager;
-        }
-
-        @Override
-        public TableData<K, T> call() throws Exception
-        {
-            TableData<K, T> tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider,
-                    columnCalculator, xmlPropertyTransformer, cachedResultSetManager);
-            unfinishedLoadings.remove(dataKey);
-            return tableData;
-        }
     }
 
     /**
@@ -589,13 +542,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
         }
         return true;
-    }
-
-    private <T> Future<TableData<K, T>> loadCompleteTableInBackground(
-            final IOriginalDataProvider<T> dataProvider, final K dataKey)
-    {
-        return executor.submit(new BackgroundTableDataLoading<T, K>(dataKey, unfinishedLoadings, dataProvider,
-                customColumnsProvider, columnCalculator, xmlPropertyTransformer, this));
     }
 
     private <T> void addToCache(K dataKey, TableData<K, T> tableData)
