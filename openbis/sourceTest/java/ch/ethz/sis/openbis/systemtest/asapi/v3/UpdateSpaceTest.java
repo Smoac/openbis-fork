@@ -45,14 +45,14 @@ public class UpdateSpaceTest extends AbstractTest
         final SpaceUpdate update = new SpaceUpdate();
         update.setSpaceId(spaceId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateSpaces(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId);
+            });
     }
 	
     @Test
@@ -64,14 +64,14 @@ public class UpdateSpaceTest extends AbstractTest
         final SpaceUpdate update = new SpaceUpdate();
         update.setSpaceId(spaceId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateSpaces(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId);
+            });
     }
 
     @Test
@@ -83,14 +83,14 @@ public class UpdateSpaceTest extends AbstractTest
         final SpaceUpdate update = new SpaceUpdate();
         update.setSpaceId(spaceId);
 
-        assertObjectNotFoundException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateSpaces(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId);
+            });
     }
 
     @Test

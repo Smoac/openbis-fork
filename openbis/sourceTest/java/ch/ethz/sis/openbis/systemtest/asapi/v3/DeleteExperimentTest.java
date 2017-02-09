@@ -47,7 +47,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     {
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -59,7 +59,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
 
                     v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
 	
     @Test
@@ -156,7 +156,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     {
         final ExperimentPermId permId = createCisdExperiment();
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -168,7 +168,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
 
                     v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
 
 }

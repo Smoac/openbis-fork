@@ -42,6 +42,8 @@ abstract class AbstractExperimentPredicate<T> extends AbstractPredicate<T>
         this.experimentAugmentedCodePredicate = new ExperimentAugmentedCodePredicate();
     }
 
+    boolean initialized;
+    
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
@@ -49,5 +51,6 @@ abstract class AbstractExperimentPredicate<T> extends AbstractPredicate<T>
         spacePredicate.init(provider);
         experimentPermIdPredicate.init(provider);
         experimentAugmentedCodePredicate.init(provider);
+        initialized = true;
     }
 }

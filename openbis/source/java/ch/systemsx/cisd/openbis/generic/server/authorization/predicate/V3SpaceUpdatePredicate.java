@@ -7,13 +7,13 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.SpaceIdTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 
-public class V3SampleCreationPredicate extends AbstractPredicate<SampleCreation> {
+public class V3SpaceUpdatePredicate extends AbstractPredicate<SpaceUpdate> {
 
     protected final SpaceIdentifierPredicate spacePredicate;
     
-    public V3SampleCreationPredicate()
+    public V3SpaceUpdatePredicate()
     {
         this.spacePredicate = new SpaceIdentifierPredicate();
     }
@@ -26,11 +26,11 @@ public class V3SampleCreationPredicate extends AbstractPredicate<SampleCreation>
     
 	@Override
 	public String getCandidateDescription() {
-		return "v3 sample creation object";
+		return "v3 space update object";
 	}
 
 	@Override
-	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleCreation value) {
+	protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SpaceUpdate value) {
 		assert spacePredicate.initialized : "Predicate has not been initialized";
 		return spacePredicate.doEvaluation(person, allowedRoles, SpaceIdTranslator.translate(value.getSpaceId()));
 	}

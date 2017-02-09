@@ -26,7 +26,7 @@ public class V3ProjectCreationPredicate extends AbstractPredicate<ProjectCreatio
     
 	@Override
 	public String getCandidateDescription() {
-		return "project creation object";
+		return "v3 project creation object";
 	}
 
 	@Override

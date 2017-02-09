@@ -42,6 +42,8 @@ abstract class AbstractProjectPredicate<T> extends AbstractPredicate<T>
         this.projectAugmentedCodePredicate = new ProjectAugmentedCodePredicate();
     }
 
+    boolean initialized;
+    
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
@@ -49,6 +51,7 @@ abstract class AbstractProjectPredicate<T> extends AbstractPredicate<T>
         projectTechIdPredicate.init(provider);
         projectPermIdPredicate.init(provider);
         projectAugmentedCodePredicate.init(provider);
+        initialized = true;
     }
 
 }

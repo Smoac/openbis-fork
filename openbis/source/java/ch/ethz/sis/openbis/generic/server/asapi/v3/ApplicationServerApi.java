@@ -192,8 +192,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
 
 /**
  * @author pkupczyk
@@ -492,7 +498,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE")
     @DatabaseUpdateModification(value = ObjectKind.SPACE)
-    public void updateSpaces(String sessionToken, List<SpaceUpdate> updates)
+    public void updateSpaces(String sessionToken, @AuthorizationGuard(guardClass = V3SpaceUpdatePredicate.class) List<SpaceUpdate> updates)
     {
         updateSpaceExecutor.update(sessionToken, updates);
     }
@@ -502,7 +508,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECT")
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
-    public void updateProjects(String sessionToken, List<ProjectUpdate> updates)
+    public void updateProjects(String sessionToken, @AuthorizationGuard(guardClass = V3ProjectUpdatePredicate.class) List<ProjectUpdate> updates)
     {
         updateProjectExecutor.update(sessionToken, updates);
     }
@@ -512,7 +518,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
-    public void updateExperiments(String sessionToken, List<ExperimentUpdate> updates)
+    public void updateExperiments(String sessionToken, @AuthorizationGuard(guardClass = V3ExperimentUpdatePredicate.class) List<ExperimentUpdate> updates)
     {
         updateExperimentExecutor.update(sessionToken, updates);
     }
@@ -740,7 +746,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SPACE")
-    public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
+    public void deleteSpaces(String sessionToken, @AuthorizationGuard(guardClass = V3SpaceDeletePredicate.class) List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
     {
         deleteSpaceExecutor.delete(sessionToken, spaceIds, deletionOptions);
     }
@@ -750,7 +756,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROJECT, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_PROJECT")
-    public void deleteProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
+    public void deleteProjects(String sessionToken, @AuthorizationGuard(guardClass = V3ProjectDeletePredicate.class) List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
     {
         deleteProjectExecutor.delete(sessionToken, projectIds, deletionOptions);
     }
@@ -760,7 +766,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_EXPERIMENT")
-    public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
+    public IDeletionId deleteExperiments(String sessionToken, @AuthorizationGuard(guardClass = V3ExperimentDeletePredicate.class) List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
     {
         return deleteExperimentExecutor.delete(sessionToken, experimentIds, deletionOptions);
     }

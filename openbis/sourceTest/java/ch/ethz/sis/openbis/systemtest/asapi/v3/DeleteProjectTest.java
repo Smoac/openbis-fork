@@ -36,7 +36,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
     {
         final ProjectPermId permId = new ProjectPermId("20120814110011738-105");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -48,7 +48,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
 
                     v3api.deleteProjects(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
     
     @Test
@@ -96,7 +96,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
     {
         final ProjectPermId permId = createCisdProject();
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -108,7 +108,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
 
                     v3api.deleteProjects(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
 
 }
