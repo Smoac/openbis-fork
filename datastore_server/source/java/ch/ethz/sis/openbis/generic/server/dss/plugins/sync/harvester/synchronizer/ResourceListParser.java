@@ -177,7 +177,7 @@ public class ResourceListParser
             String uri = nodes.item(i).getTextContent();
             if (uri.endsWith("MASTER_DATA/MASTER_DATA/M"))
             {
-                // parseMasterData(doc, xpath, uri);
+                parseMasterData(doc, xpath, uri);
             }
             else if (uri.endsWith("/M"))
             {

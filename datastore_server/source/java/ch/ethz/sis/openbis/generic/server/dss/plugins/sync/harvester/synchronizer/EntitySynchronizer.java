@@ -192,8 +192,8 @@ public class EntitySynchronizer
 
         operationLog.info("registering master data");
 
-        // masterDataSyncronizer = new MasterDataSynchronizer(data.getMasterData());
-        // registerMasterData(data);
+        masterDataSyncronizer = new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), data.getMasterData());
+        registerMasterData(data);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
 

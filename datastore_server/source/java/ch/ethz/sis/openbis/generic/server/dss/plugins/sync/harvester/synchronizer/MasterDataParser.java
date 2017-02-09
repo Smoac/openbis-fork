@@ -109,7 +109,11 @@ public class MasterDataParser
         {
             throw new XPathExpressionException("The master data resurce list should contain 1 master data element");
         }
-        Element docElement = (Element) xdNode;
+        parseMasterDataElements((Element) xdNode);
+    }
+
+    private void parseMasterDataElements(Element docElement) throws XPathExpressionException
+    {
         parseFileFormatTypes(docElement.getElementsByTagName("xmd:fileFormatTypes"));
         parseValidationPlugins(docElement.getElementsByTagName("xmd:validationPlugins"));
         parseVocabularies(docElement.getElementsByTagName("xmd:controlledVocabularies"));
@@ -119,6 +123,7 @@ public class MasterDataParser
         parseDataSetTypes(docElement.getElementsByTagName("xmd:dataSetTypes"));
         parseExperimentTypes(docElement.getElementsByTagName("xmd:collectionTypes"));
     }
+
 
     public Map<String, FileFormatType> getFileFormatTypes()
     {
@@ -165,9 +170,13 @@ public class MasterDataParser
         return materialTypes;
     }
 
-    private void parseValidationPlugins(NodeList validationPluginsNode)
+    private void parseValidationPlugins(NodeList validationPluginsNode) throws XPathExpressionException
     {
-        assert validationPluginsNode.getLength() == 1 : "Resource List should contain a single 'validationPlugins' node";
+        if (validationPluginsNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(validationPluginsNode, "validationPlugins");
 
         Element validationPluginsElement = (Element) validationPluginsNode.item(0);
         NodeList pluginNodes = validationPluginsElement.getElementsByTagName("xmd:validationPlugin");
@@ -190,9 +199,13 @@ public class MasterDataParser
         }
     }
 
-    private void parseFileFormatTypes(NodeList fileFormatTypesNode)
+    private void parseFileFormatTypes(NodeList fileFormatTypesNode) throws XPathExpressionException
     {
-        assert fileFormatTypesNode.getLength() == 1 : "Resource List should contain a single 'fileFormatTypes' node";
+        if (fileFormatTypesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(fileFormatTypesNode, "fileFormatTypes");
 
         Element fileFormatTypesElement = (Element) fileFormatTypesNode.item(0);
         NodeList fileFormatTypeNodes = fileFormatTypesElement.getElementsByTagName("xmd:fileFormatType");
@@ -210,9 +223,21 @@ public class MasterDataParser
         }
     }
 
-    private void parseVocabularies(NodeList vocabulariesNode)
+    private void validateElementNode(NodeList nodeList, String tagName) throws XPathExpressionException
     {
-        assert vocabulariesNode.getLength() == 1 : "Resource List should contain a single 'controlledVocabularies' node";
+        if (nodeList.getLength() != 1)
+        {
+            throw new XPathExpressionException("Resource List should contain a single ' " + tagName + "' node");
+        }
+    }
+
+    private void parseVocabularies(NodeList vocabulariesNode) throws XPathExpressionException
+    {
+        if (vocabulariesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(vocabulariesNode, "controlledVocabularies");
 
         Element vocabsElement = (Element) vocabulariesNode.item(0);
         NodeList vocabNodes = vocabsElement.getElementsByTagName("controlledVocabulary");
@@ -245,19 +270,23 @@ public class MasterDataParser
             newVocabularyTerm.setLabel(getAttribute(termElement, "label"));
             newVocabularyTerm.setDescription(getAttribute(termElement, "description"));
             newVocabularyTerm.setOrdinal(Long.valueOf(getAttribute(termElement, "ordinal")));
-            // TODO setUrl? There is no way to set it
+            newVocabularyTerm.setUrl(getAttribute(termElement, "url"));
             newVocabulary.getTerms().add(newVocabularyTerm);
         }
     }
 
     private String getAttribute(Element termElement, String attr)
     {
-        return termElement.getAttributes().getNamedItem(attr).getTextContent();
+        return termElement.getAttributes().getNamedItem(attr).getTextContent().trim();
     }
 
-    private void parseMaterialTypes(NodeList matTypesNode)
+    private void parseMaterialTypes(NodeList matTypesNode) throws XPathExpressionException
     {
-        assert matTypesNode.getLength() == 1 : "Resource List should contain a single 'materialTypes' node";
+        if (matTypesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(matTypesNode, "materialTypes");
 
         Element matTypesElement = (Element) matTypesNode.item(0);
         NodeList matTypeNodes = matTypesElement.getElementsByTagName("materialType");
@@ -267,15 +296,24 @@ public class MasterDataParser
             MaterialType materialType = new MaterialType();
             materialType.setCode(getAttribute(materialTypeElement, "code"));
             materialType.setDescription(getAttribute(materialTypeElement, "description"));
+            String validationPluginName = getAttribute(materialTypeElement, "validationPlugin");
+            if (validationPluginName.equals("") == false)
+            {
+                materialType.setValidationScript(validationPlugins.get(validationPluginName));
+            }
             materialTypes.put(materialType.getCode(), materialType);
 
             parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
-    private void parseExperimentTypes(NodeList expTypesNode)
+    private void parseExperimentTypes(NodeList expTypesNode) throws XPathExpressionException
     {
-        assert expTypesNode.getLength() == 1 : "Resource List should contain a single 'collectionTypes' node";
+        if (expTypesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(expTypesNode, "collectionTypes");
 
         Element expTypesElement = (Element) expTypesNode.item(0);
         NodeList expTypeNodes = expTypesElement.getElementsByTagName("collectionType");
@@ -286,15 +324,24 @@ public class MasterDataParser
             ExperimentType expType = new ExperimentType();
             expType.setCode(code);
             expType.setDescription(getAttribute(expTypeElement, "description"));
+            String validationPluginName = getAttribute(expTypeElement, "validationPlugin");
+            if (validationPluginName.equals("") == false)
+            {
+                expType.setValidationScript(validationPlugins.get(validationPluginName));
+            }
             experimentTypes.put(expType.getCode(), expType);
 
             parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
-    private void parseSampleTypes(NodeList sampleTypesNode)
+    private void parseSampleTypes(NodeList sampleTypesNode) throws XPathExpressionException
     {
-        assert sampleTypesNode.getLength() == 1 : "Resource List should contain a single 'objectTypes' node";
+        if (sampleTypesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(sampleTypesNode, "objectTypes");
 
         Element sampleTypesElement = (Element) sampleTypesNode.item(0);
         NodeList sampleTypeNodes = sampleTypesElement.getElementsByTagName("objectType");
@@ -311,15 +358,24 @@ public class MasterDataParser
             sampleType.setSubcodeUnique(Boolean.valueOf(getAttribute(sampleTypeElement, "subcodeUnique")));
             sampleType.setAutoGeneratedCode(Boolean.valueOf(getAttribute(sampleTypeElement, "autoGeneratedCode")));
             sampleType.setGeneratedCodePrefix(getAttribute(sampleTypeElement, "generatedCodePrefix"));
+            String validationPluginName = getAttribute(sampleTypeElement, "validationPlugin");
+            if (validationPluginName.equals("") == false)
+            {
+                sampleType.setValidationScript(validationPlugins.get(validationPluginName));
+            }
             sampleTypes.put(sampleType.getCode(), sampleType);
 
             parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement.getElementsByTagName("propertyAssignments"));
         }
     }
 
-    private void parseDataSetTypes(NodeList dataSetTypesNode)
+    private void parseDataSetTypes(NodeList dataSetTypesNode) throws XPathExpressionException
     {
-        assert dataSetTypesNode.getLength() == 1 : "Resource List should contain a single 'dataSetTypes' node";
+        if (dataSetTypesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(dataSetTypesNode, "dataSetTypes");
 
         Element dataSetTypesElement = (Element) dataSetTypesNode.item(0);
         NodeList dataSetTypeNodes = dataSetTypesElement.getElementsByTagName("dataSetType");
@@ -349,6 +405,11 @@ public class MasterDataParser
                 dataSetType.setMainDataSetPath(mainDataSetPattern);
             }
             dataSetType.setDeletionDisallow(Boolean.valueOf(getAttribute(dataSetTypeElement, "deletionDisallowed")));
+            String validationPluginName = getAttribute(dataSetTypeElement, "validationPlugin");
+            if (validationPluginName.equals("") == false)
+            {
+                dataSetType.setValidationScript(validationPlugins.get(validationPluginName));
+            }
             dataSetTypes.put(dataSetType.getCode(), dataSetType);
 
             parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement.getElementsByTagName("propertyAssignments"));
@@ -356,8 +417,18 @@ public class MasterDataParser
     }
 
     private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, NodeList propertyAssignmentsNode)
+            throws XPathExpressionException
     {
-        assert propertyAssignmentsNode.getLength() == 1 : "Resource List should contain a single property assignments node";
+        if (propertyAssignmentsNode.getLength() == 0)
+        {
+            return;
+        }
+        if (propertyAssignmentsNode.getLength() != 1)
+        {
+            throw new XPathExpressionException(entityType.getCode() + " should contain a single 'propertyAssigments' node");
+        }
+
+        validateElementNode(propertyAssignmentsNode, "propertyAssignments");
 
         List<NewETPTAssignment> list = new ArrayList<NewETPTAssignment>();
         Element propertyAssignmentsElement = (Element) propertyAssignmentsNode.item(0);
@@ -380,8 +451,14 @@ public class MasterDataParser
         entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
     }
 
-    private void parsePropertyTypes(NodeList propertyTypesNode)
+    private void parsePropertyTypes(NodeList propertyTypesNode) throws XPathExpressionException
     {
+        if (propertyTypesNode.getLength() == 0)
+        {
+            return;
+        }
+        validateElementNode(propertyTypesNode, "propertyTypes");
+
         assert propertyTypesNode.getLength() == 1 : "Resource List should contain a single 'propertyTypes' node";
 
         Element propertyTypesElement = (Element) propertyTypesNode.item(0);
