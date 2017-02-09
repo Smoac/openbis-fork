@@ -1,28 +1,31 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.DataSetIdTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;;
 
-public class V3DataSetUpdatePredicate extends AbstractPredicate<DataSetUpdate>
+@ShouldFlattenCollections(value = false)
+public class V3DataSetUpdatePredicate extends AbstractPredicate<List<DataSetUpdate>>
 {
 
-    protected final DataSetCodePredicate datasetCodePredicate;
+    protected final DataSetCodeCollectionPredicate datasetCodeCollectionPredicate;
 
     public V3DataSetUpdatePredicate()
     {
-        this.datasetCodePredicate = new DataSetCodePredicate();
+        this.datasetCodeCollectionPredicate = new DataSetCodeCollectionPredicate();
     }
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-        datasetCodePredicate.init(provider);
+    	datasetCodeCollectionPredicate.init(provider);
     }
 
     @Override
@@ -32,9 +35,13 @@ public class V3DataSetUpdatePredicate extends AbstractPredicate<DataSetUpdate>
     }
 
     @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, DataSetUpdate value)
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<DataSetUpdate> values)
     {
-        assert datasetCodePredicate.initialized : "Predicate has not been initialized";
-        return datasetCodePredicate.doEvaluation(person, allowedRoles, DataSetIdTranslator.translate(value.getDataSetId()));
+        assert datasetCodeCollectionPredicate.initialized : "Predicate has not been initialized";
+	    List<String> valuesAsCodes = new ArrayList<String>();
+		for(DataSetUpdate value:values) {
+			valuesAsCodes.add(DataSetIdTranslator.translate(value.getDataSetId()));
+		}
+	    return datasetCodeCollectionPredicate.doEvaluation(person, allowedRoles, valuesAsCodes);
     }
 }
