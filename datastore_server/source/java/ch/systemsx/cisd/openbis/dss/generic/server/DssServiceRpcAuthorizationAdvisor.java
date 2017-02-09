@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -30,7 +29,6 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -187,7 +185,6 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
     public static class DssServiceRpcAuthorizationMethodInterceptor implements MethodInterceptor
     {
 
-        private static final int MAX_NUMBER_OF_TRIES = 5;
         private IShareIdManager shareIdManager;
 
         public DssServiceRpcAuthorizationMethodInterceptor(IShareIdManager shareIdManager)
@@ -250,7 +247,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                         }
                     }
                 }
-                Object result = invokeMethod(methodInvocation);
+                Object result = methodInvocation.proceed();
                 if (result instanceof InputStream)
                 {
                     shouldLocksAutomaticallyBeReleased = false;
@@ -262,32 +259,6 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 if (shouldLocksAutomaticallyBeReleased)
                 {
                     manager.releaseLocks();
-                }
-            }
-        }
-
-        private Object invokeMethod(MethodInvocation methodInvocation) throws Throwable
-        {
-            for (int numberOfTries = 1;; numberOfTries++)
-            {
-                try
-                {
-                    return methodInvocation.proceed();
-                } catch (Throwable t)
-                {
-                    Throwable cause = ExceptionUtils.getEndOfChain(t);
-                    if (cause instanceof TimeoutException == false || numberOfTries >= MAX_NUMBER_OF_TRIES)
-                    {
-                        throw t;
-                    }
-                    String message = numberOfTries + ". invocation of [" + methodInvocation + "] failed: " + t;
-                    if (numberOfTries < MAX_NUMBER_OF_TRIES)
-                    {
-                        authorizationLog.warn(message);
-                    } else
-                    {
-                        authorizationLog.error(message);
-                    }
                 }
             }
         }
