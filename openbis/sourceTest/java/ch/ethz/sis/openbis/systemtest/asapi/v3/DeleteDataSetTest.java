@@ -37,7 +37,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
     {
         final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -49,7 +49,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
 
                     v3api.deleteDataSets(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
     
     private static DataSetDeletionOptions options;

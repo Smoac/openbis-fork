@@ -48,7 +48,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
     {
         final SamplePermId permId = new SamplePermId("200902091250077-1060");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -60,7 +60,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
 
                     v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
     
     @Test
@@ -170,7 +170,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
     {
         final SamplePermId permId = createCisdSample(null);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -182,7 +182,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
 
                     v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
                 }
-            }, permId);
+            });
     }
 
 }

@@ -56,7 +56,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
     {
         final DataSetPermId permId = new DataSetPermId("20120619092259000-22");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -68,7 +68,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
                     v3api.updateDataSets(sessionToken, Collections.singletonList(update));
                 }
-            }, permId);
+            });
     }
     
     @Test

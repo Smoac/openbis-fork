@@ -192,6 +192,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceUpdatePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentCreationPredicate;
@@ -200,6 +202,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3Experim
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectCreationPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectUpdatePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetDeletePredicate;
 
 /**
  * @author pkupczyk
@@ -528,7 +532,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SAMPLE")
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void updateSamples(String sessionToken, List<SampleUpdate> updates)
+    public void updateSamples(String sessionToken, @AuthorizationGuard(guardClass = V3SampleUpdatePredicate.class) List<SampleUpdate> updates)
     {
         updateSampleExecutor.update(sessionToken, updates);
     }
@@ -548,7 +552,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATASET")
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void updateDataSets(String sessionToken, List<DataSetUpdate> updates)
+    public void updateDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetUpdatePredicate.class) List<DataSetUpdate> updates)
     {
         updateDataSetExecutor.update(sessionToken, updates);
     }
@@ -776,7 +780,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SAMPLE")
-    public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
+    public IDeletionId deleteSamples(String sessionToken, @AuthorizationGuard(guardClass = V3SampleDeletePredicate.class) List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
     {
         return deleteSampleExecutor.delete(sessionToken, sampleIds, deletionOptions);
     }
@@ -786,7 +790,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_DATASET")
-    public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
+    public IDeletionId deleteDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetDeletePredicate.class) List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
     {
         return deleteDataSetExecutor.delete(sessionToken, dataSetIds, deletionOptions);
     }
