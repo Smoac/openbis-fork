@@ -66,7 +66,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     {
         final SamplePermId permId = new SamplePermId("200902091250077-1060");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -77,7 +77,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                     update.setSampleId(permId);
                     v3api.updateSamples(sessionToken, Collections.singletonList(update));
                 }
-            }, permId);
+            });
     }
 	
     @Test
@@ -160,14 +160,14 @@ public class UpdateSampleTest extends AbstractSampleTest
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(sampleId);
 
-        assertObjectNotFoundException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, sampleId);
+            });
     }
 
     @Test
@@ -179,14 +179,14 @@ public class UpdateSampleTest extends AbstractSampleTest
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(sampleId);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, sampleId, patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/CISD/CP-TEST-1'")));
+            });
     }
 
     @Test
