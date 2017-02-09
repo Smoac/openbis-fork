@@ -1,16 +1,20 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+
 public class DataSetIdTranslator
 {
 
-    public static String translate(ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId v3datasetId)
+    public static String translate(IDataSetId v3datasetId)
     {
-        if (v3datasetId instanceof ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId)
+        if (v3datasetId instanceof CreationId)
         {
 
-        } else if (v3datasetId instanceof ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId)
+        } else if (v3datasetId instanceof DataSetPermId)
         {
-            return ((ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId) v3datasetId).getPermId();
+            return ((DataSetPermId) v3datasetId).getPermId();
         }
 
         return null;
