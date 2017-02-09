@@ -18,6 +18,6 @@ public class SpaceIdTranslator
             return new SpaceIdentifier(((SpacePermId) v3SpaceId).getPermId());
         }
 
-        return null;
+        return new SpaceIdentifier(null);
     }
 }
