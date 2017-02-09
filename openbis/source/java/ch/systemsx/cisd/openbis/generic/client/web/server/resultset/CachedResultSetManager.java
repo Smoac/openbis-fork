@@ -120,8 +120,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final Map<K, Future<?>> unfinishedLoadings = Collections
             .synchronizedMap(new HashMap<K, Future<?>>());
     
-    private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
-            "Background Table Loader").corePoolSize(10).daemonize();
+    private static final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
+            "Background Table Loader").corePoolSize(30).daemonize();
 
     private final XMLPropertyTransformer xmlPropertyTransformer = new XMLPropertyTransformer();
 
