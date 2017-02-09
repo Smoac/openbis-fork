@@ -17,6 +17,6 @@ public class DataSetIdTranslator
             return ((DataSetPermId) v3datasetId).getPermId();
         }
 
-        return null;
+        return "";
     }
 }
