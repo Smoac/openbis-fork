@@ -5,11 +5,14 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.SampleIdTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 
-public class V3SampleUpdatePredicate extends AbstractPredicate<SampleUpdate>
+@ShouldFlattenCollections(value = false)
+public class V3SampleUpdatePredicate extends AbstractPredicate<List<SampleUpdate>>
 {
 
     protected final SampleIdPredicate sampleIdPredicate;
@@ -32,9 +35,17 @@ public class V3SampleUpdatePredicate extends AbstractPredicate<SampleUpdate>
     }
 
     @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleUpdate value)
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<SampleUpdate> value)
     {
         assert sampleIdPredicate.initialized : "Predicate has not been initialized";
-        return sampleIdPredicate.doEvaluation(person, allowedRoles, SampleIdTranslator.translate(value.getSampleId()));
+    	for(SampleUpdate sampleUpdate:value) {
+    		ISampleId sampleId = SampleIdTranslator.translate(sampleUpdate.getSampleId());
+    		Status result = sampleIdPredicate.doEvaluation(person, allowedRoles, sampleId);
+            if (result != Status.OK)
+            {
+                return result;
+            }
+    	}
+        return Status.OK;
     }
 }
