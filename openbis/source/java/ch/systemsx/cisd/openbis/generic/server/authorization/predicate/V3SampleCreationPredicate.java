@@ -43,7 +43,8 @@ public class V3SampleCreationPredicate extends AbstractPredicate<List<SampleCrea
     {
         assert spaceCollectionPredicate.initialized : "Predicate has not been initialized";
     	Set<String> spaceCodes = new HashSet<String>();
-    	for(SampleCreation spaceCreation:value) {
+    	for(SampleCreation spaceCreation:value) 
+    	{
     		SpaceIdentifier spaceIdentifier = SpaceIdTranslator.translate(spaceCreation.getSpaceId());
     		final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
     		spaceCodes.add(spaceCode);
