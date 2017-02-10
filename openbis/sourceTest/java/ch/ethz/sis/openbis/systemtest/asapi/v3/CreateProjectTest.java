@@ -173,14 +173,14 @@ public class CreateProjectTest extends AbstractTest
         project.setCode("TEST_PROJECT");
         project.setSpaceId(spaceId);
 
-        assertObjectNotFoundException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createProjects(sessionToken, Arrays.asList(project));
                 }
-            }, spaceId);
+            });
     }
 
     @Test
