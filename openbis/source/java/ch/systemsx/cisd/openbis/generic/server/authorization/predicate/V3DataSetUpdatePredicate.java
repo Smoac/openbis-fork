@@ -39,7 +39,8 @@ public class V3DataSetUpdatePredicate extends AbstractPredicate<List<DataSetUpda
     {
         assert datasetCodeCollectionPredicate.initialized : "Predicate has not been initialized";
 	    List<String> valuesAsCodes = new ArrayList<String>();
-		for(DataSetUpdate value:values) {
+		for(DataSetUpdate value:values) 
+		{
 			valuesAsCodes.add(DataSetIdTranslator.translate(value.getDataSetId()));
 		}
 	    return datasetCodeCollectionPredicate.doEvaluation(person, allowedRoles, valuesAsCodes);

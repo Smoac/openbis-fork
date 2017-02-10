@@ -39,7 +39,8 @@ public class V3DataSetDeletePredicate extends AbstractPredicate<List<IDataSetId>
     {
         assert datasetCodeCollectionPredicate.initialized : "Predicate has not been initialized";
     	List<String> valuesAsCodes = new ArrayList<String>();
-    	for(IDataSetId value:values) {
+    	for(IDataSetId value:values) 
+    	{
     		valuesAsCodes.add(DataSetIdTranslator.translate(value));
     	}
         return datasetCodeCollectionPredicate.doEvaluation(person, allowedRoles, valuesAsCodes);

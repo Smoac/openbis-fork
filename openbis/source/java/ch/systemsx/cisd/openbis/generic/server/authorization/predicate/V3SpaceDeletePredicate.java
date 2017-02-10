@@ -43,7 +43,8 @@ public class V3SpaceDeletePredicate extends AbstractPredicate<List<ISpaceId>>
     {
         assert spaceCollectionPredicate.initialized : "Predicate has not been initialized";
     	Set<String> spaceCodes = new HashSet<String>();
-    	for(ISpaceId spaceId:value) {
+    	for(ISpaceId spaceId:value) 
+    	{
     		SpaceIdentifier spaceIdentifier = SpaceIdTranslator.translate(spaceId);
     		final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
     		spaceCodes.add(spaceCode);
