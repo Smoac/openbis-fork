@@ -1297,7 +1297,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         result.setLabel(edmsRecord.label);
         result.setUrlTemplate(edmsRecord.address);
         result.setAddress(edmsRecord.address);
-        result.setAddressType(ExternalDataManagementSystemType.fromString(edmsRecord.addressType));
+        result.setAddressType(ExternalDataManagementSystemType.valueOf(edmsRecord.addressType));
         result.setOpenBIS(ExternalDataManagementSystemType.OPENBIS.equals(result.getAddressType()));
 
         return result;

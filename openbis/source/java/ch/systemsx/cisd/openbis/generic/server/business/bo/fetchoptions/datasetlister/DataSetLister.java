@@ -256,7 +256,7 @@ public class DataSetLister implements IDataSetLister
             edms.setUrlTemplate(dataSet.edms_address);
             edms.setAddress(dataSet.edms_address);
             edms.setDatabaseInstance(db);
-            edms.setAddressType(ExternalDataManagementSystemType.fromString(dataSet.edms_address_type));
+            edms.setAddressType(ExternalDataManagementSystemType.valueOf(dataSet.edms_address_type));
             edms.setOpenBIS(ExternalDataManagementSystemType.OPENBIS.equals(edms.getAddressType()));
             initializer.setExternalDataManagementSystem(edms);
         }

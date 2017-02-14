@@ -1061,10 +1061,10 @@ CREATE SEQUENCE external_data_management_system_id_seq
     CACHE 1;
 CREATE TABLE external_data_management_systems (
     id tech_id NOT NULL,
-    code code,
+    code code NOT NULL,
     label text_value,
-    address text_value,
-    address_type edms_address_type
+    address text_value NOT NULL,
+    address_type edms_address_type NOT NULL
 );
 CREATE SEQUENCE file_format_type_id_seq
     START WITH 1

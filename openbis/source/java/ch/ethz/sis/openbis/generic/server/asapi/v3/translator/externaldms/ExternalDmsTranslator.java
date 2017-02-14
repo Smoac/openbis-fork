@@ -69,7 +69,7 @@ public class ExternalDmsTranslator extends AbstractCachingTranslator<Long, Exter
         result.setLabel(baseRecord.label);
         result.setUrlTemplate(baseRecord.address);
         result.setAddress(baseRecord.address);
-        result.setAddressType(ExternalDmsAddressType.fromString(baseRecord.addressType));
+        result.setAddressType(ExternalDmsAddressType.valueOf(baseRecord.addressType));
         result.setOpenbis(ExternalDmsAddressType.OPENBIS.equals(result.getAddressType()));
     }
 
