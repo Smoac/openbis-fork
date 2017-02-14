@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 
 /**
  * @author Jakub Straszewski
@@ -54,6 +55,18 @@ public class ExternalDataManagementSystemImmutable implements
     public String getCode()
     {
         return externalDMS.getCode();
+    }
+
+    @Override
+    public String getAddress()
+    {
+        return externalDMS.getAddress();
+    }
+
+    @Override
+    public ExternalDataManagementSystemType getAddressType()
+    {
+        return externalDMS.getAddressType();
     }
 
 }

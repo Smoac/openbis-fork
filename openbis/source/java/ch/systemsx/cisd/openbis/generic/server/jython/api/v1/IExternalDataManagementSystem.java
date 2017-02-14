@@ -25,6 +25,10 @@ public interface IExternalDataManagementSystem extends IExternalDataManagementSy
 {
     public void setLabel(String label);
 
+    public void setUrlTemplate(String urlTemplate);
+
+    public void setOpenBIS(boolean openBIS);
+
     public void setAddress(String address);
 
     public void setAddressType(ExternalDataManagementSystemType addressType);

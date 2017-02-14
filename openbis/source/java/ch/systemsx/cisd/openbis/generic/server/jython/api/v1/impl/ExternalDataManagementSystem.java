@@ -49,4 +49,23 @@ public class ExternalDataManagementSystem extends ExternalDataManagementSystemIm
         getExternalDataManagementSystem().setAddressType(addressType);
         getExternalDataManagementSystem().setOpenBIS(ExternalDataManagementSystemType.OPENBIS.equals(addressType));
     }
+
+    @Override
+    public void setUrlTemplate(String urlTemplate)
+    {
+        setAddress(urlTemplate);
+    }
+
+    @Override
+    public void setOpenBIS(boolean openBIS)
+    {
+        if (openBIS)
+        {
+            setAddressType(ExternalDataManagementSystemType.OPENBIS);
+        } else
+        {
+            setAddressType(ExternalDataManagementSystemType.URL);
+        }
+    }
+
 }

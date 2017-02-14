@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
+
 /**
  * @author Jakub Straszewski
  */
@@ -26,6 +28,10 @@ public interface IExternalDataManagementSystemImmutable
     String getLabel();
 
     String getUrlTemplate();
+
+    String getAddress();
+
+    ExternalDataManagementSystemType getAddressType();
 
     boolean isOpenBIS();
 }

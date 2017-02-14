@@ -38,6 +38,16 @@ public class ExternalDataManagementSystemWrapper extends ExternalDataManagementS
     }
 
     @Override
+    public void setUrlTemplate(String urlTemplate)
+    {
+    }
+
+    @Override
+    public void setOpenBIS(boolean openBIS)
+    {
+    }
+
+    @Override
     public void setAddress(String address)
     {
     }
