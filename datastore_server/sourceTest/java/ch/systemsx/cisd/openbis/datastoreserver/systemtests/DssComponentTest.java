@@ -27,10 +27,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -462,6 +464,7 @@ public class DssComponentTest extends SystemTestCase
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         List<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
+        final String prefix = DateFormatUtils.format(new Date(), "yyyyMMddHHmmssSSS").substring(0, 6);
         Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
             {
                 @Override
@@ -474,7 +477,7 @@ public class DssComponentTest extends SystemTestCase
 
                 private String normalize(String code)
                 {
-                    return code.startsWith("2") ? code : "0" + code;
+                    return code.startsWith(prefix) ? code : "0" + code;
                 }
             });
         return dataSets.get(0);
