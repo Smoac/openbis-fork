@@ -178,7 +178,7 @@ case "$command" in
     echo -n "Starting Data Store Server "
     rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
-    ${CMD} "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+    "$(CMD)" "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then
       # wait for initial self-test to finish
       n=0
@@ -282,16 +282,16 @@ case "$command" in
     
     ;;
   version)
-    ${CMD} --version
+    "$(CMD)" --version
     ;;
   show-shredder)
-    ${CMD} --show-shredder
+    "$(CMD)" --show-shredder
     ;;
   show-updater-queue)
-    ${CMD} --show-updater-queue
+    "$(CMD)" --show-updater-queue
     ;;
   show-command-queue)
-    ${CMD} --show-command-queue
+    "$(CMD)" --show-command-queue
     ;;
   verify-archives)
     shift
