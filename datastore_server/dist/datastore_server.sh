@@ -86,14 +86,14 @@ getStatus()
     return 2
   fi
 }
-			
+      
 printStatus()
 {
   if [ -f $PIDFILE ]; then
     PID=`cat $PIDFILE`
     isPIDRunning $PID
     if [ $? -eq 0 ]; then
-    	echo "Data Store Server is running (pid $PID)"
+      echo "Data Store Server is running (pid $PID)"
       return 0
     else
       echo "Data Store Server is dead (stale pid $PID)"
@@ -135,9 +135,9 @@ SCRIPT=./`basename $0`
 #
 test -f $CONFFILE && source $CONFFILE
 if [ "$JAVA_HOME" != "" ]; then
-	JAVA_BIN="$JAVA_HOME/bin/java"
+  JAVA_BIN="$JAVA_HOME/bin/java"
 else
-	JAVA_BIN="java"
+  JAVA_BIN="java"
 fi
 
 command=$1
@@ -161,7 +161,8 @@ CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $L
     | sed 's/\(.*\) [^ ]*jython27[^ ]* \(.*\)/\1 \2/g' \
     | sed 's/ /:/g'`
 
-CMD="${JAVA_BIN} ${JAVA_OPTS} ${JAVA_MEM_OPTS} -Dnative.libpath=$LIB_FOLDER/native -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
+CMD="${JAVA_BIN}"
+COMMON_OPTIONS="${JAVA_OPTS} ${JAVA_MEM_OPTS} -Dnative.libpath=$LIB_FOLDER/native -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 
 # ensure that we ignore a possible prefix "--" for any command 
 command="${command#--*}"
@@ -178,7 +179,7 @@ case "$command" in
     echo -n "Starting Data Store Server "
     rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
-    "$(CMD)" "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+    "${CMD}" $COMMON_OPTIONS "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then
       # wait for initial self-test to finish
       n=0
@@ -222,9 +223,9 @@ case "$command" in
     else
       echo "FAILED"
     fi
-		;;
+    ;;
   stop)
-   	echo -n "Stopping Data Store Server "
+    echo -n "Stopping Data Store Server "
     if [ -f $PIDFILE ]; then
       PID=`cat $PIDFILE 2> /dev/null`
       isPIDRunning $PID
@@ -282,16 +283,16 @@ case "$command" in
     
     ;;
   version)
-    "$(CMD)" --version
+    "${CMD}" $COMMON_OPTIONS --version
     ;;
   show-shredder)
-    "$(CMD)" --show-shredder
+    "${CMD}" $COMMON_OPTIONS --show-shredder
     ;;
   show-updater-queue)
-    "$(CMD)" --show-updater-queue
+    "${CMD}" $COMMON_OPTIONS --show-updater-queue
     ;;
   show-command-queue)
-    "$(CMD)" --show-command-queue
+    "${CMD}" $COMMON_OPTIONS --show-command-queue
     ;;
   verify-archives)
     shift
@@ -304,14 +305,14 @@ case "$command" in
       isPIDRunning $PID
       if [ $? -eq 0 ]; then
         kill -3 $PID
-   			echo "Thread dump logged to log/startup_log.txt"
+        echo "Thread dump logged to log/startup_log.txt"
       else
-      	echo "Error: Data Store Server not running."
-      	exit 100
+        echo "Error: Data Store Server not running."
+        exit 100
       fi
     else
-    	echo "Error: Data Store Server not running."
-     	exit 100
+      echo "Error: Data Store Server not running."
+      exit 100
     fi
     ;;
   log-db-connections-separate-log-file)
@@ -321,14 +322,14 @@ case "$command" in
       echo "Error: Data Store Server not running."
       exit 100
     fi
-  	mkdir -p .control
-  	if [ "$2" == "off" ]; then
-	  	touch .control/db-connections-separate-log-file-off
-  		echo "Switched off logging messages to log/datastore_server_db_connections.txt"
-  	else
-	  	touch .control/db-connections-separate-log-file-on
-  		echo "Switched on logging messages to log/datastore_server_db_connections.txt"
-  	fi
+    mkdir -p .control
+    if [ "$2" == "off" ]; then
+      touch .control/db-connections-separate-log-file-off
+      echo "Switched off logging messages to log/datastore_server_db_connections.txt"
+    else
+      touch .control/db-connections-separate-log-file-on
+      echo "Switched on logging messages to log/datastore_server_db_connections.txt"
+    fi
     ;;    
   log-db-connections)
     getStatus
@@ -337,13 +338,13 @@ case "$command" in
       echo "Error: Data Store Server not running."
       exit 100
     fi
-  	mkdir -p .control
-  	if [ "$2" != "" ]; then
-    	touch .control/db-connections-print-active-$2
-   	else
-    	touch .control/db-connections-print-active
-   	fi
-   	echo "Active database connections will be logged"
+    mkdir -p .control
+    if [ "$2" != "" ]; then
+      touch .control/db-connections-print-active-$2
+    else
+      touch .control/db-connections-print-active
+    fi
+    echo "Active database connections will be logged"
     ;;
   debug-db-connections)
     getStatus
@@ -352,14 +353,14 @@ case "$command" in
       echo "Error: Data Store Server not running."
       exit 100
     fi
-  	mkdir -p .control
-  	if [ "$2" == "off" ]; then
-	  	touch .control/db-connections-debug-off
-  		echo "Switched off debug logging for database connections."
-  	else
-	  	touch .control/db-connections-debug-on
-  		echo "Switched on debug logging for database connections."
-  	fi
+    mkdir -p .control
+    if [ "$2" == "off" ]; then
+      touch .control/db-connections-debug-off
+      echo "Switched off debug logging for database connections."
+    else
+      touch .control/db-connections-debug-on
+      echo "Switched on debug logging for database connections."
+    fi
     ;;
   record-stacktrace-db-connections)
     getStatus
@@ -368,14 +369,14 @@ case "$command" in
       echo "Error: Data Store Server not running."
       exit 100
     fi
-  	mkdir -p .control
-  	if [ "$2" == "off" ]; then
-	  	touch .control/db-connections-stacktrace-off
-  		echo "Switched off stacktrace recording for database connections."
-	  else
-	  	touch .control/db-connections-stacktrace-on
-  		echo "Switched on stacktrace recording for database connections."
-	  fi
+    mkdir -p .control
+    if [ "$2" == "off" ]; then
+      touch .control/db-connections-stacktrace-off
+      echo "Switched off stacktrace recording for database connections."
+    else
+      touch .control/db-connections-stacktrace-on
+      echo "Switched on stacktrace recording for database connections."
+    fi
     ;;
   log-service-calls)
     getStatus
@@ -384,14 +385,14 @@ case "$command" in
       echo "Error: Data Store Server not running."
       exit 100
     fi
-  	mkdir -p .control
-  	if [ "$2" == "off" ]; then
-	  	touch .control/log-service-call-start-off
-  		echo "Switched off logging of service calls."
-	  else
-	  	touch .control/log-service-call-start-on
-  		echo "Switched on logging of service calls."
-	  fi
+    mkdir -p .control
+    if [ "$2" == "off" ]; then
+      touch .control/log-service-call-start-off
+      echo "Switched off logging of service calls."
+    else
+      touch .control/log-service-call-start-on
+      echo "Switched on logging of service calls."
+    fi
     ;;    
   log-long-running-invocations)
     getStatus
@@ -400,14 +401,14 @@ case "$command" in
       echo "Error: Data Store Server not running."
       exit 100
     fi
-  	mkdir -p .control
-  	if [ "$2" == "off" ]; then
-	  	touch .control/long-running-thread-logging-off
-  		echo "Switched off logging of long running invocations."
-	  else
-	  	touch .control/long-running-thread-logging-on
-  		echo "Switched on logging of long running invocations."
-	  fi
+    mkdir -p .control
+    if [ "$2" == "off" ]; then
+      touch .control/long-running-thread-logging-off
+      echo "Switched off logging of long running invocations."
+    else
+      touch .control/long-running-thread-logging-on
+      echo "Switched on logging of long running invocations."
+    fi
     ;; 
   *)
     echo "Usage: $0 {start|stop|restart|status|help|version}"
