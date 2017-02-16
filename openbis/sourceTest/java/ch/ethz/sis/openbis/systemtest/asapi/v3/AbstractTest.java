@@ -132,8 +132,10 @@ public class AbstractTest extends SystemTestCase
 
     protected static final String TEST_GROUP_ADMIN = "admin";
     
+    protected static final String TEST_NO_HOME_SPACE = "homeless";
+    
     protected static final String PASSWORD = "password";
-
+    
     private BufferedAppender logRecorder;
 
     @Autowired
@@ -634,7 +636,7 @@ public class AbstractTest extends SystemTestCase
         {
             if (false == e instanceof AuthorizationFailureException)
             {
-                assertNotNull(e.getCause());
+                assertNotNull(e.getCause(), "Missing cause of " + e);
                 assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
             }
             assertExceptionContext(e, expectedContextPattern);
@@ -654,7 +656,7 @@ public class AbstractTest extends SystemTestCase
             fail("Expected an exception to be thrown");
         } catch (Exception e)
         {
-            assertNotNull(e.getCause());
+            assertNotNull(e.getCause(), "Missing cause of " + e);
             assertEquals(e.getCause().getClass(), UnauthorizedObjectAccessException.class);
             assertEquals(((UnauthorizedObjectAccessException) e.getCause()).getObjectId(), expectedObjectId);
             assertExceptionContext(e, expectedContextPattern);
