@@ -51,6 +51,10 @@ fi
 echo "mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server"
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 
+echo "cp -R $ROOT_DIR/core-plugins $BACKUP_DIR/core-plugins"
+cp -R $ROOT_DIR/core-plugins $BACKUP_DIR/core-plugins
+rm -rf $BACKUP_DIR/core-plugins/eln-lims/bin
+
 if [ -d $BACKUP_DIR/datastore_server/data/sessionWorkspace ]; then
   echo "rm -r $BACKUP_DIR/datastore_server/data/sessionWorkspace"
   rm -r $BACKUP_DIR/datastore_server/data/sessionWorkspace
