@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
@@ -46,6 +47,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.LocatorTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.StorageFormatPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.IDataStoreId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -77,7 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 public class CreateDataSetTest extends AbstractDataSetTest
 {
 
-	@Test
+    @Test
     public void testCreateDSWithAdminUserInAnotherSpace()
     {
         final DataSetPermId permId = new DataSetPermId("NO_SHALL_CREATE");
@@ -107,9 +109,39 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 }
             }, "Data set creation can be only executed by a user with ETL_SERVER role");
     }
-	
+
     @Test
-    public void testCreateWithIndexCheck()
+    public void testArchiveWithAdminUserInAnotherSpace()
+    {
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    List<DataSetPermId> permIds = testCreateWithIndexCheck();
+                    String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
+                    v3api.archiveDataSets(sessionToken, permIds, new DataSetArchiveOptions());
+                }
+            });
+    }
+
+    @Test
+    public void testUnArchiveWithAdminUserInAnotherSpace()
+    {
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    List<DataSetPermId> permIds = testCreateWithIndexCheck();
+                    String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
+                    v3api.unarchiveDataSets(sessionToken, permIds, new DataSetUnarchiveOptions());
+                }
+            });
+    }
+
+    @Test
+    public List<DataSetPermId> testCreateWithIndexCheck()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -119,6 +151,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
 
         assertDataSetsReindexed(state, permIds.get(0).getPermId());
+        return permIds;
     }
 
     @Test
