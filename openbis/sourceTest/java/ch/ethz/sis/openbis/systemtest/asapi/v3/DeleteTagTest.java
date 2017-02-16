@@ -124,6 +124,37 @@ public class DeleteTagTest extends AbstractDeletionTest
     }
 
     @Test
+    public void testDeleteWithObserver()
+    {
+        ReindexingState state = new ReindexingState();
+
+        ExperimentPermId experimentId = new ExperimentPermId("200811050952663-1029");
+        SamplePermId sampleId = new SamplePermId("200902091219327-1025");
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        MaterialPermId materialId = new MaterialPermId("AD3", "VIRUS");
+
+        TagCreation creation = new TagCreation();
+        creation.setCode("TAG_TO_DELETE");
+        creation.setExperimentIds(Arrays.asList(experimentId));
+        creation.setSampleIds(Arrays.asList(sampleId));
+        creation.setDataSetIds(Arrays.asList(dataSetId));
+        creation.setMaterialIds(Arrays.asList(materialId));
+
+        Tag before = createTag(TEST_USER, PASSWORD, creation);
+
+        TagDeletionOptions options = new TagDeletionOptions();
+        options.setReason("It is just a test");
+
+        Tag after = deleteTag(TEST_GROUP_OBSERVER, PASSWORD, before.getPermId(), options);
+        assertNull(after);
+
+        assertExperimentsReindexed(state, experimentId.getPermId());
+        assertSamplesReindexed(state, sampleId.getPermId());
+        assertDataSetsReindexed(state, dataSetId.getPermId());
+        assertMaterialsReindexed(state, materialId);
+    }
+
+    @Test
     public void testDeleteWithUnauthorizedTag()
     {
         TagCreation creation = new TagCreation();
