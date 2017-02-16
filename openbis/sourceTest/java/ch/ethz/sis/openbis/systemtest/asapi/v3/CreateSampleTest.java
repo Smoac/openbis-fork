@@ -62,7 +62,7 @@ import junit.framework.Assert;
 public class CreateSampleTest extends AbstractSampleTest
 {
 
-	@Test
+    @Test
     public void testCreateSharedSampleWithNoAdminRights()
     {
         final String code = "TEST_TO_FAIL";
@@ -83,30 +83,30 @@ public class CreateSampleTest extends AbstractSampleTest
                 }
             }, new SampleIdentifier("/" + code));
     }
-	
-	@Test
-	public void testCreateSampleWithAdminUserInAnotherSpace()
-	{
-	    final String code = "TEST_TO_FAIL";
-	    
-	    assertAuthorizationFailureException(new IDelegatedAction()
-	    {
-	        @Override
-	        public void execute()
-	        {
-	            String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
-	            
-	            SampleCreation creation = new SampleCreation();
-	            creation.setCode(code);
-	            creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-	            creation.setSpaceId(new SpacePermId("TEST-SPACE"));
-	            creation.setCreationId(new CreationId("creation " + code));
-	            
-	            v3api.createSamples(sessionToken, Collections.singletonList(creation));
-	        }
-	    });
-	}
-	
+
+    @Test
+    public void testCreateSampleWithAdminUserInAnotherSpace()
+    {
+        final String code = "TEST_TO_FAIL";
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    SampleCreation creation = new SampleCreation();
+                    creation.setCode(code);
+                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                    creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+                    creation.setCreationId(new CreationId("creation " + code));
+
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            });
+    }
+
     @Test
     public void testCreateWithIndexCheck()
     {
