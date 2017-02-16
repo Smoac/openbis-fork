@@ -44,6 +44,11 @@ public interface ISampleImmutable extends IMetaprojectContent
      * Return the experiment for this sample. May be null.
      */
     IExperimentImmutable getExperiment();
+    
+    /**
+     * Returns the project for this sample or null.
+     */
+    IProjectImmutable getProject();
 
     /**
      * Return the type for this sample. May be null.

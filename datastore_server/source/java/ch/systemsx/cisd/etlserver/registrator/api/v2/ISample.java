@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 
 /**
@@ -30,6 +31,11 @@ public interface ISample extends ISampleImmutable
      * Set the experiment for this sample. The experiment need not be immutable, but the immutable one is the superclass.
      */
     void setExperiment(IExperimentImmutable experiment);
+    
+    /**
+     * Set the project for this sample. The project need not be immutable, but the immutable one is the superclass.
+     */
+    void setProject(IProjectImmutable project);
 
     /**
      * Set the type for this sample.

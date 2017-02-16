@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -47,4 +48,13 @@ public class SampleUtils
                 data.getCode(), sample == null ? "?" : sample.getIdentifier(), reason);
     }
 
+    public static void assertProjectSamplesEnabled(SamplePE samplePE, ProjectPE project)
+    {
+        if (SamplePE.projectSamplesEnabled == false)
+        {
+            throw new UserFailureException("Can not assign sample " + samplePE.getIdentifier()
+                    + " to project " + project.getIdentifier() + " because project samples are not enabled.");
+        }
+
+    }
 }

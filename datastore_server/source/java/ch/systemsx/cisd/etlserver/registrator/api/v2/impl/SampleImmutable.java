@@ -23,10 +23,12 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -88,6 +90,13 @@ public class SampleImmutable implements ISampleImmutable
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
                 sample.getExperiment();
         return (null != experiment) ? new ExperimentImmutable(experiment) : null;
+    }
+
+    @Override
+    public IProjectImmutable getProject()
+    {
+        Project project = sample.getProject();
+        return project == null ? null : new ProjectImmutable(project);
     }
 
     @Override

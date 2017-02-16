@@ -315,7 +315,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
      */
     private void prepareBatchUpdate(SamplePE sample, List<AttachmentPE> attachments,
             SampleUpdatesDTO updates, Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
-            Map<String, ExperimentPE> experimentCache,
+            Map<String, ExperimentPE> experimentCache, Map<String, ProjectPE> projectCache,
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache)
     {
         if (sample == null)
@@ -329,10 +329,16 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         checkPropertiesBusinessRules(sample, propertiesCache);
 
         updateSpace(sample, updates.getSampleIdentifier(), sampleOwnerCache);
+        ExperimentIdentifier experimentIdentifier = updates.getExperimentIdentifierOrNull();
         if (updates.isUpdateExperimentLink())
         {
-            updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
+            updateExperiment(sample, experimentIdentifier, experimentCache);
             checkExperimentBusinessRules(sample);
+        }
+        
+        if (experimentIdentifier == null)
+        {
+            updateProject(sample, updates.getProjectIdentifier(), projectCache);
         }
 
         boolean parentsUpdated = updateParents(sample, updates);
@@ -519,6 +525,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
         final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
+        final Map<String, ProjectPE> projectCache = new HashMap<String, ProjectPE>();
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamplesByTechId(updates);
@@ -550,7 +557,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             }
             final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
             prepareBatchUpdate(sample, attachments, sampleUpdates, sampleOwnerCache,
-                    experimentCache, propertiesCache);
+                    experimentCache, projectCache, propertiesCache);
             putAttachments(sample.getPermId(), attachments);
         }
 

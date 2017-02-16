@@ -97,6 +97,7 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     @Override
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
+        SampleUtils.assertProjectSamplesEnabled(sample, project);
         Date timeStamp = getTransactionTimeStamp();
         ProjectPE previousProject = sample.getProject();
         RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);

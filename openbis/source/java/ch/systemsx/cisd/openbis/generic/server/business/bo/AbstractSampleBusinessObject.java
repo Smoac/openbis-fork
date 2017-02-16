@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -178,16 +179,21 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         if (sampleIdentifier.isProjectLevel())
         {
             ProjectPE project = findProject(sampleIdentifier.getProjectLevel());
-            samplePE.setProject(project);
-            samplePE.setSpace(project.getSpace());
+            setProjectAndSpace(samplePE, project);
         }
         String projectIdentifier = newSample.getProjectIdentifier();
         if (projectIdentifier != null)
         {
             ProjectPE project = findProject(new ProjectIdentifierFactory(projectIdentifier).createIdentifier());
-            samplePE.setProject(project);
-            samplePE.setSpace(project.getSpace());
+            setProjectAndSpace(samplePE, project);
         }
+    }
+
+    private void setProjectAndSpace(SamplePE samplePE, ProjectPE project)
+    {
+        SampleUtils.assertProjectSamplesEnabled(samplePE, project);
+        samplePE.setProject(project);
+        samplePE.setSpace(project.getSpace());
     }
 
     private void updateModifierAndModificationDate(ExperimentPE experimentOrNull)

@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v2.ISample;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -124,6 +125,19 @@ public class Sample extends SampleImmutable implements ISample
         }
 
         updateDetails.setExperimentUpdateRequested(true);
+    }
+
+    @Override
+    public void setProject(IProjectImmutable project)
+    {
+        ProjectImmutable proj = (ProjectImmutable) project;
+        if (proj == null)
+        {
+            getSample().setProject(null);
+        } else
+        {
+            getSample().setProject(proj.getProject());
+        }
     }
 
     @Override
