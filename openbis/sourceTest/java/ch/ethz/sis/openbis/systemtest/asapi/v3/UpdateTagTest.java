@@ -98,6 +98,21 @@ public class UpdateTagTest extends AbstractTest
     }
 
     @Test
+    public void testUpdateWithObserver()
+    {
+        Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
+        assertEquals(before.getDescription(), "Example metaproject no. 1");
+
+        TagUpdate update = new TagUpdate();
+        update.setTagId(before.getPermId());
+        update.setDescription("brand new description");
+
+        Tag after = updateTag(TEST_GROUP_OBSERVER, PASSWORD, update);
+
+        assertEquals(after.getDescription(), update.getDescription().getValue());
+    }
+
+    @Test
     public void testUpdateWithExperimentsAdd()
     {
         ReindexingState state = new ReindexingState();

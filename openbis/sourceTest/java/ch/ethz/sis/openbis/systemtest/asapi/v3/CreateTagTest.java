@@ -103,6 +103,18 @@ public class CreateTagTest extends AbstractTest
     }
 
     @Test
+    public void testCreateWithObserver()
+    {
+        TagCreation creation = new TagCreation();
+        creation.setCode("TEST_TAG");
+        creation.setDescription("test description");
+
+        Tag tag = createTag(TEST_GROUP_OBSERVER, PASSWORD, creation);
+
+        assertEquals(tag.getDescription(), creation.getDescription());
+    }
+
+    @Test
     public void testCreateWithExperiments()
     {
         ReindexingState state = new ReindexingState();
