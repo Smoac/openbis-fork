@@ -42,13 +42,13 @@ public class V3SampleCreationPredicate extends AbstractPredicate<List<SampleCrea
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<SampleCreation> value)
     {
         assert spaceCollectionPredicate.initialized : "Predicate has not been initialized";
-    	Set<String> spaceCodes = new HashSet<String>();
-    	for(SampleCreation spaceCreation:value) 
-    	{
-    		SpaceIdentifier spaceIdentifier = SpaceIdTranslator.translate(spaceCreation.getSpaceId());
-    		final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
-    		spaceCodes.add(spaceCode);
-    	}
+        Set<String> spaceCodes = new HashSet<String>();
+        for (SampleCreation spaceCreation : value)
+        {
+            SpaceIdentifier spaceIdentifier = SpaceIdTranslator.translate(spaceCreation.getSpaceId());
+            final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
+            spaceCodes.add(spaceCode);
+        }
         return spaceCollectionPredicate.doEvaluation(person, allowedRoles, new ArrayList<String>(spaceCodes));
     }
 }

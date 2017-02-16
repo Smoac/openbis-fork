@@ -25,7 +25,7 @@ public class V3DataSetDeletePredicate extends AbstractPredicate<List<IDataSetId>
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-    	datasetCodeCollectionPredicate.init(provider);
+        datasetCodeCollectionPredicate.init(provider);
     }
 
     @Override
@@ -38,11 +38,11 @@ public class V3DataSetDeletePredicate extends AbstractPredicate<List<IDataSetId>
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<IDataSetId> values)
     {
         assert datasetCodeCollectionPredicate.initialized : "Predicate has not been initialized";
-    	List<String> valuesAsCodes = new ArrayList<String>();
-    	for(IDataSetId value:values) 
-    	{
-    		valuesAsCodes.add(DataSetIdTranslator.translate(value));
-    	}
+        List<String> valuesAsCodes = new ArrayList<String>();
+        for (IDataSetId value : values)
+        {
+            valuesAsCodes.add(DataSetIdTranslator.translate(value));
+        }
         return datasetCodeCollectionPredicate.doEvaluation(person, allowedRoles, valuesAsCodes);
     }
 }
