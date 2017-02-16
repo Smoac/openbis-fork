@@ -105,7 +105,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
-
 import junit.framework.Assert;
 
 /**
@@ -121,17 +120,19 @@ public class AbstractTest extends SystemTestCase
     protected static final String TEST_SPACE_USER = "test_space";
 
     protected static final String TEST_ROLE_V3 = "test_v3";
-    
+
     protected static final String TEST_USER = "test";
 
     protected static final String TEST_POWER_USER_CISD = "test_role";
 
     protected static final String TEST_GROUP_OBSERVER = "observer";
 
+    protected static final String TEST_OBSERVER_CISD = "observer_cisd";
+
     protected static final String TEST_GROUP_POWERUSER = "poweruser";
 
     protected static final String TEST_GROUP_ADMIN = "admin";
-    
+
     protected static final String TEST_NO_HOME_SPACE = "homeless";
     
     protected static final String PASSWORD = "password";
