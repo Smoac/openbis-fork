@@ -489,7 +489,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_TAG")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
     public List<TagPermId> createTags(String sessionToken, List<TagCreation> creations)
@@ -568,7 +568,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_TAG")
     @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public void updateTags(String sessionToken, List<TagUpdate> tagUpdates)
@@ -818,7 +818,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.METAPROJECT, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_TAG")
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
     {
