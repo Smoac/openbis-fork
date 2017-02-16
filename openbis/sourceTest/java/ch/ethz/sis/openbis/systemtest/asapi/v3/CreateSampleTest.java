@@ -61,18 +61,40 @@ import junit.framework.Assert;
  */
 public class CreateSampleTest extends AbstractSampleTest
 {
-
     @Test
-    public void testCreateSharedSampleWithNoAdminRights()
+    public void testCreateSampleUsingCreationIdAsSpaceId()
     {
-        final String code = "TEST_TO_FAIL";
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertUserFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                    
+                    SampleCreation creation = new SampleCreation();
+                    creation.setCode("TEST_SAMPLE_42");
+                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                    CreationId creationId = new CreationId("not-a-space-id");
+                    creation.setCreationId(creationId);
+                    creation.setSpaceId(creationId);
+                    
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, "Unsupported object id [not-a-space-id]");
+
+    }
+
+    @Test
+    public void testCreateSharedSampleWithNoHomeSpaceAndNoAdminRights()
+    {
+        final String code = "TEST_TO_FAIL";
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
 
                     SampleCreation creation = new SampleCreation();
                     creation.setCode(code);
@@ -81,9 +103,31 @@ public class CreateSampleTest extends AbstractSampleTest
 
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, new SampleIdentifier("/" + code));
+            });
     }
 
+    @Test
+    public void testCreateSharedSampleWithNoAdminRights()
+    {
+        final String code = "TEST_TO_FAIL";
+        
+        assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                
+                SampleCreation creation = new SampleCreation();
+                creation.setCode(code);
+                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                creation.setCreationId(new CreationId("creation " + code));
+                
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        });
+    }
+    
     @Test
     public void testCreateSampleWithAdminUserInAnotherSpace()
     {
@@ -380,15 +424,14 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setCode("SHARED_SAMPLE_TEST");
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, new SampleIdentifier("/SHARED_SAMPLE_TEST"),
-                patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/SHARED_SAMPLE_TEST'")));
+            });
     }
 
     @Test
