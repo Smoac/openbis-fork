@@ -897,7 +897,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("ARCHIVE_DATASET")
-    public void archiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    public void archiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetDeletePredicate.class) List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
     {
         archiveDataSetExecutor.archive(sessionToken, dataSetIds, options);
     }
@@ -906,7 +906,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UNARCHIVE_DATASET")
-    public void unarchiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    public void unarchiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetDeletePredicate.class) List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
     {
         unarchiveDataSetExecutor.unarchive(sessionToken, dataSetIds, options);
     }
