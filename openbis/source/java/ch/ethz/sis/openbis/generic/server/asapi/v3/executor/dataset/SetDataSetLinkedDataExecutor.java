@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +30,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
 
 /**
  * @author pkupczyk
@@ -78,7 +83,33 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
 
     private void set(IOperationContext context, LinkedDataCreation linkedCreation, LinkDataPE dataSet)
     {
-        dataSet.setExternalCode(linkedCreation.getExternalCode());
+        Set<ContentCopyPE> contentCopies = dataSet.getContentCopies();
+
+        if (contentCopies == null)
+        {
+            ContentCopyPE copy = new ContentCopyPE();
+            copy.setDataSet(dataSet);
+            copy.setLocationType(LocationType.URL);
+            contentCopies = new HashSet<>();
+            contentCopies.add(copy);
+            dataSet.setContentCopies(contentCopies);
+        }
+
+        if (contentCopies.size() == 1)
+        {
+            ContentCopyPE next = contentCopies.iterator().next();
+            if (linkedCreation.getExternalCode() != null)
+            {
+                next.setExternalCode(linkedCreation.getExternalCode());
+            } else
+            {
+                throw new UserFailureException("External code can not be null.");
+            }
+        } else
+        {
+            throw new UserFailureException("Cannot set external code to linked dataset with multiple or zero copies");
+        }
+
     }
 
 }

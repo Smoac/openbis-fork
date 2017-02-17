@@ -1,18 +1,5 @@
-/*
- * Copyright 2009 ETH Zuerich, CISD
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/**Copyright 2009 ETH Zuerich,CISD**Licensed under the Apache License,Version 2.0(the"License");*you may not use this file except in compliance with the License.*You may obtain a copy of the License at**http://www.apache.org/licenses/LICENSE-2.0
+**Unless required by applicable law or agreed to in writing,software*distributed under the License is distributed on an"AS IS"BASIS,*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.*See the License for the specific language governing permissions and*limitations under the License.*/
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
@@ -29,8 +16,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
-
-import junit.framework.Assert;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -49,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -81,8 +67,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import junit.framework.Assert;
 
-/**
+/***
  * @author Franz-Josef Elmer
  */
 // TODO 2009-09-10, Piotr Buczek: write tests with many parents and cycle check
@@ -541,6 +528,8 @@ public class DataBOTest extends AbstractBOTest
         final NewExternalData data = createLinkDataSetWithComponents("x2");
         final ExternalDataManagementSystemPE dms = new ExternalDataManagementSystemPE();
         dms.setCode(EXTERNAL_DATA_MANAGEMENT_SYSTEM_CODE);
+        dms.setAddressType(ExternalDataManagementSystemType.OPENBIS);
+
         context.checking(new Expectations()
             {
                 {
@@ -557,16 +546,15 @@ public class DataBOTest extends AbstractBOTest
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals("my-type", dataSet.getDataSetType().getCode());
         assertEquals(true, dataSet.isLinkData());
-        assertEquals(dms, dataSet.tryAsLinkData().getExternalDataManagementSystem());
-        assertEquals("x2", dataSet.tryAsLinkData().getExternalCode());
+        assertEquals(dms, dataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalDataManagementSystem());
+        assertEquals("x2", dataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalCode());
         context.assertIsSatisfied();
     }
 
     @Test
     public void testUpdateStatuses()
     {
-        final List<String> codes = Arrays.asList(new String[]
-        { "CODE-1", "CODE-2" });
+        final List<String> codes = Arrays.asList(new String[] { "CODE-1", "CODE-2" });
         context.checking(new Expectations()
             {
                 {
@@ -621,7 +609,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
-        { dataSet.getCode() };
+                { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, experiment);
 
@@ -649,7 +637,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
-        { PARENT_CODE };
+                { PARENT_CODE };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, experiment);
         context.checking(new Expectations()
@@ -685,7 +673,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
-        { COMPONENT_CODE };
+                { COMPONENT_CODE };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
         prepareForUpdate(dataSet, experiment);
         context.checking(new Expectations()
@@ -727,7 +715,7 @@ public class DataBOTest extends AbstractBOTest
         ds1.setParentRelationships(new LinkedHashSet<DataSetRelationshipPE>(Arrays.asList(new DataSetRelationshipPE(ds2, ds1,
                 relationshipType, 1, null))));
         DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(ds1, null, EXPERIMENT_IDENTIFIER);
-        dataSetUpdatesDTO.setModifiedContainerDatasetCodeOrNull(ds3.getCode() + "," + ds4.getCode() + "  ,   " + ds5.getCode());
+        dataSetUpdatesDTO.setModifiedContainerDatasetCodeOrNull(ds3.getCode() + "," + ds4.getCode() + " , " + ds5.getCode());
         prepareTryToFindDataSetByCode(ds3);
         prepareTryToFindDataSetByCode(ds4);
         prepareTryToFindDataSetByCode(ds5);
@@ -769,7 +757,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
-        { dataSet.getCode() };
+                { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
         prepareForUpdate(dataSet, experiment);
 
@@ -814,7 +802,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(container1, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
-        { container2.getCode() };
+                { container2.getCode() };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
 
         prepareForUpdate(container1, experiment);

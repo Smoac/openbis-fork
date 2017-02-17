@@ -99,6 +99,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE</value>

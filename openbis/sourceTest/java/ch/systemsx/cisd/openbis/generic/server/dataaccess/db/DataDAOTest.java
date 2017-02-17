@@ -1,18 +1,5 @@
-/*
- * Copyright 2008 ETH Zuerich, CISD
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/**Copyright 2008 ETH Zuerich,CISD**Licensed under the Apache License,Version 2.0(the"License");*you may not use this file except in compliance with the License.*You may obtain a copy of the License at**http://www.apache.org/licenses/LICENSE-2.0
+**Unless required by applicable law or agreed to in writing,software*distributed under the License is distributed on an"AS IS"BASIS,*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.*See the License for the specific language governing permissions and*limitations under the License.*/
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
@@ -45,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -54,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemP
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -64,13 +53,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
-/**
- * Test cases for corresponding {@link DataDAO} class.
+/***
+ * Test cases for corresponding{
  * 
+ * @link DataDAO} class.
  * @author Christian Ribeaud
  */
-@Test(groups =
-{ "db", "externalData" })
+@Test(groups = { "db", "externalData" })
 public final class DataDAOTest extends AbstractDAOTest
 {
     private static final Comparator<DataSetRelationshipPE> RELATIONSHIP_COMPARATOR =
@@ -97,7 +86,7 @@ public final class DataDAOTest extends AbstractDAOTest
                     private int getDataSetCodes(DataSetRelationshipPE relationship)
                     {
                         return (int) (relationship.getParentDataSet().getId() * 10000
-                        + relationship.getChildDataSet().getId());
+                                + relationship.getChildDataSet().getId());
                     }
                 };
 
@@ -237,8 +226,25 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setExperiment(pickAnExperiment());
         data.setSampleAcquiredFrom(sample);
         data.setDataStore(pickADataStore());
-        data.setExternalCode(externalDataSetCode);
-        data.setExternalDataManagementSystem(pickAnExternalDataManagementSystem());
+
+        ContentCopyPE copy = new ContentCopyPE();
+        copy.setDataSet(data);
+        copy.setExternalCode(externalDataSetCode);
+        copy.setExternalDataManagementSystem(pickAnExternalDataManagementSystem());
+
+        switch (copy.getExternalDataManagementSystem().getAddressType())
+        {
+            case OPENBIS:
+                copy.setLocationType(LocationType.OPENBIS);
+                break;
+            case URL:
+                copy.setLocationType(LocationType.URL);
+                break;
+            default:
+                throw new IllegalArgumentException("Legacy tests use new data");
+        }
+        data.setContentCopies(Collections.singleton(copy));
+
         data.setModificationDate(new Date());
         return data;
     }
@@ -264,10 +270,10 @@ public final class DataDAOTest extends AbstractDAOTest
         }
         if (expectedDataSet.isLinkData())
         {
-            assertEquals(expectedDataSet.tryAsLinkData().getExternalCode(), dataSet.tryAsLinkData()
-                    .getExternalCode());
-            assertEquals(expectedDataSet.tryAsLinkData().getExternalDataManagementSystem().getId(),
-                    dataSet.tryAsLinkData().getExternalDataManagementSystem().getId());
+            assertEquals(expectedDataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalCode(), dataSet.tryAsLinkData()
+                    .getContentCopies().iterator().next().getExternalCode());
+            assertEquals(expectedDataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalDataManagementSystem().getId(),
+                    dataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalDataManagementSystem().getId());
         }
     }
 

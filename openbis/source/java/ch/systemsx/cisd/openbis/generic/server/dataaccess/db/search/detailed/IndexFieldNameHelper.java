@@ -170,11 +170,13 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.SPEED_HINT;
 
             // link data set fields
-
+            // legacy - pre-SSDM-4723
             case EXTERNAL_CODE:
-                return SearchFieldConstants.EXTERNAL_CODE;
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.EXTERNAL_CODE;
+
+            // legacy - pre-SSDM-4723
             case EXTERNAL_DMS:
-                return SearchFieldConstants.PREFIX_EXTERNAL_DMS + CODE;
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + CODE;
         }
         throw new IllegalArgumentException(attributeKind.toString());
     }

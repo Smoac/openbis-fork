@@ -1,23 +1,11 @@
-/*
- * Copyright 2009 ETH Zuerich, CISD
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/**Copyright 2009 ETH Zuerich,CISD**Licensed under the Apache License,Version 2.0(the"License");*you may not use this file except in compliance with the License.*You may obtain a copy of the License at**http://www.apache.org/licenses/LICENSE-2.0
+**Unless required by applicable law or agreed to in writing,software*distributed under the License is distributed on an"AS IS"BASIS,*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.*See the License for the specific language governing permissions and*limitations under the License.*/
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -43,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemP
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -52,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
-/**
+/***
  * @author Franz-Josef Elmer
  */
 // TODO write test with translation of components
@@ -204,7 +194,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         LinkDataPE linkDataPE = new LinkDataPE();
         linkDataPE.setCode("TEST_CODE");
         linkDataPE.setDataStore(createStore());
-        linkDataPE.setExternalCode("TEST EXTERNAL CODE");
 
         ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setCode("my-experiment");
@@ -220,7 +209,13 @@ public class DataSetTranslatorTest extends AssertJUnit
         ExternalDataManagementSystemPE edms = new ExternalDataManagementSystemPE();
         edms.setCode("EDMS");
         edms.setLabel("Label");
-        linkDataPE.setExternalDataManagementSystem(edms);
+
+        ContentCopyPE copy = new ContentCopyPE();
+        copy.setExternalCode("TEST EXTERNAL CODE");
+        copy.setExternalDataManagementSystem(edms);
+        copy.setLocationType(LocationType.OPENBIS);
+        copy.setDataSet(linkDataPE);
+        linkDataPE.setContentCopies(Collections.singleton(copy));
 
         linkDataPE.addParentRelationship(createParentRelationship(linkDataPE, "parent-1"));
         linkDataPE.addParentRelationship(createParentRelationship(linkDataPE, "parent-2"));
@@ -241,11 +236,11 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertNotNull(externalData.tryGetAsLinkDataSet());
         LinkDataSet linkData = externalData.tryGetAsLinkDataSet();
         assertEquals(linkDataPE.getCode(), linkData.getCode());
-        assertEquals(linkDataPE.getExternalCode(), linkData.getExternalCode());
+        assertEquals(linkDataPE.getContentCopies().iterator().next().getExternalCode(), linkData.getExternalCode());
         assertNotNull(linkData.getExternalDataManagementSystem());
-        assertEquals(linkDataPE.getExternalDataManagementSystem().getCode(), linkData
+        assertEquals(linkDataPE.getContentCopies().iterator().next().getExternalDataManagementSystem().getCode(), linkData
                 .getExternalDataManagementSystem().getCode());
-        assertEquals(linkDataPE.getExternalDataManagementSystem().getLabel(), linkData
+        assertEquals(linkDataPE.getContentCopies().iterator().next().getExternalDataManagementSystem().getLabel(), linkData
                 .getExternalDataManagementSystem().getLabel());
     }
 

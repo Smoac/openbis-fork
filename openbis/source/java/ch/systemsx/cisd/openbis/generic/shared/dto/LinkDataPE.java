@@ -16,22 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import javax.persistence.Column;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.search.annotations.ClassBridge;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.Store;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -48,38 +47,19 @@ public class LinkDataPE extends DataPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private ExternalDataManagementSystemPE externalDataManagementSystem;
+    private Set<ContentCopyPE> contentCopies;
 
-    private String externalCode;
-
-    /** Returns <code>externalDataManagementSystem</code>. */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.EXTERNAL_DATA_MANAGEMENT_SYSTEM_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXTERNAL_DMS)
-    public ExternalDataManagementSystemPE getExternalDataManagementSystem()
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "dataSet")
+    @Fetch(FetchMode.SUBSELECT)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_CONTENT_COPY)
+    public Set<ContentCopyPE> getContentCopies()
     {
-        return externalDataManagementSystem;
+        return contentCopies;
     }
 
-    /** Sets <code>externalDataManagementSystem</code>. */
-    public void setExternalDataManagementSystem(
-            final ExternalDataManagementSystemPE externalDataManagementSystem)
+    public void setContentCopies(final Set<ContentCopyPE> contentCopies)
     {
-        this.externalDataManagementSystem = externalDataManagementSystem;
-    }
-
-    @NotNull(message = ValidationMessages.EXTERNAL_CODE_NOT_NULL_MESSAGE)
-    @Column(name = ColumnNames.EXTERNAL_CODE_COLUMN)
-    @Field(name = SearchFieldConstants.EXTERNAL_CODE, index = Index.YES, store = Store.YES)
-    public String getExternalCode()
-    {
-        return externalCode;
-    }
-
-    public void setExternalCode(String externalCode)
-    {
-        this.externalCode = externalCode;
+        this.contentCopies = contentCopies;
     }
 
     @Override

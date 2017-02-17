@@ -42,11 +42,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -237,9 +239,8 @@ public class DataSetTranslator
 
         SamplePE sampleOrNull = dataPE.tryGetSample();
         ExperimentPE experiment = dataPE.getExperiment();
-        Experiment translatedExperiment = experiment == null ? null :
-                ExperimentTranslator.translate(experiment, baseIndexURL, null,
-                        managedPropertyEvaluatorFactory, withExperimentFields);
+        Experiment translatedExperiment = experiment == null ? null : ExperimentTranslator.translate(experiment, baseIndexURL, null,
+                managedPropertyEvaluatorFactory, withExperimentFields);
         externalData.setId(HibernateUtils.getId(dataPE));
         externalData.setCode(dataPE.getCode());
         externalData.setDataProducerCode(dataPE.getDataProducerCode());
@@ -319,9 +320,14 @@ public class DataSetTranslator
         LinkDataSet linkDataSet = new LinkDataSet();
         LinkDataPE linkDataPE = dataPE.tryAsLinkData();
 
-        linkDataSet.setExternalDataManagementSystem(ExternalDataManagementSystemTranslator
-                .translate(linkDataPE.getExternalDataManagementSystem()));
-        linkDataSet.setExternalCode(linkDataPE.getExternalCode());
+        if (linkDataPE.getContentCopies().size() > 0)
+        {
+            ContentCopyPE copy = linkDataPE.getContentCopies().iterator().next();
+            ExternalDataManagementSystemPE edms = copy.getExternalDataManagementSystem();
+            linkDataSet.setExternalDataManagementSystem(ExternalDataManagementSystemTranslator
+                    .translate(edms));
+            linkDataSet.setExternalCode(copy.getExternalCode());
+        }
 
         return linkDataSet;
     }

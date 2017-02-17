@@ -25,7 +25,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.MaterialP
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
-
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.Select;
 
@@ -63,11 +62,11 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getLinkedDataIds(LongSet dataSetIds);
 
-    @Select(sql = "select ld.data_id as id, ld.external_code as externalCode from link_data ld where ld.data_id = any(?{1})", parameterBindings = {
+    @Select(sql = "select ld.data_id as id, cc.external_code as externalCode from link_data ld, content_copies cc where cc.data_id = ld.data_id and ld.data_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<LinkedDataBaseRecord> getLinkedDatas(LongSet dataSetIds);
 
-    @Select(sql = "select ld.data_id as objectId, ld.edms_id as relatedId from link_data ld where ld.data_id = any(?{1})", parameterBindings = {
+    @Select(sql = "select ld.data_id as objectId, cc.edms_id as relatedId from link_data ld, content_copies cc where cc.data_id = ld.data_id and ld.data_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getExternalDmsIds(LongSet dataSetIds);
 

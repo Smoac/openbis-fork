@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -52,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -62,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemP
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -165,7 +169,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     public void loadDataByTechId(TechId datasetId)
     {
         String[] connections =
-        { PROPERTY_TYPES, DATA_SET_TYPE };
+                { PROPERTY_TYPES, DATA_SET_TYPE };
         data = getDataDAO().tryGetByTechId(datasetId, connections);
         if (data == null)
         {
@@ -423,13 +427,22 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
         final LinkDataPE dataPE = new LinkDataPE();
 
-        dataPE.setExternalCode(newData.getExternalCode());
-
         String code = newData.getExternalDataManagementSystemCode();
         ExternalDataManagementSystemPE externalDMS =
                 getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemByCode(
                         code);
-        dataPE.setExternalDataManagementSystem(externalDMS);
+
+        ContentCopyPE copy = new ContentCopyPE();
+        copy.setExternalCode(newData.getExternalCode());
+        copy.setExternalDataManagementSystem(externalDMS);
+        if (externalDMS.getAddressType().equals(ExternalDataManagementSystemType.OPENBIS))
+        {
+            copy.setLocationType(LocationType.OPENBIS);
+        } else
+        {
+            copy.setLocationType(LocationType.URL);
+        }
+        dataPE.setContentCopies(Collections.singleton(copy));
 
         dataPE.setDataProducerCode(newData.getDataProducerCode());
         dataPE.setProductionDate(newData.getProductionDate());

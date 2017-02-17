@@ -51,11 +51,12 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public static final int FETCH_SIZE = 1000;
 
     public final static String SELECT_ALL =
-            "select data.*, external_data.*, link_data.*, "
+            "select data.*, external_data.*, link_data.*, content_copies.external_code, content_copies.edms_id, "
                     + "prdq.id IS NULL as is_post_registered "
                     + "from data left outer join external_data on data.id = external_data.data_id "
                     + "left outer join link_data on data.id = link_data.data_id "
-                    + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
+                    + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id "
+                    + "left outer join content_copies on data.id = content_copies.data_id";
 
     public final static String SELECT_ALL_EXTERNAL_DATAS =
             "select data.*, external_data.*, prdq.id IS NULL as is_post_registered "

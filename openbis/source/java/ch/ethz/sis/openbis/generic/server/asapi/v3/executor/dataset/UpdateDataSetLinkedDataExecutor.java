@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.LinkedDataUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 
@@ -59,7 +62,21 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
     {
         if (update.getExternalCode() != null && update.getExternalCode().isModified())
         {
-            entity.setExternalCode(update.getExternalCode().getValue());
+            Set<ContentCopyPE> contentCopies = entity.getContentCopies();
+            if (contentCopies.size() == 1)
+            {
+                ContentCopyPE next = contentCopies.iterator().next();
+                if (next.getExternalCode() != null)
+                {
+                    next.setExternalCode(update.getExternalCode().getValue());
+                } else
+                {
+                    throw new UserFailureException("Cannot set external code to content copy of time " + next.getLocationType());
+                }
+            } else
+            {
+                throw new UserFailureException("Cannot set external code to linked dataset with multiple or zero copies");
+            }
         }
     }
 }

@@ -94,6 +94,8 @@ public final class TableNames
 
     public static final String EXTERNAL_DATA_TABLE = "external_data";
 
+    public static final String CONTENT_COPIES_TABLE = "content_copies";
+
     public static final String LINK_DATA_TABLE = "link_data";
 
     public static final String FILE_FORMAT_TYPES_TABLE = "file_format_types";

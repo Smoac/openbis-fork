@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,9 +31,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IMapExternalDmsByIdExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
 
 /**
  * @author pkupczyk
@@ -63,7 +66,7 @@ public class UpdateDataSetExternalDmsExecutor extends
     {
         if (entity instanceof LinkDataPE)
         {
-            return ((LinkDataPE) entity).getExternalDataManagementSystem();
+            return ((LinkDataPE) entity).getContentCopies().iterator().next().getExternalDataManagementSystem();
         } else
         {
             return null;
@@ -102,7 +105,33 @@ public class UpdateDataSetExternalDmsExecutor extends
     {
         if (entity instanceof LinkDataPE)
         {
-            ((LinkDataPE) entity).setExternalDataManagementSystem(related);
+            LinkDataPE dataSet = ((LinkDataPE) entity);
+            Set<ContentCopyPE> contentCopies = dataSet.getContentCopies();
+            if (contentCopies.size() == 1)
+            {
+                ContentCopyPE next = contentCopies.iterator().next();
+                if (next.getExternalCode() != null)
+                {
+                    switch (related.getAddressType()) {
+                        case OPENBIS:
+                            next.setLocationType(LocationType.OPENBIS);
+                            break;
+                        case URL:
+                            next.setLocationType(LocationType.URL);
+                            break;
+                        default:
+                            throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "+related.getAddressType()+" using legacy methods");
+                    }
+                    
+                    next.setExternalDataManagementSystem(related);
+                } else
+                {
+                    throw new UserFailureException("Cannot set external data management system to content copy of type " + next.getLocationType());
+                }
+            } else
+            {
+                throw new UserFailureException("Cannot set external data management system to linked dataset with multiple or zero copies");
+            }
         }
     }
 

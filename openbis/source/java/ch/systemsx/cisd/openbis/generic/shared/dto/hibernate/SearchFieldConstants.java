@@ -61,6 +61,8 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_EXTERNAL_DMS = "external dms" + SEPARATOR;
 
+    public static final String PREFIX_CONTENT_COPY = "content copy" + SEPARATOR;
+
     public static final String[] PREFIXES =
             { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
                     PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,

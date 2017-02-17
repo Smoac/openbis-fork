@@ -95,6 +95,7 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         add(set, TableNames.DATA_STORE_SERVICES_DATASET_TYPES_TABLE);
         add(set, TableNames.LINK_DATA_TABLE);
         add(set, TableNames.AUTHORIZATION_GROUP_PERSONS_TABLE);
+        add(set, TableNames.CONTENT_COPIES_TABLE);
         return Collections.unmodifiableSet(set);
     }
 

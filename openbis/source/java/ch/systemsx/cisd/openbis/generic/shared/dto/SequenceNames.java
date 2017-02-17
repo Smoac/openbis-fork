@@ -141,6 +141,8 @@ public final class SequenceNames
 
     public static final String OPERATION_EXECUTIONS_SEQUENCE = "OPERATION_EXECUTIONS_ID_SEQ";
 
+    public static final String CONTENT_COPY_SEQUENCE = "CONTENT_COPIES_ID_SEQ";
+
     private SequenceNames()
     {
         // Can not be instantiated.
