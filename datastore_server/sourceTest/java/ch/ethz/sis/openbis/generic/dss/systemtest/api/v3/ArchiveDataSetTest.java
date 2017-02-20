@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -41,7 +42,7 @@ public class ArchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
         v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Access denied to object with DataSetPermId.*")
+    @Test(expectedExceptions = AuthorizationFailureException.class, expectedExceptionsMessageRegExp = ".*User 'test_space' does not have enough privileges.*")
     public void testArchiveWithUnauthorizedDataSet() throws Exception
     {
         registerDataSet();
