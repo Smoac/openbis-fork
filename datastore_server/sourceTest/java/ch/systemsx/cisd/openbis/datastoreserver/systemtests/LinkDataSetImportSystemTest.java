@@ -110,7 +110,7 @@ public class LinkDataSetImportSystemTest extends SystemTestCase
 
             LinkDataSet link = (LinkDataSet) a;
 
-            assertEquals("External code", "EX_CODE", link.getExternalCode());
+            assertEquals("External code", "EX_CODE_1", link.getExternalCode());
             assertEquals("External data management system", "DMS_1", link
                     .getExternalDataManagementSystem().getCode());
         }

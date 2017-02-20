@@ -15,7 +15,7 @@ def process(transaction):
     experiment = create_project_and_experiment(transaction)
     linkds = transaction.createNewDataSet("LINK_TYPE")
     linkds.setExperiment(experiment)
-    linkds.setExternalCode("EX_CODE")
+    linkds.setExternalCode("EX_CODE_1")
     externalDMS = transaction.getExternalDataManagementSystem("DMS_1")
     if (externalDMS is None):
         raise "External data management system with code DMS_1, has not been found in the database"
