@@ -50,6 +50,18 @@ import org.apache.commons.lang.builder.ToStringBuilder;
                 + TableNames.SAMPLES_VIEW
                 + " s "
                 + "WHERE s.id in (:ids) and s.space_id is null", resultSetMapping = "sample_access_implicit"),
+        @NamedNativeQuery(name = "space_sample_access_by_perm_id", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
+                + "FROM "
+                + TableNames.SAMPLES_VIEW
+                + " s, "
+                + TableNames.SPACES_TABLE
+                + " g "
+                + "WHERE s.perm_id in (:ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
+        @NamedNativeQuery(name = "shared_sample_access_by_perm_id", query = "SELECT DISTINCT 'CISD' as ownerCode, 'DATABASE_INSTANCE' as ownerType "
+                + "FROM "
+                + TableNames.SAMPLES_VIEW
+                + " s "
+                + "WHERE s.perm_id in (:ids) and s.space_id is null", resultSetMapping = "sample_access_implicit"),
         @NamedNativeQuery(name = "deleted_space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
                 + "FROM "
                 + TableNames.DELETED_SAMPLES_VIEW
@@ -68,6 +80,10 @@ public class SampleAccessPE
 
     public final static String SHARED_SAMPLE_ACCESS_QUERY_NAME = "shared_sample_access";
 
+    public final static String SPACE_SAMPLE_ACCESS_BY_PERM_ID_QUERY_NAME = "space_sample_access_by_perm_id";
+    
+    public final static String SHARED_SAMPLE_ACCESS_BY_PERM_ID_QUERY_NAME = "shared_sample_access_by_perm_id";
+    
     public final static String DELETED_SPACE_SAMPLE_ACCESS_QUERY_NAME =
             "deleted_space_sample_access";
 
