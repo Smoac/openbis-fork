@@ -204,6 +204,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3Project
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetUpdatePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DeletionIdPredicate;
 
 /**
  * @author pkupczyk
@@ -839,7 +840,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REVERT_DELETION")
-    public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
+    public void revertDeletions(String sessionToken, @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> deletionIds)
     {
         revertDeletionExecutor.revert(sessionToken, deletionIds);
     }
@@ -849,7 +850,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CONFIRM_DELETION")
-    public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
+    public void confirmDeletions(String sessionToken, @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> deletionIds)
     {
         confirmDeletionExecutor.confirm(sessionToken, deletionIds);
     }
