@@ -1798,6 +1798,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 sessionForEntityOperation =
                         sessionManagerForEntityOperation.getSession(sessionTokenForEntityOperation);
                 injectPerson(sessionForEntityOperation, userId);
+                sessionForEntityOperation.setCreatorPerson(session.tryGetPerson());
             }
 
             long spacesCreated =
