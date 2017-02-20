@@ -181,7 +181,8 @@ CREATE FUNCTION content_copies_uniqueness_check() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  NEW.location_unique_check = coalesce(NEW.host, '') || ',' || 
+  NEW.location_unique_check = NEW.edms_id || ',' ||
+                              coalesce(NEW.host, '') || ',' || 
                               coalesce(NEW.path, '') || ',' || 
                               coalesce(NEW.git_commit_hash, '') || ',' || 
                               coalesce(NEW.external_code, '');
