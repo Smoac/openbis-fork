@@ -203,7 +203,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3Project
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectUpdatePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetUpdatePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetDeletePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetIdPredicate;
 
 /**
  * @author pkupczyk
@@ -790,7 +790,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_DATASET")
-    public IDeletionId deleteDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetDeletePredicate.class) List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
+    public IDeletionId deleteDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
     {
         return deleteDataSetExecutor.delete(sessionToken, dataSetIds, deletionOptions);
     }
@@ -897,7 +897,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("ARCHIVE_DATASET")
-    public void archiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetDeletePredicate.class) List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    public void archiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
     {
         archiveDataSetExecutor.archive(sessionToken, dataSetIds, options);
     }
@@ -906,7 +906,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UNARCHIVE_DATASET")
-    public void unarchiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetDeletePredicate.class) List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    public void unarchiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
     {
         unarchiveDataSetExecutor.unarchive(sessionToken, dataSetIds, options);
     }

@@ -12,12 +12,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;;
 
 @ShouldFlattenCollections(value = false)
-public class V3DataSetDeletePredicate extends AbstractPredicate<List<IDataSetId>>
+public class V3DataSetIdPredicate extends AbstractPredicate<List<IDataSetId>>
 {
 
     protected final DataSetCodeCollectionPredicate datasetCodeCollectionPredicate;
 
-    public V3DataSetDeletePredicate()
+    public V3DataSetIdPredicate()
     {
         this.datasetCodeCollectionPredicate = new DataSetCodeCollectionPredicate();
     }
