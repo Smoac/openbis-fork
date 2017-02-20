@@ -72,6 +72,8 @@ public class EntityOperationTest extends SystemTestCase
 
     private static final String SIMPLE_USER = PREFIX + "SIMPLE";
 
+    private static final String SPACE_OBSERVER_USER = PREFIX + "OBSERVER";
+
     private static final String SPACE_ADMIN_USER = PREFIX + "SPACE";
 
     private static final String AUTHORIZATION_GROUP = PREFIX + "GROUP";
@@ -91,6 +93,7 @@ public class EntityOperationTest extends SystemTestCase
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_A), RoleCode.ETL_SERVER, SPACE_A);
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_B), RoleCode.ETL_SERVER, SPACE_B);
         assignSpaceRole(registerPerson(SPACE_ADMIN_USER), RoleCode.ADMIN, SPACE_A);
+        assignSpaceRole(registerPerson(SPACE_OBSERVER_USER), RoleCode.OBSERVER, SPACE_A);
         assignInstanceRole(registerPerson(INSTANCE_ADMIN), RoleCode.ADMIN);
         assignInstanceRole(registerPerson(INSTANCE_ETL_SERVER), RoleCode.ETL_SERVER);
 
@@ -715,6 +718,58 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals("[COMMENT: my data]", dataSet.getProperties().toString());
     }
 
+    @Test
+    public void testCreateDataSetAsSpaceAdmin()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String dataSetCode = "DS-1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                .user(SPACE_ADMIN_USER)
+                .dataSet(
+                        new DataSetBuilder()
+                        .code(dataSetCode)
+                        .type("HCS_IMAGE")
+                        .store(new DataStoreBuilder("STANDARD").getStore())
+                        .fileFormat("XML")
+                        .location("a/b/c")
+                        .property("COMMENT", "my data")
+                        .experiment(new ExperimentBuilder().identifier("/CISD/NEMO/EXP1").getExperiment())
+                        .getDataSet()).create();
+        
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        
+        assertEquals(1, result.getDataSetsCreatedCount());
+        AbstractExternalData dataSet = etlService.tryGetDataSet(sessionToken, dataSetCode);
+
+        assertEquals(dataSetCode, dataSet.getCode());
+        assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
+        assertEquals("[COMMENT: my data]", dataSet.getProperties().toString());
+    }
+
+    @Test
+    public void testCreateDataSetAsSpaceObserverThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String dataSetCode = "DS-1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                .user(SPACE_OBSERVER_USER)
+                .dataSet(
+                        new DataSetBuilder()
+                        .code(dataSetCode)
+                        .type("UNKNOWN")
+                        .store(new DataStoreBuilder("STANDARD").getStore())
+                        .fileFormat("XML")
+                        .location("a/b/c")
+                        .experiment(new ExperimentBuilder().identifier("/CISD/NEMO/EXP1").getExperiment())
+                        .getDataSet()).create();
+
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"None of method roles "
+                + "'[SPACE_USER, SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER]' "
+                + "could be found in roles of user 'EO_OBSERVER'.\".");
+    }
+    
     @Test
     public void testCreateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
     {
