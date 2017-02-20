@@ -1,6 +1,8 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
@@ -39,6 +41,8 @@ public class V3SampleCreationPredicate extends AbstractPredicate<List<SampleCrea
     @Override
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<SampleCreation> value)
     {
+        Set<SampleOwnerIdentifier> checked = new HashSet<>();
+
         for (SampleCreation spaceCreation : value)
         {
             ISpaceId spaceId = spaceCreation.getSpaceId();
@@ -48,11 +52,17 @@ public class V3SampleCreationPredicate extends AbstractPredicate<List<SampleCrea
                 String spaceCode = ((SpacePermId) spaceId).getPermId();
                 ownerIdentifier = new SampleOwnerIdentifier(new SpaceIdentifier(spaceCode));
             }
-            Status status = delegate.doEvaluation(person, allowedRoles, ownerIdentifier);
-            if (status.isOK() == false)
+
+            if (false == checked.contains(ownerIdentifier))
             {
-                return status;
+                Status status = delegate.doEvaluation(person, allowedRoles, ownerIdentifier);
+                if (status.isOK() == false)
+                {
+                    return status;
+                }
+                checked.add(ownerIdentifier);
             }
+
         }
         return Status.OK;
     }
