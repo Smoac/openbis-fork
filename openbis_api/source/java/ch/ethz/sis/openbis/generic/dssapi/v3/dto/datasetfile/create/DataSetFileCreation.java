@@ -1,8 +1,11 @@
 package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.create;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.annotation.TechPreview;
 
-//@JsonObject("dss.dto.datasetfile.DataSetFileCreation")
+@JsonObject("dss.dto.datasetfile.DataSetFileCreation")
+@TechPreview
 public class DataSetFileCreation implements ICreation
 {
 

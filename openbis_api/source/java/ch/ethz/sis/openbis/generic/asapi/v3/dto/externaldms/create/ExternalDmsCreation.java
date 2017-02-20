@@ -20,12 +20,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.annotation.TechPreview;
 
 /**
  * @author anttil
  */
 @JsonObject("as.dto.externaldms.create.ExternalDmsCreation")
+@TechPreview
 public class ExternalDmsCreation implements ICreation, IObjectCreation, ICreationIdHolder
 {
     private static final long serialVersionUID = 1L;
@@ -34,9 +37,9 @@ public class ExternalDmsCreation implements ICreation, IObjectCreation, ICreatio
 
     private String label;
 
-    private String urlTemplate;
+    private String address;
 
-    private boolean isOpenBIS;
+    private ExternalDmsAddressType addressType;
 
     private CreationId creationId;
 
@@ -60,24 +63,24 @@ public class ExternalDmsCreation implements ICreation, IObjectCreation, ICreatio
         this.label = label;
     }
 
-    public String getUrlTemplate()
+    public String getAddress()
     {
-        return urlTemplate;
+        return address;
     }
 
-    public void setUrlTemplate(String urlTemplate)
+    public void setAddress(String address)
     {
-        this.urlTemplate = urlTemplate;
+        this.address = address;
     }
 
-    public boolean isOpenBIS()
+    public ExternalDmsAddressType getAddressType()
     {
-        return isOpenBIS;
+        return addressType;
     }
 
-    public void setOpenBIS(boolean openBIS)
+    public void setAddressType(ExternalDmsAddressType addressType)
     {
-        this.isOpenBIS = openBIS;
+        this.addressType = addressType;
     }
 
     @Override

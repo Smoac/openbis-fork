@@ -27,4 +27,6 @@ public interface IExternalDmsAuthorizationExecutor extends IObjectAuthorizationE
 
     void canGet(IOperationContext context);
 
+    void canCreate(IOperationContext context);
+
 }

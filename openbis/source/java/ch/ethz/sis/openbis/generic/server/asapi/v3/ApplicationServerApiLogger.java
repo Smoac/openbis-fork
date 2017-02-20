@@ -53,6 +53,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
@@ -260,14 +265,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
-    // @Override
-    // public List<ExternalDmsPermId> createExternalDataManagementSystems(String sessionToken,
-    // List<ExternalDmsCreation> newExternalDataManagementSystems)
-    // {
-    // logAccess(sessionToken, "create-external-data-management-systems", "NEW_EXTERNAL_DATA_MANAGEMENT_SYSTEMS(%s)",
-    // abbreviate(newExternalDataManagementSystems));
-    // return null;
-    // }
+    @Override
+    public List<ExternalDmsPermId> createExternalDataManagementSystems(String sessionToken,
+            List<ExternalDmsCreation> newExternalDataManagementSystems)
+    {
+        logAccess(sessionToken, "create-external-data-management-systems", "NEW_EXTERNAL_DATA_MANAGEMENT_SYSTEMS(%s)",
+                abbreviate(newExternalDataManagementSystems));
+        return null;
+    }
 
     @Override
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates)
@@ -375,14 +380,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
-    // @Override
-    // public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
-    // ExternalDmsFetchOptions fetchOptions)
-    // {
-    // logAccess(sessionToken, "get-external-data-management-systems", "EXTERNAL_DMS_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(externalDmsIds),
-    // fetchOptions);
-    // return null;
-    // }
+    @Override
+    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
+            ExternalDmsFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-external-data-management-systems", "EXTERNAL_DMS_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(externalDmsIds),
+                fetchOptions);
+        return null;
+    }
 
     @Override
     public Map<IDataSetId, DataSet> getDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)

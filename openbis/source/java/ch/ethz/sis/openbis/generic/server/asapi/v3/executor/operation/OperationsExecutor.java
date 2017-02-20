@@ -48,6 +48,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchEx
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IVerifyExperimentsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ICreateExternalDmsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IGetExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch.ISearchGloballyOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialsOperationExecutor;
@@ -158,6 +160,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ICreateVocabularyTermsOperationExecutor createVocabularyTermsExecutor;
 
     @Autowired
+    private ICreateExternalDmsOperationExecutor createExternalDmsExecutor;
+
+    @Autowired
     private ICreateExperimentTypesOperationExecutor createExperimentTypesExecutor;
 
     @Autowired
@@ -234,6 +239,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IGetVocabularyTermsOperationExecutor getVocabularyTermsExecutor;
+
+    @Autowired
+    private IGetExternalDmsOperationExecutor getExternalDmsExecutor;
 
     @Autowired
     private IGetOperationExecutionsOperationExecutor getOperationExecutionsExecutor;
@@ -388,6 +396,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getMaterialsExecutor.execute(context, operations));
         resultMap.putAll(getTagsExecutor.execute(context, operations));
         resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(getExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));
     }
 
@@ -429,6 +438,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createSamplesExecutor.execute(context, operations));
         resultMap.putAll(createDataSetsExecutor.execute(context, operations));
         resultMap.putAll(createTagsExecutor.execute(context, operations));
+        resultMap.putAll(createExternalDmsExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations,

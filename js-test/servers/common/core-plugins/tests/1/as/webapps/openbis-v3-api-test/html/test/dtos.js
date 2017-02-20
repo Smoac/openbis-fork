@@ -262,7 +262,7 @@ var sources = [
 //	'as/dto/externaldms/create/CreateExternalDmsOperation',
 //	'as/dto/externaldms/create/CreateExternalDmsOperationResult',
 //	'as/dto/externaldms/create/ExternalDmsCreation',
-//	'as/dto/externaldms/ExternalDmsType',
+	'as/dto/externaldms/ExternalDmsAddressType',
 //	'as/dto/externaldms/get/GetExternalDmsOperation',
 //	'as/dto/externaldms/get/GetExternalDmsOperationResult',
 	
