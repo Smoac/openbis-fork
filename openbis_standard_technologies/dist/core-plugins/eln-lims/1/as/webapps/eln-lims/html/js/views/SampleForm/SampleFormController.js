@@ -122,6 +122,9 @@ function SampleFormController(mainController, mode, sample) {
 		
 		var sampleParentsFinal = _this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
 		
+		var sampleParentsRemovedFinal = _this._sampleFormModel.sampleLinksParents.getSamplesRemovedIdentifiers();
+		var sampleParentsAddedFinal = _this._sampleFormModel.sampleLinksParents.getSamplesAddedIdentifiers();
+		
 		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
 		
 		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
@@ -244,7 +247,7 @@ function SampleFormController(mainController, mode, sample) {
 					//Other Properties
 					"sampleProperties" : properties,
 					//Parent links
-					"sampleParents": sampleParentsFinal,
+					"sampleParents": (sampleParentsRemovedFinal.length === 0 && sampleParentsAddedFinal.length === 0)?null:sampleParentsFinal,
 					"sampleParentsNew": newSampleParents,
 					//Children links
 					"sampleChildrenNew": samplesToCreate,
