@@ -105,6 +105,11 @@ public interface IAuthorizationDataProvider
     public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
 
     /**
+     * Returns the information necessary to determine if a user is allowed to access the samples.
+     */
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByPermId(List<String> samplePermIds);
+    
+    /**
      * Returns the information necessary to determine if a user is allowed to delete/revert the data sets.
      */
     public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(List<TechId> deletionIds);

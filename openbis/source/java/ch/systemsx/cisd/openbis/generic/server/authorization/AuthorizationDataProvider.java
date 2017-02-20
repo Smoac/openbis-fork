@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,54 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 // TODO 2010-07-14, Piotr Buczek: write tests for nontrivial methods
 final public class AuthorizationDataProvider implements IAuthorizationDataProvider
 {
+    private abstract static class SampleAccessBatchOperation<T> implements IBatchOperation<T>
+    {
+        private Query querySharedSamples;
+
+        private List<T> sampleIds;
+
+        private Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();;
+
+        private Query querySpaceSamples;
+        
+        public SampleAccessBatchOperation(List<T> sampleIds)
+        {
+            this.sampleIds = sampleIds;
+        }
+
+        @Override
+        public void execute(List<T> entities)
+        {
+            Collection<?> ids = translate(entities);
+            querySpaceSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, ids);
+            querySharedSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, ids);
+            List<SampleAccessPE> spaceSamples = cast(querySpaceSamples.list());
+            List<SampleAccessPE> sharedSamples = cast(querySharedSamples.list());
+            fullResults.addAll(spaceSamples);
+            fullResults.addAll(sharedSamples);
+        }
+
+        @Override
+        public List<T> getAllEntities()
+        {
+            return sampleIds;
+        }
+
+        @Override
+        public String getEntityName()
+        {
+            return "sample";
+        }
+
+        @Override
+        public String getOperationName()
+        {
+            return "authorization";
+        }
+        
+        protected abstract Collection<?> translate(List<T> entities);
+    }
+
     private final IAuthorizationDAOFactory daoFactory;
 
     public AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
@@ -152,51 +201,47 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     @Override
     public Set<SampleAccessPE> getSampleCollectionAccessData(final List<TechId> sampleTechIds)
     {
+        return getSampleCollectionAccessData(SampleAccessPE.SPACE_SAMPLE_ACCESS_QUERY_NAME,
+                SampleAccessPE.SHARED_SAMPLE_ACCESS_QUERY_NAME,
+                new SampleAccessBatchOperation<TechId>(sampleTechIds)
+                    {
+                        @Override
+                        protected Collection<?> translate(List<TechId> entities)
+                        {
+                            return TechId.asLongs(entities);
+                        }
+                    });
+    }
+
+    @Override
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByPermId(List<String> samplePermIds)
+    {
+        return getSampleCollectionAccessData(SampleAccessPE.SPACE_SAMPLE_ACCESS_BY_PERM_ID_QUERY_NAME,
+                SampleAccessPE.SHARED_SAMPLE_ACCESS_BY_PERM_ID_QUERY_NAME,
+                new SampleAccessBatchOperation<String>(samplePermIds)
+                    {
+                        @Override
+                        protected Collection<?> translate(List<String> entities)
+                        {
+                            return entities;
+                        }
+                    });
+    }
+
+    private <T> Set<SampleAccessPE> getSampleCollectionAccessData(String spaceSampleAccessQueryName, 
+            String sharedSampleAccessQueryName, SampleAccessBatchOperation<T> operation)
+    {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query querySpaceSamples =
-                sess.getNamedQuery(SampleAccessPE.SPACE_SAMPLE_ACCESS_QUERY_NAME);
+        final Query querySpaceSamples = sess.getNamedQuery(spaceSampleAccessQueryName);
         querySpaceSamples.setReadOnly(true);
-        final Query querySharedSamples =
-                sess.getNamedQuery(SampleAccessPE.SHARED_SAMPLE_ACCESS_QUERY_NAME);
+        operation.querySpaceSamples = querySpaceSamples;
+        final Query querySharedSamples = sess.getNamedQuery(sharedSampleAccessQueryName);
         querySharedSamples.setReadOnly(true);
+        operation.querySharedSamples = querySharedSamples;
 
-        final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
+        BatchOperationExecutor.executeInBatches(operation);
 
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
-            {
-                @Override
-                public void execute(List<TechId> entities)
-                {
-                    querySpaceSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    querySharedSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    List<SampleAccessPE> spaceSamples = cast(querySpaceSamples.list());
-                    List<SampleAccessPE> sharedSamples = cast(querySharedSamples.list());
-                    fullResults.addAll(spaceSamples);
-                    fullResults.addAll(sharedSamples);
-                }
-
-                @Override
-                public List<TechId> getAllEntities()
-                {
-                    return sampleTechIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "sample";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
+        return operation.fullResults;
     }
 
     @Override

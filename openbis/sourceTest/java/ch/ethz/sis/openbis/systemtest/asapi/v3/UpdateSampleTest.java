@@ -178,14 +178,14 @@ public class UpdateSampleTest extends AbstractSampleTest
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(sampleId);
 
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertObjectNotFoundException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            });
+            }, sampleId);
     }
 
     @Test
