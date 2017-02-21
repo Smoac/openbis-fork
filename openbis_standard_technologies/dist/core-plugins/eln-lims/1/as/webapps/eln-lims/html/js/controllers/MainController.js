@@ -257,8 +257,14 @@ function MainController(profile) {
 					break;
 				case "showAdvancedSearchPage":
 					document.title = "Advanced Search";
-					var freeTextForGlobalSearch = arg;
-					this._showAdvancedSearchPage(freeTextForGlobalSearch);
+					var argToUse = null;
+					try {
+						var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+						argToUse = JSON.parse(cleanText);
+					} catch(err) {
+						argToUse = arg;
+					}
+					this._showAdvancedSearchPage(argToUse);
 					window.scrollTo(0,0);
 					break;
 				case "showUserManagerPage":

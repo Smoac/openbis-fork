@@ -132,6 +132,17 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		});
 		$list.append($batchUpdateOption);
 		
+		var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
+		var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search Into ' + expKindName  }).append('Search Into ' + expKindName));
+		$searchCollectionOption.click(function() {
+			
+			var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : _this._sampleTableModel.experiment.permId } };
+			var rules = { entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules };
+			
+			mainController.changeView("showAdvancedSearchPage", JSON.stringify(rules));
+		});
+		$list.append($searchCollectionOption);
+		
 		return $dropDownMenu;
 	}
 	

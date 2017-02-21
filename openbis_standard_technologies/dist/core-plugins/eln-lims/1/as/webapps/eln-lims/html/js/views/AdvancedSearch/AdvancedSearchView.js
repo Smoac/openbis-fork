@@ -17,6 +17,7 @@
 function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._advancedSearchController = advancedSearchController;
 	this._advancedSearchModel = advancedSearchModel;
+	this._$entityTypeDropdown = null;
 	this._$andOrDropdownComponent = null;
 	this._$menuPanelContainer = null;
 	this._$searchCriteriaPanelContainer = null;
@@ -52,8 +53,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._paintCriteriaPanel(this._$searchCriteriaPanelContainer);
 		$mainPanel.append(this._$searchCriteriaPanelContainer);
 		
-		//
-		
 		//Search Results Panel
 		this._$dataGridContainer = $("<div>");
 		$mainPanel.append(this._$dataGridContainer);
@@ -62,6 +61,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		//Triggers Layout refresh
 		$container.append($mainPanel);
 		
+		if(this._advancedSearchModel.forceLoadCriteria) {
+			this._$entityTypeDropdown.val(this._advancedSearchModel.criteria.entityKind);
+			this._$andOrDropdownComponent.val(this._advancedSearchModel.criteria.logicalOperator);
+			this._advancedSearchModel.forceLoadCriteria = undefined;
+		}
 	}
 	
 	//
@@ -70,8 +74,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._paintMenuPanel = function($menuPanelContainer) {
 		$menuPanelContainer.empty();
-		var $entityTypeDropdown = this._getEntityTypeDropdown();
-		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($entityTypeDropdown, "Search For", null, true));
+		this._$entityTypeDropdown = this._getEntityTypeDropdown();
+		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel(this._$entityTypeDropdown, "Search For", null, true));
 
 		var andOrOptions = [{value : "AND", label : "AND", selected : true}, {value : "OR", label : "OR"}];
 		this._$andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
@@ -123,17 +127,21 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._paintInputRow = function() {
 		var _this = this;
-		var uuidValue = Util.guid();
-		this._advancedSearchModel.criteria.rules[uuidValue] = { };
 		
-		var $newRow = $("<tr>", { id : uuidValue });
-		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
-		
-		if(this._advancedSearchModel.forceFreeTextSearch) {
-			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
-			this._advancedSearchModel.criteria.rules[uuidValue].value = this._advancedSearchModel.forceFreeTextSearch; //Update model
-			this._advancedSearchModel.forceFreeTextSearch = undefined;
+		if(this._advancedSearchModel.forceLoadCriteria) {
+			var uuidValue = null;
+			for(var ruleKey in this._advancedSearchModel.criteria.rules) {
+				uuidValue = ruleKey;
+			}
+		} else {
+			var uuidValue = Util.guid();
+			this._advancedSearchModel.criteria.rules[uuidValue] = { };
 		}
+		
+		var $newFieldNameContainer = $("<td>");
+		var $newRow = $("<tr>", { id : uuidValue });
+		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
+		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
 		
 		$fieldValue.change(function() {
 			var $thisComponent = $(this);
@@ -152,14 +160,30 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
        	  }
        });
         
-		var $newFieldNameContainer = $("<td>");
 		
-			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue)))
+		
+			$newRow.append($("<td>").append($fieldTypeDropdown))
 					.append($newFieldNameContainer)
 					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
 					
 		this._$tbody.append($newRow);
+		
+		if(this._advancedSearchModel.forceFreeTextSearch) {
+			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
+			this._advancedSearchModel.criteria.rules[uuidValue].value = this._advancedSearchModel.forceFreeTextSearch; //Update model
+			this._advancedSearchModel.forceFreeTextSearch = undefined;
+		}
+		
+		if(this._advancedSearchModel.forceLoadCriteria) {
+			for(var ruleKey in this._advancedSearchModel.criteria.rules) {
+				var rule = this._advancedSearchModel.criteria.rules[ruleKey];
+				$fieldTypeDropdown.val(rule.type).change();
+				$fieldValue.val(rule.value);
+				$fieldNameDropdown = $($newFieldNameContainer.children()[0]);
+				$fieldNameDropdown.val(rule.name);
+			}
+		}
 	}
 	
 	//should make new objects every time. otherwise, using the same object will produce odd results!
@@ -201,8 +225,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				break;
 		}
 		
-		this._advancedSearchModel.criteria.rules[uuid].type = "All"; //Update model with defaults
-		
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
 			var $thisComponent = $(this);
@@ -236,6 +258,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					//Do Nothing
 			}
 		});
+		
+		if(!this._advancedSearchModel.forceLoadCriteria) {
+			this._advancedSearchModel.criteria.rules[uuid].type = "All"; //Update model with defaults
+		}
+		
 		return $fieldTypeComponent;
 	}
 	
@@ -363,7 +390,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				model.push({ value : 'SAMPLE$' + sampleType.code, label : Util.getDisplayNameFromCode(sampleType.code) });
 			}
 		
-		this._advancedSearchModel.resetModel('ALL');
+		if(!this._advancedSearchModel.forceLoadCriteria) {
+			this._advancedSearchModel.resetModel('ALL');
+		}
+		
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
 		
 		$dropdown.change(function() {
