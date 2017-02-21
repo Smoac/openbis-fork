@@ -435,7 +435,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								_this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
 							} else {
-								if(newValue) {
+								if(newValue !== undefined && newValue !== null) {
 									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
 								} else {
 									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
