@@ -9,23 +9,23 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3ToV1.DeletionIdTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 @ShouldFlattenCollections(value = false)
-public class V3DeletionIdPredicate extends AbstractPredicate<List<IDeletionId>>
+public class V3RevertDeletionPredicate extends AbstractPredicate<List<IDeletionId>>
 {
+    private RevertDeletionPredicate revertDeletionPredicate;
 
-    protected final DeletionTechIdCollectionPredicate deletionTechIdCollectionPredicate;
-
-    public V3DeletionIdPredicate()
+    public V3RevertDeletionPredicate()
     {
-        this.deletionTechIdCollectionPredicate = new DeletionTechIdCollectionPredicate();
+        this.revertDeletionPredicate = new RevertDeletionPredicate();
     }
+
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-        deletionTechIdCollectionPredicate.init(provider);
+        revertDeletionPredicate.init(provider);
     }
 
     @Override
@@ -37,8 +37,7 @@ public class V3DeletionIdPredicate extends AbstractPredicate<List<IDeletionId>>
     @Override
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<IDeletionId> values)
     {
-        assert deletionTechIdCollectionPredicate.initialized : "Predicate has not been initialized";
         List<TechId> valuesAsTechIds = DeletionIdTranslator.translate(values);
-        return deletionTechIdCollectionPredicate.doEvaluation(person, allowedRoles, valuesAsTechIds);
+        return revertDeletionPredicate.doEvaluation(person, allowedRoles, valuesAsTechIds);
     }
 }

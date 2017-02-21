@@ -201,6 +201,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3Experim
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectCreationPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetUpdatePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetIdPredicate;
@@ -840,7 +841,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REVERT_DELETION")
-    public void revertDeletions(String sessionToken, @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> deletionIds)
+    public void revertDeletions(String sessionToken, @AuthorizationGuard(guardClass = V3RevertDeletionPredicate.class) List<? extends IDeletionId> deletionIds)
     {
         revertDeletionExecutor.revert(sessionToken, deletionIds);
     }

@@ -152,5 +152,46 @@ public class RevertDeletionTest extends AbstractDeletionTest
                 }
             });
     }
+    
+    @Test
+    public void testRevertDeletionWithSamePowerUserWhoDeleted()
+    {
+        String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+        
+        ExperimentPermId experimentId = createCisdExperiment();
+        
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("It is just a test");
+        final IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
+        assertDeletionExists(deletionId);
+        assertExperimentDoesNotExist(experimentId);
+
+        v3api.revertDeletions(sessionToken, Collections.singletonList(deletionId));
+        
+        assertDeletionDoesNotExist(deletionId);
+        assertExperimentExists(experimentId);
+    }
+    
+    @Test
+    public void testRevertDeletionWithDifferentPowerUserWhoDeleted()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        ExperimentPermId experimentId = createCisdExperiment();
+        
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("It is just a test");
+        final IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken2 = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+                    v3api.revertDeletions(sessionToken2, Collections.singletonList(deletionId));
+                }
+            }, deletionId);
+    }
 
 }
