@@ -469,7 +469,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
 									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
 								} else {
-									if(newValue) {
+									if(newValue !== undefined && newValue !== null) {
 										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
 									} else {
 										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());

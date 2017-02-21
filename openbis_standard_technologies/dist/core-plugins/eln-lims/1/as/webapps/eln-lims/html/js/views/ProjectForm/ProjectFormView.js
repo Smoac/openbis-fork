@@ -143,7 +143,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
 			var textBoxEvent = function(jsEvent, newValue) {
 				var valueToUse = null;
-				if(newValue) {
+				if(newValue !== undefined && newValue !== null) {
 					valueToUse = newValue;
 				} else {
 					valueToUse = $(this).val();
