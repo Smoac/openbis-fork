@@ -270,9 +270,11 @@ function SampleFormController(mainController, mode, sample) {
 					delete parameters["sampleProperties"]["XMLCOMMENTS"];
 				}
 				
+				parameters["sampleParents"] = sampleParentsFinal;
 				if(!linkParentsOnCopy) {
 					parameters["sampleParents"] = [];
 				}
+				
 				parameters["sampleChildren"] = sampleChildrenFinal;
 				if(!copyChildrenOnCopy) {
 					parameters["sampleChildren"] = [];
