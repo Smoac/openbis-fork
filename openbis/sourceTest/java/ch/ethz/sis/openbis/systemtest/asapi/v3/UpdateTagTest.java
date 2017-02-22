@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -28,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
@@ -93,6 +95,26 @@ public class UpdateTagTest extends AbstractTest
         update.setDescription("brand new description");
 
         Tag after = updateTag(TEST_USER, PASSWORD, update);
+
+        assertEquals(after.getDescription(), update.getDescription().getValue());
+    }
+
+    @Test
+    public void testUpdateWithObserver()
+    {
+
+        TagCreation creation = new TagCreation();
+        creation.setCode("TEST_TAG");
+        creation.setDescription("test description");
+
+        String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+        List<TagPermId> ids = v3api.createTags(sessionToken, Arrays.asList(creation));
+
+        TagUpdate update = new TagUpdate();
+        update.setTagId(ids.get(0));
+        update.setDescription("brand new description");
+
+        Tag after = updateTag(TEST_GROUP_OBSERVER, PASSWORD, update);
 
         assertEquals(after.getDescription(), update.getDescription().getValue());
     }

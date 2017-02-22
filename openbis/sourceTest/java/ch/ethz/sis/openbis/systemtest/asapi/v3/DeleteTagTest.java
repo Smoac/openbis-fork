@@ -136,6 +136,21 @@ public class DeleteTagTest extends AbstractDeletionTest
     }
 
     @Test
+    public void testDeleteWithObserver()
+    {
+        TagCreation creation = new TagCreation();
+        creation.setCode("TAG_TO_DELETE");
+
+        Tag before = createTag(TEST_GROUP_OBSERVER, PASSWORD, creation);
+
+        TagDeletionOptions options = new TagDeletionOptions();
+        options.setReason("It is just a test");
+
+        Tag after = deleteTag(TEST_GROUP_OBSERVER, PASSWORD, before.getPermId(), options);
+        assertNull(after);
+    }
+
+    @Test
     public void testDeleteWithUnauthorizedTag()
     {
         TagCreation creation = new TagCreation();

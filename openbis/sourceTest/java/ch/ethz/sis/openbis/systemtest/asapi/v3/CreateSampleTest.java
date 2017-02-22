@@ -60,7 +60,73 @@ import junit.framework.Assert;
  */
 public class CreateSampleTest extends AbstractSampleTest
 {
+    @Test
+    public void testCreateSampleUsingCreationIdAsSpaceId()
+    {
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                    
+                    SampleCreation creation = new SampleCreation();
+                    creation.setCode("TEST_SAMPLE_42");
+                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                    CreationId creationId = new CreationId("not-a-space-id");
+                    creation.setCreationId(creationId);
+                    creation.setSpaceId(creationId);
+                    
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, "Unsupported object id [not-a-space-id]");
 
+    }
+
+    @Test
+    public void testCreateSharedSampleWithNoHomeSpaceAndNoAdminRights()
+    {
+        final String code = "TEST_TO_FAIL";
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+
+                    SampleCreation creation = new SampleCreation();
+                    creation.setCode(code);
+                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                    creation.setCreationId(new CreationId("creation " + code));
+
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            });
+    }
+
+    @Test
+    public void testCreateSharedSampleWithNoAdminRights()
+    {
+        final String code = "TEST_TO_FAIL";
+        
+        assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                
+                SampleCreation creation = new SampleCreation();
+                creation.setCode(code);
+                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                creation.setCreationId(new CreationId("creation " + code));
+                
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        });
+    }
+    
     @Test
     public void testCreateWithIndexCheck()
     {

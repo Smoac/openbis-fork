@@ -128,11 +128,16 @@ public class AbstractTest extends SystemTestCase
 
     protected static final String TEST_GROUP_OBSERVER = "observer";
 
+    protected static final String TEST_OBSERVER_CISD = "observer_cisd";
+
     protected static final String TEST_GROUP_POWERUSER = "poweruser";
 
     protected static final String TEST_GROUP_ADMIN = "admin";
 
+    protected static final String TEST_NO_HOME_SPACE = "homeless";
+    
     protected static final String PASSWORD = "password";
+    
 
     private BufferedAppender logRecorder;
 

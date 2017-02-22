@@ -60,6 +60,24 @@ import junit.framework.Assert;
  */
 public class UpdateSampleTest extends AbstractSampleTest
 {
+    @Test
+    public void testUpdateSharedSampleWithHomelessPowerUser()
+    {
+        final SamplePermId permId = new SamplePermId("200811050947161-653");
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+
+                final SampleUpdate update = new SampleUpdate();
+                update.setSampleId(permId);
+                v3api.updateSamples(sessionToken, Collections.singletonList(update));
+            }
+        }, permId);
+    }
 
     @Test
     public void testUpdateBiggerThanPostgresDriverArgumentsLimitWithIndexCheck()

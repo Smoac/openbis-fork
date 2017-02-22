@@ -174,4 +174,48 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
             }, "Deletion ids cannot be null");
     }
 
+    @Test
+    public void testConfirmDeletionWithAdminUserInAnotherSpace()
+    {
+        String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+        ExperimentPermId experimentId = createCisdExperiment();
+
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("It is just a test");
+        final IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken2 = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
+                    v3api.confirmDeletions(sessionToken2, Collections.singletonList(deletionId));
+                }
+            });
+    }
+
+    @Test
+    public void testConfirmDeletionWithSameAdminUserInAnotherSpace()
+    {
+        String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+
+        ExperimentPermId experimentId = createCisdExperiment();
+
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("It is just a test");
+        final IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken2 = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+                    v3api.confirmDeletions(sessionToken2, Collections.singletonList(deletionId));
+                }
+            });
+    }
+
 }
