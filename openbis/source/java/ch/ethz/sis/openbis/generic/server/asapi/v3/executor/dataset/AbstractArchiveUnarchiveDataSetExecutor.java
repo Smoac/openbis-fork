@@ -39,9 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 /**
  * @author pkupczyk
  */
-public class AbstractArchiveUnarchiveDataSetExecutor
+abstract class AbstractArchiveUnarchiveDataSetExecutor
 {
-
     @Autowired
     protected IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
@@ -73,7 +72,9 @@ public class AbstractArchiveUnarchiveDataSetExecutor
             if (dataSet == null)
             {
                 throw new ObjectNotFoundException(dataSetId);
-            } else if (false == dataSetCodes.contains(dataSet.getCode()))
+            }
+            assertAuthorization(context, dataSetId, dataSet);
+            if (false == dataSetCodes.contains(dataSet.getCode()))
             {
                 if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), dataSet))
                 {
@@ -87,6 +88,8 @@ public class AbstractArchiveUnarchiveDataSetExecutor
         dataSetTable.loadByDataSetCodes(new ArrayList<String>(dataSetCodes), false, true);
         action.execute(dataSetTable);
     }
+
+    protected abstract void assertAuthorization(IOperationContext context, IDataSetId dataSetId, DataPE dataSet);
 
     public static interface IArchiveUnarchiveAction
     {

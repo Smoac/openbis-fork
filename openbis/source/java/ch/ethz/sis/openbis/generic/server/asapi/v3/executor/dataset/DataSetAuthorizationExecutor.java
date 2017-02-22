@@ -138,14 +138,14 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("ARCHIVE_DATASET")
-    public void canArchive(IOperationContext context)
+    public void canArchive(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
     }
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UNARCHIVE_DATASET")
-    public void canUnarchive(IOperationContext context)
+    public void canUnarchive(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
     }
 

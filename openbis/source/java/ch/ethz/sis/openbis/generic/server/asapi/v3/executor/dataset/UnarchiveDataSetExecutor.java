@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
@@ -39,8 +40,6 @@ public class UnarchiveDataSetExecutor extends AbstractArchiveUnarchiveDataSetExe
     @Override
     public void unarchive(final IOperationContext context, final List<? extends IDataSetId> dataSetIds, final DataSetUnarchiveOptions options)
     {
-        authorizationExecutor.canUnarchive(context);
-
         doArchiveUnarchive(context, dataSetIds, options, new IArchiveUnarchiveAction()
             {
                 @Override
@@ -49,6 +48,12 @@ public class UnarchiveDataSetExecutor extends AbstractArchiveUnarchiveDataSetExe
                     dataSetTable.unarchiveDatasets();
                 }
             });
+    }
+
+    @Override
+    protected void assertAuthorization(IOperationContext context, IDataSetId dataSetId, DataPE dataSet)
+    {
+        authorizationExecutor.canUnarchive(context, dataSetId, dataSet);
     }
 
 }
