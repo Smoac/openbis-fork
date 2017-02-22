@@ -79,7 +79,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, "Unsupported object id [not-a-space-id]");
+            }, "Object with CreationId = [not-a-space-id] has not been found");
 
     }
 
@@ -87,8 +87,9 @@ public class CreateSampleTest extends AbstractSampleTest
     public void testCreateSharedSampleWithNoHomeSpaceAndNoAdminRights()
     {
         final String code = "TEST_TO_FAIL";
-
-        assertAuthorizationFailureException(new IDelegatedAction()
+        SampleIdentifier identifier = new SampleIdentifier("/" + code);
+        
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -102,15 +103,16 @@ public class CreateSampleTest extends AbstractSampleTest
 
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            });
+            }, identifier);
     }
 
     @Test
     public void testCreateSharedSampleWithNoAdminRights()
     {
         final String code = "TEST_TO_FAIL";
+        SampleIdentifier identifier = new SampleIdentifier("/" + code);
         
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
         {
             @Override
             public void execute()
@@ -124,7 +126,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 
                 v3api.createSamples(sessionToken, Collections.singletonList(creation));
             }
-        });
+        }, identifier);
     }
     
     @Test
