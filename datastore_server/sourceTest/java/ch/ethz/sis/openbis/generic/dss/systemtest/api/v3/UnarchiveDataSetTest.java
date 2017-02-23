@@ -43,7 +43,7 @@ public class UnarchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
         v3.unarchiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
     }
 
-    @Test(expectedExceptions = AuthorizationFailureException.class, expectedExceptionsMessageRegExp = ".*User 'test_space' does not have enough privileges.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*test_space does not have enough privileges.*")
     public void testUnarchiveWithUnauthorizedDataSet() throws Exception
     {
         registerDataSet();
