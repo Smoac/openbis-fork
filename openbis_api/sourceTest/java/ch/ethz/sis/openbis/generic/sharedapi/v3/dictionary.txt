@@ -1542,3 +1542,12 @@ getAddressType
 setAddress
 setAddressType
 ExternalDmsAddressType
+ContentCopyCreation
+getContentCopies
+getExternalId
+getGitCommitHash
+getSerialversionuid
+setContentCopies
+setExternalId
+setGitCommitHash
+ContentCopy
