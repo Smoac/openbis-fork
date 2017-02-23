@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.exceptions;
 
+import java.util.List;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -29,15 +31,38 @@ public class UnauthorizedObjectAccessException extends UserFailureException
 
     private IObjectId objectId;
 
+    private List<? extends IObjectId> objectIds;
+
     public UnauthorizedObjectAccessException(IObjectId id)
     {
         super("Access denied to object with " + id.getClass().getSimpleName() + " = [" + id + "].");
         this.objectId = id;
     }
 
+    public UnauthorizedObjectAccessException(List<? extends IObjectId> ids)
+    {
+        super("Access denied to one of the " + ids.size() + " object/s for the operation = [" + truncateString(ids.toString(), 100) + "].");
+        this.objectIds = ids;
+    }
+
+    private static String truncateString(String string, int maxSize)
+    {
+        String truncatedString = string.substring(0, Math.min(string.length(), maxSize));
+        if (truncatedString.length() < string.length())
+        {
+            truncatedString += " ...";
+        }
+        return truncatedString;
+    }
+
     public IObjectId getObjectId()
     {
         return objectId;
+    }
+
+    public List<? extends IObjectId> getObjectIds()
+    {
+        return objectIds;
     }
 
 }
