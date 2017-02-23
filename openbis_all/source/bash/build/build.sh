@@ -46,6 +46,16 @@ mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-client
 mv tmp/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
 mv tmp/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
 cp -r tmp/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$FULL_VER
+cd ~openbis/fileserver/doc/openbis
+if [ ${FULL_VER:0:1} == "S" ]; then
+  rm current
+  ln -s $FULL_VER current
+else
+  dir=${FULL_VER%.*}
+  rm $dir
+  ln -s $FULL_VER $dir
+fi
+cd -
 
 move_to_file_server
 
