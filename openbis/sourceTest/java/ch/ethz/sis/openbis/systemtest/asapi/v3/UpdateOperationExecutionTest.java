@@ -43,7 +43,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.get.GetSpacesOperationResu
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-
 import junit.framework.Assert;
 
 /**
@@ -273,6 +272,43 @@ public class UpdateOperationExecutionTest extends AbstractOperationExecutionTest
 
         OperationExecution executionAfter = getExecution(sessionToken, options.getExecutionId(), new OperationExecutionFetchOptions());
         Assert.assertEquals(update.getDescription().getValue(), executionAfter.getDescription());
+    }
+
+    @Test
+    public void testUpdateWithDescriptionWithInstanceObserver()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        options.setDescription("initial description");
+        options.setExecutionId(new OperationExecutionPermId());
+
+        List<? extends IOperation> operations =
+                Arrays.asList(new GetSpacesOperation(Arrays.asList(new SpacePermId("CISD")), new SpaceFetchOptions()));
+
+        v3api.executeOperations(sessionToken, operations, options);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionTokenInstance = v3api.login(TEST_INSTANCE_OBSERVER, PASSWORD);
+                    OperationExecution executionBefore =
+                            getExecution(sessionTokenInstance, options.getExecutionId(), new OperationExecutionFetchOptions());
+                    Assert.assertEquals(options.getDescription(), executionBefore.getDescription());
+
+                    OperationExecutionUpdate update = new OperationExecutionUpdate();
+                    update.setExecutionId(options.getExecutionId());
+                    update.setDescription("updated description");
+
+                    v3api.updateOperationExecutions(sessionTokenInstance, Arrays.asList(update));
+
+                    OperationExecution executionAfter =
+                            getExecution(sessionTokenInstance, options.getExecutionId(), new OperationExecutionFetchOptions());
+                    Assert.assertEquals(update.getDescription().getValue(), executionAfter.getDescription());
+                }
+            }, options.getExecutionId());
     }
 
 }

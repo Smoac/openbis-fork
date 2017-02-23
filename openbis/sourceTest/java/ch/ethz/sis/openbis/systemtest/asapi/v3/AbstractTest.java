@@ -128,6 +128,8 @@ public class AbstractTest extends SystemTestCase
 
     protected static final String TEST_GROUP_OBSERVER = "observer";
 
+    protected static final String TEST_INSTANCE_OBSERVER = "instance_observer";
+
     protected static final String TEST_OBSERVER_CISD = "observer_cisd";
 
     protected static final String TEST_GROUP_POWERUSER = "poweruser";
@@ -685,14 +687,17 @@ public class AbstractTest extends SystemTestCase
             assertNotNull(e.getCause());
             assertEquals(e.getCause().getClass(), UnauthorizedObjectAccessException.class);
 
-            List<? extends IObjectId> objectIds = ((UnauthorizedObjectAccessException) e.getCause()).getObjectIds();
-            if (objectIds != null)
+            if (expectedObjectId != null)
             {
-                assertEquals(true, objectIds.contains(expectedObjectId));
-            } else
-            {
-                IObjectId objectId = ((UnauthorizedObjectAccessException) e.getCause()).getObjectId();
-                assertEquals(objectId, expectedObjectId);
+                List<? extends IObjectId> objectIds = ((UnauthorizedObjectAccessException) e.getCause()).getObjectIds();
+                if (objectIds != null)
+                {
+                    assertEquals(true, objectIds.contains(expectedObjectId));
+                } else
+                {
+                    IObjectId objectId = ((UnauthorizedObjectAccessException) e.getCause()).getObjectId();
+                    assertEquals(objectId, expectedObjectId);
+                }
             }
 
             assertExceptionContext(e, expectedContextPattern);

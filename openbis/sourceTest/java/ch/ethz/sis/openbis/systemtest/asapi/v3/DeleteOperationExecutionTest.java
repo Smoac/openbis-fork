@@ -37,7 +37,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.get.GetSpacesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-
 import junit.framework.Assert;
 
 /**
@@ -83,6 +82,34 @@ public class DeleteOperationExecutionTest extends AbstractOperationExecutionTest
                 public void execute()
                 {
                     String sessionTokenUser = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+                    OperationExecutionDeletionOptions deletionOptions = new OperationExecutionDeletionOptions();
+                    deletionOptions.setReason("test reason");
+
+                    v3api.deleteOperationExecutions(sessionTokenUser, Arrays.asList(options.getExecutionId()), deletionOptions);
+                }
+            }, options.getExecutionId());
+    }
+
+    @Test
+    public void testDeleteWithOperationExecutionUnauthorizedInstanceObserver()
+    {
+        String sessionTokenAdmin = v3api.login(TEST_USER, PASSWORD);
+
+        final SynchronousOperationExecutionOptions options = new SynchronousOperationExecutionOptions();
+        options.setExecutionId(new OperationExecutionPermId());
+
+        List<? extends IOperation> operations =
+                Arrays.asList(new GetSpacesOperation(Arrays.asList(new SpacePermId("CISD")), new SpaceFetchOptions()));
+
+        v3api.executeOperations(sessionTokenAdmin, operations, options);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionTokenUser = v3api.login(TEST_INSTANCE_OBSERVER, PASSWORD);
 
                     OperationExecutionDeletionOptions deletionOptions = new OperationExecutionDeletionOptions();
                     deletionOptions.setReason("test reason");
