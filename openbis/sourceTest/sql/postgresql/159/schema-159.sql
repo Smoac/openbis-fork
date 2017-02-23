@@ -31,7 +31,7 @@ CREATE DOMAIN grid_expression AS character varying(2000);
 CREATE DOMAIN grid_id AS character varying(200);
 CREATE DOMAIN identifier AS character varying(200);
 CREATE DOMAIN location_type AS text
-	CONSTRAINT location_type_check CHECK ((VALUE = ANY (ARRAY['OPENBIS'::text, 'URL'::text, 'FILE_SYSTEM/PLAIN'::text, 'FILESYSTEM/GIT'::text])));
+	CONSTRAINT location_type_check CHECK ((VALUE = ANY (ARRAY['OPENBIS'::text, 'URL'::text, 'FILE_SYSTEM_PLAIN'::text, 'FILE_SYSTEM_GIT'::text])));
 CREATE DOMAIN object_name AS character varying(50);
 CREATE DOMAIN operation_execution_availability AS character varying(40)
 	CONSTRAINT operation_execution_availability_check CHECK (((VALUE)::text = ANY (ARRAY[('AVAILABLE'::character varying)::text, ('DELETE_PENDING'::character varying)::text, ('DELETED'::character varying)::text, ('TIME_OUT_PENDING'::character varying)::text, ('TIMED_OUT'::character varying)::text])));
@@ -182,7 +182,6 @@ CREATE FUNCTION content_copies_uniqueness_check() RETURNS trigger
     AS $$
 BEGIN
   NEW.location_unique_check = NEW.edms_id || ',' ||
-                              coalesce(NEW.host, '') || ',' || 
                               coalesce(NEW.path, '') || ',' || 
                               coalesce(NEW.git_commit_hash, '') || ',' || 
                               coalesce(NEW.external_code, '');
@@ -530,7 +529,6 @@ CREATE TABLE content_copies (
     external_code text_value,
     id tech_id NOT NULL,
     location_type location_type NOT NULL,
-    host text_value,
     path text_value,
     git_commit_hash text_value,
     location_unique_check text_value NOT NULL
@@ -1761,14 +1759,14 @@ SELECT pg_catalog.setval('metaproject_id_seq', 5, true);
 SELECT pg_catalog.setval('mtpt_id_seq', 31, true);
 SELECT pg_catalog.setval('operation_executions_id_seq', 1, false);
 SELECT pg_catalog.setval('perm_id_seq', 1035, true);
-SELECT pg_catalog.setval('person_id_seq', 100, true);
+SELECT pg_catalog.setval('person_id_seq', 10, true);
 SELECT pg_catalog.setval('post_registration_dataset_queue_id_seq', 1, true);
 SELECT pg_catalog.setval('project_id_seq', 7, true);
 SELECT pg_catalog.setval('project_relationships_history_id_seq', 1, false);
 SELECT pg_catalog.setval('property_type_id_seq', 28, true);
 SELECT pg_catalog.setval('query_id_seq', 1, false);
 SELECT pg_catalog.setval('relationship_type_id_seq', 3, true);
-SELECT pg_catalog.setval('role_assignment_id_seq', 100, true);
+SELECT pg_catalog.setval('role_assignment_id_seq', 13, true);
 SELECT pg_catalog.setval('sample_code_seq', 8, true);
 SELECT pg_catalog.setval('sample_id_seq', 1061, true);
 SELECT pg_catalog.setval('sample_property_id_seq', 53, true);

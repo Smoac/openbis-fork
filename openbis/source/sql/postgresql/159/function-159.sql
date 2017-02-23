@@ -542,7 +542,6 @@ CREATE OR REPLACE FUNCTION content_copies_uniqueness_check()
 $BODY$
 BEGIN
   NEW.location_unique_check = NEW.edms_id || ',' ||
-                              coalesce(NEW.host, '') || ',' || 
                               coalesce(NEW.path, '') || ',' || 
                               coalesce(NEW.git_commit_hash, '') || ',' || 
                               coalesce(NEW.external_code, '');

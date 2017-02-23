@@ -1,4 +1,4 @@
-CREATE DOMAIN LOCATION_TYPE AS TEXT CHECK (VALUE IN ('OPENBIS', 'URL', 'FILE_SYSTEM/PLAIN', 'FILESYSTEM/GIT'));
+CREATE DOMAIN LOCATION_TYPE AS TEXT CHECK (VALUE IN ('OPENBIS', 'URL', 'FILE_SYSTEM_PLAIN', 'FILE_SYSTEM_GIT'));
 
 ALTER TABLE link_data RENAME TO content_copies;
 
@@ -22,7 +22,6 @@ CREATE SEQUENCE content_copies_id_seq;
 ALTER TABLE content_copies 
   ADD COLUMN id TECH_ID NOT NULL DEFAULT nextval('content_copies_id_seq'),
   ADD COLUMN location_type LOCATION_TYPE,
-  ADD COLUMN host TEXT_VALUE,
   ADD COLUMN path TEXT_VALUE,
   ADD COLUMN git_commit_hash TEXT_VALUE,
   ADD COLUMN location_unique_check TEXT_VALUE,
@@ -40,7 +39,7 @@ UPDATE content_copies SET location_type = 'URL' where edms_id IN
   (SELECT id FROM external_data_management_systems WHERE address_type = 'URL');
   
 UPDATE content_copies SET location_unique_check = 
-  coalesce(host, '') || ',' || 
+  edms_id || ',' || 
   coalesce(path, '') || ',' || 
   coalesce(git_commit_hash, '') || ',' || 
   coalesce(external_code, '');
@@ -57,7 +56,6 @@ CREATE OR REPLACE FUNCTION content_copies_uniqueness_check()
 $BODY$
 BEGIN
   NEW.location_unique_check = NEW.edms_id || ',' ||
-                              coalesce(NEW.host, '') || ',' || 
                               coalesce(NEW.path, '') || ',' || 
                               coalesce(NEW.git_commit_hash, '') || ',' || 
                               coalesce(NEW.external_code, '');

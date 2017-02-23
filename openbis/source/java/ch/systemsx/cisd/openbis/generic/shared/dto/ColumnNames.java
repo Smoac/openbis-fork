@@ -372,8 +372,6 @@ public final class ColumnNames
 
     public static final String LOCATION_TYPE_COLUMN = "location_type";
 
-    public static final String HOST_COLUMN = "host";
-
     public static final String PATH_COLUMN = "path";
 
     public static final String GIT_COMMIT_HASH_COLUMN = "git_commit_hash";

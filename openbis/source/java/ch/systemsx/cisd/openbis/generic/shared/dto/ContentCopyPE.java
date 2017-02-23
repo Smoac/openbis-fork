@@ -36,8 +36,6 @@ public class ContentCopyPE
 
     private String externalCode;
 
-    private String host;
-
     private String path;
 
     private String gitCommitHash;
@@ -103,17 +101,6 @@ public class ContentCopyPE
     public void setExternalCode(String externalCode)
     {
         this.externalCode = externalCode;
-    }
-
-    @Column(name = ColumnNames.HOST_COLUMN)
-    public String getHost()
-    {
-        return host;
-    }
-
-    public void setHost(String host)
-    {
-        this.host = host;
     }
 
     @Column(name = ColumnNames.PATH_COLUMN)
