@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,19 +82,11 @@ public class SetDataSetExternalDmsExecutor extends
             LinkDataPE dataSet = ((LinkDataPE) entity);
             Set<ContentCopyPE> contentCopies = dataSet.getContentCopies();
 
-            if (contentCopies == null)
-            {
-                ContentCopyPE copy = new ContentCopyPE();
-                copy.setDataSet(dataSet);
-                contentCopies = new HashSet<>();
-                contentCopies.add(copy);
-                dataSet.setContentCopies(contentCopies);
-            }
-
             if (contentCopies.size() == 1)
             {
                 ContentCopyPE next = contentCopies.iterator().next();
-                switch (related.getAddressType()) {
+                switch (related.getAddressType())
+                {
                     case OPENBIS:
                         next.setLocationType(LocationType.OPENBIS);
                         break;
@@ -103,7 +94,8 @@ public class SetDataSetExternalDmsExecutor extends
                         next.setLocationType(LocationType.URL);
                         break;
                     default:
-                        throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "+related.getAddressType()+" using legacy methods");
+                        throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "
+                                + related.getAddressType() + " using legacy methods");
                 }
                 next.setExternalDataManagementSystem(related);
             } else

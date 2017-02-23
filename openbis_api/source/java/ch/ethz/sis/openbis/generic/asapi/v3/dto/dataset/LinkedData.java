@@ -15,13 +15,17 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
+import java.io.Serializable;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import ch.systemsx.cisd.common.annotation.TechPreview;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -39,6 +43,8 @@ public class LinkedData implements Serializable
 
     @JsonProperty
     private ExternalDms externalDms;
+
+    private List<ContentCopy> contentCopies;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -73,8 +79,7 @@ public class LinkedData implements Serializable
         if (getFetchOptions() != null && getFetchOptions().hasExternalDms())
         {
             return externalDms;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("External data management system has not been fetched.");
         }
@@ -84,6 +89,18 @@ public class LinkedData implements Serializable
     public void setExternalDms(ExternalDms externalDms)
     {
         this.externalDms = externalDms;
+    }
+
+    @TechPreview
+    public List<ContentCopy> getContentCopies()
+    {
+        return contentCopies;
+    }
+
+    @TechPreview
+    public void setContentCopies(List<ContentCopy> contentCopies)
+    {
+        this.contentCopies = contentCopies;
     }
 
     // Method automatically generated with DtoGenerator

@@ -25,6 +25,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
@@ -34,6 +35,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
@@ -64,6 +66,8 @@ public class CreateExternalDmsExecutor extends AbstractCreateEntityExecutor<Exte
                 @Override
                 public void process(ExternalDmsCreation object)
                 {
+                    validate(object);
+
                     ExternalDataManagementSystemPE edms = new ExternalDataManagementSystemPE();
                     edms.setCode(object.getCode());
                     edms.setLabel(object.getLabel());
@@ -87,6 +91,33 @@ public class CreateExternalDmsExecutor extends AbstractCreateEntityExecutor<Exte
 
                     edms.setAddressType(type);
                     systems.add(edms);
+                }
+
+                private void validate(ExternalDmsCreation object)
+                {
+                    if (object.getCode() == null || object.getCode().isEmpty())
+                    {
+                        throw new UserFailureException("Code is required");
+                    }
+                    if (object.getAddressType() == null)
+                    {
+                        throw new UserFailureException("Type is required");
+                    }
+                    if (object.getAddress() == null || object.getAddress().isEmpty())
+                    {
+                        throw new UserFailureException("Address is required");
+                    }
+
+                    if (ExternalDmsAddressType.FILE_SYSTEM.equals(object.getAddressType()))
+                    {
+                        String pattern = "^[^:]+:[^:]+$";
+                        String address = object.getAddress();
+                        if (address.matches(pattern) == false)
+                        {
+                            throw new UserFailureException("Invalid address: " + address);
+                        }
+                    }
+
                 }
 
                 @Override

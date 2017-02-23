@@ -16,39 +16,53 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.annotation.TechPreview;
 
-/**
- * @author pkupczyk
- */
-@JsonObject("as.dto.dataset.create.LinkedDataCreation")
-public class LinkedDataCreation implements ICreation
+@JsonObject("as.dto.dataset.create.ContentCopyCreation")
+@TechPreview
+public class ContentCopyCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty
-    private String externalCode;
+    private String externalId;
 
-    @JsonProperty
+    private String path;
+
+    private String gitCommitHash;
+
     private IExternalDmsId externalDmsId;
 
-    private List<ContentCopyCreation> contentCopies;
-
-    public String getExternalCode()
+    public String getExternalId()
     {
-        return externalCode;
+        return externalId;
     }
 
-    public void setExternalCode(String externalCode)
+    public void setExternalId(String externalId)
     {
-        this.externalCode = externalCode;
+        this.externalId = externalId;
+    }
+
+    public String getPath()
+    {
+        return path;
+    }
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    public String getGitCommitHash()
+    {
+        return gitCommitHash;
+    }
+
+    public void setGitCommitHash(String gitCommitHash)
+    {
+        this.gitCommitHash = gitCommitHash;
     }
 
     public IExternalDmsId getExternalDmsId()
@@ -61,15 +75,9 @@ public class LinkedDataCreation implements ICreation
         this.externalDmsId = externalDmsId;
     }
 
-    @TechPreview
-    public List<ContentCopyCreation> getContentCopies()
+    public static long getSerialversionuid()
     {
-        return contentCopies;
+        return serialVersionUID;
     }
 
-    @TechPreview
-    public void setContentCopies(List<ContentCopyCreation> contentCopies)
-    {
-        this.contentCopies = contentCopies;
-    }
 }
