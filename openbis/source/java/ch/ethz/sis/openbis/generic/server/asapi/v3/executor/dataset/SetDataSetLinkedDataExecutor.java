@@ -58,8 +58,6 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
     public void set(final IOperationContext context, final MapBatch<DataSetCreation, DataPE> batch)
     {
 
-        final boolean legacy = isLegacy(batch);
-
         new MapBatchProcessor<DataSetCreation, DataPE>(context, batch)
             {
                 @Override
@@ -73,7 +71,7 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
                         {
                             throw new UserFailureException("Linked data cannot be null for a link data set.");
                         }
-                        if (legacy)
+                        if (isLegacy(batch))
                         {
                             setLegacy(context, linkedCreation, (LinkDataPE) entity);
                         } else
@@ -96,7 +94,7 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
                 }
             };
 
-        if (legacy)
+        if (isLegacy(batch))
         {
             setDataSetExternalDmsExecutor.set(context, batch);
         }
