@@ -65,6 +65,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperation
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.notification.IOperationExecutionNotifier;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
@@ -813,7 +814,13 @@ public class OperationExecutionStore implements IOperationExecutionStore, Applic
 
     private void checkAccess(IOperationContext context, OperationExecutionPE executionPE)
     {
-        authorization.canGet(context);
+        try
+        {
+            authorization.canGet(context);
+        } catch (AuthorizationFailureException ex)
+        {
+            throw new UnauthorizedObjectAccessException(new OperationExecutionPermId(executionPE.getCode()));
+        }
 
         if (false == authorization.canGet(context, executionPE))
         {

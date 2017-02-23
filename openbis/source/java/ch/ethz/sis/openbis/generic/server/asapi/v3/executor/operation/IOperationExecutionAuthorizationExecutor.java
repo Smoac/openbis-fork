@@ -26,16 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
  */
 public interface IOperationExecutionAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
-
-    void canGet(IOperationContext context);
+    public void canGet(IOperationContext context);
 
     boolean canGet(IOperationContext context, OperationExecutionPE execution);
 
-    void canUpdate(IOperationContext context);
-
     void canUpdate(IOperationContext context, IOperationExecutionId id, OperationExecutionPE execution);
-
-    void canDelete(IOperationContext context);
 
     void canDelete(IOperationContext context, IOperationExecutionId id, OperationExecutionPE execution);
 

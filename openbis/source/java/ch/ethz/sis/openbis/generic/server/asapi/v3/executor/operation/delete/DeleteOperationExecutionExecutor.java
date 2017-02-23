@@ -30,10 +30,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.delete.OperationExecut
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecutionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.OperationExecutionPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationExecutionAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.store.IOperationExecutionStore;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
 
 /**
@@ -75,7 +77,13 @@ public class DeleteOperationExecutionExecutor
     @Override
     protected void checkAccess(IOperationContext context, IOperationExecutionId entityId, OperationExecutionPE entity)
     {
-        authorizationExecutor.canDelete(context, entityId, entity);
+        try
+        {
+            authorizationExecutor.canDelete(context, entityId, entity);
+        } catch (AuthorizationFailureException ex)
+        {
+            throw new UnauthorizedObjectAccessException(entityId);
+        }
     }
 
     @Override
