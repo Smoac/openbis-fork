@@ -45,6 +45,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
 {
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATASET")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void canCreate(IOperationContext context)
@@ -82,7 +83,10 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     }
 
     @Override
-    public void canCreate(IOperationContext context, DataPE dataSet)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("CREATE_DATASET")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
+    public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
         if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(dataSet.getRegistrator(), dataSet))
         {
