@@ -16,15 +16,21 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DeletionIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * @author pkupczyk
@@ -37,7 +43,7 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CONFIRM_DELETION")
-    public void canConfirm(IOperationContext context)
+    public void canConfirm(IOperationContext context, @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> ids)
     {
     }
 
@@ -46,7 +52,8 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REVERT_DELETION")
-    public void canRevert(IOperationContext context)
+    public void canRevert(IOperationContext context,
+            @AuthorizationGuard(guardClass = V3RevertDeletionPredicate.class) List<? extends IDeletionId> ids)
     {
     }
 

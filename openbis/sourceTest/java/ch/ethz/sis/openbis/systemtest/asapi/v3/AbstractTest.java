@@ -135,9 +135,8 @@ public class AbstractTest extends SystemTestCase
     protected static final String TEST_GROUP_ADMIN = "admin";
 
     protected static final String TEST_NO_HOME_SPACE = "homeless";
-    
+
     protected static final String PASSWORD = "password";
-    
 
     private BufferedAppender logRecorder;
 
@@ -685,7 +684,17 @@ public class AbstractTest extends SystemTestCase
         {
             assertNotNull(e.getCause());
             assertEquals(e.getCause().getClass(), UnauthorizedObjectAccessException.class);
-            assertEquals(((UnauthorizedObjectAccessException) e.getCause()).getObjectId(), expectedObjectId);
+
+            List<? extends IObjectId> objectIds = ((UnauthorizedObjectAccessException) e.getCause()).getObjectIds();
+            if (objectIds != null)
+            {
+                assertEquals(true, objectIds.contains(expectedObjectId));
+            } else
+            {
+                IObjectId objectId = ((UnauthorizedObjectAccessException) e.getCause()).getObjectId();
+                assertEquals(objectId, expectedObjectId);
+            }
+
             assertExceptionContext(e, expectedContextPattern);
         }
     }

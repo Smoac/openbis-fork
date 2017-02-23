@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
@@ -78,8 +79,6 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
             throw new UserFailureException("Deletion ids cannot be null.");
         }
 
-        authorizationExecutor.canConfirm(context);
-
         // We do not want to fail with nulls but rather ignore them. Ignoring the nulls allows us to
         // pass the result of the deleteXXX method directly to confirmDeletions without any checks
         // (the deleteXXX methods return null when an object to be deleted does not exist, e.g. it had been already deleted)
@@ -92,6 +91,14 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
             {
                 deletionIdsWithoutNulls.add(deletionId);
             }
+        }
+
+        try
+        {
+            authorizationExecutor.canConfirm(context, deletionIdsWithoutNulls);
+        } catch (AuthorizationFailureException ex)
+        {
+            throw new UnauthorizedObjectAccessException(deletionIdsWithoutNulls);
         }
 
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();

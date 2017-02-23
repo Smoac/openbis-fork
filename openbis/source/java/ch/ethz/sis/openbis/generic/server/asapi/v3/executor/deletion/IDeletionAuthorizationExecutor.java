@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion;
 
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
 
@@ -25,9 +28,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthor
 public interface IDeletionAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canConfirm(IOperationContext context);
+    void canConfirm(IOperationContext context, List<? extends IDeletionId> ids);
 
-    void canRevert(IOperationContext context);
+    void canRevert(IOperationContext context, List<? extends IDeletionId> ids);
 
     void canGet(IOperationContext context);
 

@@ -185,7 +185,7 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
         deletionOptions.setReason("It is just a test");
         final IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
 
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -193,7 +193,7 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
                     String sessionToken2 = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
                     v3api.confirmDeletions(sessionToken2, Collections.singletonList(deletionId));
                 }
-            });
+            }, deletionId);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
         deletionOptions.setReason("It is just a test");
         final IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
 
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -215,7 +215,7 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
                     String sessionToken2 = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
                     v3api.confirmDeletions(sessionToken2, Collections.singletonList(deletionId));
                 }
-            });
+            }, deletionId);
     }
 
 }

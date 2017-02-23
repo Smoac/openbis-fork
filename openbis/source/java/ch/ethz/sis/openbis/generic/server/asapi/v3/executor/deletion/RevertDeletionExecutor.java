@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
@@ -76,8 +77,6 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     @Override
     public void revert(IOperationContext context, List<? extends IDeletionId> deletionIds)
     {
-        authorizationExecutor.canRevert(context);
-
         if (context == null)
         {
             throw new IllegalArgumentException("Context cannot be null");
@@ -127,6 +126,14 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     {
         Map<IDeletionId, DeletionPE> map = mapDeletionByIdExecutor.map(context, deletionIds);
         List<Long> deletionTechIds = new LinkedList<Long>();
+
+        try
+        {
+            authorizationExecutor.canRevert(context, deletionIds);
+        } catch (AuthorizationFailureException ex)
+        {
+            throw new UnauthorizedObjectAccessException(deletionIds);
+        }
 
         for (IDeletionId deletionId : deletionIds)
         {
