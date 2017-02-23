@@ -73,6 +73,9 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private IDAOFactory daoFactory;
 
     @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Autowired
@@ -239,6 +242,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void checkAccess(IOperationContext context, DataPE entity)
     {
+        authorizationExecutor.canCreate(context, entity);
         if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(entity.getRegistrator(), entity))
         {
             throw new UnauthorizedObjectAccessException(new DataSetPermId(entity.getPermId()));
