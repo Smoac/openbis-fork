@@ -42,6 +42,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"ExternalDmsCreation" : "Java class not implemented in JS: ",
 			"FullDataSetCreation" : "Java class not implemented in JS: ",
 			"DataSetFileCreation" : "Java class not implemented in JS: ",
+			"ContentCopy" : "Java class not implemented in JS: ",
+			"ContentCopyCreation" : "Java class not implemented in JS: ",
+			"LinkedData" : "JS class missing method: "
 		}
 
 		//
