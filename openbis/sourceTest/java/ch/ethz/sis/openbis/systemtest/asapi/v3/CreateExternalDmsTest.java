@@ -34,31 +34,31 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class CreateExternalDmsTest extends AbstractExternalDmsTest
 {
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Code is required.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Code is required.*")
     void creationFailsWithoutCode()
     {
         create(externalDms().withCode(null));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Type is required.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Type is required.*")
     void creationFailsWithoutType()
     {
         create(externalDms().withType(null));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Address is required.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Address is required.*")
     void creationFailsWithoutAddress()
     {
         create(externalDms().withAddress(null));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Code is required.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Code is required.*")
     void creationFailsWithEmptyCode()
     {
         create(externalDms().withCode(""));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Address is required.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Address is required.*")
     void creationFailsWithEmptyAddress()
     {
         create(externalDms().withAddress(""));
@@ -123,13 +123,13 @@ public class CreateExternalDmsTest extends AbstractExternalDmsTest
         return new Object[][] { { "host/path" }, { ":" }, { ":path" }, { "1234" } };
     }
 
-    @Test(dataProvider = "InvalidFileSystemAddresses", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Invalid address.*")
+    @Test(dataProvider = "InvalidFileSystemAddresses", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Invalid address.*")
     void creationWithTypeFileSystemFailsWithInvalidAddress(String invalid)
     {
         create(externalDms().withType(ExternalDmsAddressType.FILE_SYSTEM).withAddress(invalid));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*already exists.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*already exists.*")
     void codeHasToBeUnique()
     {
         final String code = uuid();
