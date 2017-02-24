@@ -105,19 +105,22 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
         Set<Boolean> modes = new HashSet<Boolean>();
         for (DataSetCreation dsc : batch.getObjects().keySet())
         {
-            modes.add(dsc.getLinkedData().getContentCopies() == null);
+            if (dsc.getLinkedData() != null)
+            {
+                modes.add(dsc.getLinkedData().getContentCopies() == null);
+            }
         }
 
         switch (modes.size())
         {
             case 0:
-                throw new UserFailureException("Empty batch");
+                return false;
             case 1:
                 return modes.iterator().next();
             case 2:
                 throw new UserFailureException("Cannot mix deprecated and non-deprecated requests");
             default:
-                throw new UserFailureException("Logic failure: " + modes);
+                return false;
         }
     }
 

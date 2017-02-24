@@ -18,7 +18,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
 {
 
-    @Test
+    @Test(enabled = false)
     void copiesInOpenBISWork()
     {
         ExternalDmsPermId openbis = create(externalDms().withType(ExternalDmsAddressType.OPENBIS));
@@ -73,7 +73,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         };
     }
 
-    @Test(dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Invalid arguments.*")
+    @Test(enabled = false, dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Invalid arguments.*")
     void cannotLinkToExternalDmsOfWrongType(ExternalDmsAddressType dmsType, String externalCode, String path, String gitCommitHash)
     {
         ExternalDmsPermId edms = create(externalDms().withType(dmsType));
