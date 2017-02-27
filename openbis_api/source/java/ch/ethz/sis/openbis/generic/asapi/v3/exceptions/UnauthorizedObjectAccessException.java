@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.exceptions;
 
+import java.util.Iterator;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
@@ -41,18 +42,28 @@ public class UnauthorizedObjectAccessException extends UserFailureException
 
     public UnauthorizedObjectAccessException(List<? extends IObjectId> ids)
     {
-        super("Access denied to one of the " + ids.size() + " object/s for the operation = [" + truncateString(ids.toString(), 100) + "].");
+        super("Access denied to at least one of the " + ids.size() + " = [" + abbreviate(ids, 100) + "].");
         this.objectIds = ids;
     }
 
-    private static String truncateString(String string, int maxSize)
+    private static String abbreviate(List<? extends IObjectId> ids, int maxSize)
     {
-        String truncatedString = string.substring(0, Math.min(string.length(), maxSize));
-        if (truncatedString.length() < string.length())
+        StringBuilder builder = new StringBuilder();
+        Iterator<? extends IObjectId> iterator = ids.iterator();
+        for (int i = 0; iterator.hasNext() && i < maxSize; i++)
         {
-            truncatedString += " ...";
+            if (i > 0)
+            {
+                builder.append(", ");
+            }
+            builder.append(iterator.next());
         }
-        return truncatedString;
+        int size = ids.size();
+        if (maxSize < size)
+        {
+            builder.append(", ... (").append(size - maxSize).append(" left)");
+        }
+        return builder.toString();
     }
 
     public IObjectId getObjectId()
