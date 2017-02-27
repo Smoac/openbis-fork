@@ -175,6 +175,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public ISample createNewProjectSampleWithGeneratedCode(String projectIdentifier, String sampleTypeCode)
+    {
+        return transaction.createNewProjectSampleWithGeneratedCode(projectIdentifier, sampleTypeCode);
+    }
+
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         return transaction.getExperiment(experimentIdentifierString);
