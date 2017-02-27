@@ -602,39 +602,38 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode)
         {
-            String permId = generatePermId();
             SampleType sampleType = getSampleType(sampleTypeCode);
 
-            String sampleIdentifierString;
-            if (spaceCode == null || spaceCode.length() == 0)
+            String sampleIdentifierString = "/" + createSampleCode(sampleType);
+            if (spaceCode != null && spaceCode.length() > 0)
             {
-                sampleIdentifierString =
-                        "/"
-                                + openBisService.generateCodes(sampleType.getGeneratedCodePrefix(),
-                                        EntityKind.SAMPLE, 1).get(0);
-            } else
-            {
-                sampleIdentifierString =
-                        "/"
-                                + spaceCode
-                                + "/"
-                                + openBisService.generateCodes(sampleType.getGeneratedCodePrefix(),
-                                        EntityKind.SAMPLE, 1).get(0);
+                sampleIdentifierString = "/" + spaceCode + sampleIdentifierString;
             }
 
-            Sample sample = new Sample(sampleIdentifierString, permId);
-            sample.setSampleType(sampleTypeCode);
-            samplesToBeRegistered.add(sample);
-            addIdentifier(sampleIdentifierString, "Sample");
-            return sample;
+            return createNewSample(sampleIdentifierString, sampleTypeCode);
         }
 
+        public ISample createNewProjectSampleWithGeneratedCode(String projectIdentifier, String sampleTypeCode)
+        {
+            SampleType sampleType = getSampleType(sampleTypeCode);
+            String sampleIdentifierString = projectIdentifier + "/" + createSampleCode(sampleType);
+            return createNewSample(sampleIdentifierString, sampleTypeCode);
+        }
+
+        private String createSampleCode(SampleType sampleType)
+        {
+            return openBisService.generateCodes(sampleType.getGeneratedCodePrefix(), EntityKind.SAMPLE, 1).get(0);
+        }
+        
         /// Asserts that given entity hasn't been yet created within this transaction
         private void addIdentifier(String identifier, String entityKind)
         {
             String updatedId = entityKind + identifier.trim().toUpperCase();
             if (registeredIdentifiers.contains(updatedId))
-                throw new IllegalArgumentException(entityKind + " with identifier " + identifier + " has already been created in this transaction");
+            {
+                throw new IllegalArgumentException(entityKind + " with identifier " + identifier 
+                        + " has already been created in this transaction");
+            }
             registeredIdentifiers.add(updatedId);
         }
 

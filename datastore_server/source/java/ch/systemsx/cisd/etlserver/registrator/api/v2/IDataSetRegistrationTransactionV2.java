@@ -124,6 +124,14 @@ public interface IDataSetRegistrationTransactionV2
     ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode);
 
     /**
+     * Create a new project sample to register with the openBIS AS. The sample will have a permId and automatically created identifier.
+     * 
+     * @param projectIdentifier The project in which to create the sample identifier for the new sample
+     * @param sampleTypeCode The code of the type for the new sample
+     */
+    ISample createNewProjectSampleWithGeneratedCode(String projectIdentifier, String sampleTypeCode);
+    
+    /**
      * Get an experiment from the openBIS AS.
      * 
      * @deprecated Use {@link SearchService#getExperiment(String)}

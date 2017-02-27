@@ -355,6 +355,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public ISample createNewProjectSampleWithGeneratedCode(String projectIdentifier, String sampleTypeCode)
+    {
+        return getStateAsLiveState().createNewProjectSampleWithGeneratedCode(projectIdentifier, sampleTypeCode);
+    }
+
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         return getSearchServiceUnfiltered().getExperiment(experimentIdentifierString);
