@@ -122,7 +122,7 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     {
         Date timeStamp = getTransactionTimeStamp();
         ExperimentPE currentExperiment = sample.getExperiment();
-        ProjectPE currentProject = null;
+        ProjectPE currentProject = sample.getProject();
         if (currentExperiment != null)
         {
             service.checkCanUnassignSampleFromExperiment(session, sample);

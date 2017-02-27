@@ -294,8 +294,8 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     protected void updateBatch(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch)
     {
         setSampleSpaceExecutor.set(context, batch);
-        setSampleProjectExecutor.set(context, batch);
         setSampleExperimentExecutor.set(context, batch);
+        setSampleProjectExecutor.set(context, batch);
         setSampleTypeExecutor.set(context, batch);
         updateEntityPropertyExecutor.update(context, batch);
     }
