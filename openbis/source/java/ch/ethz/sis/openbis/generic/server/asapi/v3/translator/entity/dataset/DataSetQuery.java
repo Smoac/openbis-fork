@@ -95,8 +95,9 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet dataSetIds);
 
-    @Select(sql = "select dt.id, dt.code, dt.data_set_kind as kind, dt.description, dt.modification_timestamp as modificationDate from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select dt.id, dt.code, dt.data_set_kind as kind, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
+            + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
+                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetTypeBaseRecord> getTypes(LongSet dataSetTypeIds);
 
     // PropertyQueryGenerator was used to generate this query

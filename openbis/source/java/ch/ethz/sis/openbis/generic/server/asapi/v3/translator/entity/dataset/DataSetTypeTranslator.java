@@ -78,6 +78,9 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         result.setPermId(new EntityTypePermId(baseRecord.code));
         result.setCode(baseRecord.code);
         result.setKind(DataSetKind.valueOf(baseRecord.kind));
+        result.setMainDataSetPattern(baseRecord.mainDataSetPattern);
+        result.setMainDataSetPath(baseRecord.mainDataSetPath);
+        result.setDisallowDeletion(baseRecord.disallowDeletion);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
 

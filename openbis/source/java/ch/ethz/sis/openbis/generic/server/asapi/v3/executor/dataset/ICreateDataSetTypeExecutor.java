@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.dataset;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public class DataSetTypeBaseRecord extends ObjectBaseRecord
+public interface ICreateDataSetTypeExecutor extends ICreateEntityExecutor<DataSetTypeCreation, EntityTypePermId>
 {
-
-    public String code;
-
-    public String kind;
-
-    public String description;
-
-    public String mainDataSetPattern;
-    
-    public String mainDataSetPath;
-    
-    public Boolean disallowDeletion;
-
-    public Date modificationDate;
 
 }

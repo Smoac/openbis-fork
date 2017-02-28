@@ -128,6 +128,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTerm
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IArchiveDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IConfirmDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateMaterialMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateProjectMethodExecutor;
@@ -242,6 +243,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateDataSetMethodExecutor createDataSetExecutor;
+    
+    @Autowired
+    private ICreateDataSetTypeMethodExecutor createDataSetTypeExecutor;
 
     @Autowired
     private ICreateMaterialMethodExecutor createMaterialExecutor;
@@ -505,8 +509,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
     public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> creations)
     {
-        // TODO
-        return null;
+        return createDataSetTypeExecutor.create(sessionToken, creations);
     }
 
     @Override
