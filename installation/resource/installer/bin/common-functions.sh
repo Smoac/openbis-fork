@@ -311,7 +311,6 @@ restore()
     local file=$3
     if [ -e "$source_file" ]; then
         if [ -e "$destination/$file" ]; then
-            echo "cp -p $destination/$file $destination/$file.$version"
             cp -p "$destination/$file" "$destination/$file.$version"
         fi
         echo "cp -p $source_file $destination/$file"
