@@ -1231,4 +1231,34 @@ PERM_ID
 permId
 type
 TYPE
+create Sample Types
+get Initial Value For Existing Entities
+get Plugin Id
+get Property Type Id
+get Validation Plugin Id
+IPluginId
+IPropertyTypeId
+is Show Container
+is Show Parents
+PluginPermId
+Property Assignment Creation
+Property Type PermId
+Sample Type Creation
+set Show Container
+set Show Parents
+set Validation PluginId
 get Server Information
+create Data Set Types
+DataSetTypeCreation
+get Main Data Set Path
+get Main Data Set Pattern
+I Description Holder
+I Entity Type Creation
+is Disallow Deletion
+set Disallow Deletion
+set Main Data Set Path
+set Main Data Set Pattern
+create Experiment Types
+create Material Types
+Experiment Type Creation
+Material Type Creation
