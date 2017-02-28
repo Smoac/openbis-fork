@@ -13,12 +13,12 @@ public class CreateDataSetTypeMethodExecutor extends AbstractCreateMethodExecuto
         implements ICreateDataSetTypeMethodExecutor
 {
     @Autowired
-    private ICreateDataSetTypeExecutor createSampleTypeExecutor;
+    private ICreateDataSetTypeExecutor createDataSetTypeExecutor;
 
     @Override
     protected ICreateEntityExecutor<DataSetTypeCreation, EntityTypePermId> getCreateExecutor()
     {
-        return createSampleTypeExecutor;
+        return createDataSetTypeExecutor;
     }
 
 }
