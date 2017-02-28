@@ -1233,8 +1233,11 @@ type
 TYPE
 create Sample Types
 get Initial Value For Existing Entities
+set Initial Value For Existing Entities
 get Plugin Id
+set Plugin Id
 get Property Type Id
+set Property Type Id
 get Validation Plugin Id
 IPluginId
 IPropertyTypeId
