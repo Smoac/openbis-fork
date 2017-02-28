@@ -66,6 +66,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			this._$andOrDropdownComponent.val(this._advancedSearchModel.criteria.logicalOperator);
 			this._advancedSearchModel.forceLoadCriteria = undefined;
 		}
+		
+		this._$entityTypeDropdown.select2({ width: 'resolve' });
+		this._$andOrDropdownComponent.select2({ width: 'resolve' });
+		
+//		$("select").each(function() {
+//			if(!$(this).hasClass('select2-selection__rendered')) {
+//				$(this).select2({ width: 'resolve' });
+//			}
+//		});
 	}
 	
 	//
@@ -180,10 +189,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				var rule = this._advancedSearchModel.criteria.rules[ruleKey];
 				$fieldTypeDropdown.val(rule.type).change();
 				$fieldValue.val(rule.value);
-				$fieldNameDropdown = $($newFieldNameContainer.children()[0]);
+				var $fieldNameDropdown = $($newFieldNameContainer.children()[0]);
 				$fieldNameDropdown.val(rule.name);
+				$fieldNameDropdown.select2({ width: 'resolve' });
 			}
 		}
+		
+		$fieldTypeDropdown.select2({ width: 'resolve' });
 	}
 	
 	//should make new objects every time. otherwise, using the same object will produce odd results!
@@ -235,33 +247,43 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			_this._advancedSearchModel.criteria.rules[uuid].type = selectedValue; //Update model
 			
 			$newFieldNameContainer.empty();
+			var $mergedDropdown = null;
 			switch(selectedValue) {
 				case "All":
 					//Do Nothing
 				break;
 				case "Property/Attribute":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN"));
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN");
+					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Sample":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE"));
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE");
+					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Experiment":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT"));
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT");
+					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Parent":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "PARENT"));
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "PARENT");
+					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Children":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "CHILDREN"));
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "CHILDREN");
+					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				default:
 					//Do Nothing
+			}
+			if($mergedDropdown && !_this._advancedSearchModel.forceLoadCriteria) {
+				$mergedDropdown.select2({ width: 'resolve' });
 			}
 		});
 		
 		if(!this._advancedSearchModel.forceLoadCriteria) {
 			this._advancedSearchModel.criteria.rules[uuid].type = "All"; //Update model with defaults
 		}
+		
 		
 		return $fieldTypeComponent;
 	}
