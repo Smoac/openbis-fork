@@ -1712,7 +1712,7 @@ SELECT pg_catalog.setval('sample_property_id_seq', 53, true);
 SELECT pg_catalog.setval('sample_relationship_id_seq', 48, true);
 SELECT pg_catalog.setval('sample_relationships_history_id_seq', 1, false);
 SELECT pg_catalog.setval('sample_type_id_seq', 12, true);
-SELECT pg_catalog.setval('script_id_seq', 11, true);
+SELECT pg_catalog.setval('script_id_seq', 15, true);
 SELECT pg_catalog.setval('space_id_seq', 3, true);
 SELECT pg_catalog.setval('stpt_id_seq', 19, true);
 

@@ -132,6 +132,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperi
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateMaterialMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSampleTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateVocabularyTermMethodExecutor;
@@ -235,6 +236,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateSampleMethodExecutor createSampleExecutor;
+
+    @Autowired
+    private ICreateSampleTypeMethodExecutor createSampleTypeExecutor;
 
     @Autowired
     private ICreateDataSetMethodExecutor createDataSetExecutor;
@@ -456,7 +460,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
-    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("CREATE_EXPERIMENT_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public List<EntityTypePermId> createExperimentTypes(String sessionToken, List<ExperimentTypeCreation> creations)
     {
         // TODO
@@ -475,10 +481,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("CREATE_SAMPLE_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
     public List<EntityTypePermId> createSampleTypes(String sessionToken, List<SampleTypeCreation> creations)
     {
-        // TODO
-        return null;
+        return createSampleTypeExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -492,6 +500,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("CREATE_DATASET_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
     public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> creations)
     {
         // TODO
@@ -509,6 +520,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("CREATE_MATERIAL_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
     public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> creations)
     {
         // TODO

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -29,6 +30,7 @@ import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -37,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
-public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTypePE>
+public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTypePE> implements IIdentityHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -46,6 +48,20 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     private String code;
 
     private String description;
+
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return code;
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return code;
+    }
 
     public void setId(final Long id)
     {

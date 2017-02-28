@@ -9,3 +9,7 @@
 9	code_date	\N	"%s %s" % (entity.code(), str(currentDate().getTime()))	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON	t
 10	waitOK	\N	import time;\ndef validate(entity, isNew):\n  time.sleep(1);\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
 11	test	\N	import time;\ndef validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+12	testEXPERIMENT	\N	import time;\ndef validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	EXPERIMENT	ENTITY_VALIDATION	JYTHON	t
+13	testSAMPLE	\N	import time;\ndef validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	SAMPLE	ENTITY_VALIDATION	JYTHON	t
+14	propertiesEXPERIMENT	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	EXPERIMENT	DYNAMIC_PROPERTY	JYTHON	t
+15	propertiesSAMPLE	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	SAMPLE	DYNAMIC_PROPERTY	JYTHON	t
