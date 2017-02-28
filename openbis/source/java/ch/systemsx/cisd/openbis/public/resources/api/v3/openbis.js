@@ -1,4 +1,4 @@
-define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
+	define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 	jquery.noConflict();
 
 	var __private = function() {
@@ -206,6 +206,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.createExperimentTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createExperimentTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
+				}
+			});
+		}
+
 		this.createSamples = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -221,6 +236,36 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.createSampleTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createSampleTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
+				}
+			});
+		}
+
+		this.createDataSetTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createDataSetTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
+				}
+			});
+		}
+
 		this.createMaterials = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -232,6 +277,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				returnType : {
 					name : "List",
 					arguments : [ "MaterialPermId" ]
+				}
+			});
+		}
+
+		this.createMaterialTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createMaterialTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "EntityTypePermId" ]
 				}
 			});
 		}
