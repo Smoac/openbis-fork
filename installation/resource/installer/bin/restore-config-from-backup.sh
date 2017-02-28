@@ -30,31 +30,26 @@ echo "Restoring configuration backup from $CONF to $ROOT ..."
 
 # -- AS
 if [ -d $ROOT/openBIS-server ]; then
-    cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
-    cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
-    cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
-    cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc/
+    version=`cat $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/BUILD-openbis.INFO`
+    restore $CONF/.keystore $ROOT/openBIS-server/jetty/etc openBIS.keystore
+    restore $CONF/service.properties $ROOT/openBIS-server/jetty/etc service.properties
+    restore $CONF/log.xml $ROOT/openBIS-server/jetty/etc log.xml
+    restore $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc openbis.conf
+    restore $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc jetty.properties
+    restore $CONF/passwd $ROOT/openBIS-server/jetty/etc passwd
+    restore $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc web-client.properties
+    restore $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc dss-datasource-mapping
+    restore $CONF/capabilities $ROOT/openBIS-server/jetty/etc capabilities
+    restore $CONF/../openBIS-server/jetty/webapps/openbis/custom/welcomePageSimpleGeneric.html $ROOT/openBIS-server/jetty/webapps/openbis/custom welcomePageSimpleGeneric.html
 
-    # for 13.04.10 and older
-    copyIfExists $CONF/../openBIS-server/jetty/webapps/openbis/welcomePageSimple.html $ROOT/openBIS-server/jetty/webapps/openbis/custom/welcomePageSimpleGeneric.html
-    
-    # for 13.04.11 and later
-    copyIfExists $CONF/../openBIS-server/jetty/webapps/openbis/custom/welcomePageSimpleGeneric.html $ROOT/openBIS-server/jetty/webapps/openbis/custom
-
-    # not always present
-    copyIfExists $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
-    copyIfExists $CONF/passwd $ROOT/openBIS-server/jetty/etc/
-    copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
-    copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
-    copyIfExists $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc/
     copyConfig $CONF/core-plugins "html/etc$" $ROOT/core-plugins
     copyFolderIfExists $CONF/start.d $ROOT/openBIS-server/jetty/start.d
 fi
 
 # -- DSS
-cp $CONF/dss-service.properties $ROOT/datastore_server/etc/service.properties
-cp $CONF/dss-log.xml $ROOT/datastore_server/etc/log.xml
-cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
-# not always present
-copyIfExists $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
+version=`unzip -c $ROOT/servers/datastore_server/lib/datastore_server-*.jar  BUILD-datastore_server.INFO|tail -n 1`
+restore $CONF/dss-service.properties $ROOT/datastore_server/etc service.properties
+restore $CONF/dss-log.xml $ROOT/datastore_server/etc log.xml
+restore $CONF/datastore_server.conf $ROOT/datastore_server/etc datastore_server.conf
+restore $CONF/.keystore $ROOT/datastore_server/etc openBIS.keystore
 copyIfExists $CONF/ext-lib $ROOT/datastore_server 

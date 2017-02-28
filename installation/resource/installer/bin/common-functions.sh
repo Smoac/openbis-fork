@@ -302,6 +302,24 @@ executeScriptHooks()
 }
 
 #
+# Restore configuration file
+#
+restore()
+{
+    local source_file=$1
+    local destination=$2
+    local file=$3
+    if [ -e "$source_file" ]; then
+        if [ -e "$destination/$file" ]; then
+            echo "cp -p $destination/$file $destination/$file.$version"
+            cp -p "$destination/$file" "$destination/$file.$version"
+        fi
+        echo "cp -p $source_file $destination/$file"
+        cp -p "$source_file" "$destination/$file"
+    fi
+}
+
+#
 # Copies a file (first parameter) to a destination (second parameter). 
 # Does nothing if file does not exist. Will follow symbolic links.
 #
