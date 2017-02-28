@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
@@ -31,7 +32,7 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.attachment.Attachment")
-public class Attachment implements Serializable, IRegistrationDateHolder, IRegistratorHolder
+public class Attachment implements Serializable, IDescriptionHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -109,6 +110,7 @@ public class Attachment implements Serializable, IRegistrationDateHolder, IRegis
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public String getDescription()
     {
         return description;

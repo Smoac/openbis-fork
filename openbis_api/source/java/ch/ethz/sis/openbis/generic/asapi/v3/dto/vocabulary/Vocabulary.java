@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
@@ -32,7 +33,7 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.vocabulary.Vocabulary")
-public class Vocabulary implements Serializable, ICodeHolder, IModificationDateHolder, IRegistrationDateHolder, IRegistratorHolder
+public class Vocabulary implements Serializable, ICodeHolder, IDescriptionHolder, IModificationDateHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -83,6 +84,7 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public String getDescription()
     {
         return description;
