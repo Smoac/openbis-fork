@@ -130,7 +130,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IConfirmDelet
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperimentTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateMaterialTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSampleTypeMethodExecutor;
@@ -236,6 +238,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ICreateExperimentMethodExecutor createExperimentExecutor;
 
     @Autowired
+    private ICreateExperimentTypeMethodExecutor createExperimentTypeExecutor;
+    
+    @Autowired
     private ICreateSampleMethodExecutor createSampleExecutor;
 
     @Autowired
@@ -250,6 +255,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Autowired
     private ICreateMaterialMethodExecutor createMaterialExecutor;
 
+    @Autowired
+    private ICreateMaterialTypeMethodExecutor createMaterialTypeExecutor;
+    
     @Autowired
     private ICreateVocabularyTermMethodExecutor createVocabularyTermExecutor;
 
@@ -469,8 +477,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public List<EntityTypePermId> createExperimentTypes(String sessionToken, List<ExperimentTypeCreation> creations)
     {
-        // TODO
-        return null;
+        return createExperimentTypeExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -528,8 +535,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
     public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> creations)
     {
-        // TODO
-        return null;
+        return createMaterialTypeExecutor.create(sessionToken, creations);
     }
 
     @Override
