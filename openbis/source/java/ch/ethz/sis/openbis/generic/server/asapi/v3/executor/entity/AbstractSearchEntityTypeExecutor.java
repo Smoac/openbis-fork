@@ -20,11 +20,15 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -50,13 +54,38 @@ public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_SEARCH_CRITER
     @Override
     protected Matcher<ENTITY_TYPE_PE> getMatcher(ISearchCriteria criteria)
     {
-        if (criteria instanceof PermIdSearchCriteria || criteria instanceof CodeSearchCriteria)
+        if (criteria instanceof IdSearchCriteria<?>)
+        {
+            return new IdMatcher();
+        } else if (criteria instanceof PermIdSearchCriteria || criteria instanceof CodeSearchCriteria)
         {
             return new CodeMatcher<ENTITY_TYPE_PE>();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
+    }
+
+    private class IdMatcher extends SimpleFieldMatcher<ENTITY_TYPE_PE>
+    {
+
+        @Override
+        protected boolean isMatching(IOperationContext context, ENTITY_TYPE_PE object, ISearchCriteria criteria)
+        {
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
+
+            if (id == null)
+            {
+                return true;
+            } else if (id instanceof EntityTypePermId)
+            {
+                return object.getPermId().equals(((EntityTypePermId) id).getPermId());
+            } else
+            {
+                throw new IllegalArgumentException("Unknown id: " + criteria.getClass());
+            }
+        }
+
     }
 
 }
