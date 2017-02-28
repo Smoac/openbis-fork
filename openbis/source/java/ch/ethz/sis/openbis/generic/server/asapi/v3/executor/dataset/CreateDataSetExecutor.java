@@ -238,7 +238,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
     }
 
     @Override

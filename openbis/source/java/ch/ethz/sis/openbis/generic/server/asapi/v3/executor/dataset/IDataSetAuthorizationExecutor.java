@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 public interface IDataSetAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canCreate(IOperationContext context);
-
     void canCreate(IOperationContext context, DataPE dataSet);
 
     void canUpdate(IOperationContext context, IDataSetId id, DataPE dataSet);

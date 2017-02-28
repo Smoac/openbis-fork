@@ -44,11 +44,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecutor
 {
 
+    private boolean canCreate(PersonPE person)
+    {
+        if (person.isSystemUser())
+        {
+            return true;
+        }
+
+        AuthorizationServiceUtils authorization = new AuthorizationServiceUtils(null, person);
+        return authorization.doesUserHaveRole(RoleWithHierarchy.SPACE_ETL_SERVER);
+    }
+
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATASET")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
-    public void canCreate(IOperationContext context)
+    public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
         boolean isCreatorPersonAllowed = false;
         boolean isPersonAllowed = false;
@@ -69,25 +80,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
                     "Data set creation can be only executed by a system user or a user with at least " + RoleWithHierarchy.SPACE_ETL_SERVER
                             + " role.");
         }
-    }
-
-    private boolean canCreate(PersonPE person)
-    {
-        if (person.isSystemUser())
-        {
-            return true;
-        }
-
-        AuthorizationServiceUtils authorization = new AuthorizationServiceUtils(null, person);
-        return authorization.doesUserHaveRole(RoleWithHierarchy.SPACE_ETL_SERVER);
-    }
-
-    @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("CREATE_DATASET")
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
-    public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
-    {
+        
         if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(dataSet.getRegistrator(), dataSet))
         {
             throw new UnauthorizedObjectAccessException(new DataSetPermId(dataSet.getPermId()));
