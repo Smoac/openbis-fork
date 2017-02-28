@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
@@ -36,7 +37,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.dataset.DataSetType")
-public class DataSetType implements Serializable, ICodeHolder, IEntityType, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder
+public class DataSetType implements Serializable, ICodeHolder, IDescriptionHolder, IEntityType, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -54,6 +55,15 @@ public class DataSetType implements Serializable, ICodeHolder, IEntityType, IMod
 
     @JsonProperty
     private String description;
+
+    @JsonProperty
+    private String mainDataSetPattern;
+
+    @JsonProperty
+    private String mainDataSetPath;
+
+    @JsonProperty
+    private Boolean disallowDeletion;
 
     @JsonProperty
     private Date modificationDate;
@@ -117,6 +127,7 @@ public class DataSetType implements Serializable, ICodeHolder, IEntityType, IMod
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public String getDescription()
     {
         return description;
@@ -126,6 +137,45 @@ public class DataSetType implements Serializable, ICodeHolder, IEntityType, IMod
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public String getMainDataSetPattern()
+    {
+        return mainDataSetPattern;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setMainDataSetPattern(String mainDataSetPattern)
+    {
+        this.mainDataSetPattern = mainDataSetPattern;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public String getMainDataSetPath()
+    {
+        return mainDataSetPath;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setMainDataSetPath(String mainDataSetPath)
+    {
+        this.mainDataSetPath = mainDataSetPath;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isDisallowDeletion()
+    {
+        return disallowDeletion;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setDisallowDeletion(Boolean disallowDeletion)
+    {
+        this.disallowDeletion = disallowDeletion;
     }
 
     // Method automatically generated with DtoGenerator

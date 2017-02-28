@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.space;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
@@ -39,7 +40,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.space.Space")
-public class Space implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IProjectsHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder
+public class Space implements Serializable, ICodeHolder, IDescriptionHolder, IModificationDateHolder, IPermIdHolder, IProjectsHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -113,6 +114,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public String getDescription()
     {
         return description;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
+ * Holds information that uniquely identifies a plugin (i.e. dynamic property evaluator, managed property handler, entity validator) in openBIS.
+ * 
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.interfaces.IEntityType")
-public interface IEntityType extends ICodeHolder, IDescriptionHolder, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder
+@JsonObject("as.dto.plugin.id.IPluginId")
+public interface IPluginId extends IObjectId
 {
 
 }

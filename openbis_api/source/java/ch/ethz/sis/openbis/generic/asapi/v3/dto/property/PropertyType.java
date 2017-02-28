@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -34,7 +35,7 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyType")
-public class PropertyType implements Serializable, ICodeHolder, IRegistrationDateHolder, IRegistratorHolder
+public class PropertyType implements Serializable, ICodeHolder, IDescriptionHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -119,6 +120,7 @@ public class PropertyType implements Serializable, ICodeHolder, IRegistrationDat
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public String getDescription()
     {
         return description;

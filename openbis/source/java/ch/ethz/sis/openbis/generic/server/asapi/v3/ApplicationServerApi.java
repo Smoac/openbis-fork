@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
@@ -43,9 +44,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
@@ -60,6 +63,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
@@ -82,6 +86,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -179,10 +184,26 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DeletionIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentDeletePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3RevertDeletionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleCreationPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleDeletePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleUpdatePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceDeletePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceUpdatePredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
@@ -190,22 +211,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleCreationPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleUpdatePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SampleDeletePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceUpdatePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3SpaceDeletePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentCreationPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentUpdatePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ExperimentDeletePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectCreationPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectUpdatePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3RevertDeletionPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3ProjectDeletePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetUpdatePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DataSetIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DeletionIdPredicate;
 
 /**
  * @author pkupczyk
@@ -452,12 +457,28 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    public List<EntityTypePermId> createExperimentTypes(String sessionToken, List<ExperimentTypeCreation> creations)
+    {
+        // TODO
+        return null;
+    }
+
+    @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SAMPLE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public List<SamplePermId> createSamples(String sessionToken, @AuthorizationGuard(guardClass = V3SampleCreationPredicate.class) List<SampleCreation> creations)
     {
         return createSampleExecutor.create(sessionToken, creations);
+    }
+
+    @Override
+    @Transactional
+    public List<EntityTypePermId> createSampleTypes(String sessionToken, List<SampleTypeCreation> creations)
+    {
+        // TODO
+        return null;
     }
 
     @Override
@@ -471,6 +492,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> creations)
+    {
+        // TODO
+        return null;
+    }
+
+    @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_MATERIAL")
@@ -478,6 +506,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> creations)
     {
         return createMaterialExecutor.create(sessionToken, creations);
+    }
+
+    @Override
+    public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> creations)
+    {
+        // TODO
+        return null;
     }
 
     @Override
