@@ -79,7 +79,7 @@ public class SampleOwnerIdentifierTest
     @Test
     public void testIsAndGetSpaceLevel()
     {
-        assertIsAndGetSpaceLevel(ownerProjectP1, false, null);
+        assertIsAndGetSpaceLevel(ownerProjectP1, false, spaceA);
         assertIsAndGetSpaceLevel(ownerSpaceA, true, spaceA);
         assertIsAndGetSpaceLevel(noOwner, false, null);
     }
@@ -87,7 +87,13 @@ public class SampleOwnerIdentifierTest
     private void assertIsAndGetSpaceLevel(SampleOwnerIdentifier identifier, boolean expected, SpaceIdentifier space)
     {
         assertEquals(identifier.isSpaceLevel(), expected);
-        assertSame(identifier.getSpaceLevel(), space);
+        if (space == null)
+        {
+            assertEquals(identifier.getSpaceLevel(), null);
+        } else
+        {
+            assertSame(identifier.getSpaceLevel().getSpaceCode(), space.getSpaceCode());
+        }
     }
     
     @Test
