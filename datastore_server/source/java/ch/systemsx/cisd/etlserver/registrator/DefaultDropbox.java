@@ -35,12 +35,12 @@ public class DefaultDropbox extends AbstractJavaDataSetRegistrationDropboxV2
     public void process(IDataSetRegistrationTransactionV2 transaction)
     {
         IDataSet dataSet = transaction.createNewDataSet();
-        if (dataSet.getExperiment() == null)
+        if (dataSet.getExperiment() == null && dataSet.getSample() == null)
         {
             ISampleImmutable sample = transaction.getSearchService().getSample(SAMPLE_IDENTIFIER);
             if (sample == null)
             {
-                transaction.createNewSample(SAMPLE_IDENTIFIER, "UNKNOWN");
+                sample = transaction.createNewSample(SAMPLE_IDENTIFIER, "UNKNOWN");
             }
             dataSet.setSample(sample);
         }

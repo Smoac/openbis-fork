@@ -120,13 +120,12 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     }
 
     /**
-     * It is a good pattern to use {@link #isSpaceLevel()} before calling this method.
-     * 
-     * @return The space which is the owner or null if the owner is not a space, but database instance.
+     * Returns the space identifier. In case of project samples the project identifier is returned.
+     * In case of shared sample <code>null</code> is returned.
      */
     public SpaceIdentifier getSpaceLevel()
     {
-        return spaceIdentOrNull;
+        return projectIdentifier != null ? projectIdentifier : spaceIdentOrNull;
     }
 
     //
