@@ -67,12 +67,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			this._advancedSearchModel.forceLoadCriteria = undefined;
 		}
 		
-		this._$entityTypeDropdown.select2({ width: 'resolve' });
-		this._$andOrDropdownComponent.select2({ width: 'resolve' });
+		this._$entityTypeDropdown.select2({ width: '100%' });
+		this._$andOrDropdownComponent.select2({ width: '100%' });
 		
 //		$("select").each(function() {
 //			if(!$(this).hasClass('select2-selection__rendered')) {
-//				$(this).select2({ width: 'resolve' });
+//				$(this).select2({ width: '100%' });
 //			}
 //		});
 	}
@@ -191,11 +191,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				$fieldValue.val(rule.value);
 				var $fieldNameDropdown = $($newFieldNameContainer.children()[0]);
 				$fieldNameDropdown.val(rule.name);
-				$fieldNameDropdown.select2({ width: 'resolve' });
+				$fieldNameDropdown.select2({ width: '100%' });
 			}
 		}
 		
-		$fieldTypeDropdown.select2({ width: 'resolve' });
+		$fieldTypeDropdown.select2({ width: '100%' });
 	}
 	
 	//should make new objects every time. otherwise, using the same object will produce odd results!
@@ -276,7 +276,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					//Do Nothing
 			}
 			if($mergedDropdown && !_this._advancedSearchModel.forceLoadCriteria) {
-				$mergedDropdown.select2({ width: 'resolve' });
+				$mergedDropdown.select2({ width: '100%' });
 			}
 		});
 		
@@ -432,7 +432,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
 					$(tds[0]).empty();
 					$(tds[0]).append($newFieldTypeComponent);
-					$newFieldTypeComponent.select2({ width: 'resolve' });
+					$newFieldTypeComponent.select2({ width: '100%' });
 				}				
 			} else {
 				_this._advancedSearchModel.resetModel(kindAndType[0]); //Restart model
