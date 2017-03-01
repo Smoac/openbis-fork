@@ -432,6 +432,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
 					$(tds[0]).empty();
 					$(tds[0]).append($newFieldTypeComponent);
+					$newFieldTypeComponent.select2({ width: 'resolve' });
 				}				
 			} else {
 				_this._advancedSearchModel.resetModel(kindAndType[0]); //Restart model
