@@ -472,6 +472,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENT_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
@@ -511,6 +512,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_DATASET_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
@@ -530,6 +532,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_MATERIAL_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
