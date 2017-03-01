@@ -41,10 +41,17 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1.createTestDatabase('openbis')
         openbis1.createTestDatabase('pathinfo')
         openbis1.createTestDatabase('imaging')
-        
+
         '''Set openbis1 as the datasource'''
         self.installDataSourcePlugin(openbis1, openbis1_dss_port)
         self.installEntityRegistrationPlugin(openbis1)
+
+        '''Copy master data script'''        
+        filePath = "%s/servers/core-plugins/%s/1/as" % (openbis1.installPath, openbis1.instanceName)
+        os.makedirs(filePath)
+        util.printAndFlush("Copying master data script from %s to %s" %(self.getMasterDataScriptFolder(), filePath ))
+        util.copyFromTo(self.getMasterDataScriptFolder(), filePath, "initialize-master-data.py")
+        
         corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
         util.printAndFlush(corePluginsPropertiesFile)
         openbis1.allUp()
@@ -115,6 +122,13 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1.setDummyAuthentication()
         self.installDataSourcePlugin(openbis1, openbis1_dss_port)
         self.installEntityRegistrationPlugin(openbis1)
+        
+        '''Copy master data script'''        
+        filePath = "%s/servers/core-plugins/%s/1/as" % (openbis1.installPath, openbis1.instanceName)
+        os.makedirs(filePath)
+        util.printAndFlush("Copying master data script from %s to %s" %(self.getMasterDataScriptFolder(), filePath ))
+        util.copyFromTo(self.getMasterDataScriptFolder(), filePath, "initialize-master-data.py")
+
         corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbis1.installPath
         util.printAndFlush(corePluginsPropertiesFile)
         #util.writeProperties(corePluginsPropertiesFile)
@@ -122,7 +136,8 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1.setDataStoreServerProperty("host-address", "https://localhost")
         openbis1.allUp()
  
-        '''uncomment the following if we have ot run the test once in non-dev mode before (otherwise we already have ENTITY_REGISTRATION and get an error'''
+ 
+        '''uncomment the following if we have not run the test once in non-dev mode before (otherwise we already have ENTITY_REGISTRATION and get an error'''
 #        '''Drop the folder to register some test entities in space SYNC'''
 #        openbis1.dropAndWait("ENTITY_REGISTRATION", "openbis-sync-entity-reg")
 
@@ -230,12 +245,15 @@ class TestCase(systemtest.testcase.TestCase):
         
     def installEntityRegistrationPlugin(self, openbisController):
         self.installPlugin(openbisController, "test")
-
+        
     def installHarvesterPlugin(self, openbisController):
         self.installPlugin(openbisController, "harvester")
 
     def getHarvesterConfigFolder(self):
         return systemtest.testcase.TEMPLATES + "/" + self.name + "/harvester_config"
+
+    def getMasterDataScriptFolder(self):
+        return systemtest.testcase.TEMPLATES + "/" + self.name + "/master_data"
     
 class GitLabArtifactRepository(GitArtifactRepository):
     """

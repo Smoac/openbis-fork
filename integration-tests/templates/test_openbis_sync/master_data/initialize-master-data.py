@@ -22,7 +22,7 @@ vocabulary_term_GENDER_FEMALE.setLabel('FEMALE')
 vocabulary_term_GENDER_FEMALE.setOrdinal(1)
 vocabulary_GENDER.addTerm(vocabulary_term_GENDER_FEMALE)
 
-vocabulary_INTERNAL = tr.getOrCreateNewVocabulary('NTERNAL')
+vocabulary_INTERNAL = tr.getOrCreateNewVocabulary('INTERNAL')
 vocabulary_INTERNAL.setDescription('Internal vocabulary')
 vocabulary_INTERNAL.setUrlTemplate(None)
 vocabulary_INTERNAL.setManagedInternally(False)
