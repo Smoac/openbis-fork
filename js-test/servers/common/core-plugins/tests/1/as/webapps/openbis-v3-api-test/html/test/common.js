@@ -93,6 +93,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
 		this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
 		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
+		this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
+		this.PropertyTypePermId = dtos.PropertyTypePermId;
+		this.PluginPermId = dtos.PluginPermId;
+		this.ExperimentTypeCreation = dtos.ExperimentTypeCreation;
+		this.SampleTypeCreation = dtos.SampleTypeCreation;
+		this.DataSetTypeCreation = dtos.DataSetTypeCreation;
+		this.MaterialTypeCreation = dtos.MaterialTypeCreation;
 
 		this.getDtos = function() {
 			return dtos;
@@ -224,10 +231,28 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			});
 		}.bind(this);
 
+		this.findExperimentType = function(facade, id) {
+			var c = this;
+			var criteria = new c.ExperimentTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchExperimentTypes(criteria, c.createExperimentTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
+			});
+		}.bind(this);
+
 		this.findSample = function(facade, id) {
 			var c = this;
 			return facade.getSamples([ id ], c.createSampleFetchOptions()).then(function(samples) {
 				return samples[id];
+			});
+		}.bind(this);
+
+		this.findSampleType = function(facade, id) {
+			var c = this;
+			var criteria = new c.SampleTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchSampleTypes(criteria, c.createSampleTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
 			});
 		}.bind(this);
 
@@ -238,10 +263,28 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			});
 		}.bind(this);
 
+		this.findDataSetType = function(facade, id) {
+			var c = this;
+			var criteria = new c.DataSetTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchDataSetTypes(criteria, c.createDataSetTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
+			});
+		}.bind(this);
+
 		this.findMaterial = function(facade, id) {
 			var c = this;
 			return facade.getMaterials([ id ], c.createMaterialFetchOptions()).then(function(materials) {
 				return materials[id];
+			});
+		}.bind(this);
+
+		this.findMaterialType = function(facade, id) {
+			var c = this;
+			var criteria = new c.MaterialTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchMaterialTypes(criteria, c.createMaterialTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
 			});
 		}.bind(this);
 
@@ -386,6 +429,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			return fo;
 		};
 
+		this.createExperimentTypeFetchOptions = function() {
+			var fo = new dtos.ExperimentTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
+			return fo;
+		};
+
 		this.createSampleFetchOptions = function() {
 			var fo = new dtos.SampleFetchOptions();
 			fo.withType();
@@ -404,6 +454,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			fo.withModifier();
 			fo.withAttachments().withContent();
 			fo.withChildrenUsing(fo);
+			return fo;
+		};
+
+		this.createSampleTypeFetchOptions = function() {
+			var fo = new dtos.SampleTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
 			return fo;
 		};
 
@@ -429,6 +486,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			return fo;
 		};
 
+		this.createDataSetTypeFetchOptions = function() {
+			var fo = new dtos.DataSetTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
+			return fo;
+		};
+
 		this.createMaterialFetchOptions = function() {
 			var fo = new dtos.MaterialFetchOptions();
 			fo.withType();
@@ -437,6 +501,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			fo.withProperties();
 			fo.withMaterialProperties();
 			fo.withTags();
+			return fo;
+		};
+
+		this.createMaterialTypeFetchOptions = function() {
+			var fo = new dtos.MaterialTypeFetchOptions();
+			fo.withPropertyAssignments().withPropertyType();
+			fo.withPropertyAssignments().withRegistrator();
 			return fo;
 		};
 
