@@ -81,7 +81,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			//Delete Button
 			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
 				_this._dataSetFormController.deleteDataSet(reason);
-				mainController.sideMenu.deleteNodeByEntityPermId(_this._dataSetFormModel.dataSet.code, true);
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 			

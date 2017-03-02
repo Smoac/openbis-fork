@@ -58,16 +58,30 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 	
 	this.deleteDataSet = function(reason) {
 		var _this = this;
+		Util.blockUI();
 		mainController.serverFacade.deleteDataSets([this._dataSetFormModel.dataSet.code], reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
 				Util.showSuccess("Data Set Deleted");
-				if(this._dataSetFormModel.isExperiment()) {
-					mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
-				} else {
-					mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
-				}
+				
+//				setTimeout(function() { //Give some time to update the index
+					var space = null;
+					if(_this._dataSetFormModel.isExperiment()) {
+						mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
+						experimentIdentifier = _this._dataSetFormModel.entity.identifier.identifier;
+						space = experimentIdentifier.split("/")[1];
+					} else {
+						mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
+						sampleIdentifier = _this._dataSetFormModel.entity.identifier;
+						space = sampleIdentifier.split("/")[1];
+					}
+					
+					var isInventory = profile.isInventorySpace(space);
+					if(!isInventory) {
+						mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+					}
+//				}, 3000);
 			}
 		});
 	}
