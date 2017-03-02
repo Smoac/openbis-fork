@@ -133,7 +133,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$list.append($batchUpdateOption);
 		
 		var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
-		var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search Into ' + expKindName  }).append('Search Into ' + expKindName));
+		var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName  }).append('Search in ' + expKindName));
 		$searchCollectionOption.click(function() {
 			
 			var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : _this._sampleTableModel.experiment.permId } };
