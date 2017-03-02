@@ -186,19 +186,20 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 						}
 					}
 					
-					
-					if(_this._dataSetFormModel.mode === FormMode.CREATE) {
-						Util.showSuccess("DataSet Created.", callbackOk);
-						if(!isInventory) {
-							mainController.sideMenu.refreshCurrentNode();
+					setTimeout(function() {
+						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
+							Util.showSuccess("DataSet Created.", callbackOk);
+							if(!isInventory) {
+								mainController.sideMenu.refreshCurrentNode();
+							}
+							
+						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
+							Util.showSuccess("DataSet Updated.", callbackOk);
+							if(!isInventory) {
+								mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+							}
 						}
-						
-					} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
-						Util.showSuccess("DataSet Updated.", callbackOk);
-						if(!isInventory) {
-							mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
-						}
-					}
+					}, 3000);
 					
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});
