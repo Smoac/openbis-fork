@@ -27,15 +27,20 @@ function LinksView(linksController, linksModel) {
 	//
 	// External API
 	//
-	linksView.initContainerForType = function(sampleTypeCode) {
+	linksView.initContainerForType = function(sampleTypeCode, samples) {
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
 		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		
-		//Create Model
+		//Create Model if missing
 		if(!samplesOnGrid) {
 			samplesOnGrid = [];
-			linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
 		}
+		 //This should happen only during the initalization
+		if(samples) {
+			samplesOnGrid = samples;
+		}
+		
+		linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
 		
 		//Create Layout
 		if(!$dataGridContainer) { //Create if is not there yet
@@ -75,7 +80,8 @@ function LinksView(linksController, linksModel) {
 			containerCode = sampleTypeCode;
 		}
 		
-		linksView.initContainerForType(containerCode);
+		linksView.initContainerForType(containerCode, (isInit)?sample:null);
+		
 		var $dataGridContainer = sampleGridContainerByType[containerCode];
 		
 		var samplesOnGrid = linksModel.samplesByType[containerCode];
@@ -106,12 +112,12 @@ function LinksView(linksController, linksModel) {
 		//Render Grid
 		$dataGridContainer.empty();
 		
-		if(isInit) {
-			samplesOnGrid = sample;
-		} else if(isAdd) {
-			samplesOnGrid.push(sample);
-		} else {
-			samplesOnGrid.splice(foundAtIndex, 1);
+		if(!isInit) {
+			if(isAdd) {
+				samplesOnGrid.push(sample);
+			} else {
+				samplesOnGrid.splice(foundAtIndex, 1);
+			}
 		}
 		
 		var customAnnotationColumnsByType = {};
