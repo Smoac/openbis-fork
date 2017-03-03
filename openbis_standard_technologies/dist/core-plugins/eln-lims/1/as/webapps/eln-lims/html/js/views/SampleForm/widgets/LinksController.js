@@ -131,8 +131,21 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	
 	this.addSamplesOnInit = function(samples) {
 		Util.blockUI();
+		var samplesByType = {};
 		if(samples && samples.length > 0) {
-			linksView.updateSample(samples, true, true);
+			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+				var sampleTypeCode = samples[sIdx].sampleTypeCode;
+				var samplesOfType = samplesByType[sampleTypeCode];
+				if(!samplesOfType) {
+					samplesOfType = [];
+					samplesByType[sampleTypeCode] = samplesOfType;
+				}
+				samplesOfType.push(samples[sIdx]);
+			}
+		}
+		
+		for(var type in samplesByType) {
+			linksView.updateSample(samplesByType[type], true, true);
 		}
 		Util.unblockUI();
 	}

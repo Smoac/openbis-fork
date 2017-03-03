@@ -37,7 +37,7 @@ function LinksView(linksController, linksModel) {
 		}
 		 //This should happen only during the initalization
 		if(samples) {
-			samplesOnGrid = samples;
+			samplesOnGrid = samplesOnGrid.concat(samples);
 		}
 		
 		linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
