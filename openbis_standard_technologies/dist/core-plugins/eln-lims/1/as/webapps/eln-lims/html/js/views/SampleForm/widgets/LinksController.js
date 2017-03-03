@@ -28,9 +28,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		}
 		
 		if(samplesToEdit) {
-			for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
-				this.addSample(samplesToEdit[sIdx], true);
-			}
+			this.addSamplesOnInit(samplesToEdit);
 		}
 	}
 	
@@ -128,6 +126,15 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 				Util.unblockUI();
 			}
 		});
+	}
+	
+	
+	this.addSamplesOnInit = function(samples) {
+		Util.blockUI();
+		if(samples && samples.length > 0) {
+			linksView.updateSample(samples, true, true);
+		}
+		Util.unblockUI();
 	}
 	
 	this.getSamples = function() {

@@ -61,7 +61,14 @@ function LinksView(linksController, linksModel) {
 	}
 	
 	this.updateSample = function(sample, isAdd, isInit) {
-		var sampleTypeCode = sample.sampleTypeCode;
+		var sampleTypeCode = null;
+		
+		if(isInit) {
+			sampleTypeCode = sample[0].sampleTypeCode;
+		} else {
+			sampleTypeCode = sample.sampleTypeCode;
+		}
+		
 		
 		var containerCode = null;
 		if(!linksModel.isDisabled) {
@@ -75,18 +82,22 @@ function LinksView(linksController, linksModel) {
 		
 		//Check if the sample is already added
 		var foundAtIndex = -1;
-		for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
-			if(samplesOnGrid[sIdx].permId === sample.permId) {
-				foundAtIndex = sIdx;
-				if(isAdd) {
-					Util.showError("Sample " + sample.code + " already present, it will not be added again.");
-					return;
-				} else {
-					linksModel.samplesRemoved.push(sample.identifier);
-					break;
+		if(!isInit) {
+			for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
+				if(samplesOnGrid[sIdx].permId === sample.permId) {
+					foundAtIndex = sIdx;
+					if(isAdd) {
+						Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+						return;
+					} else {
+						linksModel.samplesRemoved.push(sample.identifier);
+						break;
+					}
 				}
 			}
 		}
+		
+		
 		
 		if(isAdd && !isInit) {
 			linksModel.samplesAdded.push(sample.identifier);
@@ -95,7 +106,9 @@ function LinksView(linksController, linksModel) {
 		//Render Grid
 		$dataGridContainer.empty();
 		
-		if(isAdd) {
+		if(isInit) {
+			samplesOnGrid = sample;
+		} else if(isAdd) {
 			samplesOnGrid.push(sample);
 		} else {
 			samplesOnGrid.splice(foundAtIndex, 1);
