@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -88,6 +89,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -100,6 +102,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -642,13 +645,13 @@ public class EntitySynchronizer
         Map<String, ExperimentWithConnections> experimentsToProcess = data.getExperimentsToProcess();
         for (ExperimentWithConnections exp : experimentsToProcess.values())
         {
-            NewExperiment newIncomingExp = exp.getExperiment();
+            NewExperiment incomingExp = exp.getExperiment();
             if (exp.getLastModificationDate().after(lastSyncTimestamp))
             {
                 Experiment experiment = null;
                 try
                 {
-                    experiment = service.tryGetExperimentByPermId(newIncomingExp.getPermID());
+                    experiment = service.tryGetExperimentByPermId(incomingExp.getPermID());
                 } catch (Exception e)
                 {
                     // doing nothing because when the experiment with the perm id not found
@@ -658,16 +661,16 @@ public class EntitySynchronizer
                 if (experiment == null)
                 {
                     // ADD EXPERIMENT
-                    builder.experiment(newIncomingExp);
+                    builder.experiment(incomingExp);
                 }
                 else
                 {
                     // UPDATE EXPERIMENT
-                    ExperimentUpdatesDTO expUpdate = createExperimentUpdateDTOs(newIncomingExp, experiment);
+                    ExperimentUpdatesDTO expUpdate = createExperimentUpdateDTOs(incomingExp, experiment);
                     builder.experimentUpdate(expUpdate);
                 }
             }
-            handleExperimentConnections(data, exp, newIncomingExp);
+            handleExperimentConnections(data, exp, incomingExp);
         }
     }
 
@@ -691,12 +694,16 @@ public class EntitySynchronizer
         }
     }
 
-    private ExperimentUpdatesDTO createExperimentUpdateDTOs(NewExperiment newIncomingExp, Experiment experiment)
+    private ExperimentUpdatesDTO createExperimentUpdateDTOs(NewExperiment incomingExp, Experiment experiment)
     {
         ExperimentUpdatesDTO expUpdate = new ExperimentUpdatesDTO();
-        expUpdate.setProjectIdentifier(ExperimentIdentifierFactory.parse(newIncomingExp.getIdentifier()));
+        expUpdate.setProjectIdentifier(ExperimentIdentifierFactory.parse(incomingExp.getIdentifier()));
         expUpdate.setVersion(experiment.getVersion());
-        expUpdate.setProperties(Arrays.asList(newIncomingExp.getProperties()));
+
+        List<IEntityProperty> newPropList = new LinkedList<IEntityProperty>(Arrays.asList(incomingExp.getProperties()));
+        appendRemovedProperties(newPropList, experiment.getProperties());
+
+        expUpdate.setProperties(newPropList);
         expUpdate.setExperimentId(TechId.create(experiment));
         // TODO attachments
         expUpdate.setAttachments(Collections.<NewAttachment> emptyList());
@@ -709,18 +716,21 @@ public class EntitySynchronizer
         Map<String, MaterialWithLastModificationDate> materialsToProcess = data.getMaterialsToProcess();
         for (MaterialWithLastModificationDate newMaterialWithType : materialsToProcess.values())
         {
-            NewMaterialWithType newIncomingMaterial = newMaterialWithType.getMaterial();
+            NewMaterialWithType incomingMaterial = newMaterialWithType.getMaterial();
             if (newMaterialWithType.getLastModificationDate().after(lastSyncTimestamp))
             {
-                Material material = service.tryGetMaterial(new MaterialIdentifier(newIncomingMaterial.getCode(), newIncomingMaterial.getType()));
+                Material material = service.tryGetMaterial(new MaterialIdentifier(incomingMaterial.getCode(), incomingMaterial.getType()));
                 if (material == null)
                 {
-                    builder.material(newIncomingMaterial);
+                    builder.material(incomingMaterial);
                 }
                 else
                 {
+                    List<IEntityProperty> newPropList = new LinkedList<IEntityProperty>(Arrays.asList(incomingMaterial.getProperties()));
+                    appendRemovedProperties(newPropList, material.getProperties());
+
                     MaterialUpdateDTO update =
-                            new MaterialUpdateDTO(TechId.create(material), Arrays.asList(newIncomingMaterial.getProperties()),
+                            new MaterialUpdateDTO(TechId.create(material), newPropList,
                                     material.getModificationDate());
                     builder.materialUpdate(update);
                 }
@@ -891,29 +901,60 @@ public class EntitySynchronizer
         // create sample update dtos for the samples that need to be updated
         for (SampleIdentifier sampleIdentifier : samplesToUpdate.keySet())
         {
-            NewSample newSmp = samplesToUpdate.get(sampleIdentifier);
-            Sample sampleWithExperiment = service.tryGetSampleByPermId(newSmp.getPermID());
+            NewSample incomingSmp = samplesToUpdate.get(sampleIdentifier);
+            Sample sample = service.tryGetSampleByPermId(incomingSmp.getPermID());
 
-            TechId sampleId = TechId.create(sampleWithExperiment);
-            ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(newSmp);
-            ProjectIdentifier projectIdentifier = getProjectIdentifier(newSmp);
-            String[] modifiedParentIds = newSmp.getParentsOrNull();
+            TechId sampleId = TechId.create(sample);
+            ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(incomingSmp);
+            ProjectIdentifier projectIdentifier = getProjectIdentifier(incomingSmp);
+            String[] modifiedParentIds = incomingSmp.getParentsOrNull();
             if (modifiedParentIds == null)
             {
-                if (sampleWithUpdatedParents.contains(newSmp.getIdentifier()))
+                if (sampleWithUpdatedParents.contains(incomingSmp.getIdentifier()))
                 {
                     modifiedParentIds = new String[0];
                 }
             }
-            String containerIdentifier = getContainerIdentifier(newSmp);
+            String containerIdentifier = getContainerIdentifier(incomingSmp);
+
+            List<IEntityProperty> newPropList = new LinkedList<IEntityProperty>(Arrays.asList(incomingSmp.getProperties()));
+            appendRemovedProperties(newPropList, sample.getProperties());
 
             SampleUpdatesDTO updates =
-                    new SampleUpdatesDTO(sampleId, Arrays.asList(newSmp.getProperties()), experimentIdentifier, 
-                            projectIdentifier, Collections.<NewAttachment> emptyList(), 
-                            sampleWithExperiment.getVersion(), sampleIdentifier, containerIdentifier,
+                    new SampleUpdatesDTO(sampleId, newPropList, experimentIdentifier,
+                            projectIdentifier, Collections.<NewAttachment> emptyList(),
+                            sample.getVersion(), sampleIdentifier, containerIdentifier,
                             modifiedParentIds);
             builder.sampleUpdate(updates);
         }
+    }
+
+    private List<IEntityProperty> appendRemovedProperties(List<IEntityProperty> newPropList, List<IEntityProperty> existingProperties)
+    {
+        Set<String> existingPropertyNames = extractPropertyNames(existingProperties);
+        Set<String> newPropertyNames = extractPropertyNames(newPropList);
+        existingPropertyNames.removeAll(newPropertyNames);
+
+        for (String propName : existingPropertyNames)
+        {
+            GenericEntityProperty property = new GenericEntityProperty();
+            PropertyType propertyType = new PropertyType();
+            propertyType.setCode(propName);
+            property.setPropertyType(propertyType);
+            property.setValue("");
+            newPropList.add(property);
+        }
+        return newPropList;
+    }
+
+    private Set<String> extractPropertyNames(List<IEntityProperty> existingProperties)
+    {
+        Set<String> existingPropertyNames = new HashSet<String>();
+        for (IEntityProperty prop : existingProperties)
+        {
+            existingPropertyNames.add(prop.getPropertyType().getCode());
+        }
+        return existingPropertyNames;
     }
 
     private String getContainerIdentifier(NewSample newSmp)
