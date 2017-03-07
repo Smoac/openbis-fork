@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
@@ -42,7 +44,7 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
 
     private final List<EdgeNodePair> connections;
 
-    private final List<String> binaryData;
+    private final List<Attachment> attachments;
 
     public T getEntity()
     {
@@ -53,7 +55,7 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
     {
         this.entity = entity;
         this.connections = new ArrayList<EdgeNodePair>();
-        this.binaryData = new ArrayList<String>();
+        this.attachments = new ArrayList<Attachment>();
     }
 
     @Override
@@ -253,21 +255,19 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
         return connections;
     }
 
-    public void addBinaryData(String link)
+    public void setAttachments(List<Attachment> attachmentList)
     {
-        binaryData.add(link);
+        attachments.clear();
+        attachments.addAll(attachmentList);
     }
 
-    public List<String> getBinaryData()
+    public List<Attachment> getAttachmentsOrNull()
     {
-        return binaryData;
-    }
-
-    public boolean hasBinaryData() {
-        if (entity instanceof DataSet)
+        if (entity instanceof IAttachmentsHolder)
         {
-            return true;
+            IAttachmentsHolder holder = (IAttachmentsHolder) entity;
+            return holder.getAttachments();
         }
-        return binaryData.size() > 0;
+        return null;
     }
 }

@@ -28,8 +28,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -128,7 +126,6 @@ public class EntityRetriever
             Node<Project> prjNode = new Node<Project>(project);
             graph.addNode(prjNode);
             findExperiments(prjNode);
-            findAndAddAttachments(prjNode);
         }
 
         findSpaceSamples(spaceId);
@@ -154,18 +151,7 @@ public class EntityRetriever
             Node<Experiment> expNode = new Node<Experiment>(exp);
             graph.addEdge(prjNode, expNode, new Edge(CONNECTION));
             findSamplesForExperiment(expNode);
-            findAndAddAttachments(expNode);
             findAndAttachDataSetsForExperiment(expNode);
-        }
-    }
-
-    private void findAndAddAttachments(Node<? extends IAttachmentsHolder> node)
-    {
-        List<Attachment> attachments = node.getEntity().getAttachments();
-        for (Attachment attachment : attachments)
-        {
-            node.addBinaryData(attachment.getPermlink());
-            // System.out.println("Attachment:" + attachment.getPermlink());
         }
     }
 
@@ -190,7 +176,6 @@ public class EntityRetriever
             graph.addNode(sampleNode);
             findChildAndComponentSamples(sampleNode);
             findAndAttachDataSets(sampleNode);
-            findAndAddAttachments(sampleNode);
         }
     }
 
@@ -214,7 +199,6 @@ public class EntityRetriever
             graph.addEdge(expNode, sampleNode, new Edge(CONNECTION));
 
             findAndAttachDataSets(sampleNode);
-            findAndAddAttachments(sampleNode);
             findChildAndComponentSamples(sampleNode);
         }
     }
@@ -295,7 +279,6 @@ public class EntityRetriever
             graph.addEdge(sampleNode, subSampleNode, new Edge(COMPONENT));
 
             findAndAttachDataSets(subSampleNode);
-            findAndAddAttachments(subSampleNode);
             findChildAndComponentSamples(subSampleNode);
         }
     }
@@ -311,7 +294,6 @@ public class EntityRetriever
             graph.addEdge(sampleNode, subSampleNode, new Edge(CHILD));
    
             findAndAttachDataSets(subSampleNode);
-            findAndAddAttachments(subSampleNode);
             findChildAndComponentSamples(subSampleNode);
         }
     }
