@@ -23,10 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -139,12 +141,30 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             dataSetForUpdate.setSample(sample);
             dataSetForUpdate.setExperiment(experiment);
             dataSetForUpdate.setParentDatasets(dataSet.getParentDataSetCodes());
+            List<String> existingPropertyCodes = dataSetForUpdate.getAllPropertyCodes();
+            Set<String> newPropertyCodes = extractPropertyNames(dataSetProperties);
             for (NewProperty newProperty : dataSetProperties)
             {
                 dataSetForUpdate.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
             }
+            // set the properties that are in the harvester but not in the data source anymore, to ""
+            existingPropertyCodes.removeAll(newPropertyCodes);
+            for (String propCode : existingPropertyCodes)
+            {
+                dataSetForUpdate.setPropertyValue(propCode, "");
+            }
         }
         return null;
+    }
+
+    private Set<String> extractPropertyNames(List<NewProperty> dataSetProperties)
+    {
+        Set<String> existingPropertyNames = new HashSet<String>();
+        for (NewProperty prop : dataSetProperties)
+        {
+            existingPropertyNames.add(prop.getPropertyCode());
+        }
+        return existingPropertyNames;
     }
 
     class FileDetails
