@@ -9,7 +9,7 @@ var require = (function() {
 			var src = scripts[sIdx].src;
 			var substringEnd = -1;
 			if((substringEnd = src.indexOf("/api/v3/config.js")) > -1) {
-				baseUrl = src.substring(0, substringEnd+"/api/v3".length);
+				baseUrl = src.substring(0, substringEnd);
 			}
 		}
 		return baseUrl;
