@@ -52,13 +52,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 class DataSetRegistrationIngestionService extends IngestionService<DataSetInformation>
 {
     private static final long serialVersionUID = 1L;
-
-    private List<String> notSyncedDataSetCodes;
-
+ 
     private final NewExternalData dataSet;
 
     private final String loginUser;
@@ -71,20 +71,16 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
     private final String harvesterTempDir;
 
-    private final Logger log;
-
-    public DataSetRegistrationIngestionService(Properties properties, File storeRoot, List<String> notSyncedDataSetCodes, NewExternalData ds,
+    public DataSetRegistrationIngestionService(Properties properties, File storeRoot, NewExternalData ds,
             Logger operationLog)
     {
         super(properties, storeRoot);
-        this.notSyncedDataSetCodes = notSyncedDataSetCodes;
         this.dataSet = ds;
         this.loginUser = properties.getProperty("user");
         this.loginPass = properties.getProperty("pass");
         this.asUrl = properties.getProperty("as-url");
         this.dssUrl = properties.getProperty("dss-url");
         this.harvesterTempDir = properties.getProperty("harvester-temp-dir");
-        this.log = operationLog;
     }
 
     @Override
@@ -134,6 +130,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             {
                 transaction.moveFile(f.getAbsolutePath(), ds);
             }
+            return summaryTableModel(parameters, "Added");
         }
         else
         {
@@ -153,8 +150,18 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             {
                 dataSetForUpdate.setPropertyValue(propCode, "");
             }
+            return summaryTableModel(parameters, "Updated");
         }
-        return null;
+    }
+
+    private TableModel summaryTableModel(Map<String, Object> parameters, String summary)
+    {
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader("Parameters");
+        builder.addHeader(summary);
+        IRowBuilder row = builder.addRow();
+        row.setCell("Parameters", parameters.toString());
+        return builder.getTableModel();
     }
 
     private Set<String> extractPropertyNames(List<NewProperty> dataSetProperties)

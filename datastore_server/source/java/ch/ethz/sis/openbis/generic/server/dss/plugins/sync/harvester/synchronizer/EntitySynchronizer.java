@@ -221,15 +221,18 @@ public class EntitySynchronizer
         Map<String, DataSetWithConnections> physicalDSMap =
                 data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp, dataSetsCodesToRetry);
         operationLog.info("Registering data sets...");
-        List<String> notRegisteredDataSets = registerPhysicalDataSets(physicalDSMap);
-        operationLog.info((physicalDSMap.keySet().size() - notRegisteredDataSets.size()) + " data set(s) have been successfully registered. "
-                + notRegisteredDataSets.size()
+        DataSetRegistrationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
+        operationLog.info("Data set registration summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
+                + dsRegistrationSummary.updatedDsCount
+                + " data set(s) were updated.\n"
+                + dsRegistrationSummary.notRegisteredDataSetCodes.size()
                 + " data set(s) FAILED to register ");
 
         // link physical data sets registered above to container data sets
         // and set parent/child relationships
+        operationLog.info("\n");
         operationLog.info("start linking/un-linking container and component data sets");
-        establishDataSetRelationships(data.getDataSetsToProcess(), notRegisteredDataSets, physicalDSMap);
+        establishDataSetRelationships(data.getDataSetsToProcess(), dsRegistrationSummary.notRegisteredDataSetCodes, physicalDSMap);
 
         // cleanup();
 
@@ -389,19 +392,20 @@ public class EntitySynchronizer
         return false;
     }
 
-    private List<String> registerPhysicalDataSets(Map<String, DataSetWithConnections> physicalDSMap) throws IOException
+    private DataSetRegistrationSummary registerPhysicalDataSets(Map<String, DataSetWithConnections> physicalDSMap) throws IOException
     {
         List<DataSetWithConnections> dsList = new ArrayList<DataSetWithConnections>(physicalDSMap.values());
-        List<String> notRegisteredDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
+        DataSetRegistrationSummary dsRegistrationSummary = new DataSetRegistrationSummary();
 
         // This parallelization is possible because each DS is registered without dependencies
         // and the dependencies are established later on in the sync process.
-        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(notRegisteredDataSetCodes), 0.5, 10, "register data sets", 0, false);
+        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dsRegistrationSummary),
+                0.5, 10, "register data sets", 0, false);
 
         // backup the current not synced data set codes file, delete the original file
-        saveNotSyncedDataSetsFile(notRegisteredDataSetCodes);
+        saveNotSyncedDataSetsFile(dsRegistrationSummary.notRegisteredDataSetCodes);
 
-        return notRegisteredDataSetCodes;
+        return dsRegistrationSummary;
     }
 
     private void saveNotSyncedDataSetsFile(List<String> notRegisteredDataSetCodes) throws IOException
@@ -1002,12 +1006,11 @@ public class EntitySynchronizer
 
     private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<DataSetWithConnections>
     {
+        private DataSetRegistrationSummary dsRegistrationSummary;
 
-        private List<String> notRegisteredDataSetCodes;
-
-        public DataSetRegistrationTaskExecutor(List<String> notRegisteredDataSetCodes)
+        public DataSetRegistrationTaskExecutor(DataSetRegistrationSummary dsRegSummary)
         {
-            this.notRegisteredDataSetCodes = notRegisteredDataSetCodes;
+            this.dsRegistrationSummary = dsRegSummary;
         }
 
         @Override
@@ -1018,7 +1021,7 @@ public class EntitySynchronizer
             Properties props = setProperties();
 
             DataSetRegistrationIngestionService ingestionService =
-                    new DataSetRegistrationIngestionService(props, storeRoot, notRegisteredDataSetCodes, dataSet.getDataSet(), operationLog);
+                    new DataSetRegistrationIngestionService(props, storeRoot, dataSet.getDataSet(), operationLog);
             TableModel resultTable = ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
             if (resultTable != null)
             {
@@ -1029,9 +1032,17 @@ public class EntitySynchronizer
                     if (headers.get(i).getTitle().startsWith("Error"))
                     {
                         String message = resultTable.getRows().get(0).getValues().toString();
-                        notRegisteredDataSetCodes.add(dataSet.getDataSet().getCode());
+                        dsRegistrationSummary.notRegisteredDataSetCodes.add(dataSet.getDataSet().getCode());
                         operationLog.error(message);
                         return Status.createError(message);
+                    }
+                    else if (headers.get(i).getTitle().startsWith("Added"))
+                    {
+                        dsRegistrationSummary.addedDsCount.getAndIncrement();
+                    }
+                    else if (headers.get(i).getTitle().startsWith("Updated"))
+                    {
+                        dsRegistrationSummary.updatedDsCount.getAndIncrement();
                     }
                 }
             }
