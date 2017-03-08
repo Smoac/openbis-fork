@@ -2,7 +2,7 @@ SET statement_timeout = 0;
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
-CET search_path = public, pg_catalog;
+SET search_path = public, pg_catalog;
 CREATE DOMAIN archiving_status AS character varying(100)
 	CONSTRAINT archiving_status_check CHECK (((VALUE)::text = ANY (ARRAY[('LOCKED'::character varying)::text, ('AVAILABLE'::character varying)::text, ('ARCHIVED'::character varying)::text, ('ARCHIVE_PENDING'::character varying)::text, ('UNARCHIVE_PENDING'::character varying)::text, ('BACKUP_PENDING'::character varying)::text])));
 CREATE DOMAIN authorization_role AS character varying(40)

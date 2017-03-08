@@ -177,7 +177,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         };
     }
 
-    @Test(dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Invalid arguments.*")
+    @Test(dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Invalid arguments.*")
     void cannotLinkToExternalDmsOfWrongType(ExternalDmsAddressType dmsType, String externalCode, String path, String gitCommitHash)
     {
         ExternalDmsPermId edms = create(externalDms().withType(dmsType));
