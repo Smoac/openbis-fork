@@ -39,6 +39,7 @@ UPDATE content_copies SET location_type = 'URL' where edms_id IN
   (SELECT id FROM external_data_management_systems WHERE address_type = 'URL');
   
 UPDATE content_copies SET location_unique_check = 
+  data_id || ',' || 
   edms_id || ',' || 
   coalesce(path, '') || ',' || 
   coalesce(git_commit_hash, '') || ',' || 
@@ -55,7 +56,8 @@ CREATE OR REPLACE FUNCTION content_copies_uniqueness_check()
   RETURNS trigger AS
 $BODY$
 BEGIN
-  NEW.location_unique_check = NEW.edms_id || ',' ||
+  NEW.location_unique_check = NEW.data_id || ',' ||
+                              NEW.edms_id || ',' ||
                               coalesce(NEW.path, '') || ',' || 
                               coalesce(NEW.git_commit_hash, '') || ',' || 
                               coalesce(NEW.external_code, '');
