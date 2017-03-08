@@ -1551,3 +1551,5 @@ setContentCopies
 setExternalId
 setGitCommitHash
 ContentCopy
+NO_COPY_EXTERNAL_CODE
+NO_COPY_EXTERNAL_DMS

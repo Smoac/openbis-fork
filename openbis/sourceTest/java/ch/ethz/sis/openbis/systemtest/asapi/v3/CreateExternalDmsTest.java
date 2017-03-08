@@ -28,9 +28,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressTy
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-/**
- * @author anttil
- */
 public class CreateExternalDmsTest extends AbstractExternalDmsTest
 {
 

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.annotation.TechPreview;
@@ -35,6 +36,22 @@ public class LinkedData implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    public static final String NO_COPY_EXTERNAL_CODE = "no copies";
+
+    public static final ExternalDms NO_COPY_EXTERNAL_DMS;
+
+    static
+    {
+        ExternalDms nced = new ExternalDms();
+        nced.setAddress("");
+        nced.setAddressType(ExternalDmsAddressType.URL);
+        nced.setCode("no copies");
+        nced.setLabel("");
+        nced.setOpenbis(false);
+        nced.setUrlTemplate("");
+        NO_COPY_EXTERNAL_DMS = nced;
+    }
+
     @JsonProperty
     private LinkedDataFetchOptions fetchOptions;
 
@@ -44,6 +61,7 @@ public class LinkedData implements Serializable
     @JsonProperty
     private ExternalDms externalDms;
 
+    @JsonIgnore
     private List<ContentCopy> contentCopies;
 
     // Method automatically generated with DtoGenerator
@@ -92,6 +110,7 @@ public class LinkedData implements Serializable
     }
 
     @TechPreview
+    @JsonIgnore
     public List<ContentCopy> getContentCopies()
     {
         return contentCopies;

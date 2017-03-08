@@ -1181,9 +1181,14 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         LinkDataSet linkDataSet = new LinkDataSet();
 
         convertStandardAttributes(linkDataSet, record);
-        linkDataSet.setExternalDataManagementSystem(externalDataManagementSystems
-                .get(record.edms_id));
-        linkDataSet.setExternalCode(record.external_code);
+
+        if (record.edms_id != null)
+        {
+
+            linkDataSet.setExternalDataManagementSystem(externalDataManagementSystems
+                    .get(record.edms_id));
+            linkDataSet.setExternalCode(record.external_code);
+        }
 
         return linkDataSet;
     }

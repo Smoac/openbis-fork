@@ -827,6 +827,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         sqls.insertEvent = SQLBuilder.createInsertEventSQL();
         // data set specific queries
         sqls.deleteExternalData = createDeleteExternalDataSQL();
+        sqls.deleteContentCopies = createDeleteContentCopiesSQL();
         Long relationshipTypeId = RelationshipUtils.getParentChildRelationshipType(relationshipTypeDAO).getId();
         sqls.deleteChildrenConnections = createDeleteChildrenConnectionsSQL(relationshipTypeId);
         sqls.deleteParentConnections = createDeleteParentConnectionsSQL(relationshipTypeId);
@@ -850,6 +851,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         public String insertEvent;
 
         public String deleteExternalData;
+
+        public String deleteContentCopies;
 
         public String deleteChildrenConnections;
 
@@ -893,6 +896,12 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     private static String createDeleteExternalDataSQL()
     {
         return "DELETE FROM " + TableNames.EXTERNAL_DATA_TABLE + " WHERE data_id "
+                + SQLBuilder.inEntityIds();
+    }
+
+    private static String createDeleteContentCopiesSQL()
+    {
+        return "DELETE FROM " + TableNames.CONTENT_COPIES_TABLE + " WHERE data_id "
                 + SQLBuilder.inEntityIds();
     }
 
@@ -1048,6 +1057,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 final SQLQuery deleteEntities = session.createSQLQuery(sqls.deleteDataSets);
                 final SQLQuery insertEvent = session.createSQLQuery(sqls.insertEvent);
                 final SQLQuery deleteExternalData = session.createSQLQuery(sqls.deleteExternalData);
+                final SQLQuery deleteContentCopies = session.createSQLQuery(sqls.deleteContentCopies);
                 final SQLQuery deleteChildrenConnections = session.createSQLQuery(sqls.deleteChildrenConnections);
                 final SQLQuery deleteParentConnections = session.createSQLQuery(sqls.deleteParentConnections);
 
@@ -1065,6 +1075,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                 executeUpdate(deleteProperties, entityIdsToDelete);
                 executeUpdate(deleteExternalData, entityIdsToDelete);
+                executeUpdate(deleteContentCopies, entityIdsToDelete);
                 executeUpdate(deleteChildrenConnections, entityIdsToDelete);
                 executeUpdate(deleteParentConnections, entityIdsToDelete);
                 executeUpdate(deleteEntities, entityIdsToDelete);

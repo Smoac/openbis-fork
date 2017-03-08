@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.MaterialP
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.Select;
 
@@ -66,7 +67,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<LinkedDataBaseRecord> getLinkedDatas(LongSet dataSetIds);
 
-    @Select(sql = "select ld.data_id as objectId, cc.edms_id as relatedId from link_data ld, content_copies cc where cc.data_id = ld.data_id and ld.data_id = any(?{1})", parameterBindings = {
+    @Select(sql = "select cc.id as objectId, cc.edms_id as relatedId from content_copies cc where cc.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getExternalDmsIds(LongSet dataSetIds);
 
@@ -193,4 +194,11 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet dataSetTypePropertyTypeIds);
 
+    @Select(sql = "select d.id as objectId, cc.id as relatedId from data d, content_copies cc where cc.data_id = d.id and d.id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getContentCopyIds(LongOpenHashSet dataSetIds);
+
+    @Select(sql = "select id, external_code as externalCode, path, git_commit_hash as gitCommitHash from content_copies where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ContentCopyRecord> getContentCopies(LongOpenHashSet longOpenHashSet);
 }

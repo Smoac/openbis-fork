@@ -20,10 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.IObjectToOneRelationTranslator;
 
-/**
- * @author pkupczyk
- */
-public interface ILinkedDataExternalDmsTranslator extends IObjectToOneRelationTranslator<ExternalDms, ExternalDmsFetchOptions>
+public interface IContentCopyExternalDmsTranslator extends IObjectToOneRelationTranslator<ExternalDms, ExternalDmsFetchOptions>
 {
 
 }

@@ -1,90 +1,105 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ContentCopy;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.ContentCopyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
 {
 
-    private IEntityTypeId linkDataSetType;
-
     private ExperimentPermId experiment;
+
+    private SpacePermId space;
+
+    private ProjectPermId project;
+
+    private List<DataSetPermId> datasets = new ArrayList<DataSetPermId>();
 
     @BeforeClass
     protected void createData()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        DataSetTypeCreation datasetTypeCreation = new DataSetTypeCreation();
-        datasetTypeCreation.setCode("linked-" + uuid());
-        datasetTypeCreation.setKind(DataSetKind.LINK);
-
-        this.linkDataSetType = v3api.createDataSetTypes(sessionToken, Collections.singletonList(datasetTypeCreation)).get(0);
-
         SpaceCreation spaceCreation = new SpaceCreation();
         spaceCreation.setCode("space-" + uuid());
-        SpacePermId space = v3api.createSpaces(sessionToken, Collections.singletonList(spaceCreation)).get(0);
+        space = v3api.createSpaces(session, Collections.singletonList(spaceCreation)).get(0);
 
         ProjectCreation projectCreation = new ProjectCreation();
         projectCreation.setCode("project-" + uuid());
         projectCreation.setSpaceId(space);
-        ProjectPermId project = v3api.createProjects(sessionToken, Collections.singletonList(projectCreation)).get(0);
-
-        ExperimentTypeCreation experimentTypeCreation = new ExperimentTypeCreation();
-        experimentTypeCreation.setCode("experiment-type-" + uuid());
-        EntityTypePermId experimentType = v3api.createExperimentTypes(sessionToken, Collections.singletonList(experimentTypeCreation)).get(0);
+        project = v3api.createProjects(session, Collections.singletonList(projectCreation)).get(0);
 
         ExperimentCreation experimentCreation = new ExperimentCreation();
         experimentCreation.setCode("experiment-" + uuid());
-        experimentCreation.setTypeId(experimentType);
+        experimentCreation.setProperty("DESCRIPTION", "DESCRIPTION");
+        experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         experimentCreation.setProjectId(project);
+        experiment = v3api.createExperiments(session, Collections.singletonList(experimentCreation)).get(0);
+    }
 
-        this.experiment = v3api.createExperiments(sessionToken, Collections.singletonList(experimentCreation)).get(0);
+    @AfterClass
+    protected void deleteData()
+    {
+        DataSetDeletionOptions dd = new DataSetDeletionOptions();
+        dd.setReason("test");
+        ExperimentDeletionOptions ed = new ExperimentDeletionOptions();
+        ed.setReason("test");
+        ProjectDeletionOptions pd = new ProjectDeletionOptions();
+        pd.setReason("test");
+        SpaceDeletionOptions sd = new SpaceDeletionOptions();
+        sd.setReason("test");
 
+        IDeletionId delDataSets = v3api.deleteDataSets(session, datasets, dd);
+        IDeletionId delExperiments = v3api.deleteExperiments(session, Collections.singletonList(experiment), ed);
+        v3api.confirmDeletions(session, Collections.singletonList(delDataSets));
+        v3api.confirmDeletions(session, Collections.singletonList(delExperiments));
+        v3api.deleteProjects(session, Collections.singletonList(project), pd);
+        v3api.deleteSpaces(session, Collections.singletonList(space), sd);
     }
 
     protected DataSetPermId create(LinkDataCreationBuilder creation)
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Collections.singletonList(creation.build()));
+        List<DataSetPermId> ids = v3api.createDataSets(session, Collections.singletonList(creation.build()));
+        datasets.addAll(ids);
         return ids.get(0);
     }
 
     protected DataSet get(DataSetPermId id)
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
         DataSetFetchOptions fo = new DataSetFetchOptions();
         LinkedDataFetchOptions lfo = new LinkedDataFetchOptions();
         lfo.withExternalDms();
         fo.withLinkedDataUsing(lfo);
-        Map<IDataSetId, DataSet> result = v3api.getDataSets(sessionToken, Collections.singletonList(id), fo);
+        Map<IDataSetId, DataSet> result = v3api.getDataSets(session, Collections.singletonList(id), fo);
         return result.get(id);
     }
 
@@ -159,24 +174,26 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
     protected class LinkDataCreationBuilder
     {
 
-        private List<ContentCopyCreation> copies;
+        private List<ContentCopyCreation> copies = new ArrayList<>();
 
         private String externalCode;
 
         private IExternalDmsId edms;
 
-        public LinkDataCreationBuilder with(ContentCopyCreationBuilder copy)
+        public LinkDataCreationBuilder with(ContentCopyCreationBuilder copy1, ContentCopyCreationBuilder... rest)
         {
-            return with(copy.build());
+            LinkDataCreationBuilder result = with(copy1.build());
+            for (ContentCopyCreationBuilder b : rest)
+            {
+                result = result.with(b.build());
+            }
+            return result;
         }
 
-        public LinkDataCreationBuilder with(ContentCopyCreation copy)
+        public LinkDataCreationBuilder with(ContentCopyCreation first, ContentCopyCreation... rest)
         {
-            if (copies == null)
-            {
-                copies = new ArrayList<>();
-            }
-            copies.add(copy);
+            copies.add(first);
+            copies.addAll(Arrays.asList(rest));
             return this;
         }
 
@@ -200,11 +217,21 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
             linkData.setExternalDmsId(edms);
             DataSetCreation creation = new DataSetCreation();
             creation.setLinkedData(linkData);
-            creation.setTypeId(linkDataSetType);
+            creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
             creation.setExperimentId(experiment);
             creation.setAutoGeneratedCode(true);
             creation.setDataStoreId(new DataStorePermId("STANDARD"));
             return creation;
         }
+    }
+
+    protected String stringify(ContentCopyCreation c)
+    {
+        return c.getExternalId() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getExternalDmsId();
+    }
+
+    protected String stringify(ContentCopy c)
+    {
+        return c.getExternalCode() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getExternalDms().getCode();
     }
 }

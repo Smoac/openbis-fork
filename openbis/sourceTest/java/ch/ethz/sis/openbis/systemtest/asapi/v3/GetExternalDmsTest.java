@@ -25,9 +25,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 
-/**
- * @author anttil
- */
 public class GetExternalDmsTest extends AbstractExternalDmsTest
 {
 

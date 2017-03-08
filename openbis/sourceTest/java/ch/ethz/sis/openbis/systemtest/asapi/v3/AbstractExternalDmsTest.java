@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.testng.annotations.BeforeClass;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
@@ -21,19 +22,25 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 public abstract class AbstractExternalDmsTest extends AbstractTest
 {
 
+    protected String session;
+
+    @BeforeClass
+    protected void login()
+    {
+        session = v3api.login(TEST_USER, PASSWORD);
+    }
+
     protected ExternalDmsPermId create(ExternalDmsCreationBuilder creation)
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<ExternalDmsPermId> ids =
-                v3api.createExternalDataManagementSystems(sessionToken, Collections.singletonList(creation.build()));
+                v3api.createExternalDataManagementSystems(session, Collections.singletonList(creation.build()));
         return ids.get(0);
     }
 
     protected ExternalDms get(ExternalDmsPermId id)
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<IExternalDmsId, ExternalDms> result =
-                v3api.getExternalDataManagementSystems(sessionToken, Collections.singletonList(id), new ExternalDmsFetchOptions());
+                v3api.getExternalDataManagementSystems(session, Collections.singletonList(id), new ExternalDmsFetchOptions());
         return result.get(id);
     }
 

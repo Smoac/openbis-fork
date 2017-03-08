@@ -16,13 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ContentCopy;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -36,10 +40,7 @@ public class LinkedDataTranslator extends AbstractCachingTranslator<Long, Linked
 {
 
     @Autowired
-    private ILinkedDataBaseTranslator baseTranslator;
-
-    @Autowired
-    private ILinkedDataExternalDmsTranslator externalDmsTranslator;
+    private ILinkedDataContentCopiesTranslator contentCopiesTranslator;
 
     @Override
     protected LinkedData createObject(TranslationContext context, Long dataSetId, LinkedDataFetchOptions fetchOptions)
@@ -54,13 +55,7 @@ public class LinkedDataTranslator extends AbstractCachingTranslator<Long, Linked
     {
         TranslationResults relations = new TranslationResults();
 
-        relations.put(ILinkedDataBaseTranslator.class, baseTranslator.translate(context, dataSetIds, null));
-
-        if (fetchOptions.hasExternalDms())
-        {
-            relations.put(ILinkedDataExternalDmsTranslator.class,
-                    externalDmsTranslator.translate(context, dataSetIds, fetchOptions.withExternalDms()));
-        }
+        relations.put(ILinkedDataContentCopiesTranslator.class, contentCopiesTranslator.translate(context, dataSetIds, fetchOptions));
 
         return relations;
     }
@@ -70,13 +65,28 @@ public class LinkedDataTranslator extends AbstractCachingTranslator<Long, Linked
             LinkedDataFetchOptions fetchOptions)
     {
         TranslationResults relations = (TranslationResults) objectRelations;
-        LinkedDataBaseRecord baseRecord = relations.get(ILinkedDataBaseTranslator.class, dataSetId);
+        Collection<ContentCopy> copies = relations.get(ILinkedDataContentCopiesTranslator.class, dataSetId);
 
-        result.setExternalCode(baseRecord.externalCode);
+        ArrayList<ContentCopy> copyList = new ArrayList<>(copies);
+        result.setContentCopies(copyList);
+
+        String externalCode = LinkedData.NO_COPY_EXTERNAL_CODE;
+        ExternalDms externalDms = LinkedData.NO_COPY_EXTERNAL_DMS;
+        for (ContentCopy copy : copyList)
+        {
+            ExternalDmsAddressType type = copy.getExternalDms().getAddressType();
+            if (type.equals(ExternalDmsAddressType.OPENBIS) || type.equals(ExternalDmsAddressType.URL))
+            {
+                externalCode = copy.getExternalCode();
+                externalDms = copy.getExternalDms();
+            }
+        }
+
+        result.setExternalCode(externalCode);
 
         if (fetchOptions.hasExternalDms())
         {
-            result.setExternalDms(relations.get(ILinkedDataExternalDmsTranslator.class, dataSetId));
+            result.setExternalDms(externalDms);
             result.getFetchOptions().withExternalDmsUsing(fetchOptions.withExternalDms());
         }
     }

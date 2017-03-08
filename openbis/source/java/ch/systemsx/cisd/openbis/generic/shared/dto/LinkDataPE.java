@@ -49,7 +49,7 @@ public class LinkDataPE extends DataPE
 
     private Set<ContentCopyPE> contentCopies;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "dataSet")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "dataSet", orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_CONTENT_COPY)
     public Set<ContentCopyPE> getContentCopies()

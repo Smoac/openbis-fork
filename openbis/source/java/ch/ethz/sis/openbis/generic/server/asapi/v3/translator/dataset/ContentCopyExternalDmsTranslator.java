@@ -34,12 +34,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectRelat
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.externaldms.IExternalDmsTranslator;
 
-/**
- * @author pkupczyk
- */
 @Component
-public class LinkedDataExternalDmsTranslator extends ObjectToOneRelationTranslator<ExternalDms, ExternalDmsFetchOptions> implements
-        ILinkedDataExternalDmsTranslator
+public class ContentCopyExternalDmsTranslator extends ObjectToOneRelationTranslator<ExternalDms, ExternalDmsFetchOptions> implements
+        IContentCopyExternalDmsTranslator
 {
 
     @Autowired
@@ -58,5 +55,4 @@ public class LinkedDataExternalDmsTranslator extends ObjectToOneRelationTranslat
     {
         return externalDmsTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
-
 }

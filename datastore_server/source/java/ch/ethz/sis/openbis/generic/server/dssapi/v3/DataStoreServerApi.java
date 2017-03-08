@@ -308,7 +308,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             List<DataSetFileCreation> files = newDataSets.get(i).getFileMetadata();
 
             long dataSetId =
-                    dao.createDataSet(permId, newDataSets.get(i).getMetadataCreation().getLinkedData().getExternalDmsId().toString());
+                    dao.createDataSet(permId, "External system(s)");
             try
             {
                 dao.createDataSetFiles(PathInfoDTOCreator.createPathEntries(dataSetId, permId, files));
