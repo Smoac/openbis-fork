@@ -152,7 +152,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
 		
-		$fieldValue.change(function() {
+		$fieldValue.keyup(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
 			var uuid = $($($thisComponent.parent()).parent()).attr("id");
