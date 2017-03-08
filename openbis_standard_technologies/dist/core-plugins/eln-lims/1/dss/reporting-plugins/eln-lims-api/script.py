@@ -762,7 +762,9 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	if sampleProperties != None:
 		properties = getProperties(tr, parameters);
 		for key in sampleProperties.keySet():
-			propertyValue = unicode(sampleProperties[key]);
+			propertyValue = sampleProperties[key];
+			if sampleProperties[key] != None:
+				propertyValue = unicode(sampleProperties[key]);
 			if propertyValue == "":
 				propertyValue = None;
 			else:

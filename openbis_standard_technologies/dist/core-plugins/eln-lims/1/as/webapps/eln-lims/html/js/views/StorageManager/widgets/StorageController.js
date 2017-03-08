@@ -235,6 +235,12 @@ function StorageController(configOverride) {
 					positionsUsed = 0;
 					samples.forEach(function(element, index, array) {
 						var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
+						if(!boxCode || boxCode.trim().length === 0) {
+							boxCode = element.properties[profile.propertyReplacingCode];
+							if(!boxCode) {
+								boxCode = element.code;
+							}
+						}
 						var boxSize = element.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty];
 						var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
 						var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
@@ -370,9 +376,6 @@ function StorageController(configOverride) {
 		} else if(!this._storageModel.boxPosition && validationLevel >= ValidationLevel.BOX_POSITION) {
 			callback("Select a box position please.");
 		} else {
-			if(!this._storageModel.boxName) {
-				this._storageModel.setDefaultBoxName();
-			}
 			callback(null);
 		}
 	}
