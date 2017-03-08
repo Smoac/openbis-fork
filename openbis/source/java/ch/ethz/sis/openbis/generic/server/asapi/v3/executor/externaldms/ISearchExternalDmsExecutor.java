@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IExternalDmsAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface ISearchExternalDmsExecutor extends ISearchObjectExecutor<ExternalDmsSearchCriteria, Long>
 {
 
-    void canGet(IOperationContext context);
-
-    void canCreate(IOperationContext context);
-
-    void canDelete(IOperationContext context);
-
-    void canSearch(IOperationContext context);
-
-    void canUpdate(IOperationContext contex);
 }

@@ -96,11 +96,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.DeleteExternalDmsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.get.GetExternalDmsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.get.GetExternalDmsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.SearchExternalDmsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.SearchExternalDmsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.UpdateExternalDmsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
@@ -855,6 +862,27 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
                 (SynchronousOperationExecutionResults) executeOperations(sessionToken, Arrays.asList(operation),
                         new SynchronousOperationExecutionOptions());
         return (T) results.getResults().get(0);
+    }
+
+    @Override
+    public void updateExternalDataManagementSystems(String sessionToken, List<ExternalDmsUpdate> updates)
+    {
+        executeOperation(sessionToken, new UpdateExternalDmsOperation(updates));
+    }
+
+    @Override
+    public SearchResult<ExternalDms> searchExternalDataManagementSystems(String sessionToken, ExternalDmsSearchCriteria searchCriteria,
+            ExternalDmsFetchOptions fetchOptions)
+    {
+        SearchExternalDmsOperationResult result = executeOperation(sessionToken, new SearchExternalDmsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    public void deleteExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
+            ExternalDmsDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeleteExternalDmsOperation(externalDmsIds, deletionOptions));
     }
 
     @Override

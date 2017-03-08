@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
@@ -41,4 +42,9 @@ public interface IExternalDataManagementSystemDAO
 
     /** Lists all external data management systems in the home database */
     public List<ExternalDataManagementSystemPE> listExternalDataManagementSystems();
+
+    /** Lists all external data management systems in the home database */
+    public List<ExternalDataManagementSystemPE> listExternalDataManagementSystems(Collection<Long> ids);
+
+    public void delete(Collection<ExternalDataManagementSystemPE> externalDms);
 }

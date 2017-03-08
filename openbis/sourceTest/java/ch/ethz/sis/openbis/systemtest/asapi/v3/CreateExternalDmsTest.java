@@ -20,7 +20,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
@@ -112,12 +111,6 @@ public class CreateExternalDmsTest extends AbstractExternalDmsTest
                 .withType(ExternalDmsAddressType.FILE_SYSTEM));
         ExternalDms dms = get(id);
         assertThat(dms.getAddressType(), is(ExternalDmsAddressType.FILE_SYSTEM));
-    }
-
-    @DataProvider(name = "InvalidFileSystemAddresses")
-    public static Object[][] invalidFileSystemAddresses()
-    {
-        return new Object[][] { { "host/path" }, { ":" }, { ":path" }, { "1234" } };
     }
 
     @Test(dataProvider = "InvalidFileSystemAddresses", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Invalid address.*")

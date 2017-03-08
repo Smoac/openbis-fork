@@ -16,22 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectsOperationExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IExternalDmsAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface ISearchExternalDmsOperationExecutor extends ISearchObjectsOperationExecutor
 {
 
-    void canGet(IOperationContext context);
-
-    void canCreate(IOperationContext context);
-
-    void canDelete(IOperationContext context);
-
-    void canSearch(IOperationContext context);
-
-    void canUpdate(IOperationContext contex);
 }

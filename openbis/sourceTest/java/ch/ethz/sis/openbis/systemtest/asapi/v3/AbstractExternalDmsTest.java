@@ -11,18 +11,28 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUpdate;
 
 public abstract class AbstractExternalDmsTest extends AbstractTest
 {
 
     protected String session;
+
+    protected static final ExternalDmsDeletionOptions opts;
+    static
+    {
+        opts = new ExternalDmsDeletionOptions();
+        opts.setReason("test");
+    }
 
     @BeforeClass
     protected void login()
@@ -37,6 +47,11 @@ public abstract class AbstractExternalDmsTest extends AbstractTest
         return ids.get(0);
     }
 
+    protected void update(ExternalDmsUpdateBuilder update)
+    {
+        v3api.updateExternalDataManagementSystems(session, Collections.singletonList(update.build()));
+    }
+
     protected ExternalDms get(ExternalDmsPermId id)
     {
         Map<IExternalDmsId, ExternalDms> result =
@@ -44,9 +59,19 @@ public abstract class AbstractExternalDmsTest extends AbstractTest
         return result.get(id);
     }
 
+    protected void delete(ExternalDmsPermId id)
+    {
+        v3api.deleteExternalDataManagementSystems(session, Collections.singletonList(id), opts);
+    }
+
     protected ExternalDmsCreationBuilder externalDms()
     {
         return new ExternalDmsCreationBuilder();
+    }
+
+    protected ExternalDmsUpdateBuilder externalDms(IExternalDmsId id)
+    {
+        return new ExternalDmsUpdateBuilder(id);
     }
 
     protected String uuid()
@@ -106,6 +131,54 @@ public abstract class AbstractExternalDmsTest extends AbstractTest
         }
     }
 
+    protected class ExternalDmsUpdateBuilder
+    {
+
+        private final IExternalDmsId id;
+
+        private boolean addressModified = false;
+
+        private String address;
+
+        private boolean labelModified = false;
+
+        private String label;
+
+        public ExternalDmsUpdateBuilder(IExternalDmsId id)
+        {
+            this.id = id;
+        }
+
+        public ExternalDmsUpdateBuilder withAddress(String address)
+        {
+            this.address = address;
+            this.addressModified = true;
+            return this;
+        }
+
+        public ExternalDmsUpdateBuilder withLabel(String label)
+        {
+            this.label = label;
+            this.labelModified = true;
+            return this;
+        }
+
+        public ExternalDmsUpdate build()
+        {
+            ExternalDmsUpdate update = new ExternalDmsUpdate();
+            update.setExternalDmsId(id);
+            if (addressModified)
+            {
+                update.setAddress(address);
+            }
+            if (labelModified)
+            {
+                update.setLabel(label);
+            }
+            return update;
+        }
+    }
+
     protected Matcher<ExternalDms> isSimilarTo(final ExternalDms edms)
     {
         return new TypeSafeDiagnosingMatcher<ExternalDms>()
@@ -139,5 +212,11 @@ public abstract class AbstractExternalDmsTest extends AbstractTest
                             Objects.equals(edms.getUrlTemplate(), another.getUrlTemplate());
                 }
             };
+    }
+
+    @DataProvider(name = "InvalidFileSystemAddresses")
+    public static Object[][] invalidFileSystemAddresses()
+    {
+        return new Object[][] { { "host/path" }, { ":" }, { ":path" }, { "1234" } };
     }
 }

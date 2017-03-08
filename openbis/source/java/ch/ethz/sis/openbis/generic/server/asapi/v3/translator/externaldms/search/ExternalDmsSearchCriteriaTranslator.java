@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.externaldms.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.AbstractCompositeSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.IObjectAttributeProviderFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
@@ -45,12 +45,6 @@ public class ExternalDmsSearchCriteriaTranslator extends AbstractCompositeSearch
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (false == SearchObjectKind.LINKED_DATA.equals(context.peekObjectKind()))
-        {
-            throw new IllegalArgumentException("External dms criteria can be used only in linked data criteria, "
-                    + "but was used in: " + context.peekObjectKind() + " context.");
-        }
-
         context.pushObjectKind(SearchObjectKind.EXTERNAL_DMS);
         SearchCriteriaTranslationResult translationResult = super.doTranslate(context, criteria);
         context.popObjectKind();

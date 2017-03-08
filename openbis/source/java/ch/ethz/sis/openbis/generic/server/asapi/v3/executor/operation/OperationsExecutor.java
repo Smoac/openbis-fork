@@ -49,7 +49,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchEx
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IVerifyExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ICreateExternalDmsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IDeleteExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IGetExternalDmsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ISearchExternalDmsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IUpdateExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch.ISearchGloballyOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialsOperationExecutor;
@@ -127,6 +130,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IDeleteMaterialsOperationExecutor deleteMaterialsExecutor;
 
     @Autowired
+    private IDeleteExternalDmsOperationExecutor deleteExternalDmsExecutor;
+
+    @Autowired
     private IDeleteTagsOperationExecutor deleteTagsExecutor;
 
     @Autowired
@@ -194,6 +200,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateTagsOperationExecutor updateTagsExecutor;
+
+    @Autowired
+    private IUpdateExternalDmsOperationExecutor updateExternalDmsExecutor;
 
     @Autowired
     private IUpdateVocabularyTermsOperationExecutor updateVocabularyTermsExecutor;
@@ -266,6 +275,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ISearchTagsOperationExecutor searchTagsExecutor;
+
+    @Autowired
+    private ISearchExternalDmsOperationExecutor searchExternalDmsExecutor;
 
     @Autowired
     private ISearchVocabularyTermsOperationExecutor searchVocabularyTermsExecutor;
@@ -373,6 +385,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchDataSetsExecutor.execute(context, operations));
         resultMap.putAll(searchMaterialsExecutor.execute(context, operations));
         resultMap.putAll(searchTagsExecutor.execute(context, operations));
+        resultMap.putAll(searchExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(searchVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(searchExperimentTypesExecutor.execute(context, operations));
         resultMap.putAll(searchSampleTypesExecutor.execute(context, operations));
@@ -416,6 +429,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(updateTagsExecutor.execute(context, operations));
         resultMap.putAll(updateMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(updateExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(updateSpacesExecutor.execute(context, operations));
         resultMap.putAll(updateProjectsExecutor.execute(context, operations));
         resultMap.putAll(updateExperimentsExecutor.execute(context, operations));
@@ -450,6 +464,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(deleteProjectsExecutor.execute(context, operations));
         resultMap.putAll(deleteSpacesExecutor.execute(context, operations));
         resultMap.putAll(deleteMaterialsExecutor.execute(context, operations));
+        resultMap.putAll(deleteExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(deleteTagsExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));

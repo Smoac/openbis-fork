@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.search.ExternalDmsSearchCriteria")
-public class ExternalDmsSearchCriteria extends AbstractCompositeSearchCriteria
+public class ExternalDmsSearchCriteria extends AbstractEntitySearchCriteria<IExternalDmsId>
 {
 
     private static final long serialVersionUID = 1L;

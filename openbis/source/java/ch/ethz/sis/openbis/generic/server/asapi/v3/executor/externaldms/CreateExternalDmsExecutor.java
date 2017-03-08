@@ -15,7 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -165,15 +164,7 @@ public class CreateExternalDmsExecutor extends AbstractCreateEntityExecutor<Exte
     @Override
     protected List<ExternalDataManagementSystemPE> list(IOperationContext context, Collection<Long> ids)
     {
-        List<ExternalDataManagementSystemPE> result = new ArrayList<>();
-        for (ExternalDataManagementSystemPE e : daoFactory.getExternalDataManagementSystemDAO().listExternalDataManagementSystems())
-        {
-            if (ids.contains(e.getId()))
-            {
-                result.add(e);
-            }
-        }
-        return result;
+        return daoFactory.getExternalDataManagementSystemDAO().listExternalDataManagementSystems(ids);
     }
 
     @Override

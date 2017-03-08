@@ -55,9 +55,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
@@ -642,6 +645,27 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "search-operation-executions", "SEARCH_CRITERIA(%s) FETCH_OPTIONS(%s)", searchCriteria, fetchOptions);
         return null;
+    }
+
+    @Override
+    public void updateExternalDataManagementSystems(String sessionToken, List<ExternalDmsUpdate> externalDmsUpdates)
+    {
+        logAccess(sessionToken, "update-external-dms", "EXTERNAL_DMS_UPDATES(%s)", abbreviate(externalDmsUpdates));
+    }
+
+    @Override
+    public SearchResult<ExternalDms> searchExternalDataManagementSystems(String sessionToken, ExternalDmsSearchCriteria searchCriteria,
+            ExternalDmsFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-external-dms", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        return null;
+    }
+
+    @Override
+    public void deleteExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
+            ExternalDmsDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-external-dms", "EXTERNAL_DMS_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(externalDmsIds), deletionOptions);
     }
 
 }

@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
@@ -84,8 +85,37 @@ public class ExternalDataManagementSystemDAO extends AbstractDAO implements
     public List<ExternalDataManagementSystemPE> listExternalDataManagementSystems()
     {
         final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
-        criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+        final List<ExternalDataManagementSystemPE> list = cast(criteria.list());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d external data management systems have been found.", list.size()));
+        }
+        return list;
+    }
+
+    @Override
+    public void delete(Collection<ExternalDataManagementSystemPE> externalDms)
+    {
+        Session session = currentSession();
+
+        String hql = "DELETE FROM ContentCopyPE WHERE externalDataManagementSystem IN :externalDms";
+        session.createQuery(hql).setParameterList("externalDms", externalDms).executeUpdate();
+
+        for (ExternalDataManagementSystemPE edms : externalDms)
+        {
+            session.delete(edms);
+        }
+    }
+
+    @Override
+    public List<ExternalDataManagementSystemPE> listExternalDataManagementSystems(Collection<Long> ids)
+    {
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+        criteria.add(Restrictions.in("id", ids));
+
         final List<ExternalDataManagementSystemPE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {

@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
