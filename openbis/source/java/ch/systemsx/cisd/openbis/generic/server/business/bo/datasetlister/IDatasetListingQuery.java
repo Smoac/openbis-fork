@@ -48,7 +48,7 @@ import net.lemnik.eodsql.TypeMapper;
 @Friend(toClasses = { DataStoreRecord.class })
 public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
 {
-    public static final int FETCH_SIZE = 1000;
+    public static final int FETCH_SIZE = 10000;
 
     public final static String SELECT_ALL =
             "select data.*, external_data.*, link_data.*, content_copies.external_code, content_copies.edms_id, "
@@ -311,11 +311,12 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, pr.value, sc.script_type "
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, pr.value, "
+            + "           pr.cvte_id, pr.mate_prop_id, sc.script_type "
             + "      FROM data_set_properties pr"
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"
-            + "     WHERE pr.value is not null AND pr.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            + "     WHERE pr.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds);
 

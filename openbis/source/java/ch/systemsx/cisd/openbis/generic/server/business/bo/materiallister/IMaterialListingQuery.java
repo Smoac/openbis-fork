@@ -16,15 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.util.List;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.Select;
-import net.lemnik.eodsql.TransactionQuery;
-import net.lemnik.eodsql.TypeMapper;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
@@ -33,6 +26,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListi
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
+
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.Select;
+import net.lemnik.eodsql.TransactionQuery;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of material-related entities from the database.
@@ -96,7 +95,8 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, pr.value, sc.script_type "
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, pr.value, "
+            + "           pr.cvte_id, pr.mate_prop_id, sc.script_type "
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"

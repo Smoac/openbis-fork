@@ -35,18 +35,4 @@ public interface IEntityPropertySetListingQuery
      */
     public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(LongSet entityIDs);
 
-    /**
-     * Returns all controlled vocabulary property values of all specified entities.
-     * 
-     * @param entityIDs The set of entity IDs to get the property values for.
-     */
-    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(LongSet entityIDs);
-
-    /**
-     * Returns all material-type property values of all specified entities.
-     * 
-     * @param entityIDs The set of entity IDs to get the property values for.
-     */
-    public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(LongSet entityIDs);
-
 }

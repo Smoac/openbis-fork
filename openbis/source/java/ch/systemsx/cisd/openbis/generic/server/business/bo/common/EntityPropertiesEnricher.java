@@ -16,15 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -32,6 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
+
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
  * A class that can enrich a set of entities with its entity properties.
@@ -73,38 +76,6 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                             }
                         };
                 }
-
-                @Override
-                public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-                        LongSet entityIDs)
-                {
-                    return new AbstractBatchIterator<VocabularyTermRecord>(entityIDs, BATCH_SIZE)
-                        {
-                            @Override
-                            protected Iterable<VocabularyTermRecord> createUnefficientIterator(
-                                    LongSet ids)
-                            {
-                                return setQuery.getEntityPropertyVocabularyTermValues(ids);
-                            }
-                        };
-                }
-
-                @Override
-                public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
-                        LongSet entityIDs)
-                {
-                    return new AbstractBatchIterator<MaterialEntityPropertyRecord>(entityIDs,
-                            BATCH_SIZE)
-                        {
-                            @Override
-                            protected Iterable<MaterialEntityPropertyRecord> createUnefficientIterator(
-                                    LongSet ids)
-                            {
-                                return setQuery.getEntityPropertyMaterialValues(ids);
-                            }
-                        };
-                }
-
             };
     }
 
@@ -115,87 +86,48 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
     @Override
     public void enrich(final LongSet entityIDs, final IEntityPropertiesHolderResolver entities)
     {
-        final Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();
-        // Generic properties
-        for (GenericEntityPropertyRecord val : propertySetQuery
-                .getEntityPropertyGenericValues(entityIDs))
+        List<GenericEntityPropertyRecord> records = new ArrayList<>();
+        LongSet vocaTermIds = new LongOpenHashSet();
+        LongSet materialIds = new LongOpenHashSet();
+        for (GenericEntityPropertyRecord record : propertySetQuery.getEntityPropertyGenericValues(entityIDs))
         {
-            final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final AbstractEntityProperty property = new GenericEntityProperty();
-            property.setValue(val.value);
-            property.setPropertyType(propertyTypes.get(val.prty_id));
-            property.setScriptable(val.script_id != null);
-            property.setDynamic(ScriptType.DYNAMIC_PROPERTY.name().equals(val.script_type));
-            property.setOrdinal(val.ordinal);
-            entity.getProperties().add(property);
+            records.add(record);
+            if (record.cvte_id != null)
+            {
+                vocaTermIds.add(record.cvte_id);
+            }
+            if (record.mate_prop_id != null)
+            {
+                materialIds.add(record.mate_prop_id);
+            }
         }
 
-        // Controlled vocabulary properties
-        Long2ObjectMap<String> vocabularyURLMap = null;
-        Long2ObjectMap<VocabularyTerm> terms = new Long2ObjectOpenHashMap<VocabularyTerm>();
-        for (VocabularyTermRecord val : propertySetQuery
-                .getEntityPropertyVocabularyTermValues(entityIDs))
+        Long2ObjectMap<VocabularyTerm> vocabularyTerms = getVocabularyTerms(vocaTermIds);
+        Long2ObjectMap<Material> materials = getMaterials(materialIds);
+        Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();
+        for (GenericEntityPropertyRecord val : records)
         {
-            if (vocabularyURLMap == null)
+            AbstractEntityProperty property;
+            if (val.cvte_id != null)
             {
-                vocabularyURLMap = getVocabularyURLs();
-            }
-            final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final IEntityProperty property = new VocabularyTermEntityProperty();
-            VocabularyTerm vocabularyTerm = terms.get(val.id);
-            if (vocabularyTerm == null)
+                property = new VocabularyTermEntityProperty();
+                property.setVocabularyTerm(vocabularyTerms.get(val.cvte_id));
+            } else if (val.mate_prop_id != null)
             {
-                vocabularyTerm = new VocabularyTerm();
-                vocabularyTerm.setCode(val.code);
-                vocabularyTerm.setLabel(val.label);
-                vocabularyTerm.setDescription(val.description);
-                final String template = vocabularyURLMap.get(val.covo_id);
-                if (template != null)
-                {
-                    String url =
-                            template.replaceAll(
-                                    BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
-                                    val.code);
-                    url =
-                            url.replaceAll(BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
-                                    val.code);
-                    vocabularyTerm.setUrl(url);
-                }
-                terms.put(val.id, vocabularyTerm);
+                property = new MaterialEntityProperty();
+                property.setMaterial(materials.get(val.mate_prop_id));
+            } else
+            {
+                property = new GenericEntityProperty();
+                property.setValue(val.value);
+                property.setScriptable(val.script_id != null);
+                property.setDynamic(ScriptType.DYNAMIC_PROPERTY.name().equals(val.script_type));
             }
-            property.setVocabularyTerm(vocabularyTerm);
             property.setPropertyType(propertyTypes.get(val.prty_id));
             property.setOrdinal(val.ordinal);
+            IEntityPropertiesHolder entity = entities.get(val.entity_id);
             entity.getProperties().add(property);
         }
-
-        // Material-type properties
-        Long2ObjectMap<MaterialType> materialTypes = null;
-        Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
-        for (MaterialEntityPropertyRecord val : propertySetQuery
-                .getEntityPropertyMaterialValues(entityIDs))
-        {
-            if (materialTypes == null)
-            {
-                materialTypes = getMaterialTypes();
-            }
-            final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final IEntityProperty property = new MaterialEntityProperty();
-            Material material = materials.get(val.id);
-            if (material == null)
-            {
-                material = new Material();
-                material.setCode(val.code);
-                material.setMaterialType(materialTypes.get(val.maty_id));
-                material.setId(val.id);
-                materials.put(val.id, material);
-            }
-            property.setMaterial(material);
-            property.setPropertyType(propertyTypes.get(val.prty_id));
-            property.setOrdinal(val.ordinal);
-            entity.getProperties().add(property);
-        }
-
     }
 
     private Long2ObjectMap<PropertyType> getPropertyTypes()
@@ -239,4 +171,56 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         return materialTypeMap;
     }
 
+    private Long2ObjectMap<VocabularyTerm> getVocabularyTerms(LongSet vocaTermIds)
+    {
+        Long2ObjectMap<String> vocabularyURLMap = null;
+        Long2ObjectOpenHashMap<VocabularyTerm> map = new Long2ObjectOpenHashMap<VocabularyTerm>();
+        if (vocaTermIds.isEmpty() == false)
+        {
+            for (VocabularyTermRecord record : query.getVocabularyTerms(vocaTermIds))
+            {
+                if (vocabularyURLMap == null)
+                {
+                    vocabularyURLMap = getVocabularyURLs();
+                }
+                VocabularyTerm vocabularyTerm = new VocabularyTerm();
+                vocabularyTerm.setCode(record.code);
+                vocabularyTerm.setLabel(record.label);
+                vocabularyTerm.setDescription(record.description);
+                final String template = vocabularyURLMap.get(record.covo_id);
+                if (template != null)
+                {
+                    String url = template.replaceAll(
+                            BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
+                            record.code);
+                    url = url.replaceAll(BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, record.code);
+                    vocabularyTerm.setUrl(url);
+                }
+                map.put(record.id, vocabularyTerm);
+            }
+        }
+        return map;
+    }
+    
+    private Long2ObjectMap<Material> getMaterials(LongSet materialIds)
+    {
+        Long2ObjectMap<MaterialType> materialTypes = null;
+        Long2ObjectOpenHashMap<Material> map = new Long2ObjectOpenHashMap<Material>();
+        if (materialIds.isEmpty() == false)
+        {
+            for (MaterialEntityPropertyRecord record : query.getMaterials(materialIds))
+            {
+                if (materialTypes == null)
+                {
+                    materialTypes = getMaterialTypes();
+                }
+                Material material = new Material();
+                material.setCode(record.code);
+                material.setMaterialType(materialTypes.get(record.maty_id));
+                material.setId(record.id);
+                map.put(record.id, material);
+            }
+        }
+        return map;
+    }
 }
