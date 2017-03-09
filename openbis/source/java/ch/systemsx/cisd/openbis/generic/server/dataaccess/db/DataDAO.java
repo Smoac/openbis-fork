@@ -1220,7 +1220,15 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         final String query =
                 "select " + side1 + " from data_set_relationships where " + side2 + " in (:ids) and relationship_id = :type";
-        return findRelatedIds(query, dataSetIds, relationshipTypeId);
+        InQueryScroller<TechId> dataSetIdsScroller = new InQueryScroller<>(dataSetIds, 2);
+        List<TechId> partialDataSetIds = null;
+        Set<TechId> result = new HashSet<>();
+        while ((partialDataSetIds = dataSetIdsScroller.next()) != null)
+        {
+            Set<TechId> partialResult = findRelatedIds(query, partialDataSetIds, relationshipTypeId);
+            result.addAll(partialResult);
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
