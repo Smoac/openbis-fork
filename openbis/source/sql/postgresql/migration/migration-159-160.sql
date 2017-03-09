@@ -1,10 +1,3 @@
-UPDATE content_copies SET location_unique_check = 
-  data_id || ',' || 
-  edms_id || ',' || 
-  coalesce(path, '') || ',' || 
-  coalesce(git_commit_hash, '') || ',' || 
-  coalesce(external_code, '');
-        
 CREATE OR REPLACE FUNCTION content_copies_uniqueness_check()
   RETURNS trigger AS
 $BODY$
@@ -18,3 +11,10 @@ BEGIN
 END;
 $BODY$
   LANGUAGE 'plpgsql';
+
+UPDATE content_copies SET location_unique_check = 
+  data_id || ',' || 
+  edms_id || ',' || 
+  coalesce(path, '') || ',' || 
+  coalesce(git_commit_hash, '') || ',' || 
+  coalesce(external_code, '');
