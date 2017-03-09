@@ -149,6 +149,17 @@ public class ResourceListParserData
 
         private final Date lastModificationDate;
 
+        private boolean hasAttachments;
+
+        public boolean hasAttachments()
+        {
+            return hasAttachments;
+        }
+
+        public void setHasAttachments(boolean hasAttachments)
+        {
+            this.hasAttachments = hasAttachments;
+        }
         public NewProject getProject()
         {
             return project;
@@ -190,6 +201,18 @@ public class ResourceListParserData
 
         private final Date lastModificationDate;
 
+        private boolean hasAttachments;
+
+        public boolean hasAttachments()
+        {
+            return hasAttachments;
+        }
+
+        public void setHasAttachments(boolean hasAttachments)
+        {
+            this.hasAttachments = hasAttachments;
+        }
+
         public NewExperiment getExperiment()
         {
             return experiment;
@@ -226,6 +249,17 @@ public class ResourceListParserData
 
         private final Date lastModificationDate;
 
+        private boolean hasAttachments;
+
+        public boolean hasAttachments()
+        {
+            return hasAttachments;
+        }
+
+        public void setHasAttachments(boolean hasAttachments)
+        {
+            this.hasAttachments = hasAttachments;
+        }
         public Date getLastModificationDate()
         {
             return lastModificationDate;

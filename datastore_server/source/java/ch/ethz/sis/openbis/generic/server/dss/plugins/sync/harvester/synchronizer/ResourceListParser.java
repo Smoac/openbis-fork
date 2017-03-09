@@ -352,6 +352,7 @@ public class ResourceListParser
         ProjectWithConnections newPrjWithConns =
                 data.new ProjectWithConnections(newProject, lastModificationDate);
         data.getProjectsToProcess().put(permId, newPrjWithConns);
+        newPrjWithConns.setHasAttachments(hasAttachments(xpath, xdNode));
         newPrjWithConns.setConnections(parseConnections(xpath, xdNode));
     }
 
@@ -383,6 +384,17 @@ public class ResourceListParser
             }
         }
         return conns;
+    }
+
+    private boolean hasAttachments(XPath xpath, Node xdNode)
+    {
+        Element docElement = (Element) xdNode;
+        NodeList connsNode = docElement.getElementsByTagName("x:binaryData");
+        if (connsNode.getLength() == 1)
+        {
+            return true;
+        }
+        return false;
     }
 
     private List<NewProperty> parseDataSetProperties(XPath xpath, Node xdNode)
@@ -451,6 +463,7 @@ public class ResourceListParser
         ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
         data.getExperimentsToProcess().put(permId, newExpWithConns);
         newExpWithConns.setConnections(parseConnections(xpath, xdNode));
+        newExpWithConns.setHasAttachments(hasAttachments(xpath, xdNode));
         newExp.setProperties(parseProperties(xpath, xdNode));
     }
 
@@ -469,6 +482,7 @@ public class ResourceListParser
         newSample.setPermID(permId);
         SampleWithConnections newSampleWithConns = data.new SampleWithConnections(newSample, lastModificationDate);
         data.getSamplesToProcess().put(permId, newSampleWithConns);
+        newSampleWithConns.setHasAttachments(hasAttachments(xpath, xdNode));
         newSampleWithConns.setConnections(parseConnections(xpath, xdNode));
         newSample.setProperties(parseProperties(xpath, xdNode));
     }
