@@ -20,17 +20,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -40,6 +34,12 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author Tomasz Pylak
@@ -181,28 +181,6 @@ public class EntityListingTestUtils
         for (GenericEntityPropertyRecord property : properties)
         {
             assertNotNull(property.value);
-            assertEquals(entityId, property.entity_id);
-        }
-    }
-
-    public static void checkPropertiesVocabularyTermValues(long entityId,
-            DataIterator<VocabularyTermRecord> properties)
-    {
-        assertTrue("no vocabulary properties found", properties.hasNext());
-        for (VocabularyTermRecord property : properties)
-        {
-            assertNotNull(property.code);
-            assertEquals(entityId, property.entity_id);
-        }
-    }
-
-    public static void checkPropertiesMaterialValues(long entityId,
-            DataIterator<MaterialEntityPropertyRecord> properties)
-    {
-        assertTrue("no material properties found", properties.hasNext());
-        for (MaterialEntityPropertyRecord property : properties)
-        {
-            assertNotNull(property.code);
             assertEquals(entityId, property.entity_id);
         }
     }

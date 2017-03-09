@@ -22,7 +22,6 @@ import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityL
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findProperties;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -32,13 +31,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
  * Test cases for {@link ISampleListingQuery} set queries.
@@ -103,42 +101,6 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
                 assertEquals(comment.value, "extremely simple stuff");
             }
         }
-    }
-
-    @Test
-    public void testSamplePropertyMaterialValues()
-    {
-        LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
-        PropertyType[] propertyTypes = query.getPropertyTypes();
-        List<MaterialEntityPropertyRecord> allProperties =
-                asList(query.getEntityPropertyMaterialValues(ids));
-
-        ensureSamplesHaveProperties("bacterium", propertyTypes, allProperties);
-        ensureSamplesHaveProperties("any_material", propertyTypes, allProperties);
-    }
-
-    private void ensureSamplesHaveProperties(String propertyCode, PropertyType[] propertyTypes,
-            Iterable<? extends BaseEntityPropertyRecord> allProperties)
-    {
-        PropertyType propertyType =
-                EntityListingTestUtils.findPropertyType(propertyTypes, propertyCode);
-        List<? extends BaseEntityPropertyRecord> properties =
-                findProperties(allProperties, propertyType.getId());
-        assertEquals("There should be exactly one property for each sample", 2, properties.size());
-        findExactlyOneProperty(properties, propertyType.getId(), CELL_PLATE_ID_CP_TEST_1);
-        findExactlyOneProperty(properties, propertyType.getId(), CELL_PLATE_ID_CP_TEST_2);
-    }
-
-    @Test
-    public void testSamplePropertyVocabularyTermValues()
-    {
-        LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
-
-        Iterable<VocabularyTermRecord> allProperties =
-                query.getEntityPropertyVocabularyTermValues(ids);
-        PropertyType[] propertyTypes = query.getPropertyTypes();
-
-        ensureSamplesHaveProperties("organism", propertyTypes, allProperties);
     }
 
 }

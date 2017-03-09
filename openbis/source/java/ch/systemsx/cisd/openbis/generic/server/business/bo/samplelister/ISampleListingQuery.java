@@ -16,12 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.EoDException;
@@ -29,17 +38,6 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
-import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
-import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of sample-related entities from the database.
@@ -54,9 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 @Private
 public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
 {
-
-    public static final int FETCH_SIZE = 1000;
-
     static final String SELECT_FROM_SAMPLES_S =
             "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.proj_id, s.space_id, s.saty_id, "
                     + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
@@ -420,35 +415,6 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "     WHERE sp.samp_id = any(?{1})", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
-            LongSet sampleIds);
-
-    /**
-     * Returns all controlled vocabulary property values of all samples specified by <var>sampleIds</var>.
-     * 
-     * @param sampleIds The set of sample ids to get the property values for.
-     */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, stpt.ordinal, "
-            + "           cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal as term_ordinal, cvte.is_official, cvte.description"
-            + "      FROM sample_properties sp"
-            + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
-            + "      JOIN controlled_vocabulary_terms cvte ON sp.cvte_id=cvte.id"
-            + "     WHERE sp.cvte_id is not null AND sp.samp_id = any(?{1})", parameterBindings =
-    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-            LongSet sampleIds);
-
-    /**
-     * Returns all material-type property values of all samples specified by <var>sampleIds</var>.
-     * 
-     * @param sampleIds The set of sample ids to get the property values for.
-     */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, stpt.ordinal, m.id, m.code, m.maty_id"
-            + "      FROM sample_properties sp"
-            + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
-            + "      JOIN materials m ON sp.mate_prop_id=m.id "
-            + "     WHERE sp.mate_prop_id is not null AND sp.samp_id = any(?{1})", parameterBindings =
-    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet sampleIds);
 
     @Select(sql = "select m.id as id, m.name as name, m.description as description, p.user_id as owner_name, "

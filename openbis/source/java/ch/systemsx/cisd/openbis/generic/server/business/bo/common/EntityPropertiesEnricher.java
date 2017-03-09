@@ -187,6 +187,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 vocabularyTerm.setCode(record.code);
                 vocabularyTerm.setLabel(record.label);
                 vocabularyTerm.setDescription(record.description);
+                vocabularyTerm.setOrdinal(record.ordinal);
                 final String template = vocabularyURLMap.get(record.covo_id);
                 if (template != null)
                 {

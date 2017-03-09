@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -122,19 +123,24 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
 
                     one(query).getVocabularyTerms(new LongOpenHashSet(Arrays.asList(record.cvte_id)));
                     VocabularyTermRecord termRecord = new VocabularyTermRecord();
-                    termRecord.entity_id = ENTITY_ID;
-                    termRecord.prty_id = PROPERTY_TYPE_ID;
                     termRecord.id = VOCABULARY_TERM_ID;
                     termRecord.covo_id = VOCABULARY_ID;
                     termRecord.code = "HELLO";
                     termRecord.label = "Hello";
+                    termRecord.description = "greeting";
+                    termRecord.ordinal = 1234L;
                     will(returnValue(new WrappingDataIterator<>(Arrays.asList(termRecord))));
                 }
             });
 
         enricher.enrich(entityIDs, resolver);
 
-        assertEquals("http://my.url.org/?q=HELLO", properties.get(0).getVocabularyTerm().getUrl());
+        VocabularyTerm vocabularyTerm = properties.get(0).getVocabularyTerm();
+        assertEquals("HELLO", vocabularyTerm.getCode());
+        assertEquals("Hello", vocabularyTerm.getLabel());
+        assertEquals("greeting", vocabularyTerm.getDescription());
+        assertEquals(new Long(1234L), vocabularyTerm.getOrdinal());
+        assertEquals("http://my.url.org/?q=HELLO", vocabularyTerm.getUrl());
         context.assertIsSatisfied();
     }
 
@@ -162,8 +168,6 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
 
                     one(query).getVocabularyTerms(new LongOpenHashSet(Arrays.asList(record.cvte_id)));
                     VocabularyTermRecord termRecord = new VocabularyTermRecord();
-                    termRecord.entity_id = ENTITY_ID;
-                    termRecord.prty_id = PROPERTY_TYPE_ID;
                     termRecord.id = VOCABULARY_TERM_ID;
                     termRecord.covo_id = VOCABULARY_ID;
                     termRecord.code = "HELLO";

@@ -26,9 +26,8 @@ import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
+
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
@@ -48,7 +47,6 @@ import net.lemnik.eodsql.TypeMapper;
 @Friend(toClasses = { DataStoreRecord.class })
 public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
 {
-    public static final int FETCH_SIZE = 10000;
 
     public final static String SELECT_ALL =
             "select data.*, external_data.*, link_data.*, content_copies.external_code, content_copies.edms_id, "
@@ -334,32 +332,6 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
                     TypeMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds, String propertyTypeCode);
-
-    /**
-     * Returns all controlled vocabulary property values of all datasets specified by <var>entityIds</var>.
-     * 
-     * @param entityIds The set of sample ids to get the property values for.
-     */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal, cvte.is_official, cvte.description"
-            + "      FROM data_set_properties pr"
-            + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
-            + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"
-            + "     WHERE pr.cvte_id is not null AND pr.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-            LongSet entityIds);
-
-    /**
-     * Returns all material-type property values of all datasets specified by <var>entityIds</var>.
-     * 
-     * @param entityIds The set of sample ids to get the property values for.
-     */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, m.id, m.code, m.maty_id"
-            + "      FROM data_set_properties pr"
-            + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
-            + "      JOIN materials m ON pr.mate_prop_id=m.id "
-            + "     WHERE pr.mate_prop_id is not null AND pr.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
-            LongSet entityIds);
 
     @Select(sql = "with recursive connected_data(id,code,container_id,ordinal,dast_id,location) as ("
             + "  select distinct d.id,d.code,nullif(r.data_id_parent,d.id),nullif(r.ordinal,r.ordinal),d.dast_id,ed.location"
