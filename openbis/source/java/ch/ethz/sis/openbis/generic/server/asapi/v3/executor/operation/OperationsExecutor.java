@@ -450,9 +450,9 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createProjectsExecutor.execute(context, operations));
         resultMap.putAll(createExperimentsExecutor.execute(context, operations));
         resultMap.putAll(createSamplesExecutor.execute(context, operations));
+        resultMap.putAll(createExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(createDataSetsExecutor.execute(context, operations));
         resultMap.putAll(createTagsExecutor.execute(context, operations));
-        resultMap.putAll(createExternalDmsExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations,
