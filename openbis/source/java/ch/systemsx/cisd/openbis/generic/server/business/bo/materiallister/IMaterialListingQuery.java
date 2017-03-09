@@ -100,7 +100,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"
-            + "     WHERE pr.value is not null AND pr.mate_id = any(?{1})", parameterBindings =
+            + "     WHERE pr.mate_id = any(?{1})", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds);
