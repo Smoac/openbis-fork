@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.material.update.UpdateMaterialsOperationResult")
+@JsonObject("as.dto.externaldms.update.UpdateExternalDmsOperationResult")
 public class UpdateExternalDmsOperationResult extends UpdateObjectsOperationResult<ExternalDmsPermId>
 {
 
