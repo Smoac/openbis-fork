@@ -75,9 +75,4 @@ public class ContentCopyCreation implements ICreation
         this.externalDmsId = externalDmsId;
     }
 
-    public static long getSerialversionuid()
-    {
-        return serialVersionUID;
-    }
-
 }
