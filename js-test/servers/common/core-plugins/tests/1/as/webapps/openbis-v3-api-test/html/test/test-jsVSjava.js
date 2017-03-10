@@ -51,7 +51,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"SearchExternalDmsOperation" : "Java class not implemented in JS: ",
 			"SearchExternalDmsOperationResult" : "Java class not implemented in JS: ",
 			"ExternalDmsUpdate" : "Java class not implemented in JS: ",
-			"UpdateExternalDmsOperation" : "Java class not implemented in JS: "
+			"UpdateExternalDmsOperation" : "Java class not implemented in JS: ",
+			"UpdateExternalDmsOperationResult" : "Java class not implemented in JS: ",
+			"ExternalDmsSearchCriteria" : "Java class not implemented in JS: "
 		}
 
 		//

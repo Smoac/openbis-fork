@@ -2,12 +2,12 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
@@ -43,8 +43,8 @@ public class GetLinkDataSetTest extends AbstractLinkDataSetTest
         ExternalDmsPermId fs = create(externalDms().withType(ExternalDmsAddressType.FILE_SYSTEM));
         DataSetPermId id = create(linkDataSet().with(copyAt(fs).withPath("/path/to/dir")));
         DataSet dataSet = get(id);
-        assertThat(dataSet.getLinkedData().getExternalCode(), is(LinkedData.NO_COPY_EXTERNAL_CODE));
-        assertThat(dataSet.getLinkedData().getExternalDms(), is(LinkedData.NO_COPY_EXTERNAL_DMS));
+        assertThat(dataSet.getLinkedData().getExternalCode(), is(""));
+        assertThat(dataSet.getLinkedData().getExternalDms(), is(nullValue()));
     }
 
     @Test
@@ -52,8 +52,8 @@ public class GetLinkDataSetTest extends AbstractLinkDataSetTest
     {
         DataSetPermId id = create(linkDataSet());
         DataSet dataSet = get(id);
-        assertThat(dataSet.getLinkedData().getExternalCode(), is(LinkedData.NO_COPY_EXTERNAL_CODE));
-        assertThat(dataSet.getLinkedData().getExternalDms(), is(LinkedData.NO_COPY_EXTERNAL_DMS));
+        assertThat(dataSet.getLinkedData().getExternalCode(), is(""));
+        assertThat(dataSet.getLinkedData().getExternalDms(), is(nullValue()));
     }
 
     @Test
@@ -69,8 +69,8 @@ public class GetLinkDataSetTest extends AbstractLinkDataSetTest
         DataSet dataSet = get(id);
 
         assertThat(dataSet.getLinkedData().getContentCopies().size(), is(3));
-        assertThat(dataSet.getLinkedData().getExternalCode(), is(LinkedData.NO_COPY_EXTERNAL_CODE));
-        assertThat(dataSet.getLinkedData().getExternalDms(), is(LinkedData.NO_COPY_EXTERNAL_DMS));
+        assertThat(dataSet.getLinkedData().getExternalCode(), is(""));
+        assertThat(dataSet.getLinkedData().getExternalDms(), is(nullValue()));
     }
 
     @Test

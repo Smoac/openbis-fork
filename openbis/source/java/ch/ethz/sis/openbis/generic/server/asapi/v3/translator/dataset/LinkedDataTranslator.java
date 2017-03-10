@@ -70,8 +70,8 @@ public class LinkedDataTranslator extends AbstractCachingTranslator<Long, Linked
         ArrayList<ContentCopy> copyList = new ArrayList<>(copies);
         result.setContentCopies(copyList);
 
-        String externalCode = LinkedData.NO_COPY_EXTERNAL_CODE;
-        ExternalDms externalDms = LinkedData.NO_COPY_EXTERNAL_DMS;
+        String externalCode = "";
+        ExternalDms externalDms = null;
         for (ContentCopy copy : copyList)
         {
             ExternalDmsAddressType type = copy.getExternalDms().getAddressType();
@@ -79,12 +79,13 @@ public class LinkedDataTranslator extends AbstractCachingTranslator<Long, Linked
             {
                 externalCode = copy.getExternalCode();
                 externalDms = copy.getExternalDms();
+                break;
             }
         }
 
         result.setExternalCode(externalCode);
 
-        if (fetchOptions.hasExternalDms())
+        if (fetchOptions.hasExternalDms() || externalDms != null)
         {
             result.setExternalDms(externalDms);
             result.getFetchOptions().withExternalDmsUsing(fetchOptions.withExternalDms());
