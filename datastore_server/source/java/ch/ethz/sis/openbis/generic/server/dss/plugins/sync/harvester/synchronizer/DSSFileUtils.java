@@ -17,10 +17,16 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
@@ -66,6 +72,18 @@ public class DSSFileUtils
         DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
         criteria.withDataSet().withCode().thatEquals(dataSetCode);
         return searchFiles(sessionToken, criteria, dsFileFetchOptions);
+    }
+
+    public List<Attachment> getExperimentAttachments(String sessionToken, IExperimentId experimentId)
+    {
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withAttachments().withContent();
+        Map<IExperimentId, Experiment> experiments = as.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+        if(experiments.size() == 1) {
+            Experiment experiment = experiments.get(experimentId);
+            return experiment.getAttachments();
+        }
+        return null;
     }
 
     public InputStream downloadFiles(String sessionToken, List<IDataSetFileId> fileIds, DataSetFileDownloadOptions options)

@@ -127,7 +127,6 @@ public class ResourceListParserData
         return dsMap;
     }
 
-
     public Map<String, DataSetWithConnections> filterContainerDataSets()
     {
         // List<NewDataSetWithConnections> dsList = new ArrayList<ResourceListParserData.NewDataSetWithConnections>();

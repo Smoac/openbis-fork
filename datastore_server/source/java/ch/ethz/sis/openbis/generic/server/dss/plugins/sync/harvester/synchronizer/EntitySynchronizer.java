@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
@@ -59,6 +60,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetriever;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
@@ -86,11 +88,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -117,6 +122,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -149,6 +155,8 @@ public class EntitySynchronizer
 
     private final Set<String> blackListedDataSetCodes;
 
+    private final List<Identifier<?>> entitiesWithAttachments = new ArrayList<Identifier<?>>();
+
     private MasterDataSynchronizer masterDataSyncronizer;
 
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
@@ -172,7 +180,7 @@ public class EntitySynchronizer
         return syncronizeEntities(dataSourceConnector);
     }
 
-    public Date syncronizeEntities(IDataSourceConnector dataSourceConnector) throws Exception
+    private Date syncronizeEntities(IDataSourceConnector dataSourceConnector) throws Exception
     {
         // retrieve the document from the data source
         operationLog.info("Retrieving the resource list..");
@@ -215,6 +223,9 @@ public class EntitySynchronizer
         AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
         operationLog.info("entity operation result: " + operationResult);
 
+        operationLog.info("processing attachments...");
+        // processAttachments(entitiesWithAttachments);
+
         // register physical data sets without any hierarchy
         // Note that container/component and parent/child relationships are established post-reg.
         // setParentDataSetsOnTheChildren(data);
@@ -237,6 +248,12 @@ public class EntitySynchronizer
         // cleanup();
 
         return data.getResourceListTimestamp();
+    }
+
+    private void processAttachments(List<Identifier<?>> entities)
+    {
+        ParallelizedExecutor.process(entities, new AttachmentSynchronizationTaskExecutor(),
+                0.5, 10, "process attachments", 0, false);
     }
 
     private void cleanup()
@@ -673,6 +690,11 @@ public class EntitySynchronizer
                     ExperimentUpdatesDTO expUpdate = createExperimentUpdateDTOs(incomingExp, experiment);
                     builder.experimentUpdate(expUpdate);
                 }
+                // add to a list for processing the attachments later on.
+                if (exp.hasAttachments() == true)
+                {
+                    entitiesWithAttachments.add(incomingExp);
+                }
             }
             handleExperimentConnections(data, exp, incomingExp);
         }
@@ -769,6 +791,12 @@ public class EntitySynchronizer
                 {
                     // UPDATE PROJECT
                     builder.projectUpdate(createProjectUpdateDTO(incomingProject, project));
+                }
+
+                // add to a list for processing the attachments later on.
+                if (prj.hasAttachments() == true)
+                {
+                    entitiesWithAttachments.add(incomingProject);
                 }
             }
             // handleProjectConnections(data, prj);
@@ -868,6 +896,11 @@ public class EntitySynchronizer
                             sampleWithUpdatedParents.add(childSample.getIdentifier());
                         }
                     }
+                }
+                // add to a list for processing the attachments later on.
+                if (sample.hasAttachments() == true)
+                {
+                    entitiesWithAttachments.add(incomingSample);
                 }
             }
             for (Connection conn : sample.getConnections())
@@ -1004,6 +1037,41 @@ public class EntitySynchronizer
         return null;
     }
 
+    private final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Identifier<?>>
+    {
+        public AttachmentSynchronizationTaskExecutor()
+        {
+        }
+
+        @Override
+        public Status execute(Identifier<?> item)
+        {
+            DSSFileUtils dssFileUtils = DSSFileUtils.create(config.getDataSourceOpenbisURL(), config.getDataSourceDSSURL());
+            String sessionToken = dssFileUtils.login(config.getUser(), config.getPassword());
+            if(item instanceof NewExperiment) {
+
+                // TODO complete this by comparing versions, getting any previous versions using v3 api and syncing
+                List<Attachment> incomingAttachments = dssFileUtils.getExperimentAttachments(sessionToken, new ExperimentPermId(item.getPermID()));
+
+                Experiment experiment = service.tryGetExperiment(ExperimentIdentifierFactory.parse(item.getIdentifier()));
+                List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachments =
+                        service.listAttachments(AttachmentHolderKind.EXPERIMENT, experiment.getId());
+                ICommonServer commonServer = ServiceFinderUtils.getCommonServer(ServiceProvider.getConfigProvider().getOpenBisServerUrl());
+                SessionContextDTO sessionDTO = commonServer.tryAuthenticate(config.getHarvesterUser(), config.getHarvesterPass());
+                for (Attachment attachment : incomingAttachments)
+                {
+                    NewAttachment newAttachment = new NewAttachment();
+                    newAttachment.setTitle(attachment.getTitle());
+                    newAttachment.setDescription(attachment.getDescription());
+                    newAttachment.setFilePath(attachment.getFileName());
+                    newAttachment.setContent(attachment.getContent());
+                    commonServer.addExperimentAttachment(sessionDTO.getSessionToken(), new TechId(experiment.getId()), newAttachment);
+                }
+            }
+            return null;
+        }
+    }
+
     private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<DataSetWithConnections>
     {
         private DataSetRegistrationSummary dsRegistrationSummary;
@@ -1016,8 +1084,6 @@ public class EntitySynchronizer
         @Override
         public Status execute(DataSetWithConnections dataSet)
         {
-            System.out.println("start " + dataSet.getDataSet().getCode());
-
             Properties props = setProperties();
 
             DataSetRegistrationIngestionService ingestionService =
