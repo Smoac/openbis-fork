@@ -772,7 +772,7 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
         criteria.withPermId().thatEquals("200902091219327-1053");
-        criteria.withPermId().thatEquals("200902091225616-1027");
+        criteria.withPermId().thatEquals("200811050928301-1012");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -780,11 +780,11 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().modificationDate().asc();
         List<Sample> samples1 = search(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-3", "/CISD/DYNA-TEST-1");
+        assertSampleIdentifiersInOrder(samples1, "/CISD/MP2-NO-CL:B02", "/CISD/DYNA-TEST-1");
 
         fo.sortBy().modificationDate().desc();
         List<Sample> samples2 = search(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples2, "/CISD/DYNA-TEST-1", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samples2, "/CISD/DYNA-TEST-1", "/CISD/MP2-NO-CL:B02");
 
         v3api.logout(sessionToken);
     }
