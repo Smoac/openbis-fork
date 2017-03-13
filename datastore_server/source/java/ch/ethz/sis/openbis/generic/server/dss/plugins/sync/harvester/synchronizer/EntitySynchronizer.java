@@ -219,7 +219,7 @@ public class EntitySynchronizer
         operationLog.info("entity operation result: " + operationResult);
 
         operationLog.info("processing attachments...");
-        // processAttachments(entitiesWithAttachments, lastSyncTimestamp);
+        // processAttachments(entitiesWithAttachments);
 
         // register physical data sets without any hierarchy
         // Note that container/component and parent/child relationships are established post-reg.
@@ -1014,6 +1014,7 @@ public class EntitySynchronizer
         }
         return ProjectIdentifierFactory.parse(projectIdentifier);
     }
+
     private List<Sample> getChildSamples(Sample sampleWithExperiment)
     {
         ListSampleCriteria criteria = ListSampleCriteria.createForParent(new TechId(sampleWithExperiment.getId()));
@@ -1031,7 +1032,6 @@ public class EntitySynchronizer
         }
         return null;
     }
-
 
     private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<DataSetWithConnections>
     {

@@ -23,7 +23,6 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -78,9 +77,11 @@ public class V3Utils
     public List<Attachment> getExperimentAttachments(String sessionToken, IExperimentId experimentId)
     {
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        AttachmentFetchOptions attachmentFetchOptions = fetchOptions.withAttachments();
-        attachmentFetchOptions.withContent();
-        attachmentFetchOptions.withPreviousVersion().withContent();
+        fetchOptions.withAttachments().withContent();
+        fetchOptions.withAttachments().withPreviousVersion().withPreviousVersionUsing(fetchOptions.withAttachments());
+        fetchOptions.withAttachments().withPreviousVersion().withContentUsing(fetchOptions.withAttachments().withContent());// attachmentFetchOptions.withContent();
+        // attachmentFetchOptions.withPreviousVersion().withPreviousVersionUsing(fetchOptions.withAttachments());
+        // .withContentUsing(attachmentFetchOptions.withContent());
         Map<IExperimentId, Experiment> experiments = as.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         if(experiments.size() == 1) {
             Experiment experiment = experiments.get(experimentId);
