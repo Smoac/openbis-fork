@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * 
@@ -65,19 +64,9 @@ public class MasterDataSynchronizer
     {
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
-        this.sessionToken = login(harvesterUser, harvesterPassword);
+        this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
         this.masterData = masterData;
         vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
-    }
-
-    private String login(String harvesterUser, String harvesterPassword)
-    {
-        SessionContextDTO session = commonServer.tryAuthenticate(harvesterUser, harvesterPassword);
-        if (session == null)
-        {
-            throw UserFailureException.fromTemplate("Invalid username/password combination for user:" + harvesterUser);
-        }
-        return session.getSessionToken();
     }
     
     public void synchronizeMasterData() {

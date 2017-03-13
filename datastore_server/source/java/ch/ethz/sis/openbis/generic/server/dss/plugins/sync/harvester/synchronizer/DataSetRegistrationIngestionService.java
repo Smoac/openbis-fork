@@ -200,7 +200,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
     private void downloadDataSetFiles(File dir, String dataSetCode) throws Exception
     {
-        DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
+        V3Utils dssFileUtils = V3Utils.create(asUrl, dssUrl);
         String sessionToken = dssFileUtils.login(loginUser, loginPass);
         DataSetFileFetchOptions dsFileFetchOptions = new DataSetFileFetchOptions();
         SearchResult<DataSetFile> result = dssFileUtils.searchWithDataSetCode(sessionToken, dataSetCode, dsFileFetchOptions);

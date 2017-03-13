@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -41,19 +42,19 @@ import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
  *
  * @author Ganime Betul Akin
  */
-public class DSSFileUtils
+public class V3Utils
 {
     public static final int TIMEOUT = 100000;
 
     private final IDataStoreServerApi dss;
     private final IApplicationServerApi as;
 
-    public static DSSFileUtils create(String asUrl, String dssUrl)
+    public static V3Utils create(String asUrl, String dssUrl)
     {
-        return new DSSFileUtils(asUrl, dssUrl, TIMEOUT);
+        return new V3Utils(asUrl, dssUrl, TIMEOUT);
     }
 
-    private DSSFileUtils (String asUrl, String dssUrl, int timeout)
+    private V3Utils (String asUrl, String dssUrl, int timeout)
     {
         SslCertificateHelper.trustAnyCertificate(asUrl);
         SslCertificateHelper.trustAnyCertificate(dssUrl);
@@ -77,7 +78,9 @@ public class DSSFileUtils
     public List<Attachment> getExperimentAttachments(String sessionToken, IExperimentId experimentId)
     {
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.withAttachments().withContent();
+        AttachmentFetchOptions attachmentFetchOptions = fetchOptions.withAttachments();
+        attachmentFetchOptions.withContent();
+        attachmentFetchOptions.withPreviousVersion().withContent();
         Map<IExperimentId, Experiment> experiments = as.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         if(experiments.size() == 1) {
             Experiment experiment = experiments.get(experimentId);

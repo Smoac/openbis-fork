@@ -41,7 +41,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
@@ -60,7 +59,6 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetriever;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
@@ -88,10 +86,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -122,7 +118,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -224,7 +219,7 @@ public class EntitySynchronizer
         operationLog.info("entity operation result: " + operationResult);
 
         operationLog.info("processing attachments...");
-        // processAttachments(entitiesWithAttachments);
+        // processAttachments(entitiesWithAttachments, lastSyncTimestamp);
 
         // register physical data sets without any hierarchy
         // Note that container/component and parent/child relationships are established post-reg.
@@ -252,7 +247,7 @@ public class EntitySynchronizer
 
     private void processAttachments(List<Identifier<?>> entities)
     {
-        ParallelizedExecutor.process(entities, new AttachmentSynchronizationTaskExecutor(),
+        ParallelizedExecutor.process(entities, new AttachmentSynchronizationTaskExecutor(service, lastSyncTimestamp, config),
                 0.5, 10, "process attachments", 0, false);
     }
 
@@ -1037,40 +1032,6 @@ public class EntitySynchronizer
         return null;
     }
 
-    private final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Identifier<?>>
-    {
-        public AttachmentSynchronizationTaskExecutor()
-        {
-        }
-
-        @Override
-        public Status execute(Identifier<?> item)
-        {
-            DSSFileUtils dssFileUtils = DSSFileUtils.create(config.getDataSourceOpenbisURL(), config.getDataSourceDSSURL());
-            String sessionToken = dssFileUtils.login(config.getUser(), config.getPassword());
-            if(item instanceof NewExperiment) {
-
-                // TODO complete this by comparing versions, getting any previous versions using v3 api and syncing
-                List<Attachment> incomingAttachments = dssFileUtils.getExperimentAttachments(sessionToken, new ExperimentPermId(item.getPermID()));
-
-                Experiment experiment = service.tryGetExperiment(ExperimentIdentifierFactory.parse(item.getIdentifier()));
-                List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachments =
-                        service.listAttachments(AttachmentHolderKind.EXPERIMENT, experiment.getId());
-                ICommonServer commonServer = ServiceFinderUtils.getCommonServer(ServiceProvider.getConfigProvider().getOpenBisServerUrl());
-                SessionContextDTO sessionDTO = commonServer.tryAuthenticate(config.getHarvesterUser(), config.getHarvesterPass());
-                for (Attachment attachment : incomingAttachments)
-                {
-                    NewAttachment newAttachment = new NewAttachment();
-                    newAttachment.setTitle(attachment.getTitle());
-                    newAttachment.setDescription(attachment.getDescription());
-                    newAttachment.setFilePath(attachment.getFileName());
-                    newAttachment.setContent(attachment.getContent());
-                    commonServer.addExperimentAttachment(sessionDTO.getSessionToken(), new TechId(experiment.getId()), newAttachment);
-                }
-            }
-            return null;
-        }
-    }
 
     private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<DataSetWithConnections>
     {
@@ -1135,7 +1096,7 @@ public class EntitySynchronizer
         String asUrl = config.getDataSourceOpenbisURL();
         String dssUrl = config.getDataSourceDSSURL();
 
-        DSSFileUtils dssFileUtils = DSSFileUtils.create(asUrl, dssUrl);
+        V3Utils dssFileUtils = V3Utils.create(asUrl, dssUrl);
         String sessionToken = dssFileUtils.login(config.getUser(), config.getPassword());
 
         DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
