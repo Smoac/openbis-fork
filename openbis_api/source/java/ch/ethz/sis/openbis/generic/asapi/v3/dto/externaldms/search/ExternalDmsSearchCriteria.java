@@ -16,28 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.externaldms.search.ExternalDmsSearchCriteria")
 public class ExternalDmsSearchCriteria extends ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria
-
 {
-
     private static final long serialVersionUID = 1L;
-
-    public CodeSearchCriteria withCode()
-    {
-        return with(new CodeSearchCriteria());
-    }
-
-    @Override
-    protected SearchCriteriaToStringBuilder createBuilder()
-    {
-        SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("EXTERNAL_DMS");
-        return builder;
-    }
 
 }
