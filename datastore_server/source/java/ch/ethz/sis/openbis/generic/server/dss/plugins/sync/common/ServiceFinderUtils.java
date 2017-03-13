@@ -16,10 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.api.client.IServicePinger;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * 
@@ -43,6 +45,17 @@ public class ServiceFinderUtils
                             });
         return commonServer;
     }
+
+    public static String login(ICommonServer commonServer, String user, String password)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user, password);
+        if (session == null)
+        {
+            throw UserFailureException.fromTemplate("Invalid username/password combination for user:" + user);
+        }
+        return session.getSessionToken();
+    }
+
     public static EncapsulatedCommonServer getEncapsulatedCommonServer(String sessionToken, String openBisServerUrl)
     {
         return EncapsulatedCommonServer.create(getCommonServer(openBisServerUrl), sessionToken);
