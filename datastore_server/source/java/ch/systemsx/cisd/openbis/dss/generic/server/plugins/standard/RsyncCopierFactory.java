@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
@@ -27,8 +28,8 @@ public final class RsyncCopierFactory implements Serializable, IPathCopierFactor
     private static final long serialVersionUID = 1L;
 
     @Override
-    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis)
+    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis, List<String> additionalCmdLineFlagsOrNull)
     {
-        return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, false, false);
+        return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, false, false, additionalCmdLineFlagsOrNull.toArray(new String[0]));
     }
 }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.RemoteDataSetFileOperationsEx
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.Copier;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 
 /**
  * @author Jakub Straszewski
@@ -90,7 +91,8 @@ public class ArchiveDestinationFactory implements Serializable
         File gfindExecutable = Copier.getExecutable(properties, AbstractDataSetFileOperationsManager.GFIND_EXEC);
 
         IPathCopier copier =
-                pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
+                pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis,
+                        RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         copier.check();
         String rsyncModule = hostAwareFile.tryGetRsyncModule();
         String rsyncPasswordFile = properties.getProperty(AbstractDataSetFileOperationsManager.RSYNC_PASSWORD_FILE_KEY);
@@ -110,7 +112,8 @@ public class ArchiveDestinationFactory implements Serializable
         File sshExecutable = null; // don't use ssh locally
         File rsyncExecutable = Copier.getExecutable(properties, AbstractDataSetFileOperationsManager.RSYNC_EXEC);
         IPathCopier copier =
-                pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
+                pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis,
+                        RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         copier.check();
         String rsyncModule = hostAwareFile.tryGetRsyncModule();
         String rsyncPasswordFile = properties.getProperty(AbstractDataSetFileOperationsManager.RSYNC_PASSWORD_FILE_KEY);
