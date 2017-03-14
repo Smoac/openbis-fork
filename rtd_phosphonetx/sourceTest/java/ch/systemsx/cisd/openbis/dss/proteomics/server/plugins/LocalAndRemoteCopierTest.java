@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopie
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -207,7 +208,8 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, sshExec, DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    one(copierFactory).create(rsyncExec, sshExec, DataSetCopier.SSH_TIMEOUT_MILLIS,
+                            RSyncConfig.getInstance().getAdditionalCommandLineOptions());
                     will(returnValue(copier));
 
                     one(copier).check();
@@ -272,7 +274,8 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, null, DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    one(copierFactory).create(rsyncExec, null, DataSetCopier.SSH_TIMEOUT_MILLIS,
+                            RSyncConfig.getInstance().getAdditionalCommandLineOptions());
                     will(returnValue(new MockCopier()));
                 }
             });
