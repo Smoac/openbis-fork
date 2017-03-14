@@ -53,7 +53,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"ExternalDmsUpdate" : "Java class not implemented in JS: ",
 			"UpdateExternalDmsOperation" : "Java class not implemented in JS: ",
 			"UpdateExternalDmsOperationResult" : "Java class not implemented in JS: ",
-			"ExternalDmsSearchCriteria" : "Java class not implemented in JS: "
+			"ExternalDmsSearchCriteria" : "Java class not implemented in JS: ",
+			"ContentCopyPermId" : "Java class not implemented in JS: ",
+			"IContentCopyId" : "Java class not implemented in JS: ",
+			"ContentCopyListUpdateValue" : "Java class not implemented in JS: ",
+			"LinkedDataUpdate" : "JS class missing field: as.dto.dataset.update.LinkedDataUpdate - contentCopies"
 		}
 
 		//

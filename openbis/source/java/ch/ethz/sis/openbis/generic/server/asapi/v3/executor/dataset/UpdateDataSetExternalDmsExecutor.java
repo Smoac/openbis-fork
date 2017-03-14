@@ -66,7 +66,14 @@ public class UpdateDataSetExternalDmsExecutor extends
     {
         if (entity instanceof LinkDataPE)
         {
-            return ((LinkDataPE) entity).getContentCopies().iterator().next().getExternalDataManagementSystem();
+            LinkDataPE linkData = (LinkDataPE) entity;
+            if (linkData.getContentCopies().size() > 0)
+            {
+                return ((LinkDataPE) entity).getContentCopies().iterator().next().getExternalDataManagementSystem();
+            } else
+            {
+                return null;
+            }
         } else
         {
             return null;
@@ -94,10 +101,6 @@ public class UpdateDataSetExternalDmsExecutor extends
     @Override
     protected void check(IOperationContext context, DataPE entity, IExternalDmsId relatedId, ExternalDataManagementSystemPE related)
     {
-        if (entity instanceof LinkDataPE && relatedId == null)
-        {
-            throw new UserFailureException("External data management system id cannot be null for a link data set.");
-        }
     }
 
     @Override
@@ -112,7 +115,8 @@ public class UpdateDataSetExternalDmsExecutor extends
                 ContentCopyPE next = contentCopies.iterator().next();
                 if (next.getExternalCode() != null)
                 {
-                    switch (related.getAddressType()) {
+                    switch (related.getAddressType())
+                    {
                         case OPENBIS:
                             next.setLocationType(LocationType.OPENBIS);
                             break;
@@ -120,9 +124,10 @@ public class UpdateDataSetExternalDmsExecutor extends
                             next.setLocationType(LocationType.URL);
                             break;
                         default:
-                            throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "+related.getAddressType()+" using legacy methods");
+                            throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "
+                                    + related.getAddressType() + " using legacy methods");
                     }
-                    
+
                     next.setExternalDataManagementSystem(related);
                 } else
                 {

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hamcrest.collection.IsIterableContainingInAnyOrder;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ContentCopy;
@@ -147,34 +146,6 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         }
         assertThat(contentCopies.size(), is(12));
         assertThat(actual, IsIterableContainingInAnyOrder.<String> containsInAnyOrder(expected.toArray(new String[0])));
-    }
-
-    @DataProvider(name = "InvalidLocationCombinations")
-    public static Object[][] invalidLocationCombinations()
-    {
-        return new Object[][] {
-                { ExternalDmsAddressType.OPENBIS, null, null, null },
-                { ExternalDmsAddressType.OPENBIS, null, "/path", null },
-                { ExternalDmsAddressType.OPENBIS, null, null, "hash" },
-                { ExternalDmsAddressType.OPENBIS, null, "/path", "hash" },
-                { ExternalDmsAddressType.OPENBIS, "code", "/path", null },
-                { ExternalDmsAddressType.OPENBIS, "code", null, "hash" },
-                { ExternalDmsAddressType.OPENBIS, "code", "/path", "hash" },
-
-                { ExternalDmsAddressType.URL, null, null, null },
-                { ExternalDmsAddressType.URL, null, "/path", null },
-                { ExternalDmsAddressType.URL, null, null, "hash" },
-                { ExternalDmsAddressType.URL, null, "/path", "hash" },
-                { ExternalDmsAddressType.URL, "code", "/path", null },
-                { ExternalDmsAddressType.URL, "code", null, "hash" },
-                { ExternalDmsAddressType.URL, "code", "/path", "hash" },
-
-                { ExternalDmsAddressType.FILE_SYSTEM, null, null, null },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, null },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", "hash" },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, "hash" },
-                { ExternalDmsAddressType.FILE_SYSTEM, null, null, "hash" }
-        };
     }
 
     @Test(dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Invalid arguments.*")

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ContentCopy;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ContentCopyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -52,6 +53,7 @@ public class ContentCopyTranslator extends AbstractCachingTranslator<Long, Conte
         output.setExternalCode(baseRecord.externalCode);
         output.setPath(baseRecord.path);
         output.setGitCommitHash(baseRecord.gitCommitHash);
+        output.setId(new ContentCopyPermId(baseRecord.id.toString()));
         if (fetchOptions.hasExternalDms())
         {
             ExternalDms externalDms = relations.get(IContentCopyExternalDmsTranslator.class, input);

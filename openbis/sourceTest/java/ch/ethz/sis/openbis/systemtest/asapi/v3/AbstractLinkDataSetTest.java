@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ContentCopy;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -18,7 +19,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IContentCopyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.ContentCopyListUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.LinkedDataUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -101,6 +106,16 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
         fo.withLinkedDataUsing(lfo);
         Map<IDataSetId, DataSet> result = v3api.getDataSets(session, Collections.singletonList(id), fo);
         return result.get(id);
+    }
+
+    protected void update(LinkDataUpdateBuilder update)
+    {
+        v3api.updateDataSets(session, Collections.singletonList(update.build()));
+    }
+
+    protected LinkDataUpdateBuilder dataset(IDataSetId id)
+    {
+        return new LinkDataUpdateBuilder(id);
     }
 
     protected ContentCopyCreationBuilder copyAt(ExternalDmsPermId edmsId)
@@ -225,6 +240,118 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
         }
     }
 
+    protected class LinkDataUpdateBuilder
+    {
+        private IDataSetId id;
+
+        private String externalCode;
+
+        private List<ContentCopyCreation> newCopies = new ArrayList<>();
+
+        private List<IContentCopyId> removedCopies = new ArrayList<>();
+
+        private List<ContentCopyCreation> replacementCopies = new ArrayList<>();
+
+        private IExternalDmsId edms;
+
+        public LinkDataUpdateBuilder(IDataSetId id)
+        {
+            this.id = id;
+        }
+
+        public LinkDataUpdateBuilder withExternalCode(String externalCode)
+        {
+            this.externalCode = externalCode;
+            return this;
+        }
+
+        public LinkDataUpdateBuilder withNewCopies(ContentCopyCreationBuilder first, ContentCopyCreationBuilder... rest)
+        {
+            LinkDataUpdateBuilder result = withNewCopies(first.build());
+            for (ContentCopyCreationBuilder b : rest)
+            {
+                result = result.withNewCopies(b.build());
+            }
+
+            return result;
+        }
+
+        public LinkDataUpdateBuilder withNewCopies(ContentCopyCreation first, ContentCopyCreation... rest)
+        {
+            newCopies.add(first);
+            newCopies.addAll(Arrays.asList(rest));
+            return this;
+        }
+
+        public LinkDataUpdateBuilder setCopies(ContentCopyCreationBuilder first, ContentCopyCreationBuilder... rest)
+        {
+            LinkDataUpdateBuilder result = setCopies(first.build());
+            for (ContentCopyCreationBuilder b : rest)
+            {
+                result = result.setCopies(b.build());
+            }
+
+            return result;
+        }
+
+        public LinkDataUpdateBuilder setCopies(ContentCopyCreation first, ContentCopyCreation... rest)
+        {
+            replacementCopies.add(first);
+            replacementCopies.addAll(Arrays.asList(rest));
+            return this;
+        }
+
+        public LinkDataUpdateBuilder without(IContentCopyId first, IContentCopyId... rest)
+        {
+            removedCopies.add(first);
+            removedCopies.addAll(Arrays.asList(rest));
+            return this;
+        }
+
+        public LinkDataUpdateBuilder withExternalDms(IExternalDmsId externalDms)
+        {
+            this.edms = externalDms;
+            return this;
+        }
+
+        public DataSetUpdate build()
+        {
+            DataSetUpdate update = new DataSetUpdate();
+            update.setDataSetId(id);
+            LinkedDataUpdate linkedDataUpdate = new LinkedDataUpdate();
+
+            if (externalCode != null)
+            {
+                linkedDataUpdate.setExternalCode(externalCode);
+            }
+
+            if (edms != null)
+            {
+                linkedDataUpdate.setExternalDmsId(edms);
+            }
+
+            ContentCopyListUpdateValue ccluv = new ContentCopyListUpdateValue();
+            if (newCopies.isEmpty() == false)
+            {
+                ccluv.add(newCopies.toArray(new ContentCopyCreation[0]));
+            }
+
+            if (removedCopies.isEmpty() == false)
+            {
+                ccluv.remove(removedCopies.toArray(new IContentCopyId[0]));
+            }
+
+            if (replacementCopies.isEmpty() == false)
+            {
+                ccluv.set(replacementCopies.toArray(new ContentCopyCreation[0]));
+            }
+
+            linkedDataUpdate.setContentCopyActions(ccluv.getActions());
+            update.setLinkedData(linkedDataUpdate);
+            return update;
+        }
+    }
+
     protected String stringify(ContentCopyCreation c)
     {
         return c.getExternalId() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getExternalDmsId();
@@ -233,5 +360,33 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
     protected String stringify(ContentCopy c)
     {
         return c.getExternalCode() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getExternalDms().getCode();
+    }
+
+    @DataProvider(name = "InvalidLocationCombinations")
+    public static Object[][] invalidLocationCombinations()
+    {
+        return new Object[][] {
+                { ExternalDmsAddressType.OPENBIS, null, null, null },
+                { ExternalDmsAddressType.OPENBIS, null, "/path", null },
+                { ExternalDmsAddressType.OPENBIS, null, null, "hash" },
+                { ExternalDmsAddressType.OPENBIS, null, "/path", "hash" },
+                { ExternalDmsAddressType.OPENBIS, "code", "/path", null },
+                { ExternalDmsAddressType.OPENBIS, "code", null, "hash" },
+                { ExternalDmsAddressType.OPENBIS, "code", "/path", "hash" },
+
+                { ExternalDmsAddressType.URL, null, null, null },
+                { ExternalDmsAddressType.URL, null, "/path", null },
+                { ExternalDmsAddressType.URL, null, null, "hash" },
+                { ExternalDmsAddressType.URL, null, "/path", "hash" },
+                { ExternalDmsAddressType.URL, "code", "/path", null },
+                { ExternalDmsAddressType.URL, "code", null, "hash" },
+                { ExternalDmsAddressType.URL, "code", "/path", "hash" },
+
+                { ExternalDmsAddressType.FILE_SYSTEM, null, null, null },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, null },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", "hash" },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, "hash" },
+                { ExternalDmsAddressType.FILE_SYSTEM, null, null, "hash" }
+        };
     }
 }

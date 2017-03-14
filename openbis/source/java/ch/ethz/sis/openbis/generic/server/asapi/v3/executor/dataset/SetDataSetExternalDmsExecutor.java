@@ -94,7 +94,7 @@ public class SetDataSetExternalDmsExecutor extends
                         next.setLocationType(LocationType.URL);
                         break;
                     default:
-                        throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "
+                        throw new UserFailureException("Cannot set external data management system of dataset to be of type "
                                 + related.getAddressType() + " using legacy methods");
                 }
                 next.setExternalDataManagementSystem(related);

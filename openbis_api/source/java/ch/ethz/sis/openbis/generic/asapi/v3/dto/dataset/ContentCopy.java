@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
 import java.io.Serializable;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ContentCopyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.annotation.TechPreview;
@@ -27,6 +28,8 @@ public class ContentCopy implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    private ContentCopyPermId id;
+
     private ExternalDms externalDms;
 
     private String externalCode;
@@ -34,6 +37,16 @@ public class ContentCopy implements Serializable
     private String path;
 
     private String gitCommitHash;
+
+    public ContentCopyPermId getId()
+    {
+        return id;
+    }
+
+    public void setId(ContentCopyPermId id)
+    {
+        this.id = id;
+    }
 
     public ExternalDms getExternalDms()
     {

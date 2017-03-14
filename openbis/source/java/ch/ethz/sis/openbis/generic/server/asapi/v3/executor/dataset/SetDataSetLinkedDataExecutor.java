@@ -17,29 +17,22 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.ContentCopyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IMapExternalDmsByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
 
 /**
  * @author pkupczyk
@@ -52,7 +45,7 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
     private ISetDataSetExternalDmsExecutor setDataSetExternalDmsExecutor;
 
     @Autowired
-    private IMapExternalDmsByIdExecutor mapExternalDmsByIdExecutor;
+    private IAddContentCopiesToLinkedDataExecutor addContentCopiesToLinkedDataExecutor;
 
     @Override
     public void set(final IOperationContext context, final MapBatch<DataSetCreation, DataPE> batch)
@@ -76,7 +69,7 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
                             setLegacy(context, linkedCreation, (LinkDataPE) entity);
                         } else
                         {
-                            set(context, linkedCreation, (LinkDataPE) entity);
+                            addContentCopiesToLinkedDataExecutor.add(context, (LinkDataPE) entity, linkedCreation.getContentCopies());
                         }
                     } else
                     {
@@ -122,82 +115,6 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
             default:
                 return false;
         }
-    }
-
-    private void set(IOperationContext context, LinkedDataCreation linkedCreation, LinkDataPE dataSet)
-    {
-        Set<IExternalDmsId> emdsIds = new HashSet<>();
-        for (ContentCopyCreation ccc : linkedCreation.getContentCopies())
-        {
-            IExternalDmsId edmsId = ccc.getExternalDmsId();
-            if (edmsId == null)
-            {
-                throw new UserFailureException("External data management system id cannot be null");
-            }
-            emdsIds.add(edmsId);
-        }
-
-        Map<IExternalDmsId, ExternalDataManagementSystemPE> edmsPEs =
-                mapExternalDmsByIdExecutor.map(context, emdsIds);
-
-        Set<ContentCopyPE> contentCopies = new HashSet<>();
-        for (ContentCopyCreation ccc : linkedCreation.getContentCopies())
-        {
-            ContentCopyPE copy = new ContentCopyPE();
-            copy.setDataSet(dataSet);
-
-            ExternalDataManagementSystemPE edms = edmsPEs.get(ccc.getExternalDmsId());
-            if (edms == null)
-            {
-                throw new UserFailureException("No external data management system found with id " + ccc.getExternalDmsId());
-            }
-            copy.setExternalDataManagementSystem(edms);
-
-            copy.setLocationType(getLocationType(ccc, edms));
-
-            switch (copy.getLocationType())
-            {
-                case OPENBIS:
-                case URL:
-                    copy.setExternalCode(ccc.getExternalId());
-                    break;
-                case FILE_SYSTEM_GIT:
-                    copy.setGitCommitHash(ccc.getGitCommitHash());
-                case FILE_SYSTEM_PLAIN:
-                    copy.setPath(ccc.getPath());
-            }
-
-            contentCopies.add(copy);
-        }
-
-        dataSet.setContentCopies(contentCopies);
-    }
-
-    private LocationType getLocationType(ContentCopyCreation ccc, ExternalDataManagementSystemPE edms)
-    {
-        String externalId = ccc.getExternalId();
-        String path = ccc.getPath();
-        String gitCommitHash = ccc.getGitCommitHash();
-
-        if (ExternalDataManagementSystemType.OPENBIS.equals(edms.getAddressType()) && externalId != null && path == null && gitCommitHash == null)
-        {
-            return LocationType.OPENBIS;
-        }
-        if (ExternalDataManagementSystemType.URL.equals(edms.getAddressType()) && externalId != null && path == null && gitCommitHash == null)
-        {
-            return LocationType.URL;
-        }
-        if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(edms.getAddressType()) && externalId == null && path != null && gitCommitHash == null)
-        {
-            return LocationType.FILE_SYSTEM_PLAIN;
-        }
-        if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(edms.getAddressType()) && externalId == null && path != null && gitCommitHash != null)
-        {
-            return LocationType.FILE_SYSTEM_GIT;
-        }
-        throw new UserFailureException("Invalid arguments: external data management system type " + edms.getAddressType()
-                + ", externalId " + externalId + " , path " + path + ", gitCommitHash " + gitCommitHash);
-
     }
 
     private void setLegacy(IOperationContext context, LinkedDataCreation linkedCreation, LinkDataPE dataSet)
