@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.dbmigration.postgresql;
 
+import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import javax.sql.DataSource;
+
+import org.springframework.jdbc.datasource.SmartDataSource;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISequenceNameMapper;
@@ -57,10 +62,11 @@ public class PostgreSQLDAOFactory implements IDAOFactory
      */
     public PostgreSQLDAOFactory(final DatabaseConfigurationContext context)
     {
-        final DataSource dataSource = context.getDataSource();
+        final DataSource dataSource = wrap(context.getDataSource());
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
-        migrationStepExecutor = new MigrationStepExecutor(context, false);
-        migrationStepExecutorAdmin = new MigrationStepExecutor(context, true);
+        migrationStepExecutor = MigrationStepExecutor.createExecutor(dataSource, context);
+        DataSource adminDataSource = context.getAdminDataSource();
+        migrationStepExecutorAdmin = MigrationStepExecutor.createExecutorForAdmin(adminDataSource, context);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
@@ -72,10 +78,85 @@ public class PostgreSQLDAOFactory implements IDAOFactory
             throw new CheckedExceptionTunnel(ex);
         }
         databaseDAO =
-                new PostgreSQLAdminDAO(context.getAdminDataSource(), sqlScriptExecutor,
+                new PostgreSQLAdminDAO(adminDataSource, sqlScriptExecutor,
                         massUploader, context.getOwner(), context.getReadOnlyGroup(), context
                                 .getReadWriteGroup(), context.getDatabaseName(), context
                                 .getDatabaseURL());
+    }
+    
+    private DataSource wrap(final DataSource dataSource)
+    {
+        return new SmartDataSource()
+        {
+            
+            @Override
+            public <T> T unwrap(Class<T> iface) throws SQLException
+            {
+                return dataSource.unwrap(iface);
+            }
+            
+            @Override
+            public boolean isWrapperFor(Class<?> iface) throws SQLException
+            {
+                return dataSource.isWrapperFor(iface);
+            }
+            
+            @Override
+            public void setLoginTimeout(int seconds) throws SQLException
+            {
+                dataSource.setLoginTimeout(seconds);
+            }
+            
+            @Override
+            public void setLogWriter(PrintWriter out) throws SQLException
+            {
+                dataSource.setLogWriter(out);
+            }
+            
+            @Override
+            public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException
+            {
+                return dataSource.getParentLogger();
+            }
+            
+            @Override
+            public int getLoginTimeout() throws SQLException
+            {
+                return dataSource.getLoginTimeout();
+            }
+            
+            @Override
+            public PrintWriter getLogWriter() throws SQLException
+            {
+                return dataSource.getLogWriter();
+            }
+            
+            @Override
+            public Connection getConnection(String username, String password) throws SQLException
+            {
+                System.err.println("SqlScriptExecutor.SqlScriptExecutor(...).new DataSource() {...}.getConnection(" + username +")");
+                return dataSource.getConnection(username, password);
+            }
+            
+            private Connection connection;
+            @Override
+            public Connection getConnection() throws SQLException
+            {
+                if (connection == null)
+                {
+                    connection = dataSource.getConnection();
+                    connection.setAutoCommit(false);
+                    System.err.println("Connection: "+System.identityHashCode(connection));
+                }
+                return connection;
+            }
+
+            @Override
+            public boolean shouldClose(Connection con)
+            {
+                return false;
+            }
+        };
     }
 
     @Override

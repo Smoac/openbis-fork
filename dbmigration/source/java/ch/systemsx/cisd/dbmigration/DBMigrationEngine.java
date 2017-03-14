@@ -91,6 +91,7 @@ public final class DBMigrationEngine
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
         scriptExecutor = daoFactory.getSqlScriptExecutor();
+        
         migrationStepExecutor = daoFactory.getMigrationStepExecutor();
         migrationStepExecutorAdmin = daoFactory.getMigrationStepExecutorAdmin();
         this.scriptProvider = scriptProvider;
@@ -122,8 +123,15 @@ public final class DBMigrationEngine
         final String databaseVersion = entry.getVersion();
         if ("0".equals(databaseVersion))
         {
-            executeSchemaScript(version);
-            fillWithInitialData(version);
+            doInTransaction(new IAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        executeSchemaScript(version);
+                        fillWithInitialData(version);
+                    }
+                });
             return;
         } else if (version.equals(databaseVersion))
         {
@@ -194,8 +202,15 @@ public final class DBMigrationEngine
             adminDAO.restoreDatabaseFromDump(scriptProvider.getDumpFolder(version), version);
         } else
         {
-            createEmptyDatabase(version);
-            fillWithInitialData(version);
+            doInTransaction(new IAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        createEmptyDatabase(version);
+                        fillWithInitialData(version);
+                    }
+                });
         }
         if (operationLog.isInfoEnabled())
         {
@@ -258,44 +273,70 @@ public final class DBMigrationEngine
 
     private final void migrate(final String fromVersion, final String toVersion)
     {
-        String version = fromVersion;
-        do
+        doInTransaction(new IAction()
+            {
+                
+                @Override
+                public void execute()
+                {
+                    String version = fromVersion;
+                    do
+                    {
+                        String nextVersion = increment(version);
+                        final Script functionMigrationScriptOrNull =
+                                scriptProvider.tryGetFunctionMigrationScript(version, nextVersion);
+                        final Script migrationScript =
+                                scriptProvider.tryGetMigrationScript(version, nextVersion);
+                        if (migrationScript == null)
+                        {
+                            final String databaseName = adminDAO.getDatabaseName();
+                            final String message =
+                                    "Cannot migrate database '" + databaseName + "' from version " + version
+                                            + " to " + nextVersion + " because of missing migration script.";
+                            operationLog.error(message);
+                            throw new EnvironmentFailureException(message);
+                        }
+                        final long time = System.currentTimeMillis();
+                        migrationStepExecutorAdmin.init(migrationScript);
+                        migrationStepExecutor.init(migrationScript);
+                        migrationStepExecutorAdmin.performPreMigration();
+                        migrationStepExecutor.performPreMigration();
+                        scriptExecutor.execute(migrationScript, true, logDAO);
+                        if (functionMigrationScriptOrNull != null)
+                        {
+                            scriptExecutor.execute(functionMigrationScriptOrNull, false, logDAO);
+                        }
+                        migrationStepExecutor.performPostMigration();
+                        migrationStepExecutorAdmin.performPostMigration();
+                        migrationStepExecutor.finish();
+                        migrationStepExecutorAdmin.finish();
+                        if (operationLog.isInfoEnabled())
+                        {
+                            operationLog.info("Successfully migrated from version " + version + " to "
+                                    + nextVersion + " in " + (System.currentTimeMillis() - time) + " msec");
+                        }
+                        version = nextVersion;
+                    } while (version.equals(toVersion) == false);
+                }
+            });
+    }
+    
+    private void doInTransaction(IAction action)
+    {
+        try
         {
-            final String nextVersion = increment(version);
-            final Script functionMigrationScriptOrNull =
-                    scriptProvider.tryGetFunctionMigrationScript(version, nextVersion);
-            final Script migrationScript =
-                    scriptProvider.tryGetMigrationScript(version, nextVersion);
-            if (migrationScript == null)
-            {
-                final String databaseName = adminDAO.getDatabaseName();
-                final String message =
-                        "Cannot migrate database '" + databaseName + "' from version " + version
-                                + " to " + nextVersion + " because of missing migration script.";
-                operationLog.error(message);
-                throw new EnvironmentFailureException(message);
-            }
-            final long time = System.currentTimeMillis();
-            migrationStepExecutorAdmin.init(migrationScript);
-            migrationStepExecutor.init(migrationScript);
-            migrationStepExecutorAdmin.performPreMigration();
-            migrationStepExecutor.performPreMigration();
-            scriptExecutor.execute(migrationScript, true, logDAO);
-            if (functionMigrationScriptOrNull != null)
-            {
-                scriptExecutor.execute(functionMigrationScriptOrNull, false, logDAO);
-            }
-            migrationStepExecutor.performPostMigration();
-            migrationStepExecutorAdmin.performPostMigration();
-            migrationStepExecutor.finish();
-            migrationStepExecutorAdmin.finish();
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("Successfully migrated from version " + version + " to "
-                        + nextVersion + " in " + (System.currentTimeMillis() - time) + " msec");
-            }
-            version = nextVersion;
-        } while (version.equals(toVersion) == false);
+            action.execute();
+            scriptExecutor.commit();
+        } catch (RuntimeException e)
+        {
+            scriptExecutor.rollback();
+            throw e;
+        }
+    }
+    
+    private static interface IAction
+    {
+        public void execute();
     }
 
     @Private

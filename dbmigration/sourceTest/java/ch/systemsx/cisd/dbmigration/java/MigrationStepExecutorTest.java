@@ -65,8 +65,8 @@ public final class MigrationStepExecutorTest
     @Test
     public final void testHappyCase()
     {
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, false);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutor(dbContext.getDataSource(), dbContext);
         Script script =
                 new Script("001To002.sql",
                         "-- JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
@@ -77,7 +77,7 @@ public final class MigrationStepExecutorTest
         assertTrue(logRecorder.getLogContent(), logRecorder.getLogContent().contains(
                 "Migration step class 'MigrationStepFrom001To002' found for "
                         + "migration script '001To002.sql'."));
-        assertSame(dbContext.getDataSource(), migrationStepExecutor.getDataSource());
+        assertSame(dbContext.getDataSource(), ((MigrationStepExecutor) migrationStepExecutor).getDataSource());
         logRecorder.resetLogContent();
         script =
                 new Script("001To002.sql", "\n\n  \n"
@@ -90,8 +90,8 @@ public final class MigrationStepExecutorTest
     @Test
     public final void testConfusionAdmin()
     {
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, false);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutorForAdmin(dbContext.getDataSource(), dbContext);
         Script script =
                 new Script("001To002.sql",
                         "-- JAVA_ADMIN ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
@@ -116,8 +116,8 @@ public final class MigrationStepExecutorTest
     public final void testHappyCaseAdmin()
     {
         MigrationStepAdminFrom001To002.instance = null;
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, true);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutorForAdmin(dbContext.getDataSource(), dbContext);
         Script script =
                 new Script("001To002.sql",
                         "-- JAVA_ADMIN ch.systemsx.cisd.dbmigration.java.MigrationStepAdminFrom001To002");
@@ -133,7 +133,7 @@ public final class MigrationStepExecutorTest
         migrationStepExecutor.finish();
         AssertionUtil.assertEnds("Migration step class 'MigrationStepAdminFrom001To002' found for "
                 + "migration script '001To002.sql'.", logRecorder.getLogContent());
-        assertSame(dbContext.getAdminDataSource(), migrationStepExecutor.getDataSource());
+        assertSame(dbContext.getAdminDataSource(), ((MigrationStepExecutor) migrationStepExecutor).getDataSource());
         logRecorder.resetLogContent();
         MigrationStepAdminFrom001To002.instance = null;
         script =
@@ -150,10 +150,10 @@ public final class MigrationStepExecutorTest
     public final void testHappyCaseNormalAndAdmin()
     {
         MigrationStepAdminFrom001To002.instance = null;
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, false);
-        final MigrationStepExecutor migrationStepExecutorAdmin =
-                new MigrationStepExecutor(dbContext, true);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutor(dbContext.getDataSource(), dbContext);
+        final IMigrationStepExecutor migrationStepExecutorAdmin =
+                MigrationStepExecutor.createExecutorForAdmin(dbContext.getDataSource(), dbContext);
         Script script =
                 new Script(
                         "001To002.sql",
@@ -193,8 +193,8 @@ public final class MigrationStepExecutorTest
     @Test
     public final void testFinish()
     {
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, false);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutor(dbContext.getDataSource(), dbContext);
         final Script script =
                 new Script("001To002.sql",
                         "--   JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
@@ -216,8 +216,8 @@ public final class MigrationStepExecutorTest
     @Test
     public final void testUnhappyCases()
     {
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, false);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutor(dbContext.getDataSource(), dbContext);
         Script script =
                 new Script("002To003.sql", "\n-- This is a comment\n-- This is another comment\n");
         migrationStepExecutor.init(script);
@@ -252,8 +252,8 @@ public final class MigrationStepExecutorTest
     @Test
     public final void testClassNotFound()
     {
-        final MigrationStepExecutor migrationStepExecutor =
-                new MigrationStepExecutor(dbContext, false);
+        final IMigrationStepExecutor migrationStepExecutor =
+                MigrationStepExecutor.createExecutor(dbContext.getDataSource(), dbContext);
         final Script script =
                 new Script("003To004.sql",
                         "-- JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom003To003");

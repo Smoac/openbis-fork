@@ -32,4 +32,8 @@ public interface ISqlScriptExecutor
      */
     public void execute(Script sqlScript, boolean honorSingleStepMode,
             ISqlScriptExecutionLogger loggerOrNull);
+    
+    public void commit();
+    
+    public void rollback();
 }

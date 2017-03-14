@@ -58,8 +58,9 @@ public class H2DAOFactory implements IDAOFactory
     {
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
-        migrationStepExecutor = new MigrationStepExecutor(context, false);
-        migrationStepExecutorAdmin = new MigrationStepExecutor(context, true);
+        migrationStepExecutor = MigrationStepExecutor.createExecutor(dataSource, context);
+        DataSource adminDataSource = context.getAdminDataSource();
+        migrationStepExecutorAdmin = MigrationStepExecutor.createExecutorForAdmin(adminDataSource, context);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {

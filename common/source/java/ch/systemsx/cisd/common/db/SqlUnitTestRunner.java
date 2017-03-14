@@ -233,9 +233,11 @@ public class SqlUnitTestRunner
         {
             executor.execute(new Script(scriptFile.getName(), FileUtilities
                     .loadToString(scriptFile)), true, null);
+            executor.commit();
             return new TestResult(scriptFile);
         } catch (Throwable t)
         {
+            executor.rollback();
             while (t.getCause() != null)
             {
                 t = t.getCause();

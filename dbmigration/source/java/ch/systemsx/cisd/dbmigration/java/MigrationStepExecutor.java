@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
@@ -56,14 +58,25 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
     private IMigrationStep migrationStep;
 
     private boolean inited;
+    
+    public static IMigrationStepExecutor createExecutor(DataSource dataSource, 
+            DatabaseConfigurationContext dbConfigurationContext)
+    {
+        return new MigrationStepExecutor(dbConfigurationContext, false, dataSource);
+    }
 
-    public MigrationStepExecutor(final DatabaseConfigurationContext dbConfigurationContext,
-            boolean isAdmin)
+    public static IMigrationStepExecutor createExecutorForAdmin(DataSource dataSource, 
+            DatabaseConfigurationContext dbConfigurationContext)
+    {
+        return new MigrationStepExecutor(dbConfigurationContext, true, dataSource);
+    }
+    
+    private MigrationStepExecutor(final DatabaseConfigurationContext dbConfigurationContext,
+            boolean isAdmin, DataSource dataSource)
     {
         this.dbConfigurationContext = dbConfigurationContext;
         this.isAdmin = isAdmin;
-        setDataSource(isAdmin ? dbConfigurationContext.getAdminDataSource()
-                : dbConfigurationContext.getDataSource());
+        setDataSource(dataSource);
     }
 
     private final IMigrationStep tryExtractMigrationStep(final Script sqlScript)

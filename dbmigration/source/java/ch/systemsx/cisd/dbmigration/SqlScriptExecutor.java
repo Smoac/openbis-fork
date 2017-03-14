@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -105,6 +106,34 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
                 throw error;
             }
             throw CheckedExceptionTunnel.wrapIfNecessary((Exception) t);
+        }
+    }
+
+    @Override
+    public void commit()
+    {
+        try
+        {
+            Connection connection = getDataSource().getConnection();
+            System.err.println("Commit "+System.identityHashCode(connection));
+            connection.commit();
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    @Override
+    public void rollback()
+    {
+        try
+        {
+            Connection connection = getDataSource().getConnection();
+            System.err.println("Rollback "+System.identityHashCode(connection));
+            connection.rollback();
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
