@@ -1564,3 +1564,7 @@ SearchExternalDmsOperationResult
 updateExternalDataManagementSystems
 UpdateExternalDmsOperation
 UpdateExternalDmsOperationResult
+ContentCopyPermId
+IContentCopyId
+setContentCopyActions
+ContentCopyListUpdateValue
