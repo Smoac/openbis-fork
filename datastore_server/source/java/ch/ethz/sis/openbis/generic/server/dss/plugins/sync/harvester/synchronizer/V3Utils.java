@@ -27,6 +27,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
@@ -79,13 +85,41 @@ public class V3Utils
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withAttachments().withContent();
         fetchOptions.withAttachments().withPreviousVersion().withPreviousVersionUsing(fetchOptions.withAttachments());
-        fetchOptions.withAttachments().withPreviousVersion().withContentUsing(fetchOptions.withAttachments().withContent());// attachmentFetchOptions.withContent();
-        // attachmentFetchOptions.withPreviousVersion().withPreviousVersionUsing(fetchOptions.withAttachments());
-        // .withContentUsing(attachmentFetchOptions.withContent());
+        fetchOptions.withAttachments().withPreviousVersion().withContentUsing(fetchOptions.withAttachments().withContent());
         Map<IExperimentId, Experiment> experiments = as.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         if(experiments.size() == 1) {
             Experiment experiment = experiments.get(experimentId);
             return experiment.getAttachments();
+        }
+        return null;
+    }
+
+    public List<Attachment> getSampleAttachments(String sessionToken, ISampleId sampleId)
+    {
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withAttachments().withContent();
+        fetchOptions.withAttachments().withPreviousVersion().withPreviousVersionUsing(fetchOptions.withAttachments());
+        fetchOptions.withAttachments().withPreviousVersion().withContentUsing(fetchOptions.withAttachments().withContent());
+        Map<ISampleId, Sample> samples = as.getSamples(sessionToken, Arrays.asList(sampleId), fetchOptions);
+        if (samples.size() == 1)
+        {
+            Sample sample = samples.get(sampleId);
+            return sample.getAttachments();
+        }
+        return null;
+    }
+
+    public List<Attachment> getProjectAttachments(String sessionToken, IProjectId projectId)
+    {
+        ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
+        fetchOptions.withAttachments().withContent();
+        fetchOptions.withAttachments().withPreviousVersion().withPreviousVersionUsing(fetchOptions.withAttachments());
+        fetchOptions.withAttachments().withPreviousVersion().withContentUsing(fetchOptions.withAttachments().withContent());
+        Map<IProjectId, Project> projects = as.getProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
+        if (projects.size() == 1)
+        {
+            Project project = projects.get(projectId);
+            return project.getAttachments();
         }
         return null;
     }

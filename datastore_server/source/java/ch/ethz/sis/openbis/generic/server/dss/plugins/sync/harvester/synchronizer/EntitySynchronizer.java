@@ -219,7 +219,7 @@ public class EntitySynchronizer
         operationLog.info("entity operation result: " + operationResult);
 
         operationLog.info("processing attachments...");
-        // processAttachments(entitiesWithAttachments);
+        processAttachments(entitiesWithAttachments);
 
         // register physical data sets without any hierarchy
         // Note that container/component and parent/child relationships are established post-reg.

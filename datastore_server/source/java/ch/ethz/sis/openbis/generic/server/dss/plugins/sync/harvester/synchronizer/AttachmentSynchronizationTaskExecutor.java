@@ -26,6 +26,8 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
@@ -39,7 +41,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
  * 
@@ -53,8 +60,6 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
     private final SyncConfig config;
 
     private final IEncapsulatedOpenBISService service;
-    
-    private AttachmentsOperationsHandler attachmentsOperationsHandler;
 
     public AttachmentSynchronizationTaskExecutor(IEncapsulatedOpenBISService service, Date lastSyncTimestamp, SyncConfig config)
     {
@@ -69,11 +74,28 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
         TechId techId = null;
         ICommonServer commonServer = ServiceFinderUtils.getCommonServer(ServiceProvider.getConfigProvider().getOpenBisServerUrl());
         String localSessionToken = ServiceFinderUtils.login(commonServer, config.getHarvesterUser(), config.getHarvesterPass());
+        IAttachmentsOperationsHandler attachmentsOperationsHandler = null;
         if (item instanceof NewExperiment)
         {
             Experiment experiment = service.tryGetExperiment(ExperimentIdentifierFactory.parse(item.getIdentifier()));
             techId = new TechId(experiment.getId());
             attachmentsOperationsHandler = new ExperimentAttachmentsOperationsHandler(config, commonServer, localSessionToken);
+        }
+        else if (item instanceof NewSample)
+        {
+            Sample sample = service.tryGetSampleByPermId(item.getPermID());
+            techId = new TechId(sample.getId());
+            attachmentsOperationsHandler = new SampleAttachmentsOperationsHandler(config, commonServer, localSessionToken);
+        }
+        else if (item instanceof NewProject)
+        {
+            Project project = service.tryGetProject(ProjectIdentifierFactory.parse(item.getIdentifier()));
+            techId = new TechId(project.getId());
+            attachmentsOperationsHandler = new ProjectAttachmentsOperationsHandler(config, commonServer, localSessionToken);
+        }
+        else
+        {
+            return Status.createError("Attachments can be synchronized for only Projects, Experiments and Samples");
         }
         List<Attachment> incomingAttachments = attachmentsOperationsHandler.listAttachmentsDataSource(config, item.getPermID());
 
@@ -85,7 +107,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
         }
 
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> existingAttachments =
-                attachmentsOperationsHandler.listAttachmentsHarvester(item.getIdentifier());
+                attachmentsOperationsHandler.listAttachmentsHarvester(item.getPermID());
         Map<String, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> existingAttachmentMap =
                 new HashMap<String, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment>();
 
@@ -109,14 +131,14 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
                 if (incoming.getVersion() < version)
                 {
                     // Harvester has a later version of the attachment. Delete it from harvester
-                    replaceAttachment(techId, incoming);
+                    replaceAttachment(techId, incoming, attachmentsOperationsHandler);
                 }
                 else if (incoming.getVersion() == version)
                 {
                     // check last sync date and meta data
                     if (incoming.getRegistrationDate().after(lastSyncTimestamp))
                     {
-                        replaceAttachment(techId, incoming);
+                        replaceAttachment(techId, incoming, attachmentsOperationsHandler);
                     }
                     else
                     {
@@ -150,7 +172,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
                 attachmentsOperationsHandler.deleteAttachment(techId, existing.getFileName());
             }
         }
-        return null;
+        return Status.OK;
     }
 
     private boolean equalsNullable(String s1OrNull, String s2OrNull)
@@ -167,13 +189,13 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
         }
     }
 
-    private void replaceAttachment(TechId techId, Attachment incoming)
+    private void replaceAttachment(TechId techId, Attachment incoming, IAttachmentsOperationsHandler attachmentsOperationsHandler)
     {
         attachmentsOperationsHandler.deleteAttachment(techId, incoming.getFileName());
         addAttachments(incoming, 1, techId, attachmentsOperationsHandler);
     }
 
-    private void addAttachments(Attachment attachment, int fromVersion, TechId techId, AttachmentsOperationsHandler handler)
+    private void addAttachments(Attachment attachment, int fromVersion, TechId techId, IAttachmentsOperationsHandler handler)
     {
 
         Integer version = attachment.getVersion();
@@ -201,11 +223,11 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Ident
     }
 }
 
-interface AttachmentsOperationsHandler
+interface IAttachmentsOperationsHandler
 {
     List<Attachment> listAttachmentsDataSource(SyncConfig config, String permId);
     
-    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String identifier);
+    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String permId);
     
     void addAttachment(TechId techId, NewAttachment attachment);
 
@@ -214,7 +236,7 @@ interface AttachmentsOperationsHandler
     void updateAttachment(TechId experimentId, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment);
 }
 
-class ExperimentAttachmentsOperationsHandler implements AttachmentsOperationsHandler
+abstract class AbstractEntityAttachmentsOperationsHandler implements IAttachmentsOperationsHandler
 {
     final ICommonServer commonServer;
 
@@ -222,16 +244,34 @@ class ExperimentAttachmentsOperationsHandler implements AttachmentsOperationsHan
 
     final SyncConfig config;
 
-    /**
-     * @param config
-     * @param commonServer
-     * @param localSessionToken
-     */
-    public ExperimentAttachmentsOperationsHandler(SyncConfig config, ICommonServer commonServer, String sessionToken)
+    AbstractEntityAttachmentsOperationsHandler(SyncConfig config, ICommonServer commonServer, String sessionToken)
     {
         this.commonServer = commonServer;
         this.sessionToken = sessionToken;
         this.config = config;
+    }
+
+    @Override
+    public abstract List<Attachment> listAttachmentsDataSource(SyncConfig config, String permId);
+
+    @Override
+    public abstract List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String permId);
+
+    @Override
+    public abstract void addAttachment(TechId techId, NewAttachment attachment);
+
+    @Override
+    public abstract void deleteAttachment(TechId experimentId, String fileName);
+    
+    @Override
+    public abstract void updateAttachment(TechId experimentId, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment);
+}
+
+class ExperimentAttachmentsOperationsHandler extends AbstractEntityAttachmentsOperationsHandler
+{
+    ExperimentAttachmentsOperationsHandler(SyncConfig config, ICommonServer commonServer, String sessionToken)
+    {
+        super(config, commonServer, sessionToken);
     }
 
     @Override
@@ -243,10 +283,10 @@ class ExperimentAttachmentsOperationsHandler implements AttachmentsOperationsHan
     }
 
     @Override
-    public List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String identifier)
+    public List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String permId)
     {
         IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
-        Experiment experiment = service.tryGetExperiment(ExperimentIdentifierFactory.parse(identifier));
+        Experiment experiment = service.tryGetExperimentByPermId(permId);
         return service.listAttachments(AttachmentHolderKind.EXPERIMENT, experiment.getId());
     }
 
@@ -268,5 +308,93 @@ class ExperimentAttachmentsOperationsHandler implements AttachmentsOperationsHan
     public void updateAttachment(TechId experimentId, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment)
     {
         commonServer.updateExperimentAttachments(sessionToken, experimentId, attachment);
+    }
+}
+
+class SampleAttachmentsOperationsHandler extends AbstractEntityAttachmentsOperationsHandler
+{
+    SampleAttachmentsOperationsHandler(SyncConfig config, ICommonServer commonServer, String sessionToken)
+    {
+        super(config, commonServer, sessionToken);
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsDataSource(SyncConfig config, String permId)
+    {
+        V3Utils dssFileUtils = V3Utils.create(config.getDataSourceOpenbisURL(), config.getDataSourceDSSURL());
+        String sessionToken = dssFileUtils.login(config.getUser(), config.getPassword());
+        return dssFileUtils.getSampleAttachments(sessionToken, new SamplePermId(permId));
+    }
+
+    @Override
+    public List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String permId)
+    {
+        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
+        Sample sample = service.tryGetSampleByPermId(permId);
+        return service.listAttachments(AttachmentHolderKind.SAMPLE, sample.getId());
+    }
+
+    @Override
+    public void addAttachment(TechId techId, NewAttachment attachment)
+    {
+        commonServer.addSampleAttachments(sessionToken, techId, attachment);
+    }
+
+    @Override
+    public void deleteAttachment(TechId sampleId, String fileName)
+    {
+        commonServer.deleteSampleAttachments(sessionToken, sampleId, Arrays.asList(fileName),
+                "Synchronization from data source " + config.getDataSourceAlias()
+                        + " Attachment no longer exists on data source.");
+    }
+
+    @Override
+    public void updateAttachment(TechId sampleId, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment)
+    {
+        commonServer.updateSampleAttachments(sessionToken, sampleId, attachment);
+    }
+}
+
+class ProjectAttachmentsOperationsHandler extends AbstractEntityAttachmentsOperationsHandler
+{
+    ProjectAttachmentsOperationsHandler(SyncConfig config, ICommonServer commonServer, String sessionToken)
+    {
+        super(config, commonServer, sessionToken);
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsDataSource(SyncConfig config, String permId)
+    {
+        V3Utils dssFileUtils = V3Utils.create(config.getDataSourceOpenbisURL(), config.getDataSourceDSSURL());
+        String sessionToken = dssFileUtils.login(config.getUser(), config.getPassword());
+        return dssFileUtils.getProjectAttachments(sessionToken, new ProjectPermId(permId));
+    }
+
+    @Override
+    public List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> listAttachmentsHarvester(String permId)
+    {
+        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
+        Project project = service.tryGetProjectByPermId(permId);
+        return service.listAttachments(AttachmentHolderKind.PROJECT, project.getId());
+    }
+
+    @Override
+    public void addAttachment(TechId techId, NewAttachment attachment)
+    {
+        commonServer.addProjectAttachments(sessionToken, techId, attachment);
+    }
+
+    @Override
+    public void deleteAttachment(TechId projectId, String fileName)
+    {
+        commonServer.deleteProjectAttachments(sessionToken, projectId, Arrays.asList(fileName),
+                "Synchronization from data source " + config.getDataSourceAlias()
+                        + " Attachment no longer exists on data source.");
+    }
+
+    @Override
+    public void updateAttachment(TechId projectId, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment)
+    {
+        commonServer.updateProjectAttachments(sessionToken, projectId, attachment);
     }
 }
