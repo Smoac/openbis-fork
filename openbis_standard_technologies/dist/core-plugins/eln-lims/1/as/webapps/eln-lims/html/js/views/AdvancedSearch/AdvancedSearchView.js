@@ -316,7 +316,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			
 			//Reset operator
 			$newFieldOperatorContainer.empty();
-			var uuid = $($newFieldOperatorContainer.parent()).attr("id");
 			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
 			
 			if(selectedValue && selectedValue.startsWith("PROP.")) {
@@ -338,8 +337,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				
 				comparisonDropdown.change(function() {
 					var $thisComponent = $(this);
-					//Get uuid and value and update model (type only)
-					var uuid = $($($thisComponent.parent()).parent()).attr("id");
 					var selectedValue = $thisComponent.val();
 					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
 				});
