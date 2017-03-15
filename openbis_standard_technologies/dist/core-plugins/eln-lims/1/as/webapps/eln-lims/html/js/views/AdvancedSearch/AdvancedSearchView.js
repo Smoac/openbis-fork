@@ -149,8 +149,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		}
 		
 		var $newFieldNameContainer = $("<td>");
+		var $newFieldOperatorContainer = $("<td>");
 		var $newRow = $("<tr>", { id : uuidValue });
-		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
+		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
 		
 		$fieldValue.keyup(function() {
@@ -170,41 +171,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
        	  }
        });
         
-		
-		var operatorOptions = [
-		                       { value : "thatEqualsString", 					label : "thatEquals (String)" }, 
-		                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)" },
-		                       { value : "thatEqualsDate", 						label : "thatEquals (Date)"   },
-		                       { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
-		                       { value : "thatStartsWithString", 				label : "thatStartsWith (String)" },
-		                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" },
-		                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
-		                       { value : "thatIsLessThanOrEqualToNumber", 		label : "thatIsLessThanOrEqualTo (Number)" },
-		                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
-		                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" },
-		                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
-		                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" },
-		                       ];
-		var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
-		
-		comparisonDropdown.change(function() {
-			var $thisComponent = $(this);
-			//Get uuid and value and update model (type only)
-			var uuid = $($($thisComponent.parent()).parent()).attr("id");
-			var selectedValue = $thisComponent.val();
-			_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
-		});
-		
-		
 		$newRow.append($("<td>").append($fieldTypeDropdown))
 					.append($newFieldNameContainer)
-					.append($("<td>").append(comparisonDropdown))
+					.append($("<td>").append($newFieldOperatorContainer))
 					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
 		
 		this._$tbody.append($newRow);
 		
-		comparisonDropdown.select2({ width: '100%', theme: "bootstrap" });
 		
 		if(this._advancedSearchModel.forceFreeTextSearch) {
 			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
@@ -228,7 +202,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
-	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, entityKind, uuid) {
+	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, $newFieldOperatorContainer, entityKind, uuid) {
 		//Update dropdown component
 		this._$andOrDropdownComponent.val("AND").trigger('change');
 		this._advancedSearchModel.criteria.logicalOperator = "AND";
@@ -281,23 +255,23 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					//Do Nothing
 				break;
 				case "Property/Attribute":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN");
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN", $newFieldOperatorContainer);
 					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Sample":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE");
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE", $newFieldOperatorContainer);
 					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Experiment":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT");
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT", $newFieldOperatorContainer);
 					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Parent":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "PARENT");
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "PARENT", $newFieldOperatorContainer);
 					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				case "Children":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "CHILDREN");
+					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "CHILDREN", $newFieldOperatorContainer);
 					$newFieldNameContainer.append($mergedDropdown);
 					break;
 				default:
@@ -316,7 +290,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $fieldTypeComponent;
 	}
 	
-	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperimentOrSample) {
+	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperimentOrSample, $newFieldOperatorContainer) {
 		var _this = this;
 		var model = null;
 		var attributesModel = null;
@@ -338,6 +312,42 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
 			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
+			
+			
+			//Reset operator
+			$newFieldOperatorContainer.empty();
+			var uuid = $($newFieldOperatorContainer.parent()).attr("id");
+			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
+			
+			if(selectedValue && selectedValue.startsWith("PROP.")) {
+				var operatorOptions = [
+				                       { value : "thatEqualsString", 					label : "thatEquals (String)" }, 
+				                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)" },
+				                       { value : "thatEqualsDate", 						label : "thatEquals (Date)"   },
+				                       { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
+				                       { value : "thatStartsWithString", 				label : "thatStartsWith (String)" },
+				                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" },
+				                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
+				                       { value : "thatIsLessThanOrEqualToNumber", 		label : "thatIsLessThanOrEqualTo (Number)" },
+				                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
+				                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" },
+				                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
+				                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" },
+				                       ];
+				var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
+				
+				comparisonDropdown.change(function() {
+					var $thisComponent = $(this);
+					//Get uuid and value and update model (type only)
+					var uuid = $($($thisComponent.parent()).parent()).attr("id");
+					var selectedValue = $thisComponent.val();
+					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
+				});
+				
+				$newFieldOperatorContainer.append(comparisonDropdown);
+				
+				comparisonDropdown.select2({ width: '100%', theme: "bootstrap" });
+			}
 		});
 		
 		return $dropdown;
@@ -457,7 +467,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				for(var rIdx = 0; rIdx < rows.length; rIdx++) {
 					var $row = $(rows[rIdx]);
 					var tds = $row.children();
-					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
+					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), $(tds[2]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
 					$(tds[0]).empty();
 					$(tds[0]).append($newFieldTypeComponent);
 					$newFieldTypeComponent.select2({ width: '100%', theme: "bootstrap" });
