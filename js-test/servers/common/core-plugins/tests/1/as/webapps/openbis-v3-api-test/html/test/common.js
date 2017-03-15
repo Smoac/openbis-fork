@@ -73,7 +73,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 		this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
 		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
+		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
+		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
 		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
@@ -169,6 +171,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
 		this.SearchOperationExecutionsOperation = dtos.SearchOperationExecutionsOperation;
 		this.SearchDeletionsOperation = dtos.SearchDeletionsOperation;
+		this.SearchDataStoresOperation = dtos.SearchDataStoresOperation;
 
 		this.DeleteSpacesOperation = dtos.DeleteSpacesOperation;
 		this.DeleteProjectsOperation = dtos.DeleteProjectsOperation;
@@ -617,7 +620,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withPropertyAssignments().withRegistrator();
 			return fo;
 		};
-
+		
 		this.createMaterialFetchOptions = function() {
 			var fo = new dtos.MaterialFetchOptions();
 			fo.withType();
@@ -687,6 +690,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return fo;
 		};
 
+		this.createDataStoreFetchOptions = function() {
+			var fo = new dtos.DataStoreFetchOptions();
+			return fo;
+		};
+		
+		this.createDataSetFileFetchOptions = function() {
+			var fo = new dtos.DataSetFileFetchOptions();
+			return fo;
+		};
+		
 		this.assertNull = function(actual, msg) {
 			this.assertEqual(actual, null, msg)
 		};

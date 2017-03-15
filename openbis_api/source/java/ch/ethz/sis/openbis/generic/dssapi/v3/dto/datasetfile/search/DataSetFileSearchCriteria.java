@@ -19,10 +19,12 @@ package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author jakubs
  */
+@JsonObject("dss.dto.datasetfile.search.DataSetFileSearchCriteria")
 public class DataSetFileSearchCriteria extends AbstractCompositeSearchCriteria
 {
     private static final long serialVersionUID = 1L;

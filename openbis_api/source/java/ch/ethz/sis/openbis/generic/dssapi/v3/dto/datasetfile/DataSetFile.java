@@ -18,17 +18,18 @@ package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile;
 
 import java.io.Serializable;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dss.dto.entity.datasetfile.DataSetFile")
+@JsonObject("dss.dto.datasetfile.DataSetFile")
 public class DataSetFile implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -40,10 +41,13 @@ public class DataSetFile implements Serializable
     private DataSetPermId dataSetPermId;
 
     @JsonProperty
+    private DataStore dataStore;
+
+    @JsonProperty
     private String path;
 
     @JsonProperty
-    private boolean isDirectory;
+    private boolean directory;
 
     @JsonProperty
     private long fileLength;
@@ -74,6 +78,17 @@ public class DataSetFile implements Serializable
     }
 
     @JsonIgnore
+    public DataStore getDataStore()
+    {
+        return dataStore;
+    }
+
+    public void setDataStore(DataStore dataStore)
+    {
+        this.dataStore = dataStore;
+    }
+
+    @JsonIgnore
     public String getPath()
     {
         return path;
@@ -87,12 +102,12 @@ public class DataSetFile implements Serializable
     @JsonIgnore
     public boolean isDirectory()
     {
-        return isDirectory;
+        return directory;
     }
 
-    public void setDirectory(boolean isDirectory)
+    public void setDirectory(boolean directory)
     {
-        this.isDirectory = isDirectory;
+        this.directory = directory;
     }
 
     @JsonIgnore

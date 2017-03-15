@@ -70,6 +70,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
@@ -106,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
+
 import junit.framework.Assert;
 
 /**
@@ -942,6 +944,17 @@ public class AbstractTest extends SystemTestCase
         for (DataSet dataSet : dataSets)
         {
             actualSet.add(dataSet.getCode());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedCodes);
+    }
+
+    protected static void assertDataStoreCodes(Collection<DataStore> dataStores, String... expectedCodes)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (DataStore dataStore : dataStores)
+        {
+            actualSet.add(dataStore.getCode());
         }
 
         assertCollectionContainsOnly(actualSet, expectedCodes);

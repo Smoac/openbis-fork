@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
@@ -46,6 +47,7 @@ public class DataSetFileFetchOptions extends FetchOptions<DataSetFile> implement
     }
 
     @Override
+    @JsonIgnore
     public DataSetFileSortOptions getSortBy()
     {
         return sort;

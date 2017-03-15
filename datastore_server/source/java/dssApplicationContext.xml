@@ -236,7 +236,9 @@
         <constructor-arg ref="propertyConfigurer" />
     </bean>
 
-    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper" />
+    <bean id="objectMapper-v1" class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper" />
+    
+    <bean id="objectMapper-v3" class="ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper" />
 
     <!-- 
         // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.

@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataS
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUnarchiveDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IVerifyDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore.ISearchDataStoresOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.IConfirmDeletionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.IRevertDeletionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.ISearchDeletionsOperationExecutor;
@@ -310,6 +311,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ISearchOperationExecutionsOperationExecutor searchOperationExecutionsExecutor;
 
     @Autowired
+    private ISearchDataStoresOperationExecutor searchDataStoresExecutionsExecutor;
+
+    @Autowired
     private IExecuteCustomASServiceOperationExecutor executeCustomASServiceExecutor;
 
     @Autowired
@@ -396,6 +400,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchGloballyExecutor.execute(context, operations));
         resultMap.putAll(searchObjectKindModificationsExecutor.execute(context, operations));
         resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
+        resultMap.putAll(searchDataStoresExecutionsExecutor.execute(context, operations));
     }
 
     private void executeGets(List<? extends IOperation> operations,

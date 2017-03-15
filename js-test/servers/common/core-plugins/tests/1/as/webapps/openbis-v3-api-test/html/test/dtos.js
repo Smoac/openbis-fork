@@ -208,6 +208,9 @@ var sources = [
 	'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
 	'as/dto/datastore/fetchoptions/DataStoreSortOptions',
 	'as/dto/datastore/id/DataStorePermId',
+	'as/dto/datastore/search/DataStoreSearchCriteria',
+	'as/dto/datastore/search/SearchDataStoresOperation',
+	'as/dto/datastore/search/SearchDataStoresOperationResult',
 	
 	'as/dto/deletion/DeletedObject',
 	'as/dto/deletion/Deletion',
@@ -498,7 +501,13 @@ var sources = [
 	'as/dto/operation/OperationExecutionProgress',
 	'as/dto/operation/OperationExecutionSummary',
 	'as/dto/operation/SynchronousOperationExecutionOptions',
-	'as/dto/operation/SynchronousOperationExecutionResults'
+	'as/dto/operation/SynchronousOperationExecutionResults',
+	
+	'dss/dto/datasetfile/DataSetFile',
+	'dss/dto/datasetfile/fetchoptions/DataSetFileSortOptions',
+	'dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions',
+	'dss/dto/datasetfile/id/DataSetFilePermId',
+	'dss/dto/datasetfile/search/DataSetFileSearchCriteria'
 
  ];
 

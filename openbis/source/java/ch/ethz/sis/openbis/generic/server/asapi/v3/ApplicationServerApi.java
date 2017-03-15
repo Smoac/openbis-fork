@@ -58,6 +58,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.UnarchiveDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.SearchDataStoresOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.SearchDataStoresOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.confirm.ConfirmDeletionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
@@ -673,6 +678,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public SearchResult<Tag> searchTags(String sessionToken, TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions)
     {
         SearchTagsOperationResult result = executeOperation(sessionToken, new SearchTagsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SearchResult<DataStore> searchDataStores(String sessionToken, DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions)
+    {
+        SearchDataStoresOperationResult result = executeOperation(sessionToken, new SearchDataStoresOperation(searchCriteria, fetchOptions));
         return result.getSearchResult();
     }
 

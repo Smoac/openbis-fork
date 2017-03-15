@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -74,6 +75,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvi
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -95,6 +97,9 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             DataStoreServerApi.class);
 
     public String DSS_SERVICE_NAME = "DSS Service";
+
+    @Autowired
+    private IConfigProvider configProvider;
 
     @Autowired
     private IApplicationServerApi as;
@@ -146,21 +151,28 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         Collection<ISearchCriteria> criteria = searchCriteria.getCriteria();
 
         Set<String> resultDataSets = null;
-        Map<String, DataSetPermId> permIds = new HashMap<>();
+        Map<String, DataSet> dataSetMap = new HashMap<>();
+
+        String dataStoreCode = configProvider.getDataStoreCode();
 
         for (ISearchCriteria iSearchCriterion : criteria)
         {
             if (iSearchCriterion instanceof DataSetSearchCriteria)
             {
+                DataSetFetchOptions fo = new DataSetFetchOptions();
+                fo.withDataStore();
                 SearchResult<DataSet> searchResult =
-                        as.searchDataSets(sessionToken, (DataSetSearchCriteria) iSearchCriterion, new DataSetFetchOptions());
+                        as.searchDataSets(sessionToken, (DataSetSearchCriteria) iSearchCriterion, fo);
                 List<DataSet> dataSets = searchResult.getObjects();
                 HashSet<String> codes = new HashSet<String>();
 
                 for (DataSet dataSet : dataSets)
                 {
-                    codes.add(dataSet.getCode());
-                    permIds.put(dataSet.getCode(), dataSet.getPermId());
+                    if (dataStoreCode.equals(dataSet.getDataStore().getCode()))
+                    {
+                        codes.add(dataSet.getCode());
+                        dataSetMap.put(dataSet.getCode(), dataSet);
+                    }
                 }
 
                 if (resultDataSets == null)
@@ -183,10 +195,12 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 IHierarchicalContent content = getHierarchicalContentProvider(sessionToken).asContent(code);
                 for (IHierarchicalContentNode node : iterate(content.getRootNode()))
                 {
+                    DataSet dataSet = dataSetMap.get(code);
                     DataSetFile file = new DataSetFile();
                     file.setPermId(new DataSetFilePermId(new DataSetPermId(code), node.getRelativePath()));
                     file.setPath(node.getRelativePath());
-                    file.setDataSetPermId(permIds.get(code));
+                    file.setDataSetPermId(dataSet.getPermId());
+                    file.setDataStore(dataSet.getDataStore());
                     file.setDirectory(node.isDirectory());
                     if (node.isDirectory() == false)
                     {

@@ -16,16 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectsOperationExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IDataStoreAuthorizationExecutor
+public interface ISearchDataStoresOperationExecutor extends ISearchObjectsOperationExecutor
 {
-
-    void canGet(IOperationContext context);
-    
-    void canSearch(IOperationContext context);
 
 }

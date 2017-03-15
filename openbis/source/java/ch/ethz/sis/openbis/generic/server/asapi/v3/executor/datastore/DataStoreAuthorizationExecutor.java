@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
@@ -31,7 +32,15 @@ public class DataStoreAuthorizationExecutor implements IDataStoreAuthorizationEx
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("GET_DATASTORE")
     public void canGet(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_DATASTORE")
+    public void canSearch(IOperationContext context)
     {
     }
 

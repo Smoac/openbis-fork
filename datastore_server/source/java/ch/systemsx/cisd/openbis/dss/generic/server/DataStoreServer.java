@@ -68,7 +68,6 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.common.servlet.InitializeRequestContextHolderFilter;
@@ -311,26 +310,16 @@ public class DataStoreServer
                 serverPath);
 
         //
-        // export the API via JSON
+        // export the V1 JSON API
         //
         String jsonRpcV1Suffix = rpcV1Suffix + ".json";
         String jsonRpcV1Path = DataStoreApiUrlUtilities.getUrlForRpcService(jsonRpcV1Suffix);
         JsonServiceExporter jsonV1ServiceExporter = new JsonServiceExporter();
         jsonV1ServiceExporter.setService(service);
         jsonV1ServiceExporter.setServiceInterface(IDssServiceRpcGeneric.class);
-        jsonV1ServiceExporter
-                .setApplicationContext((org.springframework.context.ApplicationContext) ServiceProvider
-                        .getApplicationContext());
-
-        //
-        // export the V3 API
-        //
-        String rpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.SERVICE_URL);
-        HttpInvokerServiceExporter v3ServiceExporter = ServiceProvider.getDssServiceV3();
-        // TODO: 24.06.2015 Include the V3 service in name-server
-        // IDataStoreServerApi serviceV3 = (IDataStoreServerApi) v3ServiceExporter .getService();
-        context.addServlet(new ServletHolder(new HttpInvokerServlet(v3ServiceExporter, rpcV3Path)),
-                rpcV3Path);
+        jsonV1ServiceExporter.setObjectMapper(ServiceProvider.getObjectMapperV1());
+        jsonV1ServiceExporter.setApplicationContext((org.springframework.context.ApplicationContext) ServiceProvider
+                .getApplicationContext());
 
         try
         {
@@ -343,8 +332,29 @@ public class DataStoreServer
 
         context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV1ServiceExporter,
                 jsonRpcV1Path)), jsonRpcV1Path);
+
+        //
+        // export the V3 API
+        //
+        String rpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.SERVICE_URL);
+        HttpInvokerServiceExporter v3ServiceExporter = ServiceProvider.getDssServiceV3();
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(v3ServiceExporter, rpcV3Path)),
+                rpcV3Path);
+
+        //
+        // export the V3 JSON API
+        //
+        String jsonRpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.JSON_SERVICE_URL);
+        JsonServiceExporter jsonV3ServiceExporter = ServiceProvider.getDssServiceJsonV3();
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV3ServiceExporter, jsonRpcV3Path)),
+                jsonRpcV3Path);
+
+        // filters
+
         context.addFilter(DssCrossOriginFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(InitializeRequestContextHolderFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+
+        // name service
 
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
@@ -356,6 +366,7 @@ public class DataStoreServer
 
         // Inform the name server about the services I export
         // N.b. In the future, this could be done using spring instead of programmatically
+
         RpcServiceNameServer rpcNameServer =
                 (RpcServiceNameServer) nameServiceExporter.getService();
 
@@ -369,6 +380,8 @@ public class DataStoreServer
         RpcServiceInterfaceVersionDTO jsonV1Interface =
                 new RpcServiceInterfaceVersionDTO(IDssServiceRpcGeneric.DSS_SERVICE_NAME,
                         jsonRpcV1Suffix, service.getMajorVersion(), service.getMinorVersion());
+
+        // V3 services are registered to the name service in the exporters
 
         rpcNameServer.addSupportedInterfaceVersion(nameServerVersion);
         rpcNameServer.addSupportedInterfaceVersion(v1Interface);
