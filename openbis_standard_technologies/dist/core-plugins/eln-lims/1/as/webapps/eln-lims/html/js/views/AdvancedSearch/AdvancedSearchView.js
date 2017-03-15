@@ -121,6 +121,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			.append($("<tr>")
 						.append($("<th>").text("Field Type"))
 						.append($("<th>").text("Field Name"))
+						.append($("<th>").text("Comparator Operator"))
 						.append($("<th>").text("Field Value"))
 						.append($("<th>").append(this._$addButton))
 					);
@@ -170,13 +171,40 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
        });
         
 		
+		var operatorOptions = [
+		                       { value : "thatEqualsString", 					label : "thatEquals (String)" }, 
+		                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)" },
+		                       { value : "thatEqualsDate", 						label : "thatEquals (Date)"   },
+		                       { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
+		                       { value : "thatStartsWithString", 				label : "thatStartsWith (String)" },
+		                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" },
+		                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
+		                       { value : "thatIsLessThanOrEqualToNumber", 		label : "thatIsLessThanOrEqualTo (Number)" },
+		                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
+		                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" },
+		                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
+		                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" },
+		                       ];
+		var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
 		
-			$newRow.append($("<td>").append($fieldTypeDropdown))
+		comparisonDropdown.change(function() {
+			var $thisComponent = $(this);
+			//Get uuid and value and update model (type only)
+			var uuid = $($($thisComponent.parent()).parent()).attr("id");
+			var selectedValue = $thisComponent.val();
+			_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
+		});
+		
+		
+		$newRow.append($("<td>").append($fieldTypeDropdown))
 					.append($newFieldNameContainer)
+					.append($("<td>").append(comparisonDropdown))
 					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
-					
+		
 		this._$tbody.append($newRow);
+		
+		comparisonDropdown.select2({ width: '100%', theme: "bootstrap" });
 		
 		if(this._advancedSearchModel.forceFreeTextSearch) {
 			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);

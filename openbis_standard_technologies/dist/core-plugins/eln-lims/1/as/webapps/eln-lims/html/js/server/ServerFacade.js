@@ -837,7 +837,8 @@ function ServerFacade(openbisServer) {
 					var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
 					var fieldNameType = null;
 					var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-				
+					var fieldOperator = advancedSearchCriteria.rules[ruleKeys[idx]].operator;
+					
 					if(fieldName) {
 						var firstDotIndex = fieldName.indexOf(".");
 						fieldNameType = fieldName.substring(0, firstDotIndex);
@@ -848,8 +849,54 @@ function ServerFacade(openbisServer) {
 						fieldValue = "*";
 					}
 				
-					var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
-						criteria.withProperty(propertyName).thatContains(propertyValue);
+					var setPropertyCriteria = function(criteria, propertyName, propertyValue, comparisonOperator) {
+						if(comparisonOperator) {
+							try {
+								switch(comparisonOperator) {
+									case "thatEqualsString":
+										criteria.withProperty(propertyName).thatEquals(propertyValue);
+										break;
+									case "thatEqualsNumber":
+										criteria.withNumberProperty(propertyName).thatEquals(parseFloat(propertyValue));
+										break;
+									case "thatEqualsDate":
+										criteria.withDateProperty(propertyName).thatEquals(propertyValue);
+										break;
+									case "thatContainsString":
+										criteria.withProperty(propertyName).thatContains(propertyValue);
+										break;
+									case "thatStartsWithString":
+										criteria.withProperty(propertyName).thatStartsWith(propertyValue);
+										break;
+									case "thatEndsWithString":
+										criteria.withProperty(propertyName).thatEndsWith(propertyValue);
+										break;
+									case "thatIsLessThanNumber":
+										criteria.withNumberProperty(propertyName).thatIsLessThan(parseFloat(propertyValue));
+										break;
+									case "thatIsLessThanOrEqualToNumber":
+										criteria.withNumberProperty(propertyName).thatIsLessThanOrEqualTo(parseFloat(propertyValue));
+										break;
+									case "thatIsGreaterThanNumber":
+										criteria.withNumberProperty(propertyName).thatIsGreaterThan(parseFloat(propertyValue));
+										break;
+									case "thatIsGreaterThanOrEqualToNumber":
+										criteria.withNumberProperty(propertyName).thatIsGreaterThanOrEqualTo(parseFloat(propertyValue));
+										break;
+									case "thatIsLaterThanOrEqualToDate":
+										criteria.withDateProperty(propertyName).thatIsLaterThanOrEqualTo(propertyValue);
+										break;
+									case "thatIsEarlierThanOrEqualToDate":
+										criteria.withDateProperty(propertyName).thatIsEarlierThanOrEqualTo(propertyValue);
+										break;
+								}
+							} catch(error) {
+								Util.showError("Error parsing criteria: " + error.message);
+								return;
+							}
+						} else {
+							criteria.withProperty(propertyName).thatContains(propertyValue);
+						}
 					}
 				
 					var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
@@ -899,7 +946,7 @@ function ServerFacade(openbisServer) {
 							}
 							break;
 						case "Property":
-							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 							break;
 						case "Attribute":
 							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
@@ -907,7 +954,7 @@ function ServerFacade(openbisServer) {
 						case "Property/Attribute":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
@@ -917,7 +964,7 @@ function ServerFacade(openbisServer) {
 						case "Sample":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
@@ -930,7 +977,7 @@ function ServerFacade(openbisServer) {
 						case "Experiment":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
@@ -943,7 +990,7 @@ function ServerFacade(openbisServer) {
 						case "Parent":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
@@ -953,7 +1000,7 @@ function ServerFacade(openbisServer) {
 						case "Children":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
 									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
