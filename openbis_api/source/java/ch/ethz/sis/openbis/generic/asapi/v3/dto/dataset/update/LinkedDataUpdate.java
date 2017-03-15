@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.annotation.TechPreview;
 
 /**
  * @author pkupczyk
@@ -69,12 +70,14 @@ public class LinkedDataUpdate implements IUpdate
     }
 
     @JsonIgnore
+    @TechPreview
     public ContentCopyListUpdateValue getContentCopies()
     {
         return contentCopies;
     }
 
     @JsonIgnore
+    @TechPreview
     public void setContentCopyActions(List<ListUpdateAction<Object>> actions)
     {
         contentCopies.setActions(actions);
