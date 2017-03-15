@@ -202,7 +202,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, entityKind, uuid) {
 		//Update dropdown component
-		this._$andOrDropdownComponent.val("AND");
+		this._$andOrDropdownComponent.val("AND").trigger('change');
 		this._advancedSearchModel.criteria.logicalOperator = "AND";
 		this._$andOrDropdownComponent.removeAttr("disabled");
 		//
@@ -211,9 +211,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		switch(entityKind) {
 			case "ALL":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }];
-				this._$andOrDropdownComponent.val("OR");
+				this._$andOrDropdownComponent.val("OR").trigger('change');
 				this._advancedSearchModel.criteria.logicalOperator = "OR";
-				this._$andOrDropdownComponent.attr("disabled", "");
+				this._$andOrDropdownComponent.attr("disabled", "").trigger('change');
 				break;
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
