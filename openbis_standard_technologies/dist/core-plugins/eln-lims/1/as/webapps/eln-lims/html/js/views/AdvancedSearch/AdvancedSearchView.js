@@ -319,13 +319,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			$newFieldOperatorContainer.empty();
 			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
 			
-			if(selectedValue && selectedValue.startsWith("PROP.")) {
+			var dataType = null;
+			
+			if(selectedValue && 
+							(selectedValue === "ATTR.REGISTRATION_DATE" || 
+							selectedValue === "ATTR.MODIFICATION_DATE")) {
+				dataType = "TIMESTAMP";
+			} else if(selectedValue && selectedValue.startsWith("PROP.")) {
 				var propertyTypeCode = selectedValue.substring(5);
 				var propertyType = profile.getPropertyType(propertyTypeCode);
-				
+				dataType = propertyType.dataType;
+			}
+			
+			if(dataType) {
 				var operatorOptions = null;
 				
-				if (propertyType.dataType === "INTEGER" || propertyType.dataType === "NUMBER") {
+				if (dataType === "INTEGER" || dataType === "NUMBER") {
 					operatorOptions = [
 					                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)", selected : true },
 					                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
@@ -333,7 +342,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
 					                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" }
 					                       ];
-				} else if(propertyType.dataType === "TIMESTAMP") {
+				} else if(dataType === "TIMESTAMP") {
 					operatorOptions = [
 					                       { value : "thatEqualsDate", 						label : "thatEquals (Date)", selected : true },
 					                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },

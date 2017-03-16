@@ -899,7 +899,7 @@ function ServerFacade(openbisServer) {
 						}
 					}
 				
-					var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
+					var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
 						switch(attributeName) {
 							//Used by all entities
 							case "CODE":
@@ -912,10 +912,36 @@ function ServerFacade(openbisServer) {
 								criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
 								break;
 							case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
-								criteria.withRegistrationDate().thatEquals(attributeValue);
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsDate":
+											criteria.withRegistrationDate().thatEquals(attributeValue);
+										case "thatIsLaterThanOrEqualToDate":
+											criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(attributeValue);
+											break;
+										case "thatIsEarlierThanOrEqualToDate":
+											criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo(attributeValue);
+											break;
+									}
+								} else {
+									criteria.withRegistrationDate().thatEquals(attributeValue);
+								}
 								break;
 							case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
-								criteria.withModificationDate().thatEquals(attributeValue);
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsDate":
+											criteria.withModificationDate().thatEquals(attributeValue);
+										case "thatIsLaterThanOrEqualToDate":
+											criteria.withModificationDate().thatIsLaterThanOrEqualTo(attributeValue);
+											break;
+										case "thatIsEarlierThanOrEqualToDate":
+											criteria.withModificationDate().thatIsEarlierThanOrEqualTo(attributeValue);
+											break;
+									}
+								} else {
+									criteria.withModificationDate().thatEquals(attributeValue);
+								}
 								break;
 							case "SAMPLE_TYPE":
 							case "EXPERIMENT_TYPE":
@@ -949,7 +975,7 @@ function ServerFacade(openbisServer) {
 							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 							break;
 						case "Attribute":
-							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 							break;
 						case "Property/Attribute":
 							switch(fieldNameType) {
@@ -957,7 +983,7 @@ function ServerFacade(openbisServer) {
 									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 							}
 							break;
@@ -967,7 +993,7 @@ function ServerFacade(openbisServer) {
 									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "NULL":
 									searchCriteria.withoutSample();
@@ -980,7 +1006,7 @@ function ServerFacade(openbisServer) {
 									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "NULL":
 									searchCriteria.withoutExperiment();
@@ -993,7 +1019,7 @@ function ServerFacade(openbisServer) {
 									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 							}
 							break;
@@ -1003,7 +1029,7 @@ function ServerFacade(openbisServer) {
 									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 							}
 							break;
