@@ -72,8 +72,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.entityType = (entity.type)?entity.type.code:"";
 					rowData.code =  entity.code;
 					rowData.permId = (entity.permId)?entity.permId.permId:"";
-					rowData.registrationDate = (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null;
-					rowData.modificationDate = (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null;
+					rowData.registrationDate = (entity.registrationDate)?Util.getFormatedDate(new Date(entity.registrationDate)):null;
+					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
 					rowData.entityObject = entity;
 					
 					if(entity.identifier) {
