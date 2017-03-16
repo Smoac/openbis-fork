@@ -7,6 +7,9 @@ CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
+	config.specialChars = config.specialChars.concat( ['&alpha;', '&beta;', '&gamma;', '&delta;', 
+	                                                    '&epsilon;', '&zeta;', '&eta;', '&theta;', '&kappa;', '&lambda;', '&mu;', '&xi;', '&pi;', '&rho;', '&sigma;', 
+	                                                    '&upsilon;', '&phi;', '&psi;', '&omega;', '&Delta;', '&Sigma;', '&Phi;', '&Omega;'] );
 	config.extraPlugins='confighelper';
 	config.stylesSet = false;
 	config.toolbarGroups = [
