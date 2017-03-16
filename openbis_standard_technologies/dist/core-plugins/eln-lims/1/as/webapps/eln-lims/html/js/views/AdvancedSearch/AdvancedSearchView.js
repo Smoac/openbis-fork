@@ -319,20 +319,34 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
 			
 			if(selectedValue && selectedValue.startsWith("PROP.")) {
-				var operatorOptions = [
-				                       { value : "thatEqualsString", 					label : "thatEquals (String)" }, 
-				                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)" },
-				                       { value : "thatEqualsDate", 						label : "thatEquals (Date)"   },
-				                       { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
-				                       { value : "thatStartsWithString", 				label : "thatStartsWith (String)" },
-				                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" },
-				                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
-				                       { value : "thatIsLessThanOrEqualToNumber", 		label : "thatIsLessThanOrEqualTo (Number)" },
-				                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
-				                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" },
-				                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
-				                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" },
-				                       ];
+				var propertyTypeCode = selectedValue.substring(5);
+				var propertyType = profile.getPropertyType(propertyTypeCode);
+				
+				var operatorOptions = null;
+				
+				if (propertyType.dataType === "INTEGER" || propertyType.dataType === "NUMBER") {
+					operatorOptions = [
+					                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)", selected : true },
+					                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
+					                       { value : "thatIsLessThanOrEqualToNumber", 		label : "thatIsLessThanOrEqualTo (Number)" },
+					                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
+					                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" }
+					                       ];
+				} else if(propertyType.dataType === "TIMESTAMP") {
+					operatorOptions = [
+					                       { value : "thatEqualsDate", 						label : "thatEquals (Date)", selected : true },
+					                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
+					                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" }
+					                       ];
+				} else {
+					operatorOptions = [
+					                   	   { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
+					                       { value : "thatEqualsString", 					label : "thatEquals (String)" },
+					                       { value : "thatStartsWithString", 				label : "thatStartsWith (String)" },
+					                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" }
+					                       ];
+				}
+				
 				var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
 				
 				comparisonDropdown.change(function() {
