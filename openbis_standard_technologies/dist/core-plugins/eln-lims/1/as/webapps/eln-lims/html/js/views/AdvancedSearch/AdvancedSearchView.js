@@ -123,7 +123,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						.append($("<th>").text("Field Name"))
 						.append($("<th>").text("Comparator Operator"))
 						.append($("<th>").text("Field Value"))
-						.append($("<th>").append(this._$addButton))
+						.append($("<th>", { "style" : "width : 56px !important;" }).append(this._$addButton))
 					);
 		
 		this._paintInputRow();
@@ -152,7 +152,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $newFieldOperatorContainer = $("<td>");
 		var $newRow = $("<tr>", { id : uuidValue });
 		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
-		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
+		var $fieldValue = $("<input>", { class : "form-control", type: "text" });
+		$fieldValue.css({width : "100%" });
 		
 		$fieldValue.keyup(function() {
 			var $thisComponent = $(this);
