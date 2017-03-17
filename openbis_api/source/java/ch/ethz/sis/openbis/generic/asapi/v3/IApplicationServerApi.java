@@ -332,4 +332,7 @@ public interface IApplicationServerApi extends IRpcService
             IOperationExecutionOptions options);
 
     public Map<String, String> getServerInformation(String sessionToken);
+
+    @TechPreview
+    public List<String> createPermIdStrings(String sessionToken, int amount);
 }

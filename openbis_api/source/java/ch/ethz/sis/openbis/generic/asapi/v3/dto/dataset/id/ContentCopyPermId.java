@@ -10,7 +10,7 @@ public class ContentCopyPermId extends ObjectPermId implements IContentCopyId
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param permId Data set perm id, e.g. "201108050937246-1031".
+     * @param permId Content copy perm id
      */
     public ContentCopyPermId(String permId)
     {

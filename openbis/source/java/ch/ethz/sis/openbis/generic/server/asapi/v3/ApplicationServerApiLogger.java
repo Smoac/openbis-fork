@@ -678,4 +678,11 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "delete-external-dms", "EXTERNAL_DMS_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(externalDmsIds), deletionOptions);
     }
 
+    @Override
+    public List<String> createPermIdStrings(String sessionToken, int amount)
+    {
+        logAccess(sessionToken, "get-perm-id-strings", Integer.toString(amount));
+        return null;
+    }
+
 }

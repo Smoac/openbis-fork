@@ -266,6 +266,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.UpdateVocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IExecuteOperationExecutor;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -931,5 +932,21 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public int getMinorVersion()
     {
         return 2;
+    }
+
+    @Override
+    public List<String> createPermIdStrings(String sessionToken, int amount)
+    {
+        if (amount > 100)
+        {
+            throw new UserFailureException("Cannot create more than 100 ids in one call (" + amount + " requested)");
+        }
+
+        if (amount <= 0)
+        {
+            throw new UserFailureException("Invalid amount: " + amount);
+        }
+
+        return getDAOFactory().getPermIdDAO().createPermIds(amount);
     }
 }
