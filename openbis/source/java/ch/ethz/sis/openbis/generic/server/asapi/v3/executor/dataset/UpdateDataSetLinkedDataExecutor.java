@@ -114,6 +114,19 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
                 }
             }
 
+            outer: for (IContentCopyId iid : update.getContentCopies().getRemoved())
+            {
+                ContentCopyPermId id = (ContentCopyPermId) iid;
+                for (ContentCopyPE cc : entity.getContentCopies())
+                {
+                    if (id.getPermId().equals(cc.getId().toString()))
+                    {
+                        continue outer;
+                    }
+                    throw new UserFailureException("Trying to remove non-existing content copy " + id.getPermId());
+                }
+            }
+
             entity.getContentCopies().removeAll(remove);
             for (ContentCopyPE cc : remove)
             {

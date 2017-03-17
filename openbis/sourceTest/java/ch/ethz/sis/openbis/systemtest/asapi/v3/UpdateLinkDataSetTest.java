@@ -118,6 +118,16 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
                 .withGitCommitHash(gitCommitHash)));
     }
 
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*")
+    void removingNonExistentCopyWillFail()
+    {
+        ExternalDmsPermId dms = create(externalDms());
+        DataSetPermId id = create(linkDataSet().with(copyAt(dms)));
+
+        ContentCopyPermId ccid = new ContentCopyPermId(uuid());
+        update(dataset(id).without(ccid));
+    }
+
     @Test
     void legacyExternalCodeCanBeSetOnSingleCopyOpenBISDms()
     {
