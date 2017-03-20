@@ -15,6 +15,10 @@ var LayoutManager = {
 			this.firstColumn.resizable("destroy");
 			this.secondColumn.resizable("destroy");
 
+			this.firstColumn.children().detach();
+			this.secondColumn.children().detach();
+			this.thirdColumn.children().detach();
+			
 			this.mainContainer.empty();
 		}
 
@@ -260,13 +264,25 @@ var LayoutManager = {
 		} else {
 			alert("Layout manager unable to set layout, this should never happen.");
 		}
+		
+		this.triggerResizeEventHandlers();
+	},
+	resizeEventHandlers : [],
+	addResizeEventHandler : function(eventHandler) {
+		this.resizeEventHandlers.push(eventHandler);
+	},
+	triggerResizeEventHandlers : function() {
+		for(var idx = 0; idx < this.resizeEventHandlers.length; idx++) {
+			this.resizeEventHandlers[idx]();
+		}
+	},
+	resize : function(view) {
+		if(this.canReload()) {
+			this.reloadView(view);
+		}
 	}
 }
 
 //$(window).resize(function() {
-//	if(LayoutManager.canReload()) {
-//		var newWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-//		console.log("Resize called " + newWidth);
-//		LayoutManager.reloadView(globalView);
-//	}
+//	LayoutManager.resize(mainController.views);
 //});
