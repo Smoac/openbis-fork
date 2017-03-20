@@ -68,13 +68,13 @@ public class SynchronizationConfigReader
 
     private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME = "last-sync-timestamp-file";
 
-    private static final String HARVESTER_NOT_SYNCED_DATA_SETS_FILE_NAME = "not-synced-data-sets-file";
+    private static final String HARVESTER_NOT_SYNCED_ENTITIES_FILE_NAME = "not-synced-entities-file";
 
     private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
 
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
 
-    private String defaultNotSyncedDataSetsFileName = "not-synced-datasets_{alias}.txt";
+    private String defaultNotSyncedEntitiesFileName = "not-synced-entities_{alias}.txt";
 
     private static final String LOG_FILE_PROPERTY_NAME = "log-file";
 
@@ -128,9 +128,9 @@ public class SynchronizationConfigReader
             config.setLastSyncTimestampFileName(
                     reader.getString(section, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME, defaultLastSyncTimestampFileName, false));
 
-            defaultNotSyncedDataSetsFileName = defaultNotSyncedDataSetsFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            defaultNotSyncedEntitiesFileName = defaultNotSyncedEntitiesFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
             config.setNotSyncedDataSetsFileName(
-                    reader.getString(section, HARVESTER_NOT_SYNCED_DATA_SETS_FILE_NAME, defaultNotSyncedDataSetsFileName, false));
+                    reader.getString(section, HARVESTER_NOT_SYNCED_ENTITIES_FILE_NAME, defaultNotSyncedEntitiesFileName, false));
             configs.add(config);
         }
         return configs;

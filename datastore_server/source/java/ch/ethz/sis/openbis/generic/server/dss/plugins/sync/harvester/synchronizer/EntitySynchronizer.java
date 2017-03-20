@@ -61,11 +61,12 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileS
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.ExperimentWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingDataSet;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingEntity;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingExperiment;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingProject;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingSample;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.datasourceconnector.DataSourceConnector;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.datasourceconnector.IDataSourceConnector;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
@@ -91,7 +92,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -144,18 +144,19 @@ public class EntitySynchronizer
 
     private final Set<String> dataSetsCodesToRetry;
 
+    private final Set<String> attachmentHolderCodesToRetry;
+
     private final SyncConfig config;
 
     private final Logger operationLog;
 
     private final Set<String> blackListedDataSetCodes;
 
-    private final List<Identifier<?>> entitiesWithAttachments = new ArrayList<Identifier<?>>();
-
     private MasterDataSynchronizer masterDataSyncronizer;
 
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
-            Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, DataSetProcessingContext context,
+            Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, Set<String> attachmentHolderCodesToRetry,
+            DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
     {
         this.service = service;
@@ -163,6 +164,7 @@ public class EntitySynchronizer
         this.storeRoot = storeRoot;
         this.lastSyncTimestamp = lastSyncTimestamp;
         this.dataSetsCodesToRetry = dataSetsCodesToRetry;
+        this.attachmentHolderCodesToRetry = attachmentHolderCodesToRetry;
         this.blackListedDataSetCodes = blackListedDataSetCodes;
         this.context = context;
         this.config = config;
@@ -219,15 +221,21 @@ public class EntitySynchronizer
         operationLog.info("entity operation result: " + operationResult);
 
         operationLog.info("processing attachments...");
-        processAttachments(entitiesWithAttachments);
+        List<IncomingEntity<?>> attachmentHoldersToProcess =
+                data.filterAttachmentHoldersByLastModificationDate(lastSyncTimestamp, attachmentHolderCodesToRetry);
+        List<String> notSyncedAttachmentsHolders = processAttachments(attachmentHoldersToProcess);
 
         // register physical data sets without any hierarchy
         // Note that container/component and parent/child relationships are established post-reg.
         // setParentDataSetsOnTheChildren(data);
-        Map<String, DataSetWithConnections> physicalDSMap =
+        Map<String, IncomingDataSet> physicalDSMap =
                 data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp, dataSetsCodesToRetry);
         operationLog.info("Registering data sets...");
         DataSetRegistrationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
+        // backup the current not synced data set codes file, delete the original file
+
+        saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
+
         operationLog.info("Data set registration summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
                 + dsRegistrationSummary.updatedDsCount
                 + " data set(s) were updated.\n"
@@ -245,10 +253,16 @@ public class EntitySynchronizer
         return data.getResourceListTimestamp();
     }
 
-    private void processAttachments(List<Identifier<?>> entities)
+    private List<String> processAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess)
     {
-        ParallelizedExecutor.process(entities, new AttachmentSynchronizationTaskExecutor(service, lastSyncTimestamp, config),
+        final List<String> notSyncedAttachmentHolderPermIds = Collections.synchronizedList(new ArrayList<String>());
+
+        ParallelizedExecutor.process(attachmentHoldersToProcess, new AttachmentSynchronizationTaskExecutor(notSyncedAttachmentHolderPermIds,
+                service,
+                lastSyncTimestamp, config),
                 0.5, 10, "process attachments", 0, false);
+
+        return notSyncedAttachmentHolderPermIds;
     }
 
     private void cleanup()
@@ -263,8 +277,8 @@ public class EntitySynchronizer
         }
     }
 
-    private void establishDataSetRelationships(Map<String, DataSetWithConnections> dataSetsToProcess,
-            List<String> notRegisteredDataSets, Map<String, DataSetWithConnections> physicalDSMap)
+    private void establishDataSetRelationships(Map<String, IncomingDataSet> dataSetsToProcess,
+            List<String> notRegisteredDataSets, Map<String, IncomingDataSet> physicalDSMap)
     {
         // set parent and container data set codes before everything else
         // container and physical data sets can both be parents/children of each other
@@ -272,7 +286,7 @@ public class EntitySynchronizer
         Map<String, NewExternalData> datasetsToUpdate = new HashMap<String, NewExternalData>();
         Map<String, Set<String>> dsToParents = new HashMap<String, Set<String>>();
         Map<String, Set<String>> dsToContained = new HashMap<String, Set<String>>();
-        for (DataSetWithConnections dsWithConn : dataSetsToProcess.values())
+        for (IncomingDataSet dsWithConn : dataSetsToProcess.values())
         {
             for (Connection conn : dsWithConn.getConnections())
             {
@@ -301,7 +315,7 @@ public class EntitySynchronizer
             }
         }
         // go through all the data sets, decide what needs to be updated
-        for (DataSetWithConnections dsWithConn : dataSetsToProcess.values())
+        for (IncomingDataSet dsWithConn : dataSetsToProcess.values())
         {
             NewExternalData dataSet = (NewExternalData) dsWithConn.getDataSet();
 
@@ -404,9 +418,9 @@ public class EntitySynchronizer
         return false;
     }
 
-    private DataSetRegistrationSummary registerPhysicalDataSets(Map<String, DataSetWithConnections> physicalDSMap) throws IOException
+    private DataSetRegistrationSummary registerPhysicalDataSets(Map<String, IncomingDataSet> physicalDSMap) throws IOException
     {
-        List<DataSetWithConnections> dsList = new ArrayList<DataSetWithConnections>(physicalDSMap.values());
+        List<IncomingDataSet> dsList = new ArrayList<IncomingDataSet>(physicalDSMap.values());
         DataSetRegistrationSummary dsRegistrationSummary = new DataSetRegistrationSummary();
 
         // This parallelization is possible because each DS is registered without dependencies
@@ -414,23 +428,26 @@ public class EntitySynchronizer
         ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dsRegistrationSummary),
                 0.5, 10, "register data sets", 0, false);
 
-        // backup the current not synced data set codes file, delete the original file
-        saveNotSyncedDataSetsFile(dsRegistrationSummary.notRegisteredDataSetCodes);
-
         return dsRegistrationSummary;
     }
 
-    private void saveNotSyncedDataSetsFile(List<String> notRegisteredDataSetCodes) throws IOException
+    private void saveFailedEntitiesFile(List<String> notRegisteredDataSetCodes, List<String> notSyncedAttachmentsHolders) throws IOException
     {
-        File notSyncedDataSetsFile = new File(config.getNotSyncedDataSetsFileName());
+        File notSyncedDataSetsFile = new File(config.getNotSyncedEntitiesFileName());
         if (notSyncedDataSetsFile.exists())
         {
             backupAndResetNotSyncedDataSetsFile(notSyncedDataSetsFile);
         }
 
+        // first write the data set codes to be retried next time we sync
         for (String dsCode : notRegisteredDataSetCodes)
         {
-            FileUtilities.appendToFile(notSyncedDataSetsFile, dsCode, true);
+            FileUtilities.appendToFile(notSyncedDataSetsFile, "DATA_SET-" + dsCode, true);
+        }
+        // append the ids of holder entities for the failed attachment synchronizations
+        for (String holderCode : notSyncedAttachmentsHolders)
+        {
+            FileUtilities.appendToFile(notSyncedDataSetsFile, holderCode, true);
         }
         // append the blacklisted codes to the end of the file
         for (String dsCode : blackListedDataSetCodes)
@@ -441,7 +458,7 @@ public class EntitySynchronizer
 
     private void backupAndResetNotSyncedDataSetsFile(File notSyncedDataSetsFile) throws IOException
     {
-        File backupLastSyncTimeStampFile = new File(config.getNotSyncedDataSetsFileName() + ".bk");
+        File backupLastSyncTimeStampFile = new File(config.getNotSyncedEntitiesFileName() + ".bk");
         FileUtils.copyFile(notSyncedDataSetsFile, backupLastSyncTimeStampFile);
         FileUtils.writeStringToFile(notSyncedDataSetsFile, "");
     }
@@ -541,7 +558,7 @@ public class EntitySynchronizer
                         // if (ds.getKind() == DataSetKind.PHYSICAL && ds.lastModificationDate.after(lastSyncDate))
                         String typeCodeOrNull = entity.getTypeCodeOrNull();
 
-                        DataSetWithConnections dsWithConns = data.getDataSetsToProcess().get(entity.getPermId());
+                        IncomingDataSet dsWithConns = data.getDataSetsToProcess().get(entity.getPermId());
                         NewExternalData ds = dsWithConns.getDataSet();
                         if (typeCodeOrNull.equals(ds.getDataSetType().getCode()) == false)
                         {
@@ -658,8 +675,8 @@ public class EntitySynchronizer
             AtomicEntityOperationDetailsBuilder builder)
     {
         // process experiments
-        Map<String, ExperimentWithConnections> experimentsToProcess = data.getExperimentsToProcess();
-        for (ExperimentWithConnections exp : experimentsToProcess.values())
+        Map<String, IncomingExperiment> experimentsToProcess = data.getExperimentsToProcess();
+        for (IncomingExperiment exp : experimentsToProcess.values())
         {
             NewExperiment incomingExp = exp.getExperiment();
             if (exp.getLastModificationDate().after(lastSyncTimestamp))
@@ -685,25 +702,20 @@ public class EntitySynchronizer
                     ExperimentUpdatesDTO expUpdate = createExperimentUpdateDTOs(incomingExp, experiment);
                     builder.experimentUpdate(expUpdate);
                 }
-                // add to a list for processing the attachments later on.
-                if (exp.hasAttachments() == true)
-                {
-                    entitiesWithAttachments.add(incomingExp);
-                }
             }
             handleExperimentConnections(data, exp, incomingExp);
         }
     }
 
-    private void handleExperimentConnections(ResourceListParserData data, ExperimentWithConnections exp, NewExperiment newIncomingExp)
+    private void handleExperimentConnections(ResourceListParserData data, IncomingExperiment exp, NewExperiment newIncomingExp)
     {
-        Map<String, SampleWithConnections> samplesToProcess = data.getSamplesToProcess();
-        Map<String, DataSetWithConnections> dataSetsToProcess = data.getDataSetsToProcess();
+        Map<String, IncomingSample> samplesToProcess = data.getSamplesToProcess();
+        Map<String, IncomingDataSet> dataSetsToProcess = data.getDataSetsToProcess();
         for (Connection conn : exp.getConnections())
         {
             if (samplesToProcess.containsKey(conn.getToPermId()))
             {
-                SampleWithConnections sample = samplesToProcess.get(conn.getToPermId());
+                IncomingSample sample = samplesToProcess.get(conn.getToPermId());
                 NewSample newSample = sample.getSample();
                 newSample.setExperimentIdentifier(newIncomingExp.getIdentifier());
             }
@@ -761,8 +773,8 @@ public class EntitySynchronizer
 
     private void processProjects(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
     {
-        Map<String, ProjectWithConnections> projectsToProcess = data.getProjectsToProcess();
-        for (ProjectWithConnections prj : projectsToProcess.values())
+        Map<String, IncomingProject> projectsToProcess = data.getProjectsToProcess();
+        for (IncomingProject prj : projectsToProcess.values())
         {
             NewProject incomingProject = prj.getProject();
             if (prj.getLastModificationDate().after(lastSyncTimestamp))
@@ -787,20 +799,14 @@ public class EntitySynchronizer
                     // UPDATE PROJECT
                     builder.projectUpdate(createProjectUpdateDTO(incomingProject, project));
                 }
-
-                // add to a list for processing the attachments later on.
-                if (prj.hasAttachments() == true)
-                {
-                    entitiesWithAttachments.add(incomingProject);
-                }
             }
             // handleProjectConnections(data, prj);
         }
     }
 
-    private void handleProjectConnections(ResourceListParserData data, ProjectWithConnections prj)
+    private void handleProjectConnections(ResourceListParserData data, IncomingProject prj)
     {
-        Map<String, ExperimentWithConnections> experimentsToProcess = data.getExperimentsToProcess();
+        Map<String, IncomingExperiment> experimentsToProcess = data.getExperimentsToProcess();
         for (Connection conn : prj.getConnections())
         {
             String connectedExpPermId = conn.getToPermId();
@@ -808,7 +814,7 @@ public class EntitySynchronizer
             if (experimentsToProcess.containsKey(connectedExpPermId))
             {
                 // the project is connected to an experiment
-                ExperimentWithConnections exp = experimentsToProcess.get(connectedExpPermId);
+                IncomingExperiment exp = experimentsToProcess.get(connectedExpPermId);
                 NewExperiment newExp = exp.getExperiment();
                 Experiment experiment = service.tryGetExperimentByPermId(connectedExpPermId);
                 // check if our local graph has the same connection
@@ -847,10 +853,10 @@ public class EntitySynchronizer
     private void processSamples(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
     {
         // process samples
-        Map<String, SampleWithConnections> samplesToProcess = data.getSamplesToProcess();
+        Map<String, IncomingSample> samplesToProcess = data.getSamplesToProcess();
         Map<SampleIdentifier, NewSample> samplesToUpdate = new HashMap<SampleIdentifier, NewSample>();
         Set<String> sampleWithUpdatedParents = new HashSet<String>();
-        for (SampleWithConnections sample : samplesToProcess.values())
+        for (IncomingSample sample : samplesToProcess.values())
         {
             NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp))
@@ -878,7 +884,7 @@ public class EntitySynchronizer
                     for (Sample child : childSamples)
                     {
                         String childSampleIdentifier = child.getIdentifier();// edgeNodePair.getNode().getIdentifier();
-                        SampleWithConnections childSampleWithConns = findChildInSamplesToProcess(childSampleIdentifier, samplesToProcess);
+                        IncomingSample childSampleWithConns = findChildInSamplesToProcess(childSampleIdentifier, samplesToProcess);
                         if (childSampleWithConns == null)
                         {
                             // TODO Handle sample delete
@@ -892,13 +898,8 @@ public class EntitySynchronizer
                         }
                     }
                 }
-                // add to a list for processing the attachments later on.
-                if (sample.hasAttachments() == true)
-                {
-                    entitiesWithAttachments.add(incomingSample);
-                }
             }
-            for (Connection conn : sample.getConnections())
+            for (ResourceListParserData.Connection conn : sample.getConnections())
             {
                 if (conn.getType().equals("Component"))
                 {
@@ -1021,9 +1022,9 @@ public class EntitySynchronizer
         return service.listSamples(criteria);
     }
 
-    private SampleWithConnections findChildInSamplesToProcess(String childSampleIdentifier, Map<String, SampleWithConnections> samplesToProcess)
+    private IncomingSample findChildInSamplesToProcess(String childSampleIdentifier, Map<String, IncomingSample> samplesToProcess)
     {
-        for (SampleWithConnections sample : samplesToProcess.values())
+        for (IncomingSample sample : samplesToProcess.values())
         {
             if (sample.getSample().getIdentifier().equals(childSampleIdentifier))
             {
@@ -1033,7 +1034,7 @@ public class EntitySynchronizer
         return null;
     }
 
-    private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<DataSetWithConnections>
+    private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<IncomingDataSet>
     {
         private DataSetRegistrationSummary dsRegistrationSummary;
 
@@ -1043,7 +1044,7 @@ public class EntitySynchronizer
         }
 
         @Override
-        public Status execute(DataSetWithConnections dataSet)
+        public Status execute(IncomingDataSet dataSet)
         {
             Properties props = setProperties();
 

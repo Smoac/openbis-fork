@@ -72,14 +72,14 @@ public class SyncConfig
         this.lastSyncTimestampFileName = lastSyncTimestampFileName;
     }
 
-    public String getNotSyncedDataSetsFileName()
+    public String getNotSyncedEntitiesFileName()
     {
-        return notSyncedDataSetsFileName;
+        return notSyncedEntitiesFileName;
     }
 
-    public void setNotSyncedDataSetsFileName(String notSyncedDataSetsFileName)
+    public void setNotSyncedDataSetsFileName(String notSyncedEntitiesFileName)
     {
-        this.notSyncedDataSetsFileName = notSyncedDataSetsFileName;
+        this.notSyncedEntitiesFileName = notSyncedEntitiesFileName;
     }
 
     public String getDataSourceAlias()
@@ -195,7 +195,7 @@ public class SyncConfig
 
     private String lastSyncTimestampFileName;
 
-    private String notSyncedDataSetsFileName;
+    private String notSyncedEntitiesFileName;
 
     private String dataSourceAlias;
 

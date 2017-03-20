@@ -54,7 +54,6 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.parser.ILine;
-import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -145,9 +144,10 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 File lastSyncTimestampFile = new File(fileName);
                 lastSyncTimestamp = getLastSyncTimeStamp(lastSyncTimestampFile);
 
-                String notSyncedDataSetsFileName = config.getNotSyncedDataSetsFileName();
-                Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedDataSetsFileName);
-                Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedDataSetsFileName);
+                String notSyncedEntitiesFileName = config.getNotSyncedEntitiesFileName();
+                Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedEntitiesFileName);
+                Set<String> notSyncedAttachmentHolderCodes = getNotSyncedAttachmentHolderCodes(notSyncedEntitiesFileName);
+                Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedEntitiesFileName);
 
                 // save the current time into a temp file as last sync time
                 File newLastSyncTimeStampFile = new File(fileName + ".new");
@@ -155,7 +155,9 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(syncStartTimestamp));
 
                 EntitySynchronizer synchronizer =
-                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes, blackListedDataSetCodes,
+                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes,
+                                blackListedDataSetCodes,
+                                notSyncedAttachmentHolderCodes,
                                 context, config,
                                 operationLog);
                 Date resourceListTimestamp = synchronizer.syncronizeEntities();
@@ -190,12 +192,12 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         }
     }
 
-    private Set<String> getDataSetCodesFromNotSyncedDataSetsFile(String fileName, ILineFilter linefilter)
+    private Set<String> getLinesFromNotSyncedEntitiesFile(String fileName, ILineFilter linefilter)
     {
-        File notSyncedDataSetsFile = new File(fileName);
-        if (notSyncedDataSetsFile.exists())
+        File notSyncedEntitiesFile = new File(fileName);
+        if (notSyncedEntitiesFile.exists())
         {
-            List<String> list = FileUtilities.loadToStringList(notSyncedDataSetsFile, linefilter);
+            List<String> list = FileUtilities.loadToStringList(notSyncedEntitiesFile, linefilter);
             return new LinkedHashSet<String>(list);
         }
         else
@@ -206,15 +208,41 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private Set<String> getNotSyncedDataSetCodes(String fileName)
     {
-        return getDataSetCodesFromNotSyncedDataSetsFile(fileName, ExcludeEmptyAndCommentLineFilter.INSTANCE);
+        return getLinesFromNotSyncedEntitiesFile(fileName, new ILineFilter()
+            {
+                @Override
+                public <E> boolean acceptLine(ILine<E> line)
+                {
+                    assert line != null : "Unspecified line";
+                    final String trimmed = line.getText().trim();
+                    return trimmed.length() > 0 && trimmed.startsWith("DATA_SET") == true;
+                }
+            });
+    }
+
+    private Set<String> getNotSyncedAttachmentHolderCodes(String fileName)
+    {
+        return getLinesFromNotSyncedEntitiesFile(fileName, new ILineFilter()
+            {
+                @Override
+                public <E> boolean acceptLine(ILine<E> line)
+                {
+                    assert line != null : "Unspecified line";
+                    final String trimmed = line.getText().trim();
+                    return trimmed.length() > 0 && trimmed.startsWith("#") == false &&
+                            (trimmed.startsWith("SAMPLE") == true
+                                    || trimmed.startsWith("EXPERIMENT") == true
+                                    || trimmed.startsWith("PROJECT") == true);
+                }
+            });
     }
 
     private Set<String> getBlackListedDataSetCodes(String fileName)
     {
-        return getDataSetCodesFromNotSyncedDataSetsFile(fileName, new ILineFilter()
+        return getLinesFromNotSyncedEntitiesFile(fileName, new ILineFilter()
             {
                 @Override
-                public <T> boolean acceptLine(ILine<T> line)
+                public <E> boolean acceptLine(ILine<E> line)
                 {
                     assert line != null : "Unspecified line";
                     final String trimmed = line.getText().trim();

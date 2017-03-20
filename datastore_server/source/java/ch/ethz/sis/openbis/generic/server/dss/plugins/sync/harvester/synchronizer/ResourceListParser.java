@@ -42,12 +42,12 @@ import org.w3c.dom.NodeList;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.DataSetWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.ExperimentWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingDataSet;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingExperiment;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MasterData;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.ProjectWithConnections;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.SampleWithConnections;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingProject;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingSample;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -210,23 +210,23 @@ public class ResourceListParser
         Node xdNode = extractXdNode(doc, xpath, uri);
         String entityKind = xdNode.getAttributes().getNamedItem("kind").getTextContent();
 
-        if ("PROJECT".equals(entityKind))
+        if (EntityKind.PROJECT.getLabel().equals(entityKind))
         {
             parseProjectMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
         }
-        else if ("EXPERIMENT".equals(entityKind))
+        else if (EntityKind.EXPERIMENT.getLabel().equals(entityKind))
         {
             parseExperimentMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
         }
-        else if ("SAMPLE".equals(entityKind))
+        else if (EntityKind.SAMPLE.getLabel().equals(entityKind))
         {
             parseSampleMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
         }
-        else if ("DATA_SET".equals(entityKind))
+        else if (EntityKind.DATA_SET.getLabel().equals(entityKind))
         {
             parseDataSetMetaData(xpath, extractDataSetCodeFromURI(uri), xdNode, lastModificationDate);
         }
-        else if ("MATERIAL".equals(entityKind))
+        else if (EntityKind.MATERIAL.equals(entityKind))
         {
             parseMaterialMetaData(xpath, extractMaterialCodeFromURI(uri), xdNode, lastModificationDate);
         }
@@ -307,9 +307,9 @@ public class ResourceListParser
                 ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experiment));
             }
         }
-        DataSetWithConnections newDsWithConns = data.new DataSetWithConnections(ds, lastModificationDate);
-        data.getDataSetsToProcess().put(permId, newDsWithConns);
-        newDsWithConns.setConnections(parseConnections(xpath, xdNode));
+        IncomingDataSet incomingDataSet = data.new IncomingDataSet(ds, lastModificationDate);
+        data.getDataSetsToProcess().put(permId, incomingDataSet);
+        incomingDataSet.setConnections(parseConnections(xpath, xdNode));
         ds.setDataSetProperties(parseDataSetProperties(xpath, xdNode));
     }
 
@@ -349,11 +349,11 @@ public class ResourceListParser
         // TODO is there a better way to create project identifier below?
         NewProject newProject = new NewProject("/" + nameTranslator.translate(space) + "/" + code, desc);
         newProject.setPermID(permId);
-        ProjectWithConnections newPrjWithConns =
-                data.new ProjectWithConnections(newProject, lastModificationDate);
-        data.getProjectsToProcess().put(permId, newPrjWithConns);
-        newPrjWithConns.setHasAttachments(hasAttachments(xpath, xdNode));
-        newPrjWithConns.setConnections(parseConnections(xpath, xdNode));
+        IncomingProject incomingProject =
+                data.new IncomingProject(newProject, lastModificationDate);
+        data.getProjectsToProcess().put(permId, incomingProject);
+        incomingProject.setConnections(parseConnections(xpath, xdNode));
+        incomingProject.setHasAttachments(hasAttachments(xpath, xdNode));
     }
 
     private void parseMaterialMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
@@ -460,10 +460,10 @@ public class ResourceListParser
         String space = extractSpace(xdNode);
         NewExperiment newExp = new NewExperiment("/" + nameTranslator.translate(space) + "/" + project + "/" + code, type);
         newExp.setPermID(permId);
-        ExperimentWithConnections newExpWithConns = data.new ExperimentWithConnections(newExp, lastModificationDate);
-        data.getExperimentsToProcess().put(permId, newExpWithConns);
-        newExpWithConns.setConnections(parseConnections(xpath, xdNode));
-        newExpWithConns.setHasAttachments(hasAttachments(xpath, xdNode));
+        IncomingExperiment incomingExperiment = data.new IncomingExperiment(newExp, lastModificationDate);
+        data.getExperimentsToProcess().put(permId, incomingExperiment);
+        incomingExperiment.setConnections(parseConnections(xpath, xdNode));
+        incomingExperiment.setHasAttachments(hasAttachments(xpath, xdNode));
         newExp.setProperties(parseProperties(xpath, xdNode));
     }
 
@@ -480,10 +480,10 @@ public class ResourceListParser
                 experiment.trim().equals("") ? null : experiment, null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>());
         newSample.setPermID(permId);
-        SampleWithConnections newSampleWithConns = data.new SampleWithConnections(newSample, lastModificationDate);
-        data.getSamplesToProcess().put(permId, newSampleWithConns);
-        newSampleWithConns.setHasAttachments(hasAttachments(xpath, xdNode));
-        newSampleWithConns.setConnections(parseConnections(xpath, xdNode));
+        IncomingSample incomingSample = data.new IncomingSample(newSample, lastModificationDate);
+        data.getSamplesToProcess().put(permId, incomingSample);
+        incomingSample.setHasAttachments(hasAttachments(xpath, xdNode));
+        incomingSample.setConnections(parseConnections(xpath, xdNode));
         newSample.setProperties(parseProperties(xpath, xdNode));
     }
 

@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -57,13 +58,13 @@ public class ResourceListParserData
 
     private MasterData masterData = new MasterData();
 
-    private Map<String, ProjectWithConnections> projectsToProcess = new HashMap<String, ResourceListParserData.ProjectWithConnections>();
+    private Map<String, IncomingProject> projectsToProcess = new HashMap<String, ResourceListParserData.IncomingProject>();
 
-    private Map<String, ExperimentWithConnections> experimentsToProcess = new HashMap<String, ResourceListParserData.ExperimentWithConnections>();
+    private Map<String, IncomingExperiment> experimentsToProcess = new HashMap<String, ResourceListParserData.IncomingExperiment>();
 
-    private Map<String, SampleWithConnections> samplesToProcess = new HashMap<String, ResourceListParserData.SampleWithConnections>();
+    private Map<String, IncomingSample> samplesToProcess = new HashMap<String, ResourceListParserData.IncomingSample>();
 
-    private Map<String, DataSetWithConnections> dataSetsToProcess = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
+    private Map<String, IncomingDataSet> dataSetsToProcess = new HashMap<String, ResourceListParserData.IncomingDataSet>();
 
     private Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
 
@@ -87,22 +88,22 @@ public class ResourceListParserData
         return harvesterSpaceList;
     }
 
-    public Map<String, ProjectWithConnections> getProjectsToProcess()
+    public Map<String, IncomingProject> getProjectsToProcess()
     {
         return projectsToProcess;
     }
 
-    public Map<String, ExperimentWithConnections> getExperimentsToProcess()
+    public Map<String, IncomingExperiment> getExperimentsToProcess()
     {
         return experimentsToProcess;
     }
 
-    public Map<String, SampleWithConnections> getSamplesToProcess()
+    public Map<String, IncomingSample> getSamplesToProcess()
     {
         return samplesToProcess;
     }
 
-    public Map<String, DataSetWithConnections> getDataSetsToProcess()
+    public Map<String, IncomingDataSet> getDataSetsToProcess()
     {
         return dataSetsToProcess;
     }
@@ -112,12 +113,12 @@ public class ResourceListParserData
         return materialsToProcess;
     }
 
-    public Map<String, DataSetWithConnections> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate, Set<String> dataSetsCodesToRetry)
+    public Map<String, IncomingDataSet> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate, Set<String> dataSetsCodesToRetry)
     {
-        Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
+        Map<String, IncomingDataSet> dsMap = new HashMap<String, ResourceListParserData.IncomingDataSet>();
         for (String permId : dataSetsToProcess.keySet())
         {
-            DataSetWithConnections ds = dataSetsToProcess.get(permId);
+            IncomingDataSet ds = dataSetsToProcess.get(permId);
             if (ds.getKind() == DataSetKind.PHYSICAL
                     && (ds.lastModificationDate.after(lastSyncDate) || dataSetsCodesToRetry.contains(ds.getDataSet().getCode())))
             {
@@ -127,13 +128,58 @@ public class ResourceListParserData
         return dsMap;
     }
 
-    public Map<String, DataSetWithConnections> filterContainerDataSets()
+    public List<IncomingEntity<?>> filterAttachmentHoldersByLastModificationDate(Date lastSyncTimestamp, Set<String> attachmentHoldersToRetry)
     {
-        // List<NewDataSetWithConnections> dsList = new ArrayList<ResourceListParserData.NewDataSetWithConnections>();
-        Map<String, DataSetWithConnections> dsMap = new HashMap<String, ResourceListParserData.DataSetWithConnections>();
+        List<IncomingEntity<?>> attachmentHoldersToProcess = new ArrayList<ResourceListParserData.IncomingEntity<?>>();
+        // projects
+        for (IncomingProject incomingProject : projectsToProcess.values())
+        {
+            if (syncAttachments(lastSyncTimestamp, attachmentHoldersToRetry, incomingProject) == true)
+            {
+                attachmentHoldersToProcess.add(incomingProject);
+            }
+        }
+        // experiments
+        for (IncomingExperiment incomingExperiment : experimentsToProcess.values())
+        {
+            if (syncAttachments(lastSyncTimestamp, attachmentHoldersToRetry, incomingExperiment) == true)
+            {
+                attachmentHoldersToProcess.add(incomingExperiment);
+            }
+        }
+        // samples
+        for (IncomingSample incomingSample : samplesToProcess.values())
+        {
+            if (syncAttachments(lastSyncTimestamp, attachmentHoldersToRetry, incomingSample) == true)
+            {
+                attachmentHoldersToProcess.add(incomingSample);
+            }
+        }
+        return attachmentHoldersToProcess;
+    }
+
+    /**
+     * Since we have no way of knowing if only the attachments have been in some way modified (more of a problem if the attachment has been deleted),
+     * we need to process all modified entities and also retry any that have failed before. When the attachment holders are processed later, we check
+     * if the entity has attachments to only query attachments for entities that has been marked as having attachments in the XML resource list.
+     */
+    private boolean syncAttachments(Date lastSyncTimestamp, Set<String> attachmentHoldersToRetry, IncomingEntity<?> incomingEntity)
+    {
+        Identifier<?> entity = incomingEntity.getEntity();
+        if (incomingEntity.getLastModificationDate().after(lastSyncTimestamp)
+                || attachmentHoldersToRetry.contains(incomingEntity.getEntityKind().getLabel() + "-" + entity.getPermID()))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public Map<String, IncomingDataSet> filterContainerDataSets()
+    {
+        Map<String, IncomingDataSet> dsMap = new HashMap<String, ResourceListParserData.IncomingDataSet>();
         for (String permId : dataSetsToProcess.keySet())
         {
-            DataSetWithConnections ds = dataSetsToProcess.get(permId);
+            IncomingDataSet ds = dataSetsToProcess.get(permId);
             if (ds.getKind() == DataSetKind.CONTAINER)
             {
                 dsMap.put(permId, ds);
@@ -142,44 +188,19 @@ public class ResourceListParserData
         return dsMap;
     }
 
-    class ProjectWithConnections
+    class IncomingEntity<T extends Identifier<T>>
     {
-        private final NewProject project;
+        private final Identifier<T> entity;
 
-        private final Date lastModificationDate;
-
-        private boolean hasAttachments;
-
-        public boolean hasAttachments()
-        {
-            return hasAttachments;
-        }
-
-        public void setHasAttachments(boolean hasAttachments)
-        {
-            this.hasAttachments = hasAttachments;
-        }
-        public NewProject getProject()
-        {
-            return project;
-        }
+        private final EntityKind entityKind;
 
         private List<Connection> connections = new ArrayList<Connection>();
+
+        private boolean hasAttachments;
 
         public List<Connection> getConnections()
         {
             return connections;
-        }
-
-        ProjectWithConnections(NewProject project, Date lastModDate)
-        {
-            this.project = project;
-            this.lastModificationDate = lastModDate;
-        }
-
-        public Date getLastModificationDate()
-        {
-            return lastModificationDate;
         }
 
         void addConnection(Connection conn)
@@ -187,20 +208,16 @@ public class ResourceListParserData
             this.connections.add(conn);
         }
 
+        public EntityKind getEntityKind()
+        {
+            return entityKind;
+        }
+
         public void setConnections(List<Connection> conns)
         {
             // TODO do this better
             this.connections = conns;
         }
-    }
-
-    class ExperimentWithConnections
-    {
-        private final NewExperiment experiment;
-
-        private final Date lastModificationDate;
-
-        private boolean hasAttachments;
 
         public boolean hasAttachments()
         {
@@ -212,89 +229,76 @@ public class ResourceListParserData
             this.hasAttachments = hasAttachments;
         }
 
+        public Identifier<T> getEntity()
+        {
+            return entity;
+        }
+
+        public String getIdentifer()
+        {
+            return getEntity().getIdentifier();
+        }
+
+        public String getPermID()
+        {
+            return getEntity().getPermID();
+        }
+
+        public Date getLastModificationDate()
+        {
+            return lastModificationDate;
+        }
+
+        private final Date lastModificationDate;
+
+        IncomingEntity(Identifier<T> entity, EntityKind entityKind, Date lastModDate)
+        {
+            this.entity = entity;
+            this.entityKind = entityKind;
+            this.lastModificationDate = lastModDate;
+        }
+    }
+
+    class IncomingProject extends IncomingEntity<NewProject>
+    {
+        public NewProject getProject()
+        {
+            return (NewProject) getEntity();
+        }
+
+        IncomingProject(NewProject project, Date lastModDate)
+        {
+            super(project, EntityKind.PROJECT, lastModDate);
+        }
+    }
+
+    class IncomingExperiment extends IncomingEntity<NewExperiment>
+    {
         public NewExperiment getExperiment()
         {
-            return experiment;
+            return (NewExperiment) getEntity();
         }
-
-        public List<Connection> getConnections()
+        IncomingExperiment(NewExperiment exp, Date lastModDate)
         {
-            return connections;
-        }
-
-        private List<Connection> connections = new ArrayList<Connection>();
-
-        ExperimentWithConnections(NewExperiment exp, Date lastModDate)
-        {
-            this.experiment = exp;
-            this.lastModificationDate = lastModDate;
-        }
-
-        public Date getLastModificationDate()
-        {
-            return lastModificationDate;
-        }
-
-        public void setConnections(List<Connection> conns)
-        {
-            // TODO do this better
-            this.connections = conns;
+            super(exp, EntityKind.EXPERIMENT, lastModDate);
         }
     }
 
-    class SampleWithConnections
+    class IncomingSample extends IncomingEntity<NewSample>
     {
-        private final NewSample sample;
-
-        private final Date lastModificationDate;
-
-        private boolean hasAttachments;
-
-        public boolean hasAttachments()
-        {
-            return hasAttachments;
-        }
-
-        public void setHasAttachments(boolean hasAttachments)
-        {
-            this.hasAttachments = hasAttachments;
-        }
-        public Date getLastModificationDate()
-        {
-            return lastModificationDate;
-        }
-
         public NewSample getSample()
         {
-            return sample;
+            return (NewSample) getEntity();
         }
 
-        SampleWithConnections(NewSample sample, Date lastModDate)
+        IncomingSample(NewSample sample, Date lastModDate)
         {
-            super();
-            this.sample = sample;
-            this.lastModificationDate = lastModDate;
-        }
-
-        private List<Connection> connections = new ArrayList<Connection>();
-
-        public List<Connection> getConnections()
-        {
-            return connections;
-        }
-
-        public void setConnections(List<Connection> conns)
-        {
-            // TODO do this better
-            this.connections = conns;
+            super(sample, EntityKind.SAMPLE, lastModDate);
         }
     }
 
-    class DataSetWithConnections implements Serializable
+    class IncomingDataSet implements Serializable
     {
-        /**
-         * 
-         */
         private static final long serialVersionUID = 1L;
         private final NewExternalData dataSet;
 
@@ -319,7 +323,7 @@ public class ResourceListParserData
             return dataSet;
         }
 
-        DataSetWithConnections(NewExternalData dataSet, Date lastModDate)
+        IncomingDataSet(NewExternalData dataSet, Date lastModDate)
         {
             super();
             this.dataSet = dataSet;
