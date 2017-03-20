@@ -127,6 +127,19 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
         ContentCopyPermId ccid = new ContentCopyPermId(uuid());
         update(dataset(id).without(ccid));
     }
+    
+    @Test
+    void removeAllCopies()
+    {
+        ExternalDmsPermId dms = create(externalDms());
+        DataSetPermId id = create(linkDataSet().with(copyAt(dms)).with(copyAt(dms)));
+
+        List<ContentCopy> contentCopies = get(id).getLinkedData().getContentCopies();
+        update(dataset(id).without(contentCopies.get(0).getId(), contentCopies.get(1).getId()));
+
+        DataSet dataset = get(id);
+        assertThat(dataset.getLinkedData().getContentCopies().size(), is(0));
+    }
 
     @Test
     void legacyExternalCodeCanBeSetOnSingleCopyOpenBISDms()

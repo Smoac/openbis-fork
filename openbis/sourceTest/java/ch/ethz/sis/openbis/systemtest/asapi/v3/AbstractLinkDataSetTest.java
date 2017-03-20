@@ -384,6 +384,7 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
 
                 { ExternalDmsAddressType.FILE_SYSTEM, null, null, null },
                 { ExternalDmsAddressType.FILE_SYSTEM, "code", null, null },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", null },
                 { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", "hash" },
                 { ExternalDmsAddressType.FILE_SYSTEM, "code", null, "hash" },
                 { ExternalDmsAddressType.FILE_SYSTEM, null, null, "hash" }

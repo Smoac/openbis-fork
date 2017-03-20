@@ -114,18 +114,7 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
                 }
             }
 
-            outer: for (IContentCopyId iid : update.getContentCopies().getRemoved())
-            {
-                ContentCopyPermId id = (ContentCopyPermId) iid;
-                for (ContentCopyPE cc : entity.getContentCopies())
-                {
-                    if (id.getPermId().equals(cc.getId().toString()))
-                    {
-                        continue outer;
-                    }
-                    throw new UserFailureException("Trying to remove non-existing content copy " + id.getPermId());
-                }
-            }
+            assertAllRemovalsExists(entity, update);
 
             entity.getContentCopies().removeAll(remove);
             for (ContentCopyPE cc : remove)
@@ -134,6 +123,22 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
             }
 
             addContentCopiesToLinkedDataExecutor.add(context, entity, update.getContentCopies().getAdded());
+        }
+    }
+
+    private void assertAllRemovalsExists(LinkDataPE entity, LinkedDataUpdate update)
+    {
+        outer: for (IContentCopyId iid : update.getContentCopies().getRemoved())
+        {
+            ContentCopyPermId id = (ContentCopyPermId) iid;
+            for (ContentCopyPE cc : entity.getContentCopies())
+            {
+                if (id.getPermId().equals(cc.getId().toString()))
+                {
+                    continue outer;
+                }
+            }
+            throw new UserFailureException("Trying to remove non-existing content copy " + id.getPermId());
         }
     }
 }
