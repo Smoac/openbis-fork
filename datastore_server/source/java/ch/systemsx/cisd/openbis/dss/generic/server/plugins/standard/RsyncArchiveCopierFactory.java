@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +44,8 @@ public final class RsyncArchiveCopierFactory implements Serializable, IPathCopie
     @Override
     public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis, List<String> additionalCmdLineFlagsOrNull)
     {
-        List<String> additionalCmdLineFlags = Arrays.asList("--archive", "--delete", "--inplace", "--checksum", getTimeoutParameter(timeoutInMillis));
+        List<String> additionalCmdLineFlags = new ArrayList<>(
+                Arrays.asList("--archive", "--delete", "--inplace", "--checksum", getTimeoutParameter(timeoutInMillis)));
         if (additionalCmdLineFlagsOrNull != null)
         {
             additionalCmdLineFlags.addAll(additionalCmdLineFlagsOrNull);

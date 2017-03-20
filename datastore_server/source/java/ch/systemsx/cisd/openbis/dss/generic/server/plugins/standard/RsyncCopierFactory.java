@@ -28,8 +28,15 @@ public final class RsyncCopierFactory implements Serializable, IPathCopierFactor
     private static final long serialVersionUID = 1L;
 
     @Override
-    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis, List<String> additionalCmdLineFlagsOrNull)
+    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis, 
+            List<String> additionalCmdLineFlagsOrNull)
     {
-        return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, false, false, additionalCmdLineFlagsOrNull.toArray(new String[0]));
+        String[] additionalCmdLineFlags = new String[0];
+        if (additionalCmdLineFlagsOrNull != null)
+        {
+            additionalCmdLineFlags = additionalCmdLineFlagsOrNull.toArray(new String[0]);
+        }
+        return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, false, false, 
+                additionalCmdLineFlags);
     }
 }
