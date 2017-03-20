@@ -65,11 +65,18 @@ function MainController(profile) {
 	
 	// Attributes - Widgets typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
 	
-	//Views With State or always visible
+	// Controllers currently being used
 	this.sideMenu = null;
-	
-	//Others
 	this.currentView = null;
+	
+	// Views currently being displayed
+	this.views = {
+			menu : null,
+			header : null,
+			content : null,
+			auxContent : null
+	}
+	
 	//Refresh Functionality
 	this.lastViewChange = null;
 	this.lastArg = null;
