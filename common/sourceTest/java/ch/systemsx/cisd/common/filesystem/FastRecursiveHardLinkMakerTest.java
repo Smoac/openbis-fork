@@ -37,16 +37,16 @@ public class FastRecursiveHardLinkMakerTest extends AbstractHardlinkMakerTest
     protected TestBigStructureCreator createBigStructureCreator(File root)
     {
         int[] numberOfFolders =
-        { 100, 10 };
+                { 100, 10 };
         int[] numberOfFiles =
-        { 1, 10, 10 };
+                { 1, 10, 10 };
         return new TestBigStructureCreator(root, numberOfFolders, numberOfFiles);
     }
 
     @Override
     protected IImmutableCopier createHardLinkCopier()
     {
-        IImmutableCopier copier = FastRecursiveHardLinkMaker.tryCreate();
+        IImmutableCopier copier = FastRecursiveHardLinkMaker.tryCreate(null);
         assert copier != null;
         return copier;
     }

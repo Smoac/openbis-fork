@@ -42,10 +42,10 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncVersionChecker.RsyncVersion;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.IProcessHandler;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.IProcessHandler;
 import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
@@ -131,6 +131,17 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     public RsyncCopier(final File rsyncExecutable)
     {
         this(rsyncExecutable, null, false, false);
+    }
+
+    /**
+     * Constructs an <code>RsyncCopier</code> for use as {@link IDirectoryImmutableCopier}.
+     * 
+     * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
+     * @param cmdLineFlags The command line flags to use for the rsync command.
+     */
+    public RsyncCopier(final File rsyncExecutable, String... cmdLineFlags)
+    {
+        this(rsyncExecutable, null, false, false, cmdLineFlags);
     }
 
     /**

@@ -65,6 +65,7 @@ import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.E
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
@@ -290,7 +291,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 ClassUtils.create(
                         IDataSetOnErrorActionDecision.class,
                         globalState.getThreadParameters().getOnErrorActionDecisionClass(
-                                ConfiguredOnErrorActionDecision.class), onErrorDecisionProperties);
+                                ConfiguredOnErrorActionDecision.class),
+                        onErrorDecisionProperties);
 
         state =
                 new OmniscientTopLevelDataSetRegistratorState(globalState, storageProcessor,
@@ -430,7 +432,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         // Try to find a hardlink maker
         IImmutableCopier hardlinkMaker =
-                new AssertionCatchingImmutableCopierWrapper(FastRecursiveHardLinkMaker.tryCreate());
+                new AssertionCatchingImmutableCopierWrapper(
+                        FastRecursiveHardLinkMaker.tryCreate(RSyncConfig.getInstance().getAdditionalCommandLineOptions()));
         boolean linkWasMade = false;
 
         // Use the hardlink maker if we got one
@@ -713,12 +716,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
-                                callerDataSetInformationOrNull), cleanAfterwardsAction, delegate);
+                                callerDataSetInformationOrNull),
+                        cleanAfterwardsAction, delegate);
         return service;
     }
 

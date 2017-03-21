@@ -23,6 +23,7 @@ import org.apache.commons.io.FilenameUtils;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 
 /**
  * File factory based on {@link File}. Files are copies by creating hard links (if possible) if the parameter <var>hardLinkInsteadOfCopy</var> of the
@@ -62,7 +63,7 @@ public class FileBasedFileFactory implements IFileFactory
     {
         if (hardLinkInsteadOfCopy)
         {
-            return FastRecursiveHardLinkMaker.tryCreate(timingParameters);
+            return FastRecursiveHardLinkMaker.tryCreate(timingParameters, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         } else
         {
             return null;

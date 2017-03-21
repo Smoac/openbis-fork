@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -36,6 +35,8 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -48,8 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
-import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * @author Tomasz Pylak
@@ -60,9 +59,9 @@ public class TrackingBO
 {
     private static final String ORIGINAL_PATH = "/original/";
 
-	private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
+    private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
 
-	private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
+    private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
 
     private static final String FLOW_LANE_SAMPLE_TYPE = "ILLUMINA_FLOW_LANE";
 
@@ -72,7 +71,7 @@ public class TrackingBO
             "LIBRARY_PROCESSING_SUCCESSFUL";
 
     private static final String TRUE = "true";
-    
+
     private final ITrackingServer trackingServer;
 
     private final IEntityTrackingEmailGenerator emailGenerator;
@@ -92,58 +91,55 @@ public class TrackingBO
     {
         Boolean sendEmails = true;
         TrackingStateDTO prevTrackingState = trackingDAO.getTrackingState();
-        
+
         extractCommandLineFlags(commandLineMap);
         LogUtils.debug("prevTrackingState: " + prevTrackingState.getLastSeenDataSetIdMap().toString());
 
         TrackedEntities changedEntities = null;
         List<EmailWithSummary> emailsWithSummary = null;
 
-        
         if (commandLineMap.get(TrackingClient.CL_PARAMETER_LANES) != null)
         {
-        	String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_LANES);
+            String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_LANES);
             changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
                     commandLineMap, laneCodeList, session);
         }
-        
+
         else if (commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES) != null)
         {
             sendEmails = false;
-        	String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES);
-        	changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
+            String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES);
+            changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
                     commandLineMap, laneCodeList, session);
-        } 
+        }
 
-        
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
         {
             // changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
             System.out.println("This function is deactivated");
         }
-        
+
         // just list the potential changed lanes
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
         {
             Map<String, String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, params, session);
             sendEmails = false;
 
-        }
-        else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_LIST_SPACES))
+        } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_LIST_SPACES))
         {
             sendEmails = false;
-            String trimmedSpaceWhiteList = ""; 
-            
+            String trimmedSpaceWhiteList = "";
+
             String spaceWhiteList = (params.getSpaceWhitelist());
             trimmedSpaceWhiteList = spaceWhiteList.replace(" ", "");
-            		
+
             // trim each list element and sort then
-//            String trimmedSpaceList = 
-//            		Pattern.compile(",")
-//            		       .splitAsStream(params.getSpaceWhitelist())
-//                           .map(String :: trim)
-//                           .sorted()
-//                           .collect(Collectors.joining(","));                        
+            // String trimmedSpaceList =
+            // Pattern.compile(",")
+            // .splitAsStream(params.getSpaceWhitelist())
+            // .map(String :: trim)
+            // .sorted()
+            // .collect(Collectors.joining(","));
             System.out.println(trimmedSpaceWhiteList);
         }
 
@@ -152,39 +148,43 @@ public class TrackingBO
             LogUtils.debug("Should never be reached.");
         }
 
-        
         if (sendEmails)
         {
             emailsWithSummary = emailGenerator.generateDataSetsEmails(changedEntities);
             sendEmails(emailsWithSummary, mailClient);
-            
-        }
-        else {
-        	LogUtils.info("Not sending out any emails.");
+
+        } else
+        {
+            LogUtils.info("Not sending out any emails.");
         }
 
-        if (!params.getDebug() && changedEntities != null) {
-        	LogUtils.info("Saving new state to tracking database.");
-        	saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
-        }
-        else {
-        	LogUtils.info("Debug mode activated! Won't save anything to the tracking database.");
+        if (!params.getDebug() && changedEntities != null)
+        {
+            LogUtils.info("Saving new state to tracking database.");
+            saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
+        } else
+        {
+            LogUtils.info("Debug mode activated! Won't save anything to the tracking database.");
         }
 
     }
 
-	private void extractCommandLineFlags(final HashMap<String, String[]> commandLineMap) {
-		StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String[]> entry : commandLineMap.entrySet()) {
-        	sb.append(entry.getKey() + " ");
-        	if  (entry.getValue() != null) {
-            	for (String value : entry.getValue()) {
-            		sb.append(value);
-            	}        		
-        	}
+    private void extractCommandLineFlags(final HashMap<String, String[]> commandLineMap)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String[]> entry : commandLineMap.entrySet())
+        {
+            sb.append(entry.getKey() + " ");
+            if (entry.getValue() != null)
+            {
+                for (String value : entry.getValue())
+                {
+                    sb.append(value);
+                }
+            }
         }
         LogUtils.info("Got these command line flags: '" + sb + "'");
-	}
+    }
 
     private static void sendEmails(List<EmailWithSummary> emailsWithSummary, IMailClient mailClient)
     {
@@ -299,7 +299,7 @@ public class TrackingBO
     private static Map<String, String> fetchChangedLanes(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, Parameters params, SessionContextDTO session)
     {
-    	long usableDataSetId = getUsableDataSetId(trackingState, params);
+        long usableDataSetId = getUsableDataSetId(trackingState, params);
         LogUtils.info("Using maximum DS techId " + usableDataSetId + " for search of changed data sets");
 
         TrackingDataSetCriteria dataSetCriteria =
@@ -308,10 +308,10 @@ public class TrackingBO
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
 
         Map<String, String> changedLanesMap = new HashMap<String, String>();
-        
+
         // Loop over all new data sets
         for (AbstractExternalData d : dataSets)
-        {       	       	
+        {
             Long newDataSetID = d.getId();
             Sample lane = d.getSample();
             String lanePermId = lane.getPermId();
@@ -335,10 +335,10 @@ public class TrackingBO
                 }
                 String laneString = currentLaneId.toString().split(":")[1];
                 changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace + " " + lane.getCode());
-                LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);                
+                LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
             }
         }
-        
+
         Set<Map.Entry<String, String>> entrySet = changedLanesMap.entrySet();
         for (Entry<String, String> entry : entrySet)
         {
@@ -350,14 +350,14 @@ public class TrackingBO
     }
 
     private static TrackedEntities fetchChangedDataSets(TrackingStateDTO trackingState,
-            ITrackingServer trackingServer,  Parameters params, final HashMap<String, String[]> commandLineMap,
+            ITrackingServer trackingServer, Parameters params, final HashMap<String, String[]> commandLineMap,
             String[] laneCodeList, SessionContextDTO session)
     {
-    	long usableDataSetId = getUsableDataSetId(trackingState, params);
-    	
+        long usableDataSetId = getUsableDataSetId(trackingState, params);
+
         List<String> spaceWhiteList = Arrays.asList(params.getSpaceWhitelist().split("\\s*,\\s*"));
         List<String> datasetTypeList = Arrays.asList(params.getdataSetTypeList().split("\\s*,\\s*"));
-       
+
         LogUtils.info("Using maximum DS techId " + usableDataSetId + " for search of changed data sets");
 
         TrackingDataSetCriteria dataSetCriteria =
@@ -368,7 +368,7 @@ public class TrackingBO
         ArrayList<SampleIdentifier> filterList = new ArrayList<SampleIdentifier>();
         ArrayList<AbstractExternalData> filteredDataSets = new ArrayList<AbstractExternalData>();
         ArrayList<AbstractExternalData> toTransferDataSets = new ArrayList<AbstractExternalData>();
-        
+
         // changedTrackingMap is used to report back which lanes are written back to the DB which have changed
         HashMap<String, ArrayList<Long>> changedTrackingMap = new HashMap<String, ArrayList<Long>>();
 
@@ -393,23 +393,27 @@ public class TrackingBO
                 LogUtils.debug("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
                 filteredDataSets.add(d);
                 addDataSetTo(changedTrackingMap, d);
-                
-                if (spaceWhiteList.contains(d.getSpace().getCode()) || d.getSpace().getCode().startsWith(params.getDbmSpacePrefix())) {
-                	if (datasetTypeList.contains(d.getDataSetType().getCode())) {
-                		if (d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.AVAILABLE) || d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.LOCKED))  {                			
-                			toTransferDataSets.add(d);
-                		}
-                		else {
+
+                if (spaceWhiteList.contains(d.getSpace().getCode()) || d.getSpace().getCode().startsWith(params.getDbmSpacePrefix()))
+                {
+                    if (datasetTypeList.contains(d.getDataSetType().getCode()))
+                    {
+                        if (d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.AVAILABLE)
+                                || d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.LOCKED))
+                        {
+                            toTransferDataSets.add(d);
+                        } else
+                        {
                             LogUtils.error("Data set " + d.getCode() + " eventually archived!");
-                			}
-                		}
-                	}
+                        }
+                    }
                 }
+            }
         }
-        
-        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which are in the list of 'space-whitelist' and could be transferred to an extra folder");
-       
-        
+
+        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size()
+                + " data sets which are in the list of 'space-whitelist' and could be transferred to an extra folder");
+
         if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_COPY_DATA_SETS))
         {
             extraDataSetCopy(params, toTransferDataSets);
@@ -418,52 +422,56 @@ public class TrackingBO
         LogUtils.info("Found " + filteredDataSets.size() + " data sets which are connected to samples in " + filterList.toString());
         return gatherTrackedEntities(trackingState, trackingServer, session, filteredDataSets, changedTrackingMap);
     }
-    
-    
-	private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets) {
-		
-		RsyncCopier copier = null;
-		File rsyncBinary = new File(params.getRsyncBinary());
-		String base_path_string = params.getDssRoot();
-		if (params.getRsyncFlags() != null) {
-			List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length);
-			Collections.addAll(cmdLineOptions, params.getRsyncFlags());
-			
-			copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
-		}
-		else {
-			LogUtils.info("No extra rsync parameters found.");
-			copier = new RsyncCopier(rsyncBinary, null, "");
-		}
-				
-		for (AbstractExternalData ds : dataSets) {			
-			File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH);				
-			File targetName = new File (ds.tryGetAsDataSet().getFullLocation());
-					
-			File omittedSource = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH + source.list()[0]);
-						
-			File destination = new File(params.getDestinationFolder(), targetName.getName());
-			
-			if (!destination.exists()) {
-				destination.mkdirs();
-			}
-			
-			final long start = System.currentTimeMillis();
-			LogUtils.info("Start rsyncing " + ds.getCode() + " from " + omittedSource.getPath() + " to " + destination.getPath());
-			
-			// this has always an --archive flag added 
-			// Status status = copier.copyDirectoryImmutably(source, destination,  targetName.getName(), CopyModeExisting.OVERWRITE);
-			
-			Status status = copier.copyContent(omittedSource, destination, null, null);
-			
-			if (status.isError())
-		        {
-		            throw new ExceptionWithStatus(status);
-		        }
-			
-			LogUtils.info(String.format("Got status: " + status + " for " + ds.getCode() + ", finished after %.2f s", (System.currentTimeMillis() - start) / 1000.0));
-		}
-	}
+
+    private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets)
+    {
+
+        RsyncCopier copier = null;
+        File rsyncBinary = new File(params.getRsyncBinary());
+        String base_path_string = params.getDssRoot();
+        if (params.getRsyncFlags() != null)
+        {
+            List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length);
+            Collections.addAll(cmdLineOptions, params.getRsyncFlags());
+
+            copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
+        } else
+        {
+            LogUtils.info("No extra rsync parameters found.");
+            copier = new RsyncCopier(rsyncBinary, (File) null, "");
+        }
+
+        for (AbstractExternalData ds : dataSets)
+        {
+            File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH);
+            File targetName = new File(ds.tryGetAsDataSet().getFullLocation());
+
+            File omittedSource = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH + source.list()[0]);
+
+            File destination = new File(params.getDestinationFolder(), targetName.getName());
+
+            if (!destination.exists())
+            {
+                destination.mkdirs();
+            }
+
+            final long start = System.currentTimeMillis();
+            LogUtils.info("Start rsyncing " + ds.getCode() + " from " + omittedSource.getPath() + " to " + destination.getPath());
+
+            // this has always an --archive flag added
+            // Status status = copier.copyDirectoryImmutably(source, destination, targetName.getName(), CopyModeExisting.OVERWRITE);
+
+            Status status = copier.copyContent(omittedSource, destination, null, null);
+
+            if (status.isError())
+            {
+                throw new ExceptionWithStatus(status);
+            }
+
+            LogUtils.info(String.format("Got status: " + status + " for " + ds.getCode() + ", finished after %.2f s",
+                    (System.currentTimeMillis() - start) / 1000.0));
+        }
+    }
 
     private static long getMaxDataSetId(TrackingStateDTO trackingState)
     {
@@ -472,23 +480,22 @@ public class TrackingBO
         {
             maxDataSetId = Math.max(maxDataSetId, id);
         }
-//        return 0;
+        // return 0;
         return maxDataSetId;
     }
-    
-    /** Little helper function which reduces the number of data sets we are looking at. This can be configured
-     * by value 'old-data-set-backlog-number' in the service.properties. Without this value
-     * the calls get slower and slower with the growing data set amount. But we can assume that older data sets
-     * already got triggered earlier to send out an email. If not, the sample is so old that we do not want
-     * to send an email. 
+
+    /**
+     * Little helper function which reduces the number of data sets we are looking at. This can be configured by value 'old-data-set-backlog-number'
+     * in the service.properties. Without this value the calls get slower and slower with the growing data set amount. But we can assume that older
+     * data sets already got triggered earlier to send out an email. If not, the sample is so old that we do not want to send an email.
      */
-    private static long getUsableDataSetId (TrackingStateDTO trackingState, Parameters params) {
+    private static long getUsableDataSetId(TrackingStateDTO trackingState, Parameters params)
+    {
         long maxDataSetId = getMaxDataSetId(trackingState);
-        long oldDataSetBacklogNumber = params.getoldDataSetBacklogNumber();       
+        long oldDataSetBacklogNumber = params.getoldDataSetBacklogNumber();
         long usableDataSetId = Math.max(maxDataSetId - oldDataSetBacklogNumber, 0);
-        return usableDataSetId;    	 
+        return usableDataSetId;
     }
-    
 
     private static long getMaxDataSetIdForSample(TrackingStateDTO trackingState, String lanePermId)
     {
@@ -520,7 +527,8 @@ public class TrackingBO
         Sample currentLane = dataSet.getSample();
         String lanePermId = currentLane.getPermId();
 
-        LogUtils.debug("Found lane " + currentLane.getCode() + " with permId: " + lanePermId + " with new DS techId " + dataSet.getId() + " and DS permId " + dataSet.getPermId());
+        LogUtils.debug("Found lane " + currentLane.getCode() + " with permId: " + lanePermId + " with new DS techId " + dataSet.getId()
+                + " and DS permId " + dataSet.getPermId());
         ArrayList<Long> existingList = changedTrackingMap.get(lanePermId);
         if (existingList == null)
         {
