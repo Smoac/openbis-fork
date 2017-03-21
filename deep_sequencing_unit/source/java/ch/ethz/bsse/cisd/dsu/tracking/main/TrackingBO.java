@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -433,12 +434,12 @@ public class TrackingBO
         {
             List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length);
             Collections.addAll(cmdLineOptions, params.getRsyncFlags());
-
+            cmdLineOptions.addAll(RSyncConfig.getInstance().getAdditionalCommandLineOptions());
             copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
         } else
         {
             LogUtils.info("No extra rsync parameters found.");
-            copier = new RsyncCopier(rsyncBinary, (File) null, "");
+            copier = new RsyncCopier(rsyncBinary, (File) null, RSyncConfig.getInstance().getAdditionalCommandLineOptions().toArray(new String[0]));
         }
 
         for (AbstractExternalData ds : dataSets)
