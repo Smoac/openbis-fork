@@ -16,14 +16,19 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
+import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.POSTGRES_BIN_VARNAME;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang.StringUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
@@ -71,11 +76,79 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
                 DatabaseDescription databaseDescription = new DatabaseDescription(description);
                 if (databaseExists(data, databaseDescription))
                 {
+                    if (databaseDescription.getDatabase().startsWith("openbis_"))
+                    {
+//                        validate(data, databaseDescription);
+                    }
                     builder.append(databaseDescription.getDatabase());
                 }
             }
         }
         return builder.toString();
+    }
+
+    // TODO: The following method has been developed in context with SSDM-4668 and SSDM-4549
+    // This code can be removed if SSDM-4549 is solved differently
+    private void validate(AutomatedInstallData data, DatabaseDescription databaseDescription)
+    {
+        System.out.println(databaseDescription);
+        String selectedPath = data.getVariable(POSTGRES_BIN_VARNAME);
+        String psql = StringUtils.isBlank(selectedPath) ? "psql" : selectedPath + "/psql";
+        System.out.println("postgres bin:"+selectedPath+" >" + psql + "<");
+        String sql = "select case when p.code is null then '/'||sp.code||'/'||sc.code||':'||s.code "
+                + "else '/'||sp.code||'/'||p.code||'/'||s.code end as component_sample, "
+                + "string_agg('/'||scsp.code||'/'||sc.code, ' ') as container_samples "
+                + "from samples_all s left join spaces sp on s.space_id=sp.id "
+                + "left join projects p on s.proj_id=p.id "
+                + "left join samples sc on s.samp_id_part_of=sc.id "
+                + "left join spaces scsp on sc.space_id=scsp.id "
+                + "group by s.code,sp.code,sc.code,p.code "
+                + "having count(*) > 1";
+        List<Map<String, String>> result = executeSql(psql, databaseDescription, sql);
+        for (Map<String, String> row : result)
+        {
+            System.out.println(row);
+        }
+    }
+    
+    private List<Map<String, String>> executeSql(String psqlExecutable, DatabaseDescription databaseDescription, String sql)
+    {
+        String database = databaseDescription.getDatabase();
+        String owner = databaseDescription.getUsername();
+        String host = databaseDescription.getHost();
+        String port = databaseDescription.getPort();
+        Map<String, String> env = new HashMap<String, String>();
+        env.put("PGPASSWORD", databaseDescription.getPassword());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream err = new ByteArrayOutputStream();
+
+        executeAdminScript(env, out, err, psqlExecutable, "-w", "-A", "-U", owner, "-h", host, "-p", port, 
+                "-d", database, "-c", sql);
+        String error = err.toString();
+        if (StringUtils.isNotBlank(error))
+        {
+            throw new RuntimeException("Execution on database '" + database + "' failed:\n" + error);
+        }
+        String result = out.toString();
+        String[] lines = result.split("\n");
+        if (lines.length < 2)
+        {
+            return Arrays.asList(Collections.singletonMap("result", result));
+        }
+        String[] headers = lines[0].split("\\|");
+        System.out.println(Arrays.asList(headers));
+        List<Map<String, String>> rows = new ArrayList<Map<String,String>>(lines.length);
+        for (int i = 1, n = lines.length - 1; i < n; i++)
+        {
+            String[] cells = lines[i].split("\\|");
+            HashMap<String, String> map = new HashMap<String, String>();
+            for (int j = 0; j < cells.length; j++)
+            {
+                map.put(headers[j], cells[j]);
+            }
+            rows.add(map);
+        }
+        return rows;
     }
 
     private boolean databaseExists(AutomatedInstallData data, DatabaseDescription databaseDescription)
