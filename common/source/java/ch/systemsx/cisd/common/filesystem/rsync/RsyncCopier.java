@@ -375,6 +375,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
         commandLineList.add("--archive");
+        if (additionalCmdLineFlagsOrNull != null)
+        {
+            commandLineList.addAll(additionalCmdLineFlagsOrNull);
+        }
         if (mode == CopyModeExisting.IGNORE)
         {
             commandLineList.add("--ignore-existing");
