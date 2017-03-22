@@ -434,12 +434,11 @@ public class TrackingBO
         {
             List<String> cmdLineOptions = new ArrayList<String>(params.getRsyncFlags().length);
             Collections.addAll(cmdLineOptions, params.getRsyncFlags());
-            cmdLineOptions.addAll(RSyncConfig.getInstance().getAdditionalCommandLineOptions());
             copier = new RsyncCopier(rsyncBinary, null, cmdLineOptions.toArray(new String[cmdLineOptions.size()]));
         } else
         {
             LogUtils.info("No extra rsync parameters found.");
-            copier = new RsyncCopier(rsyncBinary, (File) null, RSyncConfig.getInstance().getAdditionalCommandLineOptions().toArray(new String[0]));
+            copier = new RsyncCopier(rsyncBinary, (File) null, "");
         }
 
         for (AbstractExternalData ds : dataSets)
