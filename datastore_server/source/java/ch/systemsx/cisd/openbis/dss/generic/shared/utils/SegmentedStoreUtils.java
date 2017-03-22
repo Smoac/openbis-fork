@@ -645,7 +645,8 @@ public class SegmentedStoreUtils
         final long start = System.currentTimeMillis();
         logger.log(LogLevel.INFO, String.format("Start moving directory '%s' to new share '%s'",
                 file.getPath(), share.getPath()));
-        final RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
+        String[] cmdLineFlags = RSyncConfig.getAdditionalCommandLineOptionsAsArray();
+        final RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC), cmdLineFlags);
         Status status = copier.copyContent(file, share, null, null);
         if (status.isError())
         {

@@ -22,7 +22,17 @@ public class RSyncConfig
     {
         return additionalCommandLineOptions;
     }
-
+    
+    public static String[] getAdditionalCommandLineOptionsAsArray()
+    {
+        List<String> options = RSyncConfig.getInstance().getAdditionalCommandLineOptions();
+        if (options == null)
+        {
+            return new String[0];
+        }
+        return options.toArray(new String[options.size()]);
+    }
+ 
     public synchronized static RSyncConfig getInstance(List<String> additionalCommandLineOptions)
     {
         return instance = new RSyncConfig(additionalCommandLineOptions);
