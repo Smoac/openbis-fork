@@ -44,6 +44,11 @@ $.extend(MuellerProfile.prototype, DefaultProfile.prototype, {
 						"ROW_NUM" : 10, //Number of rows
 						"COLUMN_NUM" : 10, //Number of columns
 						"BOX_NUM" : 999999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+					},
+					"MINUS80_FREEZER" : { //Freezer name given by the NAME_PROPERTY
+						"ROW_NUM" : 20, //Number of rows
+						"COLUMN_NUM" : 5, //Number of columns
+						"BOX_NUM" : 4 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 					}
 				}
 			};
