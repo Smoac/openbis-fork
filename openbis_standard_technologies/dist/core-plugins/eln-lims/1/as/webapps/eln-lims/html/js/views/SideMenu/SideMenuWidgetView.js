@@ -36,11 +36,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         // Fix Header
         //
         var $header = $("<div>", {"id": "sideMenuHeader"});
-        var $headerItemList = $("<ul>", {"class": "nav navbar-nav"});
-        $header.append($("<nav>", {"class": "navbar navbar-default", "role": "navigation", "style": "margin:0px; border-left-width:0px; border-right-width:0px;"})
-                        .append($headerItemList).append($("<br>"))
-                       );
-        
+        	$header.css("background-color", "rgb(248, 248, 248)");
+        	$header.css("padding", "10px");
         var searchDomains = profile.getSearchDomains();
 
         var searchFunction = function() {
@@ -113,28 +110,26 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	    return false;  
         	  }
         });
-        searchElement.css({"width" : "60%"});
-        searchElement.css({"padding-right" : "0px"});
+        searchElement.css({"display" : "inline", "width" : "50%"});
+        searchElement.css({"padding-top" : "2px"});
+        searchElement.css({"margin-left" : "2px"});
         searchElement.css({"margin-right" : "2px"});
         
-        var logoutButton = $("<a>", {"id": "logout-button", "href": ""}).append($("<span>", {"class": "glyphicon glyphicon-off"}));
-        logoutButton.click(function() {
-            $('body').addClass('bodyLogin');
+        var logoutButton = FormUtil.getButtonWithIcon("glyphicon-off", function() {
+        	$('body').addClass('bodyLogin');
             mainController.serverFacade.logout(function(data) {
                 $("#login-form-div").show();
-                $("#main").hide();
+                $("#mainContainer").hide();
             });
         });
         
-        var $searchForm = $("<li>").append($("<form>", {"class": "navbar-form", "onsubmit": "return false;" })
-                        .append(searchElement)
-                        .append(dropDownSearch)
-                        );
+        var $searchForm = $("<form>", { "onsubmit": "return false;" })
+        					.append(logoutButton)
+        					.append(searchElement)
+        					.append(dropDownSearch);
+        $searchForm.css("width", "100%");
         
-        var $logoutButton = $("<li>").append(logoutButton);
-
-        $headerItemList.append($("<li>").append(logoutButton));
-        $headerItemList.append($searchForm);
+        $header.append($searchForm);
         
         var $body = $("<div>", {"id": "sideMenuBody"});
         $body.css("overflow-y", "auto");
