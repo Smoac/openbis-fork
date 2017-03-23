@@ -194,7 +194,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.saty_id=?{1}                        "
-            + " order by s.code", fetchSize = FETCH_SIZE, rubberstamp = true)
+            + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getAllSpaceSamplesForSampleType(long sampleTypeId);
 
     /**
