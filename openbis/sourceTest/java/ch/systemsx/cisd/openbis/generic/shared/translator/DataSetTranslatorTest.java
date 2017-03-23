@@ -18,6 +18,7 @@ import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
@@ -209,6 +210,8 @@ public class DataSetTranslatorTest extends AssertJUnit
         ExternalDataManagementSystemPE edms = new ExternalDataManagementSystemPE();
         edms.setCode("EDMS");
         edms.setLabel("Label");
+        edms.setAddress("http://ethz.ch");
+        edms.setAddressType(ExternalDataManagementSystemType.URL);
 
         ContentCopyPE copy = new ContentCopyPE();
         copy.setExternalCode("TEST EXTERNAL CODE");

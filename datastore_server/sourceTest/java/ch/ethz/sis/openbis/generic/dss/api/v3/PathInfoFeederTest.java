@@ -2,11 +2,13 @@ package ch.ethz.sis.openbis.generic.dss.api.v3;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Every.everyItem;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -14,25 +16,29 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hamcrest.beans.HasPropertyWithValue;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.create.DataSetFileCreation;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.PathInfoDTOCreator;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.pathinfo.PathInfoFeeder;
+import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.etlserver.path.PathEntryDTO;
 
-public class PathInfoDTOCreatorTest
+public class PathInfoFeederTest
 {
 
     public static final long DS_ID = 1l;
-
-    public static final String DS_CODE = "ds";
 
     @Test
     public void expansionCreatesRightAmountOfEntries()
     {
         Collection<PathEntryDTO> result = runWith(file().withPath("path/to/the/file/itself.txt"),
                 directory().withPath("path/to/a/directory"));
-        assertThat(result.size(), is(7));
+        assertThat(result.size(), is(8)); // one entry for root directory
     }
 
     @Test
@@ -85,13 +91,6 @@ public class PathInfoDTOCreatorTest
     }
 
     @Test
-    public void dataSetCodeTranslatedCorrectly()
-    {
-        Collection<PathEntryDTO> result = runWith(file());
-        assertThat(fileFrom(result).getDataSetCode(), is(DS_CODE));
-    }
-
-    @Test
     public void modificationTimesSetCorrectly()
     {
         Date start = new Date();
@@ -127,7 +126,7 @@ public class PathInfoDTOCreatorTest
         long middleId = fileFrom(result, "path/to").getId();
         Long highParentId = fileFrom(result, "path/to/file.txt").getParentId();
 
-        assertThat(lowParentId, is(nullValue()));
+        assertThat(lowParentId, is(not(nullValue())));
         assertThat(middleParentId, is(lowId));
         assertThat(highParentId, is(middleId));
     }
@@ -224,16 +223,6 @@ public class PathInfoDTOCreatorTest
         return fileFrom(entries, "path/to/file.txt");
     }
 
-    private static Collection<PathEntryDTO> runWith(DataSetFileCreationBuilder... files)
-    {
-        Set<DataSetFileCreation> input = new HashSet<>();
-        for (DataSetFileCreationBuilder file : files)
-        {
-            input.add(file.build());
-        }
-        return PathInfoDTOCreator.createPathEntries(DS_ID, DS_CODE, input);
-    }
-
     private DataSetFileCreationBuilder file()
     {
         return new DataSetFileCreationBuilder(false).withPath("path/to/file.txt");
@@ -242,5 +231,69 @@ public class PathInfoDTOCreatorTest
     private DataSetFileCreationBuilder directory()
     {
         return new DataSetFileCreationBuilder(true);
+    }
+
+    private static Collection<PathEntryDTO> runWith(DataSetFileCreationBuilder... files)
+    {
+        Set<DataSetFileCreation> input = new HashSet<>();
+        for (DataSetFileCreationBuilder file : files)
+        {
+            input.add(file.build());
+        }
+        PathInfoFeeder creator = new PathInfoFeeder(1, input);
+
+        Mockery context = new Mockery();
+        final IPathsInfoDAO mockDao = context.mock(IPathsInfoDAO.class);
+        final Collection<PathEntryDTO> result = new ArrayList<PathEntryDTO>();
+        context.checking(new Expectations()
+            {
+                {
+
+                    Action action = new CustomAction("")
+                        {
+                            long counter = 1;
+
+                            @Override
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                PathEntryDTO entry = new PathEntryDTO();
+                                entry.setId(counter);
+                                entry.setDataSetId((long) invocation.getParameter(0));
+                                if (invocation.getParameter(1) != null)
+                                {
+                                    entry.setParentId((long) invocation.getParameter(1));
+                                }
+                                entry.setRelativePath((String) invocation.getParameter(2));
+                                entry.setFileName((String) invocation.getParameter(3));
+                                entry.setSizeInBytes((long) invocation.getParameter(4));
+                                entry.setDirectory((boolean) invocation.getParameter(5));
+                                if (invocation.getParameter(6) instanceof Integer)
+                                {
+                                    entry.setChecksumCRC32((int) invocation.getParameter(6));
+                                    entry.setLastModifiedDate((Date) invocation.getParameter(7));
+                                } else
+                                {
+                                    entry.setLastModifiedDate((Date) invocation.getParameter(6));
+                                }
+
+                                result.add(entry);
+                                return counter++;
+                            }
+
+                        };
+
+                    allowing(mockDao).createDataSetFile(with(any(long.class)), with(any(Long.class)), with(any(String.class)),
+                            with(any(String.class)), with(any(long.class)), with(any(boolean.class)), with(any(Date.class)));
+                    will(action);
+
+                    allowing(mockDao).createDataSetFileWithChecksum(with(any(long.class)), with(any(Long.class)), with(any(String.class)),
+                            with(any(String.class)), with(any(long.class)), with(any(boolean.class)), with(any(int.class)), with(any(Date.class)));
+                    will(action);
+
+                }
+            });
+
+        creator.storeFilesWith(mockDao);
+        return result;
     }
 }

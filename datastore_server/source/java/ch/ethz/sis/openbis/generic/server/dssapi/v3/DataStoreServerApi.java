@@ -52,6 +52,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermI
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.download.DataSetFileDownloadInputStream;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.pathinfo.PathInfoFeeder;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -75,7 +76,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvi
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
-
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -323,9 +323,12 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
             long dataSetId =
                     dao.createDataSet(permId, "");
+
+            PathInfoFeeder feeder = new PathInfoFeeder(dataSetId, files);
+
             try
             {
-                dao.createDataSetFiles(PathInfoDTOCreator.createPathEntries(dataSetId, permId, files));
+                feeder.storeFilesWith(dao);
             } catch (IllegalArgumentException e)
             {
                 dao.rollback();

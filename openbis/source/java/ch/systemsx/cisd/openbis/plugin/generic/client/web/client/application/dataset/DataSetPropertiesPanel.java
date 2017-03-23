@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.google.gwt.user.client.ui.Anchor;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -35,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IContentCopy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
@@ -86,22 +89,26 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.DATA_SET),
                 new ExternalHyperlink(dataset.getPermId(), dataset.getPermlink()));
 
+        properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
+
         if (dataset.isLinkData())
         {
-            LinkDataSetAnchor anchor = LinkDataSetAnchor.tryCreate(dataset.tryGetAsLinkDataSet());
-
-            if (anchor != null)
+            LinkDataSet linkDataSet = dataset.tryGetAsLinkDataSet();
+            int counter = 1;
+            for (IContentCopy copy : linkDataSet.getCopies())
             {
-                anchor.setHTML(dataset.tryGetAsLinkDataSet().getExternalCode());
-                properties.put(messageProvider.getMessage(Dict.LINKED_DATA_SET), anchor);
-            } else
-            {
-                properties.put(messageProvider.getMessage(Dict.LINKED_DATA_SET), dataset
-                        .tryGetAsLinkDataSet().getExternalCode());
+                if (copy.isHyperLinkable())
+                {
+                    String url = copy.getLocation();
+                    Anchor anchor = new Anchor(copy.getLabel(), url);
+                    properties.put("Copy " + counter++, anchor);
+                } else
+                {
+                    properties.put("Copy " + counter++, copy.getLocation());
+                }
             }
         }
 
-        properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
 
         properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE),

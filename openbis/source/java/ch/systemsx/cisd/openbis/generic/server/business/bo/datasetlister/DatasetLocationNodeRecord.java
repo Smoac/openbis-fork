@@ -34,6 +34,8 @@ public class DatasetLocationNodeRecord
 
     public String location;
 
+    public Integer link_info;
+
     public String data_store_code;
 
     public String data_store_url;

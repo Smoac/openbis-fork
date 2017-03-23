@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+
 /**
  * A virtual data set storing the reference to the data set in external data management system. Link data sets have no physical representation in
  * local dss.
@@ -29,6 +31,8 @@ public class LinkDataSet extends AbstractExternalData
     private ExternalDataManagementSystem externalDataManagementSystem;
 
     private String externalCode;
+
+    private List<IContentCopy> copies;
 
     public LinkDataSet()
     {
@@ -61,6 +65,16 @@ public class LinkDataSet extends AbstractExternalData
         this.externalCode = externalCode;
     }
 
+    public List<IContentCopy> getCopies()
+    {
+        return copies;
+    }
+
+    public void setCopies(List<IContentCopy> copies)
+    {
+        this.copies = copies;
+    }
+
     @Override
     public boolean isLinkData()
     {
@@ -78,4 +92,11 @@ public class LinkDataSet extends AbstractExternalData
     {
         return DataSetKind.LINK;
     }
+
+    @Override
+    public boolean isAvailable()
+    {
+        return false;
+    }
+
 }

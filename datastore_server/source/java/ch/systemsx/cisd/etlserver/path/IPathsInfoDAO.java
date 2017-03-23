@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
-
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.Update;
@@ -38,7 +37,7 @@ public interface IPathsInfoDAO extends TransactionQuery
 
     @Select("insert into data_sets (code, location) values (?{1}, ?{2}) returning id")
     public long createDataSet(String code, String location);
-    
+
     @Update("delete from data_sets where code = ?{1}")
     public void deleteDataSet(String code);
 
@@ -46,6 +45,11 @@ public interface IPathsInfoDAO extends TransactionQuery
             + "size_in_bytes, is_directory, last_modified) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}) returning id")
     public long createDataSetFile(long dataSetId, Long parentId, String relativePath,
             String fileName, long sizeInBytes, boolean directory, Date lastModifiedDate);
+
+    @Select("insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
+            + "size_in_bytes, is_directory, checksum_crc32, last_modified) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}, ?{8}) returning id")
+    public long createDataSetFileWithChecksum(long dataSetId, Long parentId, String relativePath,
+            String fileName, long sizeInBytes, boolean directory, int checksum, Date lastModifiedDate);
 
     @Select("select registration_timestamp from last_feeding_event")
     public Date getRegistrationTimestampOfLastFeedingEvent();

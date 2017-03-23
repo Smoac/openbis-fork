@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
-
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
@@ -333,18 +332,19 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds, String propertyTypeCode);
 
-    @Select(sql = "with recursive connected_data(id,code,container_id,ordinal,dast_id,location) as ("
-            + "  select distinct d.id,d.code,nullif(r.data_id_parent,d.id),nullif(r.ordinal,r.ordinal),d.dast_id,ed.location"
-            + "  from data as d left outer join external_data as ed on ed.data_id = d.id "
+    @Select(sql = "with recursive connected_data(id,code,container_id,ordinal,dast_id,location,link_info) as ("
+            + "  select distinct d.id,d.code,nullif(r.data_id_parent,d.id),nullif(r.ordinal,r.ordinal),d.dast_id,ed.location,ld.data_id"
+            + "  from data as d left outer join external_data as ed on ed.data_id = d.id"
+            + "  left outer join link_data as ld on ld.data_id = d.id"
             + "  left outer join data_set_relationships as r on r.data_id_parent=d.id"
             + "  where d.code = ?{1}"
             + "  union all"
-            + "    select distinct d.id,d.code,r.data_id_parent,r.ordinal,d.dast_id,ed.location"
+            + "    select distinct d.id,d.code,r.data_id_parent,r.ordinal,d.dast_id,ed.location,ld.data_id"
             + "    from connected_data as cd inner join data_set_relationships as r on r.data_id_parent=cd.id"
-            + "    inner join data as d on r.data_id_child=d.id left outer join external_data as ed on ed.data_id = d.id"
+            + "    inner join data as d on r.data_id_child=d.id left outer join external_data as ed on ed.data_id = d.id left outer join link_data as ld on ld.data_id = d.id"
             + "    where r.relationship_id = ?{2}"
             + ") " +
-            "select cd.id,cd.code,cd.container_id,cd.ordinal,cd.location,d.code as data_store_code, d.remote_url as data_store_url "
+            "select cd.id,cd.code,cd.container_id,cd.ordinal,cd.location,d.code as data_store_code, d.remote_url as data_store_url, cd.link_info "
             + "from connected_data as cd join data_stores as d on cd.dast_id = d.id", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetLocationNodeRecord> listLocationsByDatasetCode(String datasetCode, long relationshipTypeId);
 

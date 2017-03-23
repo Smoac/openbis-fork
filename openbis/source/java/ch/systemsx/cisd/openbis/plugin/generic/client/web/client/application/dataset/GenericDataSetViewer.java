@@ -276,14 +276,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         {
             container.addSection(panel);
         }
-        // data
-        if (dataset.isLinkData())
-        {
-            container.addSection(new LinkDataViewSection(context, dataset.tryGetAsLinkDataSet()));
-        } else
-        {
-            container.addSection(new DataViewSection(context, dataset));
-        }
+
+        container.addSection(new DataViewSection(context, dataset));
 
         if (dataset.isContainer())
         {
@@ -386,8 +380,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-        { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
+        return new DatabaseModificationKind[] { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
                 DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
                 DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                 DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),

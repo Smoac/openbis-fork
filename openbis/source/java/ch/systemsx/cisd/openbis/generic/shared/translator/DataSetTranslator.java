@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -33,6 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileSystemContentCopy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -42,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UrlContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -328,6 +335,35 @@ public class DataSetTranslator
                     .translate(edms));
             linkDataSet.setExternalCode(copy.getExternalCode());
         }
+
+        List<IContentCopy> translatedCopies = new ArrayList<>();
+        for (ContentCopyPE copy : linkDataPE.getContentCopies())
+        {
+            ExternalDataManagementSystemPE edms = copy.getExternalDataManagementSystem();
+            String address = edms.getAddress();
+            ExternalDataManagementSystemType type = edms.getAddressType();
+            String label = edms.getLabel() == null ? edms.getCode() : edms.getLabel();
+            IContentCopy translatedCopy;
+            if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(type))
+            {
+                String[] split = address.split(":");
+                translatedCopy = new FileSystemContentCopy(label, split[0], split[1], copy.getPath(), copy.getGitCommitHash());
+            } else
+            {
+                translatedCopy = new UrlContentCopy(label,
+                        address.replaceAll(Pattern.quote("${") + ".*" + Pattern.quote("}"), copy.getExternalCode()));
+            }
+            translatedCopies.add(translatedCopy);
+        }
+        Collections.sort(translatedCopies, new Comparator<IContentCopy>()
+            {
+                @Override
+                public int compare(IContentCopy copy1, IContentCopy copy2)
+                {
+                    return copy1.getLabel().compareTo(copy2.getLabel());
+                }
+            });
+        linkDataSet.setCopies(translatedCopies);
 
         return linkDataSet;
     }
