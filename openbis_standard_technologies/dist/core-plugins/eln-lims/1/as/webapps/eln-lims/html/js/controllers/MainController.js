@@ -562,6 +562,8 @@ function MainController(profile) {
 	//
 	this._getBackwardsCompatibleMainContainer = function(id) {
 		var content = $("<div>");
+		content.css("margin", "10px");
+		
 		if(id) {
 			content.attr("id", id);
 		}
@@ -581,6 +583,7 @@ function MainController(profile) {
 		
 		if(withHeaderOrHeaderId) {
 			header = $("<div>");
+			header.css("margin", "10px");
 			if((typeof withHeaderOrHeaderId === 'string' || withHeaderOrHeaderId instanceof String)) {
 				header.attr("id", withHeaderOrHeaderId);
 			}
@@ -588,6 +591,7 @@ function MainController(profile) {
 		
 		if(withContentOrContentId) {
 			content = $("<div>");
+			content.css("margin", "10px");
 			if((typeof withContentOrContentId === 'string' || withContentOrContentId instanceof String)) {
 				content.attr("id", withContentOrContentId);
 			}
@@ -595,6 +599,7 @@ function MainController(profile) {
 		
 		if(withAuxContentOrAuxContentId) {
 			auxContent = $("<div>");
+			auxContent.css("margin", "10px");
 			if((typeof withContentAuxOrContentAuxId === 'string' || withAuxContentOrAuxContentId instanceof String)) {
 				auxContent.attr("id", withAuxContentOrAuxContentId);
 			}
