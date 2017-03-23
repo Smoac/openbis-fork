@@ -266,9 +266,9 @@
 	
 		$('#login-form').submit(function() {
 			Util.blockUI();
+			$("#mainContainer").show();
 			var username = $('#username').val();
 			var password = $('#password').val();
-			
 			mainController.serverFacade.login(
 					$.trim($('#username').val()), 
 					$.trim($('#password').val()), 
