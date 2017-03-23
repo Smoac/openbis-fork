@@ -234,27 +234,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
-		// PREVIEW IMAGE
-		//
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
-			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
-											 'class' : 'zoomableImage',
-											 'id' : 'preview-image',
-											 'src' : './img/image_loading.gif',
-											 'style' : 'max-width:100%; display:none;'
-											});
-			$previewImage.click(function() {
-				Util.showImage($("#preview-image").attr("src"));
-			});
-			
-			if($rightPanel !== null) { //Min Desktop resolution
-				$rightPanel.append($previewImage);
-			} else {
-				$formColumn.append($previewImage);
-			}
-		}
-		
-		//
 		// Identification Info on Create
 		//
 		if(this._sampleFormModel.mode === FormMode.CREATE) {
@@ -428,6 +407,27 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
 			$formColumn.append($("<br>"));
 			$formColumn.append($updateBtn);
+		}
+		
+		//
+		// PREVIEW IMAGE
+		//
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
+											 'class' : 'zoomableImage',
+											 'id' : 'preview-image',
+											 'src' : './img/image_loading.gif',
+											 'style' : 'max-width:100%; display:none;'
+											});
+			$previewImage.click(function() {
+				Util.showImage($("#preview-image").attr("src"));
+			});
+			
+			if($rightPanel !== null) { //Min Desktop resolution
+				$rightPanel.append($previewImage);
+			} else {
+				$formColumn.append($previewImage);
+			}
 		}
 		
 		//

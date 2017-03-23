@@ -127,27 +127,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
-		// PREVIEW IMAGE
-		//
-		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
-											 'class' : 'zoomableImage',
-											 'id' : 'preview-image',
-											 'src' : './img/image_loading.gif',
-											 'style' : 'max-width:100%; display:none;'
-											});
-			$previewImage.click(function() {
-				Util.showImage($("#preview-image").attr("src"));
-			});
-			
-			if($rightPanel !== null) { //Min Desktop resolution
-				$rightPanel.append($previewImage);
-			} else {
-				$formColumn.append($previewImage);
-			}
-		}
-		
-		//
 		// Identification Info on Create
 		//
 		if(this._experimentFormModel.mode === FormMode.CREATE) {
@@ -182,8 +161,30 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		//
+		// PREVIEW IMAGE
+		//
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
+											 'class' : 'zoomableImage',
+											 'id' : 'preview-image',
+											 'src' : './img/image_loading.gif',
+											 'style' : 'max-width:100%; display:none;'
+											});
+			$previewImage.click(function() {
+				Util.showImage($("#preview-image").attr("src"));
+			});
+			
+			if($rightPanel !== null) { //Min Desktop resolution
+				$rightPanel.append($previewImage);
+			} else {
+				$formColumn.append($previewImage);
+			}
+		}
+		
+		//
 		// DATASETS
 		//
+		
 		// Viewer
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
 		// Uploader
