@@ -242,7 +242,7 @@ var LayoutManager = {
 		});
 
 		if (view.header) {
-			headerHeight = 200;
+			headerHeight = 147;
 			this.secondColumnHeader.append(view.header);
 			this.secondColumnHeader.css({
 				display : "block",
