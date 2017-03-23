@@ -137,7 +137,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         $headerItemList.append($searchForm);
         
         var $body = $("<div>", {"id": "sideMenuBody"});
-        $body.css("overflow-y", "scroll");
+        $body.css("overflow-y", "auto");
         
         $widget.append($header)
                .append($body);
