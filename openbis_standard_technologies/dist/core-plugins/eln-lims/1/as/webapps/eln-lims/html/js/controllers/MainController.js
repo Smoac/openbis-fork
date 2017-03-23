@@ -603,7 +603,6 @@ function MainController(profile) {
 		
 		if(withAuxContentOrAuxContentId) {
 			auxContent = $("<div>");
-			auxContent.css("padding", "10px");
 			if((typeof withContentAuxOrContentAuxId === 'string' || withAuxContentOrAuxContentId instanceof String)) {
 				auxContent.attr("id", withAuxContentOrAuxContentId);
 			}
