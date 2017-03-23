@@ -42,9 +42,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         var searchFunction = function() {
             var searchText = $("#search").val();
-            var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
-            var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
-            if (!searchDomain) {
+            var domainIndex = $("#search").attr("domain-index");
+            var searchDomain = null;
+            var searchDomainLabel = null;
+            
+            if(domainIndex) {
+                searchDomain = profile.getSearchDomains()[searchDomain].name;
+                searchDomainLabel = profile.getSearchDomains()[searchDomain].label;
+            } else {
                 searchDomain = profile.getSearchDomains()[0].name;
                 searchDomainLabel = profile.getSearchDomains()[0].label;
             }
@@ -61,26 +66,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         
         var dropDownSearch = null;
         if (searchDomains.length > 0) {
-            //Default Selected for the prefix
-            var defaultSelected = "";
-            if (searchDomains[0].label.length > 3) {
-                defaultSelected = searchDomains[0].label.substring(0, 2) + ".";
-            } else {
-                defaultSelected = searchDomains[0].label.label;
-            }
-
             //Prefix function
-            var selectedFunction = function(selectedSearchDomain) {
+            var selectedFunction = function(selectedSearchDomain, domainIndex) {
                 return function() {
-                    var $component = $("#prefix-selected-search-domain");
-                    $component.empty();
-                    if (selectedSearchDomain.label.length > 3) {
-                        $component.append(selectedSearchDomain.label.substring(0, 2) + ".");
-                    } else {
-                        $component.append(selectedSearchDomain.label);
-                    }
-                    $component.attr('selected-name', selectedSearchDomain.name);
-                    $component.attr('selected-label', selectedSearchDomain.label);
+                    var $search = $("#search");
+                    $search.attr("placeholder", selectedSearchDomain.label + " Search");
+                    $search.attr("domain-index", domainIndex);
                 };
             };
 
@@ -88,20 +79,18 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             var dropDownComponents = [];
             for (var i = 0; i < searchDomains.length; i++) {
                 dropDownComponents.push({
-                    href: selectedFunction(searchDomains[i]),
+                    href: selectedFunction(searchDomains[i], i),
                     title: searchDomains[i].label,
                     id: searchDomains[i].name
                 });
             }
 
-            dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback(
-                    $('<span>', {id: 'prefix-selected-search-domain', class: 'btn btn-default disabled', 'selected-name': searchDomains[0].name}
-                    ).append(defaultSelected), dropDownComponents, true, searchFunction);
+            dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback(null, dropDownComponents, true, searchFunction);
             dropDownSearch.change();
         }
 
 
-        var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Search"});
+        var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Global Search"});
         searchElement.keypress(function (e) {
         	 var key = e.which;
         	 if(key == 13)  // the enter key code
