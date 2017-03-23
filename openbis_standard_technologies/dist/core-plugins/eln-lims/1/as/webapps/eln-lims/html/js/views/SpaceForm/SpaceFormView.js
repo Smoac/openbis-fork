@@ -22,8 +22,8 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		var _this = this;
 		$container.empty();
 		
-		var $form = $("<div>", { "class" : "form-horizontal row"});
-		var $formColumn = $("<div>", { "class" : FormUtil.formColumClass });
+		var $form = $("<div>", { "class" : "form-horizontal"});
+		var $formColumn = $("<div>");
 			
 		$form.append($formColumn);
 		

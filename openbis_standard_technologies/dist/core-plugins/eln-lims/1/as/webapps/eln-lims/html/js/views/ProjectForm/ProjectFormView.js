@@ -22,10 +22,10 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var _this = this;
 		$container.empty();
 		
-		var $form = $("<div>", { "class" : "row"});
+		var $form = $("<div>");
 		
 		var $formColumn = $("<form>", {
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+			"class" : "form-horizontal", 
 			'role' : "form",
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.updateProject();'

@@ -21,10 +21,9 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 	this.repaint = function($container) {
 		$container.empty();
 		
-		var $form = $("<div>", { "class" : "form-horizontal row"});
+		var $form = $("<div>", { "class" : "form-horizontal"});
 		
 		var $formColumn = $("<form>", {
-			"class" : FormUtil.formColumClass,
 			'role' : "form",
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.exportSelected();'

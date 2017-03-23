@@ -27,7 +27,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		$container.empty();
 		
 		var $containerColumn = $("<form>", { 
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+			"class" : "form-horizontal", 
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""

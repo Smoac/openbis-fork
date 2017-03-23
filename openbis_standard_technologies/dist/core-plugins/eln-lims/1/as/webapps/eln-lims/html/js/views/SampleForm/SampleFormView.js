@@ -18,19 +18,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		//
 		// Form setup
 		//
 		var _this = this;
-		$container.empty();
-		
-		var columnWith = 12;
-		if(this._sampleFormModel.mode === FormMode.VIEW) {
-			columnWith = 8;
-		}
 
-		var $form = $("<span>", { "class" : "row col-md-" + columnWith});
+		var $form = $("<span>");
 		
 		var $formColumn = $("<form>", {
 			"class" : "form-horizontal form-panel-one", 
@@ -41,31 +36,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $rightPanel = null;
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
-			$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+			$rightPanel = views.auxContent;
 		}
-		//
-		if($rightPanel) {
-			var windowScrollManager = function($form, $rightPanel) {
-				return function() {
-					if($(window).width() > 1024) { //Min Desktop resolution
-						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
-						$("#mainContainer").css("overflow-y", "hidden");
-						$formColumn.css(scrollablePanelCss);
-						$rightPanel.css(scrollablePanelCss);
-					} else {
-						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
-						$("#mainContainer").css("overflow-y", "auto");
-						$formColumn.css(normalPanelCss);
-						$rightPanel.css(normalPanelCss);
-					}
-				}
-			}
-			windowScrollManager = windowScrollManager($form, $rightPanel);
-			$(window).resize(windowScrollManager);
-			this._sampleFormController._windowHandlers.push(windowScrollManager);
-			$(window).resize();
-		}
-		//
 		
 		$form.append($formColumn);
 		
@@ -256,9 +228,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			toolbarModel.push({ component : $export, tooltip: "Export" });
 		}
 		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append($("<br>"));
+		var $header = views.header;
+		
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
 		// PREVIEW IMAGE
@@ -274,7 +247,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				Util.showImage($("#preview-image").attr("src"));
 			});
 			
-			if($rightPanel && $(window).width() > 1024) { //Min Desktop resolution
+			if($rightPanel !== null) { //Min Desktop resolution
 				$rightPanel.append($previewImage);
 			} else {
 				$formColumn.append($previewImage);
@@ -482,9 +455,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// INIT
 		//
 		$container.append($form);
-		if($rightPanel) {
-			$container.append($rightPanel);
-		}
 		
 		//
 		// Extra content

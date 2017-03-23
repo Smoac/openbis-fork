@@ -29,25 +29,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     var DISPLAY_NAME_LENGTH_LONG = 300;
     var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
     
-    this.hideSideMenu = function() {
-        this._sideMenuWidgetModel.$container.hide();
-        
-        Util.dragContainerFunc({ pageX : 0 });
-
-        var $toggleButtonShow = $("<a>", {"class": "btn btn-default", "id": "toggleButtonShow", "href": "javascript:mainController.sideMenu.showSideMenu();", "style": "position: fixed; top:0px; left:0px;"})
-                .append($("<span>", {"class": "glyphicon glyphicon-resize-small"}));
-
-        $("#main").append($toggleButtonShow);
-        this._sideMenuWidgetModel.isHidden = true;
-    };
-
-    this.showSideMenu = function() {
-        this._sideMenuWidgetModel.$container.show();
-        $("#toggleButtonShow").remove();
-        Util.dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
-        this._sideMenuWidgetModel.isHidden = false;
-    };
-    
     this.repaint = function($container) {
         var _this = this;
         var $widget = $("<div>");
@@ -59,11 +40,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         $header.append($("<nav>", {"class": "navbar navbar-default", "role": "navigation", "style": "margin:0px; border-left-width:0px; border-right-width:0px;"})
                         .append($headerItemList).append($("<br>"))
                        );
-
-        var $toggleButton = $("<li>")
-                .append($("<a>", {"href": "javascript:mainController.sideMenu.hideSideMenu();"})
-                        .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
-                        );
         
         var searchDomains = profile.getSearchDomains();
 
@@ -137,16 +113,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	    return false;  
         	  }
         });
-        searchElement.css({"width" : "68%"});
+        searchElement.css({"width" : "60%"});
         searchElement.css({"padding-right" : "0px"});
         searchElement.css({"margin-right" : "2px"});
-        
-        var $searchForm = $("<li>")
-                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;" })
-                        .append(searchElement)
-                        .append(dropDownSearch)
-                        );
-        $searchForm.css({"width" : "100%"});
         
         var logoutButton = $("<a>", {"id": "logout-button", "href": ""}).append($("<span>", {"class": "glyphicon glyphicon-off"}));
         logoutButton.click(function() {
@@ -156,16 +125,22 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 $("#main").hide();
             });
         });
+        
+        var $searchForm = $("<li>").append($("<form>", {"class": "navbar-form", "onsubmit": "return false;" })
+                        .append(searchElement)
+                        .append(dropDownSearch)
+                        );
+        
         var $logoutButton = $("<li>").append(logoutButton);
 
-        $headerItemList.append($logoutButton);
-        $headerItemList.append($toggleButton);
+        $headerItemList.append($("<li>").append(logoutButton));
         $headerItemList.append($searchForm);
         
         var $body = $("<div>", {"id": "sideMenuBody"});
-        $widget
-                .append($header)
-                .append($body);
+        $body.css("overflow-y", "scroll");
+        
+        $widget.append($header)
+               .append($body);
 
         $container.empty();
         $container.append($widget);

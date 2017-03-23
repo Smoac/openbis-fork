@@ -30,9 +30,9 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		var localInstance = this;
 		$('#'+this.containerId).empty();
 		
-		var $form = $("<div>", { "class" : "row", "style" : "margin-top: 20px;"});
+		var $form = $("<div>", { "style" : "margin-top: 20px;"});
 		$('#'+this.containerId).append($form);
-		var $formColumn = $("<div>", { "class" : "col-md-12"});	
+		var $formColumn = $("<div>");	
 		$form.append($formColumn);
 		localInstance.hierarchyFilterController = new HierarchyFilterController(this.sample, function() {
 					localInstance.filterSampleAndUpdate();

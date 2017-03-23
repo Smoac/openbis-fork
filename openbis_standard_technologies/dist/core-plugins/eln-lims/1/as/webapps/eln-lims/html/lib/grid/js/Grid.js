@@ -687,8 +687,10 @@ $.extend(Grid.prototype, {
 					}
 				}
 				
-				//HACK:	Legacy Hacks no longer needed
+				LayoutManager.isLoadingView = true; // Disable views reload by resize events
 				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
+				LayoutManager.isLoadingView = false; // Enable views reload by resize events
+				
 				if(thisGrid.firstLoad) {
 					Util.unblockUI();
 					$(thisGrid.panel).show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0

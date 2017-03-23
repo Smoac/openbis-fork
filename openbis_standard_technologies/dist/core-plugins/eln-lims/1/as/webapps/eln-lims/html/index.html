@@ -29,6 +29,7 @@
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-multiselect/css/bootstrap-multiselect.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-slider/css/bootstrap-slider.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-switch/css/toggle-switch.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-ui/js/jquery-ui.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-jnotify/css/jNotify.sis.jquery.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-tooltipster/css/tooltipster.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/fuelux/css/fuelux.min.css" />
@@ -294,31 +295,6 @@
 			Util.blockUI();
 			mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
 		}
-		
-		//Resize the menu on drag
-		var dragContainerFunc = function(e) {
-		    var menu = $('#sideMenu');
-		    var drag = $('#dragContainer');
-		    var main = $('#mainContainer');
-		    var mouseX = e.pageX;
-		    var windowWidth = window.outerWidth;
-		    var mainWidth = windowWidth - mouseX;
-		    menu.css("width", mouseX + "px");
-		    main.css("width", mainWidth + "px");
-		    main.css("left", mouseX);
-		    drag.css("left", mouseX);
-	    };
-	    
-		$("#dragContainer").draggable({
-			axis: "x",
-		    drag: dragContainerFunc
-		});
-
-		dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
-		
-		$( window ).resize(function() {
-			dragContainerFunc({ pageX : parseInt($('#dragContainer').css("left").replace("px","")) });
-		});
 	}
 	
 	$(document).ready(function() {
@@ -359,17 +335,8 @@
 				<img src="./img/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-firefox.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-tablet.png" style="height:43px;" />
 			</center>
 	</div>
-	<div id="main">
-		<div class="container">
-			<div class="row">
-				<div id ="sideMenu"  class="col-md-2" style="top:0px; left:0px; min-height:100%; padding:0px; border-color: #E7E7E7; border-style:solid; border-width:1px;"></div>
-				<div id ="dragContainer" style="z-index:10000; width:10px; height:100%; position:absolute; top:0px; cursor: col-resize;">&nbsp;</div>
-				<div id ="mainContainer" class="col-md-10" style="position:absolute;"></div>
-			</div>
-		</div>
-	</div>
-<!-- 	<div class="container-fluid">
+	<div class="container-fluid">
 		<div id='mainContainer' class="row"></div>
-	</div> -->
+	</div>
 </body>
 </html>

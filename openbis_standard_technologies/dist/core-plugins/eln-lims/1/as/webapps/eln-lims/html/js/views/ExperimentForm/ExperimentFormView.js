@@ -18,16 +18,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 	this._experimentFormController = experimentFormController;
 	this._experimentFormModel = experimentFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
-		var columnWith = 12;
-		if(this._experimentFormModel.mode === FormMode.VIEW) {
-			columnWith = 8;
-		}
-		
-		var $form = $("<span>", { "class" : "row col-md-" + columnWith });
+		var $form = $("<span>");
 		
 		var $formColumn = $("<form>", { 
 			"class" : "form-horizontal form-panel-one", 
@@ -38,31 +33,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		
 		var $rightPanel = null;
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
-			$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+			$rightPanel = views.auxContent;
 		}
-		//
-		if($rightPanel) {
-			var windowScrollManager = function($form, $rightPanel) {
-				return function() {
-					if($(window).width() > 1024) { //Min Desktop resolution
-						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
-						$("#mainContainer").css("overflow-y", "hidden");
-						$formColumn.css(scrollablePanelCss);
-						$rightPanel.css(scrollablePanelCss);
-					} else {
-						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
-						$("#mainContainer").css("overflow-y", "auto");
-						$formColumn.css(normalPanelCss);
-						$rightPanel.css(normalPanelCss);
-					}
-				}
-			}
-			windowScrollManager = windowScrollManager($form, $rightPanel);
-			$(window).resize(windowScrollManager);
-			this._experimentFormController._windowHandlers.push(windowScrollManager);
-			$(window).resize();
-		}
-		//
 		
 		$form.append($formColumn);
 		
@@ -97,8 +69,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$formTitle
 			.append($("<h2>").append(title))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		
-		$formColumn.append($formTitle);
 		
 		//
 		// Toolbar
@@ -152,8 +122,9 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			toolbarModel.push({ component : $export, tooltip: "Export" });
 		}
 		
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append($("<br>"));
+		var $header = views.header;
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
 		// PREVIEW IMAGE
@@ -169,7 +140,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				Util.showImage($("#preview-image").attr("src"));
 			});
 			
-			if($rightPanel && $(window).width() > 1024) { //Min Desktop resolution
+			if($rightPanel !== null) { //Min Desktop resolution
 				$rightPanel.append($previewImage);
 			} else {
 				$formColumn.append($previewImage);
@@ -248,23 +219,21 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		// INIT
 		//
 		$container.append($form);
-		if($rightPanel) {
-			$container.append($rightPanel);
-		}
 		
 		Util.unblockUI();
 		
-		if(this._experimentFormModel.mode === FormMode.VIEW) {
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
 			var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : this._experimentFormModel.experiment.permId } };
 			var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
 			mainController.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
 				// Viewer
 				_this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, data.objects[0], mainController.serverFacade, profile.getDefaultDataStoreURL(), null, false, true);
 				_this._experimentFormModel.dataSetViewer.init();
-				// Uploader
-				var $dataSetFormController = new DataSetFormController(_this, FormMode.CREATE, data.objects[0], null, true);
-				$dataSetFormController.init($dataSetUploaderContainer);
-				
+				if(_this._experimentFormModel.mode === FormMode.VIEW) {
+					// Uploader
+					var $dataSetFormController = new DataSetFormController(_this, FormMode.CREATE, data.objects[0], null, true);
+					$dataSetFormController.init($dataSetUploaderContainer);
+				}
 			});
 		}
 		

@@ -22,7 +22,7 @@ function SampleFormController(mainController, mode, sample) {
 	this._plateController = null;
 	this._windowHandlers = [];
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		// Loading datasets
 		var _this = this;
 		if(mode !== FormMode.CREATE) {
@@ -32,12 +32,12 @@ function SampleFormController(mainController, mode, sample) {
 				}
 				
 				//Load view
-				_this._sampleFormView.repaint($container);
+				_this._sampleFormView.repaint(views);
 				Util.unblockUI();
 			});
 		} else {
 			//Load view
-			_this._sampleFormView.repaint($container);
+			_this._sampleFormView.repaint(views);
 			Util.unblockUI();
 		}
 		

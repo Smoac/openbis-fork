@@ -870,7 +870,7 @@ var FormUtil = new function() {
 	}
 	
 	this.getBox = function() {
-		var $box = $("<div>", { style : "background-color:#f8f8f8; margin-right:10px; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
+		var $box = $("<div>", { style : "background-color:#f8f8f8; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
 		return $box;
 	}
 	

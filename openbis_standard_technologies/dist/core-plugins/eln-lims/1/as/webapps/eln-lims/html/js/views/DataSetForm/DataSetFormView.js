@@ -23,7 +23,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$container.empty();
 		
 		//Clean and prepare container
-		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
+		var $wrapper = $('<form>', { class : 'form-horizontal', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		if(this._dataSetFormModel.isMini) {
 			$wrapper.css('margin', '10px');
 			$wrapper.css('padding', '10px');
