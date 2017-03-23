@@ -107,7 +107,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
 			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP") {
 				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
@@ -226,6 +226,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+		} else { //Create and Edit
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				mainController.currentView.createUpdateCopySample();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
 		var $header = views.header;
@@ -388,25 +395,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			this._paintIdentificationInfo($formColumn);
-		}
-		
-		//
-		// FORM SUBMIT
-		//
-		if(this._sampleFormModel.mode !== FormMode.VIEW) {
-			var btnTitle = null;
-			switch(this._sampleFormModel.mode) {
-		    	case FormMode.CREATE:
-		    		btnTitle = "Create";
-		    		break;
-		    	case FormMode.EDIT:
-		    		btnTitle = "Update";
-		    		break;
-			}
-			
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
-			$formColumn.append($("<br>"));
-			$formColumn.append($updateBtn);
 		}
 		
 		//
