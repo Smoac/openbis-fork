@@ -24,9 +24,22 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		var $header = views.header;
 		var $container = views.content;
 		var _this = this;
+				
+		//
+		// Title and Empty all button
+		//
+		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
+		deleteAllBtn.click(function() {
+			Util.showWarning(deleteMessageMany, function() {
+				_this._trashManagerController.emptyTrash();
+			});
+		});
+		
+		$header.append($("<h1>").append("Trashcan"));
+		$header.append(deleteAllBtn);
 		
 		//
-		// Form template and title
+		// Form template
 		//
 		var $containerColumn = $("<form>", { 
 			"class" : "form-horizontal", 
@@ -34,8 +47,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""
 		});
-		
-		$header.append($("<h1>").append("Trashcan"));
+		$container.append($containerColumn);
 		
 		//
 		// Table
@@ -178,18 +190,5 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE");
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
-		
-		//
-		// Empty all button
-		//
-		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
-		deleteAllBtn.click(function() {
-			Util.showWarning(deleteMessageMany, function() {
-				_this._trashManagerController.emptyTrash();
-			});
-		});
-		$containerColumn.append(deleteAllBtn);
-		//
-		$container.append($containerColumn);
 	}
 }
