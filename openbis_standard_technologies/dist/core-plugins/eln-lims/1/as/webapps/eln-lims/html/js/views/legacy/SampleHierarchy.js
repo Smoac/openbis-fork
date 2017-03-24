@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-function SampleHierarchy(serverFacade, containerId, profile, sample) {
+function SampleHierarchy(serverFacade, views, profile, sample) {
 	this.nodeIdPrefix = "HIERARCHY_NODE_";
 	this.serverFacade = serverFacade;
-	this.containerId = containerId;
+	this.views = views;
 	this.profile = profile;
 	this.sample = sample;
 	this.hierarchyFilterController = null;
@@ -28,22 +28,27 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 	
 	this.repaint = function() {
 		var localInstance = this;
-		$('#'+this.containerId).empty();
+		this.views.header.empty();
+		this.views.content.empty();
 		
-		var $form = $("<div>", { "style" : "margin-top: 20px;"});
-		$('#'+this.containerId).append($form);
-		var $formColumn = $("<div>");	
+		var $form = $("<div>");
+		this.views.content.append($form);
+		var $formColumn = $("<div>");
+		$formColumn.append("<span><svg height='100' width='100'><g id='svgControls'/></svg></span>");
 		$form.append($formColumn);
-		localInstance.hierarchyFilterController = new HierarchyFilterController(this.sample, function() {
-					localInstance.filterSampleAndUpdate();
-				});
-		localInstance.hierarchyFilterController.init($formColumn);
+		
+		
+		views.header.append($("<h1>").append("" + ELNDictionary.Sample + " Hierarchy Graph for " + this.sample.identifier));
+		localInstance.hierarchyFilterController = new HierarchyFilterController(this.sample, function() { localInstance.filterSampleAndUpdate(); });
+		localInstance.hierarchyFilterController.init(views.header);
 
 		$formColumn.append($('<div>', { 'id' : 'graphContainer' }));
 		
 		$('#graphContainer').append("<svg id='svgMapContainer'><g id='svgMap' transform='translate(20,20) scale(1)'/></svg>");
 		
 		this.filterSampleAndUpdate();
+		
+		
 		
 		//Add SVG Map Controls
 		var path1 = this._makeSVG('path', {'class' : 'svgButton', 'stroke-linecap':'round', 'stroke-miterlimit':'6', 'onclick':'javascript:mainController.currentView.pan( 0, 50);', 'd':'M50 10 l12 20 a40, 70 0 0,0 -24, 0z', 'stroke-width':'1.5', 'fill':'#0088CC', 'stroke': '#0088CC' });
@@ -69,8 +74,8 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 			.append(rect3);
 		
 		//Centers SVG image if is smaller than the max size of the container.
-		var containerWidth = $(document).width() - $("#sideMenu").width() - 20;
-		var containerHeight = $(document).height() - 120;
+		var containerWidth = this.views.content.width();
+		var containerHeight = this.views.content.height();
 		
 		var realWidth = $('#svgMap')[0].getBoundingClientRect().width;
 		var realHeight = $('#svgMap')[0].getBoundingClientRect().height;
@@ -419,8 +424,8 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 							.rankDir("TB");
 		
 		//VMG Map container max size on screen
-		var containerWidth = $(document).width() - $("#sideMenu").width() - 20;
-		var containerHeight = $(document).height() - 120;
+		var containerWidth = this.views.content.width();
+		var containerHeight = this.views.content.height();
 		
 		//Render Layout
 		renderer.layout(layout).run(g, svgG);

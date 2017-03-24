@@ -608,7 +608,10 @@ function MainController(profile) {
 		
 		if(withContentOrContentId) {
 			content = $("<div>");
-			content.css("padding", "10px");
+			content.css({ 
+				"padding" : "10px",
+				"height" : "100%"
+			});
 			if((typeof withContentOrContentId === 'string' || withContentOrContentId instanceof String)) {
 				content.attr("id", withContentOrContentId);
 			}
@@ -701,8 +704,8 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			var content = localInstance._getBackwardsCompatibleMainContainer("container-sample-hierarchy");
-			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, "container-sample-hierarchy", localInstance.profile, data[0]);
+			var views = localInstance._getNewViewModel(true, true, false);
+			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, views, localInstance.profile, data[0]);
 			sampleHierarchy.init();
 			localInstance.currentView = sampleHierarchy;
 		});
