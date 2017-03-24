@@ -30,8 +30,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $formColumn = $("<form>", {
 			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
-			'action' : 'javascript:void(0);',
-			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
+			'action' : 'javascript:void(0);'
 		});
 		
 		var $rightPanel = null;
@@ -228,7 +227,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			toolbarModel.push({ component : $export, tooltip: "Export" });
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
-				mainController.currentView.createUpdateCopySample();
+				_this._sampleFormController.createUpdateCopySample();
 			}, "Save");
 			$saveBtn.removeClass("btn-default");
 			$saveBtn.addClass("btn-primary");

@@ -27,8 +27,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var $formColumn = $("<form>", { 
 			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
-			'action' : 'javascript:void(0);',
-			'onsubmit' : 'mainController.currentView.updateExperiment();'
+			'action' : 'javascript:void(0);'
 		});
 		
 		var $rightPanel = null;
@@ -74,7 +73,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+		if(this._experimentFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
 			if(profile.getSampleTypeForSampleTypeCode("EXPERIMENTAL_STEP") && !profile.isSampleTypeHidden("EXPERIMENTAL_STEP")) {
 				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
@@ -120,6 +119,13 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+		} else { //Create and Edit
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._experimentFormController.updateExperiment();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
 		var $header = views.header;
@@ -196,24 +202,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		} else {
 			$formColumn.append($dataSetViewerContainer);
 			$formColumn.append($dataSetUploaderContainer);
-		}
-		
-		//Create/Update Buttons
-		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
-			var btnTitle = "";
-			switch(this._experimentFormModel.mode) {
-		    	case FormMode.CREATE:
-		    		btnTitle = "Create";
-		    		break;
-		    	case FormMode.EDIT:
-		    		btnTitle = "Update";
-		    		break;
-			}
-			
-			
-			$formColumn.append($("<br>"));
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
-			$formColumn.append($updateBtn);
 		}
 		
 		//
