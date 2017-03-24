@@ -221,7 +221,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				if(_this._experimentFormModel.mode === FormMode.VIEW) {
 					// Uploader
 					var $dataSetFormController = new DataSetFormController(_this, FormMode.CREATE, data.objects[0], null, true);
-					$dataSetFormController.init($dataSetUploaderContainer);
+					var viewsForDS = {
+							content : $dataSetUploaderContainer
+					}
+					$dataSetFormController.init(viewsForDS);
 				}
 			});
 		}

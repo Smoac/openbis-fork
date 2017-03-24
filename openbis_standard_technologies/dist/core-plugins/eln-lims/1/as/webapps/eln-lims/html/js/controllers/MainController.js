@@ -483,11 +483,23 @@ function MainController(profile) {
 						if(!dataSetData.result || !dataSetData.result[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
-							_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-								document.title = "Data Set " + dataSetData.result[0].code;
-								_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
-								//window.scrollTo(0,0);
-							});
+							if(dataSetData.result[0].sampleIdentifierOrNull) {
+								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+									document.title = "Data Set " + dataSetData.result[0].code;
+									_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+									//window.scrollTo(0,0);
+								});
+							} else if(dataSetData.result[0].experimentIdentifier) {
+								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
+									var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
+									var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
+										document.title = "Data Set " + dataSetData.result[0].code;
+										_this._showEditDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+										//window.scrollTo(0,0);
+									});
+								});
+							}
 						}
 					});
 					break;
@@ -795,24 +807,24 @@ function MainController(profile) {
 	this._showCreateDataSetPage = function(entity) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.CREATE, entity, null);
-		var content = this._getBackwardsCompatibleMainContainer();
-		newView.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		this.currentView = newView;
 	}
 	
 	this._showViewDataSetPage = function(sample, dataset) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.VIEW, sample, dataset);
-		var content = this._getBackwardsCompatibleMainContainer();
-		newView.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		this.currentView = newView;
 	}
 	
 	this._showEditDataSetPage = function(sample, dataset) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.EDIT, sample, dataset);
-		var content = this._getBackwardsCompatibleMainContainer();
-		newView.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		this.currentView = newView;
 	}
 	

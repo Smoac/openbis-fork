@@ -19,14 +19,14 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 	this._dataSetFormModel = new DataSetFormModel(mode, entity, dataSet, isMini);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
 		mainController.serverFacade.listDataSetTypes(
 				function(data) {
 					_this._dataSetFormModel.dataSetTypes = data.result;
 					mainController.serverFacade.getSetting("DataSetFormModel.isAutoUpload", function(value) {
 						_this._dataSetFormModel.isAutoUpload = (value === "true");
-						_this._dataSetFormView.repaint($container);
+						_this._dataSetFormView.repaint(views);
 					});
 				}
 		);
@@ -206,7 +206,6 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 							if(!isInventory) {
 								mainController.sideMenu.refreshCurrentNode();
 							}
-							
 						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
 							Util.showSuccess("DataSet Updated.", callbackOk);
 							if(!isInventory) {

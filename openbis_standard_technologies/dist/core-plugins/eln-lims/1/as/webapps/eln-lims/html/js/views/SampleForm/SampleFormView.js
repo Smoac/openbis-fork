@@ -435,7 +435,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$formColumn.append($inlineDataSetForm);
 			}
 			var $dataSetFormController = new DataSetFormController(this, FormMode.CREATE, this._sampleFormModel.sample, null, true);
-			$dataSetFormController.init($inlineDataSetForm);
+			var viewsForDS = {
+					content : $inlineDataSetForm
+			}
+			$dataSetFormController.init(viewsForDS);
 		}
 		
 		//

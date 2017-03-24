@@ -18,9 +18,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	this._dataSetFormController = dataSetFormController;
 	this._dataSetFormModel = dataSetFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
 		//Clean and prepare container
 		var $wrapper = $('<form>', { class : 'form-horizontal', 'id' : 'mainDataSetForm', 'role' : 'form'});
@@ -61,22 +61,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			.append($("<h2>").append(titleText))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		
-		if(!this._dataSetFormModel.isMini) {
-			$wrapper.append($title);
-		}
-		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
 			//Edit Button
-			if(this._dataSetFormModel.mode === FormMode.VIEW) {
-				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
-				});
-				toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
-			}
+			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+			});
+			toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
 			
 			//Delete Button
 			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
@@ -97,10 +91,19 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+		} else if(!this._dataSetFormModel.isMini) {
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._dataSetFormController.submitDataSet();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
 		if(!this._dataSetFormModel.isMini) {
-			$wrapper.append(FormUtil.getToolbar(toolbarModel));
+			var $header = views.header;
+			$header.append($title);
+			$header.append(FormUtil.getToolbar(toolbarModel));
 		}
 		
 		//Drop Down DataSetType Field Set
@@ -193,21 +196,21 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		//Submit Button
 		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
-			var btnText = "";
-			if(this._dataSetFormModel.mode === FormMode.CREATE) {
-				btnText = 'Create';
-			} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-				btnText = 'Update';
-			}
-			
-			var $submitButton = $('<fieldset>')
-			.append($('<div>', { class : "form-group"}))
-			.append($('<div>', {class: FormUtil.controlColumnClass})
-						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
-			
-			
-			$wrapper.append($submitButton);
-			if(_this._dataSetFormModel.isMini){
+			if(_this._dataSetFormModel.isMini) {
+				var btnText = "";
+				if(this._dataSetFormModel.mode === FormMode.CREATE) {
+					btnText = 'Create';
+				} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
+					btnText = 'Update';
+				}
+				
+				var $submitButton = $('<fieldset>')
+				.append($('<div>', { class : "form-group"}))
+				.append($('<div>', {class: FormUtil.controlColumnClass})
+							.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
+				
+				$wrapper.append($submitButton);
+				
 				var $autoUploadCheck = FormUtil._getBooleanField(null, 'Auto upload on drop');
 					$($autoUploadCheck.children()[0]).children()[0].checked = _this._dataSetFormModel.isAutoUpload;
 				
@@ -226,8 +229,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				
 				$wrapper.append($('<fieldset>').append($autoUploadGroup));
 			}
-			
-			
 		}
 		
 		//Attach to main form
