@@ -18,8 +18,7 @@ function InventoryView(inventoryController, inventoryView) {
 	var inventoryController = inventoryController;
 	var inventoryView = inventoryView;
 	
-	this.repaint = function($container) {
-		$container.empty();
+	this.repaint = function(views) {
 		
 		var $form = $("<div>", { "class" : "form-horizontal"});
 		var $formColumn = $("<div>");
@@ -56,15 +55,10 @@ function InventoryView(inventoryController, inventoryView) {
 				
 			});
 		});
-		
 		toolbarModel.push({ component : $export, tooltip: "Export" });
 		
-		
-		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append("<br>");
-		
-		$container.append($form);
+		views.header.append($formTitle);
+		views.header.append(FormUtil.getToolbar(toolbarModel));
+		views.content.append($formColumn);
 	}
 }

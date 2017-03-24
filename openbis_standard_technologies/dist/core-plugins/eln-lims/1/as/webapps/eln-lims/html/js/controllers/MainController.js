@@ -253,16 +253,16 @@ function MainController(profile) {
 				case "showLabNotebookPage":
 					document.title = "Lab Notebook";
 					var newView = new LabNotebookController(this);
-					var content = this._getBackwardsCompatibleMainContainer();
-					newView.init(content);
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
 					this.currentView = newView;
 					//window.scrollTo(0,0);
 					break;
 				case "showInventoryPage":
 					document.title = "Inventory";
 					var newView = new InventoryController(this);
-					var content = this._getBackwardsCompatibleMainContainer();
-					newView.init(content);
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
 					this.currentView = newView;
 					//window.scrollTo(0,0);
 					break;
