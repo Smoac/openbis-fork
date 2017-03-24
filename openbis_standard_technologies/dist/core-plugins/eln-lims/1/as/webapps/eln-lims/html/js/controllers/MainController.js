@@ -712,9 +712,9 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			var content = localInstance._getBackwardsCompatibleMainContainer();
+			var views = localInstance._getNewViewModel(true, true, false);
 			var sampleHierarchyTableController = new SampleHierarchyTableController(this, data[0]);
-			sampleHierarchyTableController.init(content);
+			sampleHierarchyTableController.init(views);
 			localInstance.currentView = sampleHierarchyTableController;
 		});
 	}
