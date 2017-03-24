@@ -18,9 +18,9 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 	this._spaceFormController = spaceFormController;
 	this._spaceFormModel = spaceFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
 		var _this = this;
-		$container.empty();
+		var $container = views.content;
 		
 		var $form = $("<div>", { "class" : "form-horizontal"});
 		var $formColumn = $("<div>");
@@ -57,9 +57,9 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		toolbarModel.push({ component : $export, tooltip: "Export" });
 		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append("<br>");
+		var $header = views.header;
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		$container.append($form);
 	}

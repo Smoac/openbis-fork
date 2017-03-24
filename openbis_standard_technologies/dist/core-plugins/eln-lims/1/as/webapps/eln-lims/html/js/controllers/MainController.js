@@ -768,8 +768,8 @@ function MainController(profile) {
 	this._showSpacePage = function(space) {
 		//Show Form
 		var spaceFormController = new SpaceFormController(this, space);
-		var content = this._getBackwardsCompatibleMainContainer();
-		spaceFormController.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		spaceFormController.init(views);
 		this.currentView = spaceFormController;
 	}
 	
