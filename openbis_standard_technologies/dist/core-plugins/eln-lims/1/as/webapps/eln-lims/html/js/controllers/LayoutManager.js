@@ -79,9 +79,8 @@ var LayoutManager = {
 			});
 			this.secondColumnHeader = $("<div>");
 			this.secondColumnHeader.css({
-				display : "none",
-				"overflow-x": "hidden",
-				"overflow-y": "hidden"
+				'display' : "none",
+				'overflow': "visible" //To show the dropdowns
 			});
 			this.secondColumnContent = $("<div>");
 			this.secondColumnContent.css({
@@ -186,7 +185,7 @@ var LayoutManager = {
 		
 		
 		if (view.header) {
-			headerHeight = 147;
+			headerHeight = 157;
 			this.secondColumnHeader.append(view.header);
 			this.secondColumnHeader.css({
 				display : "block",
@@ -242,7 +241,7 @@ var LayoutManager = {
 		});
 
 		if (view.header) {
-			headerHeight = 147;
+			headerHeight = 157;
 			this.secondColumnHeader.append(view.header);
 			this.secondColumnHeader.css({
 				display : "block",

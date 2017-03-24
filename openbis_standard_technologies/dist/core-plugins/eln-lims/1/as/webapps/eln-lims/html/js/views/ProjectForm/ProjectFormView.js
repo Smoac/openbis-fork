@@ -173,12 +173,19 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var experimentTableController = new ExperimentTableController(this._projectFormController, null, this._projectFormModel.project, true);
 			experimentTableController.init($experimentsContainer);
 			
-			var $samplesContainer = $("<div>");
+			
 			$formColumn.append($("<legend>").append("" + ELNDictionary.Samples + ""))
+			var $samplesContainerHeader = $("<div>");
+			$formColumn.append($samplesContainerHeader);
+			var $samplesContainer = $("<div>");
 			$formColumn.append($samplesContainer);
 			
+			var views = {
+					header : $samplesContainerHeader,
+					content : $samplesContainer
+			}
 			var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true);
-			sampleTableController.init($samplesContainer);
+			sampleTableController.init(views);
 		}
 		
 		//

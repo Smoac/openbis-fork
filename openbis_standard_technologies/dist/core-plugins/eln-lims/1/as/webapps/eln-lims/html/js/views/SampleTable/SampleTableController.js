@@ -19,12 +19,12 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment);
 	this._sampleTableView = new SampleTableView(this, this._sampleTableModel);
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
 		Util.blockUI();
 		
 		var callback = function() {
-			_this._sampleTableView.repaint($container);
+			_this._sampleTableView.repaint(views);
 			Util.unblockUI();
 		};
 		

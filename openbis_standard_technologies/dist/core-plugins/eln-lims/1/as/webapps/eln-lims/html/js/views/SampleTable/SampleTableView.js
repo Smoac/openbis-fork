@@ -19,9 +19,10 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._tableContainer = $("<div>");
 	this.sampleTypeSelector = null;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
+		
 		var $title = $("<div>");
 		if(this._sampleTableModel.title && this._sampleTableModel.experimentIdentifier) {
 			
@@ -35,7 +36,6 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		} else if(this._sampleTableModel.title) {
 			$title.append($("<h2>").append(this._sampleTableModel.title));
 		}
-		$container.append($title);
 		
 		//
 		// Toolbar
@@ -85,16 +85,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 		}
 		
+		var $header = views.header;
+		$header.append($title);
+		
 		if(toolbarModel.length > 0) {
-			$container.append(FormUtil.getToolbar(toolbarModel));
-		}
-		if(toolbarModel.length > 0 && tableToolbarModel.length > 0) {
-			$container.append("<br>");
+			$header.append(FormUtil.getToolbar(toolbarModel));
 		}
 		if(tableToolbarModel.length > 0) {
-			$container.append(FormUtil.getToolbar(tableToolbarModel));
+			$header.append(FormUtil.getToolbar(tableToolbarModel));
 		}
-		
 		
 		$container.append(this._tableContainer);
 	}

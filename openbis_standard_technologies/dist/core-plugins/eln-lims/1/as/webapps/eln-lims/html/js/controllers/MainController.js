@@ -597,6 +597,7 @@ function MainController(profile) {
 			header = $("<div>");
 			header.css({ 
 				"padding" : "10px",
+				"height" : "100%",
 				"background-color" : "rgb(248, 248, 248)"
 			});
 			
@@ -673,7 +674,7 @@ function MainController(profile) {
 	}
 	
 	this._showSamplesPage = function(experimentIdentifier) {
-		var content = this._getBackwardsCompatibleMainContainer();
+		var views = this._getNewViewModel(true, true, false);
 		
 		var sampleTableController = null;
 		
@@ -685,12 +686,12 @@ function MainController(profile) {
 			var _this = this;
 			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
 				sampleTableController = new SampleTableController(this, "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
-				sampleTableController.init(content);
+				sampleTableController.init(views);
 				_this.currentView = sampleTableController;
 			});
 		} else {
 			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null);
-			sampleTableController.init(content);
+			sampleTableController.init(views);
 			this.currentView = sampleTableController;
 		}
 		
