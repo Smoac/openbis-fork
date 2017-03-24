@@ -18,8 +18,9 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 	var exportTreeController = exportTreeController;
 	var exportTreeModel = exportTreeModel;
 	
-	this.repaint = function($container) {
-		$container.empty();
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
 		
 		var $form = $("<div>", { "class" : "form-horizontal"});
 		
@@ -33,11 +34,14 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 		
 		var $formTitle = $("<h2>").append("Export Builder");
 		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getInfoBox("You can select any parts of the accesible openBIS structure to export:", [
-			"If you select a tree node and do not expand it, everything below this node will be exported by default.",
-			"To export selectively only parts of a tree, open the nodes and select what to export."
-		]));
+		$header.append($formTitle);
+		var $infoBox = FormUtil.getInfoBox("You can select any parts of the accesible openBIS structure to export:", [
+		                                   "If you select a tree node and do not expand it, everything below this node will be exported by default.",
+		                                   "To export selectively only parts of a tree, open the nodes and select what to export."
+		]);
+		$infoBox.css("border", "none");
+		$header.append($infoBox);
+		
 		var $tree = $("<div>", { "id" : "exportsTree" });
 		$formColumn.append($("<br>"));
 		$formColumn.append(FormUtil.getBox().append($tree));

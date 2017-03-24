@@ -18,7 +18,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 	this._vocabularyManagerController = vocabularyManagerController;
 	this._vocabularyManagerModel = vocabularyManagerModel;
 	this._dataGridContainer = $("<div>");
-	this._subtitle = $("<legend>");
+	this._subtitle = $("<h4>", { "style" : "font-weight:normal;" });
 	
 	this.repaint = function(views) {
 		
@@ -32,9 +32,10 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			"onsubmit" : ""
 		});
 		
-		
-		views.header.append($("<h1>").append("Vocabulary Browser"));
-		views.header.append(this._subtitle);
+		var $containerHeader = $("<div>");
+		$containerHeader.append($("<h2>").append("Vocabulary Browser"));
+		$containerHeader.append(this._subtitle);
+		views.header.append($containerHeader);
 		views.content.append($containerColumn);
 		
 		this._showVocabularies();

@@ -245,8 +245,8 @@ function MainController(profile) {
 				case "showExportTreePage":
 					document.title = "Export Builder";
 					var newView = new ExportTreeController(this);
-					var content = this._getBackwardsCompatibleMainContainer();
-					newView.init(content);
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
 					this.currentView = newView;
 					//window.scrollTo(0,0);
 					break;
