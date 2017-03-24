@@ -842,8 +842,8 @@ function MainController(profile) {
 			newView = new AdvancedSearchController(this);
 		}
 		
-		var content = this._getBackwardsCompatibleMainContainer();
-		newView.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		if(freeText) {
 			newView.search();
 		}

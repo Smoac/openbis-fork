@@ -28,26 +28,28 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	// Main Repaint Method
 	//
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
-		//Layout
+		//Search Menu Panel
+		var $mainPanelHeader = $("<form>", { 
+			"class" : "form-inline", 
+			'role' : "form",
+			'action' : 'javascript:void(0);'
+		});
+		$mainPanelHeader.append($("<h2>").append("Advanced Search"));
+		this._paintMenuPanel($mainPanelHeader);
+		$header.append($mainPanelHeader);
+		
+		//Search Criteria Panel
 		var $mainPanel = $("<form>", { 
 			"class" : "form-inline", 
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});
-		$mainPanel.append($("<h2>").append("Advanced Search"));
 		
-		
-		//Search Menu Panel
-		this._$menuPanelContainer = $("<div>");
-		$mainPanel.append(this._$menuPanelContainer);
-		this._paintMenuPanel(this._$menuPanelContainer);
-		$mainPanel.append($("<br>"));
-		
-		//Search Criteria Panel
 		//table to select field type, name, and value
 		this._$searchCriteriaPanelContainer = $("<div>");
 		this._paintCriteriaPanel(this._$searchCriteriaPanelContainer);
@@ -82,7 +84,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//
 	
 	this._paintMenuPanel = function($menuPanelContainer) {
-		$menuPanelContainer.empty();
 		this._$entityTypeDropdown = this._getEntityTypeDropdown();
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel(this._$entityTypeDropdown, "Search For", null, true));
 
@@ -103,6 +104,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._paintCriteriaPanel = function($searchCriteriaPanelContainer) {
 		$searchCriteriaPanelContainer.empty();
+		$searchCriteriaPanelContainer.append($("<legend>").append("Criteria"));
+		
 		var _this = this;
 		var $table = $("<table>", { class : "table table-bordered"});
 		$thead = $("<thead>");
@@ -701,7 +704,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
 			
-			var dataGrid = new DataGridController("Search Results", columns, columnsLast, dynamicColumnsFunc, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
+			var dataGrid = new DataGridController("Results", columns, columnsLast, dynamicColumnsFunc, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
 			return dataGrid;
 	}
 	

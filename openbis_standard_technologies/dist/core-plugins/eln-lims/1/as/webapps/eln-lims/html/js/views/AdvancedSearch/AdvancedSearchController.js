@@ -19,9 +19,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 	this._advancedSearchModel = new AdvancedSearchModel(forceSearch);
 	this._advancedSearchView = new AdvancedSearchView(this, this._advancedSearchModel);
 
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
-		_this._advancedSearchView.repaint($container);
+		_this._advancedSearchView.repaint(views);
 	}
 	
 	this.search = function() {

@@ -305,7 +305,7 @@ var LayoutManager = {
 		}
 
 		if (view.header) {
-			view.header.css("height", 157);
+			view.header.css("height", "auto");
 			this.firstColumn.append(view.header);
 		}
 		
