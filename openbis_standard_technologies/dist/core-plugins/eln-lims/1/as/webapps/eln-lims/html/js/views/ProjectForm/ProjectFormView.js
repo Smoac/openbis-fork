@@ -18,19 +18,18 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	this._projectFormController = projectFormController;
 	this._projectFormModel = projectFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
 		var $form = $("<div>");
 		
 		var $formColumn = $("<form>", {
 			"class" : "form-horizontal", 
 			'role' : "form",
-			'action' : 'javascript:void(0);',
-			'onsubmit' : 'mainController.currentView.updateProject();'
+			'action' : 'javascript:void(0);'
 		});
-			
+		
 		$form.append($formColumn);
 		
 		//
@@ -40,9 +39,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var entityPath = null;
 		var isInventoryProject = this._projectFormModel.project && profile.isInventorySpace(this._projectFormModel.project.spaceCode);
 		var typeTitle = "Project: ";
-//		if(isInventoryProject) {
-//			typeTitle = "";
-//		}
 		
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			title = "Create " + typeTitle;
@@ -59,13 +55,13 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formTitle
 				.append($("<h2>").append(title))
 				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		$formColumn.append($formTitle);
+		
 		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._projectFormModel.mode !== FormMode.CREATE) {
+		if(this._projectFormModel.mode === FormMode.VIEW) {
 			var showSelectExperimentType = function() {
 				var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
 				Util.blockUI("Select the type for the " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode) + ": <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
@@ -130,8 +126,18 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				showSelectExperimentType();
 			}}]);
 			toolbarModel.push({ component : $operationsMenu, tooltip: "Extra operations" });
+		} else {
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._projectFormController.updateProject();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
+		
+		var $header = views.header;
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
 		// Metadata Fields
@@ -212,19 +218,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
 			$formColumn.append($modificationDate);
-		}
-		
-		//Create/Update Button
-		if(this._projectFormModel.mode !== FormMode.VIEW) {
-			var btnText = null;
-			if(this._projectFormModel.mode === FormMode.CREATE) {
-				btnText = "Create";
-			} else if(this._projectFormModel.mode === FormMode.EDIT) {
-				btnText = "Update";
-			}
-			
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });
-			$formColumn.append($updateBtn);
 		}
 		
 		$container.append($form);

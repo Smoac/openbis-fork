@@ -763,24 +763,24 @@ function MainController(profile) {
 	this._showCreateProjectPage = function(spaceCode) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.CREATE, {spaceCode : spaceCode});
-		var content = this._getBackwardsCompatibleMainContainer();
-		projectFormController.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		projectFormController.init(views);
 		this.currentView = projectFormController;
 	}
 	
 	this._showProjectPage = function(project) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.VIEW, project);
-		var content = this._getBackwardsCompatibleMainContainer();
-		projectFormController.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		projectFormController.init(views);
 		this.currentView = projectFormController;
 	}
 	
 	this._showEditProjectPage = function(project) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.EDIT, project);
-		var content = this._getBackwardsCompatibleMainContainer();
-		projectFormController.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		projectFormController.init(views);
 		this.currentView = projectFormController;
 	}
 	
