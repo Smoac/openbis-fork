@@ -669,10 +669,10 @@ function MainController(profile) {
 	}
 	
 	this._showUserManager = function() {
-		var content = this._getBackwardsCompatibleMainContainer();
+		var views = this._getNewViewModel(true, true, false);
 		
 		var userManagerController = new UserManagerController(this);
-		userManagerController.init(content);
+		userManagerController.init(views);
 		this.currentView = userManagerController;
 	}
 	

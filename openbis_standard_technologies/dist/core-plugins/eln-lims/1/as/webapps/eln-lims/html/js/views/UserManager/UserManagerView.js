@@ -18,7 +18,9 @@ function UserManagerView(userManagerController, userManagerModel) {
 	this._userManagerController = userManagerController;
 	this._userManagerModel = userManagerModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
 		$container.empty();
 		
 		//
@@ -31,14 +33,14 @@ function UserManagerView(userManagerController, userManagerModel) {
 			"onsubmit" : ""
 		});
 		
-		$containerColumn.append($("<h1>").append(" User Manager"));
+		$header.append($("<h1>").append("User Manager"));
 		
 		//
 		// ToolBox
 		//
 		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
 		$toolbox.append(this._getOptionsMenu());
-		$containerColumn.append($toolbox);
+		$header.append($toolbox);
 		
 		//
 		// Data Grid
