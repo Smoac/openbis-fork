@@ -648,10 +648,10 @@ function MainController(profile) {
 	}
 	
 	this._showVocabularyManager = function() {
-		var content = this._getBackwardsCompatibleMainContainer();
+		var views = this._getNewViewModel(true, true, false);
 		
 		var vocabularyManagerController = new VocabularyManagerController(this);
-		vocabularyManagerController.init(content);
+		vocabularyManagerController.init(views);
 		this.currentView = vocabularyManagerController;
 	}
 	

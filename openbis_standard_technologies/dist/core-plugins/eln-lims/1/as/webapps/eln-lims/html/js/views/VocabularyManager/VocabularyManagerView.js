@@ -20,8 +20,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 	this._dataGridContainer = $("<div>");
 	this._subtitle = $("<legend>");
 	
-	this.repaint = function($container) {
-		$container.empty();
+	this.repaint = function(views) {
 		
 		//
 		// Form template and title
@@ -33,11 +32,14 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			"onsubmit" : ""
 		});
 		
-		$containerColumn.append($("<h1>").append("Vocabulary Viewer"));
-		$containerColumn.append(this._subtitle);
+		
+		views.header.append($("<h1>").append("Vocabulary Browser"));
+		views.header.append(this._subtitle);
+		views.content.append($containerColumn);
+		
 		this._showVocabularies();
 		$containerColumn.append(this._dataGridContainer);
-		$container.append($containerColumn);
+		
 	}
 	
 	this._showVocabularies = function() {
