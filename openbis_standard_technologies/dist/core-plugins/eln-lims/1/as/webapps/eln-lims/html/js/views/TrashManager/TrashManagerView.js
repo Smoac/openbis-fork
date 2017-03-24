@@ -20,9 +20,10 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 	var deleteMessageOne = "The selected entity in the trashcan will be deleted permanently. This action cannot be undone!<br><br>Are you sure you want to continue?";
 	var deleteMessageMany = "All entities in the trashcan will be deleted permanently. This action cannot be undone!<br><br>Are you sure you want to continue?";
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
 		//
 		// Form template and title
@@ -34,8 +35,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			"onsubmit" : ""
 		});
 		
-		var $trashIcon = $("<span>", { 'class' : 'glyphicon glyphicon-trash'});
-		$containerColumn.append($("<h1>").append($trashIcon).append(" Trashcan"));
+		$header.append($("<h1>").append("Trashcan"));
 		
 		//
 		// Table

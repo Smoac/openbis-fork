@@ -745,8 +745,8 @@ function MainController(profile) {
 	this._showTrashcan = function() {
 		var trashcanController = new TrashManagerController(this);
 		this.trashcanController = trashcanController;
-		var content = this._getBackwardsCompatibleMainContainer();
-		trashcanController.init(content);
+		var views = this._getNewViewModel(true, true, false);
+		trashcanController.init(views);
 	}
 	
 	this._showViewSamplePage = function(sample, isELNSubExperiment) {
