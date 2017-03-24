@@ -640,10 +640,10 @@ function MainController(profile) {
 	}
 	
 	this._showStorageManager = function() {
-		var content = this._getBackwardsCompatibleMainContainer();
+		var views = this._getNewViewModel(true, true, false);
 		
 		var storageManagerController = new StorageManagerController(this);
-		storageManagerController.init(content);
+		storageManagerController.init(views);
 		this.currentView = storageManagerController;
 	}
 	

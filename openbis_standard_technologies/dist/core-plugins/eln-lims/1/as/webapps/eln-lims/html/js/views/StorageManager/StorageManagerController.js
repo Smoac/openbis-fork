@@ -265,11 +265,11 @@ function StorageManagerController(mainController) {
 		}
 	});
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		if(!FormUtil.getDefaultStoragesDropDown("", true)) {
 			Util.showError("You need to configure the storage options to manage them. :-)");
 		} else {
-			this._storageManagerView.repaint($container);
+			this._storageManagerView.repaint(views);
 		}
 	}
 	
