@@ -20,7 +20,7 @@ function DeleteEntityView(deleteEntityController, deleteEntityModel) {
 	
 	this.repaint = function() {
 		var _this = this;
-		var $window = $('<form>', { 'class' : 'form-horizontal', 'action' : 'javascript:void(0);' });
+		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		$window.submit(function() {
 			_this._deleteEntityModel.deleteFunction(_this._deleteEntityModel.reason);
 			Util.unblockUI();

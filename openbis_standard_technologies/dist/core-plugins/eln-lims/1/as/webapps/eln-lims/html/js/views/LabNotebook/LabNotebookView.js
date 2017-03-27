@@ -20,7 +20,7 @@ function LabNotebookView(labNotebookController, labNotebookView) {
 	
 	this.repaint = function(views) {
 		
-		var $form = $("<div>", { "class" : "form-horizontal"});
+		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
 		$form.append($formColumn);

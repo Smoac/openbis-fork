@@ -20,7 +20,7 @@ function InventoryView(inventoryController, inventoryView) {
 	
 	this.repaint = function(views) {
 		
-		var $form = $("<div>", { "class" : "form-horizontal"});
+		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
 		$form.append($formColumn);

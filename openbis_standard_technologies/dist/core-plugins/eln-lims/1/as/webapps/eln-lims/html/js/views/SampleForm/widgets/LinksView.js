@@ -189,14 +189,14 @@ function LinksView(linksController, linksModel) {
 	
 	linksView.showCopyProtocolPopUp = function(callback) {
 		Util.blockUINoMessage();
-		var component = "<div class='form-horizontal'>"
+		var component = "<div>"
 			component += "<legend>Copy Protocol</legend>";
-			component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-			component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
-			component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+			component += "<div class='form-group'>";
+			component += "<label class='control-label'>Code&nbsp;(*):</label>";
+			component += "<div>";
 			component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
 			component += "</div>";
-			component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+			component += "<div>";
 			component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 			component += "</div>";
 			component += "</div>";
@@ -210,7 +210,7 @@ function LinksView(linksController, linksModel) {
 				'overflow' : 'auto'
 		};
 		
-		Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+		Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
 		
 		$("#newSampleCodeForCopy").on("keyup", function(event) {
 			$(this).val($(this).val().toUpperCase());

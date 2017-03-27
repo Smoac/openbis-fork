@@ -25,7 +25,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var $form = $("<div>");
 		
 		var $formColumn = $("<form>", {
-			"class" : "form-horizontal", 
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});

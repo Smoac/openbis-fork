@@ -25,8 +25,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		//
 		// Form template and title
 		//
-		var $containerColumn = $("<form>", { 
-			"class" : "form-horizontal", 
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""

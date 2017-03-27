@@ -33,8 +33,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		$header.append($("<h2>").append("Storage Manager"));
 		$header.append(this._moveBtn);
 		
-		var $containerColumn = $("<form>", { 
-			"class" : "form-horizontal", 
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""

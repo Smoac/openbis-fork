@@ -541,13 +541,13 @@ var FormUtil = new function() {
 		if(!isInline) {
 			labelColumnClass = this.labelColumnClass;
 		}
-		var $controlLabel = $('<label>', { class : 'control-label ' + labelColumnClass }).html(labelText);
+		var $controlLabel = $('<label>', { class : 'control-label' }).html(labelText);
 		
 		var controlColumnClass = ""
 		if(!isInline) {
 			controlColumnClass = this.controlColumnClass;
 		}
-		var $controls = $('<div>', { class : 'controls ' + controlColumnClass });
+		var $controls = $('<div>', { class : 'controls' });
 			
 		$controlGroup.append($controlLabel);
 		
@@ -575,12 +575,14 @@ var FormUtil = new function() {
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		
-		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass});
+		var $controlLabel = $('<label>', {class : 'control-label' });
+		$controlLabel.css("margin-bottom","0px");
+		
 		if(label) {
 			$controlLabel.text(label + ":");
 		}
 		
-		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
+		var $controls = $('<div>', {class : 'controls' });
 		
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);

@@ -23,7 +23,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var _this = this;
 		
 		//Clean and prepare container
-		var $wrapper = $('<form>', { class : 'form-horizontal', 'id' : 'mainDataSetForm', 'role' : 'form'});
+		var $wrapper = $('<form>', { 'id' : 'mainDataSetForm', 'role' : 'form'});
 		if(this._dataSetFormModel.isMini) {
 			$wrapper.css('margin', '10px');
 			$wrapper.css('padding', '10px');
@@ -125,12 +125,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				_this.isFormDirty = true;
 			});
 			
-			var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
+			var $dataSetTypeDropDown = $('<div>', { class : 'form-group' });
 			if(!this._dataSetFormModel.isMini) {
-				$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
+				$dataSetTypeDropDown.append($('<label>', {class: "control-label"}).html('Data Set Type&nbsp;(*):'));
 			}
 			
-			var $dataSetTypeDropDowContainer = $('<div>', {class: FormUtil.controlColumnClass});
+			var $dataSetTypeDropDowContainer = $('<div>');
 			if(this._dataSetFormModel.isMini) {
 				$dataSetTypeDropDowContainer.css('width', '100%');
 			}
@@ -206,7 +206,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				
 				var $submitButton = $('<fieldset>')
 				.append($('<div>', { class : "form-group"}))
-				.append($('<div>', {class: FormUtil.controlColumnClass})
+				.append($('<div>')
 							.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
 				
 				$wrapper.append($submitButton);
@@ -224,7 +224,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					
 				var $autoUploadGroup = $('<fieldset>')
 						.append($('<div>', { class : "form-group"}))
-						.append($('<div>', {class: FormUtil.controlColumnClass})
+						.append($('<div>')
 						.append($autoUploadCheck).append(" Auto upload on drop"));
 				
 				$wrapper.append($('<fieldset>').append($autoUploadGroup));
@@ -330,8 +330,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			
 			var $folderName = $('<div>')
 			.append($('<div>', { class : "form-group"})
-					.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
-					.append($('<div>', {class: FormUtil.controlColumnClass})
+					.append($('<label>', {class : 'control-label'}).html('Folder Name&nbsp;(*):'))
+					.append($('<div>')
 						.append($textField))
 			);
 			$wrapper.append($folderName);
@@ -343,8 +343,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			if(isZipDirectoryUpload === null) {
 				var $fileFieldSetIsDirectory = $('<div>')
 				.append($('<div>', { class : "form-group"})
-							.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).text('Uncompress before import:'))
-							.append($('<div>', {class: FormUtil.controlColumnClass})
+							.append($('<label>', {class : 'control-label'}).text('Uncompress before import:'))
+							.append($('<div>')
 								.append(FormUtil._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
 				);
 				$wrapper.append($fileFieldSetIsDirectory);
@@ -359,8 +359,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						
 						var $folderName = $('<div>', { "id" : "folderNameContainer"})
 						.append($('<div>', { class : "form-group"})
-								.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
-								.append($('<div>', {class: FormUtil.controlColumnClass})
+								.append($('<label>', {class : 'control-label' }).html('Folder Name&nbsp;(*):'))
+								.append($('<div>')
 									.append($textField))
 						);
 						$("#fileOptionsContainer").append($folderName);
@@ -448,8 +448,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					} else {
 						var $controlGroup = $('<div>', {class : 'form-group'});
 						var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
-						var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
-						var $controls = $('<div>', {class : FormUtil.controlColumnClass});
+						var $controlLabel = $('<label>', {'class' : "control-label" }).html(propertyType.label + requiredStar + ":");
+						var $controls = $('<div>');
 						
 						$controlGroup.append($controlLabel);
 						$controlGroup.append($controls);

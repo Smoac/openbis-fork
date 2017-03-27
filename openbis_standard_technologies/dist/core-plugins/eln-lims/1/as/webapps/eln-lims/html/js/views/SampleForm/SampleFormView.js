@@ -28,7 +28,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $form = $("<span>");
 		
 		var $formColumn = $("<form>", {
-			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});
@@ -686,27 +685,24 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			Util.blockUINoMessage();
 			
 			var copyFunction = function(defaultCode) {
-				var component = "<div class='form-horizontal'>"
+				var component = "<div>"
 					component += "<legend>Duplicate Entity</legend>";
-					component += "<div class='form-inline'>";
-					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-					component += "<label class='control-label " + FormUtil.labelColumnClass + "'>Options </label>";
-					component += "<div class='" + FormUtil.controlColumnClass + "'>";
+					component += "<div>";
+					component += "<div class='form-group'>";
+					component += "<label class='control-label'>Options </label>";
+					component += "<div class='controls'>";
 					component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy'> Link Parents </label></span>";
-					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy'> Copy Children </label></span>";
-					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					component += "<span class='checkbox'><label><input type='checkbox' id='copyCommentsLogOnCopy'> Copy Comments Log </label></span>";
 					component += "</div>";
 					component += "</div>";
 					component += "</div>";
-					component += "<br /><br />";
-					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-					component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
-					component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+					component += "<div class='form-group'>";
+					component += "<label class='control-label'>Code&nbsp;(*):</label>";
+					component += "<div>";
 					component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
 					component += "</div>";
-					component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+					component += "<div>";
 					component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 					component += "</div>";
 					component += "</div>";
@@ -1020,7 +1016,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Mounting the widget with the components
 		var $childrenGenerator = $("<div>");
 		$childrenGenerator.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton));
-		$childrenGenerator.append($("<form>", { "class" : "form-horizontal" , "style" : "margin-left:20px; margin-right:20px;"})
+		$childrenGenerator.append($("<form>")
 									.append($("<h1>").append("Children Generator"))
 									.append($parentsComponent)
 									.append($childrenComponent)

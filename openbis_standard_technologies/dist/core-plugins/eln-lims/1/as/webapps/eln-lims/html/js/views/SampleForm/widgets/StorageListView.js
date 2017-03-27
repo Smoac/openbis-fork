@@ -187,7 +187,7 @@ function StorageListView(storageListController, storageListModel) {
 				'height' : '90%'
 		};
 		
-		var container = "<div class='row col-md-12 form-horizontal' id='storage-pop-up-container'></div>";
+		var container = "<div id='storage-pop-up-container'></div>";
 		var containerButtons = "<a class='btn btn-default' id='storage-accept'>Accept</a> <a class='btn btn-default' id='storage-cancel'>Cancel</a>";
 			
 		Util.blockUI(container, css);

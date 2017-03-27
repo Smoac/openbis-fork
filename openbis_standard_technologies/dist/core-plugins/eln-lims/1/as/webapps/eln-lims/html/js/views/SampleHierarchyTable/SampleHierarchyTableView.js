@@ -24,8 +24,7 @@ function SampleHierarchyTableView(controller, model) {
 	this.repaint = function(views) {
 		var _this = this;
 		
-		var $containerColumn = $("<form>", { 
-			"class" : "form-horizontal", 
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""

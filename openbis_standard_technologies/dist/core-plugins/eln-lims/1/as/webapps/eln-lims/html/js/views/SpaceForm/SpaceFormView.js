@@ -22,15 +22,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		var _this = this;
 		var $container = views.content;
 		
-		var $form = $("<div>", { "class" : "form-horizontal"});
+		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
 		$form.append($formColumn);
 		
 		var typeTitle = "Space: ";
-//		if(profile.isInventorySpace(this._spaceFormModel.space.code)) {
-//			typeTitle = "";
-//		}
 		
 		var $formTitle = $("<h2>").append(typeTitle + this._spaceFormModel.space.code);
 		

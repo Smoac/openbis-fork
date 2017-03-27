@@ -41,8 +41,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		//
 		// Form template
 		//
-		var $containerColumn = $("<form>", { 
-			"class" : "form-horizontal", 
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""

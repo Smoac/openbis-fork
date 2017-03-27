@@ -24,8 +24,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		
 		var $form = $("<span>");
 		
-		var $formColumn = $("<form>", { 
-			"class" : "form-horizontal form-panel-one", 
+		var $formColumn = $("<form>", {
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});

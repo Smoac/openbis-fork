@@ -22,7 +22,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 		var $header = views.header;
 		var $container = views.content;
 		
-		var $form = $("<div>", { "class" : "form-horizontal"});
+		var $form = $("<div>");
 		
 		var $formColumn = $("<form>", {
 			'role' : "form",
