@@ -576,7 +576,6 @@ var FormUtil = new function() {
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		
 		var $controlLabel = $('<label>', {class : 'control-label' });
-		$controlLabel.css("margin-bottom","0px");
 		
 		if(label) {
 			$controlLabel.text(label + ":");
