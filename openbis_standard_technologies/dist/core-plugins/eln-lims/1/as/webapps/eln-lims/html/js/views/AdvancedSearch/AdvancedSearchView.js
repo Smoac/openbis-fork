@@ -90,16 +90,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var andOrOptions = [{value : "AND", label : "AND", selected : true}, {value : "OR", label : "OR"}];
 		this._$andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
 		var _this = this;
+		
 		this._$andOrDropdownComponent.change(function() {
 			_this._advancedSearchModel.criteria.logicalOperator = $(this).val();
 		});
+		
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel(this._$andOrDropdownComponent, "Using", null, true));
 		
 		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
 			_this._advancedSearchController.search();
 		});
 		
-		$menuPanelContainer.append($submitButton);
+		$submitButton.css("margin-top", "22px");
+		var $submitButtonGroup = FormUtil.getFieldForComponentWithLabel($submitButton, "", null, true);
+		
+		$submitButtonGroup.css("margin-left", "0px");
+		$menuPanelContainer.append($submitButtonGroup);
 	}
 	
 	this._paintCriteriaPanel = function($searchCriteriaPanelContainer) {
