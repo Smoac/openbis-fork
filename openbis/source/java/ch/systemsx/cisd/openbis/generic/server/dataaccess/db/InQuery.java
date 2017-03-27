@@ -9,24 +9,16 @@ import org.hibernate.Session;
 
 public class InQuery<I, O>
 {
-    private static final int POSTGRES_DRIVER_MAX_ARGS = 32767; // Uses a signed 2 bytes integer
-
     public List<O> withBatch(Session session, String inQuery, String inParameter, List<I> inArguments, Map<String, Object> fixParams)
     {
         List<O> result = new ArrayList<O>(inArguments.size());
-
         int fixParamsSize = (fixParams == null) ? 0 : fixParams.size();
-        int fromIndex = 0;
 
-        while (fromIndex < inArguments.size())
+        InQueryScroller<I> scroller = new InQueryScroller<>(inArguments, fixParamsSize);
+        List<I> partialInArguments = null;
+
+        while ((partialInArguments = scroller.next()) != null)
         {
-            int toIndex = fromIndex + POSTGRES_DRIVER_MAX_ARGS - fixParamsSize;
-            if (toIndex > inArguments.size())
-            {
-                toIndex = inArguments.size();
-            }
-
-            List<I> partialInArguments = inArguments.subList(fromIndex, toIndex);
             SQLQuery query = session.createSQLQuery(inQuery);
             query.setParameterList(inParameter, partialInArguments);
 
@@ -39,7 +31,6 @@ public class InQuery<I, O>
             }
             List<O> partialResult = query.list();
             result.addAll(partialResult);
-            fromIndex = toIndex;
         }
 
         return result;
