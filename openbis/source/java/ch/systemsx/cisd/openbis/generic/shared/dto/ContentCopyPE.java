@@ -104,6 +104,7 @@ public class ContentCopyPE
     }
 
     @Column(name = ColumnNames.PATH_COLUMN)
+    @Field(name = SearchFieldConstants.PATH, index = Index.YES, store = Store.YES)
     public String getPath()
     {
         return path;
@@ -115,6 +116,7 @@ public class ContentCopyPE
     }
 
     @Column(name = ColumnNames.GIT_COMMIT_HASH_COLUMN)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.GIT_COMMIT_HASH)
     public String getGitCommitHash()
     {
         return gitCommitHash;

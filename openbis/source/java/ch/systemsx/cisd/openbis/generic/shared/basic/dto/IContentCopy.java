@@ -4,9 +4,5 @@ import java.io.Serializable;
 
 public interface IContentCopy extends Serializable
 {
-    boolean isHyperLinkable();
-
-    String getLabel();
-
     String getLocation();
 }

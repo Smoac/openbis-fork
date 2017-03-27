@@ -1,14 +1,12 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.lucene.document.Document;
 import org.hibernate.search.bridge.LuceneOptions;
-
-import ch.systemsx.cisd.common.string.StringUtilities;
 
 public class LinkDataGlobalSearchBridge extends GlobalSearchBridge<LinkDataPE>
 {
@@ -19,28 +17,57 @@ public class LinkDataGlobalSearchBridge extends GlobalSearchBridge<LinkDataPE>
         DataGlobalSearchBridge<LinkDataPE> db = new DataGlobalSearchBridge<>();
         Map<String, IndexedValue> values = db.collect(data);
 
-        Set<String> externalCodes = new HashSet<>();
-        Set<String> externalDmsCodes = new HashSet<>();
-
-        for (ContentCopyPE copy : data.getContentCopies())
-        {
-            if (copy.getExternalCode() != null)
+        ArrayList<ContentCopyPE> copies = new ArrayList<>(data.getContentCopies());
+        Collections.sort(copies, new Comparator<ContentCopyPE>()
             {
-                externalCodes.add(copy.getExternalCode());
-            }
-            externalDmsCodes.add(copy.getExternalDataManagementSystem().getCode());
-        }
+                @Override
+                public int compare(ContentCopyPE copy1, ContentCopyPE copy2)
+                {
+                    return copy1.getId().compareTo(copy2.getId());
+                }
+            });
 
-        if (externalCodes.isEmpty() == false)
+        int index = 1;
+        for (ContentCopyPE copy : copies)
         {
-            put(values, "External code", StringUtilities.concatenateWithSpace(new ArrayList<>(externalCodes)));
-        }
-
-        if (externalDmsCodes.isEmpty() == false)
-        {
-            put(values, "External dms", StringUtilities.concatenateWithSpace(new ArrayList<>(externalDmsCodes)));
+            addCopy(values, index++, copy);
         }
         return values;
+    }
+
+    private void addCopy(Map<String, IndexedValue> values, int index, ContentCopyPE copy)
+    {
+        ExternalDataManagementSystemPE edms = copy.getExternalDataManagementSystem();
+        String code = edms.getCode();
+        String label = edms.getLabel();
+        String externalDms;
+        if (label == null || label.length() == 0)
+        {
+            externalDms = code;
+        } else
+        {
+            externalDms = code + " (" + label + ")";
+        }
+
+        put(values, "External DMS of copy " + index, externalDms);
+        put(values, "Address of copy " + index, copy.getExternalDataManagementSystem().getAddress());
+
+        String externalCode = copy.getExternalCode();
+        String path = copy.getPath();
+        String hash = copy.getGitCommitHash();
+
+        if (externalCode != null)
+        {
+            put(values, "External code of copy " + index, externalCode);
+        }
+        if (path != null)
+        {
+            put(values, "Path of copy " + index, path);
+        }
+        if (hash != null)
+        {
+            put(values, "Commit hash of copy " + index, hash);
+        }
     }
 
     @Override

@@ -336,33 +336,36 @@ public class DataSetTranslator
             linkDataSet.setExternalCode(copy.getExternalCode());
         }
 
+        List<ContentCopyPE> pes = new ArrayList<>(linkDataPE.getContentCopies());
+        Collections.sort(pes, new Comparator<ContentCopyPE>()
+            {
+                @Override
+                public int compare(ContentCopyPE copy1, ContentCopyPE copy2)
+                {
+                    return copy1.getId().compareTo(copy2.getId());
+                }
+            });
+
         List<IContentCopy> translatedCopies = new ArrayList<>();
-        for (ContentCopyPE copy : linkDataPE.getContentCopies())
+        for (ContentCopyPE copy : pes)
         {
             ExternalDataManagementSystemPE edms = copy.getExternalDataManagementSystem();
             String address = edms.getAddress();
             ExternalDataManagementSystemType type = edms.getAddressType();
-            String label = edms.getLabel() == null ? edms.getCode() : edms.getLabel();
             IContentCopy translatedCopy;
             if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(type))
             {
                 String[] split = address.split(":");
-                translatedCopy = new FileSystemContentCopy(label, split[0], split[1], copy.getPath(), copy.getGitCommitHash());
+                translatedCopy =
+                        new FileSystemContentCopy(edms.getCode(), edms.getLabel(), split[0], split[1], copy.getPath(), copy.getGitCommitHash());
             } else
             {
-                translatedCopy = new UrlContentCopy(label,
+                translatedCopy = new UrlContentCopy(edms.getCode(), edms.getLabel(),
                         address.replaceAll(Pattern.quote("${") + ".*" + Pattern.quote("}"), copy.getExternalCode()));
             }
             translatedCopies.add(translatedCopy);
         }
-        Collections.sort(translatedCopies, new Comparator<IContentCopy>()
-            {
-                @Override
-                public int compare(IContentCopy copy1, IContentCopy copy2)
-                {
-                    return copy1.getLabel().compareTo(copy2.getLabel());
-                }
-            });
+
         linkDataSet.setCopies(translatedCopies);
 
         return linkDataSet;

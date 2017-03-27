@@ -314,6 +314,11 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     {
         List<String> permIds = getOpenBISService().createPermIds(newDataSets.size());
 
+        if (PathInfoDataSourceProvider.isDataSourceDefined() == false)
+        {
+            throw new IllegalStateException("Pathinfo DB not configured - cannot store dataset file information");
+        }
+
         IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
 
         for (int i = 0; i < newDataSets.size(); i++)

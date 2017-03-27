@@ -4,6 +4,8 @@ public class FileSystemContentCopy implements IContentCopy
 {
     private static final long serialVersionUID = 1L;
 
+    private String code;
+
     private String label;
 
     private String host;
@@ -18,8 +20,9 @@ public class FileSystemContentCopy implements IContentCopy
     {
     }
 
-    public FileSystemContentCopy(String label, String host, String directory, String path, String hash)
+    public FileSystemContentCopy(String code, String label, String host, String directory, String path, String hash)
     {
+        this.code = code;
         this.label = label;
         this.host = host;
         this.directory = directory;
@@ -28,26 +31,23 @@ public class FileSystemContentCopy implements IContentCopy
     }
 
     @Override
-    public boolean isHyperLinkable()
-    {
-        return false;
-    }
-
-    @Override
     public String getLocation()
     {
-        if (hash == null)
+        String labelString;
+        if (label == null || label.length() == 0)
         {
-            return "Host: " + host + "<br/>Directory: " + directory + path;
+            labelString = code;
         } else
         {
-            return "Host: " + host + "<br/>Directory: " + directory + path + "<br>Commit hash:" + hash;
+            labelString = code + " (" + label + ")";
         }
-    }
 
-    @Override
-    public String getLabel()
-    {
-        return label;
+        if (hash == null)
+        {
+            return "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path;
+        } else
+        {
+            return "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path + "<br>Commit hash:" + hash;
+        }
     }
 }

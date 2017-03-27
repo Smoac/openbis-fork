@@ -90,6 +90,7 @@ public class ExternalDataManagementSystemPE extends
     }
 
     @Column(name = ColumnNames.LABEL_COLUMN)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.LABEL)
     public String getLabel()
     {
         return label;
@@ -101,6 +102,7 @@ public class ExternalDataManagementSystemPE extends
     }
 
     @Column(name = ColumnNames.ADDRESS_COLUMN)
+    @Field(name = SearchFieldConstants.ADDRESS, index = Index.YES, store = Store.YES)
     public String getAddress()
     {
         return address;

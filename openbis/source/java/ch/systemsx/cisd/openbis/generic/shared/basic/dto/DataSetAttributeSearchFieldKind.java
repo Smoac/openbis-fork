@@ -23,7 +23,7 @@ import java.io.Serializable;
  * 
  * @author Piotr Buczek
  */
-public enum DataSetAttributeSearchFieldKind implements Serializable,IAttributeSearchFieldKind
+public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeSearchFieldKind
 {
 
     // common fields
@@ -81,11 +81,17 @@ public enum DataSetAttributeSearchFieldKind implements Serializable,IAttributeSe
 
     SPEED_HINT("Speed hint"),
 
-    // link data set fields
+    EXTERNAL_DMS_CODE("External DMS code"),
 
-    EXTERNAL_CODE("External code"),
+    EXTERNAL_DMS_LABEL("External DMS label"),
 
-    EXTERNAL_DMS("External dms");
+    ADDRESS("Link address"),
+
+    EXTERNAL_CODE("Link external code"),
+
+    PATH("Link path"),
+
+    COMMIT_HASH("Link git commit hash");
 
     private final String description;
 

@@ -71,7 +71,12 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
                 case FILE_SYSTEM_GIT:
                     copy.setGitCommitHash(ccc.getGitCommitHash());
                 case FILE_SYSTEM_PLAIN:
-                    copy.setPath(ccc.getPath());
+                    String path = ccc.getPath();
+                    if (path.startsWith("/") == false)
+                    {
+                        path = "/" + path;
+                    }
+                    copy.setPath(path);
             }
 
             contentCopies.add(copy);

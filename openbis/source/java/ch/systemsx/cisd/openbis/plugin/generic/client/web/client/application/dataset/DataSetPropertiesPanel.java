@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.google.gwt.user.client.ui.Anchor;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -97,15 +96,7 @@ public class DataSetPropertiesPanel extends ContentPanel
             int counter = 1;
             for (IContentCopy copy : linkDataSet.getCopies())
             {
-                if (copy.isHyperLinkable())
-                {
-                    String url = copy.getLocation();
-                    Anchor anchor = new Anchor(copy.getLabel(), url);
-                    properties.put("Copy " + counter++, anchor);
-                } else
-                {
-                    properties.put("Copy " + counter++, copy.getLocation());
-                }
+                properties.put("Copy " + counter++, copy.getLocation());
             }
         }
 

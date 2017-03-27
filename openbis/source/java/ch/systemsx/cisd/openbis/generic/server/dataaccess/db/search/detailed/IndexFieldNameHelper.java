@@ -169,14 +169,23 @@ class IndexFieldNameHelper
             case SPEED_HINT:
                 return SearchFieldConstants.SPEED_HINT;
 
-            // link data set fields
-            // legacy - pre-SSDM-4723
+            case EXTERNAL_DMS_CODE:
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + CODE;
+
+            case EXTERNAL_DMS_LABEL:
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.LABEL;
+
+            case ADDRESS:
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.ADDRESS;
+
             case EXTERNAL_CODE:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.EXTERNAL_CODE;
 
-            // legacy - pre-SSDM-4723
-            case EXTERNAL_DMS:
-                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + CODE;
+            case PATH:
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PATH;
+
+            case COMMIT_HASH:
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.GIT_COMMIT_HASH;
         }
         throw new IllegalArgumentException(attributeKind.toString());
     }

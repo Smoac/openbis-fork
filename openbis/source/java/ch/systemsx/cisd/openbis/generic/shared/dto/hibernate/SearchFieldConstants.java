@@ -128,4 +128,12 @@ public final class SearchFieldConstants
     public static final String ACCESS_DATE = "access_date";
 
     public static final String IS_LISTABLE = "is_listable";
+
+    public static final String ADDRESS = "address";
+
+    public static final String LABEL = "label";
+
+    public static final String PATH = "path";
+
+    public static final String GIT_COMMIT_HASH = "git_commit_hash";
 }

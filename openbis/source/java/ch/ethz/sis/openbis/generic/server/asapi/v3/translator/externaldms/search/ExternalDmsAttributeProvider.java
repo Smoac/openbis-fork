@@ -33,7 +33,7 @@ public class ExternalDmsAttributeProvider implements IObjectAttributeProvider
     {
         if (criteria instanceof CodeSearchCriteria)
         {
-            return DataSetAttributeSearchFieldKind.EXTERNAL_DMS;
+            return DataSetAttributeSearchFieldKind.EXTERNAL_DMS_CODE;
         } else
         {
             throw new IllegalArgumentException("Unknown attribute criteria: " + criteria);
