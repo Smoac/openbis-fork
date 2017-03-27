@@ -40,7 +40,7 @@ $.extend(DefaultProfile.prototype, {
 				showLabNotebook : true,
 				showInventory : true,
 				showOrders : true,
-				showDrawingBoard : true,
+				showDrawingBoard : false,
 				showSampleBrowser : true,
 				showExports : true,
 				showStorageManager : true,
