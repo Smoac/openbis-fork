@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.commons.io.FileCopyUtils;
@@ -130,8 +132,10 @@ public class FileOperations implements IFileOperations, Serializable
     {
         return MonitoringProxy.create(IFileOperations.class,
                 new FileOperations(parameters, observerSensor)).timing(parameters).sensor(
-                observerSensor).errorLog(new Log4jSimpleLogger(operationLog)).name(
-                "remote file operations").get();
+                        observerSensor)
+                .errorLog(new Log4jSimpleLogger(operationLog)).name(
+                        "remote file operations")
+                .get();
     }
 
     private final TimingParameters timingParametersOrNull;
@@ -166,7 +170,15 @@ public class FileOperations implements IFileOperations, Serializable
     @Override
     public boolean rename(File source, File destination)
     {
-        return source.renameTo(destination);
+        try
+        {
+            Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE);
+            return true;
+        } catch (IOException e)
+        {
+            operationLog.error("Java 7 ATOMIC_MOVE failed from '" + source.toPath() + "' to '" + destination.toPath() + "'", e);
+            return false;
+        }
     }
 
     @Override
@@ -466,9 +478,13 @@ public class FileOperations implements IFileOperations, Serializable
     public void moveToDirectory(File source, File destinationDirectory) throws IOExceptionUnchecked
     {
         final File target = new File(destinationDirectory, source.getName());
-        final boolean moveOK = source.renameTo(target);
-        if (moveOK == false)
+
+        try
         {
+            Files.move(source.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e)
+        {
+            operationLog.error("Java 7 ATOMIC_MOVE failed from '" + source.toPath() + "' to '" + target.toPath() + "'", e);
             throw CheckedExceptionTunnel.wrapIfNecessary(new IOException("Moving '"
                     + source.getAbsolutePath() + "' into directory '"
                     + destinationDirectory.getAbsolutePath() + "' failed."));
@@ -612,7 +628,8 @@ public class FileOperations implements IFileOperations, Serializable
             {
                 return MonitoringProxy.create(IInputStream.class, is)
                         .timing(timingParametersOrNull).name(
-                                "input stream <" + file.getAbsolutePath() + ">").get();
+                                "input stream <" + file.getAbsolutePath() + ">")
+                        .get();
             } else
             {
                 return is;
@@ -645,7 +662,8 @@ public class FileOperations implements IFileOperations, Serializable
             {
                 return MonitoringProxy.create(IOutputStream.class, os).timing(
                         timingParametersOrNull).name(
-                        "output stream <" + file.getAbsolutePath() + ">").get();
+                                "output stream <" + file.getAbsolutePath() + ">")
+                        .get();
             } else
             {
                 return os;

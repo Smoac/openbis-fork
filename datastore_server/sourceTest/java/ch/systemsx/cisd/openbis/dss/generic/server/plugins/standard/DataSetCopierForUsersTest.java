@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
@@ -219,7 +220,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
             {
                 {
                     one(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy,
-                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                            DataSetCopier.SSH_TIMEOUT_MILLIS, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
                     will(returnValue(copier));
 
                     one(sshFactory).create(sshExecutableDummy, null);

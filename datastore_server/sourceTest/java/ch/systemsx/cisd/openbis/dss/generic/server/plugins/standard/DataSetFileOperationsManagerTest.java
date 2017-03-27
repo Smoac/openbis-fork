@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -780,7 +781,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds1ArchivedLocationFile.getPath()
-                                    + " -type f -printf \"%p\\t%s\\n\"", timeoutMillis());
+                                    + " -type f -printf \"%p\\t%s\\n\"",
+                            timeoutMillis());
                     String filePath1 =
                             ds1ArchivedLocationFile.getPath() + File.separator
                                     + "original/data1_2.txt";
@@ -797,7 +799,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createTrue()));
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
-                                    + " -type f -printf \"%p\\t%s\\n\"", timeoutMillis());
+                                    + " -type f -printf \"%p\\t%s\\n\"",
+                            timeoutMillis());
                     String filePath2 =
                             ds2ArchivedLocationFile.getPath() + File.separator
                                     + "original/data2.txt";
@@ -840,7 +843,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
-                                    + " -type f -printf \"%p\\t%s\\n\"", timeoutMillis());
+                                    + " -type f -printf \"%p\\t%s\\n\"",
+                            timeoutMillis());
                     will(returnValue(ERROR_RESULT));
                 }
             });
@@ -1056,7 +1060,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, null, DEFAULT_TIMEOUT_MILLIS);
+                    one(copierFactory).create(rsyncExec, null, DEFAULT_TIMEOUT_MILLIS, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
                     will(returnValue(copier));
 
                     one(copier).check();
@@ -1070,7 +1074,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, sshExec, timeoutMillis());
+                    one(copierFactory).create(rsyncExec, sshExec, timeoutMillis(), RSyncConfig.getInstance().getAdditionalCommandLineOptions());
                     will(returnValue(copier));
 
                     one(sshFactory).create(sshExec, hostOrNull);

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 
 public class Copier implements Serializable, IPostRegistrationDatasetHandler
 {
@@ -112,7 +113,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         String rsyncModule = hostAwareFile.tryGetRsyncModule();
         IPathCopier copier =
                 pathCopierFactory.create(rsyncExecutable, sshExecutable,
-                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+                        DataSetCopier.SSH_TIMEOUT_MILLIS, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         copier.check();
         if (host != null)
         {

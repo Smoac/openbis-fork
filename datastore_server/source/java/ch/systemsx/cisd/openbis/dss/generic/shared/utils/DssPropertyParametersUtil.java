@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -55,6 +57,8 @@ public class DssPropertyParametersUtil
     public static final String DOWNLOAD_URL_KEY = "download-url";
 
     public static final String SERVER_URL_KEY = "server-url";
+
+    public static final String RSYNC_OPTIONS = "rsync-options";
 
     public static final String DATA_STREAM_TIMEOUT = "data-stream-timeout";
 
@@ -155,6 +159,18 @@ public class DssPropertyParametersUtil
     {
         return FileUtilities.normalizeFile(new File(PropertyUtils.getMandatoryProperty(properties,
                 STOREROOT_DIR_KEY)));
+    }
+
+    public static List<String> getRsyncOptions(Properties serviceProperties)
+    {
+        String rsyncOptions = serviceProperties.getProperty(RSYNC_OPTIONS, null);
+        if (rsyncOptions == null)
+        {
+            return null;
+        } else
+        {
+            return Arrays.asList(rsyncOptions.split(" "));
+        }
     }
 
     public static String getOpenBisServerUrl(Properties serviceProperties)

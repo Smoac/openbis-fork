@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.filesystem.rsync;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -59,19 +60,19 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
         long lastChangedRelative(File destinationDirectory, long thresholdMillis);
     }
 
-    public RsyncBasedRecursiveHardLinkMaker()
+    public RsyncBasedRecursiveHardLinkMaker(List<String> additionalCmdLineFlagsOrNull)
     {
-        this(null, TimingParameters.getDefaultParameters(), DEFAULT_MAX_ERRORS_TO_IGNORE);
+        this(null, TimingParameters.getDefaultParameters(), DEFAULT_MAX_ERRORS_TO_IGNORE, additionalCmdLineFlagsOrNull);
     }
 
-    public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull)
+    public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull, List<String> additionalCmdLineFlagsOrNull)
     {
         this(rsyncExecutableOrNull, TimingParameters.getDefaultParameters(),
-                DEFAULT_MAX_ERRORS_TO_IGNORE);
+                DEFAULT_MAX_ERRORS_TO_IGNORE, additionalCmdLineFlagsOrNull);
     }
 
     public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull,
-            TimingParameters timingParameters, int maxErrorsToIgnore)
+            TimingParameters timingParameters, int maxErrorsToIgnore, List<String> additionalCmdLineFlagsOrNull)
     {
         final File rsyncExecutable =
                 (rsyncExecutableOrNull == null) ? OSUtilities.findExecutable(RSYNC_EXEC)
@@ -85,7 +86,13 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
             throw new ConfigurationFailureException("rsync executable '" + rsyncExecutable
                     + "' does not exist.");
         }
-        this.rsyncCopier = new RsyncCopier(rsyncExecutable);
+        String[] additionalCmdLineFlags = new String[0];
+        if (additionalCmdLineFlagsOrNull != null)
+        {
+            additionalCmdLineFlags = additionalCmdLineFlagsOrNull.toArray(new String[0]);
+        }
+
+        this.rsyncCopier = new RsyncCopier(rsyncExecutable, additionalCmdLineFlags);
         this.timingParameters = timingParameters;
         this.maxErrorsToIgnore = maxErrorsToIgnore;
     }

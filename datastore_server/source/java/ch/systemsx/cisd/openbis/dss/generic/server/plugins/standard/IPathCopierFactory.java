@@ -17,10 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 
 public interface IPathCopierFactory
 {
-    IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis);
+    IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis, List<String> additionalCmdLineFlagsOrNull);
 }

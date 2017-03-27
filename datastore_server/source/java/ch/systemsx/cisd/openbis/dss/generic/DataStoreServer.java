@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 
 /**
  * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer}, {@link ETLDaemon}.
@@ -102,6 +104,9 @@ public class DataStoreServer
 
         ExtendedProperties props = DssPropertyParametersUtil.loadProperties(DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE);
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(props);
+        List<String> rsyncOps = DssPropertyParametersUtil.getRsyncOptions(props);
+        notificationLog.info("Rsync configured with additional options: " + rsyncOps);
+        RSyncConfig.getInstance(rsyncOps);
 
         // Initialize the shredder and updater _before_ the DataSetCommandExecutor which uses them.
         QueueingPathRemoverService.start(storeRootDir, ETLDaemon.shredderQueueFile);
