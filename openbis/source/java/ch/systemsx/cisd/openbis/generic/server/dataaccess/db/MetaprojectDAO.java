@@ -186,18 +186,27 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         {
             return Collections.emptySet();
         }
-        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
-        criteria.createAlias("metaproject", "m");
-        criteria.add(Restrictions.eq("m.owner", owner));
-        criteria.add(Restrictions.in(entityKind.getLabel(), entities));
 
-        criteria.setFetchMode("experiment", FetchMode.SELECT);
-        criteria.setFetchMode("sample", FetchMode.SELECT);
-        criteria.setFetchMode("dataSet", FetchMode.SELECT);
-        criteria.setFetchMode("material", FetchMode.SELECT);
+        final List<MetaprojectAssignmentPE> assignments = new ArrayList<>();
 
-        final List<MetaprojectAssignmentPE> assignments =
-                cast(getHibernateTemplate().findByCriteria(criteria));
+        InQueryScroller<? extends IEntityInformationWithPropertiesHolder> entitiesScroller = new InQueryScroller<>(entities, 1);
+        List<? extends IEntityInformationWithPropertiesHolder> partialEntities = null;
+
+        while ((partialEntities = entitiesScroller.next()) != null)
+        {
+            final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
+            criteria.createAlias("metaproject", "m");
+            criteria.add(Restrictions.eq("m.owner", owner));
+            criteria.add(Restrictions.in(entityKind.getLabel(), partialEntities));
+
+            criteria.setFetchMode("experiment", FetchMode.SELECT);
+            criteria.setFetchMode("sample", FetchMode.SELECT);
+            criteria.setFetchMode("dataSet", FetchMode.SELECT);
+            criteria.setFetchMode("material", FetchMode.SELECT);
+
+            final List<MetaprojectAssignmentPE> partialAssignments = cast(getHibernateTemplate().findByCriteria(criteria));
+            assignments.addAll(partialAssignments);
+        }
 
         if (operationLog.isDebugEnabled())
         {
