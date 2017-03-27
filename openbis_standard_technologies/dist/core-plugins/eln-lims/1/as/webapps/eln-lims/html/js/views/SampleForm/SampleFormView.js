@@ -331,7 +331,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// GENERATE CHILDREN
 		//
 		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSample) {
-			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-left:25px;', 'id' : 'generate_children'}).text("Generate Children");
+			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-top:15px;', 'id' : 'generate_children'}).text("Generate Children");
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
 			});
@@ -899,7 +899,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					virtualSample.code = generatedChildrenCodes[i];
 					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
 					virtualSample.sampleTypeCode = generatedChildrenType;
-					_this._sampleFormModel.sampleLinksChildren.addSample(virtualSample);
+					_this._sampleFormModel.sampleLinksChildren.addVirtualSample(virtualSample);
 				}
 				
 				_this._childrenAdded();

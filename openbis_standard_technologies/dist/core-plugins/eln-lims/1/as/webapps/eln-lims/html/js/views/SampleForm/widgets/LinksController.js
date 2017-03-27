@@ -118,6 +118,10 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		return true;
 	}
 	
+	this.addVirtualSample = function(sample) {
+		linksView.updateSample(sample, true, false);
+	}
+	
 	this.addSample = function(sample, isInit) {
 		Util.blockUI();
 		mainController.serverFacade.searchWithIdentifiers([sample.identifier], function(results) {
