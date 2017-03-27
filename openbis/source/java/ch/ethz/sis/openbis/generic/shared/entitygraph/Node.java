@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 
 public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHolder & IPermIdHolder & IRegistrationDateHolder & IRegistratorHolder>
 {
@@ -119,7 +120,12 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
         {
             return null;
         }
-        return ((ISpaceHolder) entity).getSpace().getCode();
+        Space space = ((ISpaceHolder) entity).getSpace();
+        if (space == null)
+        {
+            return null;
+        }
+        return space.getCode();
     }
 
     public Experiment getExperimentOrNull()
