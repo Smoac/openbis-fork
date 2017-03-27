@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class InQueryScroller<I>
@@ -12,9 +14,9 @@ public class InQueryScroller<I>
 
     private int fixParamsSize;
 
-    public InQueryScroller(List<I> inArguments, int fixParamsSize)
+    public InQueryScroller(Collection<I> inArguments, int fixParamsSize)
     {
-        this.inArguments = inArguments;
+        this.inArguments = new ArrayList<>(inArguments);
         this.fromIndex = 0;
         this.fixParamsSize = fixParamsSize;
     }
