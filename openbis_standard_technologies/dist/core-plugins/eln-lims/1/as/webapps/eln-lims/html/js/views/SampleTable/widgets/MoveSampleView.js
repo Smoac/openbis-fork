@@ -40,7 +40,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 				_this._moveSampleModel.isNewExperiment = true;
 				_this.repaintNewExperiment();
 			}
-		}), ""));
+		}), "Choose existing or create a new " + ELNDictionary.getExperimentDualName() +"?"));
 		
 		$window.append($experimentSection);
 		this.repaintExistingExperiment();
