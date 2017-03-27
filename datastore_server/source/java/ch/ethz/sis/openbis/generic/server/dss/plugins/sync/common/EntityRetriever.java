@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistra
 
 public class EntityRetriever 
 {
-    private static final EntityGraph<Node<?>> graph = new EntityGraph<Node<?>>();
+    private EntityGraph<Node<?>> graph = new EntityGraph<Node<?>>();
 
     private final IApplicationServerApi v3Api;
 
@@ -85,9 +85,7 @@ public class EntityRetriever
 
     public EntityGraph<Node<?>> getEntityGraph(String spaceId)
     {
-        // TODO fix this
         buildEntityGraph(spaceId);
-        // graph.printGraph(spaceId);
         return graph;
     }
 
@@ -111,8 +109,12 @@ public class EntityRetriever
 
     public void buildEntityGraph(String spaceId)
     {
-        // TODO add experiment datasets.
-        graph.clear();
+        graph = new EntityGraph<Node<?>>();
+
+        // add shared samples
+        findSharedSamples();
+
+        // build the graph for the space from top-down starting from projects
         ProjectSearchCriteria prjCriteria = new ProjectSearchCriteria();
         prjCriteria.withSpace().withCode().thatEquals(spaceId);
 
@@ -128,10 +130,35 @@ public class EntityRetriever
             findExperiments(prjNode);
         }
 
+        // add space samples
         findSpaceSamples(spaceId);
 
-        // TODO move the logout to the handler
+
+        // TODO logout?
         // v3.logout(sessionToken);
+    }
+
+    // TODO temporary solution until V3 API SampleSearchCriteria.withoutSpace() is implemented
+    private void findSharedSamples()
+    {
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withType();
+        fetchOptions.withExperiment();
+        fetchOptions.withSpace();
+        fetchOptions.withAttachments();
+
+        List<Sample> samples = v3Api.searchSamples(sessionToken, new SampleSearchCriteria(), fetchOptions).getObjects();
+        for (Sample sample : samples)
+        {
+            if (sample.getSpace() == null)
+            {
+                Node<Sample> sampleNode = new Node<Sample>(sample);
+                graph.addNode(sampleNode);
+                findChildAndComponentSamples(sampleNode);
+                findAndAttachDataSets(sampleNode);
+            }
+        }
     }
 
     private void findExperiments(Node<Project> prjNode)
