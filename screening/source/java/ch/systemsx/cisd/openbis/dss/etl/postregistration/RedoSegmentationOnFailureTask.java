@@ -21,8 +21,6 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -39,8 +37,10 @@ import ch.systemsx.cisd.etlserver.postregistration.NoCleanupTask;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * Post registration task, that checks if the segmentation dataset has been properly imported. If not it copies the dataset to the dropbox again. This
@@ -198,7 +198,7 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
 
         private boolean makeHardlinkCopy(File inputFile, File destinationDirectory)
         {
-            IImmutableCopier hardlinkMaker = FastRecursiveHardLinkMaker.tryCreate();
+            IImmutableCopier hardlinkMaker = FastRecursiveHardLinkMaker.tryCreate(RSyncConfig.getInstance().getAdditionalCommandLineOptions());
             boolean linkWasMade = false;
             if (null != hardlinkMaker)
             {
