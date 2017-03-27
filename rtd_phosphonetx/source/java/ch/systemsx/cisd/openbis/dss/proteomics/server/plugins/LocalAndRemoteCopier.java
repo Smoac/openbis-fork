@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierF
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 
 /**
  * @author Franz-Josef Elmer
@@ -103,7 +104,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
             File rsyncExecutable = Copier.getExecutable(properties, DataSetCopier.RSYNC_EXEC);
             IPathCopier copier =
                     pathCopierFactory.create(rsyncExecutable, sshExecutable,
-                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                            DataSetCopier.SSH_TIMEOUT_MILLIS, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
             String rsyncPasswordFile =
@@ -119,7 +120,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
             File gfindExecutable = Copier.getExecutable(properties, DataSetCopier.GFIND_EXEC);
             IPathCopier copier =
                     pathCopierFactory.create(rsyncExecutable, sshExecutable,
-                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                            DataSetCopier.SSH_TIMEOUT_MILLIS, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
             String rsyncPasswordFile =

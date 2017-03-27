@@ -50,13 +50,13 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses =
-{ DataSetCopier.class, AbstractDropboxProcessingPlugin.class })
+@Friend(toClasses = { DataSetCopier.class, AbstractDropboxProcessingPlugin.class })
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
     private static final String RSYNC_EXECUTABLE = "rsync-executable";
@@ -236,7 +236,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         {
             assertEquals(
                     "Path to executable 'rsync' is not a file: "
-                            + rsyncExecutableDummy.getAbsolutePath(), ex.getMessage());
+                            + rsyncExecutableDummy.getAbsolutePath(),
+                    ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -254,7 +255,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         {
             assertEquals(
                     "Path to executable 'ssh' is not a file: "
-                            + sshExecutableDummy.getAbsolutePath(), ex.getMessage());
+                            + sshExecutableDummy.getAbsolutePath(),
+                    ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -775,7 +777,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     exactly(numberOfExpectedCreations).of(pathFactory).create(rsyncExecutableDummy,
-                            sshExecutableDummy, DataSetCopier.SSH_TIMEOUT_MILLIS);
+                            sshExecutableDummy, DataSetCopier.SSH_TIMEOUT_MILLIS, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
                     will(returnValue(copier));
 
                     exactly(numberOfExpectedCreations).of(sshFactory).create(sshExecutableDummy,

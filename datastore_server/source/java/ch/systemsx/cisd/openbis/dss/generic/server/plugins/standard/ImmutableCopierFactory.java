@@ -21,6 +21,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 
 /**
  * Factory for {@link IImmutableCopier} instances based on {@link FastRecursiveHardLinkMaker}.
@@ -35,7 +36,7 @@ public class ImmutableCopierFactory implements IImmutableCopierFactory, Serializ
     @Override
     public IImmutableCopier create(File rsyncExecutable, File lnExecutable)
     {
-        return FastRecursiveHardLinkMaker.create(rsyncExecutable, lnExecutable);
+        return FastRecursiveHardLinkMaker.create(rsyncExecutable, lnExecutable, RSyncConfig.getInstance().getAdditionalCommandLineOptions());
     }
 
 }

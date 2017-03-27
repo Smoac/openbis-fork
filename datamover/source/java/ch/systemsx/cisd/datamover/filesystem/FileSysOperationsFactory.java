@@ -89,7 +89,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     {
         final File rsyncExecutable = findRsyncExecutable();
         final File lnExecutable = findLnExecutable();
-        return FastRecursiveHardLinkMaker.create(rsyncExecutable, lnExecutable);
+        return FastRecursiveHardLinkMaker.create(rsyncExecutable, lnExecutable, null);
     }
 
     @Override

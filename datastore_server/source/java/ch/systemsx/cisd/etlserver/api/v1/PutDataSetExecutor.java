@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -116,7 +117,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         this.sessionToken = sessionToken;
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
-        this.copier = FastRecursiveHardLinkMaker.tryCreate();
+        this.copier = FastRecursiveHardLinkMaker.tryCreate(RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         this.temporaryIncomingDir = service.createTemporaryIncomingDir(newDataSet.tryDataSetType());
         this.dataSetDir = new File(temporaryIncomingDir, newDataSet.getDataSetFolderName());
         if (dataSetDir.exists())

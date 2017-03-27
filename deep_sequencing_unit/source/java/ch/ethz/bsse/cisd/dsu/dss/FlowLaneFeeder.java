@@ -29,9 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -59,6 +59,7 @@ import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.etlserver.AbstractPostRegistrationDataSetHandlerForFileBasedUndo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -141,7 +142,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                         + "' does not exists or is a folder.");
             }
         }
-        copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
+        copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters(),
+                RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         Properties transferDropBoxMapping =
                 ExtendedProperties.getSubset(properties, TRANSFER_PREFIX, true);
         Set<Entry<Object, Object>> entries = transferDropBoxMapping.entrySet();
@@ -436,8 +438,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 
     private File createDropBoxFile(String flowLane)
     {
-        File dropBox = new File(flowLaneDropBoxTemplate.format(new Object[]
-        { flowLane }));
+        File dropBox = new File(flowLaneDropBoxTemplate.format(new Object[] { flowLane }));
         if (dropBox.exists() == false)
         {
             throw new ConfigurationFailureException("Drop box '" + dropBox + "' does not exist.");
