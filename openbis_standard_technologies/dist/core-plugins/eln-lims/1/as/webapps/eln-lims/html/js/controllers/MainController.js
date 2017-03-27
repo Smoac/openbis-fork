@@ -837,6 +837,7 @@ function MainController(profile) {
 		var newView = null;
 		
 		if(freeText) {
+			$("#search").addClass("search-query-searching");
 			newView = new AdvancedSearchController(this, freeText);
 		} else {
 			newView = new AdvancedSearchController(this);

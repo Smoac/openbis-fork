@@ -17,11 +17,6 @@
 /* 
  * General Overrides
  */
-.form-panel-one,
-.form-panel-two {
-	overflow-y : auto;
-	overflow-x : hidden;
-}
 
 .table {
   table-layout:fixed;
@@ -236,7 +231,7 @@ body,
 	padding-left: 5px;
 }
 
-.navbar-form .search-query {
+.search-query {
     padding-left: 30px;
     background-image: url(../img/search-icon.png);
     background-repeat: no-repeat;
@@ -247,7 +242,8 @@ body,
 
 .search-query-searching {
     background-image: url(../img/search-spinner.gif) !important;
-    background-position: 12px 5px !important;
+    background-position: 95% 50% !important;
+    background-repeat: no-repeat;
 }
 
 .ui-fancytree,

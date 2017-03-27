@@ -47,8 +47,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             var searchDomainLabel = null;
             
             if(domainIndex) {
-                searchDomain = profile.getSearchDomains()[searchDomain].name;
-                searchDomainLabel = profile.getSearchDomains()[searchDomain].label;
+                searchDomain = profile.getSearchDomains()[domainIndex].name;
+                searchDomainLabel = profile.getSearchDomains()[domainIndex].label;
             } else {
                 searchDomain = profile.getSearchDomains()[0].name;
                 searchDomainLabel = profile.getSearchDomains()[0].label;

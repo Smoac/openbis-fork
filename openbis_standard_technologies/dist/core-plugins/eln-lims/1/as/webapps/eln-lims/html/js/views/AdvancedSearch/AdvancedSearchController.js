@@ -92,6 +92,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 					objects : dataList,
 					totalCount : results.totalCount
 				});
+				$("#search").removeClass("search-query-searching");
 			}
 			
 			var fetchOptions = {};
