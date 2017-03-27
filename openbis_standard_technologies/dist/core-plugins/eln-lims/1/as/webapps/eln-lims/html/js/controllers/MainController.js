@@ -661,10 +661,10 @@ function MainController(profile) {
 	}
 	
 	this._showDrawingBoard = function() {
-		var content = this._getBackwardsCompatibleMainContainer();
+		var views = this._getNewViewModel(true, true, false);
 		
 		var drawingBoardsController = new DrawingBoardsController(this);
-		drawingBoardsController.init(content);
+		drawingBoardsController.init(views);
 		this.currentView = drawingBoardsController;
 	}
 	

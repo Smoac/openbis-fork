@@ -19,7 +19,7 @@ function DrawingBoardsController(mainController) {
 	this._drawingBoardsModel = new DrawingBoardsModel();
 	this._drawingBoardsView = new DrawingBoardsView(this, this._drawingBoardsModel);
 	
-	this.init = function($container) {
-		this._drawingBoardsView.repaint($container);
+	this.init = function(views) {
+		this._drawingBoardsView.repaint(views);
 	}
 }
