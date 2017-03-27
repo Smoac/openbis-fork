@@ -235,14 +235,14 @@ body,
     padding-left: 30px;
     background-image: url(../img/search-icon.png);
     background-repeat: no-repeat;
-    background-position: 12px 9px;
+   	background-position: 12px 50% !important;
 	border-radius: 15px 15px 15px 15px;
 	width: 80%;
 }
 
 .search-query-searching {
     background-image: url(../img/search-spinner.gif) !important;
-    background-position: 95% 50% !important;
+    background-position: 12px 50% !important;
     background-repeat: no-repeat;
 }
 
