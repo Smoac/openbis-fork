@@ -569,9 +569,23 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     }
 
                     String permIds = permIdList.substring(2);
-                    String content = historyCreator.apply(session, entityIdsToDelete, createQueryPropertyHistorySQL(),
-                            createQueryRelationshipHistorySQL(), createQueryAttributesSQL(), null,
-                            AttachmentHolderKind.SAMPLE, registrator);
+
+                    InQueryScroller<Long> entityIdsToDeleteScroller = new InQueryScroller<>(entityIdsToDelete, 16384 /*
+                                                                                                                      * createQueryPropertyHistorySQL
+                                                                                                                      * uses the parameters twice
+                                                                                                                      */);
+                    List<Long> partialEntityIdsToDelete = null;
+                    String content = "";
+                    while ((partialEntityIdsToDelete = entityIdsToDeleteScroller.next()) != null)
+                    {
+                        if (content.length() > 0)
+                        {
+                            content += ", ";
+                        }
+                        content += historyCreator.apply(session, partialEntityIdsToDelete, createQueryPropertyHistorySQL(),
+                                createQueryRelationshipHistorySQL(), createQueryAttributesSQL(), null,
+                                AttachmentHolderKind.SAMPLE, registrator);
+                    }
 
                     SQLQuery deleteProperties = session.createSQLQuery(properties);
                     deleteProperties.setParameter("id", deletion.getId());
