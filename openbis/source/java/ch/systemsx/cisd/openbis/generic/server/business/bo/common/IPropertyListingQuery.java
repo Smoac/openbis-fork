@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
+import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
  * Query methods for retrieving property types, material types, and vocabulary URL templates.
@@ -27,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 public interface IPropertyListingQuery
 {
+    public static final int FETCH_SIZE = 1000;
+
     /**
      * Returns all property types. Fills only <code>id</code>, <code>code</code>, <code>label</var> and <code>DataType</code>. Note that code and
      * label are already HTML escaped.
@@ -47,5 +53,14 @@ public interface IPropertyListingQuery
      */
     @Select("select id, code from material_types")
     public CodeRecord[] getMaterialTypes();
+    
+    @Select(sql = "SELECT id, covo_id, code, label, ordinal, description "
+            + "FROM controlled_vocabulary_terms WHERE id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class}, fetchSize = FETCH_SIZE)
+    public DataIterator<VocabularyTermRecord> getVocabularyTerms(LongSet termIds);
 
+    @Select(sql = "SELECT id, code, maty_id FROM materials WHERE id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class}, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialEntityPropertyRecord> getMaterials(LongSet materialIds);
+    
 }

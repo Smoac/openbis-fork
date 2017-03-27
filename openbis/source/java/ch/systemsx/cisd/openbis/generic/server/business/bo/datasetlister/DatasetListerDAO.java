@@ -87,19 +87,6 @@ public final class DatasetListerDAO extends AbstractDAO
                     return query.getEntityPropertyGenericValues(entityIDs);
                 }
 
-                @Override
-                public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
-                        LongSet entityIDs)
-                {
-                    return query.getEntityPropertyMaterialValues(entityIDs);
-                }
-
-                @Override
-                public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-                        LongSet entityIDs)
-                {
-                    return query.getEntityPropertyVocabularyTermValues(entityIDs);
-                }
             };
     }
 

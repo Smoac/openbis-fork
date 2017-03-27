@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 /**
  * A record object for a vocabulary term.
  */
-public class VocabularyTermRecord extends BaseEntityPropertyRecord
+public class VocabularyTermRecord
 {
     public long id;
 
@@ -15,5 +15,5 @@ public class VocabularyTermRecord extends BaseEntityPropertyRecord
 
     public String description;
 
-    public long term_ordinal;
+    public Long ordinal;
 }
