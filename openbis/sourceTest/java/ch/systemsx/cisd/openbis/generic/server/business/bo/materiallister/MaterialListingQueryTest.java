@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
-import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.createSet;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findExactlyOneProperty;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findProperties;
 import static org.testng.AssertJUnit.assertEquals;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -35,14 +32,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
  * Test cases for {@link IMaterialListingQuery} queries.
@@ -63,15 +60,12 @@ public class MaterialListingQueryTest extends AbstractDAOTest
 
     private static final long MATERIAL_ID_TEST_2 = 35;
 
-    private Long dbInstanceId;
-
     private IMaterialListingQuery query;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
         MaterialListerDAO materialListerDAO = createMaterialListerDAO(daoFactory);
-        dbInstanceId = materialListerDAO.getDatabaseInstanceId();
         query = materialListerDAO.getQuery();
     }
 
@@ -106,43 +100,6 @@ public class MaterialListingQueryTest extends AbstractDAOTest
                 assertEquals(desc.value, "test bacterium 2");
             }
         }
-    }
-
-    @Test
-    public void testMaterialPropertyMaterialValues()
-    {
-        LongSet ids = createSet(MATERIAL_ID_TEST_1);
-        List<MaterialEntityPropertyRecord> allProperties =
-                asList(query.getEntityPropertyMaterialValues(ids));
-        AssertJUnit.assertEquals(0, allProperties.size());
-    }
-
-    private void ensureEntitiesHaveProperties(String propertyCode, PropertyType[] propertyTypes,
-            Iterable<? extends BaseEntityPropertyRecord> allProperties, long expectedPropNum,
-            long... entityIds)
-    {
-        PropertyType propertyType =
-                EntityListingTestUtils.findPropertyType(propertyTypes, propertyCode);
-        List<? extends BaseEntityPropertyRecord> properties =
-                findProperties(allProperties, propertyType.getId());
-        assertEquals("There should be exactly one property for each entity", expectedPropNum,
-                properties.size());
-        for (long entityId : entityIds)
-        {
-            findExactlyOneProperty(properties, propertyType.getId(), entityId);
-        }
-    }
-
-    @Test
-    public void testMaterialPropertyVocabularyTermValues()
-    {
-        LongSet ids = createSet(MATERIAL_ID_TEST_1);
-
-        Iterable<VocabularyTermRecord> allProperties =
-                query.getEntityPropertyVocabularyTermValues(ids);
-        PropertyType[] propertyTypes = query.getPropertyTypes();
-        ensureEntitiesHaveProperties("organism", propertyTypes, allProperties, 1,
-                MATERIAL_ID_TEST_1);
     }
 
     @Test

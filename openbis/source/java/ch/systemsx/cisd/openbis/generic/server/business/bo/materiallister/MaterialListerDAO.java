@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
-import net.lemnik.eodsql.QueryTool;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * The DAO for business objects implementing {@link IMaterialLister}. Note: Even though this class is public its constructors and instance methods
@@ -85,20 +84,6 @@ public final class MaterialListerDAO extends AbstractDAO
                         LongSet entityIDs)
                 {
                     return query.getEntityPropertyGenericValues(entityIDs);
-                }
-
-                @Override
-                public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
-                        LongSet entityIDs)
-                {
-                    return query.getEntityPropertyMaterialValues(entityIDs);
-                }
-
-                @Override
-                public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-                        LongSet entityIDs)
-                {
-                    return query.getEntityPropertyVocabularyTermValues(entityIDs);
                 }
             };
     }

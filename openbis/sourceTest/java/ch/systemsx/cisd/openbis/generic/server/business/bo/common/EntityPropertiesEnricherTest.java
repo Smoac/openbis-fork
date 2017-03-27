@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.longs.LongSets;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,12 +32,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.LongSets;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class EntityPropertiesEnricherTest extends AssertJUnit
 {
+    private static final long VOCABULARY_TERM_ID = 42L;
+
     private static final long VOCABULARY_ID = 1L;
 
     private static final long ENTITY_ID = 42L;
@@ -78,8 +82,7 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
                     PropertyType propertyType = new PropertyType();
                     propertyType.setId(PROPERTY_TYPE_ID);
                     propertyType.setDataType(new DataType(DataTypeCode.CONTROLLEDVOCABULARY));
-                    will(returnValue(new PropertyType[]
-                    { propertyType }));
+                    will(returnValue(new PropertyType[] { propertyType }));
 
                     allowing(resolver).get(ENTITY_ID);
                     will(returnValue(holder));
@@ -104,10 +107,12 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
             {
                 {
                     one(setQuery).getEntityPropertyGenericValues(entityIDs);
-                    will(returnValue(Arrays.asList()));
-
-                    one(setQuery).getEntityPropertyMaterialValues(entityIDs);
-                    will(returnValue(Arrays.asList()));
+                    GenericEntityPropertyRecord record = new GenericEntityPropertyRecord();
+                    record.entity_id = ENTITY_ID;
+                    record.cvte_id = VOCABULARY_TERM_ID;
+                    record.prty_id = PROPERTY_TYPE_ID;
+                    record.entity_id = ENTITY_ID;
+                    will(returnValue(Arrays.asList(record)));
 
                     one(query).getVocabularyURLTemplates();
                     CodeRecord codeRecord = new CodeRecord();
@@ -116,21 +121,26 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
                     will(returnValue(new CodeRecord[]
                     { codeRecord }));
 
-                    one(setQuery).getEntityPropertyVocabularyTermValues(entityIDs);
+                    one(query).getVocabularyTerms(new LongOpenHashSet(Arrays.asList(record.cvte_id)));
                     VocabularyTermRecord termRecord = new VocabularyTermRecord();
-                    termRecord.entity_id = ENTITY_ID;
-                    termRecord.prty_id = PROPERTY_TYPE_ID;
-                    termRecord.id = 137L;
+                    termRecord.id = VOCABULARY_TERM_ID;
                     termRecord.covo_id = VOCABULARY_ID;
                     termRecord.code = "HELLO";
                     termRecord.label = "Hello";
-                    will(returnValue(Arrays.asList(termRecord)));
+                    termRecord.description = "greeting";
+                    termRecord.ordinal = 1234L;
+                    will(returnValue(new WrappingDataIterator<>(Arrays.asList(termRecord))));
                 }
             });
 
         enricher.enrich(entityIDs, resolver);
 
-        assertEquals("http://my.url.org/?q=HELLO", properties.get(0).getVocabularyTerm().getUrl());
+        VocabularyTerm vocabularyTerm = properties.get(0).getVocabularyTerm();
+        assertEquals("HELLO", vocabularyTerm.getCode());
+        assertEquals("Hello", vocabularyTerm.getLabel());
+        assertEquals("greeting", vocabularyTerm.getDescription());
+        assertEquals(new Long(1234L), vocabularyTerm.getOrdinal());
+        assertEquals("http://my.url.org/?q=HELLO", vocabularyTerm.getUrl());
         context.assertIsSatisfied();
     }
 
@@ -142,10 +152,12 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
             {
                 {
                     one(setQuery).getEntityPropertyGenericValues(entityIDs);
-                    will(returnValue(Arrays.asList()));
-
-                    one(setQuery).getEntityPropertyMaterialValues(entityIDs);
-                    will(returnValue(Arrays.asList()));
+                    GenericEntityPropertyRecord record = new GenericEntityPropertyRecord();
+                    record.entity_id = ENTITY_ID;
+                    record.cvte_id = VOCABULARY_TERM_ID;
+                    record.prty_id = PROPERTY_TYPE_ID;
+                    record.entity_id = ENTITY_ID;
+                    will(returnValue(Arrays.asList(record)));
 
                     one(query).getVocabularyURLTemplates();
                     CodeRecord codeRecord = new CodeRecord();
@@ -154,15 +166,13 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
                     will(returnValue(new CodeRecord[]
                     { codeRecord }));
 
-                    one(setQuery).getEntityPropertyVocabularyTermValues(entityIDs);
+                    one(query).getVocabularyTerms(new LongOpenHashSet(Arrays.asList(record.cvte_id)));
                     VocabularyTermRecord termRecord = new VocabularyTermRecord();
-                    termRecord.entity_id = ENTITY_ID;
-                    termRecord.prty_id = PROPERTY_TYPE_ID;
-                    termRecord.id = 137L;
+                    termRecord.id = VOCABULARY_TERM_ID;
                     termRecord.covo_id = VOCABULARY_ID;
                     termRecord.code = "HELLO";
                     termRecord.label = "Hello";
-                    will(returnValue(Arrays.asList(termRecord)));
+                    will(returnValue(new WrappingDataIterator<>(Arrays.asList(termRecord))));
                 }
             });
 
