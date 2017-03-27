@@ -716,7 +716,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						'overflow' : 'auto'
 				};
 				
-				Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+				Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
 				
 				$("#newSampleCodeForCopy").on("keyup", function(event) {
 					$(this).val($(this).val().toUpperCase());
