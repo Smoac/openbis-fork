@@ -1195,7 +1195,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             } else
             {
                 copies.add(new FileSystemContentCopy(copyRecord.edms_code, copyRecord.edms_label, copyRecord.edms_address, copyRecord.edms_address,
-                        copyRecord.hash, copyRecord.path));
+                        copyRecord.path, copyRecord.hash));
             }
             linkDataSet.setExternalDataManagementSystem(externalDataManagementSystems
                     .get(copyRecord.edms_id));

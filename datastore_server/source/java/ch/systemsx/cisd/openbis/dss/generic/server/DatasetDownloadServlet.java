@@ -398,7 +398,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
         //
 
-        boolean isLinkData = request.getParameter(IS_LINK_DATASET).equals("true");
+        String isLink = request.getParameter(IS_LINK_DATASET);
+        boolean isLinkData = "true".equals(isLink);
 
         return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
                 displayMode, autoResolve, mainDataSetPathOrNull, mainDataSetPatternOrNull,
