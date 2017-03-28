@@ -935,8 +935,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<String> createPermIdStrings(String sessionToken, int amount)
     {
+        checkSession(sessionToken);
         if (amount > 100)
         {
             throw new UserFailureException("Cannot create more than 100 ids in one call (" + amount + " requested)");
