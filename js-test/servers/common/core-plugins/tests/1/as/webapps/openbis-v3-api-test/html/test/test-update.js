@@ -388,6 +388,39 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testUpdate(c, fCreate, fUpdate, c.findVocabularyTerm, fCheck);
 		});
+		
+		QUnit.test("updateExternalDms()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("EDMS");
+			
+			var fCreate = function(facade) {
+				var edmsCreation = new c.ExternalDmsCreation();
+				edmsCreation.setCode(code);
+				edmsCreation.setLabel("Test EDMS");
+				edmsCreation.setAddressType(c.ExternalDmsAddressType.OPENBIS);
+				edmsCreation.setAddress("https://my-site/q=${term}")
+				return facade.createExternalDms([ edmsCreation ]);
+			}
+			
+			var fUpdate = function(facade, permId) {
+				var edmsUpdate = new c.ExternalDmsUpdate();
+				edmsUpdate.setExternalDmsId(permId);
+				edmsUpdate.setLabel("Test EDMS 2");
+				edmsUpdate.setAddress("https://my-second-site/q=${term}");
+				return facade.updateExternalDataManagementSystems([ edmsUpdate ]);
+			}
+			
+			var fCheck = function(edms) {
+				c.assertEqual(edms.getCode(), code, "EDMS code");
+				c.assertEqual(edms.getLabel(), "Test EDMS 2", "EDMS label");
+				c.assertEqual(edms.getAddress(), "https://my-second-site/q=${term}", "EDMS address");
+				c.assertEqual(edms.getUrlTemplate(), "https://my-second-site/q=${term}", "EDMS URL template");
+				c.assertEqual(edms.getAddressType(), "OPENBIS", "EDMS address type");
+				c.assertEqual(edms.isOpenbis(), true, "EDMS is openBIS");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findExternalDms, fCheck);
+		});
 
 		QUnit.test("updateTags()", function(assert) {
 			var c = new common(assert, openbis);

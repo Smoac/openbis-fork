@@ -297,6 +297,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
+		QUnit.test("getExternalDms()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.ExternalDmsFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			
+			var fCreate = function(facade) {
+				return $.when(c.createExternalDms(facade), c.createExternalDms(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getExternalDataManagementSystems(permIds, fo);
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getExternalDataManagementSystems(permIds, new c.ExternalDmsFetchOptions());
+			}
+			
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
 		QUnit.test("getTags()", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.TagFetchOptions();

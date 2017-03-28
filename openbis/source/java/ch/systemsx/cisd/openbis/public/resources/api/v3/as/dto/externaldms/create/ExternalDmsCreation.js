@@ -9,8 +9,8 @@ define([ "stjs" ], function(stjs) {
 		constructor.serialVersionUID = 1;
 		prototype.code = null;
 		prototype.label = null;
-		prototype.urlTemplate = null;
-		prototype.type = null;
+		prototype.address = null;
+		prototype.addressType = null;
 		prototype.creationId = null;
 
 		prototype.setCode = function(code) {
@@ -25,17 +25,17 @@ define([ "stjs" ], function(stjs) {
 		prototype.getLabel = function() {
 			return this.label;
 		};
-		prototype.setUrlTemplate = function(urlTemplate) {
-			this.urlTemplate = urlTemplate;
+		prototype.setAddress = function(address) {
+			this.address = address;
 		};
-		prototype.getUrlTemplate = function() {
-			return this.urlTemplate;
+		prototype.getAddress = function() {
+			return this.address;
 		};
-		prototype.setType = function(type) {
-			this.type = type;
+		prototype.setAddressType = function(addressType) {
+			this.addressType = addressType;
 		};
-		prototype.getType = function() {
-			return this.type;
+		prototype.getAddressType = function() {
+			return this.addressType;
 		};
 		prototype.getCreationId = function() {
 			return this.creationId;
@@ -44,7 +44,8 @@ define([ "stjs" ], function(stjs) {
 			this.creationId = creationId;
 		};
 	}, {
-		creationId : "CreationId"
+		creationId : "CreationId",
+		addressType : "ExternalDmsAddressType"
 	});
 	return ExternalDmsCreation;
 })

@@ -154,6 +154,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeUpdateOperation(new c.UpdateVocabularyTermsOperation(updates));
 		}
 
+		this.updateExternalDataManagementSystems = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateExternalDmsOperation(updates));
+		}
+		
 		this.updateTags = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateTagsOperation(updates));
 		}
@@ -246,6 +250,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchVocabularyTermsOperation(criteria, fetchOptions));
 		}
 
+		this.searchExternalDataManagementSystems = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchExternalDmsOperation(criteria, fetchOptions));
+		}
+		
 		this.searchTags = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchTagsOperation(criteria, fetchOptions));
 		}
@@ -294,10 +302,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteMaterialsOperation(ids, deletionOptions));
 		}
 
+		this.deleteExternalDataManagementSystems = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeleteExternalDmsOperation(ids, deletionOptions));
+		}
+
 		this.deleteVocabularyTerms = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteVocabularyTermsOperation(ids, deletionOptions));
 		}
-
+		
 		this.deleteTags = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteTagsOperation(ids, deletionOptions));
 		}

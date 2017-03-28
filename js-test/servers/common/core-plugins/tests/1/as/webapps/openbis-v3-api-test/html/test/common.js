@@ -30,6 +30,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
 		this.ExternalDmsCreation= dtos.ExternalDmsCreation;
+		this.ExternalDmsAddressType= require('as/dto/externaldms/ExternalDmsAddressType');
 		this.SpaceUpdate = dtos.SpaceUpdate;
 		this.ProjectUpdate = dtos.ProjectUpdate;
 		this.ExperimentUpdate = dtos.ExperimentUpdate;
@@ -38,6 +39,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PhysicalDataUpdate = dtos.PhysicalDataUpdate;
 		this.MaterialUpdate = dtos.MaterialUpdate;
 		this.VocabularyTermUpdate = dtos.VocabularyTermUpdate;
+		this.ExternalDmsUpdate = dtos.ExternalDmsUpdate;
 		this.TagUpdate = dtos.TagUpdate;
 		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
 		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
@@ -46,6 +48,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
 		this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
 		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
+		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
 		this.TagDeletionOptions = dtos.TagDeletionOptions;
 		this.EntityTypePermId = dtos.EntityTypePermId;
 		this.SpacePermId = dtos.SpacePermId;
@@ -72,6 +75,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetTypeSearchCriteria = dtos.DataSetTypeSearchCriteria;
 		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 		this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
+		this.ExternalDmsSearchCriteria = dtos.ExternalDmsSearchCriteria;
 		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
 		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
@@ -86,6 +90,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetTypeFetchOptions = dtos.DataSetTypeFetchOptions;
 		this.MaterialFetchOptions = dtos.MaterialFetchOptions;
 		this.MaterialTypeFetchOptions = dtos.MaterialTypeFetchOptions;
+		this.ExternalDmsFetchOptions = dtos.ExternalDmsFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.TagFetchOptions = dtos.TagFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
@@ -141,6 +146,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateDataSetsOperation = dtos.UpdateDataSetsOperation;
 		this.UpdateMaterialsOperation = dtos.UpdateMaterialsOperation;
 		this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
+		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
 		this.UpdateTagsOperation = dtos.UpdateTagsOperation;
 		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
 
@@ -165,6 +171,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchMaterialsOperation = dtos.SearchMaterialsOperation;
 		this.SearchMaterialTypesOperation = dtos.SearchMaterialTypesOperation;
 		this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
+		this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
 		this.SearchTagsOperation = dtos.SearchTagsOperation;
 		this.SearchCustomASServicesOperation = dtos.SearchCustomASServicesOperation;
 		this.SearchObjectKindModificationsOperation = dtos.SearchObjectKindModificationsOperation;
@@ -179,6 +186,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteSamplesOperation = dtos.DeleteSamplesOperation;
 		this.DeleteDataSetsOperation = dtos.DeleteDataSetsOperation;
 		this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
+		this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
 		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
 		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
 		this.DeleteOperationExecutionsOperation = dtos.DeleteOperationExecutionsOperation;
@@ -296,7 +304,18 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
-
+		
+		this.createExternalDms = function(facade) {
+			var c = this;
+			var creation = new dtos.ExternalDmsCreation();
+			creation.setCode(c.generateId("EMDS"));
+			creation.setAddressType(c.ExternalDmsAddressType.URL);
+			creation.setAddress("https://my-server:8443/my-app/q=${term}")
+			return facade.createExternalDms([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+		
 		this.createTag = function(facade) {
 			var c = this;
 			var creation = new dtos.TagCreation();
@@ -465,13 +484,20 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return facade.deleteMaterials([ id ], options);
 		}.bind(this);
 
+		this.deleteExternalDms = function(facade, id) {
+			var c = this;
+			var options = new dtos.ExternalDmsDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteExternalDataManagementSystems([ id ], options);
+		}.bind(this);
+
 		this.deleteVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
-
+		
 		this.replaceVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();

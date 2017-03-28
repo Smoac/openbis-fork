@@ -383,6 +383,31 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findVocabularyTerm, fCheck);
 		});
 
+		QUnit.test("createExternalDataManagementSystem()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("EDMS");
+			
+			var fCreate = function(facade) {
+				var edmsCreation = new c.ExternalDmsCreation();
+				edmsCreation.setCode(code);
+				edmsCreation.setLabel("Test EDMS");
+				edmsCreation.setAddressType(c.ExternalDmsAddressType.FILE_SYSTEM);
+				edmsCreation.setAddress("host:my/path")
+				return facade.createExternalDms([ edmsCreation ]);
+			}
+			
+			var fCheck = function(edms) {
+				c.assertEqual(edms.getCode(), code, "EDMS code");
+				c.assertEqual(edms.getLabel(), "Test EDMS", "EDMS label");
+				c.assertEqual(edms.getAddress(), "host:my/path", "EDMS address");
+				c.assertEqual(edms.getUrlTemplate(), "host:my/path", "EDMS URL template");
+				c.assertEqual(edms.getAddressType(), "FILE_SYSTEM", "EDMS address type");
+				c.assertEqual(edms.isOpenbis(), false, "EDMS is openBIS");
+			}
+			
+			testCreate(c, fCreate, c.findExternalDms, fCheck);
+		});
+		
 		QUnit.test("createTags()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("TAG");

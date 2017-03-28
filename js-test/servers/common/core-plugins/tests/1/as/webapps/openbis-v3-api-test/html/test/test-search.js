@@ -1028,6 +1028,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchExternalDms()", function(assert) {
+			var c = new common(assert, openbis);
+			
+			var fSearch = function(facade) {
+				var criteria = new c.ExternalDmsSearchCriteria();
+				criteria.withCode().thatEquals("DMS_2");
+				return facade.searchExternalDataManagementSystems(criteria, c.createExternalDmsFetchOptions());
+			}
+			
+			var fCheck = function(facade, entities) {
+				c.assertEqual(entities.length, 1);
+				var edms = entities[0];
+				c.assertEqual(edms.getCode(), "DMS_2", "Code");
+				c.assertEqual(edms.getLabel(), "Test External openBIS instance", "Label");
+				c.assertEqual(edms.getAddress(), "http://www.openbis.ch/perm_id=${code}", "Address");
+				c.assertEqual(edms.getUrlTemplate(), "http://www.openbis.ch/perm_id=${code}", "URL template");
+				c.assertEqual(edms.getAddressType(), "OPENBIS", "Address type");
+				c.assertEqual(edms.isOpenbis(), true, "is openBIS?");
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchTags()", function(assert) {
 			var c = new common(assert, openbis);
 
