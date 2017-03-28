@@ -16,23 +16,25 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchExternalDmsExecutor extends AbstractSearchObjectExecutor<ExternalDmsSearchCriteria, Long> implements
+public class SearchExternalDmsExecutor extends AbstractSearchObjectManuallyExecutor<ExternalDmsSearchCriteria, ExternalDataManagementSystemPE> implements
         ISearchExternalDmsExecutor
 {
 
@@ -40,16 +42,27 @@ public class SearchExternalDmsExecutor extends AbstractSearchObjectExecutor<Exte
     private IExternalDmsAuthorizationExecutor authorizationExecutor;
 
     @Override
-    protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
+    public List<ExternalDataManagementSystemPE> search(IOperationContext context, ExternalDmsSearchCriteria criteria)
     {
         authorizationExecutor.canSearch(context);
-        List<ExternalDataManagementSystemPE> list =
-                daoFactory.getExternalDataManagementSystemDAO().listExternalDataManagementSystems();
-        List<Long> ids = new ArrayList<>();
-        for (ExternalDataManagementSystemPE edms : list)
+        return super.search(context, criteria);
+    }
+    
+    @Override
+    protected List<ExternalDataManagementSystemPE> listAll()
+    {
+        return daoFactory.getExternalDataManagementSystemDAO().listExternalDataManagementSystems();
+    }
+
+    @Override
+    protected Matcher<ExternalDataManagementSystemPE> getMatcher(ISearchCriteria criteria)
+    {
+        if (criteria instanceof CodeSearchCriteria)
         {
-            ids.add(edms.getId());
+            return new CodeMatcher<ExternalDataManagementSystemPE>();
+        } else
+        {
+            throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
-        return ids;
     }
 }

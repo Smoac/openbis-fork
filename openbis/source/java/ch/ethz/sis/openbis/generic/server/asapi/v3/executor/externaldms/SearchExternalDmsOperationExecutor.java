@@ -28,16 +28,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.SearchExternalDmsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.SearchExternalDmsOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsPEOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.externaldms.IExternalDmsTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
  * @author pkupczyk
  */
 @Component
 public class SearchExternalDmsOperationExecutor
-        extends SearchObjectsOperationExecutor<ExternalDms, Long, ExternalDmsSearchCriteria, ExternalDmsFetchOptions>
+        extends SearchObjectsPEOperationExecutor<ExternalDms, ExternalDataManagementSystemPE, ExternalDmsSearchCriteria, ExternalDmsFetchOptions>
         implements ISearchExternalDmsOperationExecutor
 {
 
@@ -54,7 +55,7 @@ public class SearchExternalDmsOperationExecutor
     }
 
     @Override
-    protected ISearchObjectExecutor<ExternalDmsSearchCriteria, Long> getExecutor()
+    protected ISearchObjectExecutor<ExternalDmsSearchCriteria, ExternalDataManagementSystemPE> getExecutor()
     {
         return searchExecutor;
     }
