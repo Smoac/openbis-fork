@@ -50,4 +50,40 @@ public class FileSystemContentCopy implements IContentCopy
             return "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path + "<br>Commit hash:" + hash;
         }
     }
+
+    @Override
+    public String getExternalDMSCode()
+    {
+        return this.code;
+    }
+
+    @Override
+    public String getExternalDMSLabel()
+    {
+        return this.label;
+    }
+
+    @Override
+    public String getExternalDMSAddress()
+    {
+        return this.host;
+    }
+
+    @Override
+    public String getPath()
+    {
+        return this.path;
+    }
+
+    @Override
+    public String getCommitHash()
+    {
+        return this.hash;
+    }
+
+    @Override
+    public String getExternalCode()
+    {
+        return null;
+    }
 }

@@ -85,13 +85,13 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     EXTERNAL_DMS_LABEL("External DMS label"),
 
-    ADDRESS("Link address"),
+    EXTERNAL_DMS_ADDRESS("External DMS address"),
 
     EXTERNAL_CODE("Link external code"),
 
     PATH("Link path"),
 
-    COMMIT_HASH("Link git commit hash");
+    COMMIT_HASH("Link commit hash");
 
     private final String description;
 

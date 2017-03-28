@@ -29,11 +29,14 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DATA_EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DATA_SAMPLE_IDENTIFIER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DMS_ADDRESS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DMS_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DMS_LABEL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.FILE_FORMAT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_COMPLETE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LINK_HASH;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LINK_PATH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.METAPROJECTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINERS;
@@ -65,11 +68,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -125,6 +126,10 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(DATA_STORE_CODE).hideByDefault();
         builder.addColumn(EXTERNAL_DMS_CODE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(EXTERNAL_DMS_LABEL).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(EXTERNAL_DMS_ADDRESS).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(LINK_PATH).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(LINK_HASH).withDefaultWidth(150).hideByDefault();
+
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
         builder.addColumn(METAPROJECTS);
@@ -141,20 +146,35 @@ public abstract class AbstractExternalDataProvider extends
                 builder.column(CODE).addEntityLink(dataSet, dataSet.getCode());
 
                 LinkDataSet linkDataSet = dataSet.tryGetAsLinkDataSet();
-                if (linkDataSet != null)
+                if (linkDataSet != null && linkDataSet.getCopies() != null)
                 {
-                    LinkTableCell externalCodeCell = new LinkTableCell();
-                    externalCodeCell.setText(linkDataSet.getExternalCode());
-                    externalCodeCell.setUrl(new LinkDataSetUrl(linkDataSet).toString());
-                    externalCodeCell.setOpenInNewWindow(true);
-                    builder.column(EXTERNAL_CODE).addValue(externalCodeCell);
-
-                    ExternalDataManagementSystem externalDms =
-                            linkDataSet.getExternalDataManagementSystem();
-                    if (externalDms != null)
+                    if (linkDataSet.getCopies().size() > 0)
                     {
-                        builder.column(EXTERNAL_DMS_CODE).addString(externalDms.getCode());
-                        builder.column(EXTERNAL_DMS_LABEL).addString(externalDms.getLabel());
+                        String dmsCodes = "";
+                        String dmsLabels = "";
+                        String dmsAddresses = "";
+                        String externalCodes = "";
+                        String paths = "";
+                        String hashes = "";
+
+                        for (IContentCopy copy : linkDataSet.getCopies())
+                        {
+                            dmsCodes += copy.getExternalDMSCode() + ", ";
+                            dmsLabels += copy.getExternalDMSLabel() + ", ";
+                            dmsAddresses += copy.getExternalDMSAddress() + ", ";
+
+                            externalCodes += emptyOnNull(copy.getExternalCode());
+                            paths += emptyOnNull(copy.getPath());
+                            hashes += emptyOnNull(copy.getCommitHash());
+                        }
+
+                        builder.column(EXTERNAL_DMS_CODE).addString(strip(dmsCodes));
+                        builder.column(EXTERNAL_DMS_LABEL).addString(strip(dmsLabels));
+                        builder.column(EXTERNAL_DMS_ADDRESS).addString(strip(dmsAddresses));
+
+                        builder.column(EXTERNAL_CODE).addString(strip(externalCodes));
+                        builder.column(LINK_PATH).addString(strip(paths));
+                        builder.column(LINK_HASH).addString(strip(hashes));
                     }
                 }
 
@@ -237,6 +257,28 @@ public abstract class AbstractExternalDataProvider extends
 
         }
         return builder.getModel();
+    }
+
+    private String emptyOnNull(String value)
+    {
+        if (value == null)
+        {
+            return "";
+        } else
+        {
+            return value + ", ";
+        }
+    }
+
+    private String strip(String value)
+    {
+        if (value.length() > 2)
+        {
+            return value.substring(0, value.length() - 2);
+        } else
+        {
+            return value;
+        }
     }
 
     private void addProject(TypedTableModelBuilder<AbstractExternalData> builder, Project project)

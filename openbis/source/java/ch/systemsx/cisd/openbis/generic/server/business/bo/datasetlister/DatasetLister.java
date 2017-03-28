@@ -74,6 +74,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystemType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileSystemContentCopy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
@@ -82,9 +84,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UrlContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
-
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -356,7 +358,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             result.put(sample, new ArrayList<AbstractExternalData>());
             sampleIDs.add(sample.getId());
         }
-        List<AbstractExternalData> rootDataSets = listBySampleIds(sampleIDs, 
+        List<AbstractExternalData> rootDataSets = listBySampleIds(sampleIDs,
                 EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PROPERTIES));
         addChildren(rootDataSets);
         for (AbstractExternalData dataSet : rootDataSets)
@@ -397,7 +399,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
         if (childIDs.isEmpty() == false)
         {
-            List<AbstractExternalData> children = listByDatasetIds(childIDs, 
+            List<AbstractExternalData> children = listByDatasetIds(childIDs,
                     EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PROPERTIES));
             for (AbstractExternalData child : children)
             {
@@ -1009,7 +1011,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             }
         }
     }
-    
+
     private void enrichWithContainers(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         Set<Long> containersNotLoaded = new HashSet<Long>();
@@ -1182,13 +1184,21 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         convertStandardAttributes(linkDataSet, record);
 
-        if (record.edms_id != null)
+        List<ContentCopyRecord> copyRecords = query.getContentCopiesOf(record.id);
+        List<IContentCopy> copies = new ArrayList<>();
+        for (ContentCopyRecord copyRecord : copyRecords)
         {
-
-            linkDataSet.setExternalDataManagementSystem(externalDataManagementSystems
-                    .get(record.edms_id));
-            linkDataSet.setExternalCode(record.external_code);
+            if (copyRecord.external_code != null)
+            {
+                copies.add(new UrlContentCopy(copyRecord.edms_code, copyRecord.edms_label, copyRecord.edms_address, copyRecord.external_code));
+            } else
+            {
+                copies.add(new FileSystemContentCopy(copyRecord.edms_code, copyRecord.edms_label, copyRecord.edms_address, copyRecord.edms_address,
+                        copyRecord.hash, copyRecord.path));
+            }
         }
+
+        linkDataSet.setCopies(copies);
 
         return linkDataSet;
     }

@@ -843,9 +843,12 @@ var common = {
  confirm_dataset_upload_comment_field: "Comment",
  confirm_dataset_upload_user_field: "CIFEX user",
  confirm_dataset_upload_password_field: "CIFEX password",
- external_code: "External Code",
+ external_code: "Link External Code",
  external_dms_code: "External DMS Code",
  external_dms_label: "External DMS Label",
+ external_dms_address: "External DMS Address",
+ link_path: "Link Path",
+ link_hash: "Link Commit Hash",
  
  //
  // Data Set Viewer

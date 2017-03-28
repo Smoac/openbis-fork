@@ -10,11 +10,14 @@ public class UrlContentCopy implements IContentCopy
 
     private String url;
 
-    public UrlContentCopy(String code, String label, String url)
+    private String externalCode;
+
+    public UrlContentCopy(String code, String label, String url, String externalCode)
     {
         this.code = code;
         this.label = label;
         this.url = url;
+        this.externalCode = externalCode;
     }
 
     public UrlContentCopy()
@@ -34,5 +37,41 @@ public class UrlContentCopy implements IContentCopy
         }
 
         return "External DMS: " + labelString + "</br>Link: <a class=\"gwt-Anchor\" href=\"" + url + "\" target=\"_blank\" \">" + url + "</a><br>";
+    }
+
+    @Override
+    public String getExternalDMSCode()
+    {
+        return this.code;
+    }
+
+    @Override
+    public String getExternalDMSLabel()
+    {
+        return this.label;
+    }
+
+    @Override
+    public String getExternalDMSAddress()
+    {
+        return this.url;
+    }
+
+    @Override
+    public String getPath()
+    {
+        return null;
+    }
+
+    @Override
+    public String getCommitHash()
+    {
+        return null;
+    }
+
+    @Override
+    public String getExternalCode()
+    {
+        return this.externalCode;
     }
 }

@@ -361,7 +361,7 @@ public class DataSetTranslator
             } else
             {
                 translatedCopy = new UrlContentCopy(edms.getCode(), edms.getLabel(),
-                        address.replaceAll(Pattern.quote("${") + ".*" + Pattern.quote("}"), copy.getExternalCode()));
+                        address.replaceAll(Pattern.quote("${") + ".*" + Pattern.quote("}"), copy.getExternalCode()), copy.getExternalCode());
             }
             translatedCopies.add(translatedCopy);
         }

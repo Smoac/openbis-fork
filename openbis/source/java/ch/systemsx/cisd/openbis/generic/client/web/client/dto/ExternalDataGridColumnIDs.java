@@ -29,6 +29,12 @@ public class ExternalDataGridColumnIDs
 
     public static final String EXTERNAL_DMS_LABEL = "EXTERNAL_DMS_LABEL";
 
+    public static final String EXTERNAL_DMS_ADDRESS = "EXTERNAL_DMS_ADDRESS";
+
+    public static final String LINK_PATH = "LINK_PATH";
+
+    public static final String LINK_HASH = "LINK_HASH";
+
     public static final String DATA_SET_TYPE = "DATA_SET_TYPE";
 
     public static final String CONTAINER_DATASETS = "CONTAINER_DATASETS";
@@ -51,7 +57,7 @@ public class ExternalDataGridColumnIDs
     public static final String EXPERIMENT_TYPE = "EXPERIMENT_TYPE";
 
     public static final String PROJECT = "PROJECT";
-    
+
     public static final String PROJECT_IDENTIFIER = "PROJECT_IDENTIFIER";
 
     public static final String REGISTRATOR = "REGISTRATOR";
@@ -67,7 +73,7 @@ public class ExternalDataGridColumnIDs
     public static final String IS_COMPLETE = "IS_COMPLETE";
 
     public static final String LOCATION = "LOCATION";
-    
+
     public static final String SIZE = "SIZE";
 
     public static final String ARCHIVING_STATUS = "ARCHIVING_STATUS";
