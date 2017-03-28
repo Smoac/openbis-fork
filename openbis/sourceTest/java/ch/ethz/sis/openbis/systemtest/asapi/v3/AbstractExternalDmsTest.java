@@ -208,6 +208,7 @@ public abstract class AbstractExternalDmsTest extends AbstractTest
                     return Objects.equals(edms.getAddress(), another.getAddress()) &&
                             Objects.equals(edms.getAddressType(), another.getAddressType()) &&
                             Objects.equals(edms.getCode(), another.getCode()) &&
+                            Objects.equals(edms.getPermId(), another.getPermId()) &&
                             Objects.equals(edms.getLabel(), another.getLabel()) &&
                             Objects.equals(edms.getUrlTemplate(), another.getUrlTemplate());
                 }

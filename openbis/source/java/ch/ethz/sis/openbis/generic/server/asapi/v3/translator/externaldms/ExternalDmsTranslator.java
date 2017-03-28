@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -65,6 +66,7 @@ public class ExternalDmsTranslator extends AbstractCachingTranslator<Long, Exter
         TranslationResults relations = (TranslationResults) objectRelations;
         ExternalDmsBaseRecord baseRecord = relations.get(IExternalDmsBaseTranslator.class, externalDmsId);
 
+        result.setPermId(new ExternalDmsPermId(baseRecord.code));
         result.setCode(baseRecord.code);
         result.setLabel(baseRecord.label);
         result.setUrlTemplate(baseRecord.address);

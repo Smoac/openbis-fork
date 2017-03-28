@@ -9,6 +9,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'as.dto.externaldms.ExternalDms';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
+		prototype.permId = null;
 		prototype.code = null;
 		prototype.label = null;
 		prototype.urlTemplate = null;
@@ -21,6 +22,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setFetchOptions = function(fetchOptions) {
 			this.fetchOptions = fetchOptions;
+		};
+		prototype.getPermId = function() {
+			return this.permId;
+		};
+		prototype.setPermId = function(permId) {
+			this.permId = permId;
 		};
 		prototype.getCode = function() {
 			return this.code;
@@ -62,6 +69,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			return "ExternalDms " + this.code;
 		};
 	}, {
+		permId : "ExternalDmsPermId",
 		fetchOptions : "ExternalDmsFetchOptions",
 		addressType : "ExternalDmsAddressType"
 	});

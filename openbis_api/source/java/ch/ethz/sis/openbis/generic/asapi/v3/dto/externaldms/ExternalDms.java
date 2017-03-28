@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.annotation.TechPreview;
 
@@ -36,6 +37,9 @@ public class ExternalDms implements Serializable, ICodeHolder
     @JsonProperty
     private ExternalDmsFetchOptions fetchOptions;
 
+    @JsonProperty
+    private ExternalDmsPermId permId;
+    
     @JsonProperty
     private String code;
 
@@ -66,7 +70,17 @@ public class ExternalDms implements Serializable, ICodeHolder
     {
         this.fetchOptions = fetchOptions;
     }
-
+    @JsonIgnore
+    public ExternalDmsPermId getPermId()
+    {
+        return permId;
+    }
+    
+    public void setPermId(ExternalDmsPermId permId)
+    {
+        this.permId = permId;
+    }
+    
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
