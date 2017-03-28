@@ -427,36 +427,38 @@ var SampleDataGridUtil = new function() {
 				$dropDownMenu.append($caret);
 				$dropDownMenu.append($list);
 				
-				var clickFunction = function($dropDown) {
-					return function(event) {
+				var stopEventsBuble = function(event) {
 						event.stopPropagation();
 						event.preventDefault();
 						$caret.dropdown('toggle');
-					};
-				}
+				};
 				$dropDownMenu.dropdown();
-				$dropDownMenu.click(clickFunction($dropDownMenu));
+				$dropDownMenu.click(stopEventsBuble);
 				
 				var $hierarchyGraph = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
-				$hierarchyGraph.click(function(e) {
+				$hierarchyGraph.click(function(event) {
+					stopEventsBuble(event);
 					mainController.changeView('showSampleHierarchyPage', data.permId, true);
 				});
 				$list.append($hierarchyGraph);
 				
 				var $hierarchyTable = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
-				$hierarchyTable.click(function(e) {
+				$hierarchyTable.click(function(event) {
+					stopEventsBuble(event);
 					mainController.changeView('showSampleHierarchyTablePage', data.permId, true);
 				});
 				$list.append($hierarchyTable);
 				
 				var $upload = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'File Upload'}).append("File Upload"));
-				$upload.click(function(e) {
+				$upload.click(function(event) {
+					stopEventsBuble(event);
 					mainController.changeView('showCreateDataSetPageFromPermId', data.permId, true);
 				});
 				$list.append($upload);
 				
 				var $move = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Move'}).append("Move"));
-				$move.click(function(e) {
+				$move.click(function(event) {
+					stopEventsBuble(event);
 					var moveSampleController = new MoveSampleController(data.permId, function() {
 						mainController.refreshView();
 					});

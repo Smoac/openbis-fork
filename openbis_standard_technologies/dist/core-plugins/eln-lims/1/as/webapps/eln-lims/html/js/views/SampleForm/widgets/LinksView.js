@@ -303,20 +303,18 @@ function LinksView(linksController, linksModel) {
 				$dropDownMenu.append($caret);
 				$dropDownMenu.append($list);
 				
-				var clickFunction = function($dropDown) {
-					return function(event) {
+				var stopEventsBuble = function(event) {
 						event.stopPropagation();
 						event.preventDefault();
 						$caret.dropdown('toggle');
-					};
-				}
+				};
 				$dropDownMenu.dropdown();
-				$dropDownMenu.click(clickFunction($dropDownMenu));
+				$dropDownMenu.click(stopEventsBuble);
 				
 				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
 					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Use as template'}).append("Use as template"));
 					$copyAndLink.click(function(e) {
-						
+						stopEventsBuble(e);
 						var copyAndLink = function(code) {
 							var newSampleIdentifier = "/" + mainController.currentView._sampleFormModel.sample.spaceCode + "/" + code;
 							Util.blockUI();
@@ -356,6 +354,7 @@ function LinksView(linksController, linksModel) {
 				
 				var getDeleteFunc = function(sample) {
 					return function(e) {
+						stopEventsBuble(e);
 						linksView.updateSample(sample, false);
 					};
 				}
