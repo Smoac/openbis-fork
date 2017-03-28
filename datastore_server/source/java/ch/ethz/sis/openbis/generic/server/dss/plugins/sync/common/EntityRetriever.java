@@ -112,6 +112,11 @@ public class EntityRetriever
         graph = new EntityGraph<Node<?>>();
 
         // add shared samples
+        /*
+         * adding shared samples to the entity graph for a space means if we are synching from multiple spaces, each entity graph (for each space)
+         * will have the shared entity. When we add them to the RL (Resource List) in the data source servlet, any duplicate will throw an error when
+         * using the Resync library. To work around this we catch the duplicate exceptions where a shared sample is involved.
+         */
         findSharedSamples();
 
         // build the graph for the space from top-down starting from projects

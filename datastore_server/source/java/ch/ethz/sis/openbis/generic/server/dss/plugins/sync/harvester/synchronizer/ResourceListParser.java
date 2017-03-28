@@ -35,6 +35,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,10 +45,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingDataSet;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingExperiment;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MasterData;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingProject;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingSample;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MasterData;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -273,49 +274,63 @@ public class ResourceListParser
     private void parseDataSetMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
         String code = extractCode(xdNode);
-        String sample = extractAttribute(xdNode, "sample");
-        String experiment = extractAttribute(xdNode, "experiment");
+        String sample = extractAttribute(xdNode, "sample", true);
+        String experiment = extractAttribute(xdNode, "experiment", true);
         String type = extractType(xdNode);
         String dsKind = extractAttribute(xdNode, "dsKind");
-        NewExternalData ds = new NewExternalData();
+        NewExternalData ds = null;
         if (dsKind.equals(DataSetKind.CONTAINER.toString()))
         {
             ds = new NewContainerDataSet();
-            ds.setCode(code);
-            ds.setDataSetType(new DataSetType(type));
-            ds.setDataStoreCode(this.dataStoreCode);
-            if (sample.trim().equals("") == false)
-            {
-                ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
-            }
-            if (experiment.trim().equals("") == false)
-            {
-                ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experiment));
-            }
         }
         else if (dsKind.equals(DataSetKind.PHYSICAL.toString()))
         {
-            ds.setCode(code);
-            ds.setDataSetType(new DataSetType(type));
-            ds.setDataStoreCode(this.dataStoreCode);
-            if (sample.trim().equals("") == false)
-            {
-                ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
-            }
-            if (experiment.trim().equals("") == false)
-            {
-                ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experiment));
-            }
+            ds = new NewExternalData();
         }
+        // else if (dsKind.equals(DataSetKind.LINK.toString())) {
+        // ds = new NewLinkDataSet();
+        // ((NewLinkDataSet)ds).
+        // }
+        else
+        {
+            throw new IllegalArgumentException(dsKind + " data sets are currently not supported");
+        }
+        ds.setCode(code);
+        ds.setDataSetType(new DataSetType(type));
+        ds.setDataStoreCode(this.dataStoreCode);
+
+        ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
+        ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experiment));
+
         IncomingDataSet incomingDataSet = data.new IncomingDataSet(ds, lastModificationDate);
         data.getDataSetsToProcess().put(permId, incomingDataSet);
         incomingDataSet.setConnections(parseConnections(xpath, xdNode));
         ds.setDataSetProperties(parseDataSetProperties(xpath, xdNode));
     }
 
-    private String extractAttribute(Node xdNode, String attrName)
+    private String extractAttribute(Node xdNode, String attrName, boolean nullAllowed)
     {
-        return xdNode.getAttributes().getNamedItem(attrName).getTextContent();
+        String val = xdNode.getAttributes().getNamedItem(attrName).getTextContent();
+        if (StringUtils.isBlank(val) == true)
+        {
+            if (nullAllowed == false)
+            {
+                throw new IllegalArgumentException(attrName + " cannot be empty in Resource List");
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return val.trim();
+        }
+    }
+
+    private String extractAttribute(Node xdNode, String attrName) throws IllegalArgumentException
+    {
+        return extractAttribute(xdNode, attrName, false);
     }
 
     private String extractCode(Node xdNode)
@@ -325,15 +340,23 @@ public class ResourceListParser
 
     private SampleIdentifier getSampleIdentifier(String sampleIdentifierStr)
     {
+        if (sampleIdentifierStr == null)
+        {
+            return null;
+        }
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifierStr);
         SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
         String originalSpaceCode = spaceLevel.getSpaceCode();
         return new SampleIdentifier(new SpaceIdentifier(nameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
     }
 
-    private ExperimentIdentifier getExperimentIdentifier(String experiment)
+    private ExperimentIdentifier getExperimentIdentifier(String experimentIdentifierStr)
     {
-        ExperimentIdentifier experimentIdentifier = ExperimentIdentifierFactory.parse(experiment);
+        if (experimentIdentifierStr == null)
+        {
+            return null;
+        }
+        ExperimentIdentifier experimentIdentifier = ExperimentIdentifierFactory.parse(experimentIdentifierStr);
         String originalSpaceCode = experimentIdentifier.getSpaceCode();
         String projectCode = experimentIdentifier.getProjectCode();
         String expCode = experimentIdentifier.getExperimentCode();
@@ -345,15 +368,35 @@ public class ResourceListParser
 
         String code = extractCode(xdNode);
         String desc = xdNode.getAttributes().getNamedItem("desc").getTextContent();
-        String space = extractSpace(xdNode);
-        // TODO is there a better way to create project identifier below?
-        NewProject newProject = new NewProject("/" + nameTranslator.translate(space) + "/" + code, desc);
+        String space = extractSpace(xdNode, false);
+        ProjectIdentifier projectIdentifier = createProjectIdentifier(code, space);
+        NewProject newProject = new NewProject(projectIdentifier.toString(), desc);
         newProject.setPermID(permId);
         IncomingProject incomingProject =
                 data.new IncomingProject(newProject, lastModificationDate);
         data.getProjectsToProcess().put(permId, incomingProject);
         incomingProject.setConnections(parseConnections(xpath, xdNode));
         incomingProject.setHasAttachments(hasAttachments(xpath, xdNode));
+    }
+
+    private ProjectIdentifier createProjectIdentifier(String code, String space)
+    {
+        return new ProjectIdentifier(createSpaceIdentifier(space), code);
+    }
+
+    private SampleIdentifier createSampleIdentifier(String code, String space)
+    {
+        if (space == null)
+        {
+            return new SampleIdentifier(nameTranslator.translate(code));
+        }
+        SpaceIdentifier spaceIdentifier = createSpaceIdentifier(space);
+        return new SampleIdentifier(spaceIdentifier, code);
+    }
+
+    private SpaceIdentifier createSpaceIdentifier(String space)
+    {
+        return new SpaceIdentifier(nameTranslator.translate(space));
     }
 
     private void parseMaterialMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
@@ -457,7 +500,7 @@ public class ResourceListParser
         String code = extractCode(xdNode);
         String type = extractType(xdNode);
         String project = extractAttribute(xdNode, "project");
-        String space = extractSpace(xdNode);
+        String space = extractSpace(xdNode, false);
         NewExperiment newExp = new NewExperiment("/" + nameTranslator.translate(space) + "/" + project + "/" + code, type);
         newExp.setPermID(permId);
         IncomingExperiment incomingExperiment = data.new IncomingExperiment(newExp, lastModificationDate);
@@ -471,15 +514,20 @@ public class ResourceListParser
     {
         String code = extractCode(xdNode);
         String type = extractType(xdNode);
-        String experiment = extractAttribute(xdNode, "experiment");
-        String space = extractSpace(xdNode);
+        String experiment = extractAttribute(xdNode, "experiment", true);
+        String space = extractSpace(xdNode, true);
         SampleType sampleType = new SampleType();
         sampleType.setCode(type);
 
-        NewSample newSample = new NewSample("/" + nameTranslator.translate(space) + "/" + code, sampleType, null, null,
-                experiment.trim().equals("") ? null : experiment, null, null, new IEntityProperty[0],
+        SampleIdentifier identifier = createSampleIdentifier(code, space);
+        NewSample newSample = new NewSample(identifier.toString(), sampleType, null, null,
+                experiment, null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>());
         newSample.setPermID(permId);
+        if (space == null)
+        {
+            newSample.setDefaultSpaceIdentifier(null);
+        }
         IncomingSample incomingSample = data.new IncomingSample(newSample, lastModificationDate);
         data.getSamplesToProcess().put(permId, incomingSample);
         incomingSample.setHasAttachments(hasAttachments(xpath, xdNode));
@@ -492,10 +540,13 @@ public class ResourceListParser
         return extractAttribute(xdNode, "type");
     }
 
-    private String extractSpace(Node xdNode)
+    private String extractSpace(Node xdNode, boolean nullAllowed)
     {
-        String space = extractAttribute(xdNode, "space");
-        data.getHarvesterSpaceList().add(nameTranslator.translate(space));
+        String space = extractAttribute(xdNode, "space", nullAllowed);
+        if (space != null)
+        {
+            data.getHarvesterSpaceList().add(nameTranslator.translate(space));
+        }
         return space;
     }
 

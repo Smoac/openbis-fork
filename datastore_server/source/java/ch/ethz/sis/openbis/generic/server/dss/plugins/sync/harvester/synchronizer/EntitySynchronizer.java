@@ -37,6 +37,7 @@ import java.util.Set;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -188,7 +189,7 @@ public class EntitySynchronizer
         operationLog.info("parsing the resource list xml document");
         String dataSourcePrefix = config.getDataSourceAlias();
         INameTranslator nameTranslator = null;
-        if (dataSourcePrefix != null && dataSourcePrefix.trim().equals("") == false)
+        if (StringUtils.isBlank(dataSourcePrefix) == false)
         {
             nameTranslator = new PrefixBasedNameTranslator(dataSourcePrefix);
         }

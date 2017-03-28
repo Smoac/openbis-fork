@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 public class ConfigReader
@@ -155,15 +157,11 @@ public class ConfigReader
             throw new ConfigurationFailureException("Section '" + section + " does not exist.");
         }
         String val = map.get(key);
-        if (val == null)
+        if (StringUtils.isBlank(val) == true)
         {
             return null;
         }
-        if (val.trim().equals("") == true)
-        {
-            return null;
-        }
-        return val;
+        return val.trim();
     }
 
     public int getInt(String section, String key, int defaultvalue, boolean mandatory)
