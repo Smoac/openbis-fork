@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 
  *
@@ -33,6 +35,7 @@ public class PrefixBasedNameTranslator implements INameTranslator
     @Override
     public String translate(String name)
     {
+        assert StringUtils.isBlank(name) == false : "Prefix translation can only be done for non-null values";
         return prefix + "_" + name;
     }
 

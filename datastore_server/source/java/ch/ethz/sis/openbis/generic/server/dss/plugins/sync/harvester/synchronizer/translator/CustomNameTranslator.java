@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class CustomNameTranslator implements INameTranslator
 {
-
     private final HashMap<String, String> spaceMappings;
 
     public CustomNameTranslator(HashMap<String, String> spaceMappings)
