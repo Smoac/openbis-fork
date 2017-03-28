@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -36,6 +37,8 @@ public class DataSetUtils
     private static final String MODE = "mode";
 
     private static final String DISABLE_LINKS = "disableLinks";
+
+    private static final String IS_LINK_DATASET = "is_link_data";
 
     public static String createDataViewUrl(AbstractExternalData dataSet, GenericViewModel model,
             String modeOrNull, boolean autoResolve, boolean disableLinks)
@@ -64,6 +67,9 @@ public class DataSetUtils
                         .getMainDataSetPath());
             }
         }
+
+        methodWithParameters.addParameter(IS_LINK_DATASET, DataSetKind.LINK.equals(dataSet.getDataSetKind()));
+
         String url = methodWithParameters.toString();
         return url;
     }

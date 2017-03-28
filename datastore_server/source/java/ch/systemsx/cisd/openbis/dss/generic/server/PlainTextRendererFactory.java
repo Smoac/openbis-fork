@@ -100,4 +100,25 @@ public class PlainTextRendererFactory implements IRendererFactory
         }
 
     }
+
+    @Override
+    public IMessageRenderer createMessageRenderer()
+    {
+        return new IMessageRenderer()
+            {
+                private PrintWriter writer;
+
+                @Override
+                public void printMessage(String message)
+                {
+                    writer.println(message);
+                }
+
+                @Override
+                public void setWriter(PrintWriter writer)
+                {
+                    this.writer = writer;
+                }
+            };
+    }
 }

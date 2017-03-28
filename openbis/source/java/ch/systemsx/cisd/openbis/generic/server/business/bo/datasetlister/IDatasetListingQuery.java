@@ -355,7 +355,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
                     LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
-    @Select(sql = "SELECT edms.code AS edms_code, edms.label AS edms_label, edms.address AS edms_address, "
+    @Select(sql = "SELECT edms.id AS edms_id, edms.code AS edms_code, edms.label AS edms_label, edms.address AS edms_address, "
             + " cc.external_code AS external_code, cc.path as path, cc.git_commit_hash AS hash "
             + " FROM content_copies cc, external_data_management_systems edms "
             + " WHERE cc.edms_id = edms.id AND cc.data_id = ?{1}")

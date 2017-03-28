@@ -72,6 +72,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
     static final String DISABLE_LINKS = "disableLinks";
 
+    static final String IS_LINK_DATASET = "is_link_data";
+
     private static String DOWNLOAD_URL;
 
     static void setDownloadUrl(String downloadUrl)
@@ -121,10 +123,13 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
         private final boolean forceReferrerDomainOnEmptyDownloadURL;
 
+        private final boolean isLinkData;
+
         public RequestParams(String dataSetCode, String pathInfo, String sessionIdOrNull,
                 String urlPrefixWithDataset, String displayMode, boolean autoResolve,
                 String mainDataSetPathOrNull, String mainDataSetPatternOrNull,
-                boolean forceAutoResolve, boolean disableLinks, String referrerDomain, boolean forceReferrerDomainOnEmptyDownloadURL)
+                boolean forceAutoResolve, boolean disableLinks, String referrerDomain, boolean forceReferrerDomainOnEmptyDownloadURL,
+                boolean isLinkData)
         {
             this.dataSetCode = dataSetCode;
             this.pathInfo = pathInfo;
@@ -138,6 +143,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             this.disableLinks = disableLinks;
             this.referrerDomain = referrerDomain;
             this.forceReferrerDomainOnEmptyDownloadURL = forceReferrerDomainOnEmptyDownloadURL;
+            this.isLinkData = isLinkData;
         }
 
         public boolean isAutoResolve()
@@ -200,6 +206,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             return forceReferrerDomainOnEmptyDownloadURL;
         }
 
+        public boolean isLinkData()
+        {
+            return isLinkData;
+        }
+
     }
 
     @Override
@@ -207,9 +218,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             throws ServletException, IOException
     {
         IRendererFactory rendererFactory = null;
+        boolean isLinkData = false;
         try
         {
             RequestParams requestParams = parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
+            isLinkData = requestParams.isLinkData();
             rendererFactory = createRendererFactory(requestParams.getDisplayMode());
 
             HttpSession session = tryGetOrCreateSession(request, requestParams.tryGetSessionId());
@@ -232,12 +245,16 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             if (!isPathInfoEnabled)
             {
                 printEmptyPage(rendererFactory, request, response);
+            } else if (isLinkData)
+            {
+                printMessage("No content information is stored with this linked dataset.", rendererFactory, response);
             } else
             {
                 printError(rendererFactory, request, response, e);
             }
 
         }
+
     }
 
     private void printResponse(final HttpServletResponse response,
@@ -381,9 +398,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
         //
 
+        boolean isLinkData = request.getParameter(IS_LINK_DATASET).equals("true");
+
         return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
                 displayMode, autoResolve, mainDataSetPathOrNull, mainDataSetPatternOrNull,
-                forceAutoResolve, disableLinks, referrerDomain, forceReferrerDomainOnEmptyDownloadURL);
+                forceAutoResolve, disableLinks, referrerDomain, forceReferrerDomainOnEmptyDownloadURL, isLinkData);
     }
 
     private static String getDisplayMode(HttpServletRequest request)
@@ -401,6 +420,18 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     {
         response.setContentType(rendererFactory.getContentType());
         PrintWriter writer = response.getWriter();
+        writer.flush();
+        writer.close();
+    }
+
+    private void printMessage(String message, IRendererFactory rendererFactory,
+            final HttpServletResponse response) throws IOException
+    {
+        response.setContentType(rendererFactory.getContentType());
+        PrintWriter writer = response.getWriter();
+        IMessageRenderer renderer = rendererFactory.createMessageRenderer();
+        renderer.setWriter(writer);
+        renderer.printMessage(message);
         writer.flush();
         writer.close();
     }

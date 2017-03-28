@@ -20,4 +20,6 @@ public class ContentCopyRecord extends CodeRecord
     public String path;
 
     public String hash;
+
+    public Long edms_id;
 }

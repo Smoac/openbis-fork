@@ -16,18 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-/**
- * Interface of a factory of renderers.
- *
- * @author Franz-Josef Elmer
- */
-public interface IRendererFactory
+public interface IMessageRenderer extends IWriterInjector
 {
-    public String getContentType();
-
-    public IDirectoryRenderer createDirectoryRenderer(RenderingContext context);
-
-    public IErrorRenderer createErrorRenderer();
-
-    public IMessageRenderer createMessageRenderer();
+    public void printMessage(String message);
 }

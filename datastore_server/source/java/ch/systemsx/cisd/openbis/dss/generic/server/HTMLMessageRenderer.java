@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,29 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.PrintWriter;
+
 /**
- * Factory for rendering file system view in HTML without data set information.
+ * {@link IErrorRenderer} displaying error as HTML page.
  * 
  * @author Izabela Adamczyk
  */
-public class SimpleHTMLRendererFactory implements IRendererFactory
+public class HTMLMessageRenderer implements IMessageRenderer
 {
+    private PrintWriter writer;
+
     @Override
-    public String getContentType()
+    public void setWriter(PrintWriter writer)
     {
-        return "text/html";
+        this.writer = writer;
     }
 
     @Override
-    public IDirectoryRenderer createDirectoryRenderer(RenderingContext context)
+    public void printMessage(String message)
     {
-        return new SimpleHTMLDirectoryRenderer(context);
-    }
-
-    @Override
-    public IErrorRenderer createErrorRenderer()
-    {
-        return new HTMLErrorRenderer();
-    }
-
-    @Override
-    public IMessageRenderer createMessageRenderer()
-    {
-        return new HTMLMessageRenderer();
-
+        writer.println("<html><body>");
+        writer.println(message);
+        writer.println("</body></html>");
     }
 
 }
