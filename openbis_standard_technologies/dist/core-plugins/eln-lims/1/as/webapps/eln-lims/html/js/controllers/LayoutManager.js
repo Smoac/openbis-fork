@@ -2,6 +2,7 @@
 // Requires Jquery, Jquery UI and Bootstrap
 
 var LayoutManager = {
+	MIN_HEADER_HEIGHT : 120,
 	body : null,
 	mainContainer : null,
 	firstColumn : null,
@@ -185,11 +186,12 @@ var LayoutManager = {
 		
 		
 		if (view.header) {
-			headerHeight = 157;
+			headerHeight = this.MIN_HEADER_HEIGHT;
 			this.secondColumnHeader.append(view.header);
 			this.secondColumnHeader.css({
 				display : "block",
-				height : headerHeight
+				"min-height" : headerHeight,
+				"height" : "auto"
 			});
 		} else {
 			this.secondColumnHeader.css({ display : "none" });
@@ -241,11 +243,12 @@ var LayoutManager = {
 		});
 
 		if (view.header) {
-			headerHeight = 157;
+			headerHeight = this.MIN_HEADER_HEIGHT;
 			this.secondColumnHeader.append(view.header);
 			this.secondColumnHeader.css({
 				display : "block",
-				height : headerHeight
+				"min-height" : headerHeight,
+				"height" : "auto"
 			});
 		} else {
 			this.secondColumnHeader.css({ display : "none" });
@@ -305,7 +308,10 @@ var LayoutManager = {
 		}
 
 		if (view.header) {
-			view.header.css("height", "auto");
+			view.header.css({
+				"min-height" : this.MIN_HEADER_HEIGHT,
+				"height" : "auto"
+			});
 			this.firstColumn.append(view.header);
 		}
 		
