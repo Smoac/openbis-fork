@@ -708,7 +708,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
 				var ldCriteria = criteria.withLinkedData();
-				ldCriteria.withExternalCode().thatEquals("EXTERNAL_CODE_1");
 				ldCriteria.withExternalDms().withCode().thatEquals("DMS_1");
 
 				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
