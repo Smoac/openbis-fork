@@ -29,6 +29,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.AttachmentCreation = dtos.AttachmentCreation;
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
+		this.ContentCopyCreation= dtos.ContentCopyCreation;
 		this.ExternalDmsCreation= dtos.ExternalDmsCreation;
 		this.ExternalDmsAddressType= require('as/dto/externaldms/ExternalDmsAddressType');
 		this.SpaceUpdate = dtos.SpaceUpdate;
@@ -37,6 +38,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SampleUpdate = dtos.SampleUpdate;
 		this.DataSetUpdate = dtos.DataSetUpdate;
 		this.PhysicalDataUpdate = dtos.PhysicalDataUpdate;
+		this.LinkedDataUpdate = dtos.LinkedDataUpdate;
 		this.MaterialUpdate = dtos.MaterialUpdate;
 		this.VocabularyTermUpdate = dtos.VocabularyTermUpdate;
 		this.ExternalDmsUpdate = dtos.ExternalDmsUpdate;
@@ -61,6 +63,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetPermId = dtos.DataSetPermId;
 		this.FileFormatTypePermId = dtos.FileFormatTypePermId;
 		this.MaterialPermId = dtos.MaterialPermId;
+		this.ContentCopyPermId = dtos.ContentCopyPermId;
 		this.VocabularyPermId = dtos.VocabularyPermId;
 		this.VocabularyTermPermId = dtos.VocabularyTermPermId;
 		this.TagPermId = dtos.TagPermId;

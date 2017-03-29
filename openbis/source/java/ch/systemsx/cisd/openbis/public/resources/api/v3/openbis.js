@@ -1099,6 +1099,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.createPermIdStrings = function(amount) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createPermIdStrings",
+					"params" : [ thisFacade._private.sessionToken, amount ]
+				}
+			});
+		}
+		
 		this.getDataStoreFacade = function() {
 			var dataStoreCodes = [];
 			for (var i = 0; i < arguments.length; i++) {

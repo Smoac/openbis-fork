@@ -11,6 +11,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.fetchOptions = null;
 		prototype.externalCode = null;
 		prototype.externalDms = null;
+		prototype.contentCopies = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -34,9 +35,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setExternalDms = function(externalDms) {
 			this.externalDms = externalDms;
 		};
+		prototype.getContentCopies = function() {
+			return this.contentCopies;
+		};
+		prototype.setContentCopies = function(contentCopies) {
+			this.contentCopies = contentCopies;
+		};
 	}, {
 		fetchOptions : "LinkedDataFetchOptions",
-		externalDms : "ExternalDms"
+		externalDms : "ExternalDms",
+		contentCopies : "ContentCopy"
 	});
 	return LinkedData;
 })

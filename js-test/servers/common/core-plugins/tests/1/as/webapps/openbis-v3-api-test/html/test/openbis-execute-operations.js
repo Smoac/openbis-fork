@@ -78,6 +78,13 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			});
 		}
 
+		this.createPermIdStrings = function(amount) {
+			var thisFacade = this;
+			return this._openbis.createPermIdStrings(amount).done(function(permIds) {
+				return permIds;
+			});
+		}
+		
 		this.createSpaces = function(creations) {
 			return this._executeCreateOperation(new c.CreateSpacesOperation(creations));
 		}

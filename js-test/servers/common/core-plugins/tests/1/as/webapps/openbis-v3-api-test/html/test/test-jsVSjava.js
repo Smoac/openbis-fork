@@ -35,17 +35,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"DataSetFileDownloadReader" : "Java class not implemented in JS: ",
 			"FullDataSetCreation" : "Java class not implemented in JS: ",
 			"DataSetFileCreation" : "Java class not implemented in JS: ",
-			"ContentCopy" : "Java class not implemented in JS: ",
-			"ContentCopyCreation" : "Java class not implemented in JS: ",
 			"LinkedData" : "JS class missing method: ",
-			"DeleteExternalDmsOperation" : "Java class not implemented in JS: ",
-			"DeleteExternalDmsOperationResult" : "Java class not implemented in JS: ",
-			"ExternalDmsDeletionOptions" : "Java class not implemented in JS: ",
-			"SearchExternalDmsOperation" : "Java class not implemented in JS: ",
-			"SearchExternalDmsOperationResult" : "Java class not implemented in JS: ",
-			"ExternalDmsSearchCriteria" : "Java class not implemented in JS: ",
-			"ContentCopyPermId" : "Java class not implemented in JS: ",
-			"IContentCopyId" : "Java class not implemented in JS: ",
 			"ContentCopyListUpdateValue" : "Java class not implemented in JS: ",
 			"LinkedDataUpdate" : "JS class missing field: as.dto.dataset.update.LinkedDataUpdate - contentCopies"
 		}

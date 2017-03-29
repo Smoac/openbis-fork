@@ -19,6 +19,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.finish();
 			});
 		}
+		
+		QUnit.test("createPermIdStrings", function(assert) {
+			var c = new common(assert, openbis);
+			c.start();
+			c.createFacadeAndLogin().then(function(facade) {
+				facade.createPermIdStrings(7).then(function(permIds) {
+					c.assertEqual(permIds.length, 7, "Number of perm ids");
+					c.finish();
+				});
+			}).fail(function(error) {
+				c.fail(error.message);
+				c.finish();
+			});
+		});
 
 		QUnit.test("createSpaces()", function(assert) {
 			var c = new common(assert, openbis);
