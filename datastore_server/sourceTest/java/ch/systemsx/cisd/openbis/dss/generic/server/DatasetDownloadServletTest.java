@@ -297,6 +297,9 @@ public class DatasetDownloadServletTest
 
                     one(request).getScheme();
                     one(request).getHeader("referer");
+
+                    allowing(request).getParameter("is_link_data");
+                    will(returnValue(null));
                 }
             });
     }
@@ -504,6 +507,8 @@ public class DatasetDownloadServletTest
                     will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE + "/"
                             + ESCAPED_FILE_NAME_ENCODED));
 
+                    allowing(request).getParameter("is_link_data");
+                    will(returnValue(null));
                     one(response).setContentType("image/png");
                     one(response).setContentLength(84);
                     one(response).addHeader("Cache-Control", "max-age=7200");
@@ -720,6 +725,9 @@ public class DatasetDownloadServletTest
 
         exp.one(request).getScheme();
         exp.one(request).getHeader("referer");
+
+        exp.allowing(request).getParameter("is_link_data");
+        exp.will(Expectations.returnValue("false"));
 
         // For the logging of problem requests
         Vector<String> parameterNames = new Vector<String>();
