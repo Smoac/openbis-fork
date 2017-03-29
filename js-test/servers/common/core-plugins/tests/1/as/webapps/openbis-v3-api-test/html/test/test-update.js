@@ -332,6 +332,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
 		});
 
+		QUnit.test("updateDataSets() link data set", function(assert) {
+			var c = new common(assert, openbis);
+			var code = "20160613195437233-437";
+			
+			var fCreate = function(facade) {
+				return [new c.DataSetPermId(code)];
+			}
+			
+			var fUpdate = function(facade, permId) {
+				var linkUpdate = new c.LinkedDataUpdate();
+				linkUpdate.setExternalCode("new code");
+				
+				var update = new c.DataSetUpdate();
+				update.setDataSetId(permId);
+				update.setLinkedData(linkUpdate);
+				
+				return facade.updateDataSets([ update ]);
+			}
+			
+			var fCheck = function(dataSet) {
+				c.assertEqual(dataSet.getCode(), code, "Code");
+				c.assertEqual(dataSet.getLinkedData().getExternalCode(), "new code", "External code");
+				c.assertEqual(dataSet.getLinkedData().getExternalDms().getPermId().toString(), "DMS_1", "External DMS");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
+		});
+		
 		QUnit.test("updateMaterials()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("MATERIAL");
