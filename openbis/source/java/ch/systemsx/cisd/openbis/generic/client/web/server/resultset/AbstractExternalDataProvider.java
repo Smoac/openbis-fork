@@ -145,38 +145,7 @@ public abstract class AbstractExternalDataProvider extends
             {
                 builder.column(CODE).addEntityLink(dataSet, dataSet.getCode());
 
-                LinkDataSet linkDataSet = dataSet.tryGetAsLinkDataSet();
-                if (linkDataSet != null && linkDataSet.getCopies() != null)
-                {
-                    if (linkDataSet.getCopies().size() > 0)
-                    {
-                        String dmsCodes = "";
-                        String dmsLabels = "";
-                        String dmsAddresses = "";
-                        String externalCodes = "";
-                        String paths = "";
-                        String hashes = "";
-
-                        for (IContentCopy copy : linkDataSet.getCopies())
-                        {
-                            dmsCodes += copy.getExternalDMSCode() + ", ";
-                            dmsLabels += copy.getExternalDMSLabel() + ", ";
-                            dmsAddresses += copy.getExternalDMSAddress() + ", ";
-
-                            externalCodes += emptyOnNull(copy.getExternalCode());
-                            paths += emptyOnNull(copy.getPath());
-                            hashes += emptyOnNull(copy.getCommitHash());
-                        }
-
-                        builder.column(EXTERNAL_DMS_CODE).addString(strip(dmsCodes));
-                        builder.column(EXTERNAL_DMS_LABEL).addString(strip(dmsLabels));
-                        builder.column(EXTERNAL_DMS_ADDRESS).addString(strip(dmsAddresses));
-
-                        builder.column(EXTERNAL_CODE).addString(strip(externalCodes));
-                        builder.column(LINK_PATH).addString(strip(paths));
-                        builder.column(LINK_HASH).addString(strip(hashes));
-                    }
-                }
+                addLinkDataSet(builder, dataSet.tryGetAsLinkDataSet());
 
                 builder.column(METAPROJECTS).addString(
                         metaProjectsToString(dataSet.getMetaprojects()));
@@ -259,26 +228,43 @@ public abstract class AbstractExternalDataProvider extends
         return builder.getModel();
     }
 
-    private String emptyOnNull(String value)
+    private void addLinkDataSet(TypedTableModelBuilder<AbstractExternalData> builder, LinkDataSet linkDataSet)
     {
-        if (value == null)
+        if (linkDataSet != null && linkDataSet.getCopies() != null)
         {
-            return "";
-        } else
-        {
-            return value + ", ";
+            if (linkDataSet.getCopies().size() > 0)
+            {
+                CommaSeparatedListBuilder dmsCodes = new CommaSeparatedListBuilder();
+                CommaSeparatedListBuilder dmsLabels = new CommaSeparatedListBuilder();
+                CommaSeparatedListBuilder dmsAddresses = new CommaSeparatedListBuilder();
+                CommaSeparatedListBuilder externalCodes = new CommaSeparatedListBuilder();
+                CommaSeparatedListBuilder paths = new CommaSeparatedListBuilder();
+                CommaSeparatedListBuilder hashes = new CommaSeparatedListBuilder();
+
+                for (IContentCopy copy : linkDataSet.getCopies())
+                {
+                    dmsCodes.append(copy.getExternalDMSCode());
+                    dmsLabels.append(emptyOnNull(copy.getExternalDMSLabel()));
+                    dmsAddresses.append(copy.getExternalDMSAddress());
+                    externalCodes.append(emptyOnNull(copy.getExternalCode()));
+                    paths.append(emptyOnNull(copy.getPath()));
+                    hashes.append(emptyOnNull(copy.getCommitHash()));
+                }
+
+                builder.column(EXTERNAL_DMS_CODE).addString(dmsCodes.toString());
+                builder.column(EXTERNAL_DMS_LABEL).addString(dmsLabels.toString());
+                builder.column(EXTERNAL_DMS_ADDRESS).addString(dmsAddresses.toString());
+
+                builder.column(EXTERNAL_CODE).addString(externalCodes.toString());
+                builder.column(LINK_PATH).addString(paths.toString());
+                builder.column(LINK_HASH).addString(hashes.toString());
+            }
         }
     }
 
-    private String strip(String value)
+    private String emptyOnNull(String value)
     {
-        if (value.length() > 2)
-        {
-            return value.substring(0, value.length() - 2);
-        } else
-        {
-            return value;
-        }
+        return value == null ? "" : value;
     }
 
     private void addProject(TypedTableModelBuilder<AbstractExternalData> builder, Project project)
