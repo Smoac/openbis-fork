@@ -44,7 +44,7 @@ public class LinkedData implements Serializable
     @JsonProperty
     private ExternalDms externalDms;
 
-    @JsonIgnore
+    @JsonProperty
     private List<ContentCopy> contentCopies;
 
     // Method automatically generated with DtoGenerator
