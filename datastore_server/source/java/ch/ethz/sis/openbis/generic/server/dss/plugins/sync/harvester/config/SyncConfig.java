@@ -199,6 +199,8 @@ public class SyncConfig
 
     private String dataSourceAlias;
 
+    private Boolean translateUsingDataSourceAlias = false;
+
     private List<String> dataSourceSpaces = new ArrayList<>();
 
     private List<String> harvesterSpaces = new ArrayList<>();
@@ -260,4 +262,15 @@ public class SyncConfig
     {
         return this.authCredentials.getPassword();
     }
+
+    public Boolean isTranslateUsingDataSourceAlias()
+    {
+        return translateUsingDataSourceAlias;
+    }
+
+    public void setTranslateUsingDataSourceAlias(Boolean translateUsingDataSourceAlias)
+    {
+        this.translateUsingDataSourceAlias = translateUsingDataSourceAlias;
+    }
+
 }

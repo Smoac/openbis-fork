@@ -72,6 +72,8 @@ public class SynchronizationConfigReader
 
     private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
 
+    private static final String TRANSLATE_USING_DATA_SOURCE_ALIAS = "translate-using-data-source-alias";
+
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
 
     private String defaultNotSyncedEntitiesFileName = "not-synced-entities_{alias}.txt";
@@ -123,6 +125,7 @@ public class SynchronizationConfigReader
             }
 
             config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, DEFAULT_HARVESTER_TEMP_DIR, false));
+            config.setTranslateUsingDataSourceAlias(reader.getBoolean(section, TRANSLATE_USING_DATA_SOURCE_ALIAS, false));
 
             defaultLastSyncTimestampFileName = defaultLastSyncTimestampFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
             config.setLastSyncTimestampFileName(
