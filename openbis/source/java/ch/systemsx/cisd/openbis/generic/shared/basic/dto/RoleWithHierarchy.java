@@ -70,11 +70,19 @@ public enum RoleWithHierarchy implements Serializable
 
     SPACE_ETL_SERVER(INSTANCE_ETL_SERVER),
 
+    PROJECT_ADMIN(SPACE_ADMIN),
+
+    PROJECT_POWER_USER(PROJECT_ADMIN, SPACE_POWER_USER),
+
+    PROJECT_USER(PROJECT_POWER_USER, SPACE_USER),
+
+    PROJECT_OBSERVER(PROJECT_USER, SPACE_OBSERVER)
+
     ;
 
     public static enum RoleLevel implements IsSerializable
     {
-        INSTANCE, SPACE;
+        INSTANCE, SPACE, PROJECT;
     }
 
     /**
@@ -179,6 +187,11 @@ public enum RoleWithHierarchy implements Serializable
     public boolean isSpaceLevel()
     {
         return roleLevel.equals(RoleLevel.SPACE);
+    }
+
+    public boolean isProjectLevel()
+    {
+        return roleLevel.equals(RoleLevel.PROJECT);
     }
 
     public RoleLevel getRoleLevel()

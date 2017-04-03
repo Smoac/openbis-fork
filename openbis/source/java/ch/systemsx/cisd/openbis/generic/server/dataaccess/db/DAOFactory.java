@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHist
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -142,9 +143,9 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler,
-            final EntityHistoryCreator historyCreator)
+            final EntityHistoryCreator historyCreator, final IAuthorizationConfig authorizationConfig)
     {
-        super(context, sessionFactory, dynamicPropertyEvaluationScheduler, historyCreator);
+        super(context, sessionFactory, dynamicPropertyEvaluationScheduler, historyCreator, authorizationConfig);
         this.context = context;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
         historyCreator.setDaoFactory(this);

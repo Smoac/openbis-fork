@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -46,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 {
+
+    private final IAuthorizationConfig authorizationConfig;
 
     private final IRoleAssignmentDAO roleAssignmentDAO;
 
@@ -78,10 +81,10 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
             final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler,
-            final EntityHistoryCreator historyCreator)
+            final EntityHistoryCreator historyCreator, final IAuthorizationConfig authorizationConfig)
     {
         persistencyResources =
-                new PersistencyResources(context, sessionFactory, 
+                new PersistencyResources(context, sessionFactory,
                         dynamicPropertyEvaluationScheduler);
         personDAO = new PersonDAO(sessionFactory, historyCreator);
         groupDAO = new SpaceDAO(sessionFactory, historyCreator);
@@ -96,6 +99,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         queryDAO = new QueryDAO(sessionFactory, historyCreator);
         deletionDAO = new DeletionDAO(sessionFactory, persistencyResources, historyCreator);
         metaprojectDAO = new MetaprojectDAO(sessionFactory, historyCreator);
+        this.authorizationConfig = authorizationConfig;
     }
 
     @Override
@@ -186,6 +190,12 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public IMetaprojectDAO getMetaprojectDAO()
     {
         return metaprojectDAO;
+    }
+
+    @Override
+    public IAuthorizationConfig getAuthorizationConfig()
+    {
+        return authorizationConfig;
     }
 
     /**

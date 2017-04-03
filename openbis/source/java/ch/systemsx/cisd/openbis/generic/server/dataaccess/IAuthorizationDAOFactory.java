@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import org.hibernate.SessionFactory;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
+
 /**
  * Factory definition for all Data Access Objects which are needed for managing authorization.
  * 
@@ -25,6 +27,9 @@ import org.hibernate.SessionFactory;
  */
 public interface IAuthorizationDAOFactory
 {
+
+    public IAuthorizationConfig getAuthorizationConfig();
+
     /** Returns the persistency resources used to create DAO's. */
     public PersistencyResources getPersistencyResources();
 

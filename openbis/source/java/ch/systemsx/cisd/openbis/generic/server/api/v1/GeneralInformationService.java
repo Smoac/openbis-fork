@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.hibernate.SQLQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,6 +107,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperim
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
@@ -159,6 +162,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
+
     // Default constructor needed by Spring
     public GeneralInformationService()
     {
@@ -166,11 +172,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     GeneralInformationService(IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IPropertiesBatchManager propertiesBatchManager,
-            ICommonServer commonServer)
+            ICommonServer commonServer, IAuthorizationConfig authorizationConfig)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
         this.boFactory = boFactory;
         this.commonServer = commonServer;
+        this.authorizationConfig = authorizationConfig;
     }
 
     @Override
@@ -202,17 +209,26 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         checkSession(sessionToken);
 
+        AuthorizationConfigFacade configFacade = new AuthorizationConfigFacade(authorizationConfig);
+
         Map<String, Set<Role>> namedRoleSets = new LinkedHashMap<String, Set<Role>>();
         RoleWithHierarchy[] values = RoleWithHierarchy.values();
+
         for (RoleWithHierarchy roleSet : values)
         {
-            Set<RoleWithHierarchy> roles = roleSet.getRoles();
-            Set<Role> translatedRoles = new HashSet<Role>();
-            for (RoleWithHierarchy role : roles)
+            if (configFacade.isRoleEnabled(roleSet))
             {
-                translatedRoles.add(Translator.translate(role));
+                Set<RoleWithHierarchy> roles = roleSet.getRoles();
+                Set<Role> translatedRoles = new HashSet<Role>();
+                for (RoleWithHierarchy role : roles)
+                {
+                    if (configFacade.isRoleEnabled(role))
+                    {
+                        translatedRoles.add(Translator.translate(role));
+                    }
+                }
+                namedRoleSets.put(roleSet.name(), translatedRoles);
             }
-            namedRoleSets.put(roleSet.name(), translatedRoles);
         }
         return namedRoleSets;
     }
@@ -623,8 +639,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         Session session = getSession(sessionToken);
@@ -641,8 +656,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
             List<String> dataSetCodes)
     {

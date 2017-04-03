@@ -87,6 +87,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
@@ -604,6 +605,12 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getOperationExecutionDAO();
     }
 
+    @Override
+    public IAuthorizationConfig getAuthorizationConfig()
+    {
+        return daoFactory.getAuthorizationConfig();
+    }
+
     protected RelationshipTypePE getParentChildRelationshipType()
     {
         return RelationshipUtils.getParentChildRelationshipType(getRelationshipTypeDAO());
@@ -836,7 +843,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
         assignmentManager.performAssignment(relationshipService, session);
     }
-    
+
     protected void assignSampleToProject(SamplePE sample, ProjectPE project)
     {
         if (project != null)
@@ -867,7 +874,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         assignmentManager.assignDataSetAndRelatedComponents(data, newSample, experiment);
         assignmentManager.performAssignment(relationshipService, session);
     }
-    
+
     protected <T extends IEntityInformationWithPropertiesHolder> void reindex(Class<T> objectClass, Collection<T> objects)
     {
         IDynamicPropertyEvaluationScheduler indexUpdater = daoFactory.getPersistencyResources().getDynamicPropertyEvaluationScheduler();
@@ -891,7 +898,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         return WebClientConfigUtils.getExperimentText(getWebClientConfigProvider());
     }
-    
+
     protected String getSampleText()
     {
         return WebClientConfigUtils.getSampleText(getWebClientConfigProvider());
@@ -902,5 +909,5 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(
                 ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
     }
-    
+
 }

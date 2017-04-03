@@ -23,6 +23,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -35,10 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 public class RoleListBox extends ListBox
 {
 
+    private IViewContext<ICommonClientServiceAsync> viewContext;
+
     private List<RoleWithHierarchy> roles;
 
-    public RoleListBox(final SpaceSelectionWidget groupWidget)
+    public RoleListBox(IViewContext<ICommonClientServiceAsync> viewContext, final SpaceSelectionWidget groupWidget)
     {
+        this.viewContext = viewContext;
+
         for (RoleWithHierarchy visibleRoleCode : getRoles())
         {
             addItem(visibleRoleCode.toString());
@@ -77,10 +83,18 @@ public class RoleListBox extends ListBox
     {
         if (roles == null)
         {
+            boolean projectLevelAuthorizationEnabled = viewContext.getModel().getApplicationInfo().isProjectAuthorizationEnabled();
+
             roles = new ArrayList<RoleWithHierarchy>();
             for (RoleWithHierarchy role : RoleWithHierarchy.values())
             {
-                if (!RoleWithHierarchy.INSTANCE_DISABLED.equals(role))
+                if (RoleWithHierarchy.INSTANCE_DISABLED.equals(role))
+                {
+                    continue;
+                } else if (role.isProjectLevel() && false == projectLevelAuthorizationEnabled)
+                {
+                    continue;
+                } else
                 {
                     roles.add(role);
                 }

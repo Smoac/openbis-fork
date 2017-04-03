@@ -77,7 +77,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         group = new SpaceSelectionWidget(viewContext, PREFIX, false, false);
         group.setWidth(100);
 
-        roleBox = new AdapterField(new RoleListBox(group));
+        roleBox = new AdapterField(new RoleListBox(viewContext, group));
         roleBox.setFieldLabel("Role");
         roleBox.setWidth(100);
         roleBox.setId(ROLE_FIELD_ID);

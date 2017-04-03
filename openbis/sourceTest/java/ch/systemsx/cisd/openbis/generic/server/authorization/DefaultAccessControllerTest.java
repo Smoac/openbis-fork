@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -77,6 +78,8 @@ public final class DefaultAccessControllerTest
     private IDAOFactory daoFactory;
 
     private IProjectDAO projectDAO;
+
+    private IAuthorizationConfig authorizationConfig;
 
     private ProjectPE project;
 
@@ -105,13 +108,17 @@ public final class DefaultAccessControllerTest
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         projectDAO = context.mock(IProjectDAO.class);
+        authorizationConfig = context.mock(IAuthorizationConfig.class);
         project = new ProjectPE();
         project.setCode("TEST");
         project.setSpace(new SpacePEBuilder().code("TEST").getSpace());
-        accessController = new DefaultAccessController(daoFactory);
+
         context.checking(new Expectations()
             {
                 {
+                    allowing(daoFactory).getAuthorizationConfig();
+                    will(returnValue(authorizationConfig));
+
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
 
@@ -119,6 +126,8 @@ public final class DefaultAccessControllerTest
                     will(returnValue(project));
                 }
             });
+
+        accessController = new DefaultAccessController(daoFactory);
     }
 
     @AfterMethod
@@ -406,8 +415,7 @@ public final class DefaultAccessControllerTest
         @Capability("MY_CAP")
         public void myMethodWithOtherRolesOverridden();
 
-        @RolesAllowed(
-        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_OBSERVER })
+        @RolesAllowed({ RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_OBSERVER })
         public void myMethodWithTwoRoles();
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
@@ -420,27 +428,26 @@ public final class DefaultAccessControllerTest
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         public void myMethodWithGardedArgumentWithDifferentRoles(String sessionToken,
-                @AuthorizationGuard(guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
+                @AuthorizationGuard(guardClass = MockPredicate.class, rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         @Capability("MY_CAP")
         public void myMethodWithGardedArgumentWithRolesOverridden(String sessionToken,
-                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
+                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class, rolesAllowed = {
+                        RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         @Capability("MY_CAP2")
         public void myMethodWithGardedArgumentWithRolesOverridden2(String sessionToken,
-                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
+                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class, rolesAllowed = {
+                        RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         public void myMethodWithGardedArgumentWithRolesOverridden3(String sessionToken,
-                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_POWER_USER }) String argument1,
-                @AuthorizationGuard(name = "ARG2", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_USER }) String argument2);
+                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class, rolesAllowed = {
+                        RoleWithHierarchy.SPACE_POWER_USER }) String argument1,
+                @AuthorizationGuard(name = "ARG2", guardClass = MockPredicate.class, rolesAllowed = {
+                        RoleWithHierarchy.SPACE_USER }) String argument2);
     }
 
     /**

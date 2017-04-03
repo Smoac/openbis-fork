@@ -113,6 +113,7 @@
 		<constructor-arg ref="hibernate-search-context" />
 		<constructor-arg ref="dynamic-property-scheduler" />
 		<constructor-arg ref="entity-history-creator" />
+		<constructor-arg ref="authorization-config" />
 	</bean>
 
 	<bean id="dss-factory"

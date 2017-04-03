@@ -77,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.WebAppsProperties;
@@ -118,6 +120,9 @@ public abstract class AbstractClientService implements IClientService,
 
     @Autowired
     private TableDataCache<String, Object> tableDataCache;
+
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
 
     private String cifexURL;
 
@@ -475,6 +480,7 @@ public abstract class AbstractClientService implements IClientService,
         applicationInfo.setWebapps(extractWebAppsProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setProjectSamplesEnabled(isProjectSamplesEnabled());
+        applicationInfo.setProjectLevelAuthorizationEnabled(isProjectLevelAuthorizationEnabled());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
     }
@@ -563,6 +569,11 @@ public abstract class AbstractClientService implements IClientService,
             // ignored
         }
         return false;
+    }
+
+    private boolean isProjectLevelAuthorizationEnabled()
+    {
+        return new AuthorizationConfigFacade(authorizationConfig).isProjectLevelEnabled();
     }
 
     @Override

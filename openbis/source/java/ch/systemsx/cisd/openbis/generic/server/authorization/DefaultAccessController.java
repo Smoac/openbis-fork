@@ -77,12 +77,13 @@ public final class DefaultAccessController implements IAccessController
 
     private final Map<Method, Map<String, Set<RoleWithHierarchy>>> argumentRolesCache = new HashMap<>();
 
-    private final CapabilityMap capabilities = new CapabilityMap(new File("etc/capabilities"));
+    private final CapabilityMap capabilities;
 
     private PredicateExecutor predicateExecutor;
 
     public DefaultAccessController(final IAuthorizationDAOFactory daoFactory)
     {
+        capabilities = new CapabilityMap(new File("etc/capabilities"), daoFactory.getAuthorizationConfig());
         predicateExecutor = new PredicateExecutor();
         predicateExecutor.setPredicateFactory(new PredicateFactory());
         predicateExecutor.setDAOFactory(daoFactory);

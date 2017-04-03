@@ -34,6 +34,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
@@ -45,6 +47,8 @@ class CapabilityMap
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             CapabilityMap.class);
+
+    private final IAuthorizationConfig authorizationConfig;
 
     private final Map<String, Collection<RoleWithHierarchy>> capMap =
             new HashMap<String, Collection<RoleWithHierarchy>>();
@@ -73,13 +77,15 @@ class CapabilityMap
         }
     }
 
-    CapabilityMap(File file)
+    CapabilityMap(File file, IAuthorizationConfig authorizationConfig)
     {
-        this(readLines(file), file.getPath());
+        this(readLines(file), file.getPath(), authorizationConfig);
     }
 
-    CapabilityMap(List<String> lines, String filePath)
+    CapabilityMap(List<String> lines, String filePath, IAuthorizationConfig authorizationConfig)
     {
+        this.authorizationConfig = authorizationConfig;
+
         for (String line : lines)
         {
             final String trimmed = line.trim();
@@ -133,23 +139,34 @@ class CapabilityMap
     private void addRoles(String capabilityName, String roleNames, String line, String filePath)
     {
         Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
+
         if (roles == null)
         {
             roles = new HashSet<RoleWithHierarchy>();
             capMap.put(capabilityName, roles);
         }
+
+        AuthorizationConfigFacade configFacade = new AuthorizationConfigFacade(authorizationConfig);
+
         for (String roleName : StringUtils.split(roleNames, ","))
         {
             roleName = roleName.trim().toUpperCase();
             try
             {
                 final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
-                roles.add(role);
 
-                if (operationLog.isDebugEnabled())
+                if (configFacade.isRoleEnabled(role))
                 {
-                    operationLog.debug(String
-                            .format("Add to map: '%s' -> %s", capabilityName, role));
+                    roles.add(role);
+
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String
+                                .format("Add to map: '%s' -> %s", capabilityName, role));
+                    }
+                } else
+                {
+                    logWarning(line, filePath, "role '" + roleName + "' doesn't exist");
                 }
             } catch (IllegalArgumentException ex)
             {

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -35,6 +36,8 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.query.server.authorization.QueryAccessController;
@@ -71,6 +74,9 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
 
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
 
     /**
      * map from dbKey to DatabaseDefinition
@@ -130,8 +136,19 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
             {
                 final RoleWithHierarchy creatorMinimalRole =
                         RoleWithHierarchy.valueOf(creatorMinimalRoleString);
-                definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
-                        databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
+
+                AuthorizationConfigFacade configFacade = new AuthorizationConfigFacade(authorizationConfig);
+
+                if (configFacade.isRoleEnabled(creatorMinimalRole))
+                {
+                    definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
+                            databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
+                } else
+                {
+                    throw new UnsupportedOperationException("Query database '" + databaseKey
+                            + "' is not defined properly. '" + creatorMinimalRoleString
+                            + "' is not a valid role.");
+                }
             } catch (IllegalArgumentException ex)
             {
                 throw new UnsupportedOperationException("Query database '" + databaseKey

@@ -47,6 +47,8 @@ public final class ApplicationInfo implements IsSerializable
 
     private boolean projectSamplesEnabled;
 
+    private boolean projectLevelAuthorizationEnabled;
+
     private WebClientConfiguration webClientConfiguration;
 
     private Set<String> enabledTechnologies;
@@ -177,6 +179,16 @@ public final class ApplicationInfo implements IsSerializable
     public void setProjectSamplesEnabled(boolean projectSamplesEnabled)
     {
         this.projectSamplesEnabled = projectSamplesEnabled;
+    }
+
+    public boolean isProjectAuthorizationEnabled()
+    {
+        return projectLevelAuthorizationEnabled;
+    }
+
+    public void setProjectLevelAuthorizationEnabled(boolean projectAuthorizationEnabled)
+    {
+        this.projectLevelAuthorizationEnabled = projectAuthorizationEnabled;
     }
 
 }

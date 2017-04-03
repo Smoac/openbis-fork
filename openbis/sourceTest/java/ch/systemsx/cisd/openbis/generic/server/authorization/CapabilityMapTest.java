@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -80,7 +81,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A: SPACE_POWER_USER\t", "# Some comment", "",
-                        " B  INSTANCE_ETL_SERVER"), "<memory>");
+                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -101,7 +102,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A:SPACE_POWER_USER\t", "# Some comment", "",
-                        " B  INSTANCE_ETL_SERVER"), "<memory>");
+                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -122,7 +123,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A :SPACE_POWER_USER\t", "# Some comment", "",
-                        " B  INSTANCE_ETL_SERVER"), "<memory>");
+                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -143,7 +144,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER\t", "# Some comment", "",
-                        " b  instance_etl_server"), "<memory>");
+                        " b  instance_etl_server"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -164,7 +165,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A  SPACE_POWER_USER\t",
-                        " A  INSTANCE_ETL_SERVER"), "<memory>");
+                        " A  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(2, capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"), null)
@@ -180,7 +181,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER,INSTANCE_ETL_SERVER\t"),
-                        "<memory>");
+                        "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(2, capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"), null)
@@ -196,7 +197,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A\tSPACE_POWER_USER,INSTANCE_ETL_SERVER; "
-                        + "sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>");
+                        + "sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertRoles("[INSTANCE_ETL_SERVER, SPACE_POWER_USER]", capMap, "dummyA1", null);
@@ -207,7 +208,7 @@ public class CapabilityMapTest
     public void testOnlyParameterRoles() throws Exception
     {
         CapabilityMap capMap =
-                new CapabilityMap(Arrays.asList("a : sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>");
+                new CapabilityMap(Arrays.asList("a : sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertNoRoles(capMap, "dummyA1", null);
@@ -220,7 +221,7 @@ public class CapabilityMapTest
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList(
                         "CapabilityMapTest.dummyA: SPACE_POWER_USER #wrong",
-                        "CapabilityMapTest.dummyB  NO_ROLE"), "<memory>");
+                        "CapabilityMapTest.dummyB  NO_ROLE"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("WARN  OPERATION.CapabilityMap - Ignoring mal-formed line "
                 + "'CapabilityMapTest.dummyA: SPACE_POWER_USER #wrong' in <memory> "
@@ -238,7 +239,7 @@ public class CapabilityMapTest
     public void testUserRoleDisabled() throws SecurityException, NoSuchMethodException
     {
         CapabilityMap capMap =
-                new CapabilityMap(Arrays.asList("A: INSTANCE_DISABLED\t"), "<memory>");
+                new CapabilityMap(Arrays.asList("A: INSTANCE_DISABLED\t"), "<memory>", new TestAuthorizationConfig());
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -246,7 +247,7 @@ public class CapabilityMapTest
                 capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"), null).toArray()[0]);
         assertTrue(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"), null)
                 .toArray(new RoleWithHierarchy[0])[0]
-                .getRoles().isEmpty());
+                        .getRoles().isEmpty());
     }
 
     private void assertRoles(String expectedRoles, CapabilityMap capMap, String methodName,
@@ -265,6 +266,17 @@ public class CapabilityMapTest
     {
         Collection<RoleWithHierarchy> roles = capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod(methodName), argumentNameOrNull);
         assertEquals(null, roles);
+    }
+
+    private static class TestAuthorizationConfig implements IAuthorizationConfig
+    {
+
+        @Override
+        public boolean isProjectLevelEnabled()
+        {
+            return false;
+        }
+
     }
 
 }
