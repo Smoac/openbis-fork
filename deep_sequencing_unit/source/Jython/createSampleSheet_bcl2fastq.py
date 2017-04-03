@@ -197,6 +197,8 @@ def readConfig(logger):
     config_dict['externalSampleName'] = configParameters.get(OPENBIS, 'externalSampleName')
     config_dict['laneCount'] = configParameters.get(OPENBIS, 'laneCount')
     config_dict['kit'] = configParameters.get(OPENBIS, 'kit')
+    config_dict['10XSampleType'] = configParameters.get(OPENBIS, '10XSampleType')
+    config_dict['10XIndexSet'] = configParameters.get(OPENBIS, '10XIndexSet')
     
     config_dict['headerSection'] = configParameters.get(ILLUMINA, 'headerSection')
     config_dict['readsSection'] = configParameters.get(ILLUMINA, 'readsSection')
@@ -249,7 +251,7 @@ def get_vocabulary(vocabulary_code, service):
             vocabulary_dict[term.getCode()] = term.getLabel()
     else:
         print ('No vocabulary found for ' + vocabulary_code)
-    print(vocabulary_dict)
+#     print(vocabulary_dict)
     return vocabulary_dict
 
 
@@ -427,15 +429,25 @@ def get_contained_sample_properties(contained_samples, service, config_dict):
                 propertyDict[property] = parentProperties.get(property)
 
             propertyDict['LANE'] = lane.getCode()
+            plain_lane = lane.getCode().split(':')[-1]
             
             try:
-                plain_lane = lane.getCode().split(':')[-1]
                 if barcodesPerLaneDict.has_key(plain_lane):
                     barcodesPerLaneDict[plain_lane].append(propertyDict[config_dict['index1Name']])
                 else:
                     barcodesPerLaneDict[plain_lane] = [propertyDict[config_dict['index1Name']]]
             except:
-                pass
+                  pass
+
+            try:
+                if barcodesPerLaneDict.has_key(plain_lane):
+                    barcodesPerLaneDict[plain_lane].append(propertyDict[config_dict['10XIndexSet']])
+                else:
+                    barcodesPerLaneDict[plain_lane] = [propertyDict[config_dict['10XIndexSet']]]
+            except:
+                  pass
+              
+              
 
             myKey = sanitize_string(parentCode + '_' + lane.getCode())
             parentDict[myKey] = propertyDict
@@ -449,6 +461,7 @@ def transform_sample_to_dict(foundFlowCell):
     """
     flowCellDict = {}
     fcProperties = foundFlowCell.getProperties()
+    
     for property in fcProperties:
         flowCellDict[property] = fcProperties.get(property)
     flowCellDict['Project'] = foundFlowCell.getExperimentIdentifierOrNull().split('/')[-1]
@@ -627,7 +640,7 @@ def verify_index_length (parentDict, flowCellDict, config_dict, logger):
                     
     return index_length_dict
 
-
+  
 def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, samplesPerLaneDict, model, parentDict, index_length_dict, flowCellDict,
                              config_dict, index1Vocabulary, index2Vocabulary, flowCellName, logger):
 
@@ -653,16 +666,25 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
                     line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]), "", "", "", "", key, ""])
                     sampleSheetDict[lane_int + '_' + key] = [line]
                     single_index_set = True
-
+    
 
         for key in lane_sample_properties.keys():
             
             # If no index or 'NOINDEX' assigned then just skip this  sample
-            if ((config_dict['index1Name'] not in lane_sample_properties[key] or lane_sample_properties[key][config_dict['index1Name']] == 'NOINDEX')):
+            if ((config_dict['index1Name'] not in lane_sample_properties[key] or lane_sample_properties[key][config_dict['index1Name']] == 'NOINDEX') and
+                config_dict['10XIndexSet'] not in lane_sample_properties[key]):
                 continue
             
-            index1 = index1Vocabulary[lane_sample_properties[key][config_dict['index1Name']]]
+            index1 = "" 
             index2 = ""
+                        
+            if config_dict['index1Name'] in lane_sample_properties[key]:
+                index1 = lane_sample_properties[key][config_dict['index1Name']]
+            
+            if config_dict['10XIndexSet'] in lane_sample_properties[key]:
+                index1 = lane_sample_properties[key][config_dict['10XIndexSet']]
+            
+                                 
             if config_dict['index2Name'] in lane_sample_properties[key]:
                 index2 = lane_sample_properties[key][config_dict['index2Name']]
                 # Not needed, won't use it any more
