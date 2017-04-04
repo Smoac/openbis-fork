@@ -66,7 +66,7 @@ public class ResourceListParserData
 
     private Map<String, IncomingDataSet> dataSetsToProcess = new HashMap<String, ResourceListParserData.IncomingDataSet>();
 
-    private Map<String, MaterialWithLastModificationDate> materialsToProcess = new HashMap<String, MaterialWithLastModificationDate>();
+    private MultiKeyMap<String, MaterialWithLastModificationDate> materialsToProcess = new MultiKeyMap<String, MaterialWithLastModificationDate>();
 
     public MasterData getMasterData()
     {
@@ -108,7 +108,7 @@ public class ResourceListParserData
         return dataSetsToProcess;
     }
 
-    public Map<String, MaterialWithLastModificationDate> getMaterialsToProcess()
+    public MultiKeyMap<String, MaterialWithLastModificationDate> getMaterialsToProcess()
     {
         return materialsToProcess;
     }

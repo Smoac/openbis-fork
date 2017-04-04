@@ -180,8 +180,6 @@ public class MasterDataSynchronizer
                 existingVocabulary.setURLTemplate(newVocabulary.getURLTemplate());
                 existingVocabulary.setChosenFromList(newVocabulary.isChosenFromList());
                 commonServer.updateVocabulary(sessionToken, existingVocabulary);
-                // vocabulary.setTerms(newVocabulary.getTerms());
-
                 processVocabularyTerms(sessionToken, commonServer, newVocabulary, existingVocabulary);
             }
             else

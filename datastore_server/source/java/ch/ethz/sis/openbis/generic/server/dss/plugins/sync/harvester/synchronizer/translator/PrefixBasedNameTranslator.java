@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.INTERNAL_NAMESPACE_PREFIX;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -32,11 +34,29 @@ public class PrefixBasedNameTranslator implements INameTranslator
         this.prefix = prefix;
     }
 
+    private String translateInternal(String name)
+    {
+        return prefix + "_" + name;
+    }
+
+    /**
+     * INTERNAL_NAMESPACE_PREFIX is checked because of the following cases following cases: 1. While parsing master data, for property types with dataType = CONTROLLEDVOCABULARY or
+     * MATERIAL in which case the vocabulary or material attribute might start with $ (INTERNAL_NAMESPACE_PREFIX) 2. While parsing master data, for
+     * property assignments where property type code might start with $ (INTERNAL_NAMESPACE_PREFIX) the prop. assignment element in the incoming xml
+     * will start with $ if propertyTypeCode is internalNamespace. 3. While parsing meta data, the property code will will start with $ if
+     * propertyTypeCode is internalNamespac
+     */
     @Override
     public String translate(String name)
     {
         assert StringUtils.isBlank(name) == false : "Prefix translation can only be done for non-null values";
-        return prefix + "_" + name;
+        if (name.startsWith(INTERNAL_NAMESPACE_PREFIX))
+        {
+            return INTERNAL_NAMESPACE_PREFIX + translateInternal(name.substring(INTERNAL_NAMESPACE_PREFIX.length()));
+        }
+        else
+        {
+            return translateInternal(name);
+        }
     }
-
 }

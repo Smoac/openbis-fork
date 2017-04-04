@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier.TYPE_SEPARATOR_PREFIX;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier.TYPE_SEPARATOR_SUFFIX;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,9 +54,12 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronize
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.PrefixBasedNameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
@@ -80,6 +86,8 @@ public class ResourceListParser
 
     private final INameTranslator nameTranslator;
 
+    private final INameTranslator spaceNameTranslator;
+
     private final String dataStoreCode;
 
     public INameTranslator getNameTranslator()
@@ -87,25 +95,26 @@ public class ResourceListParser
         return nameTranslator;
     }
 
-    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode)
+    private ResourceListParser(INameTranslator nameTranslator, PrefixBasedNameTranslator spaceNameTranslator, String dataStoreCode)
     {
         this.data = new ResourceListParserData();
         this.nameTranslator = nameTranslator;
         this.dataStoreCode = dataStoreCode;
+        this.spaceNameTranslator = spaceNameTranslator;
     }
 
-    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode)
+    public static ResourceListParser create(INameTranslator nameTranslator, PrefixBasedNameTranslator spaceNameTranslator, String dataStoreCode)
     {
         if (nameTranslator == null)
         {
-            return create(dataStoreCode);
+            return create(spaceNameTranslator, dataStoreCode);
         }
-        return new ResourceListParser(nameTranslator, dataStoreCode);
+        return new ResourceListParser(nameTranslator, spaceNameTranslator, dataStoreCode);
     }
 
-    public static ResourceListParser create(String dataStoreCode)
+    public static ResourceListParser create(PrefixBasedNameTranslator spaceNameTranslator, String dataStoreCode)
     {
-        return create(new DefaultNameTranslator(), dataStoreCode);
+        return create(new DefaultNameTranslator(), spaceNameTranslator, dataStoreCode);
     }
 
     public ResourceListParserData parseResourceListDocument(Document doc) throws XPathExpressionException
@@ -227,7 +236,7 @@ public class ResourceListParser
         {
             parseDataSetMetaData(xpath, extractDataSetCodeFromURI(uri), xdNode, lastModificationDate);
         }
-        else if (EntityKind.MATERIAL.equals(entityKind))
+        else if (EntityKind.MATERIAL.getLabel().equals(entityKind))
         {
             parseMaterialMetaData(xpath, extractMaterialCodeFromURI(uri), xdNode, lastModificationDate);
         }
@@ -379,6 +388,11 @@ public class ResourceListParser
         incomingProject.setHasAttachments(hasAttachments(xpath, xdNode));
     }
 
+    private ExperimentIdentifier createExperimentIdentifier(String spaceId, String prjCode, String expCode)
+    {
+        return new ExperimentIdentifier(createProjectIdentifier(prjCode, spaceId), expCode);
+    }
+
     private ProjectIdentifier createProjectIdentifier(String code, String space)
     {
         return new ProjectIdentifier(createSpaceIdentifier(space), code);
@@ -401,12 +415,12 @@ public class ResourceListParser
 
     private void parseMaterialMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
-        String code = extractCode(xdNode);
+        String code = nameTranslator.translate(extractCode(xdNode));
         String type = extractType(xdNode);
         NewMaterialWithType newMaterial = new NewMaterialWithType(code, type);
         MaterialWithLastModificationDate materialWithLastModDate =
                 data.new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
-        data.getMaterialsToProcess().put(code, materialWithLastModDate);
+        data.getMaterialsToProcess().put(code, type, materialWithLastModDate);
         newMaterial.setProperties(parseProperties(xpath, xdNode));
     }
 
@@ -442,22 +456,11 @@ public class ResourceListParser
 
     private List<NewProperty> parseDataSetProperties(XPath xpath, Node xdNode)
     {
-
+        EntityProperty[] entityProperties = parseProperties(xpath, xdNode);
         List<NewProperty> dsProperties = new ArrayList<NewProperty>();
-        Element docElement = (Element) xdNode;
-        NodeList propsNode = docElement.getElementsByTagName("x:properties");
-        if (propsNode.getLength() == 1)
+        for (EntityProperty entityProperty : entityProperties)
         {
-            Element propsElement = (Element) propsNode.item(0);
-            NodeList propertyNodes = propsElement.getElementsByTagName("x:property");
-            for (int i = 0; i < propertyNodes.getLength(); i++)
-            {
-                Element propertyElement = (Element) propertyNodes.item(i);
-                // TODO proper error handling needed below in case the XML is not correct and item 0 does not exist
-                String code = propertyElement.getElementsByTagName("x:code").item(0).getTextContent();
-                String val = propertyElement.getElementsByTagName("x:value").item(0).getTextContent();
-                dsProperties.add(new NewProperty(code, val));
-            }
+            dsProperties.add(new NewProperty(entityProperty.getPropertyType().getCode(), entityProperty.getValue()));
         }
         return dsProperties;
     }
@@ -489,19 +492,50 @@ public class ResourceListParser
     {
         EntityProperty property = new EntityProperty();
         PropertyType propertyType = new PropertyType();
-        propertyType.setCode(code);
+        String translatedCode = nameTranslator.translate(code);
+        PropertyType pt = data.getMasterData().getPropertyTypesToProcess().get(translatedCode);
+        if (pt.getDataType().getCode().equals(DataTypeCode.MATERIAL))
+        {
+            if (val != null)
+            {
+                val = nameTranslator.translate(val);
+                val = translateMaterialIdentifier(val);
+            }
+            
+        }
+        propertyType.setCode(translatedCode);
         property.setPropertyType(propertyType);
         property.setValue(val);
         return property;
     }
 
+    private String translateMaterialIdentifier(String value) {
+        if (StringUtils.isBlank(value))
+        {
+            return null;
+        }
+        int typePrefix = value.indexOf(TYPE_SEPARATOR_PREFIX);
+        if (typePrefix == -1)
+        {
+            return null;
+        }
+        String code = value.substring(0, typePrefix);
+        String typeCode = nameTranslator.translate(value.substring(typePrefix + TYPE_SEPARATOR_PREFIX.length()));
+        // we allow to omit the closing brace
+        if (typeCode.endsWith(TYPE_SEPARATOR_SUFFIX))
+        {
+            typeCode = typeCode.substring(0, typeCode.length() - TYPE_SEPARATOR_SUFFIX.length());
+        }
+        return new MaterialIdentifier(code, typeCode).toString();
+    }
     private void parseExperimentMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
         String code = extractCode(xdNode);
         String type = extractType(xdNode);
         String project = extractAttribute(xdNode, "project");
         String space = extractSpace(xdNode, false);
-        NewExperiment newExp = new NewExperiment("/" + nameTranslator.translate(space) + "/" + project + "/" + code, type);
+        ExperimentIdentifier experimentIdentifier = createExperimentIdentifier(space, project, code);
+        NewExperiment newExp = new NewExperiment(experimentIdentifier.toString(), type);
         newExp.setPermID(permId);
         IncomingExperiment incomingExperiment = data.new IncomingExperiment(newExp, lastModificationDate);
         data.getExperimentsToProcess().put(permId, incomingExperiment);
@@ -537,7 +571,7 @@ public class ResourceListParser
 
     private String extractType(Node xdNode)
     {
-        return extractAttribute(xdNode, "type");
+        return nameTranslator.translate(extractAttribute(xdNode, "type"));
     }
 
     private String extractSpace(Node xdNode, boolean nullAllowed)
@@ -545,7 +579,7 @@ public class ResourceListParser
         String space = extractAttribute(xdNode, "space", nullAllowed);
         if (space != null)
         {
-            data.getHarvesterSpaceList().add(nameTranslator.translate(space));
+            data.getHarvesterSpaceList().add(spaceNameTranslator.translate(space));
         }
         return space;
     }

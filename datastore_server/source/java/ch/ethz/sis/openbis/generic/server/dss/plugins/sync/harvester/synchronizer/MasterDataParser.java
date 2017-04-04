@@ -29,6 +29,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -184,17 +185,14 @@ public class MasterDataParser
         for (int i = 0; i < pluginNodes.getLength(); i++)
         {
             Element pluginElement = (Element) pluginNodes.item(i);
-
             Script plugin = new Script();
-            // String code = getAttribute(pluginElement, "code");
-            plugin.setName(getAttribute(pluginElement, "name"));
+            plugin.setName(nameTranslator.translate(getAttribute(pluginElement, "name")));
             plugin.setDescription(getAttribute(pluginElement, "description"));
             String entityKind = getAttribute(pluginElement, "entityKind").trim();
             plugin.setScriptType(ScriptType.valueOf(getAttribute(pluginElement, "type")));
             plugin.setPluginType(PluginType.JYTHON);
             plugin.setEntityKind(entityKind.equals("") ? null : new EntityKind[] { EntityKind.valueOf(entityKind) });
             plugin.setScript(pluginElement.getTextContent());
-
             validationPlugins.put(plugin.getName(), plugin);
         }
     }
@@ -245,8 +243,7 @@ public class MasterDataParser
         for (int i = 0; i < vocabNodes.getLength(); i++)
         {
             Element vocabElement = (Element) vocabNodes.item(i);
-            String code = getAttribute(vocabElement, "code");
-
+            String code = nameTranslator.translate(getAttribute(vocabElement, "code"));
             NewVocabulary newVocabulary = new NewVocabulary();
             newVocabulary.setCode(code);
             newVocabulary.setDescription(getAttribute(vocabElement, "description"));
@@ -299,7 +296,7 @@ public class MasterDataParser
         {
             Element materialTypeElement = (Element) matTypeNodes.item(i);
             MaterialType materialType = new MaterialType();
-            materialType.setCode(getAttribute(materialTypeElement, "code"));
+            materialType.setCode(nameTranslator.translate(getAttribute(materialTypeElement, "code")));
             materialType.setDescription(getAttribute(materialTypeElement, "description"));
             String validationPluginName = getAttribute(materialTypeElement, "validationPlugin");
             if (validationPluginName != null)
@@ -308,7 +305,7 @@ public class MasterDataParser
             }
             materialTypes.put(materialType.getCode(), materialType);
 
-            parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement.getElementsByTagName("propertyAssignments"));
+            parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement);
         }
     }
 
@@ -325,9 +322,8 @@ public class MasterDataParser
         for (int i = 0; i < expTypeNodes.getLength(); i++)
         {
             Element expTypeElement = (Element) expTypeNodes.item(i);
-            String code = getAttribute(expTypeElement, "code");
             ExperimentType expType = new ExperimentType();
-            expType.setCode(code);
+            expType.setCode(nameTranslator.translate(getAttribute(expTypeElement, "code")));
             expType.setDescription(getAttribute(expTypeElement, "description"));
             String validationPluginName = getAttribute(expTypeElement, "validationPlugin");
             if (validationPluginName != null)
@@ -336,7 +332,7 @@ public class MasterDataParser
             }
             experimentTypes.put(expType.getCode(), expType);
 
-            parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement.getElementsByTagName("xmd:propertyAssignments"));
+            parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement);
         }
     }
 
@@ -354,7 +350,7 @@ public class MasterDataParser
         {
             Element sampleTypeElement = (Element) sampleTypeNodes.item(i);
             SampleType sampleType = new SampleType();
-            sampleType.setCode(getAttribute(sampleTypeElement, "code"));
+            sampleType.setCode(nameTranslator.translate(getAttribute(sampleTypeElement, "code")));
             sampleType.setDescription(getAttribute(sampleTypeElement, "description"));
             sampleType.setListable(Boolean.valueOf(getAttribute(sampleTypeElement, "listable")));
             sampleType.setShowContainer(Boolean.valueOf(getAttribute(sampleTypeElement, "showContainer")));
@@ -370,7 +366,7 @@ public class MasterDataParser
             }
             sampleTypes.put(sampleType.getCode(), sampleType);
 
-            parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement.getElementsByTagName("xmd:propertyAssignments"));
+            parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement);
         }
     }
 
@@ -387,9 +383,8 @@ public class MasterDataParser
         for (int i = 0; i < dataSetTypeNodes.getLength(); i++)
         {
             Element dataSetTypeElement = (Element) dataSetTypeNodes.item(i);
-            String code = getAttribute(dataSetTypeElement, "code");
             DataSetType dataSetType = new DataSetType();
-            dataSetType.setCode(code);
+            dataSetType.setCode(nameTranslator.translate(getAttribute(dataSetTypeElement, "code")));
             dataSetType.setDescription(getAttribute(dataSetTypeElement, "description"));
             dataSetType.setDataSetKind(DataSetKind.valueOf(getAttribute(dataSetTypeElement, "dataSetKind")));
             String mainDataSetPattern = getAttribute(dataSetTypeElement, "mainDataSetPattern");
@@ -417,13 +412,14 @@ public class MasterDataParser
             }
             dataSetTypes.put(dataSetType.getCode(), dataSetType);
 
-            parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement.getElementsByTagName("xmd:propertyAssignments"));
+            parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement);
         }
     }
 
-    private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, NodeList propertyAssignmentsNode)
+    private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, Element entityTypeElement)
             throws XPathExpressionException
     {
+        NodeList propertyAssignmentsNode = entityTypeElement.getElementsByTagName("xmd:propertyAssignments");
         if (propertyAssignmentsNode.getLength() == 0)
         {
             return;
@@ -438,6 +434,7 @@ public class MasterDataParser
         {
             Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
             String propertyTypeCode = getAttribute(propertyAssignmentElement, "propertyTypeCode");
+            propertyTypeCode = nameTranslator.translate(propertyTypeCode);
             NewETPTAssignment assignment = new NewETPTAssignment();
             assignment.setPropertyTypeCode(propertyTypeCode);
             assignment.setEntityKind(entityType.getEntityKind());
@@ -465,33 +462,34 @@ public class MasterDataParser
         for (int i = 0; i < propertyTypeNodes.getLength(); i++)
         {
             Element propertyTypeElement = (Element) propertyTypeNodes.item(i);
-            PropertyType newPropertyType = new PropertyType();
 
-            String code = getAttribute(propertyTypeElement, "code");
+            PropertyType newPropertyType = new PropertyType();
+            Boolean isInternalNameSpace = Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace"));
+            String code = nameTranslator.translate(getAttribute(propertyTypeElement, "code"));
+            newPropertyType.setCode(CodeConverter.tryToBusinessLayer(code, isInternalNameSpace));
             newPropertyType.setLabel(getAttribute(propertyTypeElement, "label"));
             DataTypeCode dataTypeCode = DataTypeCode.valueOf(getAttribute(propertyTypeElement, "dataType"));
             newPropertyType.setDataType(new DataType(dataTypeCode));
             newPropertyType.setDescription(getAttribute(propertyTypeElement, "description"));
+            newPropertyType.setInternalNamespace(isInternalNameSpace);
             newPropertyType.setManagedInternally(Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally")));
-            newPropertyType.setInternalNamespace(Boolean.valueOf(getAttribute(propertyTypeElement, "internalNamespace")));
-            newPropertyType.setCode(CodeConverter.tryToBusinessLayer(code, newPropertyType.isInternalNamespace()));
 
             propertyTypes.put(newPropertyType.getCode(), newPropertyType);
             if (dataTypeCode.equals(DataTypeCode.CONTROLLEDVOCABULARY))
             {
-                String vocabularyCode = getAttribute(propertyTypeElement, "vocabulary");
+                String vocabularyCode = nameTranslator.translate((getAttribute(propertyTypeElement, "vocabulary")));
                 newPropertyType.setVocabulary(vocabularies.get(vocabularyCode));
             }
             else if (dataTypeCode.equals(DataTypeCode.MATERIAL))
             {
                 String materialCode = getAttribute(propertyTypeElement, "material");
-                if (materialCode.trim().length() < 1)
+                if (StringUtils.isBlank(materialCode))
                 {
                     newPropertyType.setMaterialType(null); // material of any type
                 }
                 else
                 {
-                    newPropertyType.setMaterialType(materialTypes.get(materialCode));
+                    newPropertyType.setMaterialType(materialTypes.get(nameTranslator.translate(materialCode)));
                 }
             }
         }

@@ -35,6 +35,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,6 +76,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronize
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.PrefixBasedNameTranslator;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
+import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -187,21 +190,31 @@ public class EntitySynchronizer
         // Parse the resource list: This sends back all projects,
         // experiments, samples and data sets contained in the XML together with their last modification date to be used for filtering
         operationLog.info("parsing the resource list xml document");
-        String dataSourcePrefix = config.getDataSourceAlias();
+        String dataSourceAlias = config.getDataSourceAlias();
         INameTranslator nameTranslator = null;
-        if (StringUtils.isBlank(dataSourcePrefix) == false)
+        if (config.isTranslateUsingDataSourceAlias() == true)
         {
-            nameTranslator = new PrefixBasedNameTranslator(dataSourcePrefix);
+            if (StringUtils.isBlank(dataSourceAlias) == true)
+            {
+                throw new UserFailureException("Please specify a data source alias in the config file to be used in name translations.");
+            }
+            else
+            {
+                nameTranslator = new PrefixBasedNameTranslator(dataSourceAlias);
+            }
         }
 
-        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode);
+        // even when do not translate other things, we always translate space name.
+        // TODO re-think
+        ResourceListParser parser = ResourceListParser.create(nameTranslator, new PrefixBasedNameTranslator(dataSourceAlias), dataStoreCode);
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
         processDeletions(data);
 
         operationLog.info("registering master data");
 
-        masterDataSyncronizer = new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), data.getMasterData());
+        masterDataSyncronizer =
+                new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), data.getMasterData());
         registerMasterData(data);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
@@ -233,7 +246,7 @@ public class EntitySynchronizer
                 data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp, dataSetsCodesToRetry);
         operationLog.info("Registering data sets...");
         DataSetRegistrationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
-        // backup the current not synced data set codes file, delete the original file
+        // backup the current not synched data set codes file, delete the original file
 
         saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
 
@@ -491,7 +504,7 @@ public class EntitySynchronizer
         Set<String> incomingExperimentPermIds = data.getExperimentsToProcess().keySet();
         Set<String> incomingSamplePermIds = data.getSamplesToProcess().keySet();
         Set<String> incomingDataSetCodes = data.getDataSetsToProcess().keySet();
-        Set<String> incomingMaterialCodes = data.getMaterialsToProcess().keySet();
+        MultiKeyMap<String, MaterialWithLastModificationDate> incomingMaterials = data.getMaterialsToProcess();
 
         // find projects, experiments, samples and data sets to be deleted
         List<ProjectPermId> projectPermIds = new ArrayList<ProjectPermId>();
@@ -588,7 +601,7 @@ public class EntitySynchronizer
 
         for (ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material material : materials)
         {
-            if (incomingMaterialCodes.contains(material.getCode()) == false)
+            if (incomingMaterials.containsKey(material.getCode(), material.getType().getCode()) == false)
             {
                 matPermIds.add(new MaterialPermId(material.getCode(), material.getType().getCode()));
             }
@@ -613,6 +626,11 @@ public class EntitySynchronizer
         expDeletionOpts.setReason("sync experiment deletions");
         IDeletionId expDeletionId = v3Api.deleteExperiments(sessionToken, experimentPermIds, expDeletionOpts);
 
+        // confirm deletions: Deletions need be confirm in the right order because of dependencies(foreign key constraints)
+        v3Api.confirmDeletions(sessionToken, Collections.singletonList(dsDeletionId));
+        v3Api.confirmDeletions(sessionToken, Collections.singletonList(smpDeletionId));
+        v3Api.confirmDeletions(sessionToken, Collections.singletonList(expDeletionId));
+
         // delete projects
         ProjectDeletionOptions prjDeletionOpts = new ProjectDeletionOptions();
         prjDeletionOpts.setReason("Sync projects");
@@ -629,10 +647,7 @@ public class EntitySynchronizer
         {
             operationLog.warn("One or more materials could not be deleted due to: " + e.getMessage());
         }
-
-        // confirm deletions
-        ArrayList<IDeletionId> deletionIds = new ArrayList<IDeletionId>();
-
+        
         StringBuffer summary = new StringBuffer();
         if (projectPermIds.size() > 0)
         {
@@ -644,20 +659,16 @@ public class EntitySynchronizer
         }
         if (expDeletionId != null)
         {
-            deletionIds.add(expDeletionId);
             summary.append(experimentPermIds.size() + " experiments,");
         }
         if (smpDeletionId != null)
         {
-            deletionIds.add(smpDeletionId);
             summary.append(samplePermIds.size() + " samples,");
         }
         if (dsDeletionId != null)
         {
-            deletionIds.add(dsDeletionId);
             summary.append(dsPermIds.size() + " data sets");
         }
-        v3Api.confirmDeletions(sessionToken, deletionIds); // Arrays.asList(expDeletionId, dsDeletionId, smpDeletionId)
 
         if (summary.length() > 0)
         {
@@ -747,7 +758,7 @@ public class EntitySynchronizer
     private void processMaterials(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
     {
         // process materials
-        Map<String, MaterialWithLastModificationDate> materialsToProcess = data.getMaterialsToProcess();
+        Map<MultiKey<String>, MaterialWithLastModificationDate> materialsToProcess = data.getMaterialsToProcess();
         for (MaterialWithLastModificationDate newMaterialWithType : materialsToProcess.values())
         {
             NewMaterialWithType incomingMaterial = newMaterialWithType.getMaterial();
