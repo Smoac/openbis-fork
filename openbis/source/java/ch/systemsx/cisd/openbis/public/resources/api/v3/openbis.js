@@ -358,6 +358,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.createDataSets = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createDataSets",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "DataSetPermId" ]
+				}
+			});
+		}
+		
 		this.createMaterials = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

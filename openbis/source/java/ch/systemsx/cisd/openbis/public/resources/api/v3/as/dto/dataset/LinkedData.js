@@ -44,7 +44,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	}, {
 		fetchOptions : "LinkedDataFetchOptions",
 		externalDms : "ExternalDms",
-		contentCopies : "ContentCopy"
+		contentCopies : {
+			name : "List",
+			arguments : [ "ContentCopy" ]
+		}
 	});
 	return LinkedData;
 })
