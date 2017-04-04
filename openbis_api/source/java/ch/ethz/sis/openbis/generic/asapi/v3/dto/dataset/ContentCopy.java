@@ -17,6 +17,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ContentCopyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,16 +31,22 @@ public class ContentCopy implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private ContentCopyPermId id;
 
+    @JsonProperty
     private ExternalDms externalDms;
 
+    @JsonProperty
     private String externalCode;
 
+    @JsonProperty
     private String path;
 
+    @JsonProperty
     private String gitCommitHash;
 
+    @JsonIgnore
     public ContentCopyPermId getId()
     {
         return id;
@@ -48,6 +57,7 @@ public class ContentCopy implements Serializable
         this.id = id;
     }
 
+    @JsonIgnore
     public ExternalDms getExternalDms()
     {
         return externalDms;
@@ -58,6 +68,7 @@ public class ContentCopy implements Serializable
         this.externalDms = externalDms;
     }
 
+    @JsonIgnore
     public String getExternalCode()
     {
         return externalCode;
@@ -68,6 +79,7 @@ public class ContentCopy implements Serializable
         this.externalCode = externalCode;
     }
 
+    @JsonIgnore
     public String getPath()
     {
         return path;
@@ -78,6 +90,7 @@ public class ContentCopy implements Serializable
         this.path = path;
     }
 
+    @JsonIgnore
     public String getGitCommitHash()
     {
         return gitCommitHash;
