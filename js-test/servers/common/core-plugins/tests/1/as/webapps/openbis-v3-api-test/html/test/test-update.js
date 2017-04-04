@@ -339,7 +339,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCreate = function(facade) {
 				return [new c.DataSetPermId(code)];
 			}
-			
+
 			var fUpdate = function(facade, permId) {
 				var linkUpdate = new c.LinkedDataUpdate();
 				linkUpdate.setExternalCode("new code");
@@ -355,6 +355,53 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(dataSet.getCode(), code, "Code");
 				c.assertEqual(dataSet.getLinkedData().getExternalCode(), "new code", "External code");
 				c.assertEqual(dataSet.getLinkedData().getExternalDms().getPermId().toString(), "DMS_1", "External DMS");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
+		});
+		
+		QUnit.test("updateDataSets() add content copy to link data set", function(assert) {
+			var c = new common(assert, openbis);
+			var edmsId = null;
+			
+			var fCreate = function(facade) {
+				return c.createLinkDataSet(facade, "root/path", "my-hash").then(function(permId) {
+					code = permId.getPermId();
+					return [ permId ];
+				});
+			}
+
+			var fUpdate = function(facade, permId) {
+				return c.findDataSet(facade, permId).then(function(dataSet) {
+					var contentCopy = dataSet.getLinkedData().getContentCopies()[0];
+					edmsId = contentCopy.getExternalDms().getPermId();
+					var contentCopyListUpdateValue = new c.ContentCopyListUpdateValue();
+					var contentCopyCreation = new c.ContentCopyCreation();
+					contentCopyCreation.setExternalDmsId(edmsId);
+					contentCopyCreation.setPath("my/data/path");
+					contentCopyCreation.setGitCommitHash("my-git-hash");
+					contentCopyListUpdateValue.add([contentCopyCreation]);
+					contentCopyListUpdateValue.remove([contentCopy.getId()]);
+					
+					var linkUpdate = new c.LinkedDataUpdate();
+					linkUpdate.setContentCopyActions(contentCopyListUpdateValue.getActions());
+					
+					var update = new c.DataSetUpdate();
+					update.setDataSetId(permId);
+					update.setLinkedData(linkUpdate);
+					
+					return facade.updateDataSets([ update ]);
+				});
+			}
+			
+			var fCheck = function(dataSet) {
+				c.assertEqual(dataSet.getCode(), code, "Code");
+				var contentCopies = dataSet.getLinkedData().getContentCopies();
+				c.assertEqual(contentCopies.length, 1, "Number of content copies");
+				c.assertEqual(contentCopies[0].getExternalDms().getPermId().toString(), edmsId.toString(), "External DMS");
+				c.assertEqual(contentCopies[0].getExternalCode(), null, "External code");
+				c.assertEqual(contentCopies[0].getPath(), "/my/data/path", "Path");
+				c.assertEqual(contentCopies[0].getGitCommitHash(), "my-git-hash", "Git commit hash");
 			}
 			
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);

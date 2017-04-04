@@ -117,10 +117,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateDataSetTypesOperation(creations));
 		}
 
+		this.createDataSets = function(creations) {
+			return this._executeCreateOperation(new c.CreateDataSetsOperation(creations));
+		}
+
 		this.createMaterials = function(creations) {
 			return this._executeCreateOperation(new c.CreateMaterialsOperation(creations));
 		}
-
+		
 		this.createMaterialTypes = function(creations) {
 			return this._executeCreateOperation(new c.CreateMaterialTypesOperation(creations));
 		}
