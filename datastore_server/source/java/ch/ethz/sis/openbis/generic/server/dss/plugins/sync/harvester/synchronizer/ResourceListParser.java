@@ -579,7 +579,8 @@ public class ResourceListParser
         String space = extractAttribute(xdNode, "space", nullAllowed);
         if (space != null)
         {
-            data.getHarvesterSpaceList().add(spaceNameTranslator.translate(space));
+            space = spaceNameTranslator.translate(space);
+            data.getHarvesterSpaceList().add(space);
         }
         return space;
     }
