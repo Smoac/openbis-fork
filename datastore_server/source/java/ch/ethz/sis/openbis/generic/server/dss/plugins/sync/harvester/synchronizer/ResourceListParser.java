@@ -283,8 +283,8 @@ public class ResourceListParser
     private void parseDataSetMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
         String code = extractCode(xdNode);
-        String sample = extractAttribute(xdNode, "sample", true);
-        String experiment = extractAttribute(xdNode, "experiment", true);
+        String sampleIdentifier = extractAttribute(xdNode, "sample", true);
+        String experimentIdentifier = extractAttribute(xdNode, "experiment", true);
         String type = extractType(xdNode);
         String dsKind = extractAttribute(xdNode, "dsKind");
         NewExternalData ds = null;
@@ -308,8 +308,8 @@ public class ResourceListParser
         ds.setDataSetType(new DataSetType(type));
         ds.setDataStoreCode(this.dataStoreCode);
 
-        ds.setSampleIdentifierOrNull(getSampleIdentifier(sample));
-        ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experiment));
+        ds.setSampleIdentifierOrNull(getSampleIdentifier(sampleIdentifier));
+        ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experimentIdentifier));
 
         IncomingDataSet incomingDataSet = data.new IncomingDataSet(ds, lastModificationDate);
         data.getDataSetsToProcess().put(permId, incomingDataSet);
@@ -356,7 +356,7 @@ public class ResourceListParser
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifierStr);
         SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
         String originalSpaceCode = spaceLevel.getSpaceCode();
-        return new SampleIdentifier(new SpaceIdentifier(nameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
+        return new SampleIdentifier(new SpaceIdentifier(spaceNameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
     }
 
     private ExperimentIdentifier getExperimentIdentifier(String experimentIdentifierStr)
@@ -369,7 +369,8 @@ public class ResourceListParser
         String originalSpaceCode = experimentIdentifier.getSpaceCode();
         String projectCode = experimentIdentifier.getProjectCode();
         String expCode = experimentIdentifier.getExperimentCode();
-        return new ExperimentIdentifier(new ProjectIdentifier(nameTranslator.translate(originalSpaceCode), projectCode), expCode);
+        return new ExperimentIdentifier(new ProjectIdentifier(new SpaceIdentifier(spaceNameTranslator.translate(originalSpaceCode)), projectCode),
+                expCode);
     }
 
     private void parseProjectMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
