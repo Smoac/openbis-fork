@@ -4,7 +4,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.annotation.TechPreview;
 
-@JsonObject("dss.dto.datasetfile.DataSetFileCreation")
+@JsonObject("dss.dto.datasetfile.create.DataSetFileCreation")
 @TechPreview
 public class DataSetFileCreation implements ICreation
 {
@@ -13,7 +13,7 @@ public class DataSetFileCreation implements ICreation
 
     private String path;
 
-    private boolean isDirectory;
+    private boolean directory;
 
     private Long fileLength;
 
@@ -31,12 +31,12 @@ public class DataSetFileCreation implements ICreation
 
     public boolean isDirectory()
     {
-        return isDirectory;
+        return directory;
     }
 
-    public void setDirectory(boolean isDirectory)
+    public void setDirectory(boolean directory)
     {
-        this.isDirectory = isDirectory;
+        this.directory = directory;
     }
 
     public Long getFileLength()
@@ -44,7 +44,7 @@ public class DataSetFileCreation implements ICreation
         return fileLength;
     }
 
-    public void setFileLength(long fileLength)
+    public void setFileLength(Long fileLength)
     {
         this.fileLength = fileLength;
     }
@@ -54,7 +54,7 @@ public class DataSetFileCreation implements ICreation
         return checksumCRC32;
     }
 
-    public void setChecksumCRC32(int checksumCRC32)
+    public void setChecksumCRC32(Integer checksumCRC32)
     {
         this.checksumCRC32 = checksumCRC32;
     }
