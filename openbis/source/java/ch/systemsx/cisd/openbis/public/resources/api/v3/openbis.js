@@ -94,10 +94,10 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 	var dataStoreFacade = function(facade, dataStoreCodes) {
 
-		this._getDataStoreUrls = function() {
-			if (this._dataStoreUrls) {
+		this._getDataStores = function() {
+			if (this._dataStores) {
 				var dfd = jquery.Deferred();
-				dfd.resolve(this._dataStoreUrls);
+				dfd.resolve(this._dataStores);
 				return dfd.promise();
 			} else {
 				var thisFacade = this;
@@ -113,11 +113,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 					var dfd = jquery.Deferred();
 
 					if (dataStores && dataStores.length > 0) {
-						var dataStoreUrls = dataStores.map(function(dataStore) {
-							return dataStore.downloadUrl + "/datastore_server/rmi-data-store-server-v3.json";
-						});
-						thisFacade._dataStoreUrls = dataStoreUrls;
-						dfd.resolve(dataStoreUrls);
+						thisFacade._dataStores = dataStores;
+						dfd.resolve(dataStores);
 					} else {
 						if (dataStoreCodes.length > 0) {
 							dfd.reject("No data stores found for codes: " + dataStoreCodes);
@@ -130,12 +127,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				});
 			}
 		}
+		
+		this._createUrl = function(dataStore) {
+			return dataStore.downloadUrl + "/datastore_server/rmi-data-store-server-v3.json";
+		}
 
 		this.searchFiles = function(criteria, fetchOptions) {
-			return this._getDataStoreUrls().then(function(dataStoreUrls) {
-				var promises = dataStoreUrls.map(function(dataStoreUrl) {
+			var thisFacade = this;
+			return this._getDataStores().then(function(dataStores) {
+				var promises = dataStores.map(function(dataStore) {
 					return facade._private.ajaxRequest({
-						url : dataStoreUrl,
+						url : thisFacade._createUrl(dataStore),
 						data : {
 							"method" : "searchFiles",
 							"params" : [ facade._private.sessionToken, criteria, fetchOptions ]
@@ -164,6 +166,48 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 					combinedResult.setTotalCount(totalCount);
 					return combinedResult;
 				});
+			});
+		}
+		
+		this.createDataSets = function(creations) {
+			var thisFacade = this;
+			var creationsByStore = {};
+			for (var i = 0; i < creations.length; i++) {
+				var creation = creations[i];
+				var dataStoreCode = creation.getMetadataCreation().getDataStoreId().toString();
+				if (dataStoreCode in creationsByStore) {
+					creationsByStore[dataStoreCode].append(creation);
+				} else {
+					creationsByStore[dataStoreCode] = [creation];
+				}
+			}
+			return this._getDataStores().then(function(dataStores) {
+				var promises = [];
+				for (var i = 0; i < dataStores.length; i++) {
+					var dataStore = dataStores[i];
+					var dsCode = dataStore.getCode();
+					if (dsCode in creationsByStore) {
+						promises.push(facade._private.ajaxRequest({
+							url : thisFacade._createUrl(dataStore),
+							data : {
+								"method" : "createDataSets",
+								"params" : [ facade._private.sessionToken, creationsByStore[dsCode] ]
+							},
+							returnType : {
+								name : "List",
+								arguments : [ "DataSetPermId" ]
+							}
+						}));
+					}
+				}
+				return jquery.when.apply(jquery, promises).then(function() {
+					var dataSetIds = [];
+					for (var i = 0; i < arguments.length; i++) {
+						dataSetIds = jquery.merge(dataSetIds, arguments[i]);
+					}
+					return dataSetIds;
+				});
+
 			});
 		}
 	}
