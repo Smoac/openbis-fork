@@ -521,7 +521,9 @@ var sources = [
 	'as/dto/operation/SynchronousOperationExecutionOptions',
 	'as/dto/operation/SynchronousOperationExecutionResults',
 	
+	'dss/dto/dataset/create/FullDataSetCreation',
 	'dss/dto/datasetfile/DataSetFile',
+	'dss/dto/datasetfile/create/DataSetFileCreation',
 	'dss/dto/datasetfile/fetchoptions/DataSetFileSortOptions',
 	'dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions',
 	'dss/dto/datasetfile/id/DataSetFilePermId',

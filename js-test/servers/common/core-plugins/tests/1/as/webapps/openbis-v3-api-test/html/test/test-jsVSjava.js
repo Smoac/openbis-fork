@@ -25,19 +25,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"UnauthorizedObjectAccessException" : "Java class ignored: ",
 			"UnsupportedObjectIdException" : "Java class ignored: ",
 			"IApplicationServerApi" : "Java class ignored: ",
+			"DataSetCreation" : "Java class ignored: ",
 			"DataSetFileDownloadInputStream" : "Java class ignored: ",
 			"IDataStoreServerApi" : "Java class ignored: ",
-			"DataSetCreation" : "Java class ignored: ",
-			"LinkedDataCreation" : "Java class ignored: ",
 			"PhysicalDataCreation" : "Java class ignored: ",
 			"DataSetFileDownload" : "Java class not implemented in JS: ",
 			"DataSetFileDownloadOptions" : "Java class not implemented in JS: ",
-			"DataSetFileDownloadReader" : "Java class not implemented in JS: ",
-			"FullDataSetCreation" : "Java class not implemented in JS: ",
-			"DataSetFileCreation" : "Java class not implemented in JS: ",
-			"LinkedData" : "JS class missing method: ",
-			"ContentCopyListUpdateValue" : "Java class not implemented in JS: ",
-			"LinkedDataUpdate" : "JS class missing field: as.dto.dataset.update.LinkedDataUpdate - contentCopies"
+			"DataSetFileDownloadReader" : "Java class not implemented in JS: "
 		}
 
 		//

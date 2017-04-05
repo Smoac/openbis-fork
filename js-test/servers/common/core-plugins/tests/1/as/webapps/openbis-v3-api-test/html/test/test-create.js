@@ -10,8 +10,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					c.assertTrue(permIds != null && permIds.length == 1, "Entity was created");
 					return fFind(facade, permIds[0]).then(function(entity) {
 						c.assertNotNull(entity, "Entity can be found");
-						fCheck(entity);
-						c.finish();
+						var token = fCheck(entity, facade);
+						if (token) {
+							token.then(function() {c.finish()});
+						} else {
+							c.finish();
+						}
 					});
 				});
 			}).fail(function(error) {
@@ -252,6 +256,97 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			testCreate(c, fCreate, c.findSampleType, fCheck);
+		});
+		
+		QUnit.test("createDataSets() link data set via DSS", function(assert) {
+			var c = new common(assert, openbis);
+			var emdsId = null;
+
+			var fCreate = function(facade) {
+				return c.createExperiment(facade).then(function(experimentPermId) {
+					return c.createFileExternalDms(facade).then(function(emdsPermId) {
+						emdsId = emdsPermId;
+						var creation = new c.FullDataSetCreation();
+						var dataSet = new c.DataSetCreation();
+						dataSet.setTypeId(new c.EntityTypePermId("LINK_TYPE"));
+						dataSet.setExperimentId(experimentPermId);
+						dataSet.setDataStoreId(new c.DataStorePermId("DSS1"));
+						var linkedData = new c.LinkedDataCreation();
+						var cc = new c.ContentCopyCreation();
+						cc.setExternalDmsId(emdsPermId);
+						cc.setPath("my/path");
+						linkedData.setContentCopies([cc]);
+						dataSet.setLinkedData(linkedData);
+						creation.setMetadataCreation(dataSet);
+						var f1 = new c.DataSetFileCreation();
+						f1.setDirectory(true);
+						f1.setPath("root/folder");
+						var f2 = new c.DataSetFileCreation();
+						f2.setDirectory(false);
+						f2.setPath("root/my-file-in.txt");
+						f2.setFileLength(42);
+						f2.setChecksumCRC32(123456);
+						creation.setFileMetadata([f1, f2]);
+						return facade.getDataStoreFacade("DSS1", "DSS2").createDataSets([creation]);
+					});
+				});
+			}
+			
+			var waitUntilIndexed = function(facade, dataSetCode, timeout, action) {
+				if (timeout < 0) {
+					c.fail("Data set " + dataSetCode + " after " + timeout + " msec.");
+				}
+				setTimeout(function() {
+					var criteria = new c.DataSetSearchCriteria();
+					criteria.withPermId().thatEquals(dataSetCode);
+					facade.searchDataSets(criteria, c.createDataSetFetchOptions()).then(function(result) {
+						if (result.getTotalCount() == 0) {
+							waitUntilIndexed(facade, dataSetCode, timeout - 1000, action);
+						} else {
+							action();
+						}
+					});
+				}, 1000)
+			};
+			
+			var fCheck = function(dataSet, facade) {
+				c.assertEqual(dataSet.getType().getCode(), "LINK_TYPE", "Data set type");
+				var contentCopies = dataSet.getLinkedData().getContentCopies();
+				c.assertEqual(contentCopies.length, 1, "Number of content copies");
+				var contentCopy = contentCopies[0];
+				c.assertEqual(contentCopy.getExternalDms().getPermId().toString(), emdsId.toString(), "External data management system");
+				c.assertEqual(contentCopy.getPath(), "/my/path", "Content copy path");
+				var dfd = $.Deferred()
+				var dataSetCode = dataSet.getCode();
+				waitUntilIndexed(facade, dataSetCode, 10000, function() {
+					var criteria = new c.DataSetFileSearchCriteria();
+					criteria.withDataSet().withCode().thatEquals(dataSet.getCode());
+					facade.getDataStoreFacade("DSS1").searchFiles(criteria, c.createDataSetFileFetchOptions()).then(function(result) {
+						var files = result.getObjects();
+						c.assertEqual(files.length, 4, "Number of files");
+						files.sort(function(f1, f2) {
+							return f1.getPath().localeCompare(f2.getPath());
+						});
+						var expectedPaths = ["", "root", "root/folder", "root/my-file-in.txt"];
+						var expectedDirectoryFlags = [true, true, true, false];
+						var expectedSizes = [42, 42, 0, 42];
+						var expectedChecksums = [0, 0, 0, 123456];
+						for (i = 0; i < files.length; i++) {
+							var file = files[i];
+							var postfix = " of file " + (i + 1);
+							c.assertEqual(file.getDataSetPermId().toString(), dataSetCode, "Data set" + postfix);
+							c.assertEqual(file.getDataStore().getCode(), "DSS1", "Data store" + postfix);
+							c.assertEqual(file.getPath(), expectedPaths[i], "Path" + postfix);
+							c.assertEqual(file.isDirectory(), expectedDirectoryFlags[i], "Directory flag" + postfix);
+							c.assertEqual(file.getChecksumCRC32(), expectedChecksums[i], "Checksum" + postfix);
+						}
+						dfd.resolve();
+					});
+				});
+				return dfd.promise();
+			}
+			
+			testCreate(c, fCreate, c.findDataSet, fCheck);
 		});
 
 		QUnit.test("createDataSetTypes()", function(assert) {
