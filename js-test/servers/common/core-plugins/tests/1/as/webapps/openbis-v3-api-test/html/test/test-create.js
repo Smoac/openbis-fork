@@ -268,6 +268,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						emdsId = emdsPermId;
 						var creation = new c.FullDataSetCreation();
 						var dataSet = new c.DataSetCreation();
+						dataSet.setCode(c.generateId("DATA_SET"));
 						dataSet.setTypeId(new c.EntityTypePermId("LINK_TYPE"));
 						dataSet.setExperimentId(experimentPermId);
 						dataSet.setDataStoreId(new c.DataStorePermId("DSS1"));
