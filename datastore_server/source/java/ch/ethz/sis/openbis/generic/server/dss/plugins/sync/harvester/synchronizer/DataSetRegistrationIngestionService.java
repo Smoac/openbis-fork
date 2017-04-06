@@ -138,6 +138,8 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             dataSetForUpdate.setSample(sample);
             dataSetForUpdate.setExperiment(experiment);
             dataSetForUpdate.setParentDatasets(dataSet.getParentDataSetCodes());
+
+            // synchronize property changes including properties that were set to empty values
             List<String> existingPropertyCodes = dataSetForUpdate.getAllPropertyCodes();
             Set<String> newPropertyCodes = extractPropertyNames(dataSetProperties);
             for (NewProperty newProperty : dataSetProperties)

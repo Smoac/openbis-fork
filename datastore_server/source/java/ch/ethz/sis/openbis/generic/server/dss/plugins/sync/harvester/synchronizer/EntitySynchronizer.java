@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -745,8 +744,8 @@ public class EntitySynchronizer
         expUpdate.setProjectIdentifier(ExperimentIdentifierFactory.parse(incomingExp.getIdentifier()));
         expUpdate.setVersion(experiment.getVersion());
 
-        List<IEntityProperty> newPropList = new LinkedList<IEntityProperty>(Arrays.asList(incomingExp.getProperties()));
-        appendRemovedProperties(newPropList, experiment.getProperties());
+        List<IEntityProperty> newPropList =
+                prepareUpdatedPropertyList(incomingExp.getProperties(), experiment.getProperties());
 
         expUpdate.setProperties(newPropList);
         expUpdate.setExperimentId(TechId.create(experiment));
@@ -771,8 +770,8 @@ public class EntitySynchronizer
                 }
                 else
                 {
-                    List<IEntityProperty> newPropList = new LinkedList<IEntityProperty>(Arrays.asList(incomingMaterial.getProperties()));
-                    appendRemovedProperties(newPropList, material.getProperties());
+                    List<IEntityProperty> newPropList =
+                            prepareUpdatedPropertyList(incomingMaterial.getProperties(), material.getProperties());
 
                     MaterialUpdateDTO update =
                             new MaterialUpdateDTO(TechId.create(material), newPropList,
@@ -962,8 +961,7 @@ public class EntitySynchronizer
             }
             String containerIdentifier = getContainerIdentifier(incomingSmp);
 
-            List<IEntityProperty> newPropList = new LinkedList<IEntityProperty>(Arrays.asList(incomingSmp.getProperties()));
-            appendRemovedProperties(newPropList, sample.getProperties());
+            List<IEntityProperty> newPropList = prepareUpdatedPropertyList(incomingSmp.getProperties(), sample.getProperties());
 
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(sampleId, newPropList, experimentIdentifier,
@@ -974,10 +972,15 @@ public class EntitySynchronizer
         }
     }
 
-    private List<IEntityProperty> appendRemovedProperties(List<IEntityProperty> newPropList, List<IEntityProperty> existingProperties)
+    /**
+     * Pads out the incoming property lists with remaining properties set to "" This way any properties that were re-set (value removed) in the data
+     * source will be carried over to the harvester
+     */
+    private List<IEntityProperty> prepareUpdatedPropertyList(IEntityProperty[] iEntityProperties, List<IEntityProperty> existingProperties)
     {
+        ArrayList<IEntityProperty> incomingProperties = new ArrayList<IEntityProperty>(Arrays.asList(iEntityProperties));
         Set<String> existingPropertyNames = extractPropertyNames(existingProperties);
-        Set<String> newPropertyNames = extractPropertyNames(newPropList);
+        Set<String> newPropertyNames = extractPropertyNames(incomingProperties);
         existingPropertyNames.removeAll(newPropertyNames);
 
         for (String propName : existingPropertyNames)
@@ -987,9 +990,9 @@ public class EntitySynchronizer
             propertyType.setCode(propName);
             property.setPropertyType(propertyType);
             property.setValue("");
-            newPropList.add(property);
+            incomingProperties.add(property);
         }
-        return newPropList;
+        return incomingProperties;
     }
 
     private Set<String> extractPropertyNames(List<IEntityProperty> existingProperties)
