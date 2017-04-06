@@ -37,8 +37,11 @@ public class PathInfoFeeder
 
     private final long dataSetId;
 
-    public PathInfoFeeder(long dataSetId, Collection<DataSetFileCreation> files)
+    private String dataSetCode;
+
+    public PathInfoFeeder(long dataSetId, String dataSetCode, Collection<DataSetFileCreation> files)
     {
+        this.dataSetCode = dataSetCode;
         checkInput(files);
         for (DataSetFileCreation file : files)
         {
@@ -55,7 +58,7 @@ public class PathInfoFeeder
 
     public void storeFilesWith(IPathsInfoDAO dao)
     {
-        storeFilesWith(dao, root, null, "", new Date());
+        storeFilesWith(dao, root, null, dataSetCode, new Date());
     }
 
     private void storeFilesWith(IPathsInfoDAO dao, DataSetContentNode node, Long parentId, String name, Date timestamp)
@@ -87,19 +90,22 @@ public class PathInfoFeeder
         for (DataSetFileCreation file : files)
         {
             checkInput(file);
-            check(paths.contains(file.getPath()), "Path " + file.getPath() + " appears twice");
+            check(paths.contains(file.getPath()), "Path '" + file.getPath() + "' appears twice");
             paths.add(file.getPath());
         }
     }
 
+    @SuppressWarnings("null")
     private static void checkInput(DataSetFileCreation file)
     {
         String path = file.getPath();
         check(path == null || path.length() == 0, "Path of " + file + " was null");
-        check(path.startsWith("/"), "Path of " + file + " is absolute");
-        check(file.isDirectory() == false && file.getFileLength() == null, "Size of " + file + " is null");
-        check(file.isDirectory() && file.getFileLength() != null, "Directory " + file + " has a size");
-        check(file.isDirectory() && file.getChecksumCRC32() != null, "Directory " + file + " has a checksum");
+        check(path.startsWith("/"), "Path '" + path + "' is absolute");
+        check(file.isDirectory() == false && file.getFileLength() == null, "Size of '" + path + "' is null");
+        check(file.isDirectory() && file.getFileLength() != null, "Directory '" + path + "' has size "
+                + file.getFileLength());
+        check(file.isDirectory() && file.getChecksumCRC32() != null, "Directory '" + path + "' has checksum "
+                + file.getChecksumCRC32());
     }
 
     private static void check(boolean condition, String message)

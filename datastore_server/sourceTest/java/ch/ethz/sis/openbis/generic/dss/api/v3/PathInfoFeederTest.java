@@ -240,7 +240,7 @@ public class PathInfoFeederTest
         {
             input.add(file.build());
         }
-        PathInfoFeeder creator = new PathInfoFeeder(1, input);
+        PathInfoFeeder creator = new PathInfoFeeder(1, "my-data-set", input);
 
         Mockery context = new Mockery();
         final IPathsInfoDAO mockDao = context.mock(IPathsInfoDAO.class);
