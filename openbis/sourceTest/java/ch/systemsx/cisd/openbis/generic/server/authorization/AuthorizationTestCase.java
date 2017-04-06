@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -50,9 +52,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 @Friend(toClasses = RoleWithIdentifier.class)
 public class AuthorizationTestCase extends AssertJUnit
 {
+
+    protected static final PersonPE PERSON = new PersonPE();
+
     protected static final String SPACE_CODE = "G1";
 
     protected static final String ANOTHER_SPACE_CODE = "G2";
+
+    protected static final SpacePE SPACE = new SpacePE();
+
+    protected static final SpacePE ANOTHER_SPACE = new SpacePE();
+
+    protected static final List<SpacePE> ALL_SPACES = Arrays.asList(SPACE, ANOTHER_SPACE);
+
+    static
+    {
+        PERSON.setUserId("test");
+        SPACE.setCode(SPACE_CODE);
+        ANOTHER_SPACE.setCode(ANOTHER_SPACE_CODE);
+    }
 
     protected Mockery context;
 
@@ -63,8 +81,18 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, SpaceIdentifier spaceIdentifier)
     {
+        return createSpaceRole(roleCode, spaceIdentifier.getSpaceCode());
+    }
+
+    protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, SpacePE spacePE)
+    {
+        return createSpaceRole(roleCode, spacePE.getCode());
+    }
+
+    protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, String spaceCode)
+    {
         SpacePE groupPE = new SpacePE();
-        groupPE.setCode(spaceIdentifier.getSpaceCode());
+        groupPE.setCode(spaceCode);
         return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, groupPE);
     }
 
@@ -312,6 +340,16 @@ public class AuthorizationTestCase extends AssertJUnit
                     will(returnValue(spacePE));
                 }
             });
+    }
+
+    protected static void assertOK(Status status)
+    {
+        assertTrue(status.isOK());
+    }
+
+    protected static void assertError(Status status)
+    {
+        assertTrue(status.isError());
     }
 
     @BeforeMethod

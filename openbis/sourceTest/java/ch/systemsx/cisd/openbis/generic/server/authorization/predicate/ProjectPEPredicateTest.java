@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,71 +21,72 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
- * @author Pawel Glyzewski
+ * @author pkupczyk
  */
-public class ProjectPredicateTest extends AuthorizationTestCase
+public class ProjectPEPredicateTest extends AuthorizationTestCase
 {
-    private static final Project SPACE_PROJECT = new Project(SPACE.getCode(), "PROJECT");
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "No project specified.")
+    private static final ProjectPE SPACE_PROJECT = new ProjectPE();
+
+    private static final ProjectPE ANOTHER_SPACE_PROJECT = new ProjectPE();
+
+    static
+    {
+        SPACE_PROJECT.setSpace(SPACE);
+        ANOTHER_SPACE_PROJECT.setSpace(ANOTHER_SPACE);
+    }
+
+    @Test(expectedExceptions = NullPointerException.class)
     public void testWithNonexistentProjectForInstanceUser()
     {
-        prepareProvider(ALL_SPACES);
         evaluate(null, createInstanceRole(RoleCode.ADMIN));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "No project specified.")
+    @Test(expectedExceptions = NullPointerException.class)
     public void testWithNonexistentProjectForSpaceUser()
     {
-        prepareProvider(ALL_SPACES);
         evaluate(null, createSpaceRole(RoleCode.ADMIN, SPACE));
     }
 
     @Test
     public void testWithNoAllowedRoles()
     {
-        prepareProvider(ALL_SPACES);
         assertError(evaluate(SPACE_PROJECT));
     }
 
     @Test
     public void testWithMultipleAllowedRoles()
     {
-        prepareProvider(ALL_SPACES);
         assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
     }
 
     @Test
     public void testWithInstanceUser()
     {
-        prepareProvider(ALL_SPACES);
         assertOK(evaluate(SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
     }
 
     @Test
     public void testWithMatchingSpaceUser()
     {
-        prepareProvider(ALL_SPACES);
         assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, SPACE)));
     }
 
     @Test
     public void testWithNonMatchingSpaceUser()
     {
-        prepareProvider(ALL_SPACES);
         assertError(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
     }
 
-    private Status evaluate(Project project, RoleWithIdentifier... roles)
+    private Status evaluate(ProjectPE project, RoleWithIdentifier... roles)
     {
-        ProjectPredicate predicate = new ProjectPredicate();
+        ProjectPEPredicate predicate = new ProjectPEPredicate();
         predicate.init(provider);
         return predicate.evaluate(PERSON, Arrays.asList(roles), project);
     }
