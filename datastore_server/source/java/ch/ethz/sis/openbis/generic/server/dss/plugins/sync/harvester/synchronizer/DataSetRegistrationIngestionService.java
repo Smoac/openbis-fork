@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -141,7 +140,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
 
             // synchronize property changes including properties that were set to empty values
             List<String> existingPropertyCodes = dataSetForUpdate.getAllPropertyCodes();
-            Set<String> newPropertyCodes = extractPropertyNames(dataSetProperties);
+            Set<String> newPropertyCodes = DSPropertyUtils.extractPropertyNames(dataSetProperties);
             for (NewProperty newProperty : dataSetProperties)
             {
                 dataSetForUpdate.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
@@ -164,16 +163,6 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         IRowBuilder row = builder.addRow();
         row.setCell("Parameters", parameters.toString());
         return builder.getTableModel();
-    }
-
-    private Set<String> extractPropertyNames(List<NewProperty> dataSetProperties)
-    {
-        Set<String> existingPropertyNames = new HashSet<String>();
-        for (NewProperty prop : dataSetProperties)
-        {
-            existingPropertyNames.add(prop.getPropertyCode());
-        }
-        return existingPropertyNames;
     }
 
     class FileDetails

@@ -111,14 +111,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
@@ -358,6 +356,13 @@ public class EntitySynchronizer
                 continue;
             }
             DataSetBatchUpdatesDTO dsBatchUpdatesDTO = createDataSetBatchUpdateDTO(dataSet, dsInHarvester);
+
+            // mark the properties to be updated otherwise properties that were reset (set to empty values) will not be carried over
+            Set<String> resetPropertyList =
+                    getResetPropertyList(DSPropertyUtils.convertToEntityProperty(dataSet.getDataSetProperties()), dsInHarvester.getProperties());
+            Set<String> propertiesToUpdate = dsBatchUpdatesDTO.getDetails().getPropertiesToUpdate();
+            propertiesToUpdate.addAll(resetPropertyList);
+            dsBatchUpdatesDTO.getDetails().setPropertiesToUpdate(propertiesToUpdate);
             if (dataSet instanceof NewContainerDataSet)
             {
                 NewContainerDataSet containerDS = (NewContainerDataSet) dataSet;
@@ -995,6 +1000,15 @@ public class EntitySynchronizer
         return incomingProperties;
     }
 
+    private Set<String> getResetPropertyList(IEntityProperty[] iEntityProperties, List<IEntityProperty> existingProperties)
+    {
+        ArrayList<IEntityProperty> incomingProperties = new ArrayList<IEntityProperty>(Arrays.asList(iEntityProperties));
+        Set<String> existingPropertyNames = extractPropertyNames(existingProperties);
+        Set<String> newPropertyNames = extractPropertyNames(incomingProperties);
+        existingPropertyNames.removeAll(newPropertyNames);
+        return existingPropertyNames;
+    }
+
     private Set<String> extractPropertyNames(List<IEntityProperty> existingProperties)
     {
         Set<String> existingPropertyNames = new HashSet<String>();
@@ -1160,20 +1174,17 @@ public class EntitySynchronizer
         return new String(Hex.encodeHex(digest));
     }
 
-    private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData childDS, AbstractExternalData dsInHarvester)
+    private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData dataSet, AbstractExternalData dsInHarvester)
     {
         ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable = new
                 ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
         DataSetBatchUpdatesDTO dsBatchUpdatesDTO = ConversionUtils.convertToDataSetBatchUpdatesDTO(updateUpdatable);
         dsBatchUpdatesDTO.setDatasetId(TechId.create(dsInHarvester));
-        List<IEntityProperty> entityProperties = new ArrayList<IEntityProperty>();
-        for (NewProperty prop : childDS.getDataSetProperties())
-        {
-            String propertyCode = prop.getPropertyCode();
-            String value = prop.getValue();
-            entityProperties.add(new PropertyBuilder(propertyCode).value(value).getProperty());
-        }
-        dsBatchUpdatesDTO.setProperties(entityProperties);
+
+        List<IEntityProperty> updatedProperties =
+                prepareUpdatedPropertyList(DSPropertyUtils.convertToEntityProperty(dataSet.getDataSetProperties()), dsInHarvester.getProperties());
+
+        dsBatchUpdatesDTO.setProperties(updatedProperties);
         return dsBatchUpdatesDTO;
     }
 
