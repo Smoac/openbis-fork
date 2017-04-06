@@ -54,13 +54,10 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronize
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.PrefixBasedNameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -86,8 +83,6 @@ public class ResourceListParser
 
     private final INameTranslator nameTranslator;
 
-    private final INameTranslator spaceNameTranslator;
-
     private final String dataStoreCode;
 
     public INameTranslator getNameTranslator()
@@ -95,26 +90,25 @@ public class ResourceListParser
         return nameTranslator;
     }
 
-    private ResourceListParser(INameTranslator nameTranslator, PrefixBasedNameTranslator spaceNameTranslator, String dataStoreCode)
+    private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode)
     {
         this.data = new ResourceListParserData();
         this.nameTranslator = nameTranslator;
         this.dataStoreCode = dataStoreCode;
-        this.spaceNameTranslator = spaceNameTranslator;
     }
 
-    public static ResourceListParser create(INameTranslator nameTranslator, PrefixBasedNameTranslator spaceNameTranslator, String dataStoreCode)
+    public static ResourceListParser create(INameTranslator nameTranslator, String dataStoreCode)
     {
         if (nameTranslator == null)
         {
-            return create(spaceNameTranslator, dataStoreCode);
+            return create(dataStoreCode);
         }
-        return new ResourceListParser(nameTranslator, spaceNameTranslator, dataStoreCode);
+        return new ResourceListParser(nameTranslator, dataStoreCode);
     }
 
-    public static ResourceListParser create(PrefixBasedNameTranslator spaceNameTranslator, String dataStoreCode)
+    private static ResourceListParser create(String dataStoreCode)
     {
-        return create(new DefaultNameTranslator(), spaceNameTranslator, dataStoreCode);
+        return create(new DefaultNameTranslator(), dataStoreCode);
     }
 
     public ResourceListParserData parseResourceListDocument(Document doc) throws XPathExpressionException
@@ -356,7 +350,7 @@ public class ResourceListParser
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifierStr);
         SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
         String originalSpaceCode = spaceLevel.getSpaceCode();
-        return new SampleIdentifier(new SpaceIdentifier(spaceNameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
+        return new SampleIdentifier(new SpaceIdentifier(nameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
     }
 
     private ExperimentIdentifier getExperimentIdentifier(String experimentIdentifierStr)
@@ -369,7 +363,7 @@ public class ResourceListParser
         String originalSpaceCode = experimentIdentifier.getSpaceCode();
         String projectCode = experimentIdentifier.getProjectCode();
         String expCode = experimentIdentifier.getExperimentCode();
-        return new ExperimentIdentifier(new ProjectIdentifier(new SpaceIdentifier(spaceNameTranslator.translate(originalSpaceCode)), projectCode),
+        return new ExperimentIdentifier(new ProjectIdentifier(new SpaceIdentifier(nameTranslator.translate(originalSpaceCode)), projectCode),
                 expCode);
     }
 
@@ -556,8 +550,8 @@ public class ResourceListParser
 
         SampleIdentifier identifier = createSampleIdentifier(code, space);
         NewSample newSample = new NewSample(identifier.toString(), sampleType, null, null,
-                experiment, null, null, new IEntityProperty[0],
-                new ArrayList<NewAttachment>());
+                experiment, null, null, null,
+                null);
         newSample.setPermID(permId);
         if (space == null)
         {
@@ -580,7 +574,7 @@ public class ResourceListParser
         String space = extractAttribute(xdNode, "space", nullAllowed);
         if (space != null)
         {
-            space = spaceNameTranslator.translate(space);
+            // space = nameTranslator.translate(space);
             data.getHarvesterSpaceList().add(space);
         }
         return space;

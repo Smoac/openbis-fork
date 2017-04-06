@@ -195,15 +195,11 @@ public class EntitySynchronizer
             {
                 throw new UserFailureException("Please specify a data source alias in the config file to be used in name translations.");
             }
-            else
-            {
-                nameTranslator = new PrefixBasedNameTranslator(dataSourceAlias);
-            }
+            nameTranslator = new PrefixBasedNameTranslator(dataSourceAlias);
         }
 
-        // even when do not translate other things, we always translate space name.
         // TODO re-think
-        ResourceListParser parser = ResourceListParser.create(nameTranslator, new PrefixBasedNameTranslator(dataSourceAlias), dataStoreCode);
+        ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode);
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
         processDeletions(data);
@@ -754,7 +750,7 @@ public class EntitySynchronizer
 
         expUpdate.setProperties(newPropList);
         expUpdate.setExperimentId(TechId.create(experiment));
-        // TODO attachments
+        // attachments are synched later separately but we need to have a non-null value for attachment list.
         expUpdate.setAttachments(Collections.<NewAttachment> emptyList());
         return expUpdate;
     }
@@ -859,7 +855,7 @@ public class EntitySynchronizer
         prjUpdate.setVersion(project.getVersion());
         prjUpdate.setTechId(TechId.create(project));
         prjUpdate.setDescription(incomingProject.getDescription());
-        // TODO attachments????
+        // attachments are synched later separately but we need to have a non-null value for attachment list.
         prjUpdate.setAttachments(Collections.<NewAttachment> emptyList());
         ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(incomingProject.getIdentifier());
         prjUpdate.setSpaceCode(projectIdentifier.getSpaceCode());
@@ -968,6 +964,7 @@ public class EntitySynchronizer
 
             List<IEntityProperty> newPropList = prepareUpdatedPropertyList(incomingSmp.getProperties(), sample.getProperties());
 
+            // attachments are synched later separately but we need to have a non-null value for attachment list.
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(sampleId, newPropList, experimentIdentifier,
                             projectIdentifier, Collections.<NewAttachment> emptyList(),
