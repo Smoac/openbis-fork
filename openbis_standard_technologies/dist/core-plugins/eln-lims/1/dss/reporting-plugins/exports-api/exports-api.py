@@ -48,6 +48,9 @@ V3_DSS_BEAN = "data-store-server_INTERNAL";
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
 from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi;
 
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.property import DataType;
+from HTMLParser import HTMLParser
+
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria;
@@ -78,6 +81,7 @@ from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id import DataSetFile
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId;
 from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataSetFileDownloadOptions;
 from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataSetFileDownloadReader
+
 #JSON
 from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
 from com.fasterxml.jackson.databind import SerializationFeature
@@ -96,6 +100,20 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment import Experiment
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample import Sample
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSet
 
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
+   
 def process(tr, params, tableBuilder):
 	method = params.get("method");
 	isOk = False;
@@ -439,7 +457,10 @@ def getTXT(entityObj, v3, sessionToken):
 		for propertyAssigment in propertyAssigments:
 			propertyType = propertyAssigment.getPropertyType();
 			if propertyType.getCode() in properties:
-				txtBuilder.append(propertyType.getLabel()).append(": ").append(properties[propertyType.getCode()]).append("\n");
+				propertyValue = properties[propertyType.getCode()];
+				if(propertyType.getDataType() == DataType.MULTILINE_VARCHAR):
+					propertyValue = strip_tags(propertyValue);
+				txtBuilder.append(propertyType.getLabel()).append(": ").append(propertyValue).append("\n");
 	
 	return txtBuilder.toString();
 	
