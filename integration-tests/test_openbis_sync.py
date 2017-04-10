@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # encoding=utf8
 import os
+import re
 import shutil
 import settings
 import systemtest.testcase
@@ -191,9 +192,12 @@ class TestCase(systemtest.testcase.TestCase):
             self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
                 
     def readLinesFromFile(self, file):
-        with open(file, 'rb') as output:
-            content = output.readlines()
-        return content
+        temp = []
+        with open(file, 'rb') as f:
+            for line in f:
+            #content = output.readlines()
+                temp.append(re.sub('DS1_', '', line))
+        return temp
             
     def writeResponseToFile(self, datasource_graph_response, file1):
         with open(file1, 'wb') as output:
