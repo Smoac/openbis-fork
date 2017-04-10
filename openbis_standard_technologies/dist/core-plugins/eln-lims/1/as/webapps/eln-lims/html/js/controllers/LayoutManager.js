@@ -2,6 +2,9 @@
 // Requires Jquery, Jquery UI and Bootstrap
 
 var LayoutManager = {
+	DESKTOP_SIZE : 992,
+	TABLET_SIZE : 768,
+	MOBILE_SIZE : 0,
 	MIN_HEADER_HEIGHT : 120,
 	body : null,
 	mainContainer : null,
@@ -159,8 +162,8 @@ var LayoutManager = {
 		}
 	},
 	_setDesktopLayout : function(view, isFirstTime) {
-		var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-		var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+		var width = $( window ).width();
+		var height = $( window ).height();
 		var headerHeight = 0;
 
 		if(isFirstTime) {
@@ -224,8 +227,8 @@ var LayoutManager = {
 		}
 	},
 	_setTabletLayout : function(view, isFirstTime) {
-		var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-		var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+		var width = $( window ).width();
+		var height = $( window ).height();
 		var headerHeight = 0;
 
 		if(isFirstTime) {
@@ -272,7 +275,9 @@ var LayoutManager = {
 		this.thirdColumn.css({ display : "none" });
 	},
 	_setMobileLayout : function(view, isFirstTime) {
-		
+		var width = $( window ).width();
+		var height = $( window ).height();
+
 		//
 		// Empty Column each time
 		//
@@ -290,7 +295,6 @@ var LayoutManager = {
 		//
 		// Set screen size
 		//
-		var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 		this.firstColumn.css({
 			display : "block",
 			height : height,
@@ -329,21 +333,17 @@ var LayoutManager = {
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
 		this.isLoadingView = true;
-		var DESKTOP_SIZE = 992;
-		var TABLET_SIZE = 768;
-		var MOBILE_SIZE = 0;
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true;
 		console.log("reloadView called with isFirstTime:" + isFirstTime);
 		this._init(isFirstTime);
 
-		var width = Math.max(document.documentElement.clientWidth,
-				window.innerWidth || 0);
-		if (width > DESKTOP_SIZE) {
+		var width = $( window ).width();
+		if (width > this.DESKTOP_SIZE) {
 			this._setDesktopLayout(view, isFirstTime);
-		} else if (width > TABLET_SIZE) {
+		} else if (width > this.TABLET_SIZE) {
 			this._setTabletLayout(view, isFirstTime);
-		} else if (width > MOBILE_SIZE) {
+		} else if (width > this.MOBILE_SIZE) {
 			this._setMobileLayout(view, isFirstTime);
 		} else {
 			alert("Layout manager unable to set layout, this should never happen.");
@@ -360,6 +360,20 @@ var LayoutManager = {
 		for(var idx = 0; idx < this.resizeEventHandlers.length; idx++) {
 			this.resizeEventHandlers[idx]();
 		}
+
+		//TODO : avoid this cheap fix
+		var _this = this;
+		var cheapFix = function() {
+			//Resizes second column content to take in count header size
+			var width = $( window ).width();
+			if (width > _this.TABLET_SIZE) {
+				_this.secondColumnContent.css({
+						height : $( window ).height() - _this.secondColumnHeader.height()
+				});
+				console.log("Second column height fix");
+			}
+		}
+		setTimeout(cheapFix, 500);
 	},
 	resize : function(view, forceFirstTime) {
 		if(this.canReload()) {
