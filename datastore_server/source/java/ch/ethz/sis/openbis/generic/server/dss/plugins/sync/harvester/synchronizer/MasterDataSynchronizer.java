@@ -273,18 +273,15 @@ public class MasterDataSynchronizer
             if (existingEntityType != null)
             {
                 updateEntityType(entityKind, incomingEntityType);
-                if (entityKind != EntityKind.MATERIAL) // defer material property assignments until after property types are processed
+                if (list != null && entityKind != EntityKind.MATERIAL) // defer material property assignments until after property types are processed
                 {
-                    if (list != null)
-                    {
-                        processPropertyAssignments(existingEntityType, list);
-                    }
+                    processPropertyAssignments(existingEntityType, list);
                 }
             }
             else
             {
                 registerEntityType(entityKind, incomingEntityType);
-                if (list != null)
+                if (list != null && entityKind != EntityKind.MATERIAL) // defer material property assignments until after property types are processed
                 {
                     assignProperties(list);
                 }
