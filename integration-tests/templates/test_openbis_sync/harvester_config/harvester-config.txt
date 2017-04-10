@@ -15,6 +15,7 @@ data-source-auth-pass = 123
 #after switching on master data syncronization
 harvester-user = sync_admin
 harvester-pass = a
+translate-using-data-source-alias = true
 
 harvester-tmp-dir = harvester-tmp
 email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
