@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,17 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public class ProjectValidatorTest extends AuthorizationTestCase
+public class ProjectByIdentiferValidatorTest extends AuthorizationTestCase
 {
 
-    private static final Project SPACE_PROJECT = new Project();
-
-    static
-    {
-        Space space = new Space();
-        space.setCode(SPACE_CODE);
-        SPACE_PROJECT.setSpace(space);
-    }
+    private static final Project SPACE_PROJECT = new Project(SPACE_CODE, "PROJECT");
 
     @Test(expectedExceptions = AssertionError.class, expectedExceptionsMessageRegExp = "Unspecified value")
     public void testWithNull()
@@ -84,7 +76,7 @@ public class ProjectValidatorTest extends AuthorizationTestCase
 
     private boolean validate(PersonPE person, Project project)
     {
-        ProjectValidator validator = new ProjectValidator();
+        ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
         validator.init(provider);
         return validator.isValid(person, project);
     }

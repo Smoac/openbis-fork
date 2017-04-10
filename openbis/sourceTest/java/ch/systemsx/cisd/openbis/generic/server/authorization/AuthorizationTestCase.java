@@ -104,6 +104,26 @@ public class AuthorizationTestCase extends AssertJUnit
         return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, null);
     }
 
+    protected RoleAssignmentPE createSpaceRoleAssignment(RoleCode roleCode, String spaceCode)
+    {
+        SpacePE space = new SpacePE();
+        space.setCode(spaceCode);
+
+        RoleAssignmentPE assignment = new RoleAssignmentPE();
+        assignment.setRole(roleCode);
+        assignment.setSpace(space);
+
+        return assignment;
+    }
+
+    protected RoleAssignmentPE createInstanceRoleAssignment(RoleCode roleCode)
+    {
+        RoleAssignmentPE assignment = new RoleAssignmentPE();
+        assignment.setRole(roleCode);
+
+        return assignment;
+    }
+
     /**
      * Creates a person. Only userId and databaseInstance are definied.
      */
@@ -173,6 +193,13 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final PersonPE person = createPerson();
         assignRoles(person);
+        return person;
+    }
+
+    protected PersonPE createPersonWithRoleAssignments(RoleAssignmentPE... assignments)
+    {
+        PersonPE person = createPerson();
+        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(assignments)));
         return person;
     }
 
