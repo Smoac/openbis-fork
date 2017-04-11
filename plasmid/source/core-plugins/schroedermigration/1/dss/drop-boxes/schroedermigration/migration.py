@@ -145,6 +145,22 @@ class OpenBISDTO:
 experimentCache = {}
 sampleCache = {}
 sampleID2Sample = {}
+globalSequences = {};
+
+def getNextGlobalSequence(id):
+    currentSequence = None;
+    
+    if id in globalSequences:
+        currentSequence = globalSequences[id]; #Get existing sequence
+    else:
+        currentSequence = 0; # Create a new one
+    
+    #Advance and store new step on the sequence
+    currentSequence = currentSequence+1;
+    globalSequences[id] = currentSequence;
+    
+    #Return the new sequence number
+    return str(currentSequence);
 
 def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
     if experimentIdentifier not in experimentCache:
@@ -215,7 +231,7 @@ class FMSchroederOpenBISDTO(OpenBISDTO):
         
         def isInOpenBIS(self, tr):
             code = self.getIdentifier(tr)
-            if (code is not None) and (' ' not in code):
+            if code is not None:
                 if self.isSampleCacheable():
                     sampleID2Sample[self.values["NAME"]] = self.values
                 sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
@@ -256,10 +272,12 @@ class FMSchroederBoxAdaptor(FileMakerEntityAdaptor):
                         row = None
                         column = None
                         if (drawer is not None) and (len(drawer) > 0) and ("/" in drawer):
-                            pass
+                            row = drawer.split("/")[0];
+                            column = drawer.split("/")[1];
+                        
                         values["STORAGE_NAME"] = result.getString("location")
-                        values["STORAGE_ROW"] = result.getString("drawer") # syntax is y/x: x is the row
-                        values["STORAGE_COLUMN"] = result.getString("drawer") # syntax is y/x: y is the tower, i.e. the column
+                        values["STORAGE_ROW"] = row # syntax is y/x: x is the row
+                        values["STORAGE_COLUMN"] = column # syntax is y/x: y is the tower, i.e. the column
                         values["STORAGE_BOX_NAME"] = result.getString("box label")
                         values["STORAGE_BOX_SIZE"] = result.getString("box size")
                         values["STORAGE_USER"] = result.getString("owner")
@@ -357,7 +375,7 @@ class FMSchroederEntityBoxOpenBISDTO(OpenBISDTO):
 class CellAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
-        self.selectQuery = "SELECT * FROM \"boxit cells\""
+        self.selectQuery = "SELECT * FROM \"cells\""
         self.definition = definitions.cellDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -366,38 +384,39 @@ class CellAdaptor(FileMakerEntityAdaptor):
         
 class CellOpenBISDTO(FMSchroederOpenBISDTO):
     def write(self, tr):
-        code = self.values["NAME"]
-        if code is not None and code.startswith("c_"):
+        code = self.values["CODE"]
+        if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"CELL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        code = self.values["NAME"]
-        return code
+        if "CODE" not in self.values:
+            self.values["CODE"] = "CELL_" + getNextGlobalSequence("CELL");
+            print "New Code Generated: " + self.values["CODE"]
+        return self.values["CODE"];
 
 class CellBoxAdaptor(FMSchroederBoxAdaptor):
     selectBoxQuery = "SELECT * FROM \"cell boxes\""
     entityIdFieldName = "cell ID"
     entityCodeFieldName = "NAME"
 
-
-
-
-
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 #fmConnString = "jdbc:filemaker://fm.ethz.ch/"
-#fmUser= "designer"
-#fmPass = "seattle"
+fmUser= "Admin"
+fmPass = ""
 
 adaptors = [ 
 
-            CellAdaptor(fmConnString, fmUser, fmPass, "boxit-cells"),
-            CellBoxAdaptor(fmConnString, fmUser, fmPass, "boxit-cells_boxes"),
-
+            CellAdaptor(fmConnString, fmUser, fmPass, "boxit-cells")
+            #CellBoxAdaptor(fmConnString, fmUser, fmPass, "boxit-cells_boxes"),
              ]
            
-            
-            
+def createDataHierarchy(tr):
+    inventorySpace = tr.getSpace("MATERIALS")
+    if inventorySpace == None:
+        tr.createNewSpace("MATERIALS", None)
+        tr.createNewProject("/MATERIALS/CELL_LINES")
+        tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", "UNKNOWN");
 
         
         
