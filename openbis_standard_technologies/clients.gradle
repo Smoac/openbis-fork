@@ -79,6 +79,8 @@ task createDssClientJar(type: Jar) {
           project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
           project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
           project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
+        include 'ch/ethz/sis/openbis/generic/asapi/**/*.class'    
+        include 'ch/ethz/sis/openbis/generic/dssapi/**/*.class'    
         include 'ch/systemsx/cisd/common/**/*.class'    
         include 'ch/systemsx/cisd/openbis/common/**/*.class'
         include 'ch/systemsx/cisd/openbis/generic/shared/**/*.class'
