@@ -76,9 +76,14 @@ class TestCase(systemtest.testcase.TestCase):
         '''set openbis2 as harvester'''
         self.installHarvesterPlugin(openbis2)
         source = self.getHarvesterConfigFolder()
+        
+        harvester_config_file_name= "harvester-config.txt"
+        data_source_alias = self.extractDataSourceAlias(os.path.join(source, harvester_config_file_name))
+        util.printAndFlush("data source alias is: %s" % data_source_alias)
+
         destination = openbis2.installPath
         util.printAndFlush("Copying harvester configuration file from %s to %s"% (source, destination))
-        util.copyFromTo(source, destination, "harvester-config.txt")
+        util.copyFromTo(source, destination, harvester_config_file_name)
 
         '''datasource plugin is installed on harvester side as well in order to get the resource list during testing'''
         self.installDataSourcePlugin(openbis2, openbis2_dss_port)
@@ -101,7 +106,7 @@ class TestCase(systemtest.testcase.TestCase):
         harvester_graph_response = self.getResourceListForComparison(openbis2_dss_port, 'testuser1', '123')
         file2 = os.path.join(destination, "harvester_graph.txt")
         self.writeResponseToFile(harvester_graph_response, file2)
-        content2 = self.readLinesFromFile(file2)
+        content2 = self.removePrefixFromLines(self.readLinesFromFile(file2), data_source_alias)
         content2.sort()
         
         '''compare the two. If the only difference is in space labels then we are good.'''
@@ -154,9 +159,14 @@ class TestCase(systemtest.testcase.TestCase):
         self.installDataSourcePlugin(openbis2, openbis2_dss_port)
         openbis2.setDataStoreServerUsername('etlserver2')
         source = self.getHarvesterConfigFolder()
+        
         destination = openbis2.installPath
+        harvester_config_file_name= "harvester-config.txt"
+        data_source_alias = self.extractDataSourceAlias(os.path.join(source, harvester_config_file_name))
+        util.printAndFlush("data source alias is: %s" % data_source_alias)
+
         util.printAndFlush("Copying harvester configuration file from %s to %s"% (source, destination))
-        util.copyFromTo(source, destination, "harvester-config.txt")
+        util.copyFromTo(source, destination, harvester_config_file_name)
         openbis2.allUp()
         
         monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName,
@@ -171,11 +181,14 @@ class TestCase(systemtest.testcase.TestCase):
         content1 = self.readLinesFromFile(file1)
         content1.sort()
 
-        '''read entity graph from harvester'''
+        '''read entity graph from harvester
+        the entities might be translated using a prefix specified in the harvester_config
+        remove the prefix'''
+        
         harvester_graph_response = self.getResourceListForComparison(openbis2_dss_port, 'testuser1', '123')
         file2 = os.path.join(destination, "harvester_graph.txt")
         self.writeResponseToFile(harvester_graph_response, file2)
-        content2 = self.readLinesFromFile(file2)
+        content2 = self.removePrefixFromLines(self.readLinesFromFile(file2), data_source_alias)
         content2.sort()
         
         '''compare the two. If the only difference is in space labels then we are good.'''
@@ -190,14 +203,30 @@ class TestCase(systemtest.testcase.TestCase):
 
         if same == False:
             self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
+            
+            
+    def extractDataSourceAlias(self, harvester_config_file):
+        lines =  self.readLinesFromFile(harvester_config_file)
+        for line in lines:
+            match = re.search("data-source-alias =\s(.*)", line)
+            if match:
+                return match.group(1)
+        return ""
                 
-    def readLinesFromFile(self, file):
+    def readLinesFromFile(self, input_file):
+        with open(input_file, 'rb') as f:
+            content = f.readlines()
+            print content
+        return content
+    
+    def removePrefixFromLines(self, lines, prefix):
+        if prefix == "".strip():
+            return
         temp = []
-        with open(file, 'rb') as f:
-            for line in f:
-            #content = output.readlines()
-                temp.append(re.sub('DS1_', '', line))
+        for line in lines:
+            temp.append(re.sub(prefix+"_", '', line))
         return temp
+
             
     def writeResponseToFile(self, datasource_graph_response, file1):
         with open(file1, 'wb') as output:
