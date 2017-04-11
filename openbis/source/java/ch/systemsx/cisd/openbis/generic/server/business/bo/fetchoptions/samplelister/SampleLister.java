@@ -368,8 +368,14 @@ public class SampleLister implements ISampleLister
             sampleCode = containerCode + ":" + sampleCode;
         }
         initializer.setCode(sampleCode);
-        initializer.setIdentifier(spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
-                + sampleCode);
+        if (sampleRecord.samp_proj_code != null)
+        {
+            initializer.setIdentifier("/" + spaceCode + "/" + sampleRecord.samp_proj_code + "/" + sampleCode);
+        } else
+        {
+            initializer.setIdentifier(spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
+                    + sampleCode);
+        }
         initializer.setPermId(sampleRecord.s_perm_id);
         EntityRegistrationDetailsInitializer detailsInitializer =
                 new EntityRegistrationDetailsInitializer();

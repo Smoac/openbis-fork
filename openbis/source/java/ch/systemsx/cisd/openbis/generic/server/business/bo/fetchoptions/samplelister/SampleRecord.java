@@ -69,7 +69,9 @@ public class SampleRecord
     public String proj_code;
 
     public String proj_space_code;
-
+    
+    public String samp_proj_code;
+    
     public List<SampleRecord> children;
 
     public List<SampleRecord> parents;
