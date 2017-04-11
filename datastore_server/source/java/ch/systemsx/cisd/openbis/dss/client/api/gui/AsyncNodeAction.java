@@ -16,11 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -61,9 +70,9 @@ public abstract class AsyncNodeAction<T> implements IAsyncAction<T>
     }
 
     @Override
-    public void handleException(Throwable throwable)
+    public void handleException(final Throwable throwable)
     {
-        JOptionPane.showMessageDialog(tree, throwable.toString());
+        UiUtilities.showException(tree, throwable);
     }
 
     public abstract void handleData(T data);

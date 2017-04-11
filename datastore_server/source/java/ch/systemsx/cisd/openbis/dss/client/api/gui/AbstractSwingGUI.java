@@ -236,9 +236,8 @@ public abstract class AbstractSwingGUI
                     @Override
                     public void run()
                     {
-                        JOptionPane.showMessageDialog(parentFrame,
-                                WordUtils.wrap(message, MESSAGE_WRAP_MAX_CHAR), title,
-                                JOptionPane.ERROR_MESSAGE);
+                        UiUtilities.showMessageAndException(parentFrame, throwable, 
+                                WordUtils.wrap(message, MESSAGE_WRAP_MAX_CHAR), title);
                     }
                 });
         }
@@ -269,90 +268,4 @@ public abstract class AbstractSwingGUI
         }
     }
 
-    // -------- errors reporting -----------------
-
-    protected static void showErrorsAndWarningsIfAny(JFrame frame, String firstMessageOrNull,
-            List<String> warningMessages, List<Throwable> exceptions)
-    {
-        String message = (firstMessageOrNull == null ? "" : firstMessageOrNull + "\n");
-        message += joinMessages(warningMessages, exceptions);
-        if (exceptions.size() > 0)
-        {
-            showErrorMessage(frame, message);
-        } else if (warningMessages.size() > 0)
-        {
-            showWarningMessage(frame, message);
-        }
-    }
-
-    private static void showErrorMessage(JFrame frame, String message)
-    {
-        showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private static void showWarningMessage(JFrame frame, String message)
-    {
-        showMessageDialog(frame, message, "Warning", JOptionPane.WARNING_MESSAGE);
-    }
-
-    private static void showMessageDialog(JFrame frame, String message, String title,
-            int messageType)
-    {
-        JOptionPane.showMessageDialog(frame, message, title, messageType);
-    }
-
-    private static String joinMessages(List<String> warningMessages, List<Throwable> exceptions)
-    {
-        StringBuffer sb = new StringBuffer();
-        addErrorMessages(exceptions, sb);
-        addWarningMessages(warningMessages, sb);
-        return sb.toString();
-    }
-
-    private static void addErrorMessages(List<Throwable> exceptions, StringBuffer sb)
-    {
-        if (exceptions.size() > 0)
-        {
-            if (exceptions.size() > 1)
-            {
-                sb.append("Following errors occured: \n");
-            }
-            for (Throwable exception : exceptions)
-            {
-                sb.append(getErrorMessage(exception));
-                sb.append("\n");
-            }
-        }
-    }
-
-    private static void addWarningMessages(List<String> warningMessages, StringBuffer sb)
-    {
-        if (warningMessages.size() > 0)
-        {
-            sb.append("Following warnings occured (you can most probably ignore them): \n");
-            String lastWarningMessage = "";
-            for (String warningMessage : warningMessages)
-            {
-                if (lastWarningMessage.equals(warningMessage) == false)
-                {
-                    sb.append(warningMessage);
-                    sb.append("\n");
-                    lastWarningMessage = warningMessage;
-                }
-            }
-        }
-    }
-
-    private static String getErrorMessage(Throwable throwable)
-    {
-        final String message;
-        if (throwable instanceof HighLevelException)
-        {
-            message = throwable.getMessage();
-        } else
-        {
-            message = "ERROR: " + throwable;
-        }
-        return message;
-    }
 }

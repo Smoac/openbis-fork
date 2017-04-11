@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -49,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.gui.model.UploadClientSortingUtil
 import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 
 /**
  * Abstract super class of all entity picker dialogs based on {@link JTree}.
@@ -77,6 +77,8 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         this.entityKind = entityKind;
         tree = new JTree();
         tree.setModel(new DefaultTreeModel(null));
+        tree.setRootVisible(false);
+        tree.setShowsRootHandles(true);
         tree.addTreeWillExpandListener(this);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         addTreeSelectionListener();
@@ -93,7 +95,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         final JScrollPane scrollPane = new JScrollPane(tree);
 
         List<Object> objectsAsList = new ArrayList<Object>();
-        objectsAsList.add("Filter experiments: ");
+        objectsAsList.add("Filter experiments and samples: ");
         objectsAsList.add(northPanel);
         objectsAsList.add("Select " + entityKind.toString().toLowerCase() + ":");
 
@@ -159,66 +161,104 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
             }
         }
         String label = entityKind.toString();
-        JOptionPane.showMessageDialog(this, "No correct " + label.toLowerCase() + " found, " + selected + " is not correct!",
-                "No correct " + label.toLowerCase() + " found, " + selected + " is not correct!", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Please, select a " + label.toLowerCase() + ".",
+                "No " + label.toLowerCase() + " selected!", JOptionPane.WARNING_MESSAGE);
         optionPane.setValue(optionPane.getInitialValue());
     }
 
     @Override
     public void treeWillExpand(final TreeExpansionEvent event) throws ExpandVetoException
     {
-        final DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+        final FilterableMutableTreeNode node =
+                (FilterableMutableTreeNode) event.getPath().getLastPathComponent();
         // if top level, then finish
         if (((TreeNode) node).getParent() == null)
         {
             return;
         }
         Object userObject = node.getUserObject();
-        if (userObject instanceof Identifier)
+        if (UiUtilities.ROOT_EXPERIMENTS.equals(userObject))
+        {
+            expandExperiments(node);
+        } else if (UiUtilities.ROOT_SAMPLES.equals(userObject))
+        {
+            expandSamples(node);
+        } else if (userObject instanceof Identifier)
         {
             expandNode(node, (Identifier) userObject);
         }
     }
+    
+    private void expandExperiments(final FilterableMutableTreeNode node)
+    {
+        AsyncNodeAction<List<Experiment>> action =
+                new AsyncNodeAction<List<Experiment>>(tree, node, scheduler)
+                    {
+                        @Override
+                        public void handleData(List<Experiment> experiments)
+                        {
+                            node.removeAllChildren();
+                            UploadClientSortingUtils.sortExperimentsByIdentifier(experiments);
+                            for (Experiment experiment : experiments)
+                            {
+                                FilterableMutableTreeNode category =
+                                        new FilterableMutableTreeNode(Identifier.create(experiment));
+                                category.add(UiUtilities.createWaitingNode());
+                                node.add(category);
+                            }
+                        }
+                    };
+        clientModel.listExperiments(action);
+    }
+    
+    private void expandSamples(final FilterableMutableTreeNode node)
+    {
+        AsyncNodeAction<List<Sample>> action =
+                new AsyncNodeAction<List<Sample>>(tree, node, scheduler)
+                    {
+                        @Override
+                        public void handleData(List<Sample> samples)
+                        {
+                            node.removeAllChildren();
+                            UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+                            for (Sample sample : samples)
+                            {
+                                FilterableMutableTreeNode category =
+                                        new FilterableMutableTreeNode(Identifier.create(sample));
+                                category.add(UiUtilities.createWaitingNode());
+                                node.add(category);
+                            }
+                        }
+                    };
+        clientModel.listSamplesWithNoExperiments(action);
+    }
 
-    protected abstract void expandNode(final DefaultMutableTreeNode node, Identifier identifier);
+    protected abstract void expandNode(final FilterableMutableTreeNode node, Identifier identifier);
 
     @Override
     public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException
     {
-        DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+        FilterableMutableTreeNode node =
+                (FilterableMutableTreeNode) event.getPath().getLastPathComponent();
 
         if (node.isRoot())
         {
             throw new ExpandVetoException(event);
         }
         node.removeAllChildren();
-        node.add(new DefaultMutableTreeNode(UiUtilities.WAITING_NODE_LABEL));
-    }
-
-    protected void createNodes(FilterableMutableTreeNode top, List<Experiment> experiments)
-    {
-        UploadClientSortingUtils.sortExperimentsByIdentifier(experiments);
-        for (Experiment experiment : experiments)
-        {
-            DefaultMutableTreeNode category =
-                    new DefaultMutableTreeNode(Identifier.create(experiment), true);
-            category.add(new DefaultMutableTreeNode(UiUtilities.WAITING_NODE_LABEL));
-            top.add(category);
-        }
+        node.add(UiUtilities.createWaitingNode());
     }
 
     @Override
     protected void setDialogData()
     {
-        FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
-
-        final List<String> projectIdentifiers = clientModel.getProjectIdentifiers();
-        List<Experiment> experiments =
-                clientModel.getOpenBISService().listExperimentsHavingSamplesForProjects(
-                        projectIdentifiers);
-        createNodes(top, experiments);
+        FilterableMutableTreeNode top = new FilterableMutableTreeNode(null);
+        FilterableMutableTreeNode experimentsTree = new FilterableMutableTreeNode(UiUtilities.ROOT_EXPERIMENTS);
+        experimentsTree.add(UiUtilities.createWaitingNode());
+        top.add(experimentsTree);
+        FilterableMutableTreeNode samplesTree = new FilterableMutableTreeNode(UiUtilities.ROOT_SAMPLES);
+        samplesTree.add(UiUtilities.createWaitingNode());
+        top.add(samplesTree);
 
         DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
         treeModel.setRoot(top);

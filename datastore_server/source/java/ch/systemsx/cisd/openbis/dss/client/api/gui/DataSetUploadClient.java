@@ -154,13 +154,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
                         prefs.flush();
                     } catch (Exception ex)
                     {
-                        final JFrame frame = new JFrame(TITLE);
-                        String message = ex.getMessage();
-                        if (null == message || message.length() == 0)
-                        {
-                            message = ex.toString();
-                        }
-                        JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+                        UiUtilities.showException(null, ex);
                     }
 
                 }
@@ -187,14 +181,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
             newMe.show();
         } catch (RuntimeException ex)
         {
-            final JFrame frame = new JFrame(TITLE);
-            frame.setVisible(true);
-            String message = ex.getMessage();
-            if (null == message || message.length() == 0)
-            {
-                message = ex.toString();
-            }
-            JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+            UiUtilities.showException(null, ex);
             System.exit(1);
         }
     }
@@ -210,14 +197,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
             newMe.show();
         } catch (RuntimeException ex)
         {
-            final JFrame frame = new JFrame(TITLE);
-            frame.setVisible(true);
-            String message = ex.getMessage();
-            if (null == message || message.length() == 0)
-            {
-                message = ex.toString();
-            }
-            JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+            UiUtilities.showException(null, ex);
             System.exit(1);
         }
     }

@@ -23,11 +23,15 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v3.IOpenbisServiceFacadeV3;
+import ch.systemsx.cisd.openbis.dss.client.api.v3.OpenbisServiceFacadeV3;
 
 public class DssCommunicationState
 {
     private final IOpenbisServiceFacade openBISService;
 
+    private final IOpenbisServiceFacadeV3 serviceFacadeV3;
+    
     private final boolean logoutOnClose;
 
     private static final long CONNECTION_TIMEOUT_MILLIS = 60 * DateUtils.MILLIS_PER_SECOND;
@@ -48,28 +52,27 @@ public class DssCommunicationState
         {
             case 2:
                 String sessionToken = args[1];
-                openBISService =
-                        OpenbisServiceFacadeFactory.tryCreate(sessionToken, openBisUrl,
-                                CONNECTION_TIMEOUT_MILLIS);
-                if (null == openBISService)
+                serviceFacadeV3 = OpenbisServiceFacadeV3.tryCreate(sessionToken, openBisUrl, CONNECTION_TIMEOUT_MILLIS);
+                if (null == serviceFacadeV3)
                 {
                     throw new ConfigurationFailureException(
                             "The openBIS File Upload Client was improperly configured -- the session token is not valid. Please talk to the openBIS administrator.");
                 }
+                openBISService =  OpenbisServiceFacadeFactory.tryCreate(sessionToken, openBisUrl, CONNECTION_TIMEOUT_MILLIS);
                 // Don't logout -- the user wants to keep his/her session token alive.
                 logoutOnClose = false;
                 break;
             default:
                 String userName = args[1];
                 String passwd = args[2];
-                openBISService =
-                        OpenbisServiceFacadeFactory.tryCreate(userName, passwd, openBisUrl,
-                                CONNECTION_TIMEOUT_MILLIS);
-                if (null == openBISService)
+                serviceFacadeV3 = OpenbisServiceFacadeV3.tryCreate(userName, passwd, openBisUrl, CONNECTION_TIMEOUT_MILLIS);
+                if (null == serviceFacadeV3)
                 {
                     throw new ConfigurationFailureException(
                             "The user name / password combination is incorrect.");
                 }
+                String token = serviceFacadeV3.getSessionToken();
+                openBISService =  OpenbisServiceFacadeFactory.tryCreate(token, openBisUrl, CONNECTION_TIMEOUT_MILLIS);
                 // Do logout on close
                 logoutOnClose = true;
         }
@@ -78,6 +81,11 @@ public class DssCommunicationState
     public IOpenbisServiceFacade getOpenBISService()
     {
         return openBISService;
+    }
+
+    public IOpenbisServiceFacadeV3 getServiceFacadeV3()
+    {
+        return serviceFacadeV3;
     }
 
     public boolean isLogoutOnClose()

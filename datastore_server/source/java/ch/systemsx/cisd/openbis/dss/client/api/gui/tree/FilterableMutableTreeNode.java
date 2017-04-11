@@ -24,6 +24,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.UiUtilities;
+
 /**
  * @author Pawel Glyzewski
  */
@@ -65,7 +67,7 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
             while (enumeration.hasMoreElements())
             {
                 final Object tmp = enumeration.nextElement();
-                if (pattern.matcher(tmp.toString()).find())
+                if (UiUtilities.isMatchingNode(tmp, pattern))
                 {
                     next = tmp;
                     break;
@@ -95,6 +97,7 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
     private synchronized void setPattern(Pattern pattern)
     {
         this.pattern = pattern;
+        filter(pattern);
     }
 
     private synchronized ArrayList<Object> getFiltered()
@@ -120,11 +123,13 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
             pattern = Pattern.compile(".*");
         }
         setPattern(pattern);
-
-        filter(pattern);
+        for (int i = 0, n = getChildCount(); i < n; i++)
+        {
+            ((FilterableMutableTreeNode) getChildAt(i)).setPattern(pattern);
+        }
     }
 
-    public void filter(@SuppressWarnings("hiding") Pattern pattern)
+    private void filter(@SuppressWarnings("hiding") Pattern pattern)
     {
         @SuppressWarnings("hiding")
         ArrayList<Object> filtered = new ArrayList<Object>();
@@ -133,14 +138,14 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
         while (enumeration.hasMoreElements())
         {
             Object o = enumeration.nextElement();
-            if (pattern.matcher(o.toString()).find())
+            if (UiUtilities.isMatchingNode(o, pattern))
             {
                 filtered.add(o);
             }
         }
         setFiltered(filtered);
     }
-
+    
     @Override
     public TreeNode getChildAt(int childIndex)
     {
@@ -190,11 +195,25 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
     {
         return new FilteredEnumerationWrapper(super.children(), getPattern());
     }
-
+    
     @Override
     public void add(MutableTreeNode o)
     {
         super.add(o);
+        if (o instanceof FilterableMutableTreeNode)
+        {
+            FilterableMutableTreeNode filterableMutableTreeNode = (FilterableMutableTreeNode) o;
+            filterableMutableTreeNode.setPattern(getPattern());
+        }
         filter(getPattern());
     }
+
+    @Override
+    public void removeAllChildren()
+    {
+        super.removeAllChildren();
+        filter(getPattern());
+    }
+    
+    
 }

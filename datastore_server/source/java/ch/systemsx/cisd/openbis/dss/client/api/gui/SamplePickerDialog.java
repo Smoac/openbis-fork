@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.Identifier;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 
@@ -44,7 +44,7 @@ public class SamplePickerDialog extends AbstractTreeEntityPickerDialog
     }
 
     @Override
-    protected void expandNode(final DefaultMutableTreeNode node, Identifier identifier)
+    protected void expandNode(final FilterableMutableTreeNode node, Identifier identifier)
     {
         AsyncNodeAction<List<Sample>> action =
                 new AsyncNodeAction<List<Sample>>(tree, node, scheduler)
@@ -55,10 +55,9 @@ public class SamplePickerDialog extends AbstractTreeEntityPickerDialog
                             node.removeAllChildren();
                             for (Sample s : samples)
                             {
-                                DefaultMutableTreeNode sampleNode =
-                                        new DefaultMutableTreeNode(Identifier.create(s));
-                                sampleNode.add(new DefaultMutableTreeNode(
-                                        UiUtilities.WAITING_NODE_LABEL));
+                                FilterableMutableTreeNode sampleNode =
+                                        new FilterableMutableTreeNode(Identifier.create(s));
+                                sampleNode.add(UiUtilities.createWaitingNode());
                                 node.add(sampleNode);
                             }
                         }

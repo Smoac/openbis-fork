@@ -19,14 +19,11 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.ExpandVetoException;
-import javax.swing.tree.TreeNode;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.Identifier;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.SamplesDataSets;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -48,26 +45,7 @@ public class DataSetPickerDialog extends AbstractTreeEntityPickerDialog
     }
 
     @Override
-    public void treeWillExpand(final TreeExpansionEvent event) throws ExpandVetoException
-    {
-        final DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
-        // if top level, then finish
-        if (((TreeNode) node).getParent() == null)
-        {
-            return;
-        }
-        Object userObject = node.getUserObject();
-        if (userObject instanceof Identifier == false)
-        {
-            return;
-        }
-        Identifier identifier = (Identifier) userObject;
-        expandNode(node, identifier);
-    }
-
-    @Override
-    protected void expandNode(final DefaultMutableTreeNode node, Identifier identifier)
+    protected void expandNode(final FilterableMutableTreeNode node, Identifier identifier)
     {
         if (identifier.getOwnerType() != DataSetOwnerType.DATA_SET)
         {
@@ -82,22 +60,21 @@ public class DataSetPickerDialog extends AbstractTreeEntityPickerDialog
                                 node.removeAllChildren();
                                 if (dataSets.size() > 0)
                                 {
-                                    DefaultMutableTreeNode dataSetsNode =
-                                            new DefaultMutableTreeNode("Data Sets");
+                                    FilterableMutableTreeNode dataSetsNode =
+                                            new FilterableMutableTreeNode(UiUtilities.DATA_SETS);
                                     node.add(dataSetsNode);
                                     for (DataSet dataSet : dataSets)
                                     {
-                                        dataSetsNode.add(new DefaultMutableTreeNode(Identifier
+                                        dataSetsNode.add(new FilterableMutableTreeNode(Identifier
                                                 .create(dataSet)));
                                     }
                                 }
 
                                 for (Sample s : samplesDataSets.getSamples())
                                 {
-                                    DefaultMutableTreeNode sampleNode =
-                                            new DefaultMutableTreeNode(Identifier.create(s));
-                                    sampleNode.add(new DefaultMutableTreeNode(
-                                            UiUtilities.WAITING_NODE_LABEL));
+                                    FilterableMutableTreeNode sampleNode =
+                                            new FilterableMutableTreeNode(Identifier.create(s));
+                                    sampleNode.add(UiUtilities.createWaitingNode());
                                     node.add(sampleNode);
                                 }
                             }

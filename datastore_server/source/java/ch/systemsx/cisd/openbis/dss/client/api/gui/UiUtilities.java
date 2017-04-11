@@ -16,11 +16,26 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.regex.Pattern;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.Identifier;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
 /**
@@ -50,5 +65,74 @@ public class UiUtilities
         }
     }
 
-    static final String WAITING_NODE_LABEL = "Loading data ...";
+    static final String ROOT_SAMPLES = "Samples";
+    static final String ROOT_EXPERIMENTS = "Experiments";
+    static final String DATA_SETS = "Data Sets";
+    private static final String WAITING_NODE_LABEL = "Loading data ...";
+    
+    private static final String[] SPECIAL_NODES = {ROOT_EXPERIMENTS, ROOT_SAMPLES, DATA_SETS, WAITING_NODE_LABEL};
+    
+    public static boolean isMatchingNode(Object node, Pattern pattern)
+    {
+        for (String specialNode : SPECIAL_NODES)
+        {
+            if (equals(specialNode, node))
+            {
+                return true;
+            }
+        }
+        if (node instanceof FilterableMutableTreeNode)
+        {
+            Object userObject = ((FilterableMutableTreeNode) node).getUserObject();
+            if (userObject instanceof Identifier)
+            {
+                if (((Identifier) userObject).getOwnerType() == DataSetOwnerType.DATA_SET)
+                {
+                    return true;
+                }
+            }
+        }
+        return pattern.matcher(node.toString()).find();
+    }
+    
+    private static boolean equals(String label, Object object)
+    {
+        return object.toString().equals(label);
+    }
+    
+    public static FilterableMutableTreeNode createWaitingNode()
+    {
+        return new FilterableMutableTreeNode(UiUtilities.WAITING_NODE_LABEL);
+    }
+    
+    public static void showException(Component parentComponent, final Throwable throwable)
+    {
+        showMessageAndException(parentComponent, throwable, throwable.toString(), "Error");
+    }
+
+    public static void showMessageAndException(Component parentComponent, final Throwable throwable, String message, String title)
+    {
+        final JPanel panel = new JPanel(new BorderLayout(20, 5));
+        panel.add(new JLabel(message), BorderLayout.WEST);
+        JButton button = new JButton("Show Details");
+        button.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    panel.removeAll();
+                    JTextArea textArea = new JTextArea(20, 20);
+                    textArea.setEditable(false);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    throwable.printStackTrace(new PrintStream(byteArrayOutputStream, true));
+                    textArea.setText(byteArrayOutputStream.toString());
+                    panel.add(textArea, BorderLayout.CENTER);
+                    panel.validate();
+                    SwingUtilities.getWindowAncestor(panel).pack();
+                }
+            });
+        panel.add(button, BorderLayout.EAST);
+        JOptionPane.showMessageDialog(parentComponent, panel, title, JOptionPane.ERROR_MESSAGE);
+    }
+
 }

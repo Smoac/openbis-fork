@@ -23,10 +23,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.TransmissionSpeedCalculator;
@@ -34,6 +37,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v3.IOpenbisServiceFacadeV3;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
@@ -42,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationE
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetTypeFilter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -69,6 +74,8 @@ public class DataSetUploadClientModel
 
     private final IOpenbisServiceFacade openBISService;
 
+    private final IOpenbisServiceFacadeV3 serviceFacadeV3;
+    
     private final ITimeProvider timeProvider;
 
     private List<DataSetType> dataSetTypes;
@@ -104,6 +111,7 @@ public class DataSetUploadClientModel
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider, IUserNotifier userNotifier)
     {
         this.openBISService = commState.getOpenBISService();
+        serviceFacadeV3 = commState.getServiceFacadeV3();
         this.timeProvider = timeProvider;
         this.userNotifier = userNotifier;
 
@@ -327,41 +335,108 @@ public class DataSetUploadClientModel
     {
         return !openBISService.getSamples(Arrays.asList(identifier)).isEmpty();
     }
-
-    public void listSamples(final Identifier identifier,
-            final IAsyncAction<List<Sample>> action)
+    
+    public void listExperiments(IAsyncAction<List<Experiment>> action)
     {
-        execute(new Runnable()
+        doAsync(new Callable<List<Experiment>>()
             {
                 @Override
-                public void run()
+                public List<Experiment> call() throws Exception
                 {
-                    try
-                    {
-                        List<Sample> samples = new ArrayList<Sample>();
-                        String permId = identifier.getPermId();
-                        switch (identifier.getOwnerType())
-                        {
-                            case EXPERIMENT:
-                                loadListableSamples(samples, permId);
-                                break;
-                            case SAMPLE:
-                                loadSamplesLinkedToAnExperiment(samples, permId);
-                                break;
-                            default:
-                        }
-                        UploadClientSortingUtils.sortSamplesByIdentifier(samples);
-                        action.performAction(samples);
-                    } catch (Throwable throwable)
-                    {
-                        action.handleException(throwable);
-                    }
+                    return getOpenBISService().listExperimentsHavingSamplesForProjects(
+                            projectIdentifiers);
                 }
-            });
+            }, action);
+    }
+    
+    public void listSamplesWithNoExperiments(IAsyncAction<List<Sample>> action)
+    {
+        doAsync(new Callable<List<Sample>>()
+            {
+                @Override
+                public List<Sample> call() throws Exception
+                {
+                    SampleSearchCriteria criteria = new SampleSearchCriteria();
+                    criteria.withoutExperiment();
+                    criteria.withType().withListable().setListable(true);
+                    List<Sample> result = new ArrayList<>();
+                    for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample sample : 
+                            serviceFacadeV3.searchSamples(criteria, new SampleFetchOptions()).getObjects())
+                    {
+                        Sample.SampleInitializer initializer = new Sample.SampleInitializer();
+                        initializer.setIdentifier(sample.getIdentifier().getIdentifier());
+                        initializer.setPermId(sample.getPermId().getPermId());
+                        initializer.setId(-1l); // dummy value for validation
+                        initializer.setCode(sample.getCode());
+                        initializer.setSampleTypeCode("dummy"); // dummy value for validation
+                        initializer.setSampleTypeId(-1l); // dummy value for validation
+                        EntityRegistrationDetails.EntityRegistrationDetailsInitializer detailsInitializer 
+                                = new EntityRegistrationDetails.EntityRegistrationDetailsInitializer();
+                        initializer.setRegistrationDetails(new EntityRegistrationDetails(detailsInitializer));
+                        result.add(new Sample(initializer));
+                    }
+                    return result;
+                }
+            }, action);
+    }
+
+    public void listSamples(final Identifier identifier, final IAsyncAction<List<Sample>> action)
+    {
+        doAsync(new Callable<List<Sample>>()
+            {
+                @Override
+                public List<Sample> call() throws Exception
+                {
+                    List<Sample> samples = new ArrayList<Sample>();
+                    String permId = identifier.getPermId();
+                    switch (identifier.getOwnerType())
+                    {
+                        case EXPERIMENT:
+                            loadListableSamples(samples, permId);
+                            break;
+                        case SAMPLE:
+                            loadSamplesLinkedToAnExperiment(samples, permId);
+                            break;
+                        default:
+                    }
+                    UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+                    return samples;
+                }
+            }, action);
     }
 
     public void listSamplesDataSets(final Identifier identifier, final IAsyncAction<SamplesDataSets> action)
     {
+        doAsync(new Callable<SamplesDataSets>()
+            {
+                @Override
+                public SamplesDataSets call() throws Exception
+                {
+                    List<Sample> samples = new ArrayList<Sample>();
+                    List<DataSet> dataSets = new ArrayList<DataSet>();
+                    String permId = identifier.getPermId();
+                    switch (identifier.getOwnerType())
+                    {
+                        case EXPERIMENT:
+                            loadListableSamples(samples, permId);
+                            dataSets.addAll(openBISService.listDataSetsForExperiment(permId));
+                            break;
+                        case SAMPLE:
+                            loadSamplesLinkedToAnExperiment(samples, permId);
+                            dataSets.addAll(openBISService.listDataSetsForSample(permId));
+                            break;
+                        default:
+                    }
+                    UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+                    UploadClientSortingUtils.sortDataSetsByCode(dataSets);
+                    return new SamplesDataSets(samples, dataSets);
+                }
+            }, action);
+    }
+    
+    private <T> void doAsync(final Callable<T> action, final IAsyncAction<T> subsequentAction)
+    {
+
         execute(new Runnable()
             {
                 @Override
@@ -369,27 +444,10 @@ public class DataSetUploadClientModel
                 {
                     try
                     {
-                        List<Sample> samples = new ArrayList<Sample>();
-                        List<DataSet> dataSets = new ArrayList<DataSet>();
-                        String permId = identifier.getPermId();
-                        switch (identifier.getOwnerType())
-                        {
-                            case EXPERIMENT:
-                                loadListableSamples(samples, permId);
-                                dataSets.addAll(openBISService.listDataSetsForExperiment(permId));
-                                break;
-                            case SAMPLE:
-                                loadSamplesLinkedToAnExperiment(samples, permId);
-                                dataSets.addAll(openBISService.listDataSetsForSample(permId));
-                                break;
-                            default:
-                        }
-                        UploadClientSortingUtils.sortSamplesByIdentifier(samples);
-                        UploadClientSortingUtils.sortDataSetsByCode(dataSets);
-                        action.performAction(new SamplesDataSets(samples, dataSets));
+                        subsequentAction.performAction(action.call());
                     } catch (Throwable throwable)
                     {
-                        action.handleException(throwable);
+                        subsequentAction.handleException(throwable);
                     }
                 }
             });
