@@ -252,9 +252,14 @@ class FMSchroederBoxAdaptor(FileMakerEntityAdaptor):
                     antibodyNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
                     if antibodyNumber is not None:
                         values = {}
+                        drawer = result.getString("drawer");
+                        row = None
+                        column = None
+                        if (drawer is not None) and (len(drawer) > 0) and ("/" in drawer):
+                            pass
                         values["STORAGE_NAME"] = result.getString("location")
-                        values["STORAGE_ROW"] = "1"
-                        values["STORAGE_COLUMN"] = "1"
+                        values["STORAGE_ROW"] = result.getString("drawer") # syntax is y/x: x is the row
+                        values["STORAGE_COLUMN"] = result.getString("drawer") # syntax is y/x: y is the tower, i.e. the column
                         values["STORAGE_BOX_NAME"] = result.getString("box label")
                         values["STORAGE_BOX_SIZE"] = result.getString("box size")
                         values["STORAGE_USER"] = result.getString("owner")
@@ -335,8 +340,8 @@ class FMSchroederEntityBoxOpenBISDTO(OpenBISDTO):
                 propertyValue = box[propertyCode]
                 if propertyCode == "STORAGE_NAME":
                     propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                if propertyCode == "STORAGE_USER":
-                    propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
+                #if propertyCode == "STORAGE_USER":
+                    #propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
                     
                 if propertyValue is not None:
                     propertyValue = unicode(propertyValue)
@@ -361,19 +366,19 @@ class CellAdaptor(FileMakerEntityAdaptor):
         
 class CellOpenBISDTO(FMSchroederOpenBISDTO):
     def write(self, tr):
-        code = self.values["CELL_ID_NR_COPY"]
+        code = self.values["NAME"]
         if code is not None and code.startswith("c_"):
             sample = getSampleForUpdate("/MATERIALS/"+code,"CELL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        code = self.values["CELL_ID_NR_COPY"]
+        code = self.values["NAME"]
         return code
 
 class CellBoxAdaptor(FMSchroederBoxAdaptor):
     selectBoxQuery = "SELECT * FROM \"cell boxes\""
     entityIdFieldName = "cell ID"
-    entityCodeFieldName = "CELL_ID_NR_COPY"
+    entityCodeFieldName = "NAME"
 
 
 
@@ -381,8 +386,8 @@ class CellBoxAdaptor(FMSchroederBoxAdaptor):
 
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 #fmConnString = "jdbc:filemaker://fm.ethz.ch/"
-fmUser= "designer"
-fmPass = "seattle"
+#fmUser= "designer"
+#fmPass = "seattle"
 
 adaptors = [ 
 
