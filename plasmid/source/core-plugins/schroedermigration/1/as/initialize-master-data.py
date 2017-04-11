@@ -33,7 +33,7 @@ tr = service.transaction()
 ## API Facade
 ##
 def createVocabularyWithTerms(vocabularyCode, terms):
-    vocabulary = tr.createNewVocabulary(vocabularyCode);
+    vocabulary = tr.getOrCreateNewVocabulary(vocabularyCode);
     vocabulary.setChosenFromList(True);
     addTerms(vocabulary, terms);
     vocabulariesCache[vocabularyCode] = vocabulary;
@@ -69,7 +69,7 @@ def getSampleType(sampleTypeCode):
             
 def addPropertiesToSamples(sampleTypeCodes, properties):
     for sampleTypeCode in sampleTypeCodes:
-        sampleType = getSampleType(sampleTypeCodes);
+        sampleType = getSampleType(sampleTypeCode);
         addProperties(sampleType, properties);
     
 def addProperties(entity, properties):
@@ -122,3 +122,14 @@ def findAssignment(entityType, propertyType):
             return assignment;
     return None;
     
+##
+## Vocabulary Types
+##
+for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.iteritems():
+    createVocabularyWithTerms(vocabularyCode, vocabularyValues)
+
+##
+## Sample Types
+##
+createSampleTypeWithProperties("CELL", "", definitions.cellDefinition);
+addStorageGroups(definitions.numberOfStorageGroups, "CELL");

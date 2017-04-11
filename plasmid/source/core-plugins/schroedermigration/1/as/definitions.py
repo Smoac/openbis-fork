@@ -20,6 +20,7 @@ def getPropertyDefinitionByCode(definition, code):
 #
 # Storage 
 #
+numberOfStorageGroups = 100
 
 def getStorageGroupPropertyCodes():
     propertyCodes = [];
@@ -65,7 +66,7 @@ cellDefinition = [
     ["MEDIUM",                          "General",                "medium",                              DataType.CONTROLLEDVOCABULARY,       "MEDIUM",  "", None, None, False],
     ["MEDIUM_SPECIALS",                 "General",                "medium specials",                     DataType.VARCHAR,                    None,  "", None, None, False],
     ["MODIFICATION_DATE",               "General",                "modification date",                   DataType.TIMESTAMP,                  None,  "", None, None, False],
-    ["MODIFIED_BY",                     "General",                "modified by",                         DataType.CONTROLLEDVOCABULARY,       "ALL_LAB_MEMBERS",  "", None, None, False],
+    ["MODIFIED_BY",                     "General",                "modified by",                         DataType.CONTROLLEDVOCABULARY,       "LAB_MEMBERS",  "", None, None, False],
     ["OBTAINED_FROM",                   "General",                "obtained from",                       DataType.CONTROLLEDVOCABULARY,       "CELL_OBTAINED_FROM",  "", None, None, False],
     ["PAGE_NUMBER",                     "General",                "page number",                         DataType.VARCHAR,                    None,  "", None, None, False],
     ["PARENTAL_CELL",                   "General",                "parental cell",                       DataType.VARCHAR,                    None,  "", None, None, False],
@@ -80,7 +81,7 @@ cellDefinition = [
     ["SERIAL_NUMBER",                   "General",                "serial number",                       DataType.INTEGER,                    None,  "", None, None, False],
     ["SPECIES",                         "General",                "species",                             DataType.CONTROLLEDVOCABULARY,       "CELL_SPECIES",  "", None, None, False],
     ["TUBES",                           "Storage",                "tubes",                               DataType.INTEGER,                    None,  "", None, None, False],
-    ["COMMENTS",                        "Comments",               "info",                                DataType.MULTILINEVARCHAR,           None,  "", None, None, False]
+    ["COMMENTS",                        "Comments",               "info",                                DataType.MULTILINE_VARCHAR,           None,  "", None, None, False]
 ];
 
 
