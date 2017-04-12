@@ -65,7 +65,7 @@ final class DataSetUploadOperation implements Runnable
     {
         try
         {
-        	if (newDataSetInfo.getStatus() == NewDataSetInfo.Status.QUEUED_FOR_UPLOAD)
+            if (newDataSetInfo.getStatus() == NewDataSetInfo.Status.QUEUED_FOR_UPLOAD)
             {
                 newDataSetInfo.setStatus(Status.UPLOADING);
                 tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
@@ -73,15 +73,17 @@ final class DataSetUploadOperation implements Runnable
                 NewDataSetDTO cleanDto =
                         clientModel.cleanNewDataSetDTO(newDataSetInfo.getNewDataSetBuilder()
                                 .asNewDataSetDTO());
-                cleanDto.addUploadObserver(new UploadObserver() {
-					@Override
-					public void updateTotalBytesRead(long totalBytesRead) {
-						double totalFileSize = newDataSetInfo.getTotalFileSize();
-						int percent = (int)((totalBytesRead / totalFileSize) * 100);
-						newDataSetInfo.updateProgress(percent, totalBytesRead); 
-						tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
-					}
-                });
+                cleanDto.addUploadObserver(new UploadObserver()
+                    {
+                        @Override
+                        public void updateTotalBytesRead(long totalBytesRead)
+                        {
+                            double totalFileSize = newDataSetInfo.getTotalFileSize();
+                            int percent = (int) ((totalBytesRead / totalFileSize) * 100);
+                            newDataSetInfo.updateProgress(percent, totalBytesRead);
+                            tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
+                        }
+                    });
                 clientModel.getOpenBISService().putDataSet(cleanDto,
                         newDataSetInfo.getNewDataSetBuilder().getFile());
             }
