@@ -1418,7 +1418,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 location.setDataSetLocation(record.location);
             } else
             {
-                location.setDataSetLocation(datasetCode);
+                location.setDataSetLocation(record.code);
             }
             location.setDataStoreCode(record.data_store_code);
             location.setDataStoreUrl(record.data_store_url);
