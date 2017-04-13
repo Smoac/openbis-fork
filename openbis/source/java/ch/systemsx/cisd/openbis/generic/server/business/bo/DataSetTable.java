@@ -1026,6 +1026,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         dataChanged = false;
         operationLog.info("State of data sets saved.");
+        clearSampleCache();
     }
 
     private void checkMandatoryProperties()
