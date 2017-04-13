@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
  * 
  * @author Piotr Buczek
  */
-class VirtualHierarchicalContent implements IHierarchicalContent
+public class VirtualHierarchicalContent implements IHierarchicalContent
 {
 
     final static IVirtualNodeMergerFactory DEFAULT_MERGER_FACTORY = new IVirtualNodeMergerFactory()
@@ -345,7 +345,6 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         }
     }
 
-    // NOTE: exposed for tests
     /**
      * {@link IHierarchicalContentNode} implementation merging nodes with the same relative paths:
      * <ul>
@@ -353,7 +352,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
      * <li>For normal files uses the 'last' available node's file.
      * </ul>
      */
-    static class VirtualNode implements IHierarchicalContentNode
+    public static class VirtualNode implements IHierarchicalContentNode
     {
 
         private final IVirtualNodeMergerFactory nodeMergerFactory;
@@ -371,7 +370,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             this.nodes = nodes;
         }
 
-        private IHierarchicalContentNode lastNode()
+        public IHierarchicalContentNode lastNode()
         {
             return nodes.get(0);
         }

@@ -197,6 +197,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     });
                 for (final IDatasetLocationNode component : sortedNodes)
                 {
+                    final IDatasetLocation location = component.getLocation();
                     IHierarchicalContentExecuteOnAccess onAccess = new IHierarchicalContentExecuteOnAccess()
                         {
                             @Override
@@ -204,7 +205,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                             {
                                 if (shouldUpdateAccessTimestamp)
                                 {
-                                    openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
+                                    openbisService.notifyDatasetAccess(location.getDataSetCode());
                                 }
                             }
                         };
@@ -213,7 +214,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
                     if (componentContent != null)
                     {
-                        componentContents.add(componentContent);
+                        componentContents.add(new DataSetAwareHierarchicalContent(location, componentContent));
                     }
                 }
                 return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);

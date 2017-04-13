@@ -47,7 +47,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final Template ROW_TEMPLATE =
             new Template(
-                    "<tr><td class='td_file'><a href='${path}?disableLinks=${disableLinks}&mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td><td>${checksum}</td></tr>");
+                    "<tr><td class='td_file'><a href='${path}?disableLinks=${disableLinks}&mode=simpleHtml${sessionId}'>${name}</a></td><td>${size}</td><td>${checksum}</td></tr>");
 
     private static final Template ROW_TEMPLATE_NO_LINK =
             new Template(

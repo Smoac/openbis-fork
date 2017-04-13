@@ -39,10 +39,13 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.VirtualHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetAwareHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
 
 /**
@@ -598,7 +601,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                             childNode.isChecksumCRC32Precalculated() ? childNode.getChecksumCRC32()
                                     : null;
                     directoryRenderer.printFile(name, normalizedRelativePath,
-                            childNode.getFileLength(), checksumOrNull, disableLinks);
+                            childNode.getFileLength(), checksumOrNull, shouldLinksBeDisabled(childNode, disableLinks));
                 }
             }
             directoryRenderer.printFooter();
@@ -608,6 +611,33 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         {
             IOUtils.closeQuietly(writer);
         }
+    }
+    
+    private boolean shouldLinksBeDisabled(IHierarchicalContentNode node, boolean disableLinks)
+    {
+        if (disableLinks)
+        {
+            return true;
+        }
+        IDatasetLocation dataSet = tryExtractDataSet(node);
+        if (dataSet != null && dataSet.getDataSetCode().equals(dataSet.getDataSetLocation()))
+        {
+            return true;
+        }
+        return disableLinks;
+    }
+    
+    private IDatasetLocation tryExtractDataSet(IHierarchicalContentNode node)
+    {
+        if (node instanceof VirtualHierarchicalContent.VirtualNode)
+        {
+            IHierarchicalContentNode wrappedNode = ((VirtualHierarchicalContent.VirtualNode) node).lastNode();
+            if (wrappedNode instanceof DataSetAwareHierarchicalContentNode)
+            {
+                return ((DataSetAwareHierarchicalContentNode) wrappedNode).getDataSet();
+            }
+        }
+        return null;
     }
 
     private void deliverFile(final HttpServletResponse response, String dataSetCode,
