@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -159,6 +158,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         container.addContained(dataSet3);
 
         final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();
+        final RecordingMatcher<List<IHierarchicalContent>> contentMatcher = new RecordingMatcher<List<IHierarchicalContent>>();
         context.checking(new Expectations()
             {
                 {
@@ -194,8 +194,8 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     will(throwException(new IllegalArgumentException("")));
                     one(shareIdManager).releaseLock(dataSet3Code);
 
-                    one(hierarchicalContentFactory).asVirtualHierarchicalContent(
-                            Arrays.asList(content2, content1)); // no content for dataSet3
+                    one(hierarchicalContentFactory).asVirtualHierarchicalContent(with(
+                            contentMatcher));
                 }
             });
 
@@ -210,6 +210,8 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     one(shareIdManager).releaseLock(dataSet2Code);
                 }
             });
+        List<IHierarchicalContent> contents = contentMatcher.recordedObject();
+        assertEquals(2, contents.size());
         actionMatcher.getRecordedObjects().get(0).execute();
         context.checking(new Expectations()
             {

@@ -253,11 +253,11 @@ public class DatasetDownloadServletTest
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME
                         + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
-                        + "+ s % ! # @/</td><td>" + directorySize + "</td><td></td></tr>"
+                        + "+ s % ! # @/</a></td><td>" + directorySize + "</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/" + ESCAPED_FILE_NAME_ENCODED + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
-                        + "read me @home.txt</td><td>12 bytes</td><td></td></tr>"
+                        + "read me @home.txt</a></td><td>12 bytes</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "",
                 output);
@@ -417,7 +417,7 @@ public class DatasetDownloadServletTest
         assertEquals(
                 "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><table> <tr><td class='td_hd'>Folder:</td><td>+ s % ! # @</td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>..</td><td></td><td></td></tr>"
+                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>..</a></td><td></td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR,
