@@ -85,6 +85,11 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sample;
     }
 
+    public void clearSampleCache()
+    {
+        sampleByIdentifierCache.clear();
+    }
+
     protected SamplePE tryToGetSampleByIdentifier(final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Sample identifier unspecified.";
