@@ -32,13 +32,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			"PhysicalDataCreation" : "Java class ignored: ",
 			"DataSetFileDownload" : "Java class not implemented in JS: ",
 			"DataSetFileDownloadOptions" : "Java class not implemented in JS: ",
-			"DataSetFileDownloadReader" : "Java class not implemented in JS: ",
-			"DataSetFileSearchCriteria" : "Java class not implemented in JS: ",
-			"DataSetFile" : "Java class not implemented in JS: ",
-			"DataSetFilePermId" : "Java class not implemented in JS: ",
-			"IDataSetFileId" : "Java class not implemented in JS: ",
-			"DataSetFileFetchOptions" : "Java class not implemented in JS: ",
-			"DataSetFileSortOptions" : "Java class not implemented in JS: ",
+			"DataSetFileDownloadReader" : "Java class not implemented in JS: "
 		}
 
 		//

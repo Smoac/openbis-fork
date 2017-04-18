@@ -311,26 +311,16 @@ public class DataStoreServer
                 serverPath);
 
         //
-        // export the API via JSON
+        // export the V1 JSON API
         //
         String jsonRpcV1Suffix = rpcV1Suffix + ".json";
         String jsonRpcV1Path = DataStoreApiUrlUtilities.getUrlForRpcService(jsonRpcV1Suffix);
         JsonServiceExporter jsonV1ServiceExporter = new JsonServiceExporter();
         jsonV1ServiceExporter.setService(service);
         jsonV1ServiceExporter.setServiceInterface(IDssServiceRpcGeneric.class);
-        jsonV1ServiceExporter
-                .setApplicationContext((org.springframework.context.ApplicationContext) ServiceProvider
-                        .getApplicationContext());
-
-        //
-        // export the V3 API
-        //
-        String rpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.SERVICE_URL);
-        HttpInvokerServiceExporter v3ServiceExporter = ServiceProvider.getDssServiceV3();
-        // TODO: 24.06.2015 Include the V3 service in name-server
-        // IDataStoreServerApi serviceV3 = (IDataStoreServerApi) v3ServiceExporter .getService();
-        context.addServlet(new ServletHolder(new HttpInvokerServlet(v3ServiceExporter, rpcV3Path)),
-                rpcV3Path);
+        jsonV1ServiceExporter.setObjectMapper(ServiceProvider.getObjectMapperV1());
+        jsonV1ServiceExporter.setApplicationContext((org.springframework.context.ApplicationContext) ServiceProvider
+                .getApplicationContext());
 
         try
         {
@@ -341,10 +331,30 @@ public class DataStoreServer
                     + ex.getMessage(), ex);
         }
 
+        //
+        // export the V3 API
+        //
+        String rpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.SERVICE_URL);
+        HttpInvokerServiceExporter v3ServiceExporter = ServiceProvider.getDssServiceV3();
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(v3ServiceExporter, rpcV3Path)),
+                rpcV3Path);
+
+        //
+        // export the V3 JSON API
+        //
+        String jsonRpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.JSON_SERVICE_URL);
+        JsonServiceExporter jsonV3ServiceExporter = ServiceProvider.getDssServiceJsonV3();
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV3ServiceExporter, jsonRpcV3Path)),
+                jsonRpcV3Path);
+
+        // filters
+
         context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV1ServiceExporter,
                 jsonRpcV1Path)), jsonRpcV1Path);
         context.addFilter(DssCrossOriginFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(InitializeRequestContextHolderFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+
+        // name service
 
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();

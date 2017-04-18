@@ -192,6 +192,8 @@ var sources = [
 	'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
 	'as/dto/datastore/fetchoptions/DataStoreSortOptions',
 	'as/dto/datastore/id/DataStorePermId',
+	'as/dto/datastore/search/DataStoreSearchCriteria',
+	
 	'as/dto/deletion/DeletedObject',
 	'as/dto/deletion/Deletion',
 	'as/dto/deletion/fetchoptions/DeletedObjectFetchOptions',
@@ -344,7 +346,14 @@ var sources = [
 	'as/dto/vocabulary/create/VocabularyTermCreation',
 	'as/dto/vocabulary/delete/VocabularyTermDeletionOptions',
 	'as/dto/vocabulary/delete/VocabularyTermReplacement',
-	'as/dto/vocabulary/update/VocabularyTermUpdate'
+	'as/dto/vocabulary/update/VocabularyTermUpdate',
+	
+	'dss/dto/datasetfile/DataSetFile',
+	'dss/dto/datasetfile/fetchoptions/DataSetFileSortOptions',
+	'dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions',
+	'dss/dto/datasetfile/id/DataSetFilePermId',
+	'dss/dto/datasetfile/search/DataSetFileSearchCriteria'
+
  ];
 
 define(sources, 

@@ -116,7 +116,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createExperimentTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert);
 			var code = c.generateId("EXPERIMENT_TYPE");
 
 			var fCreate = function(facade) {
@@ -183,7 +183,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createSampleTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert);
 			var code = c.generateId("SAMPLE_TYPE");
 
 			var fCreate = function(facade) {
@@ -241,7 +241,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createDataSetTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert);
 			var code = c.generateId("DATA_SET_TYPE");
 
 			var fCreate = function(facade) {
@@ -313,7 +313,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		});
 
 		QUnit.test("createMaterialTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert);
 			var code = c.generateId("MATERIAL_TYPE");
 
 			var fCreate = function(facade) {

@@ -40,6 +40,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
@@ -162,6 +165,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeleti
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetTypeMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataStoreMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentTypeMethodExecutor;
@@ -239,7 +243,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateExperimentTypeMethodExecutor createExperimentTypeExecutor;
-    
+
     @Autowired
     private ICreateSampleMethodExecutor createSampleExecutor;
 
@@ -248,7 +252,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateDataSetMethodExecutor createDataSetExecutor;
-    
+
     @Autowired
     private ICreateDataSetTypeMethodExecutor createDataSetTypeExecutor;
 
@@ -257,7 +261,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateMaterialTypeMethodExecutor createMaterialTypeExecutor;
-    
+
     @Autowired
     private ICreateVocabularyTermMethodExecutor createVocabularyTermExecutor;
 
@@ -347,6 +351,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchTagMethodExecutor searchTagExecutor;
+
+    @Autowired
+    private ISearchDataStoreMethodExecutor searchDataStoreExecutor;
 
     @Autowired
     private ISearchCustomASServiceMethodExecutor searchCustomASServiceExecutor;
@@ -456,7 +463,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
-    public List<ProjectPermId> createProjects(String sessionToken, @AuthorizationGuard(guardClass = V3ProjectCreationPredicate.class) List<ProjectCreation> creations)
+    public List<ProjectPermId> createProjects(String sessionToken,
+            @AuthorizationGuard(guardClass = V3ProjectCreationPredicate.class) List<ProjectCreation> creations)
     {
         return createProjectExecutor.create(sessionToken, creations);
     }
@@ -466,7 +474,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
-    public List<ExperimentPermId> createExperiments(String sessionToken, @AuthorizationGuard(guardClass = V3ExperimentCreationPredicate.class) List<ExperimentCreation> creations)
+    public List<ExperimentPermId> createExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = V3ExperimentCreationPredicate.class) List<ExperimentCreation> creations)
     {
         return createExperimentExecutor.create(sessionToken, creations);
     }
@@ -486,7 +495,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SAMPLE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public List<SamplePermId> createSamples(String sessionToken, @AuthorizationGuard(guardClass = V3SampleCreationPredicate.class) List<SampleCreation> creations)
+    public List<SamplePermId> createSamples(String sessionToken,
+            @AuthorizationGuard(guardClass = V3SampleCreationPredicate.class) List<SampleCreation> creations)
     {
         return createSampleExecutor.create(sessionToken, creations);
     }
@@ -504,7 +514,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     // @RolesAllowed intentionally omitted. Authorization is done in CreateDataSetMethodExecutor.
-    @Capability("CREATE_DATASET") 
+    @Capability("CREATE_DATASET")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> creations)
     {
@@ -585,7 +595,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
-    public void updateExperiments(String sessionToken, @AuthorizationGuard(guardClass = V3ExperimentUpdatePredicate.class) List<ExperimentUpdate> updates)
+    public void updateExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = V3ExperimentUpdatePredicate.class) List<ExperimentUpdate> updates)
     {
         updateExperimentExecutor.update(sessionToken, updates);
     }
@@ -809,11 +820,20 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public SearchResult<DataStore> searchDataStores(String sessionToken, DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions)
+    {
+        return searchDataStoreExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SPACE")
-    public void deleteSpaces(String sessionToken, @AuthorizationGuard(guardClass = V3SpaceDeletePredicate.class) List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
+    public void deleteSpaces(String sessionToken, @AuthorizationGuard(guardClass = V3SpaceDeletePredicate.class) List<? extends ISpaceId> spaceIds,
+            SpaceDeletionOptions deletionOptions)
     {
         deleteSpaceExecutor.delete(sessionToken, spaceIds, deletionOptions);
     }
@@ -823,7 +843,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROJECT, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_PROJECT")
-    public void deleteProjects(String sessionToken, @AuthorizationGuard(guardClass = V3ProjectDeletePredicate.class) List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
+    public void deleteProjects(String sessionToken,
+            @AuthorizationGuard(guardClass = V3ProjectDeletePredicate.class) List<? extends IProjectId> projectIds,
+            ProjectDeletionOptions deletionOptions)
     {
         deleteProjectExecutor.delete(sessionToken, projectIds, deletionOptions);
     }
@@ -833,7 +855,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_EXPERIMENT")
-    public IDeletionId deleteExperiments(String sessionToken, @AuthorizationGuard(guardClass = V3ExperimentDeletePredicate.class) List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
+    public IDeletionId deleteExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = V3ExperimentDeletePredicate.class) List<? extends IExperimentId> experimentIds,
+            ExperimentDeletionOptions deletionOptions)
     {
         return deleteExperimentExecutor.delete(sessionToken, experimentIds, deletionOptions);
     }
@@ -843,7 +867,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SAMPLE")
-    public IDeletionId deleteSamples(String sessionToken, @AuthorizationGuard(guardClass = V3SampleDeletePredicate.class) List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
+    public IDeletionId deleteSamples(String sessionToken,
+            @AuthorizationGuard(guardClass = V3SampleDeletePredicate.class) List<? extends ISampleId> sampleIds,
+            SampleDeletionOptions deletionOptions)
     {
         return deleteSampleExecutor.delete(sessionToken, sampleIds, deletionOptions);
     }
@@ -853,7 +879,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_DATASET")
-    public IDeletionId deleteDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
+    public IDeletionId deleteDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds,
+            DataSetDeletionOptions deletionOptions)
     {
         return deleteDataSetExecutor.delete(sessionToken, dataSetIds, deletionOptions);
     }
@@ -902,7 +930,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REVERT_DELETION")
-    public void revertDeletions(String sessionToken, @AuthorizationGuard(guardClass = V3RevertDeletionPredicate.class) List<? extends IDeletionId> deletionIds)
+    public void revertDeletions(String sessionToken,
+            @AuthorizationGuard(guardClass = V3RevertDeletionPredicate.class) List<? extends IDeletionId> deletionIds)
     {
         revertDeletionExecutor.revert(sessionToken, deletionIds);
     }
@@ -912,7 +941,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CONFIRM_DELETION")
-    public void confirmDeletions(String sessionToken, @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> deletionIds)
+    public void confirmDeletions(String sessionToken,
+            @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> deletionIds)
     {
         confirmDeletionExecutor.confirm(sessionToken, deletionIds);
     }
@@ -960,7 +990,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("ARCHIVE_DATASET")
-    public void archiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    public void archiveDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
     {
         archiveDataSetExecutor.archive(sessionToken, dataSetIds, options);
     }
@@ -969,7 +1000,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UNARCHIVE_DATASET")
-    public void unarchiveDataSets(String sessionToken, @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    public void unarchiveDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = V3DataSetIdPredicate.class) List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
     {
         unarchiveDataSetExecutor.unarchive(sessionToken, dataSetIds, options);
     }
@@ -988,7 +1020,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         checkSession(sessionToken);
         Map<String, String> info = new HashMap<String, String>();
         info.put("api-version", getMajorVersion() + "." + getMinorVersion());
-//        info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
+        // info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
         info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
         // String disabledText = tryGetDisabledText();

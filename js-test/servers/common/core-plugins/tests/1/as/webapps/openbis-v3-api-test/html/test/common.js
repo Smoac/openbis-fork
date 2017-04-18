@@ -68,7 +68,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 		this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
 		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
+		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
+		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
 		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
@@ -538,6 +540,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			fo.withSamples();
 			fo.withDataSets();
 			fo.withMaterials();
+			return fo;
+		};
+		
+		this.createDataStoreFetchOptions = function() {
+			var fo = new dtos.DataStoreFetchOptions();
+			return fo;
+		};
+		
+		this.createDataSetFileFetchOptions = function() {
+			var fo = new dtos.DataSetFileFetchOptions();
 			return fo;
 		};
 

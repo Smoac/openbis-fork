@@ -2,7 +2,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 	return function() {
 		QUnit.module("Search tests");
 
-		var testSearch = function(c, fSearch, fCheck) {
+		var testSearch = function(c, fSearch, fCheck, fCheckError) {
 			c.start();
 
 			c.createFacadeAndLogin().then(function(facade) {
@@ -13,7 +13,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 					c.finish();
 				});
 			}).fail(function(error) {
-				c.fail(error.message);
+				if (fCheckError) {
+					fCheckError(error);
+				} else {
+					c.fail(error.message);
+				}
 				c.finish();
 			});
 		}
@@ -1038,6 +1042,152 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				var tag = tags[0];
 				c.assertEqual(tag.getCode(), "JS_TEST_METAPROJECT", "Code");
 				c.assertEqual(tag.getPermId().getPermId(), "/openbis_test_js/JS_TEST_METAPROJECT", "PermId");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+		
+		QUnit.test("searchDataStores() withEmptyCriteria", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataStoreSearchCriteria();
+				return facade.searchDataStores(criteria, c.createDataStoreFetchOptions());
+
+				facade.getDss().searchDataSetFiles();
+			}
+
+			var fCheck = function(facade, dataStores) {
+				c.assertEqual(dataStores.length, 2);
+				c.assertObjectsWithValues(dataStores, "code", [ "DSS1", "DSS2" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchDataStores() withCodeThatEquals", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataStoreSearchCriteria();
+				criteria.withCode().thatEquals("DSS1");
+				return facade.searchDataStores(criteria, c.createDataStoreFetchOptions());
+			}
+
+			var fCheck = function(facade, dataStores) {
+				c.assertEqual(dataStores.length, 1);
+				var dataStore = dataStores[0];
+				c.assertEqual(dataStore.getCode(), "DSS1", "Code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("dataStoreFacade.searchFiles() atNonexistentDataStore", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				return facade.getDataStoreFacade("I_DONT_EXIST", "ME_NEITHER").searchFiles(new c.DataSetFileSearchCriteria(), c.createDataSetFileFetchOptions());
+			}
+
+			var fCheckError = function(error) {
+				c.assertEqual(error, "No data stores found for codes: I_DONT_EXIST,ME_NEITHER");
+			}
+
+			testSearch(c, fSearch, null, fCheckError);
+		});
+
+		QUnit.test("dataStoreFacade.searchFiles() atOneChosenDataStore", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetFileSearchCriteria();
+				var dataSetCriteria = criteria.withDataSet();
+				dataSetCriteria.withOrOperator();
+
+				// at DSS1
+				dataSetCriteria.withCode().thatEquals("20130424111751209-430");
+				// at DSS2
+				dataSetCriteria.withCode().thatEquals("20130415093804724-403");
+
+				return facade.getDataStoreFacade("DSS1").searchFiles(criteria, c.createDataSetFileFetchOptions());
+			}
+
+			var fCheck = function(facade, files) {
+				c.assertEqual(files.length, 3);
+				c.assertObjectsWithValues(files, "path", [ "", "feature_lists", "feature_lists/NUMBER_FEATURE_LIST" ]);
+
+				files.forEach(function(file) {
+					c.assertEqual(file.getDataStore().getCode(), "DSS1");
+				});
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("dataStoreFacade.searchFiles() atMultipleChosenDataStores", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetFileSearchCriteria();
+				var dataSetCriteria = criteria.withDataSet();
+				dataSetCriteria.withOrOperator();
+
+				// at DSS1
+				dataSetCriteria.withCode().thatEquals("20130424111751209-430");
+				// at DSS2
+				dataSetCriteria.withCode().thatEquals("20130415093804724-403");
+
+				return facade.getDataStoreFacade("DSS1", "DSS2").searchFiles(criteria, c.createDataSetFileFetchOptions());
+			}
+
+			var fCheck = function(facade, files) {
+				c.assertEqual(files.length, 6);
+				c.assertObjectsWithValues(files, "path", [ "", "feature_lists", "feature_lists/NUMBER_FEATURE_LIST", "original", "original/emptyFile" ]);
+
+				files.forEach(function(file) {
+					if (file.getDataSetPermId().getPermId() == "20130424111751209-430") {
+						c.assertEqual(file.getDataStore().getCode(), "DSS1");
+					} else if (file.getDataSetPermId().getPermId() == "20130415093804724-403") {
+						c.assertEqual(file.getDataStore().getCode(), "DSS2");
+					} else {
+						c.fail();
+					}
+				});
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("dataStoreFacade.searchFiles() atAllAvailableDataStores", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetFileSearchCriteria();
+				var dataSetCriteria = criteria.withDataSet();
+				dataSetCriteria.withOrOperator();
+
+				// at DSS1
+				dataSetCriteria.withCode().thatEquals("20130424111751209-430");
+				// at DSS2
+				dataSetCriteria.withCode().thatEquals("20130415093804724-403");
+
+				return facade.getDataStoreFacade().searchFiles(criteria, c.createDataSetFileFetchOptions());
+			}
+
+			var fCheck = function(facade, files) {
+				c.assertEqual(files.length, 6);
+				c.assertObjectsWithValues(files, "path", [ "", "feature_lists", "feature_lists/NUMBER_FEATURE_LIST", "original", "original/emptyFile" ]);
+
+				files.forEach(function(file) {
+					if (file.getDataSetPermId().getPermId() == "20130424111751209-430") {
+						c.assertEqual(file.getDataStore().getCode(), "DSS1");
+					} else if (file.getDataSetPermId().getPermId() == "20130415093804724-403") {
+						c.assertEqual(file.getDataStore().getCode(), "DSS2");
+					} else {
+						c.fail();
+					}
+				});
 			}
 
 			testSearch(c, fSearch, fCheck);
