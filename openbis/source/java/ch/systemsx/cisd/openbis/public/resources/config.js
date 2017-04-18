@@ -8,8 +8,8 @@ var require = (function() {
 		for(var sIdx = 0; sIdx < scripts.length; sIdx++) {
 			var src = scripts[sIdx].src;
 			var substringEnd = -1;
-			if((substringEnd = src.indexOf("/api/v3/config.js")) > -1) {
-				baseUrl = src.substring(0, substringEnd);
+			if((substringEnd = src.indexOf("/resources/config.js")) > -1) {
+				baseUrl = src.substring(0, substringEnd+"/resources".length);
 			}
 		}
 		return baseUrl;
