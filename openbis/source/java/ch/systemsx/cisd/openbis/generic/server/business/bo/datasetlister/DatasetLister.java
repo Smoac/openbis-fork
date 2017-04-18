@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
@@ -1411,15 +1412,16 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         DatasetLocationNode rootNode = null;
         for (DatasetLocationNodeRecord record : records)
         {
-            DatasetLocation location = new DatasetLocation();
-            location.setDatasetCode(record.code);
+            DatasetLocation location;
             if (record.link_info == null)
             {
+                location = new DatasetLocation();
                 location.setDataSetLocation(record.location);
             } else
             {
-                location.setDataSetLocation(record.code);
+                location = new LinkDataSetLocation();
             }
+            location.setDatasetCode(record.code);
             location.setDataStoreCode(record.data_store_code);
             location.setDataStoreUrl(record.data_store_url);
             location.setOrderInContainer(record.ordinal);

@@ -40,12 +40,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.content.DssServiceRpcGenericF
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBOnlyHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.RemoteHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetLocation;
 
 /**
  * The default implementation of {@link IHierarchicalContentProvider}.
@@ -63,6 +65,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private IHierarchicalContentFactory hierarchicalContentFactory;
 
+    private IHierarchicalContentFactory hierarchicalContentFactoryForLinkedData;
+    
     private final ISessionTokenProvider sessionTokenProvider;
 
     private final String dataStoreCode;
@@ -313,7 +317,17 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                             datasetLocation.getDataSetCode());
                 }
             };
-        return asContent(dataSetDirectory, onCloseAction);
+        IHierarchicalContentFactory contentFactory = datasetLocation instanceof LinkDataSetLocation ?
+                getHierarchicalContentFactoryForLinkedData() :
+                getHierarchicalContentFactory();
+        try
+        {
+            return contentFactory.asHierarchicalContent(dataSetDirectory, onCloseAction);
+        } catch (RuntimeException ex)
+        {
+            onCloseAction.execute();
+            throw ex;
+        }
     }
 
     @Override
@@ -321,19 +335,6 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     {
         return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,
                 IDelegatedAction.DO_NOTHING);
-    }
-
-    public IHierarchicalContent asContent(File dataSetDirectory, IDelegatedAction onCloseAction)
-    {
-        try
-        {
-            return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,
-                    onCloseAction);
-        } catch (RuntimeException ex)
-        {
-            onCloseAction.execute();
-            throw ex;
-        }
     }
 
     private IHierarchicalContentFactory getHierarchicalContentFactory()
@@ -345,4 +346,13 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return hierarchicalContentFactory;
     }
 
+    private IHierarchicalContentFactory getHierarchicalContentFactoryForLinkedData()
+    {
+        if (hierarchicalContentFactoryForLinkedData == null)
+        {
+            hierarchicalContentFactoryForLinkedData = PathInfoDBOnlyHierarchicalContentFactory.create();
+        }
+        return hierarchicalContentFactoryForLinkedData;
+    }
+    
 }
