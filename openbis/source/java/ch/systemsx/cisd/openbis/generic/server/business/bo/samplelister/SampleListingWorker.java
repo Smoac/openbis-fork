@@ -16,17 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -58,6 +51,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.DataIterator;
+
 /**
  * A business worker object for fast sample listing. It has only one interface method, which is {@link #load()}. This method deals with
  * <ul>
@@ -83,10 +82,6 @@ final class SampleListingWorker extends AbstractLister
     //
     // Input
     //
-
-    private final long databaseInstanceId;
-
-    private final DatabaseInstance databaseInstance;
 
     private final ListOrSearchSampleCriteria criteria;
 
@@ -130,8 +125,6 @@ final class SampleListingWorker extends AbstractLister
 
     private final Long2ObjectOpenHashMap<SampleType> sampleTypes =
             new Long2ObjectOpenHashMap<SampleType>();
-
-    private final Long2ObjectMap<Experiment> experiments = new Long2ObjectOpenHashMap<Experiment>();
 
     private final LongSet idsOfSamplesAwaitingParentResolution = new LongOpenHashSet();
 
@@ -189,8 +182,6 @@ final class SampleListingWorker extends AbstractLister
 
         this.criteria = criteria;
         this.baseIndexURL = baseIndexURL;
-        this.databaseInstanceId = databaseInstanceId;
-        this.databaseInstance = databaseInstance;
         this.query = query;
         this.samplePropertiesEnricherOrNull = samplePropertiesEnricherOrNull;
         this.enrichDependentSamples = criteria.isEnrichDependentSamplesWithProperties();
@@ -356,13 +347,6 @@ final class SampleListingWorker extends AbstractLister
             this.maxSampleParentResolutionDepth = sampleTypeOrNull.getGeneratedFromHierarchyDepth();
         }
 
-    }
-
-    private Experiment createAndSaveExperiment(final long experimentId)
-    {
-        final Experiment experiment = referencedEntityDAO.tryGetExperiment(experimentId);
-        experiments.put(experimentId, experiment);
-        return experiment;
     }
 
     private SampleType tryGetSingleModeSampleType()
@@ -635,9 +619,20 @@ final class SampleListingWorker extends AbstractLister
         }
         final boolean primarySample = (sampleListOrNull != null);
 
+        List<SampleRecord> records = new ArrayList<>();
+        LongSet expIds = new LongOpenHashSet();
         for (SampleRecord row : sampleIteratorOrNull)
         {
-            final Sample sampleOrNull = tryCreateSample(row, primarySample);
+            records.add(row);
+            if (row.expe_id != null)
+            {
+                expIds.add(row.expe_id);
+            }
+        }
+        Long2ObjectMap<Experiment> experimentsById = referencedEntityDAO.getExperiments(expIds);
+        for (SampleRecord row : records)
+        {
+            final Sample sampleOrNull = tryCreateSample(row, experimentsById, primarySample);
             if (sampleOrNull != null) // null == different db instance
             {
                 sampleMap.put(sampleOrNull.getId(), sampleOrNull);
@@ -649,7 +644,8 @@ final class SampleListingWorker extends AbstractLister
         }
     }
 
-    private Sample tryCreateSample(SampleRecord row, final boolean primarySample)
+    private Sample tryCreateSample(SampleRecord row, Long2ObjectMap<Experiment> experimentsById, 
+            final boolean primarySample)
     {
         final Sample sample = new Sample();
         sample.setId(row.id);
@@ -690,7 +686,7 @@ final class SampleListingWorker extends AbstractLister
             sample.setModifier(getOrCreateActor(row.pers_id_modifier));
             if (row.expe_id != null)
             {
-                sample.setExperiment(getOrCreateExperiment(row));
+                sample.setExperiment(experimentsById.get(row.expe_id));
             }
         }
         // prepare loading related samples
@@ -754,16 +750,6 @@ final class SampleListingWorker extends AbstractLister
     private void addRelatedParentSampleToRequested(long parentId)
     {
         idsOfRequestedParentSamples.add(parentId);
-    }
-
-    private Experiment getOrCreateExperiment(SampleRecord row)
-    {
-        Experiment experiment = experiments.get(row.expe_id);
-        if (experiment == null)
-        {
-            experiment = createAndSaveExperiment(row.expe_id);
-        }
-        return experiment;
     }
 
     private void retrieveDependentSamplesRecursively(boolean primary)
