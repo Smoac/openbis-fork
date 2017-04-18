@@ -1,4 +1,5 @@
-	define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
+define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions', 'as/dto/common/search/SearchResult' ], function(jquery,
+		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult) {
 	jquery.noConflict();
 
 	var __private = function() {
@@ -88,6 +89,82 @@
 			if (console) {
 				console.log(msg);
 			}
+		}
+	}
+	
+	var dataStoreFacade = function(facade, dataStoreCodes) {
+
+		this._getDataStoreUrls = function() {
+			if (this._dataStoreUrls) {
+				var dfd = jquery.Deferred();
+				dfd.resolve(this._dataStoreUrls);
+				return dfd.promise();
+			} else {
+				var thisFacade = this;
+				var criteria = new DataStoreSearchCriteria();
+				criteria.withOrOperator();
+
+				for (var i = 0; i < dataStoreCodes.length; i++) {
+					criteria.withCode().thatEquals(dataStoreCodes[i]);
+				}
+
+				return facade.searchDataStores(criteria, new DataStoreFetchOptions()).then(function(results) {
+					var dataStores = results.getObjects();
+					var dfd = jquery.Deferred();
+
+					if (dataStores && dataStores.length > 0) {
+						var dataStoreUrls = dataStores.map(function(dataStore) {
+							return dataStore.downloadUrl + "/datastore_server/rmi-data-store-server-v3.json";
+						});
+						thisFacade._dataStoreUrls = dataStoreUrls;
+						dfd.resolve(dataStoreUrls);
+					} else {
+						if (dataStoreCodes.length > 0) {
+							dfd.reject("No data stores found for codes: " + dataStoreCodes);
+						} else {
+							dfd.reject("No data stores found");
+						}
+					}
+
+					return dfd.promise();
+				});
+			}
+		}
+
+		this.searchFiles = function(criteria, fetchOptions) {
+			return this._getDataStoreUrls().then(function(dataStoreUrls) {
+				var promises = dataStoreUrls.map(function(dataStoreUrl) {
+					return facade._private.ajaxRequest({
+						url : dataStoreUrl,
+						data : {
+							"method" : "searchFiles",
+							"params" : [ facade._private.sessionToken, criteria, fetchOptions ]
+						},
+						returnType : "SearchResult"
+					});
+				});
+
+				return jquery.when.apply(jquery, promises).then(function() {
+					var objects = [];
+					var totalCount = 0;
+
+					for (var i = 0; i < arguments.length; i++) {
+						var result = arguments[i];
+
+						if (result.getObjects()) {
+							Array.prototype.push.apply(objects, result.getObjects());
+						}
+						if (result.getTotalCount()) {
+							totalCount += result.getTotalCount();
+						}
+					}
+
+					var combinedResult = new SearchResult();
+					combinedResult.setObjects(objects);
+					combinedResult.setTotalCount(totalCount);
+					return combinedResult;
+				});
+			});
 		}
 	}
 
@@ -713,6 +790,18 @@
 				returnType : "SearchResult"
 			});
 		}
+		
+		this.searchDataStores = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchDataStores",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
 
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
@@ -884,6 +973,14 @@
 					"params" : [ thisFacade._private.sessionToken]
 				}
 			});
+		}
+		
+		this.getDataStoreFacade = function() {
+			var dataStoreCodes = [];
+			for (var i = 0; i < arguments.length; i++) {
+				dataStoreCodes.push(arguments[i]);
+			}
+			return new dataStoreFacade(this, dataStoreCodes);
 		}
 		
 		this.getMajorVersion = function() {

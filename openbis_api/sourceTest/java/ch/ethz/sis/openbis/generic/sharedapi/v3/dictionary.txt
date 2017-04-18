@@ -1265,3 +1265,7 @@ create Experiment Types
 create Material Types
 Experiment Type Creation
 Material Type Creation
+DataStoreSearchCriteria
+searchDataStores
+SearchDataStoresOperation
+SearchDataStoresOperationResult

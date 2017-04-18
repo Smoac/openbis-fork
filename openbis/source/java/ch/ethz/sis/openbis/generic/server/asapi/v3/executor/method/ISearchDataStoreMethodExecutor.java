@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 
 /**
- * Holds information that uniquely identifies a data set file in openBIS.
- * 
  * @author pkupczyk
  */
-@JsonObject("dss.dto.datasetfile.id.IDataSetFileId")
-public interface IDataSetFileId extends IObjectId
+public interface ISearchDataStoreMethodExecutor extends ISearchMethodExecutor<DataStore, DataStoreSearchCriteria, DataStoreFetchOptions>
 {
 
 }

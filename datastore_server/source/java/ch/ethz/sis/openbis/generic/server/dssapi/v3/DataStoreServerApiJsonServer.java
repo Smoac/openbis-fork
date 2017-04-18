@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,33 +26,41 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
-import ch.systemsx.cisd.openbis.common.api.server.AbstractStreamSupportingApiServiceExporter;
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
+import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
-@Controller(value = DataStoreServerApiServer.INTERNAL_BEAN_NAME)
-public class DataStoreServerApiServer extends AbstractStreamSupportingApiServiceExporter
+@Controller(value = DataStoreServerApiJsonServer.INTERNAL_BEAN_NAME)
+public class DataStoreServerApiJsonServer extends AbstractApiJsonServiceExporter
 {
 
-    public static final String INTERNAL_BEAN_NAME = "v3-exporter";
+    public static final String INTERNAL_BEAN_NAME = "v3-exporter-json";
 
-    @Resource(name = DataStoreServerApi.INTERNAL_SERVICE_NAME)
+    @Resource(name = ObjectMapperResource.NAME)
+    private ObjectMapper objectMapper;
+
+    @Resource(name = DataStoreServerApiJson.INTERNAL_SERVICE_NAME)
     private IDataStoreServerApi service;
 
     @Override
-    public void afterPropertiesSet()
+    public void afterPropertiesSet() throws Exception
     {
+        setObjectMapper(objectMapper);
         establishService(IDataStoreServerApi.class, service, IDataStoreServerApi.SERVICE_NAME,
-                IDataStoreServerApi.SERVICE_URL);
+                IDataStoreServerApi.JSON_SERVICE_URL);
         super.afterPropertiesSet();
     }
 
-    @RequestMapping({ IDataStoreServerApi.SERVICE_URL, "/datastore_server" + IDataStoreServerApi.SERVICE_URL })
+    @RequestMapping({ IDataStoreServerApi.JSON_SERVICE_URL, "/datastore_server" + IDataStoreServerApi.JSON_SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
+            throws ServletException,
+            IOException
     {
         super.handleRequest(request, response);
     }

@@ -12,9 +12,15 @@ define([ "stjs" ], function(stjs) {
 		prototype.getObjects = function() {
 			return this.objects;
 		};
+		prototype.setObjects = function(objects) {
+			this.objects = objects;
+		};
 		prototype.getTotalCount = function() {
 			return this.totalCount;
-		}
+		};
+		prototype.setTotalCount = function(totalCount) {
+			this.totalCount = totalCount;
+		};
 	}, {
 		objects : {
 			name : "Collection",

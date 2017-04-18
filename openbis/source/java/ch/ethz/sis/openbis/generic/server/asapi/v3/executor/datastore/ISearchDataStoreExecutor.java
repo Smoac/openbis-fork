@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
- * Holds information that uniquely identifies a data set file in openBIS.
- * 
  * @author pkupczyk
  */
-@JsonObject("dss.dto.datasetfile.id.IDataSetFileId")
-public interface IDataSetFileId extends IObjectId
+public interface ISearchDataStoreExecutor extends ISearchObjectExecutor<DataStoreSearchCriteria, DataStorePE>
 {
 
 }
