@@ -71,6 +71,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
@@ -546,13 +547,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @FieldBridge(impl = NullBridge.class)
     private Long getExperimentId()
     {
-        Long result = null;
-        if (getExperimentInternal() != null)
-        {
-            result = HibernateUtils.getId(getExperimentInternal());
-            assert result != null;
-        }
-        return result;
+        return getId(getExperimentInternal());
     }
 
     // used only by Hibernate Search
@@ -562,15 +557,30 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @FieldBridge(impl = NullBridge.class)
     private Long getProjectId()
     {
+        return getId(getProject());
+    }
+
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.SPACE_ID)
+    @FieldBridge(impl = NullBridge.class)
+    private Long getSpaceId()
+    {
+        return getId(getSpace());
+    }
+    
+    private Long getId(IIdHolder idHolder)
+    {
         Long result = null;
-        if (getProject() != null)
+        if (idHolder != null)
         {
-            result = HibernateUtils.getId(getProject());
+            result = HibernateUtils.getId(idHolder);
             assert result != null;
         }
         return result;
     }
-
+    
     //
     // IIdAndCodeHolder
     //

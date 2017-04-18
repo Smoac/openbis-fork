@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.search;
 
+import java.util.Collection;
 import java.util.EnumSet;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.NoSpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.AbstractFieldFromCompositeSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.IObjectAttributeProviderFactory;
@@ -26,15 +29,21 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.Sear
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchObjectKind;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SimpleAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * @author pkupczyk
  */
 public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSearchCriteriaTranslator
 {
+    private static final DetailedSearchField SPACE_ID_FIELD = DetailedSearchField.createAttributeField(
+            new SimpleAttributeSearchFieldKind(SearchFieldConstants.SPACE_ID, "Space ID"));
 
     private static final EnumSet<SearchObjectKind> ENTITY_KINDS_WITH_SPACE = EnumSet.of(SearchObjectKind.EXPERIMENT, SearchObjectKind.SAMPLE);
 
@@ -46,16 +55,26 @@ public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSea
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof SpaceSearchCriteria;
+        return criteria instanceof NoSpaceSearchCriteria || criteria instanceof SpaceSearchCriteria;
     }
 
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (ENTITY_KINDS_WITH_SPACE.contains(context.peekObjectKind()) == false)
+        SearchObjectKind peekObjectKind = context.peekObjectKind();
+        if (ENTITY_KINDS_WITH_SPACE.contains(peekObjectKind) == false)
         {
             throw new IllegalArgumentException("Space criteria can be used only in experiment and sample criteria, "
-                    + "but was used in: " + context.peekObjectKind() + " context.");
+                    + "but was used in: " + peekObjectKind + " context.");
+        }
+        if (criteria instanceof NoSpaceSearchCriteria)
+        {
+            if (SearchObjectKind.SAMPLE.equals(peekObjectKind) == false)
+            {
+                throw new IllegalArgumentException("No space criteria can be used only in "
+                        + "sample search criteria, but was used in: " + peekObjectKind + " context.");
+            }
+            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(SPACE_ID_FIELD, NullBridge.NULL));
         }
         return super.doTranslate(context, criteria);
     }

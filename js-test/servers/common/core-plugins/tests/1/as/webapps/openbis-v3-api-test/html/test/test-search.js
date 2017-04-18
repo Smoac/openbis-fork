@@ -373,20 +373,36 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}, fo);
 		});
 
-		QUnit.test("searchSamples() withoutExperiment", function(assert) {
+		QUnit.test("searchSamples() withoutSpace", function(assert) {
 			var c = new common(assert, openbis);
 
+			var fSearch = function(facade) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withoutSpace();
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "identifier", [ "/MASTER_PLATE" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+		
+		QUnit.test("searchSamples() withoutExperiment", function(assert) {
+			var c = new common(assert, openbis);
+			
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
 				criteria.withCode().thatStartsWith("TEST-SAMPLE");
 				criteria.withoutExperiment();
 				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
-
+			
 			var fCheck = function(facade, samples) {
 				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1-CONTAINED-2", "TEST-SAMPLE-1" ]);
 			}
-
+			
 			testSearch(c, fSearch, fCheck);
 		});
 

@@ -18,6 +18,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			var SpaceSearchCriteria = require("as/dto/space/search/SpaceSearchCriteria");
 			return this.addCriteria(new SpaceSearchCriteria());
 		};
+		prototype.withoutSpace = function() {
+			var NoSpaceSearchCriteria = require("as/dto/space/search/NoSpaceSearchCriteria");
+			return this.addCriteria(new NoSpaceSearchCriteria());
+		};
 		prototype.withProject = function() {
 			var ProjectSearchCriteria = require("as/dto/project/search/ProjectSearchCriteria");
 			return this.addCriteria(new ProjectSearchCriteria());

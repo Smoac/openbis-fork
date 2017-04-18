@@ -99,13 +99,35 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchForAll()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        testSearch(TEST_USER, criteria, 701);
+    }
+
+    @Test
+    public void testSearchForAllSpaceSamples()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withSpace().withCode();
+        testSearch(TEST_USER, criteria, 379);
+    }
+    
+    @Test
+    public void testSearchWithoutSpace()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria().withoutSpace();
+        testSearch(TEST_USER, criteria, 322);
+    }
+    
+    @Test
     public void testSearchWithSpaceWithIdSetToPermId()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
         testSearch(TEST_USER, criteria, 8);
     }
-
+    
     @Test
     public void testSearchWithSpaceWithCode()
     {
