@@ -114,8 +114,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     // Input
     //
 
-    private final DatabaseInstance databaseInstance;
-
     private final String baseIndexURL;
 
     private final Long userId;
@@ -180,7 +178,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         assert databaseInstance != null;
         assert query != null;
 
-        this.databaseInstance = databaseInstance;
         this.query = query;
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
@@ -358,7 +355,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             result.put(sample, new ArrayList<AbstractExternalData>());
             sampleIDs.add(sample.getId());
         }
-        List<AbstractExternalData> rootDataSets = listBySampleIds(sampleIDs);
+        List<AbstractExternalData> rootDataSets = listBySampleIds(sampleIDs, 
+                EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PROPERTIES));
         addChildren(rootDataSets);
         for (AbstractExternalData dataSet : rootDataSets)
         {
@@ -398,7 +396,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
         if (childIDs.isEmpty() == false)
         {
-            List<AbstractExternalData> children = listByDatasetIds(childIDs);
+            List<AbstractExternalData> children = listByDatasetIds(childIDs, 
+                    EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PROPERTIES));
             for (AbstractExternalData child : children)
             {
                 Set<Long> parentIDs = child2ParentsMap.get(child.getId());
@@ -1009,7 +1008,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             }
         }
     }
-
+    
     private void enrichWithContainers(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         Set<Long> containersNotLoaded = new HashSet<Long>();
