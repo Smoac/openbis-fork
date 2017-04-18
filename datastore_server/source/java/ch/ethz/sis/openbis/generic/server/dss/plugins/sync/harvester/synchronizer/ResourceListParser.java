@@ -405,7 +405,10 @@ public class ResourceListParser
 
     private SpaceIdentifier createSpaceIdentifier(String space)
     {
-        return new SpaceIdentifier(nameTranslator.translate(space));
+        assert space != null : "Space id cannot be null";
+        String translatedSpaceId = nameTranslator.translate(space);
+        data.getHarvesterSpaceList().add(translatedSpaceId);
+        return new SpaceIdentifier(translatedSpaceId);
     }
 
     private void parseMaterialMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
@@ -571,13 +574,7 @@ public class ResourceListParser
 
     private String extractSpace(Node xdNode, boolean nullAllowed)
     {
-        String space = extractAttribute(xdNode, "space", nullAllowed);
-        if (space != null)
-        {
-            // space = nameTranslator.translate(space);
-            data.getHarvesterSpaceList().add(space);
-        }
-        return space;
+        return extractAttribute(xdNode, "space", nullAllowed);
     }
 
     private String extractPermIdFromURI(String uri) throws XPathExpressionException
