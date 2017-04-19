@@ -72,7 +72,13 @@ public class SynchronizationConfigReader
 
     private static final String EMAIL_ADDRESSES_PROPERTY_NAME = "email-addresses";
 
-    private static final String TRANSLATE_USING_DATA_SOURCE_ALIAS = "translate-using-data-source-alias";
+    private static final String TRANSLATE_USING_DATA_SOURCE_ALIAS_PROPERTY_NAME = "translate-using-data-source-alias";
+    
+    private static final String FULL_SYNC_PROPERTY_NAME = "full-sync";
+
+    private static final String FULL_SYNC_INTERVAL_PROPERTY_NAME = "full-sync-interval";
+
+    private Integer defaultFullSyncIntervalInDays = 14;
 
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
 
@@ -125,7 +131,14 @@ public class SynchronizationConfigReader
             }
 
             config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, DEFAULT_HARVESTER_TEMP_DIR, false));
-            config.setTranslateUsingDataSourceAlias(reader.getBoolean(section, TRANSLATE_USING_DATA_SOURCE_ALIAS, false));
+            config.setTranslateUsingDataSourceAlias(reader.getBoolean(section, TRANSLATE_USING_DATA_SOURCE_ALIAS_PROPERTY_NAME, false));
+
+            boolean fullSync = reader.getBoolean(section, FULL_SYNC_PROPERTY_NAME, false);
+            config.setFullSync(fullSync);
+            if (fullSync)
+            {
+                config.setFullSyncInterval(reader.getInt(section, FULL_SYNC_INTERVAL_PROPERTY_NAME, defaultFullSyncIntervalInDays, false));
+            }
 
             defaultLastSyncTimestampFileName = defaultLastSyncTimestampFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
             config.setLastSyncTimestampFileName(

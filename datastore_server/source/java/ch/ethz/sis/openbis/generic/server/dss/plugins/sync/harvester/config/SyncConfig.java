@@ -201,6 +201,10 @@ public class SyncConfig
 
     private Boolean translateUsingDataSourceAlias = false;
 
+    private Boolean fullSync = false;
+
+    private Integer fullSyncInterval;
+
     private List<String> dataSourceSpaces = new ArrayList<>();
 
     private List<String> harvesterSpaces = new ArrayList<>();
@@ -271,6 +275,26 @@ public class SyncConfig
     public void setTranslateUsingDataSourceAlias(Boolean translateUsingDataSourceAlias)
     {
         this.translateUsingDataSourceAlias = translateUsingDataSourceAlias;
+    }
+
+    public Boolean getFullSync()
+    {
+        return fullSync;
+    }
+
+    public void setFullSync(Boolean fullSync)
+    {
+        this.fullSync = fullSync;
+    }
+
+    public Integer getFullSyncInterval()
+    {
+        return fullSyncInterval;
+    }
+
+    public void setFullSyncInterval(Integer fullSyncInterval)
+    {
+        this.fullSyncInterval = fullSyncInterval;
     }
 
 }
