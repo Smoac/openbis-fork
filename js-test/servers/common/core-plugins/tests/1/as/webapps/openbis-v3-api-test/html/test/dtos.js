@@ -321,6 +321,7 @@ var sources = [
 	'as/dto/space/fetchoptions/SpaceFetchOptions',
 	'as/dto/space/fetchoptions/SpaceSortOptions',
 	'as/dto/space/id/SpacePermId',
+	'as/dto/space/search/NoSpaceSearchCriteria',
 	'as/dto/space/search/SpaceSearchCriteria',
 	'as/dto/space/Space',
 	'as/dto/space/update/SpaceUpdate',

@@ -373,6 +373,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			}, fo);
 		});
 
+		QUnit.test("searchSamples() withoutSpace", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withoutSpace();
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "identifier", [ "/MASTER_PLATE" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchSamples() withoutExperiment", function(assert) {
 			var c = new common(assert);
 
