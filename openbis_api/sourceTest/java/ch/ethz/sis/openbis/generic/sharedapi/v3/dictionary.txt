@@ -877,6 +877,8 @@ withoutContainer
 withoutExperiment
 withoutProject
 withoutSample
+without Space
+No Space Search Criteria
 withOwner
 withOwnerUsing
 withParents
