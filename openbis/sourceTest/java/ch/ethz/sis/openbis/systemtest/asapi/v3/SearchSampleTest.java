@@ -114,7 +114,7 @@ public class SearchSampleTest extends AbstractSampleTest
     }
     
     @Test
-    public void testSearchWithoutSpace()
+    public void testSearchForAllSharedSamples()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria().withoutSpace();
         testSearch(TEST_USER, criteria, 322);
