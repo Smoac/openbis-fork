@@ -39,6 +39,7 @@ import org.apache.commons.lang.time.DateUtils;
 import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -48,6 +49,9 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+
+// v3
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 
 /**
  * @author Tomasz Pylak
@@ -76,6 +80,10 @@ public class TrackingClient
     public static final String CL_PARAMETER_REMOVE_LANES = "remove";
     
     public static final String CL_PARAMETER_LIST_SPACES = "list_spaces";
+    
+    private static IApplicationServerApi v3;
+
+    private static String v3SessionToken;
     
     public static void main(String[] args)
     {
@@ -180,6 +188,10 @@ public class TrackingClient
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);
         SessionContextDTO session = authentificateInOpenBIS(params, trackingServer);
+        // also login to the v3 API 
+        IApplicationServerApi v3 = initV3(params);
+        v3SessionToken = v3.login(params.getOpenbisUser(), params.getOpenbisPassword());
+       
 
         IEntityTrackingEmailGenerator emailGenerator =
                 new EntityTrackingEmailGenerator(props, retrieveEmailTemplate(), session);
@@ -188,7 +200,7 @@ public class TrackingClient
 
         ITrackingDAO trackingDAO = new FileBasedTrackingDAO(LOCAL_SAMPLE_DB, LOCAL_DATASET_DB);
 
-        trackingBO.trackAndNotify(trackingDAO, commandLineMap, params, session);
+        trackingBO.trackAndNotify(trackingDAO, commandLineMap, params, session, v3, v3SessionToken);
     }
 
     private static ITrackingServer createOpenBISTrackingServer(Parameters params)
@@ -263,4 +275,11 @@ public class TrackingClient
         }
         return ret;
     }
+    
+    private static IApplicationServerApi initV3(Parameters params) {
+        v3 = HttpInvokerUtils
+                .createServiceStub(IApplicationServerApi.class, params.getOpenbisServerURL()
+                        + IApplicationServerApi.SERVICE_URL, 10000);
+        return v3;
+   }
 }

@@ -17,6 +17,8 @@
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,11 +37,14 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -50,6 +55,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+// v3 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 
 /**
  * @author Tomasz Pylak
@@ -70,6 +82,11 @@ public class TrackingBO
 
     private static final String PROCESSING_SUCCESSFUL_PROPERTY_CODE =
             "LIBRARY_PROCESSING_SUCCESSFUL";
+    
+    private static final String PROPERTY_DATA_TRANSFERRED = "DATA_TRANSFERRED";
+
+    /** The default date format pattern. */
+    public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     private static final String TRUE = "true";
 
@@ -78,7 +95,7 @@ public class TrackingBO
     private final IEntityTrackingEmailGenerator emailGenerator;
 
     private final IMailClient mailClient;
-
+    
     public TrackingBO(ITrackingServer trackingServer, IEntityTrackingEmailGenerator emailGenerator,
             IMailClient mailClient)
     {
@@ -88,7 +105,7 @@ public class TrackingBO
     }
 
     public void trackAndNotify(ITrackingDAO trackingDAO, final HashMap<String, String[]> commandLineMap,
-            Parameters params, SessionContextDTO session)
+            Parameters params, SessionContextDTO session, IApplicationServerApi v3, String v3SessionToken)
     {
         Boolean sendEmails = true;
         TrackingStateDTO prevTrackingState = trackingDAO.getTrackingState();
@@ -103,7 +120,7 @@ public class TrackingBO
         {
             String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_LANES);
             changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
-                    commandLineMap, laneCodeList, session);
+                    commandLineMap, laneCodeList, session, v3, v3SessionToken);
         }
 
         else if (commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES) != null)
@@ -111,7 +128,7 @@ public class TrackingBO
             sendEmails = false;
             String[] laneCodeList = commandLineMap.get(TrackingClient.CL_PARAMETER_REMOVE_LANES);
             changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
-                    commandLineMap, laneCodeList, session);
+                    commandLineMap, laneCodeList, session, v3, v3SessionToken);
         }
 
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
@@ -352,7 +369,7 @@ public class TrackingBO
 
     private static TrackedEntities fetchChangedDataSets(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, Parameters params, final HashMap<String, String[]> commandLineMap,
-            String[] laneCodeList, SessionContextDTO session)
+            String[] laneCodeList, SessionContextDTO session, IApplicationServerApi v3, String v3SessionToken)
     {
         long usableDataSetId = getUsableDataSetId(trackingState, params);
 
@@ -420,11 +437,53 @@ public class TrackingBO
             extraDataSetCopy(params, toTransferDataSets);
         }
 
-        LogUtils.info("Found " + filteredDataSets.size() + " data sets which are connected to samples in " + filterList.toString());
+        LogUtils.info("Found " + filteredDataSets.size() + " data sets which are connected to samples in " + filterList.toString());       
+        setLaneProperties(changedTrackingMap, v3, v3SessionToken);
+        
         return gatherTrackedEntities(trackingState, trackingServer, session, filteredDataSets, changedTrackingMap);
     }
+    
+   
+    private static SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> searchForSamples(String permId, String v3sessionToken, IApplicationServerApi v3)
+    {
+    	SampleSearchCriteria criterion = new SampleSearchCriteria();
+        criterion.withPermId().thatEquals(permId);
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();       
+        fetchOptions.withProperties();
+  
+        return v3.searchSamples(v3sessionToken, criterion, fetchOptions);
+    }
 
-    private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets)
+    
+    private static void setLaneProperties(HashMap<String, ArrayList<Long>> changedTrackingMap, IApplicationServerApi v3, String v3sessionToken) {
+    	
+		for (String lanePermId : changedTrackingMap.keySet()) {
+			 SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> samples = searchForSamples(lanePermId, v3sessionToken, v3);
+			 
+			 for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample sample : samples.getObjects())
+	         {
+				 SampleUpdate sampleToUpdate = new SampleUpdate();
+				 sampleToUpdate.setSampleId(sample.getPermId());
+				 sampleToUpdate.setProperty(PROPERTY_DATA_TRANSFERRED, getCurrentDateTime());
+
+	             v3.updateSamples(v3sessionToken, Arrays.asList(sampleToUpdate));
+	         }			
+		}
+	}
+
+    
+    private static String getCurrentDateTime() {
+    	
+    	final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN);
+    	
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);    	
+    }
+
+    
+    
+	private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets)
     {
 
         RsyncCopier copier = null;
@@ -465,7 +524,26 @@ public class TrackingBO
 
             if (status.isError())
             {
-                throw new ExceptionWithStatus(status);
+                String exceptionMsg =
+                        (status == null) ? "" : " Unexpected exception has occured: "
+                                + status.toString();
+                
+                List<EMailAddress> adminEmails = new ArrayList<EMailAddress>();
+                    for (String adminEmail : params.getAdminEmail().split(","))
+                    {
+                        adminEmails.add(new EMailAddress(adminEmail.trim()));
+                    }
+
+                    EnvironmentFailureException ret =
+                            LogUtils.environmentError(
+                                    "Data trasnfer failed for %s. %s",
+                                    ds.getCode(), exceptionMsg);
+                    
+                    IMailClient emailClient = params.getMailClient();
+                    emailClient.sendEmailMessage("GFB Tracker: Data transfer problem",
+                            ret.getLocalizedMessage(), null,
+                            new EMailAddress(params.getNotificationEmail()),
+                            adminEmails.toArray(new EMailAddress[0]));
             }
 
             LogUtils.info(String.format("Got status: " + status + " for " + ds.getCode() + ", finished after %.2f s",
