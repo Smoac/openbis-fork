@@ -16,10 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.search;
 
-import java.util.Collection;
 import java.util.EnumSet;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.NoSpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
