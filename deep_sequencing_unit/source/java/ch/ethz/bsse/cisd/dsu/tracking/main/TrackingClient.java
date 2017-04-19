@@ -123,6 +123,7 @@ public class TrackingClient
         		.hasArg()
         		.withDescription("remove lanes from tracking list and do not send an email")
         		.create(CL_PARAMETER_REMOVE_LANES);
+        remove.setArgs(Option.UNLIMITED_VALUES);
 
         Option list_spaces = new Option(CL_PARAMETER_LIST_SPACES, "list spaces which are configured for an extra copy");
         
