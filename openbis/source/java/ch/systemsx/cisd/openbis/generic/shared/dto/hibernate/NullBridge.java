@@ -24,7 +24,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 public class NullBridge extends LongBridge
 {
 
-    public static final String NULL = "NULL";
+    public static final String NULL = "NULLNULL";
 
     @Override
     public String objectToString(Object object)
