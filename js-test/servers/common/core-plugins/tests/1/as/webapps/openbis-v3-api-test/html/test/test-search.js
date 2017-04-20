@@ -375,18 +375,52 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("searchSamples() withoutSpace", function(assert) {
 			var c = new common(assert, openbis);
-
-			var fSearch = function(facade) {
-				var criteria = new c.SampleSearchCriteria();
-				criteria.withoutSpace();
-				return facade.searchSamples(criteria, c.createSampleFetchOptions());
-			}
-
-			var fCheck = function(facade, samples) {
-				c.assertObjectsWithValues(samples, "identifier", [ "/MASTER_PLATE" ]);
-			}
-
-			testSearch(c, fSearch, fCheck);
+			var code = c.generateId("SAMPLE");
+			var waitUntilIndexed = function(facade, samplePermId, timeout, action) {
+				if (timeout < 0) {
+					c.fail("Sample " + samplePermId + " after " + timeout + " msec.");
+				}
+				setTimeout(function() {
+					c.ok("Wait until " + samplePermId + " indexed. " + timeout);
+					var criteria = new c.SampleSearchCriteria();
+					criteria.withPermId().thatEquals(samplePermId);
+					facade.searchSamples(criteria, c.createSampleFetchOptions()).then(function(result) {
+						if (result.getTotalCount() == 0) {
+							waitUntilIndexed(facade, samplePermId, timeout - 1000, action);
+						} else {
+							action();
+						}
+					});
+				}, 1000)
+			};
+			
+			c.start();
+			c.createFacadeAndLogin().then(function(facade) {
+				c.ok("Login");
+				var creation = new c.SampleCreation();
+				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
+				creation.setCode(code);
+				facade.createSamples([ creation ]).then(function(permIds) {
+					var permId = permIds[0];
+					c.ok("Shared sample created: " + permId);
+					waitUntilIndexed(facade, permId.getPermId(), 10000, function() {
+						var criteria = new c.SampleSearchCriteria();
+						criteria.withoutSpace();
+						facade.searchSamples(criteria, c.createSampleFetchOptions()).then(function(results) {
+							c.ok("Got results");
+							var samples = results.getObjects();
+							c.assertObjectsWithValues(samples, "identifier", [ "/" + code ]);
+							c.deleteSample(facade, permId).then(function() {
+								c.ok("Sample " + permId + " trashed");
+								c.finish();
+							});
+						});
+					});
+				});
+			}).fail(function(error) {
+				c.fail(error.message);
+				c.finish();
+			});
 		});
 		
 		QUnit.test("searchSamples() withoutExperiment", function(assert) {
