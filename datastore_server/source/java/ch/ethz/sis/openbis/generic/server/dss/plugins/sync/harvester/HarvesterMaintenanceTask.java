@@ -155,7 +155,7 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 loadCutOffTimeStamps(lastSyncTimestampFile);
 
                 Date cutOffTimestamp = lastIncSyncTimestamp;
-                boolean isFullSync = isTimeForFullSync(config);
+                boolean isFullSync = lastSyncTimestampFile.exists() == false || isTimeForFullSync(config);
                 if (isFullSync == true)
                 {
                     cutOffTimestamp = new Date(0L);
