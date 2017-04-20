@@ -21,3 +21,7 @@ harvester-tmp-dir = harvester-tmp
 email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
 #last-sync-timestamp-file = ../../last-sync-timestamp-file_HRVSTR.txt
 #log-file = ../../syncronization111.log
+
+#set interval to days starting from 0. Default is 14 days.
+#full-sync= false
+#full-sync-interval = 0
