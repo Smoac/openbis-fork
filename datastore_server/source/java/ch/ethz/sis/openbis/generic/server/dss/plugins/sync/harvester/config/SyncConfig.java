@@ -201,7 +201,7 @@ public class SyncConfig
 
     private Boolean translateUsingDataSourceAlias = false;
 
-    private Boolean fullSync = false;
+    private Boolean fullSyncEnabled = false;
 
     private Integer fullSyncInterval;
 
@@ -277,14 +277,14 @@ public class SyncConfig
         this.translateUsingDataSourceAlias = translateUsingDataSourceAlias;
     }
 
-    public Boolean getFullSync()
+    public Boolean isFullSyncEnabled()
     {
-        return fullSync;
+        return fullSyncEnabled;
     }
 
-    public void setFullSync(Boolean fullSync)
+    public void setFullSyncEnabled(Boolean fullSync)
     {
-        this.fullSync = fullSync;
+        this.fullSyncEnabled = fullSync;
     }
 
     public Integer getFullSyncInterval()

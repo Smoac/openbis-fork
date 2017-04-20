@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -43,6 +44,7 @@ import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.ConfigReader;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SynchronizationConfigReader;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.EntitySynchronizer;
@@ -68,6 +70,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
  */
 public class HarvesterMaintenanceTask<T extends DataSetInformation> implements IMaintenanceTask
 {
+    private static final String TIMESTAMPS_SECTION_HEADER = "TIMESTAMPS";
+
+    private static final String LAST_FULL_SYNC_TIMESTAMP = "last-full-sync-timestamp";
+
+    private static final String LAST_INCREMENTAL_SYNC_TIMESTAMP = "last-incremental-sync-timestamp";
+
     protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, HarvesterMaintenanceTask.class);
 
@@ -83,7 +91,9 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private DataSetProcessingContext context;
 
-    private Date lastSyncTimestamp;
+    private Date lastIncSyncTimestamp;
+
+    private Date lastFullSyncTimestamp;
 
     private File harvesterConfigFile;
 
@@ -142,32 +152,41 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
                 String fileName = config.getLastSyncTimestampFileName();
                 File lastSyncTimestampFile = new File(fileName);
-                lastSyncTimestamp = getLastSyncTimeStamp(lastSyncTimestampFile);
+                loadCutOffTimeStamps(lastSyncTimestampFile);
 
+                Date cutOffTimestamp = lastIncSyncTimestamp;
+                boolean isFullSync = isTimeForFullSync(config);
+                if (isFullSync == true)
+                {
+                    cutOffTimestamp = new Date(0L);
+                }
                 String notSyncedEntitiesFileName = config.getNotSyncedEntitiesFileName();
                 Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedEntitiesFileName);
                 Set<String> notSyncedAttachmentHolderCodes = getNotSyncedAttachmentHolderCodes(notSyncedEntitiesFileName);
                 Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedEntitiesFileName);
 
-                // save the current time into a temp file as last sync time
-                File newLastSyncTimeStampFile = new File(fileName + ".new");
-                Date syncStartTimestamp = new Date();
-                FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(syncStartTimestamp));
+                Date newCutOffTimestamp = new Date();
 
                 EntitySynchronizer synchronizer =
-                        new EntitySynchronizer(service, dataStoreCode, storeRoot, lastSyncTimestamp, notSyncedDataSetCodes,
+                        new EntitySynchronizer(service, dataStoreCode, storeRoot, cutOffTimestamp, notSyncedDataSetCodes,
                                 blackListedDataSetCodes,
                                 notSyncedAttachmentHolderCodes,
                                 context, config,
                                 operationLog);
                 Date resourceListTimestamp = synchronizer.syncronizeEntities();
-                if (resourceListTimestamp.before(syncStartTimestamp))
+                if (resourceListTimestamp.before(newCutOffTimestamp))
                 {
-                    FileUtilities.writeToFile(newLastSyncTimeStampFile, formatter.format(resourceListTimestamp));
+                    newCutOffTimestamp = resourceListTimestamp;
+                }
+                operationLog.info("Saving the timestamp of sync start to file");
+
+                lastIncSyncTimestamp = newCutOffTimestamp;
+                if (isFullSync == true)
+                {
+                    lastFullSyncTimestamp = newCutOffTimestamp;
                 }
 
-                operationLog.info("Saving the timestamp of sync start to file");
-                saveSyncTimestamp(newLastSyncTimeStampFile, lastSyncTimestampFile);
+                saveSyncTimestamp(lastSyncTimestampFile);
 
                 operationLog.info(this.getClass() + " finished executing.");
 
@@ -179,16 +198,47 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         }
     }
 
-    private Date getLastSyncTimeStamp(File lastSyncTimestampFile) throws ParseException
+    private void loadCutOffTimeStamps(File lastSyncTimestampFile) throws IOException, ParseException
     {
         if (lastSyncTimestampFile.exists())
         {
-            String timeStr = FileUtilities.loadToString(lastSyncTimestampFile).trim();
-            return formatter.parse(timeStr);
+            ConfigReader reader = new ConfigReader(lastSyncTimestampFile);
+            String incSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_INCREMENTAL_SYNC_TIMESTAMP, null, true);
+            String fullSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_FULL_SYNC_TIMESTAMP, incSyncTimestampStr, false);
+
+            lastIncSyncTimestamp = formatter.parse(incSyncTimestampStr);
+            lastFullSyncTimestamp = formatter.parse(fullSyncTimestampStr);
         }
         else
         {
-            return new Date(0L);
+            lastIncSyncTimestamp = new Date(0L);
+            lastFullSyncTimestamp = new Date(0L);
+        }
+    }
+
+    private boolean isTimeForFullSync(SyncConfig config) throws IOException, ParseException
+    {
+        if (config.isFullSyncEnabled())
+        {
+            Integer fullSyncInterval = config.getFullSyncInterval();
+            Date now = new Date();
+            long diff = now.getTime() - lastFullSyncTimestamp.getTime();
+            long days = TimeUnit.MILLISECONDS.toDays(diff);
+            if (days >= fullSyncInterval)
+            {
+                // do full sync
+                return true;
+            }
+            else
+            {
+                // do incremental sync
+                return false;
+            }
+        }
+        else
+        {
+            // do incremental sync
+            return false;
         }
     }
 
@@ -286,8 +336,11 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         }
     }
 
-    private void saveSyncTimestamp(File newLastSyncTimeStampFile, File lastSyncTimestampFile)
+    private void saveSyncTimestamp(File lastSyncTimestampFile)
     {
-        newLastSyncTimeStampFile.renameTo(lastSyncTimestampFile);
+        FileUtilities.writeToFile(lastSyncTimestampFile, "[" + TIMESTAMPS_SECTION_HEADER + "]");
+        FileUtilities.appendToFile(lastSyncTimestampFile, "\n", true);
+        FileUtilities.appendToFile(lastSyncTimestampFile, LAST_INCREMENTAL_SYNC_TIMESTAMP + " = " + formatter.format(lastIncSyncTimestamp), true);
+        FileUtilities.appendToFile(lastSyncTimestampFile, LAST_FULL_SYNC_TIMESTAMP + " = " + formatter.format(lastFullSyncTimestamp), true);
     }
 }

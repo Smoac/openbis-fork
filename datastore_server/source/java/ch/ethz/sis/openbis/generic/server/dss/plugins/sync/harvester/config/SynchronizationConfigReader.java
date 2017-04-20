@@ -134,7 +134,7 @@ public class SynchronizationConfigReader
             config.setTranslateUsingDataSourceAlias(reader.getBoolean(section, TRANSLATE_USING_DATA_SOURCE_ALIAS_PROPERTY_NAME, false));
 
             boolean fullSync = reader.getBoolean(section, FULL_SYNC_PROPERTY_NAME, false);
-            config.setFullSync(fullSync);
+            config.setFullSyncEnabled(fullSync);
             if (fullSync)
             {
                 config.setFullSyncInterval(reader.getInt(section, FULL_SYNC_INTERVAL_PROPERTY_NAME, defaultFullSyncIntervalInDays, false));
