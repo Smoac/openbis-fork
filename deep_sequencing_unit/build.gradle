@@ -49,10 +49,11 @@ task trackingJar(type: Jar) {
     archiveName "openbis-tracking-qgf-client.jar"
 
     from zipTree(project(':common').jar.archivePath).plus(
-         zipTree(project(':openbis-common').jar.archivePath).plus( 
+         zipTree(project(':openbis-common').jar.archivePath).plus(
+         zipTree(project(':commonbase').jar.archivePath).plus( 
          zipTree(project(':openbis_api').jar.archivePath).plus( 
          zipTree(project(':datastore_server').jar.archivePath).plus( 
-         zipTree(project(':openbis').jar.archivePath))))).matching {
+         zipTree(project(':openbis').jar.archivePath)))))).matching {
             include '**/*.class'
     }
 
