@@ -78,6 +78,8 @@ public class SynchronizationConfigReader
 
     private static final String FULL_SYNC_INTERVAL_PROPERTY_NAME = "full-sync-interval";
 
+    private static final String DRY_RUN_PROPERTY_NAME = "dry-run";
+
     private Integer defaultFullSyncIntervalInDays = 14;
 
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
@@ -133,6 +135,7 @@ public class SynchronizationConfigReader
             config.setHarvesterTempDir(reader.getString(section, HARVESTER_TEMP_DIR_PROPERTY_NAME, DEFAULT_HARVESTER_TEMP_DIR, false));
             config.setTranslateUsingDataSourceAlias(reader.getBoolean(section, TRANSLATE_USING_DATA_SOURCE_ALIAS_PROPERTY_NAME, false));
 
+            // read full-sync configuration
             boolean fullSync = reader.getBoolean(section, FULL_SYNC_PROPERTY_NAME, false);
             config.setFullSyncEnabled(fullSync);
             if (fullSync)
@@ -148,6 +151,8 @@ public class SynchronizationConfigReader
             config.setNotSyncedDataSetsFileName(
                     reader.getString(section, HARVESTER_NOT_SYNCED_ENTITIES_FILE_NAME, defaultNotSyncedEntitiesFileName, false));
             configs.add(config);
+
+            config.setDryRun(reader.getBoolean(section, DRY_RUN_PROPERTY_NAME, false));
         }
         return configs;
     }

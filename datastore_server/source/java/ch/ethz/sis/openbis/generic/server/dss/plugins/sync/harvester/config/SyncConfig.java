@@ -205,6 +205,8 @@ public class SyncConfig
 
     private Integer fullSyncInterval;
 
+    private Boolean dryRun = false;
+
     private List<String> dataSourceSpaces = new ArrayList<>();
 
     private List<String> harvesterSpaces = new ArrayList<>();
@@ -297,4 +299,13 @@ public class SyncConfig
         this.fullSyncInterval = fullSyncInterval;
     }
 
+    public Boolean isDryRun()
+    {
+        return dryRun;
+    }
+
+    public void setDryRun(Boolean dryRun)
+    {
+        this.dryRun = dryRun;
+    }
 }

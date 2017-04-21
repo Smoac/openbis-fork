@@ -56,24 +56,6 @@ public class ConfigReader
         loadFile(file);
     }
 
-    public static void main(String[] args)
-    {
-        ConfigReader reader;
-        try
-        {
-            reader = new ConfigReader("/Users/gakin/Documents/workspace_openbis_trunk/datastore_server/harvester.ini");
-            for (int i = 0; i < reader.getSectionCount(); i++)
-            {
-                System.out.println(reader.getSection(i));
-            }
-            
-        } catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
     public int getSectionCount()
     {
         return entries.keySet().size();
