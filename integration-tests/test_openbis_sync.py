@@ -8,6 +8,7 @@ import systemtest.testcase
 import systemtest.util as util
 import urllib, urllib2
 import ssl, base64
+import json
 
 from urllib2 import Request
 
@@ -16,6 +17,7 @@ from functools import wraps
 from systemtest.artifactrepository import GitArtifactRepository
 
 from systemtest.testcase import TEST_DATA
+from systemtest.util import printAndFlush
 
 #Had to add the ssl wrap thing below because of a problem during the auth call
 def sslwrap(func):
@@ -255,7 +257,8 @@ class TestCase(systemtest.testcase.TestCase):
         util.printAndFlush("path to core plugin in the repository: %s" % path)
         destination = "%s/servers/core-plugins/%s/" % (openbisController.installPath, openbisController.instanceName)
         util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
-        util.unzipSubfolder(path, 'OpenbisSync-master-c25365e4e2ff09203bbbb9286061c92f8d04df1e/core-plugins/%s/1/'% plugin_name, destination)
+        commit_id = self.getLatestCommitHashForCorePlugin('sissource.ethz.ch', 10)
+        util.unzipSubfolder(path, 'OpenbisSync-master-%s/core-plugins/%s/1/'% (commit_id, plugin_name), destination)
 
     def installDataSourcePlugin(self, openbisController, dss_port):
         self.installPlugin(openbisController, "datasource")
@@ -287,6 +290,13 @@ class TestCase(systemtest.testcase.TestCase):
 
     def getMasterDataScriptFolder(self):
         return systemtest.testcase.TEMPLATES + "/" + self.name + "/master_data"
+    
+    def getLatestCommitHashForCorePlugin(self, host, project):
+        url = "https://%s/api/v4/projects/%s/repository/commits/master" % (host, project)
+        request = Request(url, headers = {'PRIVATE-TOKEN' : 'Rz1DbhpVBXSUpRny5Dbr'})
+        response = urllib2.urlopen(request)
+        result = json.load(response)
+        return result["id"]
     
 class GitLabArtifactRepository(GitArtifactRepository):
     """
