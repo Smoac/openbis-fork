@@ -251,11 +251,11 @@ class TestCase(systemtest.testcase.TestCase):
 
     def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
-        path = repository.getPathToArtifact('149', 'archive.zip')
+        path = repository.getPathToArtifact('10', 'archive.zip')
         util.printAndFlush("path to core plugin in the repository: %s" % path)
         destination = "%s/servers/core-plugins/%s/" % (openbisController.installPath, openbisController.instanceName)
         util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
-        util.unzipSubfolder(path, 'openbissync.git/core-plugins/%s/1/'% plugin_name, destination)
+        util.unzipSubfolder(path, 'OpenbisSync-master-c25365e4e2ff09203bbbb9286061c92f8d04df1e/core-plugins/%s/1/'% plugin_name, destination)
 
     def installDataSourcePlugin(self, openbisController, dss_port):
         self.installPlugin(openbisController, "datasource")
@@ -292,18 +292,18 @@ class GitLabArtifactRepository(GitArtifactRepository):
     """
     Artifact repository for a gitlab projects.
     Note: it requires project id as the project "argument". This can be found by using the following command:
-    curl --header "PRIVATE-TOKEN: Wbt8EV8pREkqwu3BqQtQ"  "https://ssdmsource.ethz.ch/api/v3/projects?per_page=99999"
+    curl --header "PRIVATE-TOKEN:Rz1DbhpVBXSUpRny5Dbr"  "https://sissource.ethz.ch/api/v4/projects?per_page=99999"
     after logging in and retrieving the private token with
-    curl https://ssdmsource.ethz.ch/api/v3/session --data-urlencode 'login=’ --data-urlencode 'password=’
+    curl https://sissource.ethz.ch/api/v4/session --data-urlencode 'login=’ --data-urlencode 'password=’
     """
-    def __init__(self, localRepositoryFolder, host = 'ssdmsource.ethz.ch'):
+    def __init__(self, localRepositoryFolder, host = 'sissource.ethz.ch'):
         GitArtifactRepository.__init__(self, localRepositoryFolder)
         self.host = host
 
     def downloadArtifact(self, project, pattern):
-        url = "https://%s/api/v3/projects/%s/repository/%s" % (self.host, project, pattern)
+        url = "https://%s/api/v4/projects/%s/repository/%s" % (self.host, project, pattern)
         util.printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
-        request = Request(url, headers = {'PRIVATE-TOKEN' : 'Wbt8EV8pREkqwu3BqQtQ'})
+        request = Request(url, headers = {'PRIVATE-TOKEN' : 'Rz1DbhpVBXSUpRny5Dbr'})
         self._download(urllib2.urlopen(request), pattern)
         return pattern
     
