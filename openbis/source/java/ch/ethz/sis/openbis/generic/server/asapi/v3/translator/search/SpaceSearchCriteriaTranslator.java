@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSearchCriteriaTranslator
 {
     private static final DetailedSearchField SPACE_ID_FIELD = DetailedSearchField.createAttributeField(
-            new SimpleAttributeSearchFieldKind(SearchFieldConstants.SPACE_ID, "Space ID"));
+            new SimpleAttributeSearchFieldKind(SearchFieldConstants.SAMPLE_SPACE_ID, "Space ID"));
 
     private static final EnumSet<SearchObjectKind> ENTITY_KINDS_WITH_SPACE = EnumSet.of(SearchObjectKind.EXPERIMENT, SearchObjectKind.SAMPLE);
 
