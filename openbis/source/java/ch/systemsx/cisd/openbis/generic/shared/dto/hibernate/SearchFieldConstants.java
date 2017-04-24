@@ -63,12 +63,6 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_CONTENT_COPY = "content copy" + SEPARATOR;
 
-    public static final String[] PREFIXES =
-            { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
-                    PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
-                    PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM,
-                    PREFIX_METAPROJECT };
-
     public static final String ID = "id";
 
     public static final String EXPERIMENT_ID = PREFIX_EXPERIMENT + ID;

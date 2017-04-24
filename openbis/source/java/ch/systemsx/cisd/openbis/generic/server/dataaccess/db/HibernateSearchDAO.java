@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +42,6 @@ import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.index.FieldInfo.DocValuesType;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexReaderContext;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -68,7 +66,6 @@ import org.hibernate.search.SearchFactory;
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.indexes.spi.DirectoryBasedIndexManager;
 import org.hibernate.search.indexes.spi.ReaderProvider;
-import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.transform.BasicTransformerAdapter;
 import org.hibernate.transform.ResultTransformer;
@@ -821,10 +818,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 };
         }
 
-        public Highlighter getRawHighlighter()
-        {
-            return highlighter;
-        }
     }
 
     private static final class MyIndexReaderProvider
@@ -832,8 +825,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         private final ReaderProvider readerProvider;
 
         private final IndexReader indexReader;
-
-        private final IndexedTypeDescriptor indexedTypeDescriptor;
 
         /** opens the index reader. Closing the index after usage must be done with #close() method. */
         public MyIndexReaderProvider(final FullTextSession fullTextSession,
@@ -846,55 +837,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     (DirectoryBasedIndexManager) searchIntegrator.getIndexManager(searchableEntity.getMatchingEntityClass().getSimpleName());
             this.readerProvider = indexManager.getReaderProvider();
             this.indexReader = readerProvider.openIndexReader();
-            this.indexedTypeDescriptor = searchIntegrator.getIndexedTypeDescriptor(searchableEntity.getMatchingEntityClass());
         }
 
         public IndexReader getReader()
         {
             return indexReader;
-        }
-
-        private void collectFields(IndexReaderContext context, Set<String> fields)
-        {
-            if (context == null)
-            {
-                return;
-            }
-            if (context instanceof AtomicReaderContext)
-            {
-                try
-                {
-                    for (String fieldName : ((AtomicReaderContext) context).reader().fields())
-                    {
-                        fields.add(fieldName);
-                    }
-                } catch (IOException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            if (context.children() == null)
-            {
-                return;
-            }
-            for (IndexReaderContext child : context.children())
-            {
-                collectFields(child, fields);
-            }
-
-        }
-
-        public String[] getIndexedFields()
-        {
-            Set<String> fieldNames = new HashSet<String>();
-            collectFields(indexReader.getContext(), fieldNames);
-            fieldNames.remove(SearchFieldConstants.ID);
-            for (String prefix : SearchFieldConstants.PREFIXES)
-            {
-                fieldNames.remove(prefix + SearchFieldConstants.ID);
-            }
-            return fieldNames.toArray(new String[fieldNames.size()]);
         }
 
         /** must be called to close the index reader when it is not needed anymore */
