@@ -79,6 +79,46 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 public class CreateDataSetTest extends AbstractDataSetTest
 {
     @Test
+    public void testCreateLinkDataSetWithSpaceUser()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        String code = UUID.randomUUID().toString();
+        LinkedDataCreation linkedData = new LinkedDataCreation();
+        linkedData.setExternalDmsId(new ExternalDmsPermId("DMS_1"));
+        linkedData.setExternalCode("test-"+System.currentTimeMillis());
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/NOE/EXP-TEST-2"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setLinkedData(linkedData);
+        creation.setCreationId(new CreationId(code));
+
+        List<DataSetPermId> dataSets = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+
+        assertEquals(dataSets.get(0).getPermId(), code.toUpperCase());
+        assertEquals(dataSets.size(), 1);
+    }
+    
+    @Test
+    public void testCreateContainerDataSetWithSpaceUser()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        String code = UUID.randomUUID().toString();
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/NOE/EXP-TEST-2"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setCreationId(new CreationId(code));
+        
+        List<DataSetPermId> dataSets = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+        
+        assertEquals(dataSets.get(0).getPermId(), code.toUpperCase());
+        assertEquals(dataSets.size(), 1);
+    }
+    
+    @Test
     public void testCreateDSWithAdminUserInBehalfOfASpaceObserver()
     {
         final DataSetPermId permId = new DataSetPermId("NO_SHALL_CREATE");

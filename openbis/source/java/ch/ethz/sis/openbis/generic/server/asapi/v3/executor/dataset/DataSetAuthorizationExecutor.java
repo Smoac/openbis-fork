@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -61,6 +62,11 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
+        if (dataSet instanceof ExternalDataPE == false)
+        {
+            return;
+        }
+        
         boolean isCreatorPersonAllowed = false;
         boolean isPersonAllowed = false;
 
