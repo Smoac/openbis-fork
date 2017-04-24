@@ -80,6 +80,8 @@ public final class SearchFieldConstants
     public static final String CONTAINER_ID = PREFIX_CONTAINER + ID;
 
     public static final String SPACE_ID = PREFIX_SPACE + ID;
+    
+    public static final String SAMPLE_SPACE_ID = PREFIX_SAMPLE + PREFIX_SPACE + ID;
 
     public static final String DELETED = "deleted";
 

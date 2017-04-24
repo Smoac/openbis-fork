@@ -563,7 +563,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
-    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.SPACE_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.SAMPLE_SPACE_ID)
     @FieldBridge(impl = NullBridge.class)
     private Long getSpaceId()
     {
