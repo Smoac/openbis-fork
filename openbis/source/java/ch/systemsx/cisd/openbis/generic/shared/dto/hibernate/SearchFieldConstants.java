@@ -61,12 +61,6 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_EXTERNAL_DMS = "external dms" + SEPARATOR;
 
-    public static final String[] PREFIXES =
-            { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
-                    PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
-                    PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM,
-                    PREFIX_METAPROJECT };
-
     public static final String ID = "id";
 
     public static final String EXPERIMENT_ID = PREFIX_EXPERIMENT + ID;
@@ -78,6 +72,8 @@ public final class SearchFieldConstants
     public static final String CONTAINER_ID = PREFIX_CONTAINER + ID;
 
     public static final String SPACE_ID = PREFIX_SPACE + ID;
+    
+    public static final String SAMPLE_SPACE_ID = PREFIX_SAMPLE + PREFIX_SPACE + ID;
 
     public static final String DELETED = "deleted";
 
