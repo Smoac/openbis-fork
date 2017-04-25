@@ -208,6 +208,17 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
         filter(getPattern());
     }
 
+    
+    @Override
+    public void remove(int childIndex)
+    {
+        Object removed = getFiltered().remove(childIndex);
+        if (removed != null)
+        {
+            children.remove(removed);
+        }
+    }
+
     @Override
     public void removeAllChildren()
     {
