@@ -209,8 +209,9 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
                                 FilterableMutableTreeNode category =
                                         new FilterableMutableTreeNode(Identifier.create(experiment));
                                 category.add(UiUtilities.createWaitingNode());
-                                node.add(category);
+                                node.add(category, false);
                             }
+                            node.filter();
                         }
                     };
         clientModel.listExperiments(action);
@@ -231,8 +232,9 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
                                 FilterableMutableTreeNode category =
                                         new FilterableMutableTreeNode(Identifier.create(sample));
                                 category.add(UiUtilities.createWaitingNode());
-                                node.add(category);
+                                node.add(category, false);
                             }
+                            node.filter();
                         }
                     };
         clientModel.listSamplesWithNoExperiments(action);

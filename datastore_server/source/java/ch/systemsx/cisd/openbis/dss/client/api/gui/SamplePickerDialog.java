@@ -58,8 +58,9 @@ public class SamplePickerDialog extends AbstractTreeEntityPickerDialog
                                 FilterableMutableTreeNode sampleNode =
                                         new FilterableMutableTreeNode(Identifier.create(s));
                                 sampleNode.add(UiUtilities.createWaitingNode());
-                                node.add(sampleNode);
+                                node.add(sampleNode, false);
                             }
+                            node.filter();
                         }
                     };
         clientModel.listSamples(identifier, action);

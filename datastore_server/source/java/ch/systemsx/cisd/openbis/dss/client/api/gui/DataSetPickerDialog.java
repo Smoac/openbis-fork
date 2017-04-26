@@ -62,12 +62,13 @@ public class DataSetPickerDialog extends AbstractTreeEntityPickerDialog
                                 {
                                     FilterableMutableTreeNode dataSetsNode =
                                             new FilterableMutableTreeNode(UiUtilities.DATA_SETS);
-                                    node.add(dataSetsNode);
+                                    node.add(dataSetsNode, false);
                                     for (DataSet dataSet : dataSets)
                                     {
                                         dataSetsNode.add(new FilterableMutableTreeNode(Identifier
-                                                .create(dataSet)));
+                                                .create(dataSet)), false);
                                     }
+                                    dataSetsNode.filter();
                                 }
 
                                 for (Sample s : samplesDataSets.getSamples())
@@ -75,8 +76,9 @@ public class DataSetPickerDialog extends AbstractTreeEntityPickerDialog
                                     FilterableMutableTreeNode sampleNode =
                                             new FilterableMutableTreeNode(Identifier.create(s));
                                     sampleNode.add(UiUtilities.createWaitingNode());
-                                    node.add(sampleNode);
+                                    node.add(sampleNode, false);
                                 }
+                                node.filter();
                             }
                         });
         }

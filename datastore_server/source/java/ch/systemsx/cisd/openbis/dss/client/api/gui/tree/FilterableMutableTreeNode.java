@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui.tree;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 
@@ -143,6 +145,14 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
                 filtered.add(o);
             }
         }
+        Collections.sort(filtered, new Comparator<Object>()
+            {
+                @Override
+                public int compare(Object o1, Object o2)
+                {
+                    return String.valueOf(o1).compareTo(String.valueOf(o2));
+                }
+            });
         setFiltered(filtered);
     }
     
@@ -199,12 +209,25 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
     @Override
     public void add(MutableTreeNode o)
     {
+        add(o, true);
+    }
+    
+    public void add(MutableTreeNode o, boolean filter)
+    {
         super.add(o);
         if (o instanceof FilterableMutableTreeNode)
         {
             FilterableMutableTreeNode filterableMutableTreeNode = (FilterableMutableTreeNode) o;
             filterableMutableTreeNode.setPattern(getPattern());
         }
+        if (filter)
+        {
+            filter();
+        }
+    }
+
+    public void filter()
+    {
         filter(getPattern());
     }
 
@@ -223,7 +246,7 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
     public void removeAllChildren()
     {
         super.removeAllChildren();
-        filter(getPattern());
+        filter();
     }
     
     
