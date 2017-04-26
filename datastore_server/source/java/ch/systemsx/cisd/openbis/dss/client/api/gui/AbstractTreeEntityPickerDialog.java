@@ -22,7 +22,9 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -34,6 +36,9 @@ import javax.swing.JTree;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -273,7 +278,17 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         {
             rootNode.filter(filterField.getText());
         }
+        int rowCount = tree.getRowCount();
+        Set<TreePath> paths = new HashSet<>();
+        for (int i = 0; i < rowCount; i++)
+        {
+            paths.add(tree.getPathForRow(i).getParentPath());
+        }
         treeModel.reload();
+        for (TreePath path : paths)
+        {
+            tree.expandPath(path);
+        }
     }
 
     public String pickEntity()
