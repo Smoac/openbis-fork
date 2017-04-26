@@ -29,52 +29,74 @@ public class DOCXBuilder
         out.close();
     }
 
+    private static final String START_RICH_TEXT = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<html><head></head><body>";
+
+    private static final String END_RICH_TEXT = "</body></html>";
+
     private StringBuffer doc;
+
+    private boolean closed;
 
     public DOCXBuilder()
     {
+        closed = false;
         doc = new StringBuffer();
         startDoc();
     }
 
     private void startDoc()
     {
-        doc.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
-        doc.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-        doc.append("<head></head>");
-        doc.append("<body>");
+        if (!closed)
+        {
+            doc.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
+            doc.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+            doc.append("<head></head>");
+            doc.append("<body>");
+        }
     }
 
     private void endDoc()
     {
-        doc.append("</body>");
-        doc.append("</html>");
+        if (!closed)
+        {
+            doc.append("</body>");
+            doc.append("</html>");
+            closed = true;
+        }
     }
 
     public void addProperty(String key, String value)
     {
-        // Cleans Rich text editor headers and footers if they are found
-        if (value.startsWith("<?xml"))
+        if (!closed)
         {
-            value = value.substring("<?xml version=\"1.0\" encoding=\"UTF-8\"?><html><head></head><body>".length() + 1,
-                    value.length() - "</body></html>".length());
+            value = cleanXMLEnvelope(value);
+            doc.append("<p>").append("<b>").append(key).append(": ").append("</b>").append(value).append("</p>");
         }
-        doc.append("<p>").append("<b>").append(key).append(": ").append("</b>").append(value).append("</p>");
     }
 
     public void addParagraph(String value)
     {
-        doc.append("<p>").append(value).append("</p>");
+        if (!closed)
+        {
+            value = cleanXMLEnvelope(value);
+            doc.append("<p>").append(value).append("</p>");
+        }
     }
 
     public void addTitle(String title)
     {
-        doc.append("<h1>").append(title).append("</h1>");
+        if (!closed)
+        {
+            doc.append("<h1>").append(title).append("</h1>");
+        }
     }
 
     public void addHeader(String header)
     {
-        doc.append("<h2>").append(header).append("</h2>");
+        if (!closed)
+        {
+            doc.append("<h2>").append(header).append("</h2>");
+        }
     }
 
     public byte[] getHTMLBytes() throws Exception
@@ -87,6 +109,7 @@ public class DOCXBuilder
     {
         // .. Finish Document
         endDoc();
+
         // .. HTML Code
         WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
         AlternativeFormatInputPart afiPart = new AlternativeFormatInputPart(new PartName("/hw.html"));
@@ -105,5 +128,14 @@ public class DOCXBuilder
         wordMLPackage.save(outStream);
 
         return outStream.toByteArray();
+    }
+
+    private String cleanXMLEnvelope(String value)
+    {
+        if (value.startsWith(START_RICH_TEXT) && value.endsWith(END_RICH_TEXT))
+        {
+            value = value.substring(START_RICH_TEXT.length() + 3, value.length() - END_RICH_TEXT.length());
+        }
+        return value;
     }
 }
