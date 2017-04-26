@@ -100,6 +100,9 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment import Experiment
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample import Sample
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSet
 
+#DOCX
+from ch.ethz.sis import DOCXBuilder
+
 class MLStripper(HTMLParser):
     def __init__(self):
         self.reset()
@@ -367,13 +370,16 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 		if entityObj is not None:
 			objectCache[permId] = entityObj;
 		
-		if entityObj is not None and entityFilePath is not None:
-			#JSON
-			entityJson = String(objectMapper.writeValueAsString(entityObj));
-			addFile(tempDirPath, entityFilePath, "json", entityJson.getBytes(), zos);
-			#TEXT
- 			entityTXT = String(getTXT(entityObj, v3, sessionToken));
- 			addFile(tempDirPath, entityFilePath, "txt", entityTXT.getBytes(), zos);
+        if entityObj is not None and entityFilePath is not None:
+            #JSON
+            entityJson = String(objectMapper.writeValueAsString(entityObj));
+            addFile(tempDirPath, entityFilePath, "json", entityJson.getBytes(), zos);
+            #TEXT
+            entityTXT = String(getTXT(entityObj, v3, sessionToken, False));
+            addFile(tempDirPath, entityFilePath, "txt", entityTXT.getBytes(), zos);
+            #DOCX
+            entityDOCX = getDOCX(entityObj, v3, sessionToken);
+            addFile(tempDirPath, entityFilePath, "html", entityDOCX, zos);
 			
 			
 	zos.close();
@@ -390,17 +396,88 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	FileUtils.forceDelete(File(tempDirPath));
 	FileUtils.forceDelete(File(tempZipFilePath));
 	return True
-	
-def getTXT(entityObj, v3, sessionToken):
+
+def getDOCX(entityObj, v3, sessionToken):
+    docxBuilder = DOCXBuilder();
+    docxBuilder.addTitle(entityObj.getCode());
+    docxBuilder.addHeader("Identification Info");
+    
+    typeObj = None
+    if isinstance(entityObj, Project):
+        docxBuilder.addProperty("Kind", "Project");
+    if isinstance(entityObj, Experiment):
+        docxBuilder.addProperty("Kind", "Experiment");
+        searchCriteria = ExperimentTypeSearchCriteria();
+        searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
+        fetchOptions = ExperimentTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().withPropertyType();
+        results = v3.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        typeObj = results.getObjects().get(0);
+    if isinstance(entityObj, Sample):
+        docxBuilder.addProperty("Kind", "Sample");
+        searchCriteria = SampleTypeSearchCriteria();
+        searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
+        fetchOptions = SampleTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().withPropertyType();
+        results = v3.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        typeObj = results.getObjects().get(0);
+    if isinstance(entityObj, DataSet):
+        docxBuilder.addProperty("Kind", "DataSet");
+        searchCriteria = DataSetTypeSearchCriteria();
+        searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
+        fetchOptions = DataSetTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().withPropertyType();
+        results = v3.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        typeObj = results.getObjects().get(0);
+    
+    if not isinstance(entityObj, Project):
+        docxBuilder.addProperty("Type", entityObj.getType().getCode());
+    
+    if(entityObj.getRegistrator() is not None):
+        docxBuilder.addProperty("Registrator", entityObj.getRegistrator().getUserId());
+        docxBuilder.addProperty("Registration Date", str(entityObj.getRegistrationDate()));
+    
+    if entityObj.getModifier() is not None:
+        docxBuilder.addProperty("Modifier", entityObj.getModifier().getUserId());
+        docxBuilder.addProperty("Modification Date", str(entityObj.getModificationDate()));
+    
+    
+    if isinstance(entityObj, Project):
+        docxBuilder.addHeader("Description");
+        docxBuilder.addParagraph(entityObj.getDescription());
+    
+    if isinstance(entityObj, Sample) or isinstance(entityObj, DataSet):
+        docxBuilder.addHeader("Parents");
+        parents = entityObj.getParents();
+        for parent in parents:
+            docxBuilder.addParagraph(parent.getCode());
+        docxBuilder.addHeader("Children");
+        children = entityObj.getChildren();
+        for child in children:
+            docxBuilder.addParagraph(child.getCode());
+    
+    if not isinstance(entityObj, Project):
+        docxBuilder.addHeader("Properties");
+        propertyAssigments = typeObj.getPropertyAssignments();
+        properties = entityObj.getProperties();
+        for propertyAssigment in propertyAssigments:
+            propertyType = propertyAssigment.getPropertyType();
+            if propertyType.getCode() in properties:
+                propertyValue = properties[propertyType.getCode()];
+                docxBuilder.addProperty(propertyType.getLabel(), propertyValue);
+    
+    return docxBuilder.getHTMLBytes();
+
+def getTXT(entityObj, v3, sessionToken, isRichText):
 	txtBuilder = StringBuilder();
 	txtBuilder.append(entityObj.getCode()).append("\n");
 	txtBuilder.append("# Identification Info:").append("\n");
 	
 	typeObj = None
 	if isinstance(entityObj, Project):
-		txtBuilder.append("Kind: Project").append("\n");
+		txtBuilder.append("- Kind: Project").append("\n");
 	if isinstance(entityObj, Experiment):
-		txtBuilder.append("Kind: Experiment").append("\n");
+		txtBuilder.append("- Kind: Experiment").append("\n");
 		searchCriteria = ExperimentTypeSearchCriteria();
 		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
 		fetchOptions = ExperimentTypeFetchOptions();
@@ -408,7 +485,7 @@ def getTXT(entityObj, v3, sessionToken):
 		results = v3.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
 		typeObj = results.getObjects().get(0);
 	if isinstance(entityObj, Sample):
-		txtBuilder.append("Kind: Sample").append("\n");
+		txtBuilder.append("- Kind: Sample").append("\n");
 		searchCriteria = SampleTypeSearchCriteria();
 		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
 		fetchOptions = SampleTypeFetchOptions();
@@ -416,7 +493,7 @@ def getTXT(entityObj, v3, sessionToken):
 		results = v3.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
 		typeObj = results.getObjects().get(0);
 	if isinstance(entityObj, DataSet):
-		txtBuilder.append("Kind: DataSet").append("\n");
+		txtBuilder.append("- Kind: DataSet").append("\n");
 		searchCriteria = DataSetTypeSearchCriteria();
 		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
 		fetchOptions = DataSetTypeFetchOptions();
@@ -425,15 +502,15 @@ def getTXT(entityObj, v3, sessionToken):
 		typeObj = results.getObjects().get(0);
 	
 	if not isinstance(entityObj, Project):
-		txtBuilder.append("Type: " + entityObj.getType().getCode()).append("\n");
+		txtBuilder.append("- Type: " + entityObj.getType().getCode()).append("\n");
 	
 	if(entityObj.getRegistrator() is not None):
-		txtBuilder.append("Registrator: ").append(entityObj.getRegistrator().getUserId()).append("\n");
-		txtBuilder.append("Registration Date: ").append(str(entityObj.getRegistrationDate())).append("\n");
+		txtBuilder.append("- Registrator: ").append(entityObj.getRegistrator().getUserId()).append("\n");
+		txtBuilder.append("- Registration Date: ").append(str(entityObj.getRegistrationDate())).append("\n");
 	
 	if entityObj.getModifier() is not None:
-		txtBuilder.append("Modifier: ").append(entityObj.getModifier().getUserId()).append("\n");
-		txtBuilder.append("Modification Date: ").append(str(entityObj.getModificationDate())).append("\n");
+		txtBuilder.append("- Modifier: ").append(entityObj.getModifier().getUserId()).append("\n");
+		txtBuilder.append("- Modification Date: ").append(str(entityObj.getModificationDate())).append("\n");
 	
 	
 	if isinstance(entityObj, Project):
@@ -444,11 +521,11 @@ def getTXT(entityObj, v3, sessionToken):
 		txtBuilder.append("# Parents:").append("\n");
 		parents = entityObj.getParents();
 		for parent in parents:
-			txtBuilder.append(parent.getCode()).append("\n");
+			txtBuilder.append("- ").append(parent.getCode()).append("\n");
 		txtBuilder.append("# Children:").append("\n");
 		children = entityObj.getChildren();
 		for child in children:
-			txtBuilder.append(child.getCode()).append("\n");
+			txtBuilder.append("- ").append(child.getCode()).append("\n");
 	
 	if not isinstance(entityObj, Project):
 		txtBuilder.append("# Properties:").append("\n");
@@ -458,9 +535,9 @@ def getTXT(entityObj, v3, sessionToken):
 			propertyType = propertyAssigment.getPropertyType();
 			if propertyType.getCode() in properties:
 				propertyValue = properties[propertyType.getCode()];
-				if(propertyType.getDataType() == DataType.MULTILINE_VARCHAR):
-					propertyValue = strip_tags(propertyValue);
-				txtBuilder.append(propertyType.getLabel()).append(": ").append(propertyValue).append("\n");
+				if(propertyType.getDataType() == DataType.MULTILINE_VARCHAR and isRichText is False):
+					propertyValue = strip_tags(propertyValue).strip();
+				txtBuilder.append("- ").append(propertyType.getLabel()).append(": ").append(propertyValue).append("\n");
 	
 	return txtBuilder.toString();
 	
