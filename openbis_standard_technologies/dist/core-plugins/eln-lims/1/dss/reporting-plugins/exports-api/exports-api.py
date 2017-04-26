@@ -378,8 +378,11 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
             entityTXT = String(getTXT(entityObj, v3, sessionToken, False));
             addFile(tempDirPath, entityFilePath, "txt", entityTXT.getBytes(), zos);
             #DOCX
-            entityDOCX = getDOCX(entityObj, v3, sessionToken);
-            addFile(tempDirPath, entityFilePath, "html", entityDOCX, zos);
+            entityDOCX = getDOCX(entityObj, v3, sessionToken, False);
+            addFile(tempDirPath, entityFilePath, "docx", entityDOCX, zos);
+            #HTML
+            entityHTML = getDOCX(entityObj, v3, sessionToken, True);
+            addFile(tempDirPath, entityFilePath, "html", entityHTML, zos);
 			
 			
 	zos.close();
@@ -397,7 +400,7 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	FileUtils.forceDelete(File(tempZipFilePath));
 	return True
 
-def getDOCX(entityObj, v3, sessionToken):
+def getDOCX(entityObj, v3, sessionToken, isHTML):
     docxBuilder = DOCXBuilder();
     docxBuilder.addTitle(entityObj.getCode());
     docxBuilder.addHeader("Identification Info");
@@ -466,7 +469,10 @@ def getDOCX(entityObj, v3, sessionToken):
                 propertyValue = properties[propertyType.getCode()];
                 docxBuilder.addProperty(propertyType.getLabel(), propertyValue);
     
-    return docxBuilder.getHTMLBytes();
+    if isHTML:
+        return docxBuilder.getHTMLBytes();
+    else:
+        return docxBuilder.getDocBytes();
 
 def getTXT(entityObj, v3, sessionToken, isRichText):
 	txtBuilder = StringBuilder();

@@ -53,6 +53,12 @@ public class DOCXBuilder
 
     public void addProperty(String key, String value)
     {
+        // Cleans Rich text editor headers and footers if they are found
+        if (value.startsWith("<?xml"))
+        {
+            value = value.substring("<?xml version=\"1.0\" encoding=\"UTF-8\"?><html><head></head><body>".length() + 1,
+                    value.length() - "</body></html>".length());
+        }
         doc.append("<p>").append("<b>").append(key).append(": ").append("</b>").append(value).append("</p>");
     }
 
