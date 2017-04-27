@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -71,6 +72,10 @@ public class ETLServiceAuthorizationTest extends BaseTest
 
     private Project anotherProject;
 
+    private Sample sharedSample;
+
+    private Sample childSharedSample;
+
     @BeforeMethod
     public void createSomeEntities()
     {
@@ -80,6 +85,8 @@ public class ETLServiceAuthorizationTest extends BaseTest
         anotherProject = create(aProject().inSpace(anotherSpace));
         experiment = create(anExperiment().inProject(project));
         sample = create(aSample().inExperiment(experiment));
+        sharedSample = create(aSample());
+        childSharedSample = create(aSample().withParent(sharedSample));
         create(aSample().inExperiment(experiment));
     }
 
@@ -93,6 +100,17 @@ public class ETLServiceAuthorizationTest extends BaseTest
                         ListSampleCriteria.createForExperiment(new TechId(experiment.getId())));
 
         assertEquals(2, samples.size());
+    }
+    
+    @Test
+    public void testListSharedSampleByASpaceUser()
+    {
+        String sessionToken = create(aSession().withSpaceRole(RoleWithHierarchy.SPACE_USER, space));
+
+        List<Sample> samples = etlService.listSamples(sessionToken, ListSampleCriteria.createForParent(new TechId(sharedSample)));
+        
+        assertEquals(childSharedSample.getId(), samples.get(0).getId());
+        assertEquals(1, samples.size());
     }
 
     @Test(expectedExceptions =
