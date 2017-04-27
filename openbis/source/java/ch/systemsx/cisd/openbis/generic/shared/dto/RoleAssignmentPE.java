@@ -68,6 +68,8 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
 
     private SpacePE space;
 
+    private ProjectPE project;
+
     private PersonPE person;
 
     private AuthorizationGroupPE authorizationGroup;
@@ -143,6 +145,17 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
     public final void setSpace(final SpacePE space)
     {
         this.space = space;
+    }
+
+    @Transient
+    public ProjectPE getProject()
+    {
+        return project;
+    }
+
+    public void setProject(ProjectPE project)
+    {
+        this.project = project;
     }
 
     //

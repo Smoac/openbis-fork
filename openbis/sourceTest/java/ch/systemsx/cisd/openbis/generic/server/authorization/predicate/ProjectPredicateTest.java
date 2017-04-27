@@ -18,76 +18,53 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author Pawel Glyzewski
  */
-public class ProjectPredicateTest extends AuthorizationTestCase
+public class ProjectPredicateTest extends CommonPredicateTest<Project>
 {
-    private static final Project SPACE_PROJECT = new Project(SPACE.getCode(), "PROJECT");
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "No project specified.")
-    public void testWithNonexistentProjectForInstanceUser()
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, Project object)
     {
-        prepareProvider(ALL_SPACES);
-        evaluate(null, createInstanceRole(RoleCode.ADMIN));
+        expectAuthorizationConfig(config);
+        prepareProvider(ALL_SPACES_PE);
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "No project specified.")
-    public void testWithNonexistentProjectForSpaceUser()
+    @Override
+    protected Project createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        prepareProvider(ALL_SPACES);
-        evaluate(null, createSpaceRole(RoleCode.ADMIN, SPACE));
+        return new Project(spacePE.getCode(), projectPE.getCode());
     }
 
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-        assertError(evaluate(SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertError(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
-    }
-
-    private Status evaluate(Project project, RoleWithIdentifier... roles)
+    @Override
+    protected Status evaluateObject(Project object, RoleWithIdentifier... roles)
     {
         ProjectPredicate predicate = new ProjectPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON, Arrays.asList(roles), project);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+    }
+
+    @Override
+    protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
+    {
+        assertNull(result);
+        assertEquals(UserFailureException.class, t.getClass());
+        assertEquals("No project specified.", t.getMessage());
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
     }
 
 }

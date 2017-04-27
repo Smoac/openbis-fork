@@ -20,6 +20,10 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -48,6 +52,18 @@ public class ProjectPermIdPredicate extends AbstractSpacePredicate<PermId>
         {
             return Status.OK;
         }
+
+        IProjectAuthorization<ProjectPE> pa = new ProjectAuthorizationBuilder<ProjectPE>()
+                .withData(authorizationDataProvider)
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectProviderFromProjectPE(project))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
         return evaluateSpace(person, allowedRoles, project.getSpace());
     }
 

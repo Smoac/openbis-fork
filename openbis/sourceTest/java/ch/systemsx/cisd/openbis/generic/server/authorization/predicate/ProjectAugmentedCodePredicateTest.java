@@ -18,77 +18,65 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
-
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectAugmentedCodePredicateTest extends AuthorizationTestCase
+public class ProjectAugmentedCodePredicateTest extends CommonPredicateTest<String>
 {
 
-    private static String SPACE_PROJECT = "/" + SPACE_CODE + "/PROJECT";
+    private static String PROJECT_IDENTIFIER = "/" + SPACE_CODE + "/" + SPACE_PROJECT_CODE;
 
-    private static String ANOTHER_SPACE_PROJECT = "/" + ANOTHER_SPACE_CODE + "/PROJECT";
+    private static String NON_EXISTENT_PROJECT_IDENTIFIER = "/" + NON_EXISTENT_SPACE_CODE + "/" + NON_EXISTENT_SPACE_PROJECT_CODE;
 
-    @Test
-    public void testWithNonexistentSpaceForInstanceUser()
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, String object)
     {
-        prepareProvider(Arrays.asList(SPACE));
-        assertOK(evaluate(ANOTHER_SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
+        expectAuthorizationConfig(config);
+        prepareProvider(Arrays.asList(SPACE_PE));
     }
 
-    @Test
-    public void testWithNonexistentSpaceForSpaceUser()
+    @Override
+    protected String createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        prepareProvider(Arrays.asList(SPACE));
-        assertError(evaluate(ANOTHER_SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
+        if (SPACE_PE.equals(spacePE) && SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return PROJECT_IDENTIFIER;
+        } else if (NON_EXISTENT_SPACE_PE.equals(spacePE) && NON_EXISTENT_SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return NON_EXISTENT_PROJECT_IDENTIFIER;
+        } else
+        {
+            throw new RuntimeException();
+        }
     }
 
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-        assertError(evaluate(SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertError(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
-    }
-
-    private Status evaluate(String projectIdentifier, RoleWithIdentifier... roles)
+    @Override
+    protected Status evaluateObject(String object, RoleWithIdentifier... roles)
     {
         ProjectAugmentedCodePredicate predicate = new ProjectAugmentedCodePredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON, Arrays.asList(roles), projectIdentifier);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+    }
+
+    @Override
+    protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
+    {
+        assertNull(result);
+        assertEquals(UserFailureException.class, t.getClass());
+        assertEquals("No project specified.", t.getMessage());
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
     }
 
 }

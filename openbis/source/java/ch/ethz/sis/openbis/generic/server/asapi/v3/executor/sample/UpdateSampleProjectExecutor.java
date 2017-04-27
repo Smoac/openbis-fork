@@ -30,7 +30,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IMapProjectByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -41,6 +43,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelationExecutor<SampleUpdate, SamplePE, IProjectId, ProjectPE>
         implements IUpdateSampleProjectExecutor
 {
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Autowired
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
@@ -77,7 +82,10 @@ public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelati
     @Override
     protected void check(IOperationContext context, SamplePE entity, IProjectId relatedId, ProjectPE related)
     {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }

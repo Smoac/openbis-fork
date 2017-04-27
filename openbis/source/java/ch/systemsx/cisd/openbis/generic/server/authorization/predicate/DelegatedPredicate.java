@@ -65,7 +65,7 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
     }
 
     @Override
-    public final Status doEvaluation(final PersonPE person,
+    public Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T value)
     {
         P convertedValue = tryConvert(value);

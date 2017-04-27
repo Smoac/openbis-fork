@@ -19,141 +19,88 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.Arrays;
 
 import org.jmock.Expectations;
-import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectTechIdPredicateTest extends AuthorizationTestCase
+public class ProjectTechIdPredicateTest extends CommonPredicateTest<TechId>
 {
 
-    private static Long PROJECT_ID = 123L;
+    private static TechId PROJECT_ID = new TechId(123L);
 
-    @Test
-    public void testWithNonexistentProjectForInstanceUser()
+    private static TechId NON_EXISTENT_PROJECT_ID = new TechId(234L);
+
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, final TechId object)
     {
-        prepareProvider(ALL_SPACES);
+        prepareProvider(ALL_SPACES_PE);
+        expectAuthorizationConfig(config);
 
         context.checking(new Expectations()
             {
                 {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(null));
+                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, object);
+
+                    if (PROJECT_ID.equals(object))
+                    {
+                        will(returnValue(SPACE_PE));
+                    } else if (NON_EXISTENT_PROJECT_ID.equals(object))
+                    {
+                        will(returnValue(null));
+                    }
+
+                    allowing(provider).tryGetProjectByTechId(object);
+
+                    if (PROJECT_ID.equals(object))
+                    {
+                        will(returnValue(SPACE_PROJECT_PE));
+                    } else if (NON_EXISTENT_PROJECT_ID.equals(object))
+                    {
+                        will(returnValue(null));
+                    }
                 }
             });
-
-        assertError(evaluate(PROJECT_ID, createInstanceRole(RoleCode.ADMIN)));
     }
 
-    @Test
-    public void testWithNonexistentProjectForSpaceUser()
+    @Override
+    protected TechId createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(null));
-                }
-            });
-
-        assertError(evaluate(PROJECT_ID, createSpaceRole(RoleCode.ADMIN, SPACE)));
+        if (SPACE_PE.equals(spacePE) && SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return PROJECT_ID;
+        } else if (NON_EXISTENT_SPACE_PE.equals(spacePE) && NON_EXISTENT_SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return NON_EXISTENT_PROJECT_ID;
+        } else
+        {
+            throw new RuntimeException();
+        }
     }
 
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(SPACE));
-                }
-            });
-
-        assertError(evaluate(PROJECT_ID));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(SPACE));
-                }
-            });
-
-        assertOK(evaluate(PROJECT_ID, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(SPACE));
-                }
-            });
-
-        assertOK(evaluate(PROJECT_ID, createInstanceRole(RoleCode.ADMIN)));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(SPACE));
-                }
-            });
-
-        assertOK(evaluate(PROJECT_ID, createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, new TechId(PROJECT_ID));
-                    will(returnValue(SPACE));
-                }
-            });
-
-        assertError(evaluate(PROJECT_ID, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
-    }
-
-    private Status evaluate(long techId, RoleWithIdentifier... roles)
+    @Override
+    protected Status evaluateObject(TechId object, RoleWithIdentifier... roles)
     {
         ProjectTechIdPredicate predicate = new ProjectTechIdPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON, Arrays.asList(roles), new TechId(123L));
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+    }
+
+    @Override
+    protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
+    {
+        assertNull(result);
+        assertEquals(UserFailureException.class, t.getClass());
+        assertEquals("No technical id specified.", t.getMessage());
     }
 
 }

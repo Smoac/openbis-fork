@@ -16,8 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectV1;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -36,6 +45,23 @@ public class ProjectPredicate extends DelegatedPredicate<SpaceIdentifier, Projec
     public SpaceIdentifier tryConvert(Project project)
     {
         return new ProjectIdentifier(project.getSpaceCode(), project.getCode());
+    }
+
+    @Override
+    public Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, Project value)
+    {
+        IProjectAuthorization<Project> pa = new ProjectAuthorizationBuilder<Project>()
+                .withData(authorizationDataProvider)
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectProviderFromProjectV1(value))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
+        return super.doEvaluation(person, allowedRoles, value);
     }
 
     @Override

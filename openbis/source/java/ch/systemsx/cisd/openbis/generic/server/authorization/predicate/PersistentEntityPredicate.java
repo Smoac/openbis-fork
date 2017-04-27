@@ -37,6 +37,8 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
     // write. This flag tells if only the read-only access is required to database instance objects.
     private final boolean isReadAccess;
 
+    protected IAuthorizationDataProvider provider;
+
     /**
      * Default: authenticate for write access.
      */
@@ -68,8 +70,7 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
             if (level.equals(RoleLevel.INSTANCE))
             {
                 return Status.OK;
-            }
-            else if (level.equals(RoleLevel.SPACE) && allowed.getAssignedSpace().equals(space))
+            } else if (level.equals(RoleLevel.SPACE) && allowed.getAssignedSpace().equals(space))
             {
                 return Status.OK;
             }
@@ -83,5 +84,6 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
     @Override
     public void init(IAuthorizationDataProvider provider)
     {
+        this.provider = provider;
     }
 }

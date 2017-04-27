@@ -1,8 +1,12 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Query;
@@ -11,6 +15,7 @@ import org.hibernate.Session;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
@@ -45,6 +50,12 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
+    public IAuthorizationConfig getAuthorizationConfig()
+    {
+        return daoFactory.getAuthorizationConfig();
+    }
+
+    @Override
     public List<SpacePE> listSpaces()
     {
         return daoFactory.getSpaceDAO().listSpaces();
@@ -72,6 +83,34 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     public ProjectPE tryGetProjectByPermId(PermId permId)
     {
         return daoFactory.getProjectDAO().tryGetByPermID(permId.getId());
+    }
+
+    @Override
+    public ProjectPE tryGetProjectByTechId(TechId techId)
+    {
+        return daoFactory.getProjectDAO().tryGetByTechId(techId);
+    }
+
+    @Override
+    public Map<TechId, ProjectPE> tryGetProjectsByTechIds(Collection<TechId> techIds)
+    {
+        Collection<Long> ids = new ArrayList<Long>();
+
+        for (TechId techId : techIds)
+        {
+            ids.add(techId.getId());
+        }
+
+        List<ProjectPE> projects = daoFactory.getProjectDAO().listByIDs(ids);
+
+        Map<TechId, ProjectPE> map = new HashMap<TechId, ProjectPE>();
+
+        for (ProjectPE project : projects)
+        {
+            map.put(new TechId(project.getId()), project);
+        }
+
+        return map;
     }
 
     @Override
@@ -447,8 +486,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
      * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in calling methods.
      * </p>
      */
-    @SuppressWarnings(
-    { "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static final <T> List<T> cast(final List list)
     {
         return list;

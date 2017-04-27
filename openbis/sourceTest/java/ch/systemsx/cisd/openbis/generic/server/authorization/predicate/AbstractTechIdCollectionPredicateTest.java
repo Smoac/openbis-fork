@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.DataSetTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ExperimentTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ProjectTechIdCollectionPredicate;
@@ -44,6 +45,8 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
         ProjectTechIdCollectionPredicate predicate = new ProjectTechIdCollectionPredicate();
         prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
+        
+        expectAuthorizationConfig(new TestAuthorizationConfig(false));
         context.checking(new Expectations()
             {
                 {

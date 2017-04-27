@@ -20,6 +20,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -39,18 +40,30 @@ public final class RoleWithIdentifier
 
     private final SpacePE spaceOrNull;
 
+    private final ProjectPE projectOrNull;
+
     @Private
-    RoleWithIdentifier(final RoleLevel roleLevel, final RoleCode roleName, final SpacePE spaceOrNull)
+    RoleWithIdentifier(final RoleLevel roleLevel, final RoleCode roleName, final SpacePE spaceOrNull, final ProjectPE projectOrNull)
     {
         role = RoleWithHierarchy.valueOf(roleLevel, roleName);
+
         if (RoleLevel.SPACE.equals(roleLevel))
         {
-            assert spaceOrNull != null : "Unspecified identifier";
+            assert spaceOrNull != null : "Unspecified space";
         } else
         {
             assert spaceOrNull == null;
         }
         this.spaceOrNull = spaceOrNull;
+
+        if (RoleLevel.PROJECT.equals(roleLevel))
+        {
+            assert projectOrNull != null : "Unspecified project";
+        } else
+        {
+            assert projectOrNull == null;
+        }
+        this.projectOrNull = projectOrNull;
     }
 
     /**
@@ -65,6 +78,17 @@ public final class RoleWithIdentifier
     }
 
     /**
+     * This method can be called only if role is defined on the project level.
+     * 
+     * @return project to which the role is assigned
+     */
+    public final ProjectPE getAssignedProject()
+    {
+        assert projectOrNull != null;
+        return projectOrNull;
+    }
+
+    /**
      * Create a <code>RoleWithCode</code> from given <var>roleAssignment</var>.
      */
     public final static RoleWithIdentifier createRole(final RoleAssignmentPE roleAssignment)
@@ -73,14 +97,22 @@ public final class RoleWithIdentifier
         final RoleLevel roleLevel = figureRoleLevel(roleAssignment);
         final RoleCode roleName = roleAssignment.getRole();
         final SpacePE space = roleAssignment.getSpace();
-        return new RoleWithIdentifier(roleLevel, roleName, space);
+        final ProjectPE project = roleAssignment.getProject();
+        return new RoleWithIdentifier(roleLevel, roleName, space, project);
     }
 
     private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)
     {
-        final RoleLevel roleLevel =
-                roleAssignment.getSpace() != null ? RoleLevel.SPACE : RoleLevel.INSTANCE;
-        return roleLevel;
+        if (roleAssignment.getProject() != null)
+        {
+            return RoleLevel.PROJECT;
+        } else if (roleAssignment.getSpace() != null)
+        {
+            return RoleLevel.SPACE;
+        } else
+        {
+            return RoleLevel.INSTANCE;
+        }
     }
 
     //
@@ -97,7 +129,16 @@ public final class RoleWithIdentifier
 
     private String createOwnerDescription()
     {
-        return IdentifierHelper.createGroupIdentifier(spaceOrNull).toString();
+        if (projectOrNull != null)
+        {
+            return IdentifierHelper.createProjectIdentifier(projectOrNull).toString();
+        } else if (spaceOrNull != null)
+        {
+            return IdentifierHelper.createGroupIdentifier(spaceOrNull).toString();
+        } else
+        {
+            return RoleLevel.INSTANCE.name();
+        }
     }
 
     public RoleLevel getRoleLevel()

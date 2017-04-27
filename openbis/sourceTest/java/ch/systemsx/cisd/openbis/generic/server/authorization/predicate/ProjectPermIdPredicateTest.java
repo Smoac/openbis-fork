@@ -19,150 +19,94 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.Arrays;
 
 import org.jmock.Expectations;
-import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectPermIdPredicateTest extends AuthorizationTestCase
+public class ProjectPermIdPredicateTest extends CommonPredicateTest<PermId>
 {
 
-    private static final PermId SPACE_PROJECT_PERM_ID = new PermId("projectPermId");
+    private static final PermId PROJECT_PERM_ID = new PermId("projectPermId");
 
-    private static final ProjectPE SPACE_PROJECT = new ProjectPE();
+    private static final PermId NON_EXISTENT_PROJECT_PERM_ID = new PermId("nonExistentProjectPermId");
 
-    private static final ProjectPE ANOTHER_SPACE_PROJECT = new ProjectPE();
-
-    static
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, final PermId object)
     {
-        SPACE_PROJECT.setSpace(SPACE);
-        ANOTHER_SPACE_PROJECT.setSpace(ANOTHER_SPACE);
-    }
-
-    @Test
-    public void testWithNonexistentProjectForInstanceUser()
-    {
-        prepareProvider(ALL_SPACES);
+        prepareProvider(ALL_SPACES_PE);
+        expectAuthorizationConfig(config);
 
         context.checking(new Expectations()
             {
                 {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(null));
+                    allowing(provider).tryGetProjectByPermId(object);
+
+                    if (PROJECT_PERM_ID.equals(object))
+                    {
+                        will(returnValue(SPACE_PROJECT_PE));
+                    } else if (NON_EXISTENT_PROJECT_PERM_ID.equals(object))
+                    {
+                        will(returnValue(null));
+                    }
                 }
             });
-
-        assertOK(evaluate(SPACE_PROJECT_PERM_ID, createInstanceRole(RoleCode.ADMIN)));
     }
 
-    @Test
-    public void testWithNonexistentProjectForSpaceUser()
+    @Override
+    protected PermId createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(null));
-                }
-            });
-
-        assertOK(evaluate(SPACE_PROJECT_PERM_ID, createSpaceRole(RoleCode.ADMIN, SPACE)));
+        if (SPACE_PE.equals(spacePE) && SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return PROJECT_PERM_ID;
+        } else if (NON_EXISTENT_SPACE_PE.equals(spacePE) && NON_EXISTENT_SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return NON_EXISTENT_PROJECT_PERM_ID;
+        } else
+        {
+            throw new RuntimeException();
+        }
     }
 
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(SPACE_PROJECT));
-                }
-            });
-
-        assertError(evaluate(SPACE_PROJECT_PERM_ID));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(SPACE_PROJECT));
-                }
-            });
-
-        assertOK(evaluate(SPACE_PROJECT_PERM_ID, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(SPACE_PROJECT));
-                }
-            });
-
-        assertOK(evaluate(SPACE_PROJECT_PERM_ID, createInstanceRole(RoleCode.ADMIN)));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(SPACE_PROJECT));
-                }
-            });
-
-        assertOK(evaluate(SPACE_PROJECT_PERM_ID, createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryGetProjectByPermId(SPACE_PROJECT_PERM_ID);
-                    will(returnValue(SPACE_PROJECT));
-                }
-            });
-
-        assertError(evaluate(SPACE_PROJECT_PERM_ID, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
-    }
-
-    private Status evaluate(PermId permId, RoleWithIdentifier... roles)
+    @Override
+    protected Status evaluateObject(PermId object, RoleWithIdentifier... roles)
     {
         ProjectPermIdPredicate predicate = new ProjectPermIdPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON, Arrays.asList(roles), permId);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+    }
+
+    @Override
+    protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
+    {
+        assertNull(result);
+        assertEquals(UserFailureException.class, t.getClass());
+        assertEquals("No project perm id specified.", t.getMessage());
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForSpaceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForProjectUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
     }
 
 }

@@ -18,77 +18,49 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
-
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectPEPredicateTest extends AuthorizationTestCase
+public class ProjectPEPredicateTest extends CommonPredicateTest<ProjectPE>
 {
 
-    private static final ProjectPE SPACE_PROJECT = new ProjectPE();
-
-    private static final ProjectPE ANOTHER_SPACE_PROJECT = new ProjectPE();
-
-    static
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, ProjectPE object)
     {
-        SPACE_PROJECT.setSpace(SPACE);
-        ANOTHER_SPACE_PROJECT.setSpace(ANOTHER_SPACE);
+        expectAuthorizationConfig(config);
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
-    public void testWithNonexistentProjectForInstanceUser()
+    @Override
+    protected ProjectPE createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        evaluate(null, createInstanceRole(RoleCode.ADMIN));
+        return projectPE;
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
-    public void testWithNonexistentProjectForSpaceUser()
-    {
-        evaluate(null, createSpaceRole(RoleCode.ADMIN, SPACE));
-    }
-
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        assertError(evaluate(SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        assertOK(evaluate(SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        assertError(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
-    }
-
-    private Status evaluate(ProjectPE project, RoleWithIdentifier... roles)
+    @Override
+    protected Status evaluateObject(ProjectPE object, RoleWithIdentifier... roles)
     {
         ProjectPEPredicate predicate = new ProjectPEPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON, Arrays.asList(roles), project);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+    }
+
+    @Override
+    protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
+    {
+        assertNull(result);
+        assertEquals(NullPointerException.class, t.getClass());
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
     }
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +24,10 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectsProviderFromTechIdCollection;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -72,6 +77,24 @@ public class AbstractTechIdCollectionPredicate extends AbstractSpacePredicate<Li
         public ProjectTechIdCollectionPredicate()
         {
             super(SpaceOwnerKind.PROJECT);
+        }
+
+        @Override
+        protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, List<TechId> techIds)
+        {
+            IProjectAuthorization<TechId> pa = new ProjectAuthorizationBuilder<TechId>()
+                    .withData(authorizationDataProvider)
+                    .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                    .withObjects(new ProjectsProviderFromTechIdCollection(techIds))
+                    .build();
+
+            if (pa.getObjectsWithoutAccess().isEmpty())
+            {
+                return Status.OK;
+            } else
+            {
+                return super.doEvaluation(person, allowedRoles, new ArrayList<TechId>(pa.getObjectsWithoutAccess()));
+            }
         }
     }
 

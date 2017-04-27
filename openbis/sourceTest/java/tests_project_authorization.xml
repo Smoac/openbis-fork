@@ -1,8 +1,12 @@
 <suite name="projectAuthorization" verbose="2">
 	<test name="unit" annotations="JDK">
+		<groups>
+			<run>
+				<exclude name="broken" />
+			</run>
+		</groups>
 		<packages>
-			<package
-				name="ch.systemsx.cisd.openbis.generic.server.authorization.predicate.*" />
+			<package name="ch.systemsx.cisd.openbis.generic.server.authorization.*" />
 		</packages>
 	</test>
 </suite>

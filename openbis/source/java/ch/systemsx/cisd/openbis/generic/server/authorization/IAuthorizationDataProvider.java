@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -47,6 +50,11 @@ public interface IAuthorizationDataProvider
      * Returns the DAO factory.
      */
     public IAuthorizationDAOFactory getDaoFactory();
+
+    /**
+     * Returns the authorization configuration.
+     */
+    public IAuthorizationConfig getAuthorizationConfig();
 
     /**
      * Returns a list of all data spaces.
@@ -81,6 +89,20 @@ public interface IAuthorizationDataProvider
      * @return <code>null</code> if no project can be found.
      */
     public ProjectPE tryGetProjectByPermId(PermId permId);
+
+    /**
+     * Returns the project for the given <var>techId</var>
+     * 
+     * @return <code>null</code> if no project can be found.
+     */
+    public ProjectPE tryGetProjectByTechId(TechId techId);
+
+    /**
+     * Returns projects for the given collection of <var>techIds</var>
+     * 
+     * @return Map of found projects.
+     */
+    public Map<TechId, ProjectPE> tryGetProjectsByTechIds(Collection<TechId> techId);
 
     /**
      * Returns the project for the given <var>permId</var>

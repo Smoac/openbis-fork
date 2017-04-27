@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProject;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -41,8 +45,21 @@ public final class ProjectValidator extends AbstractValidator<Project>
     @Override
     public final boolean doValidation(final PersonPE person, final Project value)
     {
-        final Space space = value.getSpace();
-        return groupValidator.isValid(person, space);
+        boolean result = groupValidator.isValid(person, value.getSpace());
+
+        if (result)
+        {
+            return result;
+        } else
+        {
+            IProjectAuthorization<Project> pa = new ProjectAuthorizationBuilder<Project>()
+                    .withData(authorizationDataProvider)
+                    .withRoles(new RolesProviderFromPersonPE(person))
+                    .withObjects(new ProjectProviderFromProject(value))
+                    .build();
+
+            return pa.getObjectsWithoutAccess().isEmpty();
+        }
     }
 
 }

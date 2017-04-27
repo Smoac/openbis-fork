@@ -16,69 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectByIdentiferValidatorTest extends AuthorizationTestCase
+public class ProjectByIdentiferValidatorTest extends CommonValidatorTest<Project>
 {
 
-    private static final Project SPACE_PROJECT = new Project(SPACE_CODE, "PROJECT");
-
-    @Test(expectedExceptions = AssertionError.class, expectedExceptionsMessageRegExp = "Unspecified value")
-    public void testWithNull()
+    @Override
+    protected Project createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        PersonPE person = createPersonWithRoleAssignments(createInstanceRoleAssignment(RoleCode.ADMIN));
-        assertFalse(validate(person, null));
+        return new Project(spacePE.getCode(), projectPE.getCode());
     }
 
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        PersonPE person = createPerson();
-        assertFalse(validate(person, SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        PersonPE person = createPersonWithRoleAssignments(createSpaceRoleAssignment(RoleCode.ADMIN, ANOTHER_SPACE_CODE),
-                createSpaceRoleAssignment(RoleCode.ADMIN, SPACE_CODE));
-        assertTrue(validate(person, SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        PersonPE person = createPersonWithRoleAssignments(createInstanceRoleAssignment(RoleCode.ADMIN));
-        assertTrue(validate(person, SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        PersonPE person = createPersonWithRoleAssignments(createSpaceRoleAssignment(RoleCode.ADMIN, SPACE_CODE));
-        assertTrue(validate(person, SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        PersonPE person = createPersonWithRoleAssignments(createSpaceRoleAssignment(RoleCode.ADMIN, ANOTHER_SPACE_CODE));
-        assertFalse(validate(person, SPACE_PROJECT));
-    }
-
-    private boolean validate(PersonPE person, Project project)
+    @Override
+    protected boolean validateObject(PersonPE personPE, Project object)
     {
         ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
         validator.init(provider);
-        return validator.isValid(person, project);
+        return validator.isValid(personPE, object);
     }
 
 }

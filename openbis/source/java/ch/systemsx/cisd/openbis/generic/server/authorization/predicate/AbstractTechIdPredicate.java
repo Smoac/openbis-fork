@@ -21,6 +21,10 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromTechId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -84,6 +88,23 @@ public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<Tec
         public ProjectTechIdPredicate()
         {
             super(SpaceOwnerKind.PROJECT);
+        }
+
+        @Override
+        protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, TechId techId)
+        {
+            IProjectAuthorization<TechId> pa = new ProjectAuthorizationBuilder<TechId>()
+                    .withData(authorizationDataProvider)
+                    .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                    .withObjects(new ProjectProviderFromTechId(techId))
+                    .build();
+
+            if (pa.getObjectsWithoutAccess().isEmpty())
+            {
+                return Status.OK;
+            }
+
+            return super.doEvaluation(person, allowedRoles, techId);
         }
     }
 

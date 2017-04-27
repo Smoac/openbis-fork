@@ -16,6 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -29,5 +39,22 @@ public class ProjectPEPredicate extends PersistentEntityPredicate<ProjectPE>
     public SpacePE getSpace(ProjectPE project)
     {
         return project.getSpace();
+    }
+
+    @Override
+    public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, ProjectPE value) throws UserFailureException
+    {
+        IProjectAuthorization<ProjectPE> pa = new ProjectAuthorizationBuilder<ProjectPE>()
+                .withData(provider)
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectProviderFromProjectPE(value))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
+        return super.evaluate(person, allowedRoles, value);
     }
 }

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.sort.SampleSearchResultSorter;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
@@ -1104,7 +1105,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         // filter by user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+
         final ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         final ArrayList<Project> projects = new ArrayList<Project>();
         for (Project project : unfilteredProjects)
         {

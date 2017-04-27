@@ -27,9 +27,11 @@ import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -53,28 +55,71 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class AuthorizationTestCase extends AssertJUnit
 {
 
-    protected static final PersonPE PERSON = new PersonPE();
+    protected static final String AUTHORIZATION_CONFIG_PROVIDER = "authorizationConfigProvider";
+
+    protected static final PersonPE PERSON_PE = new PersonPE();
 
     protected static final String SPACE_CODE = "G1";
 
+    protected static final String SPACE_PROJECT_CODE = "P1";
+
     protected static final String ANOTHER_SPACE_CODE = "G2";
 
-    protected static final SpacePE SPACE = new SpacePE();
+    protected static final String ANOTHER_SPACE_PROJECT_CODE = "P2";
 
-    protected static final SpacePE ANOTHER_SPACE = new SpacePE();
+    protected static final String NON_EXISTENT_SPACE_CODE = "G3";
 
-    protected static final List<SpacePE> ALL_SPACES = Arrays.asList(SPACE, ANOTHER_SPACE);
+    protected static final String NON_EXISTENT_SPACE_PROJECT_CODE = "P3";
+
+    protected static final SpacePE SPACE_PE = new SpacePE();
+
+    protected static final ProjectPE SPACE_PROJECT_PE = new ProjectPE();
+
+    protected static final SpacePE ANOTHER_SPACE_PE = new SpacePE();
+
+    protected static final ProjectPE ANOTHER_SPACE_PROJECT_PE = new ProjectPE();
+
+    protected static final SpacePE NON_EXISTENT_SPACE_PE = new SpacePE();
+
+    protected static final ProjectPE NON_EXISTENT_SPACE_PROJECT_PE = new ProjectPE();
+
+    protected static final List<SpacePE> ALL_SPACES_PE = Arrays.asList(SPACE_PE, ANOTHER_SPACE_PE);
 
     static
     {
-        PERSON.setUserId("test");
-        SPACE.setCode(SPACE_CODE);
-        ANOTHER_SPACE.setCode(ANOTHER_SPACE_CODE);
+        PERSON_PE.setUserId("test");
+
+        SPACE_PE.setCode(SPACE_CODE);
+
+        SPACE_PROJECT_PE.setCode(SPACE_PROJECT_CODE);
+        SPACE_PROJECT_PE.setSpace(SPACE_PE);
+
+        ANOTHER_SPACE_PE.setCode(ANOTHER_SPACE_CODE);
+
+        ANOTHER_SPACE_PROJECT_PE.setCode(ANOTHER_SPACE_PROJECT_CODE);
+        ANOTHER_SPACE_PROJECT_PE.setSpace(ANOTHER_SPACE_PE);
+
+        NON_EXISTENT_SPACE_PE.setCode(NON_EXISTENT_SPACE_CODE);
+
+        NON_EXISTENT_SPACE_PROJECT_PE.setCode(NON_EXISTENT_SPACE_PROJECT_CODE);
+        NON_EXISTENT_SPACE_PROJECT_PE.setSpace(NON_EXISTENT_SPACE_PE);
     }
 
     protected Mockery context;
 
     protected IAuthorizationDataProvider provider;
+
+    protected RoleWithIdentifier createProjectRole(RoleCode roleCode, String spaceCode, String projectCode)
+    {
+        SpacePE spacePE = new SpacePE();
+        spacePE.setCode(spaceCode);
+
+        ProjectPE projectPE = new ProjectPE();
+        projectPE.setCode(projectCode);
+        projectPE.setSpace(spacePE);
+
+        return new RoleWithIdentifier(RoleLevel.PROJECT, roleCode, null, projectPE);
+    }
 
     /**
      * Creates a role with level {@link RoleLevel#SPACE} with specified role code for specified space.
@@ -84,16 +129,11 @@ public class AuthorizationTestCase extends AssertJUnit
         return createSpaceRole(roleCode, spaceIdentifier.getSpaceCode());
     }
 
-    protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, SpacePE spacePE)
-    {
-        return createSpaceRole(roleCode, spacePE.getCode());
-    }
-
     protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, String spaceCode)
     {
         SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceCode);
-        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, groupPE);
+        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, groupPE, null);
     }
 
     /**
@@ -101,7 +141,23 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected RoleWithIdentifier createInstanceRole(RoleCode roleCode)
     {
-        return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, null);
+        return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, null, null);
+    }
+
+    protected RoleAssignmentPE createProjectRoleAssignment(RoleCode roleCode, String spaceCode, String projectCode)
+    {
+        SpacePE space = new SpacePE();
+        space.setCode(spaceCode);
+
+        ProjectPE project = new ProjectPE();
+        project.setCode(projectCode);
+        project.setSpace(space);
+
+        RoleAssignmentPE assignment = new RoleAssignmentPE();
+        assignment.setRole(roleCode);
+        assignment.setProject(project);
+
+        return assignment;
     }
 
     protected RoleAssignmentPE createSpaceRoleAssignment(RoleCode roleCode, String spaceCode)
@@ -152,7 +208,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a group with code {@link #SPACE_CODE} and database instance with code {@link AuthorizationTestCase#INSTANCE_CODE}.
+     * Creates a group with code {@link #SPACE_CODE}.
      */
     protected SpacePE createSpace()
     {
@@ -160,7 +216,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a space with code {@link #ANOTHER_SPACE_CODE} and database instance with code {@link #ANOTHER_INSTANCE_CODE}.
+     * Creates a space with code {@link #ANOTHER_SPACE_CODE}.
      */
     protected SpacePE createAnotherSpace()
     {
@@ -186,8 +242,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a person with two {@link RoleAssignmentPE} instances. One ADMIN role for database instance {@link #INSTANCE_CODE} and a USER role for
-     * the group {@link #createAnotherSpace()}.
+     * Creates a person with two {@link RoleAssignmentPE} instances. One instance ADMIN role and a USER role for the group
+     * {@link #createAnotherSpace()}.
      */
     protected PersonPE createPersonWithRoleAssignments()
     {
@@ -204,8 +260,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Assigns two {@link RoleAssignmentPE} instances to specified person. One ADMIN role for database instance {@link #INSTANCE_CODE} and a USER role
-     * for the group {@link #createAnotherSpace()}.
+     * Assigns two {@link RoleAssignmentPE} instances to specified person. One instance ADMIN role and a USER role for the group
+     * {@link #createAnotherSpace()}.
      */
     protected void assignRoles(PersonPE person)
     {
@@ -317,9 +373,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains a space role for a USER and group defined by code {@link #SPACE_CODE} and database instance
-     * {@link AuthorizationTestCase#INSTANCE_CODE}. If <code>withInstanceRole == true</code> the list contains in addition an instance role for a
-     * ADMIN and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
+     * Creates a list of roles which contains a space role for a USER and group defined by code {@link #SPACE_CODE}. If
+     * <code>withInstanceRole == true</code> the list contains in addition an instance ADMIN role.
      */
     protected List<RoleWithIdentifier> createRoles(final boolean withInstanceRole)
     {
@@ -367,6 +422,25 @@ public class AuthorizationTestCase extends AssertJUnit
                     will(returnValue(spacePE));
                 }
             });
+    }
+
+    protected void expectAuthorizationConfig(final IAuthorizationConfig config)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(config));
+                }
+            });
+    }
+
+    @DataProvider(name = AUTHORIZATION_CONFIG_PROVIDER)
+    protected Object[][] provideAuthorizationConfig()
+    {
+        return new Object[][] {
+                { new TestAuthorizationConfig(false) },
+                { new TestAuthorizationConfig(true) } };
     }
 
     protected static void assertOK(Status status)

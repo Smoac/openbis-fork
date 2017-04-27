@@ -29,7 +29,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IMapProjectByIdExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
@@ -41,6 +43,9 @@ public class SetExperimentProjectExecutor extends AbstractSetEntityToOneRelation
         implements
         ISetExperimentProjectExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
@@ -71,7 +76,10 @@ public class SetExperimentProjectExecutor extends AbstractSetEntityToOneRelation
             throw new UserFailureException("Project id cannot be null.");
         }
 
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }

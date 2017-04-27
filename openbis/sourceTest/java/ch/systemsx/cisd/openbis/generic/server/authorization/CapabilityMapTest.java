@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -81,7 +80,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A: SPACE_POWER_USER\t", "# Some comment", "",
-                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
+                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -102,7 +101,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A:SPACE_POWER_USER\t", "# Some comment", "",
-                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
+                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -123,7 +122,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A :SPACE_POWER_USER\t", "# Some comment", "",
-                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
+                        " B  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -144,7 +143,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER\t", "# Some comment", "",
-                        " b  instance_etl_server"), "<memory>", new TestAuthorizationConfig());
+                        " b  instance_etl_server"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -165,7 +164,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A  SPACE_POWER_USER\t",
-                        " A  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
+                        " A  INSTANCE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(2, capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"), null)
@@ -181,7 +180,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER,INSTANCE_ETL_SERVER\t"),
-                        "<memory>", new TestAuthorizationConfig());
+                        "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(2, capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"), null)
@@ -197,7 +196,7 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A\tSPACE_POWER_USER,INSTANCE_ETL_SERVER; "
-                        + "sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
+                        + "sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertRoles("[INSTANCE_ETL_SERVER, SPACE_POWER_USER]", capMap, "dummyA1", null);
@@ -208,7 +207,7 @@ public class CapabilityMapTest
     public void testOnlyParameterRoles() throws Exception
     {
         CapabilityMap capMap =
-                new CapabilityMap(Arrays.asList("a : sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig());
+                new CapabilityMap(Arrays.asList("a : sample = SPACE_USER, SPACE_ETL_SERVER"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertNoRoles(capMap, "dummyA1", null);
@@ -221,7 +220,7 @@ public class CapabilityMapTest
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList(
                         "CapabilityMapTest.dummyA: SPACE_POWER_USER #wrong",
-                        "CapabilityMapTest.dummyB  NO_ROLE"), "<memory>", new TestAuthorizationConfig());
+                        "CapabilityMapTest.dummyB  NO_ROLE"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("WARN  OPERATION.CapabilityMap - Ignoring mal-formed line "
                 + "'CapabilityMapTest.dummyA: SPACE_POWER_USER #wrong' in <memory> "
@@ -239,7 +238,7 @@ public class CapabilityMapTest
     public void testUserRoleDisabled() throws SecurityException, NoSuchMethodException
     {
         CapabilityMap capMap =
-                new CapabilityMap(Arrays.asList("A: INSTANCE_DISABLED\t"), "<memory>", new TestAuthorizationConfig());
+                new CapabilityMap(Arrays.asList("A: INSTANCE_DISABLED\t"), "<memory>", new TestAuthorizationConfig(false));
 
         assertEquals("", logRecorder.getLogContent());
         assertEquals(
@@ -266,17 +265,6 @@ public class CapabilityMapTest
     {
         Collection<RoleWithHierarchy> roles = capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod(methodName), argumentNameOrNull);
         assertEquals(null, roles);
-    }
-
-    private static class TestAuthorizationConfig implements IAuthorizationConfig
-    {
-
-        @Override
-        public boolean isProjectLevelEnabled()
-        {
-            return false;
-        }
-
     }
 
 }

@@ -69,12 +69,12 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     public final void testFactory()
     {
         SpacePE group = new SpacePE();
-        new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, group);
-        new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, null);
+        new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, group, null);
+        new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, null, null);
         boolean fail = true;
         try
         {
-            new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, null);
+            new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, null, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -83,7 +83,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         fail = true;
         try
         {
-            new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, group);
+            new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, group, null);
         } catch (final AssertionError ex)
         {
             fail = false;

@@ -18,78 +18,65 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
-
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class NewProjectPredicateTest extends AuthorizationTestCase
+public class NewProjectPredicateTest extends CommonPredicateTest<NewProject>
 {
 
-    private static NewProject SPACE_PROJECT = new NewProject("/" + SPACE_CODE + "/PROJECT", "space project");
-
-    private static NewProject ANOTHER_SPACE_PROJECT = new NewProject("/" + ANOTHER_SPACE_CODE + "/PROJECT", "another space project");
-
-    @Test
-    public void testWithNonexistentSpaceForInstanceUser()
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, NewProject object)
     {
-        prepareProvider(Arrays.asList(SPACE));
-        assertOK(evaluate(ANOTHER_SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
+        expectAuthorizationConfig(config);
+        prepareProvider(ALL_SPACES_PE);
     }
 
-    @Test
-    public void testWithNonexistentSpaceForSpaceUser()
+    @Override
+    protected NewProject createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        prepareProvider(Arrays.asList(SPACE));
-        assertOK(evaluate(ANOTHER_SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
+        return new NewProject("/" + spacePE.getCode() + "/" + projectPE.getCode(), "description");
     }
 
-    @Test
-    public void testWithNoAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-        assertError(evaluate(SPACE_PROJECT));
-    }
-
-    @Test
-    public void testWithMultipleAllowedRoles()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE), createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithInstanceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createInstanceRole(RoleCode.ADMIN)));
-    }
-
-    @Test
-    public void testWithMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertOK(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, SPACE)));
-    }
-
-    @Test
-    public void testWithNonMatchingSpaceUser()
-    {
-        prepareProvider(ALL_SPACES);
-        assertError(evaluate(SPACE_PROJECT, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE)));
-    }
-
-    private Status evaluate(NewProject newProject, RoleWithIdentifier... roles)
+    @Override
+    protected Status evaluateObject(NewProject object, RoleWithIdentifier... roles)
     {
         NewProjectPredicate predicate = new NewProjectPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON, Arrays.asList(roles), newProject);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+    }
+
+    @Override
+    protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
+    {
+        assertNull(result);
+        assertEquals(UserFailureException.class, t.getClass());
+        assertEquals("No new project specified.", t.getMessage());
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForSpaceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForProjectUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
     }
 
 }
