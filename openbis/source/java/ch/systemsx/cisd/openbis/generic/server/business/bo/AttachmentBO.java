@@ -25,9 +25,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -56,6 +59,7 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
     {
         IAttachmentDAO attachmentDAO = getAttachmentDAO();
         attachmentDAO.deleteAttachments(holder, reason, fileNames, session.tryGetPerson());
+        updateModificationDateAndModifier(holder);
     }
 
     @Override
@@ -65,8 +69,19 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
         attachment.setDescription(attachmentDTO.getDescription());
         attachment.setTitle(attachmentDTO.getTitle());
         dataChanged = true;
+        updateModificationDateAndModifier(holder);
     }
 
+    private void updateModificationDateAndModifier(final AttachmentHolderPE holder)
+    {
+        if (holder instanceof IModifierAndModificationDateBean)
+        {
+            IModifierAndModificationDateBean entity = (IModifierAndModificationDateBean) holder;
+            PersonPE user = findPerson();
+            RelationshipUtils.updateModificationDateAndModifier(entity, user, getTransactionTimeStamp());
+        }
+    }
+    
     @Override
     public final void save()
     {

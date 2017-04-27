@@ -193,7 +193,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         loginAsObserver();
         samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);
 
-        assertEntities("[]", samples);
+        assertEntities("[/MP]", samples);
     }
 
     @Test
@@ -424,7 +424,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria,
                         fetchOptions);
 
-        assertEntities("[]", samples);
+        assertEntities("[/DP]", samples);
     }
 
     @Test
@@ -537,7 +537,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria,
                         fetchOptions);
 
-        assertEntities("[]", samples);
+        assertEntities("[/DP]", samples);
     }
 
     @Test

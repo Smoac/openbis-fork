@@ -33,10 +33,15 @@ public class SimpleSpaceValidator extends AbstractValidator<ICodeHolder>
     public boolean doValidation(PersonPE person, ICodeHolder value)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
+        String spaceCode = value.getCode();
+        if (spaceCode == null && roleAssignments.isEmpty() == false)
+        {
+            return true;
+        }
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final SpacePE space = roleAssignment.getSpace();
-            if ((space != null && space.getCode().equals(value.getCode()))
+            if ((space != null && space.getCode().equals(spaceCode))
                     || space == null)
             {
                 return true;

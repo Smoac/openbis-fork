@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
@@ -166,7 +167,16 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
 
     private MatchingEntity addHighLights(MatchingEntity entity)
     {
-        for (PropertyMatch match : entity.getMatches())
+        List<PropertyMatch> matches = entity.getMatches();
+        Collections.sort(matches, new SimpleComparator<PropertyMatch, String>()
+            {
+                @Override
+                public String evaluate(PropertyMatch item)
+                {
+                    return item.getCode() + ": " + item.getValue();
+                }
+            });
+        for (PropertyMatch match : matches)
         {
             String rawValue = match.getValue();
             String highlighted = "";

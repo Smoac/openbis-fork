@@ -325,7 +325,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE>implemen
 
         hibernateTemplate.flush();
 
-        scheduleRemoveFromFullTextIndex(owner);
+        scheduleDynamicPropertiesEvaluation(owner);
 
         if (operationLog.isInfoEnabled())
         {
@@ -345,18 +345,6 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE>implemen
             IEntityInformationWithPropertiesHolder entity = (IEntityInformationWithPropertiesHolder) owner;
             persistencyResources.getDynamicPropertyEvaluationScheduler()
                     .scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entity.getClass(), Arrays.asList(entity.getId())));
-        }
-    }
-
-    protected void scheduleRemoveFromFullTextIndex(final AttachmentHolderPE owner)
-    {
-        // refresh the owner data in the index if the owner is a Sample or an Experiment
-        if (IEntityInformationWithPropertiesHolder.class.isAssignableFrom(owner.getClass()))
-        {
-            IEntityInformationWithPropertiesHolder entity = (IEntityInformationWithPropertiesHolder) owner;
-
-            persistencyResources.getDynamicPropertyEvaluationScheduler()
-                    .scheduleUpdate(DynamicPropertyEvaluationOperation.delete(entity.getClass(), Arrays.asList(entity.getId())));
         }
     }
 }

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
  * A {@link IValidator} implementation suitable for {@link Sample}.
@@ -49,15 +48,7 @@ public final class SampleValidator extends AbstractValidator<Sample>
             return matchesSpace(person, space);
         } else
         {
-
-            for (RoleAssignmentPE assignment : person.getRoleAssignments())
-            {
-                if (assignment.getSpace() == null)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return person.getRoleAssignments().isEmpty() == false;
         }
     }
 
