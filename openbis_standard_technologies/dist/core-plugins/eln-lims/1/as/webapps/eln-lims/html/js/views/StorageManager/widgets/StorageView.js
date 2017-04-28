@@ -214,7 +214,14 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 				//Labels
 				var labels = [];
 				samples.forEach(function(element, index, array) {
-					var code = element.code;
+					var displayName = null;
+					var name = element.properties[profile.propertyReplacingCode];
+					if(name) {
+						displayName = element.code +"(" + name + ")";
+					} else {
+						displayName = element.code;
+					}
+					
 					var positionProp  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
 					if(positionProp) {
 						var positions = positionProp.split(" ");
@@ -240,7 +247,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 								if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
 									continue;
 								} else {
-									label = { displayName : code, data : element };
+									label = { displayName : displayName, data : element };
 									col.push(label);
 								}
 							}
