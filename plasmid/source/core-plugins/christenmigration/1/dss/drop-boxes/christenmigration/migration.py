@@ -222,8 +222,8 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
              if sampleType == "STRAIN":
                   experiment = getExperimentForUpdate("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", sampleType, tr)              
-             elif sampleType == "PLASMID":
-                  experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)                         
+             elif sampleType == "DNA":
+                  experiment = getExperimentForUpdate("/MATERIALS/DNA/DNA_COLLECTION_1", sampleType, tr)                         
              elif sampleType == "OLIGO":
                   experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)                  
              sample = tr.createNewSample(sampleIdentifier, sampleType)
@@ -345,7 +345,7 @@ globalStrainsCodeCheck = {};
 
 class StrainAdaptor(FileMakerEntityAdaptor):
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Strain Collection\""
+        self.selectQuery = "SELECT * FROM \"BCstrains_ETH\""
         
         self.definition = definitions.strainDefinition
         FileMakerEntityAdaptor.init(self)
@@ -369,93 +369,60 @@ class StrainOpenBISDTO(FMOpenBISDTO):
     def getIdentifier(self, tr):
         if self.code is not None:
             return self.code;
-        elif (self.values["BBPL_NUM"] is not None and self.values["BBPL_NUM"] not in globalStrainsCodeCheck):
-            self.code = "BBPL" + self.values["BBPL_NUM"]
-            globalStrainsCodeCheck[self.values["BBPL_NUM"]] = True
+        elif (self.values["PLASMID_ID"] is not None and self.values["PLASMID_ID"] not in globalStrainsCodeCheck):
+            self.code = "BC" + self.values["PLASMID_ID"]
+            globalStrainsCodeCheck[self.values["PLASMID_ID"]] = True
         else:
-            nextNum = getNextGlobalSequence("BBPL", 0)
-            self.code = "BBPL_missing_" + nextNum;
+            nextNum = getNextGlobalSequence("BC", 0)
+            self.code = "BC_missing_" + nextNum;
             globalStrainsCodeCheck[nextNum] = True
         return self.code
 
-    # def getIdentifier(self, tr):
-    #     code=""
-    #     if (self.values["BBPL_NUM"] is not None):
-    #         # print "BBPL num", self.values["BBPL_NUM"]
-    #         code = "BBPL" +self.values["BBPL_NUM"]
-    #     else:
-    #         code="BBPL" + getNextGlobalSequence("BBPL", None);
-    #         # print "CODE 0", code
-    #     return code
 
 
 ##
-## Plasmids
+## DNA
 ##
 
-globalPlasmidsCodeCheck = {};
-globalPlasmidsList = [];
 
-class PlasmidAdaptor(FileMakerEntityAdaptor):
-    
+
+globalDNACodeCheck = {};
+
+class DNAAdaptor(FileMakerEntityAdaptor):
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Strain Collection\""
-        self.definition = definitions.plasmidDefinition
+        self.selectQuery = "SELECT * FROM \"Plasmids\""
+        
+        self.definition = definitions.DNADefinition
         FileMakerEntityAdaptor.init(self)
     
     def addEntity(self, values):
-        self.entities.append(PlasmidOpenBISDTO(values, self.definition))
-        
-class PlasmidOpenBISDTO(FMOpenBISDTO):
+        self.entities.append(DNAOpenBISDTO(values, self.definition))
+ 
+class DNAOpenBISDTO(FMOpenBISDTO):
     code = None;
-    setParents = False; ## Should be true the second time
+
+    def isSampleCacheable(self):
+            return False    
 
     def write(self, tr):
-        code = self.getIdentifier(tr)
-        sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
-        if self.setParents is False:
-            setEntityProperties(tr, self.definition, sample, self.values)
-            globalPlasmidsList.append(self);
-            self.setParents = True;
-            if (self.values["NAME"] is not None and len(self.values["NAME"]) > 0 and self.values["NAME"] not in sampleID2Sample):
-                print "Cached Sample with name: '" + self.values["NAME"] + "' for '" + "/MATERIALS/" + code + "' in dict with size: " + str(len(sampleID2Sample))
-                parentName = unicode(self.values["NAME"], "utf-8");
-                sampleID2Sample[parentName] = sample
-        else:
-            parentsColumn = self.values["DERIVATIVE_OF"];
-            if parentsColumn is not None:
-                print "Looking for parents : '" + parentsColumn + "'"
-                parentsNames = parentsColumn.strip().split(" and ")
-                parentsList = [];
-                for parentName in parentsNames:
-                    parentName = unicode(parentName, "utf-8");
-                    if parentName in sampleID2Sample:
-                        parentObject = sampleID2Sample[parentName]
-                        parentsList.append(parentObject.getSampleIdentifier())
-                    else:
-                        print "Parent name not found : '" + parentName + "' for dict with size : " + str(len(sampleID2Sample))
-                            
-                if len(parentsList) > 0:
-                    sample.setParentSampleIdentifiers(parentsList)
-    
+        code = self.getIdentifier(tr);
+
+        sample = getSampleForUpdate("/MATERIALS/"+code,"DNA", tr)
+        setEntityProperties(tr, self.definition, sample, self.values)
+        
+
     def getIdentifier(self, tr):
         if self.code is not None:
             return self.code;
-        elif (self.values["PL_NUMBER"] is not None and self.values["PL_NUMBER"] not in globalPlasmidsCodeCheck):
-            self.code = "PBPL" + self.values["PL_NUMBER"]
-            globalPlasmidsCodeCheck[self.values["PL_NUMBER"]] = True
+        elif (self.values["PLASMID_ID"] is not None and self.values["PLASMID_ID"] not in globalDNACodeCheck):
+            self.code = "DNA" + self.values["PLASMID_ID"]
+            globalDNACodeCheck[self.values["PLASMID_ID"]] = True
         else:
-            nextNum = getNextGlobalSequence("PBPL", 0)
-            self.code = "PBPL_missing_" + nextNum;
-            globalPlasmidsCodeCheck[nextNum] = True
+            nextNum = getNextGlobalSequence("DNA", 0)
+            self.code = "DNA_missing_" + nextNum;
+            globalDNACodeCheck[nextNum] = True
         return self.code
 
-class PlasmidParentAdaptor(EntityAdaptor):    
-    def init(self):
-        self.entities = []
-        self.entitiesIdx = -1
-        for plasmid in globalPlasmidsList:
-            self.entities.append(plasmid);
 
 
 ##
@@ -463,7 +430,7 @@ class PlasmidParentAdaptor(EntityAdaptor):
 ##
 class OligoAdaptor(FileMakerEntityAdaptor):
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Strain Collection\""
+        self.selectQuery = "SELECT * FROM \"Oligo_Beat\""
         self.definition = definitions.oligoDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -472,7 +439,7 @@ class OligoAdaptor(FileMakerEntityAdaptor):
         
 class OligoOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
-        code = "OBPL" + self.values["OBPL_NUMBER"];
+        code = "OLI" + self.values["PRIMER_NUMBER"];
         print "CODE IS:", code
         if code is not None:
             print "/MATERIALS/"+code
@@ -483,10 +450,10 @@ class OligoOpenBISDTO(FMOpenBISDTO):
     
     def getIdentifier(self, tr):
         code=""
-        if (self.values["OBPL_NUMBER"] is not None):
-            code = "OBPL" + self.values["OBPL_NUMBER"]
+        if (self.values["PRIMER_NUMBER"] is not None):
+            code = "OLI" + self.values["PRIMER_NUMBER"]
         else:
-            code = "OBPL" + getNextGlobalSequence("OBPL", None);
+            code = "OLI" + getNextGlobalSequence("OLI", None);
         return code
 
 
@@ -494,15 +461,14 @@ class OligoOpenBISDTO(FMOpenBISDTO):
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 #fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 fmUser= "admin"
-fmPass = "kanamycin"
+fmPass = "filegod64+"
 
 
 
 adaptors = [
-             #OligoAdaptor(fmConnString, fmUser, fmPass, "03_BPL_Oligo_Collection"),
-             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "pBPL_Plasmid_Collection_2014"),
-             #PlasmidParentAdaptor(),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "bBPL_Strain_Collection")
+             #OligoAdaptor(fmConnString, fmUser, fmPass, "Christen_Oligo_Collection"),
+             #DNAAdaptor(fmConnString, fmUser, fmPass, "Christen_DNA_collection"),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Christen_BCstrains_ETH_2014_1")
              ]
 
 
@@ -510,13 +476,9 @@ adaptors = [
 
 
 def createDataHierarchy(tr):
-    inventorySpace = tr.getSpace("MATERIALS")
-    if inventorySpace == None:
-        tr.createNewSpace("MATERIALS", None)
-        tr.createNewSpace("METHODS", None)
+    DNAExperiment = tr.getExperiment("/MATERIALS/DNA/DNA_COLLECTION_1")
+    if DNAExperiment == None:
         tr.createNewProject("/MATERIALS/STRAINS")
-        tr.createNewProject("/MATERIALS/PLASMIDS")
-        tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES")
+        tr.createNewProject("/MATERIALS/DNA")
         tr.createNewExperiment("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", "MATERIALS")
-        tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1","MATERIALS")
-        tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1","MATERIALS")                                   
+        tr.createNewExperiment("/MATERIALS/DNA/DNA_COLLECTION_1", "MATERIALS")
