@@ -297,7 +297,8 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"SAMPLE_PARENTS_HINT" : [{
 						"LABEL" : "Products",
 						"TYPE": "PRODUCT",
-						"MIN_COUNT" : 0,
+						"MIN_COUNT" : 1,
+						"MAX_COUNT" : 1,
 						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY_OF_ITEMS", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
 					}]
 				},

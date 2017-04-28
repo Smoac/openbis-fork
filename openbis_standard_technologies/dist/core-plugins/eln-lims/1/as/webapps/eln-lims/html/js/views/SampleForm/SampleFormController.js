@@ -165,6 +165,24 @@ function SampleFormController(mainController, mode, sample) {
 		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete) {
 			
 			//
+			// TODO : Remove this hack without removing the New Producs Widget 
+			//
+			if(sample.sampleTypeCode === "REQUEST") {
+				var maxProducts;
+				if(profile.sampleTypeDefinitionsExtension && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"] && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"] && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]) {
+					maxProducts = profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]["MAX_COUNT"];
+				}
+				
+				if(maxProducts && (sampleParentsFinal.length + newSampleParents.length) > maxProducts) {
+					Util.showError("There is more than " + maxProducts + " product.");
+					return;
+				}
+			}
+			
+			//
 			//Identification Info
 			//
 			var sampleSpace = sample.spaceCode;
