@@ -467,7 +467,8 @@ def getDOCX(entityObj, v3, sessionToken, isHTML):
             propertyType = propertyAssigment.getPropertyType();
             if propertyType.getCode() in properties:
                 propertyValue = properties[propertyType.getCode()];
-                docxBuilder.addProperty(propertyType.getLabel(), propertyValue);
+                if propertyValue != u"\uFFFD(undefined)":
+                    docxBuilder.addProperty(propertyType.getLabel(), propertyValue);
     
     if isHTML:
         return docxBuilder.getHTMLBytes();
@@ -541,9 +542,10 @@ def getTXT(entityObj, v3, sessionToken, isRichText):
 			propertyType = propertyAssigment.getPropertyType();
 			if propertyType.getCode() in properties:
 				propertyValue = properties[propertyType.getCode()];
-				if(propertyType.getDataType() == DataType.MULTILINE_VARCHAR and isRichText is False):
-					propertyValue = strip_tags(propertyValue).strip();
-				txtBuilder.append("- ").append(propertyType.getLabel()).append(": ").append(propertyValue).append("\n");
+                if propertyValue != u"\uFFFD(undefined)":
+    				if(propertyType.getDataType() == DataType.MULTILINE_VARCHAR and isRichText is False):
+    					propertyValue = strip_tags(propertyValue).strip();
+    				txtBuilder.append("- ").append(propertyType.getLabel()).append(": ").append(propertyValue).append("\n");
 	
 	return txtBuilder.toString();
 	
