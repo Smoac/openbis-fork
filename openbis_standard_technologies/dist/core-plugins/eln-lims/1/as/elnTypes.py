@@ -971,6 +971,7 @@ PRODUCT = [MANDATORY_ITEM_VERSION, False, "PRODUCT", "", [
 
 REQUEST = [MANDATORY_ITEM_VERSION, False, "REQUEST", "", [
         [MANDATORY_ITEM_VERSION, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
+        [MANDATORY_ITEM_VERSION, "ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None, True],
         [MANDATORY_ITEM_VERSION, "PROJECT",                             "General",            "Project",                            DataType.VARCHAR,                   None,                       "Project",                          None,       None],
         [MANDATORY_ITEM_VERSION, "DEPARTMENT",                          "General",            "Department",                         DataType.VARCHAR,                   None,                       "Department",                       None,       None],
         [MANDATORY_ITEM_VERSION, "BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],

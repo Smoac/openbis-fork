@@ -162,7 +162,7 @@ function SampleFormController(mainController, mode, sample) {
 		
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
-		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete) {
+		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete, newChangesToDo) {
 			
 			//
 			// TODO : Remove this hack without removing the New Producs Widget 
@@ -251,6 +251,8 @@ function SampleFormController(mainController, mode, sample) {
 			
 			if(_this._plateController) {
 				changesToDo = _this._plateController.getChangesToDo();
+			} else if(newChangesToDo) {
+				changesToDo = newChangesToDo;
 			}
 			
 			var parameters = {

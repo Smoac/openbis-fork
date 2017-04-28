@@ -435,19 +435,20 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 			if(sample.sampleTypeCode === "ORDER") {
 				var orderStatus = sample.properties["ORDER_STATUS"];
 				var samplesToDelete = null;
+				var changesToDo = null;
 				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["ORDER_STATE"]) {
 					//Set property
 					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
-					//Delete requests
-					samplesToDelete = [];
+					//Update order state on the requests
+					changesToDo = [];
 					var requests = sample.parents;
 					if(requests) {
 						for(var rIdx = 0; rIdx < requests.length; rIdx++) {
-							samplesToDelete.push(requests[rIdx].permId);
+							changesToDo.push({ "permId" : requests[rIdx].permId, "identifier" : requests[rIdx].identifier, "properties" : {"ORDER_STATUS" : orderStatus } });
 						}
 					}
 				}
-				action(sample, null, samplesToDelete);
+				action(sample, null, samplesToDelete, changesToDo);
 			} else if(sample.sampleTypeCode === "REQUEST") {
 				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
 			} else if(action) {
