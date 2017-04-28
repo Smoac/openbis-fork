@@ -408,6 +408,10 @@ function LinksView(linksController, linksModel) {
 				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode } }
 		}
 		
+		if(sampleTypeCode === "REQUEST") {
+			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "ORDER_STATUS", value : "NOT_YET_ORDERED" };
+		}
+		
 		var rowClick = function(e) {
 			linksController.addSample(e.data["$object"]);
 			$container.empty().hide();
