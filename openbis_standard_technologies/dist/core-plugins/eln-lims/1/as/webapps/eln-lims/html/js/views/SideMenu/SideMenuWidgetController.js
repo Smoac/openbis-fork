@@ -72,11 +72,10 @@ function SideMenuWidgetController(mainController) {
 		
         var resize = function(event) {
         	var $elementHead = $("#sideMenuHeader");
-            var sideMenuHeaderHeight = $elementHead.height();
+            var sideMenuHeaderHeight = $elementHead.outerHeight();
             var $elementBody = $("#sideMenuBody");
             var height = $( window ).height();
-            //TODO cheapfix sideMenuHeaderHeight not calculated correctly
-            $elementBody.css('height', height - 55);
+            $elementBody.css('height', height - sideMenuHeaderHeight);
         }
         
         LayoutManager.addResizeEventHandler(resize);
