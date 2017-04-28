@@ -12,6 +12,14 @@ var LayoutManager = {
 	secondColumn : null,
 	secondColumnHeader : null,
 	secondColumnContent : null,
+	secondColumnContentResize : function() {
+		var width = $( window ).width();
+		if (width > LayoutManager.TABLET_SIZE) {
+			LayoutManager.secondColumnContent.css({
+				height : $( window ).height() - LayoutManager.secondColumnHeader.outerHeight()
+			});
+		}
+	},
 	thirdColumn : null,
 	isResizingColumn : false,
 	isLoadingView : false,
@@ -95,6 +103,8 @@ var LayoutManager = {
 			
 			this.secondColumn.append(this.secondColumnHeader);
 			this.secondColumn.append(this.secondColumnContent);
+			$(this.secondColumnHeader).on( "DOMNodeInserted", this.secondColumnContentResize);
+			$(this.secondColumnHeader).on( "DOMNodeRemoved", this.secondColumnContentResize);
 		}
 		
 		if(this.thirdColumn == null) {
@@ -360,20 +370,7 @@ var LayoutManager = {
 		for(var idx = 0; idx < this.resizeEventHandlers.length; idx++) {
 			this.resizeEventHandlers[idx]();
 		}
-
-		//TODO : avoid this cheap fix
-		var _this = this;
-		var cheapFix = function() {
-			//Resizes second column content to take in count header size
-			var width = $( window ).width();
-			if (width > _this.TABLET_SIZE) {
-				_this.secondColumnContent.css({
-						height : $( window ).height() - _this.secondColumnHeader.height()
-				});
-				console.log("Second column height fix");
-			}
-		}
-		setTimeout(cheapFix, 500);
+		this.secondColumnContentResize();
 	},
 	resize : function(view, forceFirstTime) {
 		if(this.canReload()) {
@@ -383,6 +380,5 @@ var LayoutManager = {
 }
 
 $(window).resize(function() {
-	console.log("window resize called");
 	LayoutManager.resize(mainController.views, true);
 });
