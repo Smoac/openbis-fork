@@ -147,20 +147,50 @@ public class ProjectAuthorizationEnabled<O> implements IProjectAuthorization<O>
     {
         for (IRole role : roles)
         {
-            IProject roleProject = role.getProject();
+            if (hasAccess(role, project))
+            {
+                return true;
+            }
+        }
 
-            if (roleProject == null)
+        return false;
+    }
+
+    private boolean hasAccess(IRole role, IProject project)
+    {
+        IProject roleProject = role.getProject();
+
+        if (roleProject == null)
+        {
+            return false;
+        }
+
+        boolean idNN = areNotNull(project.getId(), roleProject.getId());
+        boolean permIdNN = areNotNull(project.getPermId(), roleProject.getPermId());
+        boolean identifierNN = areNotNull(project.getIdentifier(), roleProject.getIdentifier());
+
+        boolean idEqual = areEqual(project.getId(), roleProject.getId());
+        boolean permIdEqual = areEqual(project.getPermId(), roleProject.getPermId());
+        boolean identifierEqual = areEqual(project.getIdentifier(), roleProject.getIdentifier());
+
+        if (idNN && permIdNN)
+        {
+            return idEqual && permIdEqual;
+        } else
+        {
+            if (idNN)
             {
-                continue;
-            } else if (areNotNullAndEqual(project.getId(), roleProject.getId()))
+                return idEqual;
+            }
+
+            if (permIdNN)
             {
-                return true;
-            } else if (areNotNullAndEqual(project.getPermId(), roleProject.getPermId()))
+                return permIdEqual;
+            }
+
+            if (identifierNN)
             {
-                return true;
-            } else if (areNotNullAndEqual(project.getIdentifier(), roleProject.getIdentifier()))
-            {
-                return true;
+                return identifierEqual;
             }
         }
 
@@ -247,14 +277,9 @@ public class ProjectAuthorizationEnabled<O> implements IProjectAuthorization<O>
         }
     }
 
-    private static boolean areNotNullAndEqual(Object o1, Object o2)
+    private static boolean areNotNull(Object o1, Object o2)
     {
-        if (o1 == null || o2 == null)
-        {
-            return false;
-        }
-
-        return o1.equals(o2);
+        return o1 != null && o2 != null;
     }
 
 }
