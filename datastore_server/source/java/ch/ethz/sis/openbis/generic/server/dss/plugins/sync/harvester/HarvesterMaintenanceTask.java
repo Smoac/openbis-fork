@@ -204,8 +204,6 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 {
                     newCutOffTimestamp = resourceListTimestamp;
                 }
-                operationLog.info("Saving the timestamp of sync start to file");
-
                 Date newLastIncSyncTimestamp = newCutOffTimestamp;
                 Date newLastFullSyncTimestamp = timestamps.lastFullSyncTimestamp;
                 if (isFullSync == true)
@@ -213,7 +211,11 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                     newLastFullSyncTimestamp = newCutOffTimestamp;
                 }
 
-                saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
+                if (config.isDryRun() == false)
+                {
+                    operationLog.info("Saving the timestamp of sync start to file");
+                    saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
+                }
 
                 operationLog.info(this.getClass() + " finished executing.");
             } catch (Exception e)

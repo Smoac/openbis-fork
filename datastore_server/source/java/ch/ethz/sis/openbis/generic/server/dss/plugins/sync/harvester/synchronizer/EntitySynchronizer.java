@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
@@ -95,6 +96,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -111,6 +113,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -198,7 +201,6 @@ public class EntitySynchronizer
             nameTranslator = new PrefixBasedNameTranslator(dataSourceAlias);
         }
 
-        // TODO re-think
         ResourceListParser parser = ResourceListParser.create(nameTranslator, dataStoreCode);
         ResourceListParserData data = parser.parseResourceListDocument(doc);
 
@@ -224,13 +226,30 @@ public class EntitySynchronizer
         processMetaData(data, builder);
 
         operationLog.info("Registering meta data...");
-        AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
-        operationLog.info("entity operation result: " + operationResult);
+
+        operationLog.info("The following meta data will be registered");
+
+        detailedLogEntityOperations(builder.getDetails());
+
+        if (config.isDryRun() == false)
+        {
+            AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
+            operationLog.info("entity operation result: " + operationResult);
+        }
 
         operationLog.info("processing attachments...");
         List<IncomingEntity<?>> attachmentHoldersToProcess =
                 data.filterAttachmentHoldersByLastModificationDate(lastSyncTimestamp, attachmentHolderCodesToRetry);
-        List<String> notSyncedAttachmentsHolders = processAttachments(attachmentHoldersToProcess);
+        operationLog.info("Attachments for the following entities will be processed");
+        for (IncomingEntity<?> holder : attachmentHoldersToProcess)
+        {
+            operationLog.info(holder.getIdentifer());
+        }
+        List<String> notSyncedAttachmentsHolders = new ArrayList<String>();
+        if (config.isDryRun() == false)
+        {
+            notSyncedAttachmentsHolders = processAttachments(attachmentHoldersToProcess);
+        }
 
         // register physical data sets without any hierarchy
         // Note that container/component and parent/child relationships are established post-reg.
@@ -238,26 +257,101 @@ public class EntitySynchronizer
         Map<String, IncomingDataSet> physicalDSMap =
                 data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp, dataSetsCodesToRetry);
         operationLog.info("Registering data sets...");
-        DataSetRegistrationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
-        // backup the current not synched data set codes file, delete the original file
+        operationLog.info("The following physical data sets will be registered");
+        for (String dsCode : physicalDSMap.keySet()) {
+            operationLog.info(dsCode);
+        }
+        
+        List<String> notRegisteredDataSetCodes = new ArrayList<>();
+        if (config.isDryRun() == false)
+        {
+            DataSetRegistrationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
 
-        saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
+            // backup the current not synched data set codes file, delete the original file
+            saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
 
-        operationLog.info("Data set registration summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
+            notRegisteredDataSetCodes = dsRegistrationSummary.notRegisteredDataSetCodes;
+            operationLog.info("Data set registration summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
                 + dsRegistrationSummary.updatedDsCount
                 + " data set(s) were updated.\n"
-                + dsRegistrationSummary.notRegisteredDataSetCodes.size()
+                    + notRegisteredDataSetCodes.size()
                 + " data set(s) FAILED to register ");
+        }
 
         // link physical data sets registered above to container data sets
         // and set parent/child relationships
         operationLog.info("\n");
         operationLog.info("start linking/un-linking container and component data sets");
-        establishDataSetRelationships(data.getDataSetsToProcess(), dsRegistrationSummary.notRegisteredDataSetCodes, physicalDSMap);
+        establishDataSetRelationships(data.getDataSetsToProcess(), notRegisteredDataSetCodes, physicalDSMap);
 
         // cleanup();
 
         return data.getResourceListTimestamp();
+    }
+
+    private void detailedLogEntityOperations(AtomicEntityOperationDetails details)
+    {
+        List<NewSpace> spaceRegistrations = details.getSpaceRegistrations();
+        if(spaceRegistrations.size() > 0) {
+            operationLog.info("Following spaces will be created ");
+            for (NewSpace newSpace : spaceRegistrations)
+            {
+                operationLog.info(newSpace.getCode());
+            }
+        }
+        detailedLogRegistrationOperation(details.getProjectRegistrations());
+        detailedLogRegistrationOperation(details.getExperimentRegistrations());
+        detailedLogRegistrationOperation(details.getSampleRegistrations());
+        List<SampleUpdatesDTO> sampleUpdates = details.getSampleUpdates();
+        if (sampleUpdates.isEmpty() == false) {
+            operationLog.info("Following samples will be updated ");
+            for (SampleUpdatesDTO dto : sampleUpdates)
+            {
+                operationLog.info(dto.getSampleIdentifier());
+            }
+        }
+        // detailedLogRegistrationOperation(details.getMaterialRegistrations());
+        // detailedLogUpdateOperation(details.getExperimentUpdates());
+        details.getProjectUpdates();
+        details.getExperimentUpdates();
+        details.getDataSetRegistrations();
+        details.getDataSetUpdates();
+        details.getMaterialRegistrations();
+        details.getMaterialUpdates();
+        // TODO Auto-generated method stub
+
+    }
+
+    private void detailedLogUpdateOperation(List<ExperimentUpdatesDTO> list)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void detailedLogRegistrationOperation(List<? extends Identifier<?>> entityRegistrations)
+    {
+        if (entityRegistrations.isEmpty() == false)
+        {
+            Identifier<?> identifier = entityRegistrations.get(0);
+            String entityKind = "";
+            if (identifier instanceof NewSample)
+            {
+                entityKind = EntityKind.SAMPLE.getLabel();
+            }
+            else if (identifier instanceof NewExperiment)
+            {
+                entityKind = EntityKind.EXPERIMENT.getLabel();
+            }
+            else if (identifier instanceof NewExperiment)
+            {
+                entityKind = EntityKind.PROJECT.getLabel();
+            }
+            operationLog.info("Following " + entityKind + "(s) will be created ");
+            for (Identifier<?> entity : entityRegistrations)
+            {
+                operationLog.info(entity.getIdentifier());
+            }
+        }
     }
 
     private List<String> processAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess)
@@ -410,6 +504,12 @@ public class EntitySynchronizer
                 dsBatchUpdatesDTO.getDetails().setExperimentUpdateRequested(true);
             }
             builder.dataSetUpdate(dsBatchUpdatesDTO);
+        }
+        if (config.isDryRun())
+        {
+            operationLog.info("The following parent-child, container-component relationships will be established");
+            operationLog.info(builder.getDetails().toString());
+            return;
         }
         AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
         operationLog.info("entity operation result: " + operationResult);
@@ -609,6 +709,22 @@ public class EntitySynchronizer
 
         IApplicationServerApi v3Api = ServiceProvider.getV3ApplicationService();
 
+        operationLog.info("The following will be PERMAMENTLY removed from openbis:");
+        logDeletions(dsPermIds, "data sets");
+        logDeletions(samplePermIds, "samples");
+        logDeletions(experimentPermIds, "experiments");
+        logDeletions(projectPermIds, "projects");
+
+        operationLog.info(matPermIds.size() + " materials with codes:");
+        for (MaterialPermId matPermId : matPermIds)
+        {
+            operationLog.info(matPermId.toString());
+        }
+
+        if (config.isDryRun() == true)
+        {
+            return;
+        }
         // delete data sets
         DataSetDeletionOptions dsDeletionOpts = new DataSetDeletionOptions();
         dsDeletionOpts.setReason("sync data set deletions"); // TODO maybe mention data source space id in the reason
@@ -680,6 +796,15 @@ public class EntitySynchronizer
             File datasetDir =
                     getDirectoryProvider().getDataSetDirectory(physicalDS);
             SegmentedStoreUtils.deleteDataSetInstantly(physicalDS.getCode(), datasetDir, new Log4jSimpleLogger(operationLog));
+        }
+    }
+
+    private void logDeletions(List<? extends ObjectPermId> permIds, String entityKind)
+    {
+        operationLog.info(permIds.size() + " " + entityKind + " with codes:");
+        for (ObjectPermId dsPermId : permIds)
+        {
+            operationLog.info(dsPermId.toString());
         }
     }
 
