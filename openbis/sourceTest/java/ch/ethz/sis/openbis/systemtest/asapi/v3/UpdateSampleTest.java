@@ -65,7 +65,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     {
         final SamplePermId permId = new SamplePermId("200811050947161-653");
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
         {
             @Override
             public void execute()
@@ -76,7 +76,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 update.setSampleId(permId);
                 v3api.updateSamples(sessionToken, Collections.singletonList(update));
             }
-        }, permId);
+        });
     }
 
 	@Test
@@ -409,7 +409,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         update.setSampleId(ids.get(0));
         update.setSpaceId(new SpacePermId("TEST-SPACE"));
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -417,7 +417,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                     String sessionToken2 = v3api.login(TEST_SPACE_USER, PASSWORD);
                     v3api.updateSamples(sessionToken2, Arrays.asList(update));
                 }
-            }, ids.get(0), patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/SAMPLE'")));
+            });
     }
 
     @Test

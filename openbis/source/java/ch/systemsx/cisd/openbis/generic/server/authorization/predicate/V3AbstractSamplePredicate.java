@@ -22,7 +22,7 @@ abstract class V3AbstractSamplePredicate<T> extends AbstractPredicate<List<T>>
     public V3AbstractSamplePredicate()
     {
         this.sampleAugmentedCodePredicate = new SampleAugmentedCodePredicate(new SampleOwnerIdentifierPredicate());
-        samplePermIdCollectionPredicate = new SamplePermIdCollectionPredicate();
+        samplePermIdCollectionPredicate = new SamplePermIdCollectionPredicate(false);
     }
 
     @Override
