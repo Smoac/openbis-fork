@@ -91,15 +91,26 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private DataSetProcessingContext context;
 
-    private Date lastIncSyncTimestamp;
-
-    private Date lastFullSyncTimestamp;
-
     private File harvesterConfigFile;
 
     private IMailClient mailClient;
 
     private String dataStoreCode;
+
+    class Timestamps
+    {
+        final Date lastIncSyncTimestamp;
+
+        final Date lastFullSyncTimestamp;
+
+        Timestamps(Date lastIncSyncTimestamp, Date lastFullSyncTimestamp)
+        {
+            super();
+            this.lastIncSyncTimestamp = lastIncSyncTimestamp;
+            this.lastFullSyncTimestamp = lastFullSyncTimestamp;
+        }
+
+    }
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -152,13 +163,28 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
                 String fileName = config.getLastSyncTimestampFileName();
                 File lastSyncTimestampFile = new File(fileName);
-                loadCutOffTimeStamps(lastSyncTimestampFile);
+                Timestamps timestamps = loadCutOffTimeStamps(lastSyncTimestampFile);
 
-                Date cutOffTimestamp = lastIncSyncTimestamp;
-                boolean isFullSync = lastSyncTimestampFile.exists() == false || isTimeForFullSync(config);
+                Date cutOffTimestamp = timestamps.lastIncSyncTimestamp;
+                boolean isFullSync = lastSyncTimestampFile.exists() == false || isTimeForFullSync(config, timestamps.lastFullSyncTimestamp);
+                operationLog.info("Last incremental sync timestamp: " + timestamps.lastIncSyncTimestamp);
+                operationLog.info("Last full sync timestamp: " + timestamps.lastFullSyncTimestamp);
                 if (isFullSync == true)
                 {
                     cutOffTimestamp = new Date(0L);
+                    if (lastSyncTimestampFile.exists() == false)
+                    {
+                        operationLog.info("Performing a full initial sync");
+                    }
+                    else
+                    {
+                        operationLog.info("Performing a full sync as a minimum of " + config.getFullSyncInterval()
+                                + " day(s) have elapsed since last full sync.");
+                    }
+                }
+                else
+                {
+                    operationLog.info("Performing an incremental sync");
                 }
                 String notSyncedEntitiesFileName = config.getNotSyncedEntitiesFileName();
                 Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedEntitiesFileName);
@@ -180,16 +206,16 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 }
                 operationLog.info("Saving the timestamp of sync start to file");
 
-                lastIncSyncTimestamp = newCutOffTimestamp;
+                Date newLastIncSyncTimestamp = newCutOffTimestamp;
+                Date newLastFullSyncTimestamp = timestamps.lastFullSyncTimestamp;
                 if (isFullSync == true)
                 {
-                    lastFullSyncTimestamp = newCutOffTimestamp;
+                    newLastFullSyncTimestamp = newCutOffTimestamp;
                 }
 
-                saveSyncTimestamp(lastSyncTimestampFile);
+                saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
 
                 operationLog.info(this.getClass() + " finished executing.");
-
             } catch (Exception e)
             {
                 operationLog.error("Sync failed: ", e);
@@ -198,25 +224,22 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         }
     }
 
-    private void loadCutOffTimeStamps(File lastSyncTimestampFile) throws IOException, ParseException
+    private Timestamps loadCutOffTimeStamps(File lastSyncTimestampFile) throws IOException, ParseException
     {
         if (lastSyncTimestampFile.exists())
         {
             ConfigReader reader = new ConfigReader(lastSyncTimestampFile);
             String incSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_INCREMENTAL_SYNC_TIMESTAMP, null, true);
             String fullSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_FULL_SYNC_TIMESTAMP, incSyncTimestampStr, false);
-
-            lastIncSyncTimestamp = formatter.parse(incSyncTimestampStr);
-            lastFullSyncTimestamp = formatter.parse(fullSyncTimestampStr);
+            return new Timestamps(formatter.parse(incSyncTimestampStr), formatter.parse(fullSyncTimestampStr));
         }
         else
         {
-            lastIncSyncTimestamp = new Date(0L);
-            lastFullSyncTimestamp = new Date(0L);
+            return new Timestamps(new Date(0L), new Date(0L));
         }
     }
 
-    private boolean isTimeForFullSync(SyncConfig config) throws IOException, ParseException
+    private boolean isTimeForFullSync(SyncConfig config, Date lastFullSyncTimestamp) throws IOException, ParseException
     {
         if (config.isFullSyncEnabled())
         {
@@ -336,11 +359,11 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         }
     }
 
-    private void saveSyncTimestamp(File lastSyncTimestampFile)
+    private void saveSyncTimestamp(File lastSyncTimestampFile, Date newLastIncSyncTimestamp, Date newLastFullSyncTimestamp)
     {
         FileUtilities.writeToFile(lastSyncTimestampFile, "[" + TIMESTAMPS_SECTION_HEADER + "]");
         FileUtilities.appendToFile(lastSyncTimestampFile, "\n", true);
-        FileUtilities.appendToFile(lastSyncTimestampFile, LAST_INCREMENTAL_SYNC_TIMESTAMP + " = " + formatter.format(lastIncSyncTimestamp), true);
-        FileUtilities.appendToFile(lastSyncTimestampFile, LAST_FULL_SYNC_TIMESTAMP + " = " + formatter.format(lastFullSyncTimestamp), true);
+        FileUtilities.appendToFile(lastSyncTimestampFile, LAST_INCREMENTAL_SYNC_TIMESTAMP + " = " + formatter.format(newLastIncSyncTimestamp), true);
+        FileUtilities.appendToFile(lastSyncTimestampFile, LAST_FULL_SYNC_TIMESTAMP + " = " + formatter.format(newLastFullSyncTimestamp), true);
     }
 }
