@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -43,7 +44,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
@@ -595,7 +595,6 @@ public class EntitySynchronizer
 
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
     {
-        operationLog.info("Processing deletions");
         String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
         EntityRetriever entityRetriever =
                 EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), sessionToken);
@@ -607,11 +606,12 @@ public class EntitySynchronizer
         MultiKeyMap<String, MaterialWithLastModificationDate> incomingMaterials = data.getMaterialsToProcess();
 
         // find projects, experiments, samples and data sets to be deleted
-        List<ProjectPermId> projectPermIds = new ArrayList<ProjectPermId>();
-        List<ExperimentPermId> experimentPermIds = new ArrayList<ExperimentPermId>();
-        List<SamplePermId> samplePermIds = new ArrayList<SamplePermId>();
-        List<DataSetPermId> dsPermIds = new ArrayList<DataSetPermId>();
-        List<MaterialPermId> matPermIds = new ArrayList<MaterialPermId>();
+        Map<ProjectPermId, String> projectsToDelete = new HashMap<ProjectPermId, String>();
+        Map<ExperimentPermId, String> experimentsToDelete = new HashMap<ExperimentPermId, String>();
+        Map<SamplePermId, String> samplesToDelete = new HashMap<SamplePermId, String>();
+        // for data sets and materials permId and identifier(code) are the same but still we keep a map
+        Map<DataSetPermId, String> dataSetsToDelete = new HashMap<DataSetPermId, String>();
+        Map<MaterialPermId, String> materialdsToDelete = new HashMap<MaterialPermId, String>();
 
         Set<PhysicalDataSet> physicalDataSetsDelete = new HashSet<PhysicalDataSet>();
         // first find out the entities to be deleted
@@ -621,58 +621,60 @@ public class EntitySynchronizer
             List<Node<?>> entities = harvesterEntityGraph.getNodes();
             for (Node<?> entity : entities)
             {
+                String permId = entity.getPermId();
+                String identifier = entity.getIdentifier();
+                String typeCodeOrNull = entity.getTypeCodeOrNull();
                 if (entity.getEntityKind().equals("PROJECT"))
                 {
-                    if (incomingProjectPermIds.contains(entity.getPermId()) == false)
+                    if (incomingProjectPermIds.contains(permId) == false)
                     {
-                        projectPermIds.add(new ProjectPermId(entity.getPermId()));
+                        ProjectPermId projectPermId = new ProjectPermId(permId);
+                        projectsToDelete.put(projectPermId, identifier);
                     }
                 }
                 else if (entity.getEntityKind().equals("EXPERIMENT"))
                 {
-                    if (incomingExperimentPermIds.contains(entity.getPermId()) == false)
+                    ExperimentPermId experimentPermId = new ExperimentPermId(permId);
+                    if (incomingExperimentPermIds.contains(permId) == false)
                     {
-                        experimentPermIds.add(new ExperimentPermId(entity.getPermId()));
+                        experimentsToDelete.put(experimentPermId, identifier);
                     }
                     else
                     {
-                        String typeCodeOrNull = entity.getTypeCodeOrNull();
-                        NewExperiment exp = data.getExperimentsToProcess().get(entity.getPermId()).getExperiment();
+                        NewExperiment exp = data.getExperimentsToProcess().get(permId).getExperiment();
                         if (typeCodeOrNull.equals(exp.getExperimentTypeCode()) == false)
                         {
-                            experimentPermIds.add(new ExperimentPermId(entity.getPermId()));
+                            experimentsToDelete.put(experimentPermId, identifier);
                         }
                     }
                 }
                 else if (entity.getEntityKind().equals("SAMPLE"))
                 {
-                    if (incomingSamplePermIds.contains(entity.getPermId()) == false)
+                    SamplePermId samplePermId = new SamplePermId(permId);
+                    if (incomingSamplePermIds.contains(permId) == false)
                     {
-                        samplePermIds.add(new SamplePermId(entity.getPermId()));
+                        samplesToDelete.put(samplePermId, identifier);
                     }
                     else
                     {
-                        String typeCodeOrNull = entity.getTypeCodeOrNull();
-                        NewSample smp = data.getSamplesToProcess().get(entity.getPermId()).getSample();
+                        NewSample smp = data.getSamplesToProcess().get(permId).getSample();
                         if (typeCodeOrNull.equals(smp.getSampleType().getCode()) == false)
                         {
-                            samplePermIds.add(new SamplePermId(entity.getPermId()));
+                            samplesToDelete.put(samplePermId, identifier);
                         }
                     }
                 }
                 else if (entity.getEntityKind().equals("DATA_SET"))
                 {
-                    if (incomingDataSetCodes.contains(entity.getPermId()) == false)
+                    DataSetPermId dataSetPermId = new DataSetPermId(permId);
+                    if (incomingDataSetCodes.contains(permId) == false)
                     {
-                        dsPermIds.add(new DataSetPermId(entity.getPermId()));
+                        dataSetsToDelete.put(dataSetPermId, dataSetPermId.getPermId());
                     }
                     else
                     {
                         boolean sameDS = true;
-                        // if (ds.getKind() == DataSetKind.PHYSICAL && ds.lastModificationDate.after(lastSyncDate))
-                        String typeCodeOrNull = entity.getTypeCodeOrNull();
-
-                        IncomingDataSet dsWithConns = data.getDataSetsToProcess().get(entity.getPermId());
+                        IncomingDataSet dsWithConns = data.getDataSetsToProcess().get(permId);
                         NewExternalData ds = dsWithConns.getDataSet();
                         if (typeCodeOrNull.equals(ds.getDataSetType().getCode()) == false)
                         {
@@ -682,15 +684,15 @@ public class EntitySynchronizer
                         {
                             if (dsWithConns.getKind() == DataSetKind.PHYSICAL && dsWithConns.getLastModificationDate().after(lastSyncTimestamp))
                             {
-                                PhysicalDataSet physicalDS = service.tryGetDataSet(entity.getPermId()).tryGetAsDataSet();
-                                sameDS = deepCompareDataSets(entity.getPermId());
+                                PhysicalDataSet physicalDS = service.tryGetDataSet(permId).tryGetAsDataSet();
+                                sameDS = deepCompareDataSets(permId);
                                 if (sameDS == false)
                                     physicalDataSetsDelete.add(physicalDS);
                             }
                         }
                         if (sameDS == false)
                         {
-                            dsPermIds.add(new DataSetPermId(entity.getPermId()));
+                            dataSetsToDelete.put(dataSetPermId, dataSetPermId.getPermId());
                         }
                     }
                 }
@@ -703,44 +705,42 @@ public class EntitySynchronizer
         {
             if (incomingMaterials.containsKey(material.getCode(), material.getType().getCode()) == false)
             {
-                matPermIds.add(new MaterialPermId(material.getCode(), material.getType().getCode()));
+                MaterialPermId materialPermId = new MaterialPermId(material.getCode(), material.getType().getCode());
+                materialdsToDelete.put(materialPermId, materialPermId.getCode());
             }
         }
 
-        IApplicationServerApi v3Api = ServiceProvider.getV3ApplicationService();
-
-        operationLog.info("The following will be PERMAMENTLY removed from openbis:");
-        logDeletions(dsPermIds, "data sets");
-        logDeletions(samplePermIds, "samples");
-        logDeletions(experimentPermIds, "experiments");
-        logDeletions(projectPermIds, "projects");
-
-        operationLog.info(matPermIds.size() + " materials with codes:");
-        for (MaterialPermId matPermId : matPermIds)
-        {
-            operationLog.info(matPermId.toString());
-        }
+        operationLog.info("Processing deletions");
+        operationLog.info("!!!!!!!!!!!!!The following will be PERMAMENTLY removed from openbis!!!!!!!!!!!!!");
+        logDeletions(dataSetsToDelete.values(), "data sets");
+        logDeletions(samplesToDelete.values(), "samples");
+        logDeletions(experimentsToDelete.values(), "experiments");
+        logDeletions(projectsToDelete.values(), "projects");
+        logDeletions(materialdsToDelete.values(), "materials");
 
         if (config.isDryRun() == true)
         {
             return;
         }
+
+        IApplicationServerApi v3Api = ServiceProvider.getV3ApplicationService();
         // delete data sets
         DataSetDeletionOptions dsDeletionOpts = new DataSetDeletionOptions();
         dsDeletionOpts.setReason("sync data set deletions"); // TODO maybe mention data source space id in the reason
 
         IDeletionId dsDeletionId =
-                v3Api.deleteDataSets(sessionToken, dsPermIds, dsDeletionOpts);
+                v3Api.deleteDataSets(sessionToken, new ArrayList<DataSetPermId>(dataSetsToDelete.keySet()), dsDeletionOpts);
 
         // delete samples
         SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
         sampleDeletionOptions.setReason("sync sample deletions");
-        IDeletionId smpDeletionId = v3Api.deleteSamples(sessionToken, samplePermIds, sampleDeletionOptions);
+        IDeletionId smpDeletionId = v3Api.deleteSamples(sessionToken, new ArrayList<SamplePermId>(samplesToDelete.keySet()), sampleDeletionOptions);
 
         // delete experiments
         ExperimentDeletionOptions expDeletionOpts = new ExperimentDeletionOptions();
         expDeletionOpts.setReason("sync experiment deletions");
-        IDeletionId expDeletionId = v3Api.deleteExperiments(sessionToken, experimentPermIds, expDeletionOpts);
+        IDeletionId expDeletionId =
+                v3Api.deleteExperiments(sessionToken, new ArrayList<ExperimentPermId>(experimentsToDelete.keySet()), expDeletionOpts);
 
         // confirm deletions: Deletions need be confirm in the right order because of dependencies(foreign key constraints)
         v3Api.confirmDeletions(sessionToken, Collections.singletonList(dsDeletionId));
@@ -750,7 +750,7 @@ public class EntitySynchronizer
         // delete projects
         ProjectDeletionOptions prjDeletionOpts = new ProjectDeletionOptions();
         prjDeletionOpts.setReason("Sync projects");
-        v3Api.deleteProjects(sessionToken, projectPermIds, prjDeletionOpts);
+        v3Api.deleteProjects(sessionToken, new ArrayList<ProjectPermId>(projectsToDelete.keySet()), prjDeletionOpts);
 
         // delete materials
         MaterialDeletionOptions matDeletionOptions = new MaterialDeletionOptions();
@@ -758,38 +758,38 @@ public class EntitySynchronizer
 
         try
         {
-            v3Api.deleteMaterials(sessionToken, matPermIds, matDeletionOptions);
+            v3Api.deleteMaterials(sessionToken, new ArrayList<MaterialPermId>(materialdsToDelete.keySet()), matDeletionOptions);
         } catch (Exception e)
         {
             operationLog.warn("One or more materials could not be deleted due to: " + e.getMessage());
         }
         
-        StringBuffer summary = new StringBuffer();
-        if (projectPermIds.size() > 0)
-        {
-            summary.append(projectPermIds.size() + " projects,");
-        }
-        if (matPermIds.size() > 0)
-        {
-            summary.append(matPermIds.size() + " materials,");
-        }
-        if (expDeletionId != null)
-        {
-            summary.append(experimentPermIds.size() + " experiments,");
-        }
-        if (smpDeletionId != null)
-        {
-            summary.append(samplePermIds.size() + " samples,");
-        }
-        if (dsDeletionId != null)
-        {
-            summary.append(dsPermIds.size() + " data sets");
-        }
-
-        if (summary.length() > 0)
-        {
-            operationLog.info(summary.substring(0, summary.length() - 1) + " have been deleted:");
-        }
+        // StringBuffer summary = new StringBuffer();
+        // if (projectsToDelete.size() > 0)
+        // {
+        // summary.append(projectsToDelete.size() + " projects,");
+        // }
+        // if (materialdsToDelete.size() > 0)
+        // {
+        // summary.append(materialdsToDelete.size() + " materials,");
+        // }
+        // if (expDeletionId != null)
+        // {
+        // summary.append(experimentsToDelete.size() + " experiments,");
+        // }
+        // if (smpDeletionId != null)
+        // {
+        // summary.append(samplesToDelete.size() + " samples,");
+        // }
+        // if (dsDeletionId != null)
+        // {
+        // summary.append(dataSetsToDelete.size() + " data sets");
+        // }
+        //
+        // if (summary.length() > 0)
+        // {
+        // operationLog.info(summary.substring(0, summary.length() - 1) + " have been deleted:");
+        // }
         for (PhysicalDataSet physicalDS : physicalDataSetsDelete)
         {
             operationLog.info("Is going to delete the location: " + physicalDS.getLocation());
@@ -799,12 +799,16 @@ public class EntitySynchronizer
         }
     }
 
-    private void logDeletions(List<? extends ObjectPermId> permIds, String entityKind)
+    private void logDeletions(Collection<String> identifiers, String entityKind)
     {
-        operationLog.info(permIds.size() + " " + entityKind + " with codes:");
-        for (ObjectPermId dsPermId : permIds)
+        if (identifiers.isEmpty())
         {
-            operationLog.info(dsPermId.toString());
+            return;
+        }
+        operationLog.info(identifiers.size() + " " + entityKind + " with the following identifiers:");
+        for (String identifier : identifiers)
+        {
+            operationLog.info(identifier);
         }
     }
 
