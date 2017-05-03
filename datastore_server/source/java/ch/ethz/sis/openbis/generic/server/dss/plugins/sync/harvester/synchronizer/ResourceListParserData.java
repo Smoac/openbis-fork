@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -192,7 +193,7 @@ public class ResourceListParserData
     {
         private final Identifier<T> entity;
 
-        private final EntityKind entityKind;
+        private final SyncEntityKind entityKind;
 
         private List<Connection> connections = new ArrayList<Connection>();
 
@@ -208,7 +209,7 @@ public class ResourceListParserData
             this.connections.add(conn);
         }
 
-        public EntityKind getEntityKind()
+        public SyncEntityKind getEntityKind()
         {
             return entityKind;
         }
@@ -251,7 +252,7 @@ public class ResourceListParserData
 
         private final Date lastModificationDate;
 
-        IncomingEntity(Identifier<T> entity, EntityKind entityKind, Date lastModDate)
+        IncomingEntity(Identifier<T> entity, SyncEntityKind entityKind, Date lastModDate)
         {
             this.entity = entity;
             this.entityKind = entityKind;
@@ -268,7 +269,7 @@ public class ResourceListParserData
 
         IncomingProject(NewProject project, Date lastModDate)
         {
-            super(project, EntityKind.PROJECT, lastModDate);
+            super(project, SyncEntityKind.PROJECT, lastModDate);
         }
     }
 
@@ -280,7 +281,7 @@ public class ResourceListParserData
         }
         IncomingExperiment(NewExperiment exp, Date lastModDate)
         {
-            super(exp, EntityKind.EXPERIMENT, lastModDate);
+            super(exp, SyncEntityKind.EXPERIMENT, lastModDate);
         }
     }
 
@@ -293,7 +294,7 @@ public class ResourceListParserData
 
         IncomingSample(NewSample sample, Date lastModDate)
         {
-            super(sample, EntityKind.SAMPLE, lastModDate);
+            super(sample, SyncEntityKind.SAMPLE, lastModDate);
         }
     }
 

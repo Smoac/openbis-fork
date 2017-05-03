@@ -45,6 +45,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingDataSet;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingExperiment;
@@ -214,23 +215,23 @@ public class ResourceListParser
         Node xdNode = extractXdNode(doc, xpath, uri);
         String entityKind = xdNode.getAttributes().getNamedItem("kind").getTextContent();
 
-        if (EntityKind.PROJECT.getLabel().equals(entityKind))
+        if (SyncEntityKind.PROJECT.getLabel().equals(entityKind))
         {
             parseProjectMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
         }
-        else if (EntityKind.EXPERIMENT.getLabel().equals(entityKind))
+        else if (SyncEntityKind.EXPERIMENT.getLabel().equals(entityKind))
         {
             parseExperimentMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
         }
-        else if (EntityKind.SAMPLE.getLabel().equals(entityKind))
+        else if (SyncEntityKind.SAMPLE.getLabel().equals(entityKind))
         {
             parseSampleMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
         }
-        else if (EntityKind.DATA_SET.getLabel().equals(entityKind))
+        else if (SyncEntityKind.DATA_SET.getLabel().equals(entityKind))
         {
             parseDataSetMetaData(xpath, extractDataSetCodeFromURI(uri), xdNode, lastModificationDate);
         }
-        else if (EntityKind.MATERIAL.getLabel().equals(entityKind))
+        else if (SyncEntityKind.MATERIAL.getLabel().equals(entityKind))
         {
             parseMaterialMetaData(xpath, extractMaterialCodeFromURI(uri), xdNode, lastModificationDate);
         }

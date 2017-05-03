@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common;
 
 /**
  * Contrary to the Entity Kind in openbis core, this one also includes Projects which are "Entities" in OpenbisSync
  * 
  * @author Ganime Betul Akin
  */
-enum EntityKind
+public enum SyncEntityKind
 {
     PROJECT("PROJECT"), EXPERIMENT("EXPERIMENT"), SAMPLE("SAMPLE"), DATA_SET("DATA_SET"), MATERIAL("MATERIAL");
 
     private final String entityLabel;
 
-    private EntityKind(String label)
+    private SyncEntityKind(String label)
     {
         this.entityLabel = label;
 
     }
 
-    final String getLabel()
+    public final String getLabel()
     {
         return entityLabel;
     }

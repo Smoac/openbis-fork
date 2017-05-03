@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingEntity;
@@ -87,19 +88,19 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
             ICommonServer commonServer = ServiceFinderUtils.getCommonServer(ServiceProvider.getConfigProvider().getOpenBisServerUrl());
             String localSessionToken = ServiceFinderUtils.login(commonServer, config.getHarvesterUser(), config.getHarvesterPass());
             IAttachmentsOperationsHandler attachmentsOperationsHandler = null;
-            if (item.getEntityKind() == EntityKind.EXPERIMENT)
+            if (item.getEntityKind() == SyncEntityKind.EXPERIMENT)
             {
                 Experiment experiment = service.tryGetExperiment(ExperimentIdentifierFactory.parse(item.getEntity().getIdentifier()));
                 techId = new TechId(experiment.getId());
                 attachmentsOperationsHandler = new ExperimentAttachmentsOperationsHandler(config, commonServer, localSessionToken);
             }
-            else if (item.getEntityKind() == EntityKind.SAMPLE)
+            else if (item.getEntityKind() == SyncEntityKind.SAMPLE)
             {
                 Sample sample = service.tryGetSampleByPermId(item.getEntity().getPermID());
                 techId = new TechId(sample.getId());
                 attachmentsOperationsHandler = new SampleAttachmentsOperationsHandler(config, commonServer, localSessionToken);
             }
-            else if (item.getEntityKind() == EntityKind.PROJECT)
+            else if (item.getEntityKind() == SyncEntityKind.PROJECT)
             {
                 Project project = service.tryGetProject(ProjectIdentifierFactory.parse(item.getEntity().getIdentifier()));
                 techId = new TechId(project.getId());

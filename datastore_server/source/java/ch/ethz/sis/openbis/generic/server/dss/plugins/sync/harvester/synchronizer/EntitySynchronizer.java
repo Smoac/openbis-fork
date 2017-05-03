@@ -60,6 +60,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
@@ -335,15 +336,15 @@ public class EntitySynchronizer
             String entityKind = "";
             if (identifier instanceof NewSample)
             {
-                entityKind = EntityKind.SAMPLE.getLabel();
+                entityKind = SyncEntityKind.SAMPLE.getLabel();
             }
             else if (identifier instanceof NewExperiment)
             {
-                entityKind = EntityKind.EXPERIMENT.getLabel();
+                entityKind = SyncEntityKind.EXPERIMENT.getLabel();
             }
             else if (identifier instanceof NewExperiment)
             {
-                entityKind = EntityKind.PROJECT.getLabel();
+                entityKind = SyncEntityKind.PROJECT.getLabel();
             }
             operationLog.info("Following " + entityKind + "(s) will be created ");
             for (Identifier<?> entity : entityRegistrations)
@@ -555,7 +556,7 @@ public class EntitySynchronizer
         // first write the data set codes to be retried next time we sync
         for (String dsCode : notRegisteredDataSetCodes)
         {
-            FileUtilities.appendToFile(notSyncedDataSetsFile, "DATA_SET-" + dsCode, true);
+            FileUtilities.appendToFile(notSyncedDataSetsFile, SyncEntityKind.DATA_SET.getLabel() + "-" + dsCode, true);
         }
         // append the ids of holder entities for the failed attachment synchronizations
         for (String holderCode : notSyncedAttachmentsHolders)
@@ -623,7 +624,7 @@ public class EntitySynchronizer
                 String permId = entity.getPermId();
                 String identifier = entity.getIdentifier();
                 String typeCodeOrNull = entity.getTypeCodeOrNull();
-                if (entity.getEntityKind().equals("PROJECT"))
+                if (entity.getEntityKind().equals(SyncEntityKind.PROJECT.getLabel()))
                 {
                     if (incomingProjectPermIds.contains(permId) == false)
                     {
@@ -631,7 +632,7 @@ public class EntitySynchronizer
                         projectsToDelete.put(projectPermId, identifier);
                     }
                 }
-                else if (entity.getEntityKind().equals("EXPERIMENT"))
+                else if (entity.getEntityKind().equals(SyncEntityKind.EXPERIMENT.getLabel()))
                 {
                     ExperimentPermId experimentPermId = new ExperimentPermId(permId);
                     if (incomingExperimentPermIds.contains(permId) == false)
@@ -647,7 +648,7 @@ public class EntitySynchronizer
                         }
                     }
                 }
-                else if (entity.getEntityKind().equals("SAMPLE"))
+                else if (entity.getEntityKind().equals(SyncEntityKind.SAMPLE.getLabel()))
                 {
                     SamplePermId samplePermId = new SamplePermId(permId);
                     if (incomingSamplePermIds.contains(permId) == false)
@@ -663,7 +664,7 @@ public class EntitySynchronizer
                         }
                     }
                 }
-                else if (entity.getEntityKind().equals("DATA_SET"))
+                else if (entity.getEntityKind().equals(SyncEntityKind.DATA_SET.getLabel()))
                 {
                     DataSetPermId dataSetPermId = new DataSetPermId(permId);
                     if (incomingDataSetCodes.contains(permId) == false)

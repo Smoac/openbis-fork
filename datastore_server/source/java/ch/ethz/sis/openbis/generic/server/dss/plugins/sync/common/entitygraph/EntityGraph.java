@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
+
 public class EntityGraph<N extends Node<?>>
 {
     private final Map<String, N> nodes;
@@ -162,7 +164,11 @@ public class EntityGraph<N extends Node<?>>
         if (forTest == false)
         {
             String differentiatorStr = "";
-            if (node.getEntityKind().equals("EXPERIMENT") || node.getEntityKind().equals("PROJECT")) // in order to differentiate between
+            if (node.getEntityKind().equals(SyncEntityKind.EXPERIMENT.getLabel()) || node.getEntityKind().equals(SyncEntityKind.PROJECT.getLabel())) // in
+                                                                                                                                             // order
+                                                                                                                                             // to
+                                                                                                                                             // differentiate
+                                                                                                                                             // between
                                                                                                      // experiments/projects in the same space but
                                                                                                      // under different
             // projects/spaces

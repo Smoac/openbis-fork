@@ -44,6 +44,7 @@ import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.ConfigReader;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SynchronizationConfigReader;
@@ -305,9 +306,9 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                     assert line != null : "Unspecified line";
                     final String trimmed = line.getText().trim();
                     return trimmed.length() > 0 && trimmed.startsWith("#") == false &&
-                            (trimmed.startsWith("SAMPLE") == true
-                                    || trimmed.startsWith("EXPERIMENT") == true
-                                    || trimmed.startsWith("PROJECT") == true);
+                            (trimmed.startsWith(SyncEntityKind.SAMPLE.getLabel()) == true
+                                    || trimmed.startsWith(SyncEntityKind.EXPERIMENT.getLabel()) == true
+                                    || trimmed.startsWith(SyncEntityKind.PROJECT.getLabel()) == true);
                 }
             });
     }

@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 
 public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHolder & IPermIdHolder & IRegistrationDateHolder & IRegistratorHolder>
 {
@@ -228,19 +229,19 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
     {
         if (entity instanceof Project)
         {
-            return "PROJECT";
+            return SyncEntityKind.PROJECT.getLabel();
         }
         else if (entity instanceof Experiment)
         {
-            return "EXPERIMENT";
+            return SyncEntityKind.EXPERIMENT.getLabel();
         }
         else if (entity instanceof Sample)
         {
-            return "SAMPLE";
+            return SyncEntityKind.SAMPLE.getLabel();
         }
         else if (entity instanceof DataSet)
         {
-            return "DATA_SET";
+            return SyncEntityKind.DATA_SET.getLabel();
         }
         // TODO exception
         return null;
