@@ -80,10 +80,10 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
             List<ExperimentReferenceQueryResult> experiments)
     {
         Collection<ExperimentReference> references =
-                org.apache.commons.collections.CollectionUtils
+                org.apache.commons.collections4.CollectionUtils
                         .collect(
                                 experiments,
-                                new org.apache.commons.collections.Transformer<ExperimentReferenceQueryResult, ExperimentReference>()
+                                new org.apache.commons.collections4.Transformer<ExperimentReferenceQueryResult, ExperimentReference>()
                                     {
                                         @Override
                                         public ExperimentReference transform(

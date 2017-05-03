@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.util.Comparator;
 
-import org.apache.commons.collections.ComparatorUtils;
+import org.apache.commons.collections4.ComparatorUtils;
 
 import ch.systemsx.cisd.common.collection.AlphanumComparator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;

@@ -242,10 +242,10 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         } else
         {
             Collection<InternalImageTransformationInfo> transformations =
-                    org.apache.commons.collections.CollectionUtils
+                    org.apache.commons.collections4.CollectionUtils
                             .collect(
                                     transformationsOrNull,
-                                    new org.apache.commons.collections.Transformer<ImgImageTransformationDTO, InternalImageTransformationInfo>()
+                                    new org.apache.commons.collections4.Transformer<ImgImageTransformationDTO, InternalImageTransformationInfo>()
                                         {
                                             @Override
                                             public InternalImageTransformationInfo transform(
