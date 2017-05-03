@@ -111,7 +111,7 @@ function SampleFormController(mainController, mode, sample) {
 		//
 		// Parents/Children Links
 		//
-		if(!isCopyWithNewCode && sample.sampleTypeCode !== "REQUEST") {
+		if(!isCopyWithNewCode && sample.sampleTypeCode !== "REQUEST") { // REQUESTS are validated below
 			if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
 				return;
 			}
