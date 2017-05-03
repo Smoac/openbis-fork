@@ -34,8 +34,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.keyvalue.MultiKey;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -883,7 +883,7 @@ public class EntitySynchronizer
     private void processMaterials(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
     {
         // process materials
-        Map<MultiKey<String>, MaterialWithLastModificationDate> materialsToProcess = data.getMaterialsToProcess();
+        MultiKeyMap<String, MaterialWithLastModificationDate> materialsToProcess = data.getMaterialsToProcess();
         for (MaterialWithLastModificationDate newMaterialWithType : materialsToProcess.values())
         {
             NewMaterialWithType incomingMaterial = newMaterialWithType.getMaterial();
