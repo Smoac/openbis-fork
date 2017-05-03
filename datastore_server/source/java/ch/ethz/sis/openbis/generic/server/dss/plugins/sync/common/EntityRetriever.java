@@ -15,9 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common;
 
-import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CHILD;
-import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.COMPONENT;
-import static ch.ethz.sis.openbis.generic.shared.entitygraph.Edge.CONNECTION;
+import static ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Edge.CHILD;
+import static ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Edge.COMPONENT;
+import static ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Edge.CONNECTION;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,9 +50,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
-import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
-import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Edge;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.EntityGraph;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
+//import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
+//import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
+//import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 
 public class EntityRetriever 
