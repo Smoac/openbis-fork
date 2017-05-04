@@ -182,7 +182,9 @@ class TestCase(systemtest.testcase.TestCase):
         self.writeResponseToFile(datasource_graph_response, file1)
         content1 = self.readLinesFromFile(file1)
         content1.sort()
-
+        
+#         for line in content1:
+#             util.printAndFlush(line)
         '''read entity graph from harvester
         the entities might be translated using a prefix specified in the harvester_config
         remove the prefix'''
@@ -201,7 +203,7 @@ class TestCase(systemtest.testcase.TestCase):
                 output.write("%s\n" % item)
                 if item.startswith("label") == False:
                     same = False
-        self.assertEquals("The entity graphs on datasource and harvester are not equal", True, same)
+        self.assertEquals("The entity graphs on datasource and harvester are equal", True, same)
 
         if same == False:
             self.fail("The entity graphs on datasource and harvester are not equal.See %s for details" % os.path.join(destination, "diff.txt"))
@@ -218,7 +220,6 @@ class TestCase(systemtest.testcase.TestCase):
     def readLinesFromFile(self, input_file):
         with open(input_file, 'rb') as f:
             content = f.readlines()
-            print content
         return content
     
     def removePrefixFromLines(self, lines, prefix):
@@ -254,11 +255,13 @@ class TestCase(systemtest.testcase.TestCase):
     def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
         path = repository.getPathToArtifact('10', 'archive.zip')
-        util.printAndFlush("path to core plugin in the repository: %s" % path)
+        util.printAndFlush("downloaded repository as : %s" % path)
         destination = "%s/servers/core-plugins/%s/" % (openbisController.installPath, openbisController.instanceName)
-        util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
         commit_id = self.getLatestCommitHashForCorePlugin('sissource.ethz.ch', 10)
-        util.unzipSubfolder(path, 'OpenbisSync-master-%s/core-plugins/%s/1/'% (commit_id, plugin_name), destination)
+        path_in_archive = "OpenbisSync-master-%s" % commit_id
+        util.printAndFlush("path to plugin in repository repository as : %s" % path_in_archive)
+        util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
+        util.unzipSubfolder(path, path_in_archive + "/core-plugins/%s/1/" % plugin_name, destination)
 
     def installDataSourcePlugin(self, openbisController, dss_port):
         self.installPlugin(openbisController, "datasource")
@@ -274,7 +277,7 @@ class TestCase(systemtest.testcase.TestCase):
         '''update db source plugin.properties'''
         datasource_core_plugin_properties = "%s/1/dss/data-sources/openbis-db/plugin.properties" % openbisController.instanceName
         plugin_properties_file = os.path.join(openbisController.installPath, "servers", "core-plugins", datasource_core_plugin_properties)
-        util.printAndFlush("Updating %s" % plugin_properties_file)
+        util.printAndFlush("Updating db source %s" % plugin_properties_file)
         pluginProps = util.readProperties(plugin_properties_file)
         pluginProps['databaseKind'] = openbisController.databaseKind
         util.writeProperties(plugin_properties_file, pluginProps)

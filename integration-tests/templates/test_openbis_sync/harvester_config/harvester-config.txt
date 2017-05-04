@@ -30,5 +30,5 @@ email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
 dry-run = false
 
 #default = false
-verbose = false
+verbose = true
 
