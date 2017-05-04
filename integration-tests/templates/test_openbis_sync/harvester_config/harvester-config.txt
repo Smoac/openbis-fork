@@ -25,3 +25,10 @@ email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
 #set interval to days starting from 0. Default is 14 days.
 #full-sync= false
 #full-sync-interval = 0
+
+#default = false
+dry-run = false
+
+#default = false
+verbose = false
+
