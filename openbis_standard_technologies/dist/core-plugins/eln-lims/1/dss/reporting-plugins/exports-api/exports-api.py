@@ -524,8 +524,10 @@ def getTXT(entityObj, v3, sessionToken, isRichText):
     
     
     if isinstance(entityObj, Project):
-        txtBuilder.append("# Description:").append("\n");
-        txtBuilder.append(entityObj.getDescription()).append("\n");
+        description = entityObj.getDescription();
+        if description is not None:
+            txtBuilder.append("# Description:").append("\n");
+            txtBuilder.append(entityObj.getDescription()).append("\n");
     
     if isinstance(entityObj, Sample) or isinstance(entityObj, DataSet):
         txtBuilder.append("# Parents:").append("\n");
