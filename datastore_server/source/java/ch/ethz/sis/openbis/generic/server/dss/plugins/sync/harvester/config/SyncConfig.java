@@ -207,6 +207,8 @@ public class SyncConfig
 
     private Boolean dryRun = false;
 
+    private Boolean verbose = false;
+
     private List<String> dataSourceSpaces = new ArrayList<>();
 
     private List<String> harvesterSpaces = new ArrayList<>();
@@ -307,5 +309,15 @@ public class SyncConfig
     public void setDryRun(Boolean dryRun)
     {
         this.dryRun = dryRun;
+    }
+
+    public Boolean isVerbose()
+    {
+        return verbose;
+    }
+
+    public void setVerbose(Boolean verbose)
+    {
+        this.verbose = verbose;
     }
 }

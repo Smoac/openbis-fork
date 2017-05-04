@@ -80,6 +80,8 @@ public class SynchronizationConfigReader
 
     private static final String DRY_RUN_PROPERTY_NAME = "dry-run";
 
+    private static final String VERBOSE_PROPERTY_NAME = "verbose";
+
     private Integer defaultFullSyncIntervalInDays = 14;
 
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
@@ -153,6 +155,11 @@ public class SynchronizationConfigReader
             configs.add(config);
 
             config.setDryRun(reader.getBoolean(section, DRY_RUN_PROPERTY_NAME, false));
+            config.setVerbose(reader.getBoolean(section, VERBOSE_PROPERTY_NAME, false));
+            if (config.isDryRun() == true)
+            {
+                config.setVerbose(true);
+            }
         }
         return configs;
     }

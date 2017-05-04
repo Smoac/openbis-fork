@@ -160,8 +160,10 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
             try
             {
                 operationLog
-                        .info("Start synchronization from data source: " + config.getDataSourceOpenbisURL() + " for user " + config.getUser());
+                        .info((config.isDryRun() ? "Dry " : "") + "Running synchronization from data source: " + config.getDataSourceOpenbisURL()
+                                + " for user " + config.getUser());
 
+                operationLog.info("verbose =  " + config.isVerbose());
                 String fileName = config.getLastSyncTimestampFileName();
                 File lastSyncTimestampFile = new File(fileName);
                 Timestamps timestamps = loadCutOffTimeStamps(lastSyncTimestampFile);
@@ -216,6 +218,10 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 {
                     operationLog.info("Saving the timestamp of sync start to file");
                     saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
+                }
+                else
+                {
+                    operationLog.info("Dry run finished");
                 }
 
                 operationLog.info(this.getClass() + " finished executing.");

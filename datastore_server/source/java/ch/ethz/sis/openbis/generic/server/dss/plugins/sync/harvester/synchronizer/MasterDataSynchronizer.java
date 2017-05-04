@@ -56,20 +56,18 @@ public class MasterDataSynchronizer
 
     final ICommonServer commonServer;
 
-    final ResourceListParserData.MasterData masterData;
 
     final Map<TechId, List<VocabularyTerm>> vocabularyTermsToBeDeleted;
 
-    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword, ResourceListParserData.MasterData masterData)
+    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword)
     {
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
-        this.masterData = masterData;
         vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
     }
     
-    public void synchronizeMasterData() {
+    public void synchronizeMasterData(ResourceListParserData.MasterData masterData) {
         MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = masterData.getPropertyAssignmentsToProcess();
         processFileFormatTypes(masterData.getFileFormatTypesToProcess());
         processValidationPlugins(masterData.getValidationPluginsToProcess());
