@@ -28,7 +28,7 @@ def process(transaction):
 			raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_ERROR_MESSAGE);
 		
 		# Parse entity Kind Format
-		if entityKind == "SAMPLE":
+		if entityKind == "O":
 			if len(datasetInfo) >= 3:
 				sampleSpace = datasetInfo[1];
 				sampleCode = datasetInfo[2];
@@ -44,7 +44,7 @@ def process(transaction):
 			else:
 				raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 		
-		if entityKind == "EXPERIMENT":
+		if entityKind == "E":
 			if len(datasetInfo) >= 4:
 				experimentSpace = datasetInfo[1];
 				projectCode = datasetInfo[2];
