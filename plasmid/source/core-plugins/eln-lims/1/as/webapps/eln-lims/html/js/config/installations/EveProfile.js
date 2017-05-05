@@ -1,4 +1,5 @@
 
+
 function EveProfile(serverFacade) {
 	this.init(serverFacade);
 }
@@ -7,10 +8,8 @@ $.extend(EveProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
 		StandardProfile.prototype.init.call(this, serverFacade);
 
-
 		this.inventorySpaces = ["TB", "EB"];
-		
-		
+
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
@@ -33,12 +32,20 @@ $.extend(EveProfile.prototype, StandardProfile.prototype, {
 				 * Storages map, can hold configurations for several storages.
 				 */
 				"STORAGE_CONFIGS": {
-					"BENCH" : { //Freezer name given by the NAME_PROPERTY
-						"VALIDATION_LEVEL" : ValidationLevel.BOX_POSITION, //When non present it defaults to BOX_POSITION
-						"ROW_NUM" : 1, //Number of rows
-						"COLUMN_NUM" : 1, //Number of columns
-						"BOX_NUM" : 1 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+					"KAE93" : { //Freezer name given by the NAME_PROPERTY
+						"VALIDATION_LEVEL" : ValidationLevel.RACK, //When non present it defaults to BOX_POSITION
+						"ROW_NUM" : 4, //Number of rows
+						"COLUMN_NUM" : 4, //Number of columns
+						"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+					},
+					"KAE69" : { //Freezer name given by the NAME_PROPERTY
+						"VALIDATION_LEVEL" : ValidationLevel.RACK, //When non present it defaults to BOX_POSITION
+						"ROW_NUM" : 5, //Number of rows
+						"COLUMN_NUM" : 4, //Number of columns
+						"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 					}
+														
+				}
 			};	
 		
 }
