@@ -47,7 +47,7 @@ public interface IRelationshipService
 {
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("ASSIGN_EXPERIMENT_TO_PROJECT")
     public void assignExperimentToProject(IAuthSession session,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment,
@@ -55,7 +55,7 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_PROJECT")
     public void assignSampleToProject(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
@@ -94,7 +94,7 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("UNASSIGN_SAMPLE_FROM_PROJECT")
     public void unassignSampleFromProject(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample);
@@ -194,8 +194,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE container);
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("REMOVE_CONTAINER_FROM_DATASET")
     public void removeDataSetFromContainer(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE data,

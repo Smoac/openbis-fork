@@ -545,7 +545,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken)
     {
@@ -2172,7 +2172,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     // TODO 2009-06-24 IA: add unit tests to project deletion (all layers)
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("DELETE_PROJECT")
     public void deleteProjects(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdCollectionPredicate.class) List<TechId> projectIds, String reason)
@@ -2284,7 +2284,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("DELETE_PROJECT_ATTACHMENT")
     public void deleteProjectAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId, List<String> fileNames, String reason)
@@ -2328,7 +2328,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Attachment> listProjectAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId)
     {
@@ -2413,7 +2413,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs),
+                        .translate(metaprojectPEs),
                 managedPropertyEvaluatorFactory);
     }
 
@@ -2503,7 +2503,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Project getProjectInfo(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId)
     {
@@ -2516,7 +2516,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Project getProjectInfo(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {
@@ -2528,7 +2528,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public IIdHolder getProjectIdHolder(String sessionToken, String projectPermId)
     {
         final Session session = getSession(sessionToken);
@@ -2651,7 +2651,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("WRITE_PROJECT")
     public int updateProject(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) ProjectUpdatesDTO updates)
@@ -2943,7 +2943,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("WRITE_PROJECT_ATTACHMENT")
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment)
@@ -2957,7 +2957,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("WRITE_PROJECT_ATTACHMENT")
     public void addProjectAttachments(String sessionToken, TechId projectId,
             NewAttachment attachment)

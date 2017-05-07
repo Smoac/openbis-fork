@@ -38,7 +38,7 @@ public class UpdateProjectAttachmentExecutor implements IUpdateProjectAttachment
     private IUpdateAttachmentForEntityExecutor executor;
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECT_ATTACHMENT")
     public void update(IOperationContext context, AttachmentHolderPE attachmentHolder, AttachmentListUpdateValue updates)
     {

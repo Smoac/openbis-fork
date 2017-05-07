@@ -199,6 +199,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
         builder.append(getPerson(), that.getPerson());
         builder.append(getAuthorizationGroup(), that.getAuthorizationGroup());
         builder.append(getSpace(), that.getSpace());
+        builder.append(getProject(), that.getProject());
         return builder.isEquals();
     }
 
@@ -209,6 +210,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
         builder.append(getRole());
         builder.append(getPerson());
         builder.append(getSpace());
+        builder.append(getProject());
         return builder.toHashCode();
     }
 

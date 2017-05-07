@@ -1086,7 +1086,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ProjectByIdentiferValidator.class)
     public List<Project> listProjects(String sessionToken)
     {
@@ -1219,7 +1219,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Attachment> listAttachmentsForProject(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectIdPredicate.class) IProjectId projectId, boolean allVersions)
     {

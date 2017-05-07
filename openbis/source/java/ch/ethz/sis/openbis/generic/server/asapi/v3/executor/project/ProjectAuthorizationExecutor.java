@@ -46,7 +46,7 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECT")
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void canUpdate(IOperationContext context, IProjectId id, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
@@ -55,21 +55,21 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROJECT, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_PROJECT")
     public void canDelete(IOperationContext context, IProjectId id, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_PROJECT")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_PROJECT")
     public void canSearch(IOperationContext context)
     {

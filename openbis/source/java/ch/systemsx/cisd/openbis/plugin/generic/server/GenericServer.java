@@ -221,7 +221,8 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     {
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
+                        .translate(metaprojectPEs),
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -561,8 +562,8 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
                     createBatchUpdateDetails(updatedSample);
 
             samples.add(new SampleBatchUpdatesDTO(updatedSample.getDefaultSpaceIdentifier(),
-                    extractor.getOldSampleIdentifier(), properties, 
-                    extractor.getExperimentIdentifierOrNull(), 
+                    extractor.getOldSampleIdentifier(), properties,
+                    extractor.getExperimentIdentifierOrNull(),
                     extractor.getProjectIdentifier(),
                     extractor.getNewSampleIdentifier(),
                     extractor.getContainerIdentifierOrNull(), parentsOrNull, batchUpdateDetails));
@@ -739,7 +740,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AttachmentWithContent getProjectFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId, String fileName, Integer versionOrNull)
     {

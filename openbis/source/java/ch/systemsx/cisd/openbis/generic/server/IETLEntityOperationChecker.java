@@ -75,7 +75,7 @@ public interface IETLEntityOperationChecker
             @AuthorizationGuard(guardClass = NewProjectPredicate.class) List<NewProject> newProjects);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECTS_VIA_DSS")
     public void assertProjectUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) List<ProjectUpdatesDTO> projectsToUpdate);
