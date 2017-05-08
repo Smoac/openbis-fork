@@ -449,21 +449,21 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     @Override
-    public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode)
+    public List<EntityPropertyPE> listPropertiesByVocabularyTerm(long vocabularyTermId)
     {
         // we have to fetch props.entity, because hibernate search has some problems with reindexing
         // otherwise
         String query =
                 String.format(
-                        "from %s props join fetch props.entity where props.vocabularyTerm.code = ?",
+                        "from %s props join fetch props.entity where props.vocabularyTerm.id = ?",
                         entityKind.getEntityPropertyClass().getSimpleName());
         //
         List<EntityPropertyPE> properties =
-                cast(getHibernateTemplate().find(query, toArray(vocabularyTermCode)));
+                cast(getHibernateTemplate().find(query, toArray(vocabularyTermId)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Term '%s' is used in %d properties of kind %s.",
-                    vocabularyTermCode, properties.size(), entityKind));
+                    vocabularyTermId, properties.size(), entityKind));
         }
         return properties;
     }

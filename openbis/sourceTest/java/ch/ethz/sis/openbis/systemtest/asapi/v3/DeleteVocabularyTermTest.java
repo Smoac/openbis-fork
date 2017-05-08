@@ -28,12 +28,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -449,6 +453,74 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTermTest
         assertVocabularyTermPermIds(terms, termIdRat, termIdDog, termIdHuman, termIdGorilla);
 
         assertMaterialsReindexed(state, new MaterialPermId(materialCode, materialTypeCode));
+    }
+    
+    @Test
+    public void testReplaceTermWhichAlsoAccursInAnotherVocabulary()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        assertSampleProperty(sessionToken, "200811050919915-8", "$PLATE_GEOMETRY", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200902091250077-1026", "ORGANISM", "GORILLA");
+        assertTerms(sessionToken, "[VocabularyTerm DOG, "
+                + "VocabularyTerm FLY, VocabularyTerm GORILLA, VocabularyTerm HUMAN, VocabularyTerm RAT]");
+        
+        // Create new vocabulary term 384_WELLS_16X24 in ORGANISM which also appears in $PLATE_GEOMETRY
+        createTerm(sessionToken, "384_WELLS_16X24");
+        assertTerms(sessionToken, "[VocabularyTerm 384_WELLS_16X24, VocabularyTerm DOG, "
+                + "VocabularyTerm FLY, VocabularyTerm GORILLA, VocabularyTerm HUMAN, VocabularyTerm RAT]");
+        
+        // Delete term GORILLA and replace it by the new term 384_WELLS_16X24
+        deleteAndReplaceTerm(sessionToken, "GORILLA", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200811050919915-8", "$PLATE_GEOMETRY", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200902091250077-1026", "ORGANISM", "384_WELLS_16X24");
+        assertTerms(sessionToken, "[VocabularyTerm 384_WELLS_16X24, VocabularyTerm DOG, "
+                + "VocabularyTerm FLY, VocabularyTerm HUMAN, VocabularyTerm RAT]");
+        
+        // Create again term GORILLA.
+        createTerm(sessionToken, "GORILLA");
+        assertTerms(sessionToken, "[VocabularyTerm 384_WELLS_16X24, VocabularyTerm DOG, "
+                + "VocabularyTerm FLY, VocabularyTerm GORILLA, VocabularyTerm HUMAN, VocabularyTerm RAT]");
+
+        // Delete term 384_WELLS_16X24 in ORGANISM and replace it by GORILLA
+        deleteAndReplaceTerm(sessionToken, "384_WELLS_16X24", "GORILLA");
+        assertSampleProperty(sessionToken, "200811050919915-8", "$PLATE_GEOMETRY", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200902091250077-1026", "ORGANISM", "GORILLA");
+    }
+
+    private void deleteAndReplaceTerm(String sessionToken, String toBeDeleted, String replacement)
+    {
+        VocabularyTermPermId termToBeDeleted = new VocabularyTermPermId(toBeDeleted, "ORGANISM");
+        VocabularyTermPermId replacementTerm = new VocabularyTermPermId(replacement, "ORGANISM");
+        VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
+        options.setReason("Just for testing");
+        options.replace(termToBeDeleted, replacementTerm);
+        v3api.deleteVocabularyTerms(sessionToken, Arrays.asList(termToBeDeleted), options);
+    }
+
+    private void createTerm(String sessionToken, String code)
+    {
+        VocabularyTermCreation termCreation = new VocabularyTermCreation();
+        termCreation.setCode(code);
+        VocabularyPermId vocabularyId = new VocabularyPermId("ORGANISM");
+        termCreation.setVocabularyId(vocabularyId);
+        v3api.createVocabularyTerms(sessionToken, Arrays.asList(termCreation));
+    }
+
+    private void assertTerms(String sessionToken, String expectedTerms)
+    {
+        VocabularyTermSearchCriteria searchCriteria = new VocabularyTermSearchCriteria();
+        searchCriteria.withVocabulary().withCode().thatEquals("ORGANISM");
+        List<VocabularyTerm> terms = v3api.searchVocabularyTerms(sessionToken, searchCriteria, new VocabularyTermFetchOptions()).getObjects();
+        assertEquals(terms.toString(), expectedTerms);
+    }
+
+    private void assertSampleProperty(String sessionToken, String samplePermId, String property, String expectedValue)
+    {
+        SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+        SamplePermId plate = new SamplePermId(samplePermId);
+        Sample sample = v3api.getSamples(sessionToken, Arrays.asList(plate), sampleFetchOptions).get(plate);
+        assertEquals(sample.getProperties().get(property), expectedValue);
     }
 
 }

@@ -261,6 +261,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         for (VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
             String code = termToBeReplaced.getTerm().getCode();
+            Long id = termToBeReplaced.getTerm().getId();
             String replacement = termToBeReplaced.getReplacementCode();
             VocabularyTermPE term = termsMap.tryGet(replacement);
             if (term == null || remainingTerms.contains(replacement) == false)
@@ -272,7 +273,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             for (EntityKind entityKind : EntityKind.values())
             {
                 IEntityPropertyTypeDAO dao = getEntityPropertyTypeDAO(entityKind);
-                List<EntityPropertyPE> properties = dao.listPropertiesByVocabularyTerm(code);
+                List<EntityPropertyPE> properties = dao.listPropertiesByVocabularyTerm(id);
                 for (EntityPropertyPE entityProperty : properties)
                 {
                     addToChangedEntities(entityProperty.getEntity());
