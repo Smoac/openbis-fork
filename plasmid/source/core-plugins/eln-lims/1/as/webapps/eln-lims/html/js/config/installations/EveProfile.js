@@ -27,7 +27,20 @@ $.extend(EveProfile.prototype, StandardProfile.prototype, {
 					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE", //Should be Vocabulary.
 					"USER_PROPERTY" : 		"STORAGE_USER", //Should be text.
 					"POSITION_PROPERTY" : 	"STORAGE_POSITION" //Should be text.
-				}],
+				},
+				{	
+					"STORAGE_PROPERTY_GROUP" : "Physical Storage 2", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage 2", //Storage Group Name
+					"NAME_PROPERTY" : 		"STORAGE_NAMES_2", //Should be a Vocabulary.
+					"ROW_PROPERTY" : 		"STORAGE_ROW_2", //Should be an integer.
+					"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_2",  //Should be an integer.
+					"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_2", //Should be text.
+					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_2", //Should be Vocabulary.
+					"USER_PROPERTY" : 		"STORAGE_USER_2", //Should be text.
+					"POSITION_PROPERTY" : 	"STORAGE_POSITION_2" //Should be text.
+				}				
+				
+				],
 				/*
 				 * Storages map, can hold configurations for several storages.
 				 */
