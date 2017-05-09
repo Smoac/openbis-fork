@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.AboutBoxAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -118,7 +119,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         image.setTitle(viewContext.getMessage(Dict.OPENBIS_LOGO_TITLE));
         Anchor logo =
                 new Anchor(image.getElement().getString(), true,
-                        "http://www.cisd.ethz.ch/software/openBIS", "_blank");
+                        AboutBoxAction.OPENBIS_WEB_SITE, "_blank");
         return logo;
     }
 
