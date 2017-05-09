@@ -210,6 +210,18 @@ def expandAndexport(tr, params):
             criteria.withExperiment().withPermId().thatEquals(permId);
             results = v3.searchSamples(sessionToken, criteria, SampleFetchOptions());
             operationLog.info("Found: " + str(results.getTotalCount()) + " samples");
+            
+            dCriteria = DataSetSearchCriteria();
+            dCriteria.withExperiment().withPermId().thatEquals(permId);
+            dCriteria.withoutSample();
+            dResults = v3.searchDataSets(sessionToken, dCriteria, DataSetFetchOptions());
+            operationLog.info("Found: " + str(dResults.getTotalCount()) + " datasets");
+            for dataset in dResults.getObjects():
+                entityFound = { "type" : "DATASET", "permId" : dataset.getPermId().getPermId() };
+                addToExportWithoutRepeating(entitiesToExport, entityFound);
+                entitiesToExpand.append(entityFound);
+            
+            operationLog.info("Found: " + str(results.getTotalCount()) + " samples");
             for sample in results.getObjects():
                 entityFound = { "type" : "SAMPLE", "permId" : sample.getPermId().getPermId() };
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
@@ -336,7 +348,8 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
             criteria.withPermId().thatEquals(permId);
             fetchOps = DataSetFetchOptions();
             fetchOps.withType();
-            fetchOps.withSample().withExperiment().withProject().withSpace();
+            fetchOps.withSample();
+            fetchOps.withExperiment().withProject().withSpace();
             fetchOps.withRegistrator();
             fetchOps.withModifier();
             fetchOps.withProperties();
@@ -344,10 +357,19 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
             fetchOps.withParents();
             fetchOps.withChildren();
             entityObj = v3.searchDataSets(sessionToken, criteria, fetchOps).getObjects().get(0);
-            entityFilePath = getFilePath(entityObj.getSample().getExperiment().getProject().getSpace().getCode(), entityObj.getSample().getExperiment().getProject().getCode(), entityObj.getSample().getExperiment().getCode(), entityObj.getSample().getCode(), entityObj.getCode());
+            
+            sampleCode = None
+            if(entityObj.getSample() is not None):
+                sampleCode = entityObj.getSample().getCode();
+            
+            entityFilePath = getFilePath(entityObj.getExperiment().getProject().getSpace().getCode(), entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), sampleCode, entityObj.getCode());
         if type == "FILE" and not entity["isDirectory"]:
             datasetEntityObj = objectCache[entity["permId"]];
-            datasetEntityFilePath = getFilePath(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
+            sampleCode = None
+            if(datasetEntityObj.getSample() is not None):
+                sampleCode = datasetEntityObj.getSample().getCode();
+            
+            datasetEntityFilePath = getFilePath(datasetEntityObj.getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getExperiment().getProject().getCode(), datasetEntityObj.getExperiment().getCode(), sampleCode, datasetEntityObj.getCode());
             filePath = datasetEntityFilePath + "/" + entity["path"];
             
             if not includeRoot:
