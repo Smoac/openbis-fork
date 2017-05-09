@@ -176,22 +176,18 @@ public class ProjectAuthorizationEnabled<O> implements IProjectAuthorization<O>
         if (idNN && permIdNN)
         {
             return idEqual && permIdEqual;
-        } else
+        }
+        if (idNN)
         {
-            if (idNN)
-            {
-                return idEqual;
-            }
-
-            if (permIdNN)
-            {
-                return permIdEqual;
-            }
-
-            if (identifierNN)
-            {
-                return identifierEqual;
-            }
+            return idEqual;
+        }
+        if (permIdNN)
+        {
+            return permIdEqual;
+        }
+        if (identifierNN)
+        {
+            return identifierEqual;
         }
 
         return false;

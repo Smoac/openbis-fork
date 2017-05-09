@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -94,14 +93,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     @Override
     public Map<TechId, ProjectPE> tryGetProjectsByTechIds(Collection<TechId> techIds)
     {
-        Collection<Long> ids = new ArrayList<Long>();
-
-        for (TechId techId : techIds)
-        {
-            ids.add(techId.getId());
-        }
-
-        List<ProjectPE> projects = daoFactory.getProjectDAO().listByIDs(ids);
+        List<ProjectPE> projects = daoFactory.getProjectDAO().listByIDs(TechId.asLongs(techIds));
 
         Map<TechId, ProjectPE> map = new HashMap<TechId, ProjectPE>();
 
