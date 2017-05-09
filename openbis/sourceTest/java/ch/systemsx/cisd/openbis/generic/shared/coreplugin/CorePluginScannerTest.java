@@ -64,8 +64,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
 
         String output =
                 String.format(
-                        "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n"
-                                + "WARN: Invalid version 'NaN-version' for plugin '%s/plugin-X'. Plugin version must be non-negative integer numbers.\n",
+                        "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n",
                         pluginsDir.getAbsolutePath(), pluginsDir.getAbsolutePath());
         assertEquals(output, logger.toString());
     }
@@ -94,9 +93,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
 
         String output =
                 String.format(
-                        "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n"
-                                + "WARN: Invalid version 'NaN-version' for plugin '%s/plugin-X'. "
-                                + "Plugin version must be non-negative integer numbers.\n",
+                        "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n",
                         pluginsDir.getAbsolutePath(), pluginsDir.getAbsolutePath());
         assertEquals(output, logger.toString());
     }
