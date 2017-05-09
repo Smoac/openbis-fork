@@ -837,6 +837,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         GetSessionInformationOperationResult result = executeOperation(sessionToken, new GetSessionInformationOperation());
         return result.getSessionInformation();
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isSessionActive(String sessionToken)
+    {
+        return tryGetSession(sessionToken) != null;
+    }
 
     @Override
     @Transactional

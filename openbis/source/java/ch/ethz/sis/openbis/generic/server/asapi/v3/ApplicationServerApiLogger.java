@@ -627,6 +627,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public boolean isSessionActive(String sessionToken)
+    {
+        logAccess(sessionToken, "is-session-active");
+        return false;
+    }
+
+    @Override
     public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations,
             IOperationExecutionOptions options)
     {
