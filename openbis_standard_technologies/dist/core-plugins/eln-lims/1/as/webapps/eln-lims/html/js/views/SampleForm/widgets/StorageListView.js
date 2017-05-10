@@ -73,7 +73,15 @@ function StorageListView(storageListController, storageListModel) {
 					
 					var namePropertyTypeCode = storagePropertyGroup.nameProperty;
 					var namePropertyCode = sample.properties[namePropertyTypeCode];
-					var nameProperty = profile.getVocabularyTermByCodes("STORAGE_NAMES", namePropertyCode).label;
+					var nameProperty = null;
+					if(namePropertyCode) {
+						namePropertyTerm = profile.getVocabularyTermByCodes("STORAGE_NAMES", namePropertyCode);
+						if(namePropertyTerm && namePropertyTerm.label) {
+							nameProperty = namePropertyTerm.label;
+						} else {
+							nameProperty = namePropertyCode;
+						}
+					}
 					
 					if(	(userProperty && userProperty !== "") ||
 						(nameProperty && nameProperty !== "")) {
