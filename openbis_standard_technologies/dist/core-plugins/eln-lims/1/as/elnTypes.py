@@ -14,6 +14,8 @@ samplesCache = {};
 commentsScriptCache = {};
 geneticModificationsScriptCache = {};
 annotationsScriptCache = {};
+requestsChildrenCodeScriptCache= {};
+
 
 ##
 ## Version Management
@@ -231,6 +233,20 @@ def getGeneticModificationsScript(tr, entityKind):
         geneticModificationsScriptCache[entityKind] = geneticModificationsScriptName;
         return geneticModificationsScriptName;
 
+def getRequestsChildrenCodeScript(tr, entityKind):
+    if entityKind in requestsChildrenCodeScriptCache:
+        return requestsChildrenCodeScriptCache[entityKind];
+    else:
+        requestsChildrenCodeScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "requests_children_code.py", 'r').read();
+        requestsChildrenCodeScriptName = "REQUESTS_CHILDREN_CODE_" + entityKind;
+        requestsChildrenCodeScript = tr.getOrCreateNewScript(requestsChildrenCodeScriptName);
+        requestsChildrenCodeScript.setName(requestsChildrenCodeScriptName);
+        requestsChildrenCodeScript.setDescription("Retrieve order code in requests");
+        requestsChildrenCodeScript.setScript(requestsChildrenCodeScriptAsString);
+        requestsChildrenCodeScript.setScriptType("DYNAMIC_PROPERTY");
+        requestsChildrenCodeScript.setEntityForScript(entityKind);
+        requestsChildrenCodeScriptCache[entityKind] = requestsChildrenCodeScriptName;
+        return requestsChildrenCodeScriptName;
 ##
 ## Vocabularies
 ##
@@ -972,6 +988,7 @@ PRODUCT = [MANDATORY_ITEM_VERSION, False, "PRODUCT", "", [
 REQUEST = [MANDATORY_ITEM_VERSION, False, "REQUEST", "", [
         [MANDATORY_ITEM_VERSION, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
         [MANDATORY_ITEM_VERSION, "ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None, True],
+        [MANDATORY_ITEM_VERSION, "ORDER_NUMBER",                              "General",            "Order Number",                             DataType.VARCHAR,                   None,                                "Order number", None, "REQUESTS_CHILDREN_CODE_SAMPLE"],
         [MANDATORY_ITEM_VERSION, "PROJECT",                             "General",            "Project",                            DataType.VARCHAR,                   None,                       "Project",                          None,       None],
         [MANDATORY_ITEM_VERSION, "DEPARTMENT",                          "General",            "Department",                         DataType.VARCHAR,                   None,                       "Department",                       None,       None],
         [MANDATORY_ITEM_VERSION, "BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],
