@@ -293,6 +293,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				"REQUEST" : {
 					"SAMPLE_PARENTS_TITLE" : "Products from Catalog",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_CHILDREN_DISABLED" : true,
 					"SAMPLE_PARENTS_HINT" : [{
 						"LABEL" : "Products",
 						"TYPE": "PRODUCT",
