@@ -222,7 +222,7 @@ public class ScreeningApiImpl
                     "The database has not been initialized properly for screening, sample type '"
                             + ScreeningConstants.DEFAULT_PLATE_SAMPLE_TYPE_CODE + "' not found.");
         }
-        return SampleTypeTranslator.translate(plateTypePE, null);
+        return SampleTypeTranslator.translate(plateTypePE, null, null);
     }
 
     public List<ExperimentIdentifier> listExperiments()

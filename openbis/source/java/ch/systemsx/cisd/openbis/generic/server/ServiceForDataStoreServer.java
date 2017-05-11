@@ -233,6 +233,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -799,7 +800,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         assert entityType instanceof ExperimentTypePE : "Not an ExperimentTypePE: " + entityType;
         ExperimentTypePE experimentType = (ExperimentTypePE) entityType;
         HibernateUtils.initialize(experimentType.getExperimentTypePropertyTypes());
-        return ExperimentTypeTranslator.translate(experimentType, null);
+        return ExperimentTypeTranslator.translate(experimentType, null, null);
     }
 
     @Override
@@ -817,7 +818,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                     + "'.");
         }
         HibernateUtils.initialize(sampleType.getSampleTypePropertyTypes());
-        return SampleTypeTranslator.translate(sampleType, null);
+        return SampleTypeTranslator.translate(sampleType, null, null);
     }
 
     @Override
@@ -838,7 +839,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 dataSetType.getDataSetTypePropertyTypes();
         HibernateUtils.initialize(dataSetTypePropertyTypes);
         DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
-        result.setDataSetType(DataSetTypeTranslator.translate(dataSetType, null));
+        result.setDataSetType(DataSetTypeTranslator.translate(dataSetType, null, null));
         for (DataSetTypePropertyTypePE dataSetTypePropertyTypePE : dataSetTypePropertyTypes)
         {
             PropertyTypePE propertyTypePE = dataSetTypePropertyTypePE.getPropertyType();
@@ -952,7 +953,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         Set<SamplePropertyPE> properties = top.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
-                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory);
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -974,7 +976,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         Set<SamplePropertyPE> properties = sample.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
-                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory);
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                managedPropertyEvaluatorFactory);
     }
 
     @Override

@@ -563,7 +563,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
         Collections.sort(sampleTypes);
         List<SampleType> translateSampleTypes =
-                SampleTypeTranslator.translate(sampleTypes,
+                SampleTypeTranslator.translate(sampleTypes, new HashMap<MaterialTypePE, MaterialType>(),
                         new HashMap<PropertyTypePE, PropertyType>());
 
         return translateSampleTypes;
@@ -803,7 +803,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
         final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
         Collections.sort(propertyTypes);
-        return PropertyTypeTranslator.translate(propertyTypes,
+        return PropertyTypeTranslator.translate(propertyTypes, new HashMap<MaterialTypePE, MaterialType>(),
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
@@ -1080,7 +1080,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final List<MaterialTypePE> materialTypes =
                 listEntityTypes(sessionToken, EntityKind.MATERIAL);
-        return MaterialTypeTranslator.translate(materialTypes,
+        return MaterialTypeTranslator.translate(materialTypes, new HashMap<MaterialTypePE, MaterialType>(),
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
@@ -2381,7 +2381,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         final List<DataSetTypePE> dataSetTypes = listEntityTypes(sessionToken, EntityKind.DATA_SET);
-        return DataSetTypeTranslator.translate(dataSetTypes,
+        return DataSetTypeTranslator.translate(dataSetTypes, new HashMap<MaterialTypePE, MaterialType>(),
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 

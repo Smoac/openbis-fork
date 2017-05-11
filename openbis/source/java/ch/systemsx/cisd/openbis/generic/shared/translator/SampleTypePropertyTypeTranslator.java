@@ -22,11 +22,13 @@ import java.util.Set;
 
 import org.apache.commons.collections4.Transformer;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -50,10 +52,10 @@ public final class SampleTypePropertyTypeTranslator
     {
 
         @Override
-        SampleType translate(EntityTypePE entityTypePE,
+        SampleType translate(EntityTypePE entityTypePE, Map<MaterialTypePE, MaterialType> materialTypeCache, 
                 Map<PropertyTypePE, PropertyType> cacheOrNull)
         {
-            return SampleTypeTranslator.translate((SampleTypePE) entityTypePE, cacheOrNull);
+            return SampleTypeTranslator.translate((SampleTypePE) entityTypePE, materialTypeCache, cacheOrNull);
         }
 
         @Override
@@ -66,25 +68,25 @@ public final class SampleTypePropertyTypeTranslator
 
     public static List<SampleTypePropertyType> translate(
             Set<SampleTypePropertyTypePE> sampleTypePropertyTypes, SampleType result,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new SampleTypePropertyTypeTranslatorHelper().translate(sampleTypePropertyTypes,
-                result, cacheOrNull);
+                result, materialTypeCache, cacheOrNull);
     }
 
     public static SampleTypePropertyType translate(SampleTypePropertyTypePE entityTypePropertyType,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new SampleTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType,
-                cacheOrNull);
+                materialTypeCache, cacheOrNull);
     }
 
     public static List<SampleTypePropertyType> translate(
             Set<SampleTypePropertyTypePE> sampleTypePropertyTypes, PropertyType result,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new SampleTypePropertyTypeTranslatorHelper().translate(sampleTypePropertyTypes,
-                result, cacheOrNull);
+                result, materialTypeCache, cacheOrNull);
     }
 
     public static final Transformer<EntityTypePropertyTypePE, SampleTypePropertyType> TRANSFORMER =
@@ -93,7 +95,7 @@ public final class SampleTypePropertyTypeTranslator
                     @Override
                     public SampleTypePropertyType transform(EntityTypePropertyTypePE input)
                     {
-                        return translate((SampleTypePropertyTypePE) input, null);
+                        return translate((SampleTypePropertyTypePE) input, null, null);
                     }
                 };
 }

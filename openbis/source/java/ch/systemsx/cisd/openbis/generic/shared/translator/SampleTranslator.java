@@ -28,10 +28,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
@@ -135,7 +137,7 @@ public final class SampleTranslator
         result.setId(HibernateUtils.getId(samplePE));
         result.setIdentifier(samplePE.getIdentifier());
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
-                new HashMap<PropertyTypePE, PropertyType>()));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>()));
         if (withDetails)
         {
             result.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
@@ -210,7 +212,8 @@ public final class SampleTranslator
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                managedPropertyEvaluatorFactory));
     }
 
     public final static SampleParentWithDerived translate(
