@@ -64,8 +64,6 @@ public class SynchronizationConfigReader
 
     private static final String HARVESTER_TEMP_DIR_PROPERTY_NAME = "harvester-tmp-dir";
 
-    private static final String DEFAULT_LOG_FILE_NAME = "../../syncronization.log";
-
     private static final String HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME = "last-sync-timestamp-file";
 
     private static final String HARVESTER_NOT_SYNCED_ENTITIES_FILE_NAME = "not-synced-entities-file";
@@ -84,6 +82,8 @@ public class SynchronizationConfigReader
 
     private Integer defaultFullSyncIntervalInDays = 14;
 
+    private String defaultLogFileName = "synchronization_{alias}.log";
+
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
 
     private String defaultNotSyncedEntitiesFileName = "not-synced-entities_{alias}.txt";
@@ -101,13 +101,13 @@ public class SynchronizationConfigReader
             String section = reader.getSection(i);
             SyncConfig config = new SyncConfig();
             config.setEmailAddresses(reader.getString(section, EMAIL_ADDRESSES_PROPERTY_NAME, null, true));
-            config.setLogFilePath(reader.getString(section, LOG_FILE_PROPERTY_NAME, DEFAULT_LOG_FILE_NAME, false));
+            config.setDataSourceAlias(reader.getString(section, DATA_SOURCE_ALIAS_PROPERTY_NAME, null, true));
+            defaultLogFileName = defaultLogFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            config.setLogFilePath(reader.getString(section, LOG_FILE_PROPERTY_NAME, defaultLogFileName, false));
             if (config.getLogFilePath() != null)
             {
                 configureFileAppender(config, logger);
             }
-
-            config.setDataSourceAlias(reader.getString(section, DATA_SOURCE_ALIAS_PROPERTY_NAME, null, true));
             config.setDataSourceURI(reader.getString(section, DATA_SOURCE_URL_PROPERTY_NAME, null, true));
             config.setDataSourceOpenbisURL(reader.getString(section, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null, true));
             config.setDataSourceDSSURL(reader.getString(section, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null, true));
@@ -172,7 +172,7 @@ public class SynchronizationConfigReader
         String PATTERN = "%d %-5p [%t] %c - %m%n";
         console.setLayout(new PatternLayout(PATTERN));
         // console.setThreshold(Level.FATAL);
-        console.setAppend(false);
+        console.setAppend(true);// set to false to overwrite log at every start
         console.setFile(config.getLogFilePath());
         console.activateOptions();
         // add appender to any Logger (here is root)

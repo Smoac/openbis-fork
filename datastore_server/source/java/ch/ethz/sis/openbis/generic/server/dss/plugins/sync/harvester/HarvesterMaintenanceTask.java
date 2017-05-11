@@ -159,6 +159,8 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         {
             try
             {
+                operationLog.info("-------------------------------------------------------------------------------------------");
+                operationLog.info("-------------------------------------------------------------------------------------------");
                 operationLog
                         .info((config.isDryRun() ? "Dry " : "") + "Running synchronization from data source: " + config.getDataSourceOpenbisURL()
                                 + " for user " + config.getUser());
