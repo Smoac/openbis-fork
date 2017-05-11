@@ -292,16 +292,28 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private Set<String> getNotSyncedDataSetCodes(String fileName)
     {
-        return getLinesFromNotSyncedEntitiesFile(fileName, new ILineFilter()
+        return getDataSetCodeLines(fileName, "DATA_SET");
+    }
+
+    private LinkedHashSet<String> getDataSetCodeLines(String fileName, final String prefix)
+    {
+        Set<String> lines = getLinesFromNotSyncedEntitiesFile(fileName, new ILineFilter()
             {
                 @Override
                 public <E> boolean acceptLine(ILine<E> line)
                 {
                     assert line != null : "Unspecified line";
                     final String trimmed = line.getText().trim();
-                    return trimmed.length() > 0 && trimmed.startsWith("DATA_SET") == true;
+                    return trimmed.length() > 0 && trimmed.startsWith(prefix) == true;
                 }
             });
+        LinkedHashSet<String> dataSetCodes = new LinkedHashSet<String>();
+        for (String line : lines)
+        {
+            dataSetCodes.add(line.substring(prefix.length() + 1)); // each line starts with "DATA_SET-"
+
+        }
+        return dataSetCodes;
     }
 
     private Set<String> getNotSyncedAttachmentHolderCodes(String fileName)
@@ -323,16 +335,8 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private Set<String> getBlackListedDataSetCodes(String fileName)
     {
-        return getLinesFromNotSyncedEntitiesFile(fileName, new ILineFilter()
-            {
-                @Override
-                public <E> boolean acceptLine(ILine<E> line)
-                {
-                    assert line != null : "Unspecified line";
-                    final String trimmed = line.getText().trim();
-                    return trimmed.length() > 0 && trimmed.startsWith("#") == true;
-                }
-            });
+        return getDataSetCodeLines(fileName, "#DATA_SET");
+
     }
 
     private void sendErrorEmail(SyncConfig config, String subject)
