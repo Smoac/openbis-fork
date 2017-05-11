@@ -88,7 +88,8 @@ elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ANALYZED_DATA);
 ## Sample Types - Materials
 ##
 elnTypes.getCommentsScript(tr, "SAMPLE");
-elnTypes.getGeneticModificationsScript(tr, "SAMPLE")
+elnTypes.getGeneticModificationsScript(tr, "SAMPLE");
+elnTypes.getRequestsChildrenCodeScript(tr, "SAMPLE");
 
 
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.ANTIBODY);
