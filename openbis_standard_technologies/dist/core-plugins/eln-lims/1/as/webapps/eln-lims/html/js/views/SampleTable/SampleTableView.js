@@ -58,11 +58,21 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				sampleTypeCode = sampleTypeCodesFound[0];
 			}
 			
+			//
+			var mandatorySampleTypeCode = null;
+			if(this._sampleTableModel.experiment && 
+					this._sampleTableModel.experiment.properties &&
+					this._sampleTableModel.experiment.properties["DEFAULT_OBJECT_TYPE"]) {
+				mandatorySampleTypeCode = this._sampleTableModel.experiment.properties["DEFAULT_OBJECT_TYPE"];
+			}
+			
+			var sampleTypeCodeToUse = (mandatorySampleTypeCode)?mandatorySampleTypeCode:sampleTypeCode;
+			
 			//Add Sample Type
-			if(sampleTypeCode !== null) {
+			if(sampleTypeCodeToUse !== null) {
 				var $createButton = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
-							"sampleTypeCode" : sampleTypeCode,
+							"sampleTypeCode" : sampleTypeCodeToUse,
 							"experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
 					}
 					var argsMapStr = JSON.stringify(argsMap);
@@ -70,7 +80,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
 				});
 				
-				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCode) });
+				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCodeToUse) });
 			}
 		}
 		

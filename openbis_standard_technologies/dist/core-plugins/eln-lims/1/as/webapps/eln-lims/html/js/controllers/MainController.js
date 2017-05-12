@@ -192,6 +192,7 @@ function MainController(profile) {
 													}
 													
 													Util.unblockUI();
+													LayoutManager.resize(mainController.views, true); // Maybe fixes white screen on startup?
 												});
 											};
 											
