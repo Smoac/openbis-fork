@@ -10,9 +10,8 @@ data-source-auth-realm = OAI-PMH
 data-source-auth-user = harvester1
 data-source-auth-pass = 123
 
-
 #replace the following with proper user on openbis2
-#after switching on master data syncronization
+#after switching on master data synchronization
 harvester-user = sync_admin
 harvester-pass = a
 translate-using-data-source-alias = true
@@ -20,7 +19,7 @@ translate-using-data-source-alias = true
 harvester-tmp-dir = harvester-tmp
 email-addresses = ganime.akin@id.ethz.ch, ganime@gmail.com
 #last-sync-timestamp-file = ../../last-sync-timestamp-file_HRVSTR.txt
-#log-file = ../../syncronization111.log
+log-file = ../../synchronization.log
 
 #set interval to days starting from 0. Default is 14 days.
 #full-sync= false

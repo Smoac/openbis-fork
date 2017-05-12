@@ -194,8 +194,8 @@ class TestCase(systemtest.testcase.TestCase):
         util.printAndFlush("Enabling harvester plugin for the dry run")
         os.remove(os.path.join(harvester_plugin_folder, 'disabled'))
         openbis2.dssUp()
-        monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName, 
-            "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
+        monitor = util.LogMonitor("%s synchronization.log" % openbis2.instanceName, 
+            "%s/synchronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.HarvesterMaintenanceTask'))
         monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Dry run finished'))
         '''read entity graph from harvester after dry run finished'''
@@ -217,8 +217,8 @@ class TestCase(systemtest.testcase.TestCase):
         '''read entity graph from harvester
         the entities might be translated using a prefix specified in the harvester_config
         remove the prefix'''
-        monitor = util.LogMonitor("%s syncronization.log" % openbis2.instanceName, 
-            "%s/syncronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
+        monitor = util.LogMonitor("%s synchronization.log" % openbis2.instanceName, 
+            "%s/synchronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.HarvesterMaintenanceTask'))
         monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Saving the timestamp of sync start to file'))
         graph_lines = self.getEntityGraph(openbis2_dss_port, openbis2, 'testuser1', '123')
