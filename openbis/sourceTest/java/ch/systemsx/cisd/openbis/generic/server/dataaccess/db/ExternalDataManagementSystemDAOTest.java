@@ -55,7 +55,7 @@ public class ExternalDataManagementSystemDAOTest extends AbstractDAOTest
 
         assertEquals(edms, fromDB);
 
-        assertEquals(3, daoFactory.getExternalDataManagementSystemDAO()
+        assertEquals(4, daoFactory.getExternalDataManagementSystemDAO()
                 .listExternalDataManagementSystems().size());
     }
 
@@ -65,7 +65,7 @@ public class ExternalDataManagementSystemDAOTest extends AbstractDAOTest
         List<ExternalDataManagementSystemPE> edmses =
                 daoFactory.getExternalDataManagementSystemDAO().listExternalDataManagementSystems();
 
-        assertEquals(2, edmses.size());
+        assertEquals(3, edmses.size());
 
         for (ExternalDataManagementSystemPE edms : edmses)
         {
@@ -75,9 +75,8 @@ public class ExternalDataManagementSystemDAOTest extends AbstractDAOTest
                 assertEquals("Test EDMS", edms.getLabel());
                 assertEquals("http://example.edms.pl/code=${code}", edms.getAddress());
                 assertFalse(edms.isOpenBIS());
-            } else
+            } else if (edms.getId() == 2L)
             {
-                assertEquals(2L, edms.getId().longValue());
                 assertEquals("DMS_2", edms.getCode());
                 assertEquals("Test External openBIS instance", edms.getLabel());
                 assertEquals("http://www.openbis.ch/perm_id=${code}", edms.getAddress());

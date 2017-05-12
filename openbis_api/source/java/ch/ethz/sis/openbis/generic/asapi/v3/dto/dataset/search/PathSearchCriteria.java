@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * @author anttil
  */
-public enum SearchObjectKind
+@JsonObject("as.dto.dataset.search.PathSearchCriteria")
+public class PathSearchCriteria extends StringFieldSearchCriteria
 {
 
-    EXPERIMENT, SAMPLE, DATA_SET, MATERIAL, PHYSICAL_DATA, LINKED_DATA, STORAGE_FORMAT, LOCATOR_TYPE, FILE_FORMAT_TYPE, EXTERNAL_DMS, CONTENT_COPY
+    private static final long serialVersionUID = 1L;
+
+    public PathSearchCriteria()
+    {
+        super("path", SearchFieldType.ATTRIBUTE);
+    }
 
 }

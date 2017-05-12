@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.ContentCopyAttributeProvider;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.DataSetAttributeProvider;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.FileFormatTypeAttributeProvider;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.LinkedDataAttributeProvider;
@@ -66,6 +67,9 @@ public class ObjectAttributeProviderFactory implements IObjectAttributeProviderF
         } else if (SearchObjectKind.EXTERNAL_DMS.equals(objectKind))
         {
             return new ExternalDmsAttributeProvider();
+        } else if (SearchObjectKind.CONTENT_COPY.equals(objectKind))
+        {
+            return new ContentCopyAttributeProvider();
         } else
         {
             throw new IllegalArgumentException("Could not create object attribute provider for unknown object kind: " + objectKind);

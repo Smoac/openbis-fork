@@ -87,6 +87,8 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     EXTERNAL_DMS_ADDRESS("External DMS address"),
 
+    EXTERNAL_DMS_TYPE("External DMS type"),
+
     EXTERNAL_CODE("Link external code"),
 
     PATH("Link path"),

@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -65,14 +63,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import junit.framework.Assert;
 
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses =
-{ DatasetRecord.class })
-@Test(groups =
-{ "db", "dataset" })
+@Friend(toClasses = { DatasetRecord.class })
+@Test(groups = { "db", "dataset" })
 public class DatasetListerTest extends AbstractDAOTest
 {
     private IDatasetLister lister;
@@ -237,7 +234,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(30, dataSets.size());
+        assertEquals(31, dataSets.size());
     }
 
     @Test
@@ -479,7 +476,7 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(37, list.size());
+        assertEquals(38, list.size());
     }
 
     @Test

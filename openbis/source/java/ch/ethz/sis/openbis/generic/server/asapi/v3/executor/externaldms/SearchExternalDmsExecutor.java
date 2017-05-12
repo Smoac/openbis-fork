@@ -23,7 +23,10 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.AddressSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.LabelSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
@@ -34,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemP
  * @author pkupczyk
  */
 @Component
-public class SearchExternalDmsExecutor extends AbstractSearchObjectManuallyExecutor<ExternalDmsSearchCriteria, ExternalDataManagementSystemPE> implements
-        ISearchExternalDmsExecutor
+public class SearchExternalDmsExecutor extends AbstractSearchObjectManuallyExecutor<ExternalDmsSearchCriteria, ExternalDataManagementSystemPE>
+        implements ISearchExternalDmsExecutor
 {
 
     @Autowired
@@ -47,7 +50,7 @@ public class SearchExternalDmsExecutor extends AbstractSearchObjectManuallyExecu
         authorizationExecutor.canSearch(context);
         return super.search(context, criteria);
     }
-    
+
     @Override
     protected List<ExternalDataManagementSystemPE> listAll()
     {
@@ -60,6 +63,15 @@ public class SearchExternalDmsExecutor extends AbstractSearchObjectManuallyExecu
         if (criteria instanceof CodeSearchCriteria)
         {
             return new CodeMatcher<ExternalDataManagementSystemPE>();
+        } else if (criteria instanceof LabelSearchCriteria)
+        {
+            return new LabelMatcher();
+        } else if (criteria instanceof AddressSearchCriteria)
+        {
+            return new AddressMatcher();
+        } else if (criteria instanceof ExternalDmsTypeSearchCriteria)
+        {
+            return new ExternalDmsTypeMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());

@@ -43,7 +43,8 @@ public class SearchDataSetTest extends AbstractDataSetTest
     public void testSearchWithEmptyCriteria()
     {
         testSearch(TEST_SPACE_USER, new DataSetSearchCriteria(), "20120619092259000-22", "20120628092259000-24", "20120628092259000-25",
-                "VALIDATIONS_CNTNR-26", "VALIDATIONS_IMPOS-27", "VALIDATIONS_PARENT-28", "DATASET-TO-DELETE", "COMPONENT_3AX");
+                "20120628092259000-41", "VALIDATIONS_CNTNR-26", "VALIDATIONS_IMPOS-27", "VALIDATIONS_PARENT-28", "DATASET-TO-DELETE",
+                "COMPONENT_3AX");
     }
 
     @Test
@@ -144,7 +145,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withCode().thatStartsWith("20120628092259000");
         criteria.withExperiment();
-        testSearch(TEST_USER, criteria, "20120628092259000-24", "20120628092259000-25");
+        testSearch(TEST_USER, criteria, "20120628092259000-24", "20120628092259000-25", "20120628092259000-41");
     }
 
     @Test
@@ -202,7 +203,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withCode().thatStartsWith("20120628092259000");
         criteria.withoutSample();
-        testSearch(TEST_USER, criteria, "20120628092259000-24", "20120628092259000-25");
+        testSearch(TEST_USER, criteria, "20120628092259000-24", "20120628092259000-25", "20120628092259000-41");
     }
 
     @Test
@@ -220,7 +221,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withType().withId().thatEquals(new EntityTypePermId("LINK_TYPE"));
-        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-24", "20120628092259000-25");
+        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-24", "20120628092259000-25", "20120628092259000-41");
     }
 
     @Test
@@ -228,7 +229,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withType().withCode().thatEquals("LINK_TYPE");
-        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-24", "20120628092259000-25");
+        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-24", "20120628092259000-25", "20120628092259000-41");
     }
 
     @Test
@@ -236,7 +237,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withType().withPermId().thatEquals("LINK_TYPE");
-        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-24", "20120628092259000-25");
+        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-24", "20120628092259000-25", "20120628092259000-41");
     }
 
     @Test

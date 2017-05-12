@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.CompleteSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.ContentCopySearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.DataSetSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.FileFormatTypeSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search.LinkedDataSearchCriteriaTranslator;
@@ -79,6 +80,7 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         translators.add(new BooleanFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new EnumFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new EntityTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new ContentCopySearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         return translators;
     }
 

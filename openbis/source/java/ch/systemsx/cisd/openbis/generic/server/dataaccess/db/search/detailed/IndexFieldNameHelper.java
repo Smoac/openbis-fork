@@ -178,6 +178,9 @@ class IndexFieldNameHelper
             case EXTERNAL_DMS_ADDRESS:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.ADDRESS;
 
+            case EXTERNAL_DMS_TYPE:
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.ADDRESS_TYPE;
+
             case EXTERNAL_CODE:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.EXTERNAL_CODE;
 

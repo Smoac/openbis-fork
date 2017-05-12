@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms;
 
-/**
- * @author pkupczyk
- */
-public enum SearchObjectKind
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
+
+public class AddressMatcher extends StringFieldMatcher<ExternalDataManagementSystemPE>
 {
 
-    EXPERIMENT, SAMPLE, DATA_SET, MATERIAL, PHYSICAL_DATA, LINKED_DATA, STORAGE_FORMAT, LOCATOR_TYPE, FILE_FORMAT_TYPE, EXTERNAL_DMS, CONTENT_COPY
-
+    @Override
+    protected String getFieldValue(ExternalDataManagementSystemPE edms)
+    {
+        return edms.getAddress();
+    }
 }

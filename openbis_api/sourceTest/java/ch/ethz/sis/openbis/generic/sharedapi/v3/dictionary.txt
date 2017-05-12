@@ -1576,3 +1576,14 @@ searchDataStores
 SearchDataStoresOperation
 SearchDataStoresOperationResult
 createPermIdStrings
+AddressSearchCriteria
+ContentCopySearchCriteria
+ExternalDmsTypeSearchCriteria
+GitCommitHashSearchCriteria
+LabelSearchCriteria
+PathSearchCriteria
+withAddress
+withCopy
+withGitCommitHash
+withLabel
+withPath

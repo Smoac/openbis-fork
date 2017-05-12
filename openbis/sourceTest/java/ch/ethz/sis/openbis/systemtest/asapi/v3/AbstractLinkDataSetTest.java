@@ -153,6 +153,7 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
                         externalCode = uuid();
                         break;
                     case FILE_SYSTEM:
+                        path = "/" + uuid();
                 }
             }
         }

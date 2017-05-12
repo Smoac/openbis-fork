@@ -792,7 +792,16 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<DataSet> result =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
 
-        assertEquals(3, result.size());
+        Collections.sort(result, new Comparator<DataSet>()
+            {
+                @Override
+                public int compare(DataSet o1, DataSet o2)
+                {
+                    return o1.getCode().compareTo(o2.getCode());
+                }
+            });
+
+        assertEquals(4, result.size());
         assertEquals("CODE1", result.get(0).getExternalDataSetCode());
         assertEquals("CODE2", result.get(1).getExternalDataSetCode());
         assertEquals("CODE3", result.get(2).getExternalDataSetCode());

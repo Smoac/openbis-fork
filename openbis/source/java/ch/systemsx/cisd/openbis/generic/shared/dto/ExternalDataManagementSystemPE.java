@@ -115,6 +115,7 @@ public class ExternalDataManagementSystemPE extends
 
     @Column(name = ColumnNames.ADDRESS_TYPE_COLUMN)
     @Enumerated(EnumType.STRING)
+    @Field(name = SearchFieldConstants.ADDRESS_TYPE, index = Index.YES, store = Store.YES)
     @NotNull
     public ExternalDataManagementSystemType getAddressType()
     {

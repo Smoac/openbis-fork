@@ -16,39 +16,45 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * @author anttil
  */
-@JsonObject("as.dto.dataset.search.LinkedDataSearchCriteria")
-public class LinkedDataSearchCriteria extends AbstractCompositeSearchCriteria
+@JsonObject("as.dto.dataset.search.ContentCopySearchCriteria")
+public class ContentCopySearchCriteria extends AbstractObjectSearchCriteria<IExternalDmsId>
 {
 
     private static final long serialVersionUID = 1L;
-
-    public ExternalCodeSearchCriteria withExternalCode()
-    {
-        return with(new ExternalCodeSearchCriteria());
-    }
 
     public ExternalDmsSearchCriteria withExternalDms()
     {
         return with(new ExternalDmsSearchCriteria());
     }
 
-    public ContentCopySearchCriteria withCopy()
+    public ExternalCodeSearchCriteria withExternalCode()
     {
-        return with(new ContentCopySearchCriteria());
+        return with(new ExternalCodeSearchCriteria());
+    }
+
+    public PathSearchCriteria withPath()
+    {
+        return with(new PathSearchCriteria());
+    }
+
+    public GitCommitHashSearchCriteria withGitCommitHash()
+    {
+        return with(new GitCommitHashSearchCriteria());
     }
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("LINKED_DATA");
+        builder.setName("CONTENT_COPY");
         return builder;
     }
 

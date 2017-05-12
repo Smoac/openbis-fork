@@ -1724,7 +1724,7 @@ SELECT pg_catalog.setval('attachment_content_id_seq', 9, true);
 SELECT pg_catalog.setval('attachment_id_seq', 9, true);
 SELECT pg_catalog.setval('authorization_group_id_seq', 1, true);
 SELECT pg_catalog.setval('code_seq', 8, true);
-SELECT pg_catalog.setval('content_copies_id_seq', 3, true);
+SELECT pg_catalog.setval('content_copies_id_seq', 4, true);
 SELECT pg_catalog.setval('controlled_vocabulary_id_seq', 6, true);
 SELECT pg_catalog.setval('core_plugin_id_seq', 1, false);
 SELECT pg_catalog.setval('cvte_id_seq', 17, true);

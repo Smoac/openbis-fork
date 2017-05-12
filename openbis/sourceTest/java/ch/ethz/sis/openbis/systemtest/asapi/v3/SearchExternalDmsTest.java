@@ -22,11 +22,11 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria;
 
@@ -45,21 +45,69 @@ public class SearchExternalDmsTest extends AbstractExternalDmsTest
         assertThat(result.getObjects(), hasItem(isSimilarTo(edms1)));
         assertThat(result.getObjects(), hasItem(isSimilarTo(edms2)));
     }
-    
+
     @Test
     public void searchReturnsSpecifiedExternalDataManagementSystem()
     {
         get(create(externalDms()));
         ExternalDms edms2 = get(create(externalDms()));
-        
+
         ExternalDmsSearchCriteria criteria = new ExternalDmsSearchCriteria();
         criteria.withCode().thatEquals(edms2.getCode());
         ExternalDmsFetchOptions fetchOptions = new ExternalDmsFetchOptions();
         List<ExternalDms> result = v3api.searchExternalDataManagementSystems(session, criteria, fetchOptions).getObjects();
-        
+
         assertEquals(result.size(), 1);
         assertEquals(result.get(0).getCode(), edms2.getCode());
         assertEquals(result.get(0).getAddress(), edms2.getAddress());
         assertEquals(result.get(0).getAddressType(), edms2.getAddressType());
+    }
+
+    @Test
+    public void canSearchWithLabel()
+    {
+        ExternalDms edms = get(create(externalDms().withLabel("this is a label")));
+        create(externalDms().withLabel("something else"));
+
+        ExternalDmsSearchCriteria criteria = new ExternalDmsSearchCriteria();
+        criteria.withLabel().thatEndsWith("is a label");
+        ExternalDmsFetchOptions fetchOptions = new ExternalDmsFetchOptions();
+        List<ExternalDms> result = v3api.searchExternalDataManagementSystems(session, criteria, fetchOptions).getObjects();
+
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getCode(), edms.getCode());
+        assertEquals(result.get(0).getAddress(), edms.getAddress());
+        assertEquals(result.get(0).getAddressType(), edms.getAddressType());
+    }
+
+    @Test
+    public void canSearchWithAddress()
+    {
+        ExternalDms edms = get(create(externalDms().withLabel("this is an address")));
+        create(externalDms().withAddress("something else"));
+
+        ExternalDmsSearchCriteria criteria = new ExternalDmsSearchCriteria();
+        criteria.withLabel().thatStartsWith("this is a");
+        ExternalDmsFetchOptions fetchOptions = new ExternalDmsFetchOptions();
+        List<ExternalDms> result = v3api.searchExternalDataManagementSystems(session, criteria, fetchOptions).getObjects();
+
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getCode(), edms.getCode());
+        assertEquals(result.get(0).getAddress(), edms.getAddress());
+        assertEquals(result.get(0).getAddressType(), edms.getAddressType());
+    }
+
+    @Test
+    public void canSearchWithDmsType()
+    {
+        ExternalDms edms = get(create(externalDms().withType(ExternalDmsAddressType.FILE_SYSTEM)));
+        create(externalDms().withType(ExternalDmsAddressType.OPENBIS));
+
+        ExternalDmsSearchCriteria criteria = new ExternalDmsSearchCriteria();
+        criteria.withType().thatEquals(ExternalDmsAddressType.FILE_SYSTEM);
+        ExternalDmsFetchOptions fetchOptions = new ExternalDmsFetchOptions();
+        SearchResult<ExternalDms> result = v3api.searchExternalDataManagementSystems(session, criteria, fetchOptions);
+
+        assertThat(result.getObjects(), hasItem(isSimilarTo(edms)));
     }
 }

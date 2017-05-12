@@ -20,10 +20,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.AddressSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.LabelSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * @author anttil
  */
 @JsonObject("as.dto.dataset.search.ExternalDmsSearchCriteria")
 public class ExternalDmsSearchCriteria extends AbstractObjectSearchCriteria<IExternalDmsId>
@@ -34,6 +37,21 @@ public class ExternalDmsSearchCriteria extends AbstractObjectSearchCriteria<IExt
     public CodeSearchCriteria withCode()
     {
         return with(new CodeSearchCriteria());
+    }
+
+    public LabelSearchCriteria withLabel()
+    {
+        return with(new LabelSearchCriteria());
+    }
+
+    public AddressSearchCriteria withAddress()
+    {
+        return with(new AddressSearchCriteria());
+    }
+
+    public ExternalDmsTypeSearchCriteria withType()
+    {
+        return with(new ExternalDmsTypeSearchCriteria());
     }
 
     @Override

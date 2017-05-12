@@ -14,38 +14,34 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.externaldms.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.AddressSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.LabelSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalCodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.GitCommitHashSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.PathSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.IObjectAttributeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
 /**
- * @author pkupczyk
+ * @author anttil
  */
-public class ExternalDmsAttributeProvider implements IObjectAttributeProvider
+public class ContentCopyAttributeProvider implements IObjectAttributeProvider
 {
 
     @Override
     public IAttributeSearchFieldKind getAttribute(ISearchCriteria criteria)
     {
-        if (criteria instanceof CodeSearchCriteria)
+        if (criteria instanceof ExternalCodeSearchCriteria)
         {
-            return DataSetAttributeSearchFieldKind.EXTERNAL_DMS_CODE;
-        } else if (criteria instanceof LabelSearchCriteria)
+            return DataSetAttributeSearchFieldKind.EXTERNAL_CODE;
+        } else if (criteria instanceof PathSearchCriteria)
         {
-            return DataSetAttributeSearchFieldKind.EXTERNAL_DMS_LABEL;
-        } else if (criteria instanceof AddressSearchCriteria)
+            return DataSetAttributeSearchFieldKind.PATH;
+        } else if (criteria instanceof GitCommitHashSearchCriteria)
         {
-            return DataSetAttributeSearchFieldKind.EXTERNAL_DMS_ADDRESS;
-        } else if (criteria instanceof ExternalDmsTypeSearchCriteria)
-        {
-            return DataSetAttributeSearchFieldKind.EXTERNAL_DMS_TYPE;
+            return DataSetAttributeSearchFieldKind.COMMIT_HASH;
         } else
         {
             throw new IllegalArgumentException("Unknown attribute criteria: " + criteria);
