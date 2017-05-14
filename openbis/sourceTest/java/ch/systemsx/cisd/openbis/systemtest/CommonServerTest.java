@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +39,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -294,6 +296,68 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test
+    public void testDeleteProjectWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        testDeleteAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
+    }
+
+    @Test
+    public void testDeleteProjectWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        testDeleteAndExpectUserHasAccess(TEST_SPACE_PA_ON);
+    }
+
+    @Test
+    public void testDeleteProjectWithProjectAdminWithProjectAuthorizationOff()
+    {
+        testDeleteAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
+    }
+
+    @Test
+    public void testDeleteProjectWithProjectAdminWithProjectAuthorizationOn()
+    {
+        testDeleteAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
+    }
+
+    private void testDeleteAndExpectUserHasAccess(String userId)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(userId, PASSWORD);
+        TechId projectId = new TechId(7L); // /TEST-SPACE/PROJECT-TO-DELETE
+
+        Project info = commonServer.getProjectInfo(session.getSessionToken(), projectId);
+        assertNotNull(info);
+
+        commonServer.deleteProjects(session.getSessionToken(), Arrays.asList(projectId), "testReason");
+
+        try
+        {
+            commonServer.getProjectInfo(session.getSessionToken(), projectId);
+        } catch (UserFailureException e)
+        {
+            assertEquals(e.getMessage(), "Project with ID 7 does not exist. Maybe someone has just deleted it.");
+        }
+    }
+
+    private void testDeleteAndExpectUserDoesNotHaveAccess(String userId)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(userId, PASSWORD);
+        TechId projectId = new TechId(7L); // /TEST-SPACE/PROJECT-TO-DELETE
+
+        Project info = commonServer.getProjectInfo(systemSessionToken, projectId);
+        assertNotNull(info);
+
+        try
+        {
+            commonServer.deleteProjects(session.getSessionToken(), Arrays.asList(projectId), "testReason");
+            Assert.fail();
+        } catch (AuthorizationFailureException e)
+        {
+            return;
+        }
+        Assert.fail();
+    }
+
+    @Test
     public void testListProjectsWithSpaceAdminWithProjectAuthorizationOff()
     {
         SessionContextDTO session = commonServer.tryAuthenticate(TEST_SPACE_PA_OFF, PASSWORD);
@@ -330,7 +394,7 @@ public class CommonServerTest extends SystemTestCase
 
         List<Project> projects = commonServer.listProjects(session.getSessionToken());
 
-        assertEntities("[/TEST-SPACE/TEST-PROJECT]", projects);
+        assertEntities("[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
     }
 
     private void assertAssignedPropertyTypes(String expected, EntityType entityType)
