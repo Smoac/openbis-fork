@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -53,10 +54,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+
+import junit.framework.Assert;
 
 /**
  * @author Franz-Josef Elmer
@@ -227,6 +234,105 @@ public class CommonServerTest extends SystemTestCase
 
     }
 
+    @Test
+    public void testUpdateProjectWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
+    }
+
+    @Test
+    public void testUpdateProjectWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_ON);
+    }
+
+    @Test
+    public void testUpdateProjectWithProjectAdminWithProjectAuthorizationOff()
+    {
+        testUpdateAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
+    }
+
+    @Test
+    public void testUpdateProjectWithProjectAdminWithProjectAuthorizationOn()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
+    }
+
+    private void testUpdateAndExpectUserHasAccess(String userId)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(userId, PASSWORD);
+
+        ProjectUpdatesDTO updates = new ProjectUpdatesDTO();
+        updates.setTechId(new TechId(5L)); // /TEST-SPACE/TEST-PROJECT
+        updates.setAttachments(Collections.<NewAttachment> emptyList());
+        updates.setDescription(String.valueOf(System.currentTimeMillis()));
+
+        commonServer.updateProject(session.getSessionToken(), updates);
+        Project info = commonServer.getProjectInfo(session.getSessionToken(), new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT"));
+
+        assertEquals(info.getDescription(), updates.getDescription());
+    }
+
+    private void testUpdateAndExpectUserDoesNotHaveAccess(String userId)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(userId, PASSWORD);
+
+        ProjectUpdatesDTO updates = new ProjectUpdatesDTO();
+        updates.setTechId(new TechId(5L)); // /TEST-SPACE/TEST-PROJECT
+        updates.setAttachments(Collections.<NewAttachment> emptyList());
+        updates.setDescription(String.valueOf(System.currentTimeMillis()));
+
+        try
+        {
+            commonServer.updateProject(session.getSessionToken(), updates);
+            Assert.fail();
+        } catch (AuthorizationFailureException e)
+        {
+            return;
+        }
+        Assert.fail();
+    }
+
+    @Test
+    public void testListProjectsWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_SPACE_PA_OFF, PASSWORD);
+
+        List<Project> projects = commonServer.listProjects(session.getSessionToken());
+
+        assertEntities("[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+    }
+
+    @Test
+    public void testListProjectsWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_SPACE_PA_ON, PASSWORD);
+
+        List<Project> projects = commonServer.listProjects(session.getSessionToken());
+
+        assertEntities("[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+    }
+
+    @Test
+    public void testListProjectsWithProjectAdminWithProjectAuthorizationOff()
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_PROJECT_PA_OFF, PASSWORD);
+
+        List<Project> projects = commonServer.listProjects(session.getSessionToken());
+
+        assertEntities("[]", projects);
+    }
+
+    @Test
+    public void testListProjectsWithProjectAdminWithProjectAuthorizationOn()
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_PROJECT_PA_ON, PASSWORD);
+
+        List<Project> projects = commonServer.listProjects(session.getSessionToken());
+
+        assertEntities("[/TEST-SPACE/TEST-PROJECT]", projects);
+    }
+
     private void assertAssignedPropertyTypes(String expected, EntityType entityType)
     {
         List<? extends EntityTypePropertyType<?>> propTypes = entityType.getAssignedPropertyTypes();
@@ -261,7 +367,6 @@ public class CommonServerTest extends SystemTestCase
     @SuppressWarnings("deprecation")
     private void testConcurrentDisplaySettingsUpdateForUsersIsSafe(String[] users, int numberOfThreads, int numberOfIterations)
     {
-        final String PASSWORD = "password";
         final String PANEL_ID = "panel_id";
         final String FINISHED_MESSAGE = "finished";
 
@@ -309,7 +414,6 @@ public class CommonServerTest extends SystemTestCase
     public void testLongRunninngDisplaySettingsUpdateForOneUserBlocksOtherUpdatesForThisUser() throws Exception
     {
         final String USER_ID = "test";
-        final String PASSWORD = "password";
         final String PANEL_ID = "testPanelId";
         final String FINISHED_MESSAGE = "finished";
         final long TIMEOUT = 1000;
@@ -399,7 +503,6 @@ public class CommonServerTest extends SystemTestCase
     {
         final String USER_ID_1 = "test";
         final String USER_ID_2 = "test_role";
-        final String PASSWORD = "password";
         final String PANEL_ID = "testPanelId";
         final String FINISHED_MESSAGE_1 = "finished1";
         final String FINISHED_MESSAGE_2 = "finished2";
@@ -574,8 +677,7 @@ public class CommonServerTest extends SystemTestCase
                         {
                             // increase probability of race condition
                             Thread.sleep(5);
-                        }
-                        catch (Exception e)
+                        } catch (Exception e)
                         {
 
                         }

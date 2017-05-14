@@ -180,10 +180,8 @@ ALTER TABLE ONLY relationship_types
     ADD CONSTRAINT rety_pk PRIMARY KEY (id);
 ALTER TABLE ONLY relationship_types
     ADD CONSTRAINT rety_uk UNIQUE (code);
-ALTER TABLE ONLY role_assignments
-    ADD CONSTRAINT roas_ag_space_project_bk_uk UNIQUE (ag_id_grantee, role_code, space_id, project_id);
-ALTER TABLE ONLY role_assignments
-    ADD CONSTRAINT roas_pe_space_project_bk_uk UNIQUE (pers_id_grantee, role_code, space_id, project_id);
+CREATE UNIQUE INDEX ROAS_PE_SPACE_PROJECT_BK_UK ON ROLE_ASSIGNMENTS (PERS_ID_GRANTEE, ROLE_CODE, coalesce(SPACE_ID,-1), coalesce(PROJECT_ID,-1)); 
+CREATE UNIQUE INDEX ROAS_AG_SPACE_PROJECT_BK_UK ON ROLE_ASSIGNMENTS (AG_ID_GRANTEE, ROLE_CODE, coalesce(SPACE_ID,-1), coalesce(PROJECT_ID,-1)); 
 ALTER TABLE ONLY role_assignments
     ADD CONSTRAINT roas_pk PRIMARY KEY (id);
 ALTER TABLE ONLY samples_all

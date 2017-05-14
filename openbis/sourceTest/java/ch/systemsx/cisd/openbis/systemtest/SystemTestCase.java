@@ -82,6 +82,40 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringContextTests
 {
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
+    
+    protected static final String SYSTEM_USER = "system";
+
+    protected static final String NOT_EXISTING_USER = "notexistinguser";
+
+    protected static final String TEST_SPACE_USER = "test_space";
+
+    protected static final String TEST_ROLE_V3 = "test_v3";
+
+    protected static final String TEST_USER = "test";
+
+    protected static final String TEST_POWER_USER_CISD = "test_role";
+
+    protected static final String TEST_GROUP_OBSERVER = "observer";
+
+    protected static final String TEST_INSTANCE_OBSERVER = "instance_observer";
+
+    protected static final String TEST_OBSERVER_CISD = "observer_cisd";
+
+    protected static final String TEST_GROUP_POWERUSER = "poweruser";
+
+    protected static final String TEST_GROUP_ADMIN = "admin";
+
+    protected static final String TEST_NO_HOME_SPACE = "homeless";
+
+    protected static final String TEST_SPACE_PA_OFF = "test_space_pa_off";
+
+    protected static final String TEST_SPACE_PA_ON = "test_space_pa_on";
+
+    protected static final String TEST_PROJECT_PA_OFF = "test_project_pa_off";
+
+    protected static final String TEST_PROJECT_PA_ON = "test_project_pa_on";
+
+    protected static final String PASSWORD = "password";
 
     protected static final String SESSION_KEY = "session-key";
 

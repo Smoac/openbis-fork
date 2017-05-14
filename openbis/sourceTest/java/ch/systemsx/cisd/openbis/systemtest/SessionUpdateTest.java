@@ -45,8 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class SessionUpdateTest extends SystemTestCase
 {
 
-    private static final String TEST_SPACE_USER = "test_space";
-
     private static final String ADMIN = "test";
 
     @Test

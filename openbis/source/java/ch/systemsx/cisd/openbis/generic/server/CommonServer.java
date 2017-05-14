@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUp
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
@@ -2518,7 +2519,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Project getProjectInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);

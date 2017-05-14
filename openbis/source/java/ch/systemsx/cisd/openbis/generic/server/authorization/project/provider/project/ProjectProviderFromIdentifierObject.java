@@ -20,22 +20,23 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.project.IProject;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.project.ProjectFromIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.object.SingleObjectProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * @author pkupczyk
  */
-public class ProjectProviderFromIdentifier extends SingleObjectProvider<String>
+public class ProjectProviderFromIdentifierObject extends SingleObjectProvider<ProjectIdentifier>
 {
 
-    public ProjectProviderFromIdentifier(String projectIdentifier)
+    public ProjectProviderFromIdentifierObject(ProjectIdentifier projectIdentifier)
     {
         super(projectIdentifier);
     }
 
     @Override
-    protected IProject createProject(IAuthorizationDataProvider dataProvider, String projectIdentifier)
+    protected IProject createProject(IAuthorizationDataProvider dataProvider, ProjectIdentifier projectIdentifier)
     {
-        return new ProjectFromIdentifier(projectIdentifier);
+        return new ProjectFromIdentifier(projectIdentifier.asProjectIdentifierString());
     }
 
 }

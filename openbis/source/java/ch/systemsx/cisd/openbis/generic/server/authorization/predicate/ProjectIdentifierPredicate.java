@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,39 +22,37 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromIdentifierString;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromIdentifierObject;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * A {@link IPredicate} for a project's augmented code (i.e. DB:/SPACE/PROJECT).
- * 
- * @author Bernd Rinn
+ * @author pkupczyk
  */
-public class ProjectAugmentedCodePredicate extends DelegatedPredicate<SpaceIdentifier, String>
+public class ProjectIdentifierPredicate extends DelegatedPredicate<SpaceIdentifier, ProjectIdentifier>
 {
-    public ProjectAugmentedCodePredicate()
+    public ProjectIdentifierPredicate()
     {
         super(new SpaceIdentifierPredicate(false));
     }
 
     @Override
-    public SpaceIdentifier tryConvert(String value)
+    public SpaceIdentifier tryConvert(ProjectIdentifier value)
     {
-        return new ProjectIdentifierFactory(value).createIdentifier();
+        return new SpaceIdentifier(value.getSpaceCode());
     }
 
     @Override
-    public Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String value)
+    public Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, ProjectIdentifier value)
     {
-        IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
+        IProjectAuthorization<ProjectIdentifier> pa = new ProjectAuthorizationBuilder<ProjectIdentifier>()
                 .withData(authorizationDataProvider)
                 .withUser(new UserProviderFromPersonPE(person))
                 .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
-                .withObjects(new ProjectProviderFromIdentifierString(value))
+                .withObjects(new ProjectProviderFromIdentifierObject(value))
                 .build();
 
         if (pa.getObjectsWithoutAccess().isEmpty())
