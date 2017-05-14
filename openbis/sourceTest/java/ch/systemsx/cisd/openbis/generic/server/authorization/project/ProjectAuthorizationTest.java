@@ -20,9 +20,12 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.projec
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.role.IRole;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.object.IObjectsProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.IRolesProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.IUserProvider;
 
 public class ProjectAuthorizationTest extends Assert
 {
+
+    private static final String USER_ID = "testUser";
 
     private static final String PROJECT_PROVIDER = "projectProvider";
 
@@ -50,6 +53,8 @@ public class ProjectAuthorizationTest extends Assert
 
     private IObjectsProvider<String> objectsProvider;
 
+    private IUserProvider userProvider;
+
     private IRolesProvider rolesProvider;
 
     @SuppressWarnings("unchecked")
@@ -59,6 +64,7 @@ public class ProjectAuthorizationTest extends Assert
         context = new Mockery();
         dataProvider = context.mock(IAuthorizationDataProvider.class);
         objectsProvider = context.mock(IObjectsProvider.class);
+        userProvider = context.mock(IUserProvider.class);
         rolesProvider = context.mock(IRolesProvider.class);
     }
 
@@ -69,13 +75,81 @@ public class ProjectAuthorizationTest extends Assert
     }
 
     @Test
-    public void testDisabled()
+    public void testDisabledAtGlobalAndUserLevels()
     {
         context.checking(new Expectations()
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(false)));
+                    will(returnValue(new TestAuthorizationConfig(false, null)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
+
+                    allowing(objectsProvider).getOriginalObjects();
+                    will(returnValue(Arrays.asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B)));
+                }
+            });
+
+        assertResults(Arrays.<String> asList(), Arrays.asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B));
+    }
+
+    @Test
+    public void testEnabledAtGlobalLevelOnly()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataProvider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(true, null)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
+
+                    allowing(objectsProvider).getOriginalObjects();
+                    will(returnValue(Arrays.asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B)));
+                }
+            });
+
+        assertResults(Arrays.<String> asList(), Arrays.asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B));
+    }
+
+    @Test
+    public void testEnabledAtGlobalAndUserLevels()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataProvider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+
+                    IObject<String> object = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
+
+                    allowing(objectsProvider).getObjects(dataProvider);
+                    will(returnValue(Arrays.asList(object)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
+
+                    allowing(rolesProvider).getRoles(dataProvider);
+                    will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X)));
+                }
+            });
+
+        assertResults(Arrays.<String> asList(ORIGINAL_OBJECT_A), Arrays.<String> asList());
+    }
+
+    @Test
+    public void testEnabledAtUserLevelOnly()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataProvider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, USER_ID)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(objectsProvider).getOriginalObjects();
                     will(returnValue(Arrays.asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B)));
@@ -92,10 +166,13 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(null));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X, ROLE_WITH_PROJECT_Y)));
@@ -112,10 +189,13 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList()));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X, ROLE_WITH_PROJECT_Y)));
@@ -132,13 +212,16 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(null));
@@ -155,13 +238,16 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList()));
@@ -178,34 +264,15 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     IObject<String> objectWithoutProject = new Object<String>(ORIGINAL_OBJECT_A, null);
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList(objectWithoutProject)));
 
-                    allowing(rolesProvider).getRoles(dataProvider);
-                    will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X, ROLE_WITH_PROJECT_Y)));
-                }
-            });
-
-        assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A));
-    }
-
-    @Test
-    public void testEnabledWithObjectWithOtherProject()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
-
-                    IObject<String> objectWithOtherProject = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_OTHER);
-
-                    allowing(objectsProvider).getObjects(dataProvider);
-                    will(returnValue(Arrays.asList(objectWithOtherProject)));
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X, ROLE_WITH_PROJECT_Y)));
@@ -213,67 +280,24 @@ public class ProjectAuthorizationTest extends Assert
             });
 
         assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A));
-    }
-
-    @Test
-    public void testEnabledWithRoleWithoutProject()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
-
-                    IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
-                    IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
-
-                    allowing(objectsProvider).getObjects(dataProvider);
-                    will(returnValue(Arrays.asList(objectA, objectB)));
-
-                    allowing(rolesProvider).getRoles(dataProvider);
-                    will(returnValue(Arrays.asList(ROLE_WITHOUT_PROJECT)));
-                }
-            });
-
-        assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B));
-    }
-
-    @Test
-    public void testEnabledWithRoleWithOtherProject()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
-
-                    IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
-                    IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
-
-                    allowing(objectsProvider).getObjects(dataProvider);
-                    will(returnValue(Arrays.asList(objectA, objectB)));
-
-                    allowing(rolesProvider).getRoles(dataProvider);
-                    will(returnValue(Arrays.asList(ROLE_WITH_OTHER_PROJECT)));
-                }
-            });
-
-        assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B));
     }
 
     @Test(dataProvider = PROJECT_PROVIDER)
-    public void testEnabledWithProjectMatching(final IProject objectProject, final IProject roleProject, boolean matching)
+    public void testEnabledWithObjectWithProject(final IProject objectProject, final IProject roleProject, boolean matching)
     {
         context.checking(new Expectations()
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
-                    IObject<String> objectWithProjectWithId = new Object<String>(ORIGINAL_OBJECT_A, objectProject);
+                    IObject<String> objectWithProject = new Object<String>(ORIGINAL_OBJECT_A, objectProject);
 
                     allowing(objectsProvider).getObjects(dataProvider);
-                    will(returnValue(Arrays.asList(objectWithProjectWithId)));
+                    will(returnValue(Arrays.asList(objectWithProject)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList(new TestRole(roleProject))));
@@ -290,19 +314,99 @@ public class ProjectAuthorizationTest extends Assert
     }
 
     @Test
-    public void testEnabledWithAccessToAllObjects()
+    public void testEnabledWithObjectWithOtherProject()
     {
         context.checking(new Expectations()
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+
+                    IObject<String> objectWithOtherProject = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_OTHER);
+
+                    allowing(objectsProvider).getObjects(dataProvider);
+                    will(returnValue(Arrays.asList(objectWithOtherProject)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
+
+                    allowing(rolesProvider).getRoles(dataProvider);
+                    will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X, ROLE_WITH_PROJECT_Y)));
+                }
+            });
+
+        assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A));
+    }
+
+    @Test
+    public void testEnabledWithRoleWithoutProject()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataProvider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
+
+                    allowing(rolesProvider).getRoles(dataProvider);
+                    will(returnValue(Arrays.asList(ROLE_WITHOUT_PROJECT)));
+                }
+            });
+
+        assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B));
+    }
+
+    @Test
+    public void testEnabledWithRoleWithOtherProject()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataProvider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+
+                    IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
+                    IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
+
+                    allowing(objectsProvider).getObjects(dataProvider);
+                    will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
+
+                    allowing(rolesProvider).getRoles(dataProvider);
+                    will(returnValue(Arrays.asList(ROLE_WITH_OTHER_PROJECT)));
+                }
+            });
+
+        assertResults(Arrays.<String> asList(), Arrays.<String> asList(ORIGINAL_OBJECT_A, ORIGINAL_OBJECT_B));
+    }
+
+    @Test
+    public void testEnabledWithAccessToAllObjects()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataProvider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+
+                    IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
+                    IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
+
+                    allowing(objectsProvider).getObjects(dataProvider);
+                    will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X, ROLE_WITH_PROJECT_Y)));
@@ -319,13 +423,16 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList(ROLE_WITH_PROJECT_X)));
@@ -342,13 +449,16 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true)));
+                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList(objectA, objectB)));
+
+                    allowing(userProvider).getUserId();
+                    will(returnValue(USER_ID));
 
                     allowing(rolesProvider).getRoles(dataProvider);
                     will(returnValue(Arrays.asList()));
@@ -363,6 +473,7 @@ public class ProjectAuthorizationTest extends Assert
         IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
                 .withData(dataProvider)
                 .withObjects(objectsProvider)
+                .withUser(userProvider)
                 .withRoles(rolesProvider).build();
 
         Collection<String> withAccess = pa.getObjectsWithAccess();

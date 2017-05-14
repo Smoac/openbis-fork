@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +66,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -165,6 +168,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ComponentNames.PROPERTIES_BATCH_MANAGER)
     private IPropertiesBatchManager propertiesBatchManager;
+
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
 
     private IApplicationServerApi v3Api;
 
@@ -379,13 +385,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     {
         return 1;
     }
-    
+
     @Override
     public Map<String, String> getServerInformation(String sessionToken)
     {
         return getV3Api().getServerInformation(sessionToken);
     }
-    
+
     private IApplicationServerApi getV3Api()
     {
         if (v3Api == null)
@@ -766,6 +772,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     public boolean isProjectSamplesEnabled(String sessionToken)
     {
         return SamplePE.projectSamplesEnabled;
+    }
+
+    @Override
+    public boolean isProjectAuthorizationEnabled(String sessionToken)
+    {
+        Session session = getSession(sessionToken);
+        return new AuthorizationConfigFacade(authorizationConfig).isProjectLevelEnabled(session.getUserName());
     }
 
     @SuppressWarnings("deprecation")

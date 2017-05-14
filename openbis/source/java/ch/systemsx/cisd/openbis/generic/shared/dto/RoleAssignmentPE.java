@@ -147,7 +147,8 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
         this.space = space;
     }
 
-    @Transient
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PROJECT_ID_COLUMN, updatable = false)
     public ProjectPE getProject()
     {
         return project;

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAut
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectsProviderFromTechIdCollection;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -84,6 +85,7 @@ public class AbstractTechIdCollectionPredicate extends AbstractSpacePredicate<Li
         {
             IProjectAuthorization<TechId> pa = new ProjectAuthorizationBuilder<TechId>()
                     .withData(authorizationDataProvider)
+                    .withUser(new UserProviderFromPersonPE(person))
                     .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
                     .withObjects(new ProjectsProviderFromTechIdCollection(techIds))
                     .build();

@@ -439,8 +439,8 @@ public class AuthorizationTestCase extends AssertJUnit
     protected Object[][] provideAuthorizationConfig()
     {
         return new Object[][] {
-                { new TestAuthorizationConfig(false) },
-                { new TestAuthorizationConfig(true) } };
+                { new TestAuthorizationConfig(false, null) },
+                { new TestAuthorizationConfig(true, PERSON_PE.getUserId()) } };
     }
 
     protected static void assertOK(Status status)

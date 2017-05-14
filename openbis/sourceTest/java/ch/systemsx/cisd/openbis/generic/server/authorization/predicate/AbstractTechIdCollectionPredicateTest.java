@@ -46,7 +46,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         
-        expectAuthorizationConfig(new TestAuthorizationConfig(false));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
         context.checking(new Expectations()
             {
                 {

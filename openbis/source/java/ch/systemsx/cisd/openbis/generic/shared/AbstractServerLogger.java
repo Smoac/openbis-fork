@@ -365,6 +365,13 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
+    public boolean isProjectAuthorizationEnabled(String sessionToken)
+    {
+        // Do not log that
+        return false;
+    }
+
+    @Override
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
             int maxEntityVisits)
     {

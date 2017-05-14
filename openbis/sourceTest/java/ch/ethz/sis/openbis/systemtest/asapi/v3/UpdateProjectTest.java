@@ -87,7 +87,60 @@ public class UpdateProjectTest extends AbstractTest
     }
 
     @Test
-    public void testUpdateProjectWithAdminUserInAnotherSpace()
+    public void testUpdateWithAdminUserInAnotherSpace()
+    {
+        testUpdateAndExpectUserDoesNotHaveAccess(TEST_ROLE_V3);
+    }
+
+    @Test
+    public void testUpdateWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
+    }
+
+    @Test
+    public void testUpdateWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_ON);
+    }
+
+    @Test
+    public void testUpdateWithProjectAdminWithProjectAuthorizationOff()
+    {
+        testUpdateAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
+    }
+
+    @Test
+    public void testUpdateWithProjectAdminWithProjectAuthorizationOn()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
+    }
+
+    private void testUpdateAndExpectUserHasAccess(final String user)
+    {
+        String sessionToken = v3api.login(user, PASSWORD);
+        IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
+        Project project = map.get(projectId);
+
+        Assert.assertEquals(project.getCode(), "TEST-PROJECT");
+        Assert.assertEquals(project.getDescription(), null);
+
+        ProjectUpdate update = new ProjectUpdate();
+        update.setProjectId(projectId);
+        update.setDescription("a new description");
+
+        v3api.updateProjects(sessionToken, Arrays.asList(update));
+
+        map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
+        project = map.get(projectId);
+
+        Assert.assertEquals(project.getCode(), "TEST-PROJECT");
+        Assert.assertEquals(project.getDescription(), update.getDescription().getValue());
+    }
+
+    private void testUpdateAndExpectUserDoesNotHaveAccess(final String user)
     {
         final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
         final ProjectUpdate update = new ProjectUpdate();
@@ -98,7 +151,7 @@ public class UpdateProjectTest extends AbstractTest
                 @Override
                 public void execute()
                 {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                    String sessionToken = v3api.login(user, PASSWORD);
                     v3api.updateProjects(sessionToken, Collections.singletonList(update));
                 }
             }, projectId);
@@ -281,6 +334,7 @@ public class UpdateProjectTest extends AbstractTest
         assertAttachments(project.getAttachments(), attachmentCreation);
     }
 
+    @Test
     public void testUpdateWithDescription()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -313,9 +367,9 @@ public class UpdateProjectTest extends AbstractTest
         project2 = map.get(projectId2);
 
         Assert.assertEquals(project1.getCode(), "NEMO");
-        Assert.assertEquals(project1.getDescription(), update1.getDescription());
+        Assert.assertEquals(project1.getDescription(), update1.getDescription().getValue());
         Assert.assertEquals(project2.getCode(), "TEST-PROJECT");
-        Assert.assertEquals(project2.getDescription(), update2.getDescription());
+        Assert.assertEquals(project2.getDescription(), update2.getDescription().getValue());
     }
 
 }

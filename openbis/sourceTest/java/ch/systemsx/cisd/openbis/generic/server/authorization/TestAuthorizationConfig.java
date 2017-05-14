@@ -26,15 +26,24 @@ public class TestAuthorizationConfig implements IAuthorizationConfig
 
     private boolean projectLevelEnabled;
 
-    public TestAuthorizationConfig(boolean projectLevelEnabled)
+    private String projectLevelUser;
+
+    public TestAuthorizationConfig(boolean projectLevelEnabled, String projectLevelUser)
     {
         this.projectLevelEnabled = projectLevelEnabled;
+        this.projectLevelUser = projectLevelUser;
     }
 
     @Override
     public boolean isProjectLevelEnabled()
     {
         return projectLevelEnabled;
+    }
+
+    @Override
+    public boolean isProjectLevelUser(String userId)
+    {
+        return userId != null && userId.equals(projectLevelUser);
     }
 
     @Override

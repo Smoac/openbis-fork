@@ -166,6 +166,70 @@ public class CreateProjectTest extends AbstractTest
     }
 
     @Test
+    public void testCreateProjectWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode("ANOTHER_TEST_PROJECT");
+        project.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        String sessionToken = v3api.login(TEST_SPACE_PA_OFF, PASSWORD);
+
+        List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
+
+        assertEquals(permIds.size(), 1);
+    }
+
+    @Test
+    public void testCreateProjectWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode("ANOTHER_TEST_PROJECT");
+        project.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        String sessionToken = v3api.login(TEST_SPACE_PA_ON, PASSWORD);
+
+        List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
+
+        assertEquals(permIds.size(), 1);
+    }
+
+    @Test
+    public void testCreateProjectWithProjectAdminWithProjectAuthorizationOff()
+    {
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode("ANOTHER_TEST_PROJECT");
+        project.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_PROJECT_PA_OFF, PASSWORD);
+                    v3api.createProjects(sessionToken, Collections.singletonList(project));
+                }
+            });
+    }
+
+    @Test
+    public void testCreateProjectWithProjectAdminWithProjectAuthorizationOn()
+    {
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode("TEST-SPACE");
+        project.setSpaceId(new SpacePermId("ANOTHER_TEST_PROJECT"));
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_PROJECT_PA_ON, PASSWORD);
+                    v3api.createProjects(sessionToken, Collections.singletonList(project));
+                }
+            });
+    }
+
+    @Test
     public void testCreateWithSpaceNonexistent()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

@@ -140,6 +140,7 @@ public abstract class CommonValidatorTest<O> extends AuthorizationTestCase
 
         PersonPE person = createPersonWithRoleAssignments(createSpaceRoleAssignment(RoleCode.ADMIN, ANOTHER_SPACE_CODE),
                 createProjectRoleAssignment(RoleCode.ADMIN, SPACE_CODE, SPACE_PROJECT_CODE));
+        person.setUserId(PERSON_PE.getUserId());
         boolean result = validateObject(person, createObject(SPACE_PE, SPACE_PROJECT_PE));
         assertWithNonMatchingSpaceAndMatchingProjectUser(config, result);
     }
@@ -162,6 +163,7 @@ public abstract class CommonValidatorTest<O> extends AuthorizationTestCase
 
         PersonPE person = createPersonWithRoleAssignments(createSpaceRoleAssignment(RoleCode.ADMIN, ANOTHER_SPACE_CODE),
                 createProjectRoleAssignment(RoleCode.ADMIN, ANOTHER_SPACE_CODE, ANOTHER_SPACE_PROJECT_CODE));
+        person.setUserId(PERSON_PE.getUserId());
         boolean result = validateObject(person, createObject(SPACE_PE, SPACE_PROJECT_PE));
         assertWithNonMatchingSpaceAndNonMatchingProjectUser(config, result);
     }

@@ -50,7 +50,7 @@ public interface IServer extends ISessionProvider
     public int getVersion();
 
     public Map<String, String> getServerInformation(String sessionToken);
-    
+
     /**
      * @return 'true' if archiver is configured for at least one data store, 'false' otherwise.
      */
@@ -62,6 +62,12 @@ public interface IServer extends ISessionProvider
      */
     @Transactional(readOnly = true)
     public boolean isProjectSamplesEnabled(final String sessionToken);
+
+    /**
+     * @return 'true' if project authorization is enabled.
+     */
+    @Transactional(readOnly = true)
+    public boolean isProjectAuthorizationEnabled(final String sessionToken);
 
     /**
      * Tries to authenticate the specified user with given password.

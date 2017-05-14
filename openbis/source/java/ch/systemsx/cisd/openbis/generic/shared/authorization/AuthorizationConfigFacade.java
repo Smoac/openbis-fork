@@ -31,9 +31,9 @@ public class AuthorizationConfigFacade
         this.authorizationConfig = authorizationConfig;
     }
 
-    public boolean isProjectLevelEnabled()
+    public boolean isProjectLevelEnabled(String userId)
     {
-        return authorizationConfig.isProjectLevelEnabled();
+        return authorizationConfig.isProjectLevelEnabled() && authorizationConfig.isProjectLevelUser(userId);
     }
 
     public boolean isRoleEnabled(RoleWithHierarchy role)

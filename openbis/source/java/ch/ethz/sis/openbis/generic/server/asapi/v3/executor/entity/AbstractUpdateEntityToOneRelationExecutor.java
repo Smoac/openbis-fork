@@ -67,9 +67,11 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE ex
             }
         }
 
-        Map<RELATED_ID, RELATED_PE> relatedMap = map(context, relatedIds);
-
-        updateCommon(context, batch, relatedMap);
+        if (false == relatedIds.isEmpty())
+        {
+            Map<RELATED_ID, RELATED_PE> relatedMap = map(context, relatedIds);
+            updateCommon(context, batch, relatedMap);
+        }
     }
 
     @Override

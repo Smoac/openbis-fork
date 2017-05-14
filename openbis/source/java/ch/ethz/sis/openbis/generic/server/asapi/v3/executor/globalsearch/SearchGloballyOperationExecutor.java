@@ -16,14 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchObjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchObjectsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -58,10 +53,11 @@ public class SearchGloballyOperationExecutor
     private IGlobalAuthorizationExecutor authorizationExecutor;
 
     @Override
-    public Map<IOperation, IOperationResult> execute(IOperationContext context, List<? extends IOperation> operations)
+    protected SearchObjectsOperationResult<GlobalSearchObject> doExecute(IOperationContext context,
+            SearchObjectsOperation<GlobalSearchCriteria, GlobalSearchObjectFetchOptions> operation)
     {
         authorizationExecutor.canSearch(context);
-        return super.execute(context, operations);
+        return super.doExecute(context, operation);
     }
 
     @Override

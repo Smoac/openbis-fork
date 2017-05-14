@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAut
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -46,6 +47,7 @@ public class ProjectPEPredicate extends PersistentEntityPredicate<ProjectPE>
     {
         IProjectAuthorization<ProjectPE> pa = new ProjectAuthorizationBuilder<ProjectPE>()
                 .withData(provider)
+                .withUser(new UserProviderFromPersonPE(person))
                 .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
                 .withObjects(new ProjectProviderFromProjectPE(value))
                 .build();

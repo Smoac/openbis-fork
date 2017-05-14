@@ -24,4 +24,6 @@ public interface IAuthorizationConfig
 
     public boolean isProjectLevelEnabled();
 
+    public boolean isProjectLevelUser(String userId);
+
 }

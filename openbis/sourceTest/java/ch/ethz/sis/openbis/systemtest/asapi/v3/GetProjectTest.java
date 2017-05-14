@@ -482,6 +482,61 @@ public class GetProjectTest extends AbstractTest
         assertEquals(entry.getRelatedObjectId(), experimentPermIds.get(0));
     }
 
+    @Test
+    public void testGetWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
+    }
+
+    @Test
+    public void testGetWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_ON);
+    }
+
+    @Test
+    public void testGetWithProjectAdminWithProjectAuthorizationOff()
+    {
+        testUpdateAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
+    }
+
+    @Test
+    public void testGetWithProjectAdminWithProjectAuthorizationOn()
+    {
+        testUpdateAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
+    }
+
+    private void testUpdateAndExpectUserHasAccess(String user)
+    {
+        ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
+        ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+
+        List<? extends IProjectId> ids = Arrays.asList(identifier1, identifier2);
+
+        String sessionToken = v3api.login(user, PASSWORD);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, new ProjectFetchOptions());
+
+        assertEquals(map.size(), 1);
+        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+
+        v3api.logout(sessionToken);
+    }
+
+    private void testUpdateAndExpectUserDoesNotHaveAccess(String user)
+    {
+        ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
+        ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+
+        List<? extends IProjectId> ids = Arrays.asList(identifier1, identifier2);
+
+        String sessionToken = v3api.login(TEST_PROJECT_PA_OFF, PASSWORD);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, new ProjectFetchOptions());
+
+        assertEquals(map.size(), 0);
+
+        v3api.logout(sessionToken);
+    }
+
     private List<HistoryEntry> testGetWithHistory(ProjectCreation creation, ProjectUpdate update)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

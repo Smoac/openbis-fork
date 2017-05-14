@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAut
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -51,6 +52,7 @@ public class ProjectAugmentedCodePredicate extends DelegatedPredicate<SpaceIdent
     {
         IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
                 .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
                 .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
                 .withObjects(new ProjectProviderFromIdentifier(value))
                 .build();
