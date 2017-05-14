@@ -485,28 +485,28 @@ public class GetProjectTest extends AbstractTest
     @Test
     public void testGetWithSpaceAdminWithProjectAuthorizationOff()
     {
-        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
+        testGetAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
     }
 
     @Test
     public void testGetWithSpaceAdminWithProjectAuthorizationOn()
     {
-        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_ON);
+        testGetAndExpectUserHasAccess(TEST_SPACE_PA_ON);
     }
 
     @Test
     public void testGetWithProjectAdminWithProjectAuthorizationOff()
     {
-        testUpdateAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
+        testGetAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
     }
 
     @Test
     public void testGetWithProjectAdminWithProjectAuthorizationOn()
     {
-        testUpdateAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
+        testGetAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
     }
 
-    private void testUpdateAndExpectUserHasAccess(String user)
+    private void testGetAndExpectUserHasAccess(String user)
     {
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
         ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
@@ -522,7 +522,7 @@ public class GetProjectTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    private void testUpdateAndExpectUserDoesNotHaveAccess(String user)
+    private void testGetAndExpectUserDoesNotHaveAccess(String user)
     {
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
         ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");

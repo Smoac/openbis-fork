@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -201,6 +203,65 @@ public class SearchProjectTest extends AbstractTest
         fo.sortBy().code().desc();
         List<Project> projects2 = v3api.searchProjects(sessionToken, criteria, fo).getObjects();
         assertProjectIdentifiers(projects2, "/TEST-SPACE/PROJECT-TO-DELETE", "/TEST-SPACE/NOE", "/CISD/NOE");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSpaceAdminWithProjectAuthorizationOff()
+    {
+        testSearchAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
+    }
+
+    @Test
+    public void testSearchWithSpaceAdminWithProjectAuthorizationOn()
+    {
+        testSearchAndExpectUserHasAccess(TEST_SPACE_PA_ON);
+    }
+
+    @Test
+    public void testSearchWithProjectAdminWithProjectAuthorizationOff()
+    {
+        testSearchAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
+    }
+
+    @Test
+    public void testSearchWithProjectAdminWithProjectAuthorizationOn()
+    {
+        testSearchAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
+    }
+
+    private void testSearchAndExpectUserHasAccess(String user)
+    {
+        ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
+        ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+
+        String sessionToken = v3api.login(user, PASSWORD);
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(identifier1);
+        criteria.withId().thatEquals(identifier2);
+
+        SearchResult<Project> result = v3api.searchProjects(sessionToken, criteria, new ProjectFetchOptions());
+        assertEquals(result.getObjects().size(), 1);
+        assertEquals(result.getObjects().get(0).getIdentifier(), identifier2);
+
+        v3api.logout(sessionToken);
+    }
+
+    private void testSearchAndExpectUserDoesNotHaveAccess(String user)
+    {
+        ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
+        ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+
+        String sessionToken = v3api.login(TEST_PROJECT_PA_OFF, PASSWORD);
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(identifier1);
+        criteria.withId().thatEquals(identifier2);
+
+        SearchResult<Project> result = v3api.searchProjects(sessionToken, criteria, new ProjectFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
 
         v3api.logout(sessionToken);
     }
