@@ -187,10 +187,10 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         private List<String> extractCodes(List<DatasetReference> datasets)
         {
             Collection<String> codes =
-                    org.apache.commons.collections.CollectionUtils
+                    org.apache.commons.collections4.CollectionUtils
                             .collect(
                                     datasets,
-                                    new org.apache.commons.collections.Transformer<DatasetReference, String>()
+                                    new org.apache.commons.collections4.Transformer<DatasetReference, String>()
                                         {
                                             @Override
                                             public String transform(DatasetReference element)

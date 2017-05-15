@@ -31,7 +31,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;

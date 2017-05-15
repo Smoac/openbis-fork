@@ -27,7 +27,7 @@ import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang.time.StopWatch;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
@@ -162,10 +162,10 @@ class WellDataLoader extends AbstractContentLoader
             final Map<WellReference, Sample> wellRefToSampleMap)
     {
         Collection<WellExtendedData> data =
-                org.apache.commons.collections.CollectionUtils
+                org.apache.commons.collections4.CollectionUtils
                         .collect(
                                 wellsData,
-                                new org.apache.commons.collections.Transformer<WellData, WellExtendedData>()
+                                new org.apache.commons.collections4.Transformer<WellData, WellExtendedData>()
                                     {
                                         @Override
                                         public WellExtendedData transform(WellData wellData)
@@ -405,7 +405,7 @@ class WellDataLoader extends AbstractContentLoader
     {
 
         Collection<BasicWellContentQueryResult> filtered =
-                org.apache.commons.collections.CollectionUtils.select(wells,
+                org.apache.commons.collections4.CollectionUtils.select(wells,
                         new Predicate<BasicWellContentQueryResult>()
                             {
                                 @Override

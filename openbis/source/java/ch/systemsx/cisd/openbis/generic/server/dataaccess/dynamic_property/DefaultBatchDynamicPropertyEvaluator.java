@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;

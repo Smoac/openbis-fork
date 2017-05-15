@@ -174,10 +174,10 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         final TableMap<Long, Material> materialMap = createMaterialMap(materials);
 
         Collection<MaterialFeatureVectorSummary> collection =
-                org.apache.commons.collections.CollectionUtils
+                org.apache.commons.collections4.CollectionUtils
                         .collect(
                                 summaries,
-                                new org.apache.commons.collections.Transformer<MaterialIdFeatureVectorSummary, MaterialFeatureVectorSummary>()
+                                new org.apache.commons.collections4.Transformer<MaterialIdFeatureVectorSummary, MaterialFeatureVectorSummary>()
                                     {
                                         @Override
                                         public MaterialFeatureVectorSummary transform(

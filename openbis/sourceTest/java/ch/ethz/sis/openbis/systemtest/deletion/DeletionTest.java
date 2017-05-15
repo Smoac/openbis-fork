@@ -17,8 +17,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;

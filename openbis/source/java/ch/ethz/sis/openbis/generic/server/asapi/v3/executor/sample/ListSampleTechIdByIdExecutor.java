@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +60,6 @@ public class ListSampleTechIdByIdExecutor implements IListSampleTechIdByIdExecut
     {
         List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
 
-        return org.apache.commons.collections.CollectionUtils.collect(samples, SAMPLE_TO_ID_TRANSFORMER);
+        return org.apache.commons.collections4.CollectionUtils.collect(samples, SAMPLE_TO_ID_TRANSFORMER);
     }
 }

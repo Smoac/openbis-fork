@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.Transformer;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;

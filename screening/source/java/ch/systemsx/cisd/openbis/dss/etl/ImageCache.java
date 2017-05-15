@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;

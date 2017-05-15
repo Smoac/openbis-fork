@@ -19,13 +19,13 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections.map.IdentityMap;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
@@ -83,7 +83,7 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION ex
             final MapBatch<ENTITY_CREATION, ENTITY_PE> batch)
     {
         final Map<RELATED_ID, RELATED_PE> allRelatedMap = new HashMap<RELATED_ID, RELATED_PE>();
-        final Map<ENTITY_CREATION, Collection<RELATED_PE>> relatedMap = new IdentityMap<ENTITY_CREATION, Collection<RELATED_PE>>();
+        final Map<ENTITY_CREATION, Collection<RELATED_PE>> relatedMap = new IdentityHashMap<ENTITY_CREATION, Collection<RELATED_PE>>();
         final Set<RELATED_ID> toLoadIds = new HashSet<RELATED_ID>();
 
         new MapBatchProcessor<ENTITY_CREATION, ENTITY_PE>(context, batch)

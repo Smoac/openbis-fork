@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.Transformer;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
@@ -280,7 +280,7 @@ public class SearchService implements ISearchService
                     };
 
         Collection<IPropertyAssignmentImmutable> transformed =
-                org.apache.commons.collections.CollectionUtils.collect(apiList, transformer);
+                org.apache.commons.collections4.CollectionUtils.collect(apiList, transformer);
 
         return new LinkedList<IPropertyAssignmentImmutable>(transformed);
     }

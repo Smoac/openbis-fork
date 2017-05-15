@@ -12,7 +12,7 @@ dependencies {
 		'sis:sis-jhdf5:14.12.5',
 		'lemnik:eodsql:2.2-CISD',
 		'springframework:spring-jdbc:4.1.4.RELEASE',
-		'apache:commons-collections:4.01.01',
+		'apache:commons-collections:4.1.0',
 		'truezip:truezip:6.8.1'
 		
 	testCompile project(path: ':common', configuration: 'tests'),
