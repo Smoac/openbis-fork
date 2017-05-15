@@ -98,7 +98,7 @@ public class DeleteVocabularyTermExecutor
                     termsToBeReplaced = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement>();
                     termsToBeReplacedMap.put(term.getVocabulary(), termsToBeReplaced);
                 }
-                termsToBeReplaced.add(createReplaced(term.getCode(), replacementMap.get(term).getCode()));
+                termsToBeReplaced.add(createReplaced(term, replacementMap.get(term).getCode()));
             }
         }
 
@@ -173,10 +173,12 @@ public class DeleteVocabularyTermExecutor
         return replacementMap;
     }
 
-    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement createReplaced(String replacedCode, String replacementCode)
+    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement createReplaced(
+            VocabularyTermPE term, String replacementCode)
     {
         VocabularyTerm replaced = new VocabularyTerm();
-        replaced.setCode(replacedCode);
+        replaced.setCode(term.getCode());
+        replaced.setId(term.getId());
 
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement replacement =
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement();

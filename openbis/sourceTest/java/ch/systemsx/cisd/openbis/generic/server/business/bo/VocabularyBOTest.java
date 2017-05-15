@@ -478,6 +478,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         final VocabularyPE vocabulary = new VocabularyPE();
         VocabularyTerm term1 = createTerm("1");
         final VocabularyTerm term2 = createTerm("2");
+        term2.setId(2l);
         VocabularyTerm term3 = createTerm("3");
         vocabulary.addTerm(translate(term1));
         vocabulary.addTerm(translate(term2));
@@ -496,7 +497,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                         one(daoFactory).getEntityPropertyTypeDAO(entityKind);
                         will(returnValue(entityPropertyTypeDAO));
 
-                        one(entityPropertyTypeDAO).listPropertiesByVocabularyTerm(term2.getCode());
+                        one(entityPropertyTypeDAO).listPropertiesByVocabularyTerm(term2.getId());
                         List<EntityPropertyPE> properties =
                                 Arrays.<EntityPropertyPE> asList(entityPropertyPE);
                         will(returnValue(properties));

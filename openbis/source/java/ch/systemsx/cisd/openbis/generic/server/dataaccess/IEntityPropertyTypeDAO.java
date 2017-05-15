@@ -91,7 +91,7 @@ public interface IEntityPropertyTypeDAO
     /**
      * Returns a list of all properties referring to the specified vocabulary term.
      */
-    public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode);
+    public List<EntityPropertyPE> listPropertiesByVocabularyTerm(long vocabularyTermId);
 
     /**
      * Updates specified properties.

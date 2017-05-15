@@ -133,7 +133,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         IEntityPropertyTypeDAO entityPropertyTypeDAO =
                 daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL);
         List<EntityPropertyPE> properties =
-                entityPropertyTypeDAO.listPropertiesByVocabularyTerm("FLY");
+                entityPropertyTypeDAO.listPropertiesByVocabularyTerm(10);
 
         assertEquals(1, properties.size());
         assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
