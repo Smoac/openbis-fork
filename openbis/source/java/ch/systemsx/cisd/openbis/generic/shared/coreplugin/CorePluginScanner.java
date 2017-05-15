@@ -149,6 +149,10 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         List<CorePlugin> allVersionsForPlugin = new ArrayList<CorePlugin>();
         for (File versionDir : listFiles(pluginRootDir))
         {
+            if (isNumber(versionDir) == false)
+            {
+                continue;
+            }
             if (isValidVersionDir(versionDir))
             {
                 CorePlugin pluginVersion = createPlugin(pluginRootDir, versionDir);
@@ -224,6 +228,18 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         } catch (NumberFormatException nfe)
         {
             return -1;
+        }
+    }
+    
+    private boolean isNumber(File versionDir)
+    {
+        try
+        {
+            Integer.parseInt(versionDir.getName());
+            return true;
+        } catch (NumberFormatException nfe)
+        {
+            return false;
         }
     }
 
