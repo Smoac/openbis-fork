@@ -50,7 +50,7 @@ public class FileShareUploadDialog extends AbstractFileShareUserDialog
         final List<String> userEntries = new ArrayList<String>();
         for (int i = 0; i < existingUsers.size(); i++)
         {
-            if ((existingUserGrid.getGrid().getStore().getAt(i))
+            if ((Boolean) existingUserGrid.getGrid().getStore().getAt(i)
                     .get(FileShareUserGridModel.SHARE_FILE))
             {
                 userEntries.add(Constants.USER_ID_PREFIX + (existingUsers.get(i)).getUserCode());
@@ -58,7 +58,7 @@ public class FileShareUploadDialog extends AbstractFileShareUserDialog
         }
         for (int i = 0; i < newUsers.size(); i++)
         {
-            if (newUserGrid.getGrid().getStore().getAt(i).get(FileShareUserGridModel.SHARE_FILE))
+            if ((Boolean) newUserGrid.getGrid().getStore().getAt(i).get(FileShareUserGridModel.SHARE_FILE))
             {
                 userEntries.add((newUsers.get(i)).getEmail());
             }
