@@ -23,8 +23,10 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -41,13 +43,15 @@ public final class EntityPropertyTranslator
     }
 
     public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cacheOrNull,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        return translate(propertyPE, cacheOrNull, false, managedPropertyEvaluatorFactory);
+        return translate(propertyPE, materialTypeCache, cacheOrNull, false, managedPropertyEvaluatorFactory);
     }
 
     public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cacheOrNull, boolean rawManagedProperties,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -55,7 +59,7 @@ public final class EntityPropertyTranslator
                 PropertyTranslatorUtils.createEntityProperty(propertyPE);
         final PropertyType propertyType =
                 PropertyTypeTranslator.translate(propertyPE.getEntityTypePropertyType()
-                        .getPropertyType(), cacheOrNull);
+                        .getPropertyType(), materialTypeCache, cacheOrNull);
         final Long ordinal = propertyPE.getEntityTypePropertyType().getOrdinal();
 
         PropertyTranslatorUtils.initializeEntityProperty(basicProperty, propertyType, ordinal);
@@ -93,6 +97,7 @@ public final class EntityPropertyTranslator
 
     public final static List<IEntityProperty> translateRaw(
             final Set<? extends EntityPropertyPE> list,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cacheOrNull,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -103,12 +108,13 @@ public final class EntityPropertyTranslator
         final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final EntityPropertyPE property : list)
         {
-            result.add(translate(property, cacheOrNull, true, managedPropertyEvaluatorFactory));
+            result.add(translate(property, materialTypeCache, cacheOrNull, true, managedPropertyEvaluatorFactory));
         }
         return result;
     }
 
     public final static List<IEntityProperty> translate(final Set<? extends EntityPropertyPE> list,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cacheOrNull,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -119,12 +125,13 @@ public final class EntityPropertyTranslator
         final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final EntityPropertyPE property : list)
         {
-            result.add(translate(property, cacheOrNull, managedPropertyEvaluatorFactory));
+            result.add(translate(property, materialTypeCache, cacheOrNull, managedPropertyEvaluatorFactory));
         }
         return result;
     }
 
     public final static IEntityProperty[] translate(final EntityPropertyPE[] list,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cacheOrNull,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -136,7 +143,7 @@ public final class EntityPropertyTranslator
         int idx = 0;
         for (final EntityPropertyPE property : list)
         {
-            result[idx++] = translate(property, cacheOrNull, managedPropertyEvaluatorFactory);
+            result[idx++] = translate(property, materialTypeCache, cacheOrNull, managedPropertyEvaluatorFactory);
         }
         return result;
     }

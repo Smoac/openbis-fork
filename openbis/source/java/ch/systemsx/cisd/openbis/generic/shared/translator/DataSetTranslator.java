@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -239,7 +241,7 @@ public class DataSetTranslator
         externalData.setCode(dataPE.getCode());
         externalData.setDataProducerCode(dataPE.getDataProducerCode());
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
-                new HashMap<PropertyTypePE, PropertyType>()));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(dataPE.isDerived());
         addContainers(externalData, dataPE, baseIndexURL, managedPropertyEvaluatorFactory);
         final Collection<AbstractExternalData> parents = new HashSet<AbstractExternalData>();
@@ -344,7 +346,8 @@ public class DataSetTranslator
         if (HibernateUtils.isInitialized(dataPE.getProperties()))
         {
             externalData.setDataSetProperties(EntityPropertyTranslator.translate(
-                    dataPE.getProperties(), new HashMap<PropertyTypePE, PropertyType>(),
+                    dataPE.getProperties(), new HashMap<MaterialTypePE, MaterialType>(), 
+                    new HashMap<PropertyTypePE, PropertyType>(),
                     managedPropertyEvaluatorFactory));
         } else
         {
@@ -369,7 +372,8 @@ public class DataSetTranslator
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
+                    new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                    managedPropertyEvaluatorFactory));
         }
         return sample;
     }
@@ -421,7 +425,7 @@ public class DataSetTranslator
         result.setId(HibernateUtils.getId(dataPE));
         result.setCode(dataPE.getCode());
         result.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
-                new HashMap<PropertyTypePE, PropertyType>()));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>()));
         return result;
     }
 

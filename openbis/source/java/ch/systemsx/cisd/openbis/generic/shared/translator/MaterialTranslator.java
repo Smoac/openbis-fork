@@ -25,10 +25,12 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -87,7 +89,7 @@ public final class MaterialTranslator
         result.setId(HibernateUtils.getId(materialPE));
         result.setModificationDate(materialPE.getModificationDate());
         result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType(),
-                new HashMap<PropertyTypePE, PropertyType>()));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
         result.setRegistrationDate(materialPE.getRegistrationDate());
@@ -110,7 +112,8 @@ public final class MaterialTranslator
         if (materialPE.isPropertiesInitialized())
         {
             result.setProperties(EntityPropertyTranslator.translate(materialPE.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
+                    new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                    managedPropertyEvaluatorFactory));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());

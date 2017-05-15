@@ -25,7 +25,9 @@ import net.lemnik.eodsql.DataSet;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -103,8 +105,9 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         result.setCode(samplePE.getCode());
         result.setIdentifier(samplePE.getIdentifier());
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
-                new HashMap<PropertyTypePE, PropertyType>()));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>()));
         result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                managedPropertyEvaluatorFactory));
     }
 }

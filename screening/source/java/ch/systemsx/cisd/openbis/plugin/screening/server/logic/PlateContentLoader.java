@@ -193,7 +193,7 @@ public class PlateContentLoader
     private Geometry getPlateGeometry(SamplePE plate)
     {
         List<IEntityProperty> properties =
-                EntityPropertyTranslator.translate(plate.getProperties(), null,
+                EntityPropertyTranslator.translate(plate.getProperties(), null, null,
                         managedPropertyEvaluatorFactory);
         return PlateDimensionParser.getPlateGeometry(properties);
     }
