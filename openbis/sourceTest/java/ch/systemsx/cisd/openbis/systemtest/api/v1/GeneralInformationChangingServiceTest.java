@@ -169,6 +169,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         VocabularyTermReplacement replacement = new VocabularyTermReplacement();
         VocabularyTerm vocabularyTerm = new VocabularyTerm();
         vocabularyTerm.setCode("FEMALE");
+        vocabularyTerm.setId(12l);
         vocabularyTerm.setOrdinal(1L);
         replacement.setTerm(vocabularyTerm);
         replacement.setReplacementCode("MALE");
