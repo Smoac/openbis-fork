@@ -23,11 +23,11 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config;
  */
 public class BasicAuthCredentials
 {
-    private String realm;
+    private final String realm;
 
-    private String user;
+    private final String user;
 
-    private String password;
+    private final String password;
 
     public BasicAuthCredentials(String realm, String user, String pass)
     {
@@ -41,28 +41,13 @@ public class BasicAuthCredentials
         return realm;
     }
 
-    public void setRealm(String realm)
-    {
-        this.realm = realm;
-    }
-
     public String getUser()
     {
         return user;
     }
 
-    public void setUser(String user)
-    {
-        this.user = user;
-    }
-
     public String getPassword()
     {
         return password;
-    }
-
-    public void setPassword(String pass)
-    {
-        this.password = pass;
     }
 }

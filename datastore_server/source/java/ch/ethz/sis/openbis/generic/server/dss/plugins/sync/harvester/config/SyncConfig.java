@@ -183,6 +183,9 @@ public class SyncConfig
     // the data source openbis
     private BasicAuthCredentials authCredentials;
 
+    // Data sets and attachment downloads are parallelized
+    private ParallelizedExecutionPreferences parallelizedExecutionPrefs;
+
     // the username/password pair to be used on the harvester side
     // to get the session token
     private String harvesterUser;
@@ -319,5 +322,10 @@ public class SyncConfig
     public void setVerbose(Boolean verbose)
     {
         this.verbose = verbose;
+    }
+    
+    public void setParallelizedExecutionPrefs(double machineLoad, int maxThreads, int retriesOnFailure, boolean stopOnFailure)
+    {
+        this.parallelizedExecutionPrefs = new ParallelizedExecutionPreferences(machineLoad, maxThreads, retriesOnFailure, stopOnFailure);
     }
 }

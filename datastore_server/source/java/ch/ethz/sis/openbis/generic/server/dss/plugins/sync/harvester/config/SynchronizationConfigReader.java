@@ -80,6 +80,14 @@ public class SynchronizationConfigReader
 
     private static final String VERBOSE_PROPERTY_NAME = "verbose";
 
+    private static final String PARALLELIZED_EXECUTION_PREFS_MACHINE_LOAD_PROPERTY_NAME = "machine-load";
+
+    private static final String PARALLELIZED_EXECUTION_PREFS_MACHINE_MAX_THREADS_PROPERTY_NAME = "max-threads";
+
+    private static final String PARALLELIZED_EXECUTION_PREFS_RETRIES_ON_FAILURE_PROPERTY_NAME = "retries-on-failure";
+
+    private static final String PARALLELIZED_EXECUTION_PREFS_STOP_ON_FIRST_FAILURE_PROPERTY_NAME = "stop-on-first-failure";
+
     private Integer defaultFullSyncIntervalInDays = 14;
 
     private String defaultLogFileName = "synchronization_{alias}.log";
@@ -87,6 +95,14 @@ public class SynchronizationConfigReader
     private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
 
     private String defaultNotSyncedEntitiesFileName = "not-synced-entities_{alias}.txt";
+
+    private Double defaultMachineLoad = 0.5;
+
+    private Integer defaultMaxThreads = 10;
+
+    private Integer defaultRetriesOnFailure = 0;
+
+    private Boolean defaultStopOnFirstFailure = false;
 
     private static final String LOG_FILE_PROPERTY_NAME = "log-file";
 
@@ -160,6 +176,16 @@ public class SynchronizationConfigReader
             {
                 config.setVerbose(true);
             }
+
+            Double machineLoad = reader.getDouble(section, PARALLELIZED_EXECUTION_PREFS_MACHINE_LOAD_PROPERTY_NAME, defaultMachineLoad, false);
+            Integer maxThreads =
+                    reader.getInt(section, PARALLELIZED_EXECUTION_PREFS_MACHINE_MAX_THREADS_PROPERTY_NAME, defaultMaxThreads, false);
+            Integer retriesOnFailure =
+                    reader.getInt(section, PARALLELIZED_EXECUTION_PREFS_RETRIES_ON_FAILURE_PROPERTY_NAME, defaultRetriesOnFailure, false);
+            Boolean stopOnFailure =
+                    reader.getBoolean(section, PARALLELIZED_EXECUTION_PREFS_STOP_ON_FIRST_FAILURE_PROPERTY_NAME, defaultStopOnFirstFailure);
+            config.setParallelizedExecutionPrefs(machineLoad, maxThreads, retriesOnFailure, stopOnFailure);
+
         }
         return configs;
     }
