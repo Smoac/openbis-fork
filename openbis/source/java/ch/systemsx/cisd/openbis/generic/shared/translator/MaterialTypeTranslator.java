@@ -43,19 +43,25 @@ public class MaterialTypeTranslator
     }
 
     public static MaterialType translate(MaterialTypePE entityTypeOrNull,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        return translate(entityTypeOrNull, true, cacheOrNull);
+        return translate(entityTypeOrNull, true, materialTypeCache, cacheOrNull);
     }
 
     public static MaterialType translate(MaterialTypePE entityTypeOrNull, boolean withProperties,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCacheOrNull, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         if (entityTypeOrNull == null)
         {
             return null;
         }
+        MaterialType materialType = tryGetMaterialTypeFromCache(entityTypeOrNull, materialTypeCacheOrNull);
+        if (materialType != null)
+        {
+            return materialType;
+        }
         final MaterialType result = translateSimple(entityTypeOrNull);
+        addMaterialTypeToCache(materialTypeCacheOrNull, entityTypeOrNull, result);
         if (withProperties == false)
         {
             unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
@@ -63,11 +69,30 @@ public class MaterialTypeTranslator
 
         result.setMaterialTypePropertyTypes(EntityType
                 .sortedInternally(MaterialTypePropertyTypeTranslator.translate(
-                        entityTypeOrNull.getMaterialTypePropertyTypes(), result, cacheOrNull)));
+                        entityTypeOrNull.getMaterialTypePropertyTypes(), result, 
+                        materialTypeCacheOrNull, cacheOrNull)));
         result.setModificationDate(entityTypeOrNull.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(entityTypeOrNull
                 .getValidationScript()));
         return result;
+    }
+
+    private static MaterialType tryGetMaterialTypeFromCache(MaterialTypePE entityTypeOrNull, Map<MaterialTypePE, MaterialType> materialTypeCacheOrNull)
+    {
+        if (materialTypeCacheOrNull == null)
+        {
+            return null;
+        }
+        return materialTypeCacheOrNull.get(entityTypeOrNull);
+    }
+    
+    private static void addMaterialTypeToCache(Map<MaterialTypePE, MaterialType> materialTypeCacheOrNull, MaterialTypePE entityTypeOrNull,
+            final MaterialType result)
+    {
+        if (materialTypeCacheOrNull != null)
+        {
+            materialTypeCacheOrNull.put(entityTypeOrNull, result);
+        }
     }
 
     /** translates basic information, without properties */
@@ -90,12 +115,12 @@ public class MaterialTypeTranslator
     }
 
     public final static List<MaterialType> translate(final List<MaterialTypePE> materialTypes,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final List<MaterialType> result = new ArrayList<MaterialType>(materialTypes.size());
         for (final MaterialTypePE materialType : materialTypes)
         {
-            result.add(translate(materialType, cacheOrNull));
+            result.add(translate(materialType, materialTypeCache, cacheOrNull));
         }
         return result;
     }

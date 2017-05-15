@@ -44,10 +44,10 @@ public class MaterialTypePropertyTypeTranslator
             AbstractEntityTypePropertyTypeTranslator<MaterialType, MaterialTypePropertyType, MaterialTypePropertyTypePE>
     {
         @Override
-        MaterialType translate(EntityTypePE entityTypePE,
+        MaterialType translate(EntityTypePE entityTypePE, Map<MaterialTypePE, MaterialType> materialTypeCache, 
                 Map<PropertyTypePE, PropertyType> cacheOrNull)
         {
-            return MaterialTypeTranslator.translate((MaterialTypePE) entityTypePE, cacheOrNull);
+            return MaterialTypeTranslator.translate((MaterialTypePE) entityTypePE, materialTypeCache, cacheOrNull);
         }
 
         @Override
@@ -59,26 +59,27 @@ public class MaterialTypePropertyTypeTranslator
 
     public static List<MaterialTypePropertyType> translate(
             Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, PropertyType result,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new MaterialTypePropertyTypeTranslatorHelper().translate(materialTypePropertyTypes,
-                result, cacheOrNull);
+                result, materialTypeCache, cacheOrNull);
     }
 
     public static MaterialTypePropertyType translate(
             MaterialTypePropertyTypePE entityTypePropertyType,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new MaterialTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType,
-                cacheOrNull);
+                materialTypeCache, cacheOrNull);
     }
 
     public static List<MaterialTypePropertyType> translate(
             Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, MaterialType result,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new MaterialTypePropertyTypeTranslatorHelper().translate(materialTypePropertyTypes,
-                result, cacheOrNull);
+                result, materialTypeCache, cacheOrNull);
     }
 
     public static final Transformer<EntityTypePropertyTypePE, MaterialTypePropertyType> TRANSFORMER =
@@ -87,7 +88,7 @@ public class MaterialTypePropertyTypeTranslator
                     @Override
                     public MaterialTypePropertyType transform(EntityTypePropertyTypePE input)
                     {
-                        return translate((MaterialTypePropertyTypePE) input, null);
+                        return translate((MaterialTypePropertyTypePE) input, null, null);
                     }
                 };
 }

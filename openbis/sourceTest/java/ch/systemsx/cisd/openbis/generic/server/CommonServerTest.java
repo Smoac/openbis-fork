@@ -810,7 +810,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
         final ExperimentType experimentType =
                 ExperimentTranslator.translate(CommonTestUtils.createExperimentType(),
-                        new HashMap<PropertyTypePE, PropertyType>());
+                        new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>());
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -842,7 +842,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         final ExperimentTypePE experimentTypePE = CommonTestUtils.createExperimentType();
         final ExperimentType experimentType =
-                ExperimentTranslator.translate(experimentTypePE,
+                ExperimentTranslator.translate(experimentTypePE, new HashMap<MaterialTypePE, MaterialType>(),
                         new HashMap<PropertyTypePE, PropertyType>());
         types.add(experimentTypePE);
         context.checking(new Expectations()
@@ -1675,7 +1675,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialType materialType =
-                MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType(), null);
+                MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType(), null, null);
         final ListMaterialCriteria criteria =
                 ListMaterialCriteria.createFromMaterialType(materialType);
         context.checking(new Expectations()

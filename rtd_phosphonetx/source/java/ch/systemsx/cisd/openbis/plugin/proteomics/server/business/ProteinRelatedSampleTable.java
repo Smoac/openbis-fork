@@ -27,7 +27,9 @@ import net.lemnik.eodsql.DataSet;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -86,6 +88,7 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
         result = new ArrayList<ProteinRelatedSample>();
         SampleIDProvider sampleIDProvider = new SampleIDProvider(daoFactory.getSampleDAO());
         Map<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
+        Map<MaterialTypePE, MaterialType> materialTypeCache = new HashMap<MaterialTypePE, MaterialType>();
         for (Entry<String, List<SampleAbundance>> entry : sampleAbundanceMap.entrySet())
         {
             String key = entry.getKey();
@@ -97,7 +100,7 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
             {
                 for (SampleAbundance sampleAbundance : sampleAbundances)
                 {
-                    ProteinRelatedSample s = createFrom(sample, cache);
+                    ProteinRelatedSample s = createFrom(sample, materialTypeCache, cache);
                     s.setAbundance(sampleAbundance.getAbundance());
                     result.add(s);
                 }
@@ -107,7 +110,7 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
                 {
                     Double abundance = sampleAbundance.getAbundance();
                     result.addAll(createSamplesForPeptideModifications(samplePeptideModifications,
-                            sample, abundance, sequenceOrNull, cache));
+                            sample, abundance, sequenceOrNull, materialTypeCache, cache));
                 }
             }
         }
@@ -120,14 +123,15 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
                 SamplePE sample = sampleIDProvider.getSampleOrParentSample(key);
                 List<SamplePeptideModification> samplePeptideModifications = entry.getValue();
                 result.addAll(createSamplesForPeptideModifications(samplePeptideModifications,
-                        sample, null, sequenceOrNull, cache));
+                        sample, null, sequenceOrNull, materialTypeCache, cache));
             }
         }
     }
 
     private List<ProteinRelatedSample> createSamplesForPeptideModifications(
             List<SamplePeptideModification> samplePeptideModifications, SamplePE sample,
-            Double abundanceOrNull, String sequenceOrNull, Map<PropertyTypePE, PropertyType> cache)
+            Double abundanceOrNull, String sequenceOrNull, 
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cache)
     {
         List<ProteinRelatedSample> samples = new ArrayList<ProteinRelatedSample>();
         for (SamplePeptideModification samplePeptideModification : samplePeptideModifications)
@@ -141,12 +145,12 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
                 for (Occurrence occurrence : occurances)
                 {
                     samples.add(createProteinRelatedSample(samplePeptideModification, sample,
-                            abundanceOrNull, position + occurrence.getStartIndex(), cache));
+                            abundanceOrNull, position + occurrence.getStartIndex(), materialTypeCache, cache));
                 }
             } else
             {
                 samples.add(createProteinRelatedSample(samplePeptideModification, sample,
-                        abundanceOrNull, position, cache));
+                        abundanceOrNull, position, materialTypeCache, cache));
             }
         }
         return samples;
@@ -154,9 +158,10 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
 
     private ProteinRelatedSample createProteinRelatedSample(
             SamplePeptideModification samplePeptideModification, SamplePE sample,
-            Double abundanceOrNull, int position, Map<PropertyTypePE, PropertyType> cache)
+            Double abundanceOrNull, int position, 
+            Map<MaterialTypePE, MaterialType> materialTypeCache, Map<PropertyTypePE, PropertyType> cache)
     {
-        ProteinRelatedSample s = createFrom(sample, cache);
+        ProteinRelatedSample s = createFrom(sample, materialTypeCache, cache);
         s.setAbundance(abundanceOrNull);
         int index = samplePeptideModification.getPosition() - 1;
         String sequence = samplePeptideModification.getSequence();
@@ -170,15 +175,16 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
         return s;
     }
 
-    private ProteinRelatedSample createFrom(SamplePE sample, Map<PropertyTypePE, PropertyType> cache)
+    private ProteinRelatedSample createFrom(SamplePE sample, Map<MaterialTypePE, MaterialType> materialTypeCache, 
+            Map<PropertyTypePE, PropertyType> cache)
     {
         ProteinRelatedSample s = new ProteinRelatedSample();
         s.setCode(sample.getCode());
-        s.setEntityType(SampleTypeTranslator.translate(sample.getSampleType(), cache));
+        s.setEntityType(SampleTypeTranslator.translate(sample.getSampleType(), materialTypeCache, cache));
         s.setId(sample.getId());
         s.setIdentifier(sample.getIdentifier());
         s.setPermId(sample.getPermId());
-        s.setProperties(EntityPropertyTranslator.translate(sample.getProperties(), cache,
+        s.setProperties(EntityPropertyTranslator.translate(sample.getProperties(), materialTypeCache, cache,
                 managedPropertyEvaluatorFactory));
         return s;
     }

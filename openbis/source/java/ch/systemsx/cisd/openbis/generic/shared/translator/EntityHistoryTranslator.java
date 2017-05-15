@@ -23,11 +23,13 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -42,15 +44,17 @@ public class EntityHistoryTranslator
     {
         List<EntityHistory> result = new ArrayList<EntityHistory>();
         HashMap<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
+        HashMap<MaterialTypePE, MaterialType> materialTypesCache = new HashMap<MaterialTypePE, MaterialType>();
         for (AbstractEntityPropertyHistoryPE entityPropertyHistory : history)
         {
-            result.add(translate(entityPropertyHistory, cache, baseIndexURL,
+            result.add(translate(entityPropertyHistory, materialTypesCache, cache, baseIndexURL,
                     managedPropertyEvaluatorFactory));
         }
         return result;
     }
 
     private static EntityHistory translate(AbstractEntityPropertyHistoryPE entityPropertyHistory,
+            Map<MaterialTypePE, MaterialType> materialTypeCache, 
             Map<PropertyTypePE, PropertyType> cache, String baseIndexURL,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -64,7 +68,7 @@ public class EntityHistoryTranslator
         if (entityPropertyHistory.getEntityTypePropertyType() != null)
         {
             result.setPropertyType(PropertyTypeTranslator.translate(entityPropertyHistory
-                    .getEntityTypePropertyType().getPropertyType(), cache));
+                    .getEntityTypePropertyType().getPropertyType(), materialTypeCache, cache));
         }
 
         if (entityPropertyHistory instanceof AbstractEntityHistoryPE)
