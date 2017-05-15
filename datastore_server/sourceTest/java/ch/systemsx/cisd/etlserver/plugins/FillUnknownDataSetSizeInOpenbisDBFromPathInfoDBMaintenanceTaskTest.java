@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
