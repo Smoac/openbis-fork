@@ -23,8 +23,8 @@ task wrapper(type: Wrapper) {
     distributionUrl = "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
 }
 
-sourceCompatibility='1.7'
-targetCompatibility='1.7'
+sourceCompatibility='1.8'
+targetCompatibility='1.8'
 
 sourceSets { 
     main {
