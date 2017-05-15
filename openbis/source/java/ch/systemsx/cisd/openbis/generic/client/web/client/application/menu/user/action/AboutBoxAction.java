@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 public class AboutBoxAction implements IDelegatedAction
 {
+    public static final String OPENBIS_WEB_SITE = "https://sis.id.ethz.ch/software/openbis.html";
+    
     private final IViewContext<?> viewContext;
 
     public AboutBoxAction(IViewContext<?> viewContext)
@@ -42,7 +44,7 @@ public class AboutBoxAction implements IDelegatedAction
                 .info(viewContext.getMessage(Dict.ABOUT_BOX_DIALOG_TITLE),
                         viewContext.getMessage(Dict.FOOTER, viewContext.getModel()
                                 .getApplicationInfo().getVersion())
-                                + " <a href=\"http://www.cisd.ethz.ch/software/openBIS\" target=\"_blank\">OpenBIS Home page</a>",
+                                + " <a href=\"" + OPENBIS_WEB_SITE + "\" target=\"_blank\">OpenBIS Home page</a>",
                         null);
     }
 
