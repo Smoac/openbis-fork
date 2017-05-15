@@ -17,6 +17,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteri
 			var ExternalDmsSearchCriteria = require("as/dto/dataset/search/ExternalDmsSearchCriteria");
 			return this.addCriteria(new ExternalDmsSearchCriteria());
 		};
+		prototype.withCopy = function() {
+			var ContentCopySearchCriteria = require("as/dto/dataset/search/ContentCopySearchCriteria");
+			return this.addCriteria(new ContentCopySearchCriteria());
+		};		
 	}, {
 		criteria : {
 			name : "Collection",

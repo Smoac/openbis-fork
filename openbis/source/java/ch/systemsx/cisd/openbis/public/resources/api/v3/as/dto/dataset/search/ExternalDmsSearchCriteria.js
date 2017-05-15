@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteria", "as/dto/common/search/CodeSearchCriteria" ], function(require, stjs, AbstractCompositeSearchCriteria) {
+define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteria", "as/dto/common/search/CodeSearchCriteria", "as/dto/externaldms/search/LabelSearchCriteria",  "as/dto/externaldms/search/AddressSearchCriteria", "as/dto/externaldms/search/ExternalDmsTypeSearchCriteria"], function(require, stjs, AbstractCompositeSearchCriteria) {
 	var ExternalDmsSearchCriteria = function() {
 		AbstractCompositeSearchCriteria.call(this);
 	};
@@ -12,6 +12,19 @@ define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteri
 			var CodeSearchCriteria = require("as/dto/common/search/CodeSearchCriteria");
 			return this.addCriteria(new CodeSearchCriteria());
 		};
+		prototype.withLabel = function() {
+			var LabelSearchCriteria = require("as/dto/externaldms/search/LabelSearchCriteria");
+			return this.addCriteria(new LabelSearchCriteria());
+		};
+		prototype.withAddress = function() {
+			var AddressSearchCriteria = require("as/dto/externaldms/search/AddressSearchCriteria");
+			return this.addCriteria(new AddressSearchCriteria());
+		};
+		prototype.withType = function() {
+			var ExternalDmsTypeSearchCriteria = require("as/dto/externaldms/search/ExternalDmsTypeSearchCriteria");
+			return this.addCriteria(new ExternalDmsTypeSearchCriteria());
+		};
+		
 	}, {
 		criteria : {
 			name : "Collection",
