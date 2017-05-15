@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Ganime Betul Akin
  */
-class DataSetRegistrationSummary
+class DataSetSynchronizationSummary
 {
     final List<String> notRegisteredDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
 

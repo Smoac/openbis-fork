@@ -29,8 +29,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingEntity;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
@@ -61,19 +61,20 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
 
     private final IEncapsulatedOpenBISService service;
 
-    private final List<String> notSyncedAttachmentHolderPermIds;
+    private AttachmentSynchronizationSummary syncSummary;
 
     /**
-     * @param notSyncedAttachmentHolderPermIds will contain ids of attachment holders for which the attachment sync failed during parallel execution
+     * @param executionSummary will contain ids of attachment holders for which the attachment sync failed during parallel execution + counts of
+     *            added, updated and deleted attachments
      * @param service
      * @param lastSyncTimestamp
      * @param config
      */
-    public AttachmentSynchronizationTaskExecutor(List<String> notSyncedAttachmentHolderPermIds,
+    public AttachmentSynchronizationTaskExecutor(AttachmentSynchronizationSummary executionSummary,
             IEncapsulatedOpenBISService service,
             Date lastSyncTimestamp, SyncConfig config)
     {
-        this.notSyncedAttachmentHolderPermIds = notSyncedAttachmentHolderPermIds;
+        this.syncSummary = executionSummary;
         this.service = service;
         this.lastSyncTimestamp = lastSyncTimestamp;
         this.config = config;
@@ -124,7 +125,6 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                     incomingAttachmentMap.put(incoming.getFileName(), incoming);
                 }
             }
-
             List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> existingAttachments =
                     attachmentsOperationsHandler.listHarvesterAttachments(item.getPermID());
             Map<String, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> existingAttachmentMap =
@@ -143,6 +143,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                 if (existingAttachment == null)
                 {
                     addAttachments(incoming, 1, techId, attachmentsOperationsHandler);
+                    syncSummary.addedCount.getAndIncrement();
                 }
                 else
                 {
@@ -151,6 +152,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                     {
                         // Harvester has a later version of the attachment. Delete it from harvester
                         replaceAttachment(techId, incoming, attachmentsOperationsHandler);
+                        syncSummary.updatedCount.getAndIncrement();
                     }
                     else if (incoming.getVersion() == version)
                     {
@@ -158,6 +160,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                         if (incoming.getRegistrationDate().after(lastSyncTimestamp))
                         {
                             replaceAttachment(techId, incoming, attachmentsOperationsHandler);
+                            syncSummary.updatedCount.getAndIncrement();
                         }
                         else
                         {
@@ -172,6 +175,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                                 updateDTO.setTitle(incoming.getTitle());
                                 updateDTO.setDescription(incoming.getDescription());
                                 attachmentsOperationsHandler.updateAttachment(techId, updateDTO);
+                                syncSummary.updatedCount.getAndIncrement();
                             }
                         }
                     }
@@ -180,6 +184,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                         // add all new versions from the incoming (do we need to check last sync date)
                         // Attachment attachmentVersion = getVersion(incoming, version);
                         addAttachments(incoming, version + 1, techId, attachmentsOperationsHandler);
+                        syncSummary.addedCount.getAndIncrement();
                     }
                 }
             }
@@ -189,6 +194,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
                 if (incomingAttachmentMap.get(existing.getFileName()) == null)
                 {
                     attachmentsOperationsHandler.deleteAttachment(techId, existing.getFileName());
+                    syncSummary.deletedCount.getAndIncrement();
                 }
             }
         }
@@ -208,7 +214,7 @@ final class AttachmentSynchronizationTaskExecutor implements ITaskExecutor<Incom
 
     private void addToNotSyncedList(IncomingEntity<?> item) throws UserFailureException
     {
-        notSyncedAttachmentHolderPermIds.add(item.getEntityKind().getLabel() + "-" + item.getPermID());
+        syncSummary.notRegisteredAttachmentHolderCodes.add(item.getEntityKind().getLabel() + "-" + item.getPermID());
     }
 
     private boolean equalsNullable(String s1OrNull, String s2OrNull)

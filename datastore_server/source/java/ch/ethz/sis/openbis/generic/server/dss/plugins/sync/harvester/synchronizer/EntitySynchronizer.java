@@ -247,7 +247,16 @@ public class EntitySynchronizer
         List<String> notSyncedAttachmentsHolders = new ArrayList<String>();
         if (config.isDryRun() == false)
         {
-            notSyncedAttachmentsHolders = processAttachments(attachmentHoldersToProcess);
+            AttachmentSynchronizationSummary syncSummary = processAttachments(attachmentHoldersToProcess);
+            notSyncedAttachmentsHolders = syncSummary.notRegisteredAttachmentHolderCodes;
+            operationLog.info("Attachment synchronization summary:\n" + syncSummary.addedCount + " attachment(s) were added.\n"
+                    + syncSummary.updatedCount
+                    + " attachment(s) were updated.\n"
+                    + syncSummary.deletedCount
+                    + " attachment(s) were deleted.\n"
+                    + "attachments for "
+                    + notSyncedAttachmentsHolders.size()
+                    + " entitities FAILED synchronization. ");
         }
 
         // register physical data sets without any hierarchy
@@ -266,13 +275,13 @@ public class EntitySynchronizer
         List<String> notRegisteredDataSetCodes = new ArrayList<>();
         if (config.isDryRun() == false)
         {
-            DataSetRegistrationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
+            DataSetSynchronizationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
 
             // backup the current not synched data set codes file, delete the original file
             saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
 
             notRegisteredDataSetCodes = dsRegistrationSummary.notRegisteredDataSetCodes;
-            operationLog.info("Data set registration summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
+            operationLog.info("Data set synchronization summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
                 + dsRegistrationSummary.updatedDsCount
                 + " data set(s) were updated.\n"
                     + notRegisteredDataSetCodes.size()
@@ -431,16 +440,16 @@ public class EntitySynchronizer
         }
     }
 
-    private List<String> processAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess)
+    private AttachmentSynchronizationSummary processAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess)
     {
-        final List<String> notSyncedAttachmentHolderPermIds = Collections.synchronizedList(new ArrayList<String>());
+        AttachmentSynchronizationSummary synchronizationSummary = new AttachmentSynchronizationSummary();
 
-        ParallelizedExecutor.process(attachmentHoldersToProcess, new AttachmentSynchronizationTaskExecutor(notSyncedAttachmentHolderPermIds,
+        ParallelizedExecutor.process(attachmentHoldersToProcess, new AttachmentSynchronizationTaskExecutor(synchronizationSummary,
                 service,
                 lastSyncTimestamp, config),
                 0.5, 10, "process attachments", 0, false);
 
-        return notSyncedAttachmentHolderPermIds;
+        return synchronizationSummary;
     }
 
     // private void cleanup()
@@ -611,10 +620,10 @@ public class EntitySynchronizer
         return false;
     }
 
-    private DataSetRegistrationSummary registerPhysicalDataSets(Map<String, IncomingDataSet> physicalDSMap) throws IOException
+    private DataSetSynchronizationSummary registerPhysicalDataSets(Map<String, IncomingDataSet> physicalDSMap) throws IOException
     {
         List<IncomingDataSet> dsList = new ArrayList<IncomingDataSet>(physicalDSMap.values());
-        DataSetRegistrationSummary dsRegistrationSummary = new DataSetRegistrationSummary();
+        DataSetSynchronizationSummary dsRegistrationSummary = new DataSetSynchronizationSummary();
 
         // This parallelization is possible because each DS is registered without dependencies
         // and the dependencies are established later on in the sync process.
@@ -1310,9 +1319,9 @@ public class EntitySynchronizer
 
     private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<IncomingDataSet>
     {
-        private DataSetRegistrationSummary dsRegistrationSummary;
+        private DataSetSynchronizationSummary dsRegistrationSummary;
 
-        public DataSetRegistrationTaskExecutor(DataSetRegistrationSummary dsRegSummary)
+        public DataSetRegistrationTaskExecutor(DataSetSynchronizationSummary dsRegSummary)
         {
             this.dsRegistrationSummary = dsRegSummary;
         }
