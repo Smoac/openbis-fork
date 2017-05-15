@@ -174,6 +174,7 @@ define([], function() {
     infoHandleObject.append(" " + index);
     infoDetailObject = $("<pre></pre>");
     infoDetailObject.text(item);
+    infoDetailObject.addClass("files");
 
     infoHandleObject.click(function() {
       $(this).closest("tbody").find(".bold-text").removeClass("bold-text");
