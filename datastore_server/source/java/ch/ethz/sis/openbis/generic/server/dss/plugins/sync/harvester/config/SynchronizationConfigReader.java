@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public class SynchronizationConfigReader
 {
-    private static final String DEFAULT_HARVESTER_TEMP_DIR = "targets/store";
+    private static final String DEFAULT_HARVESTER_TEMP_DIR = "temp";
 
     private static final String DATA_SOURCE_URL_PROPERTY_NAME = "resource-list-url";
 
