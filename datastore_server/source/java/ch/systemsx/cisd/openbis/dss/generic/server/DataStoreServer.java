@@ -250,7 +250,7 @@ public class DataStoreServer
                 ServiceProvider.getApplicationContext());
         // Disable URL rewriting (forces container to stop appending ";jsessionid=xxx" to urls)
         // to avoid mistakes in URL parsing by download servlets
-        servletContextHandler.getSessionHandler().getSessionManager()
+        servletContextHandler.getSessionHandler()
                 .setSessionIdPathParameterName(null);
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         servletContextHandler.addServlet(new ServletHolder(new DataStoreServlet()), "/"

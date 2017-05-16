@@ -29,7 +29,7 @@ configurations.create('datastore_server')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
 
-def jettyVersion = '9.2.10'
+def jettyVersion = '9.4.4'
 
 dependencies {
 	compile project(':screening'),
@@ -37,13 +37,13 @@ dependencies {
 	
 	providedCompile 'google:gwt-user:2.4'
 					
-	providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20150310@jar",
-                    "eclipse:jetty-xml:${jettyVersion}.v20150310@jar",
-                    "eclipse:jetty-webapp:${jettyVersion}.v20150310@jar",
-                    "eclipse:jetty-servlet:${jettyVersion}.v20150310@jar",
-                    "eclipse:jetty-security:${jettyVersion}.v20150310@jar",
-                    "eclipse:jetty-server:${jettyVersion}.v20150310@jar",
-                    "eclipse:jetty-continuation:${jettyVersion}.v20150310@jar"
+	providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20170414@jar",
+                    "eclipse:jetty-xml:${jettyVersion}.v20170414@jar",
+                    "eclipse:jetty-webapp:${jettyVersion}.v20170414@jar",
+                    "eclipse:jetty-servlet:${jettyVersion}.v20170414@jar",
+                    "eclipse:jetty-security:${jettyVersion}.v20170414@jar",
+                    "eclipse:jetty-server:${jettyVersion}.v20170414@jar",
+                    "eclipse:jetty-continuation:${jettyVersion}.v20170414@jar"
 		
 	gwt 'reveregroup:gwt-image-loader:1.1.4',
                 'google:gwt-dev:+'
@@ -418,7 +418,7 @@ task generateJavadoc(type: Javadoc) {
 	}}
 	classpath = configurations.javadoc_compilation
 	maxMemory = "1024m"
-	options.addStringOption("source", "1.7")
+	options.addStringOption("source", "1.8")
 }
 
 build.dependsOn zip
