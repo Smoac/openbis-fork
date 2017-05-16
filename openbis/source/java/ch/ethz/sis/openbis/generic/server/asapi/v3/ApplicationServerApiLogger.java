@@ -579,6 +579,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public boolean isSessionActive(String sessionToken)
+    {
+        logAccess(sessionToken, "is-session-active");
+        return false;
+    }
+
+    @Override
     public Map<String, String> getServerInformation(String sessionToken)
     {
         logAccess(sessionToken, "server-info");

@@ -1013,6 +1013,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         return getSessionInformationExecutor.getSessionInformation(sessionToken);
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isSessionActive(String sessionToken)
+    {
+        return tryGetSession(sessionToken) != null;
+    }
 
     @Override
     public Map<String, String> getServerInformation(String sessionToken)
