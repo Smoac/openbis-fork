@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util;
 
 import java.io.InputStream;
 import java.util.Arrays;

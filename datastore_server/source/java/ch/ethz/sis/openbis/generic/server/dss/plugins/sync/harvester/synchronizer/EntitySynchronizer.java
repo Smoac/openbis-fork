@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
@@ -76,12 +75,16 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronize
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.MaterialWithLastModificationDate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.datasourceconnector.DataSourceConnector;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.datasourceconnector.IDataSourceConnector;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.parallelizedExecutor.AttachmentSynchronizationSummary;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.parallelizedExecutor.AttachmentSynchronizationTaskExecutor;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.parallelizedExecutor.DataSetRegistrationTaskExecutor;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.parallelizedExecutor.DataSetSynchronizationSummary;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.PrefixBasedNameTranslator;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.DSPropertyUtils;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.V3Utils;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
-import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
@@ -114,8 +117,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -633,7 +634,8 @@ public class EntitySynchronizer
         // and the dependencies are established later on in the sync process.
         ParallelizedExecutionPreferences preferences = config.getParallelizedExecutionPrefs();
 
-        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dataSetSynchronizationSummary),
+        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dataSetSynchronizationSummary, operationLog, storeRoot, context,
+                config),
                 preferences.getMachineLoad(), preferences.getMaxThreads(), "register data sets", preferences.getRetriesOnFail(),
                 preferences.isStopOnFailure());
 
@@ -1322,62 +1324,6 @@ public class EntitySynchronizer
             }
         }
         return null;
-    }
-
-    private final class DataSetRegistrationTaskExecutor implements ITaskExecutor<IncomingDataSet>
-    {
-        private DataSetSynchronizationSummary dsRegistrationSummary;
-
-        public DataSetRegistrationTaskExecutor(DataSetSynchronizationSummary dsRegSummary)
-        {
-            this.dsRegistrationSummary = dsRegSummary;
-        }
-
-        @Override
-        public Status execute(IncomingDataSet dataSet)
-        {
-            Properties props = setProperties();
-
-            DataSetRegistrationIngestionService ingestionService =
-                    new DataSetRegistrationIngestionService(props, storeRoot, dataSet.getDataSet(), operationLog);
-            TableModel resultTable = ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
-            if (resultTable != null)
-            {
-                List<TableModelColumnHeader> headers = resultTable.getHeader();
-                String[] stringArray = new String[headers.size()];
-                for (int i = 0; i < stringArray.length; i++)
-                {
-                    if (headers.get(i).getTitle().startsWith("Error"))
-                    {
-                        String message = resultTable.getRows().get(0).getValues().toString();
-                        dsRegistrationSummary.notRegisteredDataSetCodes.add(dataSet.getDataSet().getCode());
-                        operationLog.error(message);
-                        return Status.createError(message);
-                    }
-                    else if (headers.get(i).getTitle().startsWith("Added"))
-                    {
-                        dsRegistrationSummary.addedDsCount.getAndIncrement();
-                    }
-                    else if (headers.get(i).getTitle().startsWith("Updated"))
-                    {
-                        dsRegistrationSummary.updatedDsCount.getAndIncrement();
-                    }
-                }
-            }
-            return Status.OK;
-        }
-
-        private Properties setProperties()
-        {
-            Properties props = new Properties();
-            props.setProperty("user", EntitySynchronizer.this.config.getUser());
-            props.setProperty("pass", EntitySynchronizer.this.config.getPassword());
-            props.setProperty("as-url", EntitySynchronizer.this.config.getDataSourceOpenbisURL());
-            props.setProperty("dss-url", EntitySynchronizer.this.config.getDataSourceDSSURL());
-            props.setProperty("harvester-temp-dir", EntitySynchronizer.this.config.getHarvesterTempDir());
-            props.setProperty("do-not-create-original-dir", "true");
-            return props;
-        }
     }
 
     private boolean deepCompareDataSets(String dataSetCode)

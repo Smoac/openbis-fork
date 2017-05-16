@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.parallelizedExecutor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,13 +26,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Ganime Betul Akin
  */
-class AttachmentSynchronizationSummary
+public class AttachmentSynchronizationSummary
 {
-    final List<String> notRegisteredAttachmentHolderCodes = Collections.synchronizedList(new ArrayList<String>());
+    public final List<String> notRegisteredAttachmentHolderCodes = Collections.synchronizedList(new ArrayList<String>());
 
-    final AtomicInteger addedCount = new AtomicInteger(0);
+    public final AtomicInteger addedCount = new AtomicInteger(0);
 
-    final AtomicInteger updatedCount = new AtomicInteger(0);
+    public final AtomicInteger updatedCount = new AtomicInteger(0);
 
-    final AtomicInteger deletedCount = new AtomicInteger(0);
+    public final AtomicInteger deletedCount = new AtomicInteger(0);
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public class DSPropertyUtils
 {
-    static Set<String> extractPropertyNames(List<NewProperty> dataSetProperties)
+    public static Set<String> extractPropertyNames(List<NewProperty> dataSetProperties)
     {
         Set<String> existingPropertyNames = new HashSet<String>();
         for (NewProperty prop : dataSetProperties)
@@ -42,7 +42,7 @@ public class DSPropertyUtils
         return existingPropertyNames;
     }
 
-    static IEntityProperty[] convertToEntityProperty(List<NewProperty> dataSetProperties)
+    public static IEntityProperty[] convertToEntityProperty(List<NewProperty> dataSetProperties)
     {
         ArrayList<IEntityProperty> list = new ArrayList<IEntityProperty>();
         for (NewProperty prop : dataSetProperties)

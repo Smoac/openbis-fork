@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.parallelizedExecutor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,11 +26,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Ganime Betul Akin
  */
-class DataSetSynchronizationSummary
+public class DataSetSynchronizationSummary
 {
-    final List<String> notRegisteredDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
+    public final List<String> notRegisteredDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
 
-    final AtomicInteger addedDsCount = new AtomicInteger(0);
+    public final AtomicInteger addedDsCount = new AtomicInteger(0);
 
-    final AtomicInteger updatedDsCount = new AtomicInteger(0);
+    public final AtomicInteger updatedDsCount = new AtomicInteger(0);
 }

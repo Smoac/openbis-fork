@@ -189,7 +189,7 @@ public class ResourceListParserData
         return dsMap;
     }
 
-    class IncomingEntity<T extends Identifier<T>>
+    public class IncomingEntity<T extends Identifier<T>>
     {
         private final Identifier<T> entity;
 
@@ -298,7 +298,7 @@ public class ResourceListParserData
         }
     }
 
-    class IncomingDataSet implements Serializable
+    public class IncomingDataSet implements Serializable
     {
         private static final long serialVersionUID = 1L;
         private final NewExternalData dataSet;
