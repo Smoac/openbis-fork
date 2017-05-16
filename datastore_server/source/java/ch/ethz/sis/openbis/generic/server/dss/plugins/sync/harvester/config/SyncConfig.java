@@ -328,4 +328,9 @@ public class SyncConfig
     {
         this.parallelizedExecutionPrefs = new ParallelizedExecutionPreferences(machineLoad, maxThreads, retriesOnFailure, stopOnFailure);
     }
+
+    public ParallelizedExecutionPreferences getParallelizedExecutionPrefs()
+    {
+        return parallelizedExecutionPrefs;
+    }
 }

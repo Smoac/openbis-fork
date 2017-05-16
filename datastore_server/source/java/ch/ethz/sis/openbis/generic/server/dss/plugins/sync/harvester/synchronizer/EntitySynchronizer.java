@@ -64,6 +64,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetrieve
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.ParallelizedExecutionPreferences;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.IncomingDataSet;
@@ -444,10 +445,13 @@ public class EntitySynchronizer
     {
         AttachmentSynchronizationSummary synchronizationSummary = new AttachmentSynchronizationSummary();
 
+        ParallelizedExecutionPreferences preferences = config.getParallelizedExecutionPrefs();
+
         ParallelizedExecutor.process(attachmentHoldersToProcess, new AttachmentSynchronizationTaskExecutor(synchronizationSummary,
                 service,
                 lastSyncTimestamp, config),
-                0.5, 10, "process attachments", 0, false);
+                preferences.getMachineLoad(), preferences.getMaxThreads(), "process attachments", preferences.getRetriesOnFail(),
+                preferences.isStopOnFailure());
 
         return synchronizationSummary;
     }
@@ -623,14 +627,17 @@ public class EntitySynchronizer
     private DataSetSynchronizationSummary registerPhysicalDataSets(Map<String, IncomingDataSet> physicalDSMap) throws IOException
     {
         List<IncomingDataSet> dsList = new ArrayList<IncomingDataSet>(physicalDSMap.values());
-        DataSetSynchronizationSummary dsRegistrationSummary = new DataSetSynchronizationSummary();
+        DataSetSynchronizationSummary dataSetSynchronizationSummary = new DataSetSynchronizationSummary();
 
         // This parallelization is possible because each DS is registered without dependencies
         // and the dependencies are established later on in the sync process.
-        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dsRegistrationSummary),
-                0.5, 10, "register data sets", 0, false);
+        ParallelizedExecutionPreferences preferences = config.getParallelizedExecutionPrefs();
 
-        return dsRegistrationSummary;
+        ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dataSetSynchronizationSummary),
+                preferences.getMachineLoad(), preferences.getMaxThreads(), "register data sets", preferences.getRetriesOnFail(),
+                preferences.isStopOnFailure());
+
+        return dataSetSynchronizationSummary;
     }
 
     private void saveFailedEntitiesFile(List<String> notRegisteredDataSetCodes, List<String> notSyncedAttachmentsHolders) throws IOException
