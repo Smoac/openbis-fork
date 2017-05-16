@@ -151,6 +151,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public SessionInformation getSessionInformation(String sessionToken);
 
+    public boolean isSessionActive(String sessionToken);
+
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces);
 
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> newProjects);
