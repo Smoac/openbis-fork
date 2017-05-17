@@ -57,6 +57,7 @@ def initBasicMasterData(tr):
     ##
     ## Sample Types - Non Materials
     ##
+    elnTypes.createSampleTypeWithProperties(tr, elnTypes.GENERAL_ELN_SETTINGS);
     elnTypes.createSampleTypeWithProperties(tr, elnTypes.EXPERIMENTAL_STEP);
     
     ##

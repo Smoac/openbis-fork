@@ -243,6 +243,14 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+				case "showSettingsPage":
+					document.title = "Settings";
+					this._showSettingsPage(FormMode.VIEW);
+					break;
+				case "showEditSettingsPage":
+					document.title = "Edit Settings";
+					this._showSettingsPage(FormMode.EDIT);
+					break;
 				case "showExportTreePage":
 					document.title = "Export Builder";
 					var newView = new ExportTreeController(this);
@@ -638,6 +646,21 @@ function MainController(profile) {
 		};
 		
 		return modificableViews;
+	}
+	
+	this._showSettingsPage = function(mode) {
+		var _this = this;
+		this.serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS" }, function(data) {
+			if(!data[0]) {
+				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+			} else {
+				var newView = new SettingsFormController(this, data[0], mode);
+				var views = _this._getNewViewModel(true, true, false);
+				newView.init(views);
+				_this.currentView = newView;
+				//window.scrollTo(0,0);
+			}
+		});
 	}
 	
 	this._showStorageManager = function() {

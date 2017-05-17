@@ -919,6 +919,13 @@ WESTERN_BLOTTING_PROTOCOL = [FIRST_TIME_VERSIONED, True, "WESTERN_BLOTTING_PROTO
     ]];
 
 ##
+## Types - Configuration
+##
+GENERAL_ELN_SETTINGS = [MANDATORY_ITEM_VERSION, False, "GENERAL_ELN_SETTINGS", "Used to store the settings of the ELN application", [
+        [MANDATORY_ITEM_VERSION, "ELN_SETTINGS",   "Settings",    "ELN Settings",    DataType.VARCHAR,        None, "ELN Settings", None, None, False, False]
+]];
+    
+##
 ## Types - Orders
 ##
 

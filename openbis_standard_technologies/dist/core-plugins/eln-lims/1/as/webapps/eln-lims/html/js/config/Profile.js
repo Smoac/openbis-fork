@@ -46,6 +46,7 @@ $.extend(DefaultProfile.prototype, {
 				showStorageManager : true,
 				showAdvancedSearch : true,
 				showTrashcan : true,
+				showSettings : true,
 				showVocabularyViewer : true,
 				showUserManager : true
 		}
@@ -127,7 +128,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
-		this.inventorySpacesReadOnly = []; //"STOCK_ORDERS"
+		this.inventorySpacesReadOnly = ["ELN_SETTINGS"]; //"STOCK_ORDERS"
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
@@ -135,6 +136,10 @@ $.extend(DefaultProfile.prototype, {
 		this.isELNIdentifier = function(identifier) {
 			var space = identifier.split("/")[1];
 			return !this.isInventorySpace(space);
+		}
+		
+		this.isHiddenSpace = function(spaceCode) {
+			return $.inArray(spaceCode, this.hideSpaces) !== -1;
 		}
 		
 		this.isInventorySpace = function(spaceCode) {
@@ -146,9 +151,11 @@ $.extend(DefaultProfile.prototype, {
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : [],
+				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS"],
 				"experimentTypeCodes" : []
-		}		
+		}
+		this.hideSpaces = ["ELN_SETTINGS"];
+		
 		this.propertyReplacingCode = "NAME";
 		
 		this.sampleTypeDefinitionsExtension = {

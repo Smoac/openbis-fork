@@ -206,6 +206,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModelUtils.push({ title : trashCanLink, entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
         }
         
+        if(profile.mainMenu.showSettings) {
+        	var settingsLink = _this.getLinkForNode("Settings", "SETTINGS", "showSettingsPage", null);
+        	treeModelUtils.push({ title : settingsLink, entityType: "SETTINGS", key : "SETTINGS", folder : false, lazy : false, view : "showSettingsPage", icon : "glyphicon glyphicon-cog" });
+        }
+        
         treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, expanded : true, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
         treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         
@@ -244,7 +249,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                for (var i = 0; i < spaces.length; i++) {
     	                    var space = spaces[i];
     	                    var isInventorySpace = profile.isInventorySpace(space.code);
-        	                if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
+    	                    var isHiddenSpace = profile.isHiddenSpace(space.code);
+        	                if(((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) && !isHiddenSpace) {
         	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
         	                	
         	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());

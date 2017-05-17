@@ -354,6 +354,12 @@ def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experime
 		experiment.setPropertyValue("NAME", experimentName);
 	return experiment;
 
+def insertSampleIfMissing(tr, sampleIdentifier, sampleType):
+	sample = tr.getSample(sampleIdentifier);
+	if sample == None:
+		sample = tr.createNewSample(sampleIdentifier,	sampleType);
+	return sample;
+	
 def init(tr, parameters, tableBuilder):
 	projectsCache = {};
 	installedTypes = getSampleTypes(tr, parameters);
@@ -363,9 +369,10 @@ def init(tr, parameters, tableBuilder):
 	isNewInstallation = inventorySpace == None and methodsSpace == None and materialsSpace == None;
 			
 	## Installing Mandatory Spaces/Projects on every login if missing
+	insertSpaceIfMissing(tr, "ELN_SETTINGS");
 	insertSpaceIfMissing(tr, "METHODS");
 	insertSpaceIfMissing(tr, "MATERIALS");
-	
+
 	if isSampleTypeAvailable(installedTypes, "SUPPLIER") and isSampleTypeAvailable(installedTypes, "PRODUCT") and isSampleTypeAvailable(installedTypes, "REQUEST") and isSampleTypeAvailable(installedTypes, "ORDER"):
 		insertSpaceIfMissing(tr, "STOCK_CATALOG");
 		insertProjectIfMissing(tr, "/STOCK_CATALOG/PRODUCTS", projectsCache);
@@ -387,6 +394,9 @@ def init(tr, parameters, tableBuilder):
 	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:
+		if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
+			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
+			
 		if isSampleTypeAvailable(installedTypes, "ANTIBODY"):
 			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
 			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ANTIBODY_COLLECTION_1", "MATERIALS", "Antibody Collection 1");
