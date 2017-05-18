@@ -265,7 +265,7 @@ public class EntitySynchronizer
         // Note that container/component and parent/child relationships are established post-reg.
         // setParentDataSetsOnTheChildren(data);
         Map<String, IncomingDataSet> physicalDSMap =
-                data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp, dataSetsCodesToRetry);
+                data.filterPhysicalDataSetsByLastModificationDate(lastSyncTimestamp, dataSetsCodesToRetry, blackListedDataSetCodes);
         operationLog.info("\n");
         operationLog.info("Registering data sets...");
 
@@ -287,14 +287,19 @@ public class EntitySynchronizer
                 + dsRegistrationSummary.updatedDsCount
                 + " data set(s) were updated.\n"
                     + notRegisteredDataSetCodes.size()
-                + " data set(s) FAILED to register ");
+                    + " data set(s) FAILED to register.\n"
+                    + blackListedDataSetCodes.size() + " data set(s)"
+                    + " were skipped because they were BLACK-LISTED.");
         }
 
         // link physical data sets registered above to container data sets
         // and set parent/child relationships
         operationLog.info("\n");
         operationLog.info("Start establishing data set hierarchies...");
-        establishDataSetRelationships(data.getDataSetsToProcess(), notRegisteredDataSetCodes, physicalDSMap);
+        List<String> skippedDataSets = new ArrayList<String>();
+        skippedDataSets.addAll(notRegisteredDataSetCodes);
+        skippedDataSets.addAll(blackListedDataSetCodes);
+        establishDataSetRelationships(data.getDataSetsToProcess(), skippedDataSets, physicalDSMap);
 
         // cleanup();
 
@@ -470,7 +475,7 @@ public class EntitySynchronizer
     // }
 
     private void establishDataSetRelationships(Map<String, IncomingDataSet> dataSetsToProcess,
-            List<String> notRegisteredDataSets, Map<String, IncomingDataSet> physicalDSMap)
+            List<String> skippedDataSets, Map<String, IncomingDataSet> physicalDSMap)
     {
         // set parent and container data set codes before everything else
         // container and physical data sets can both be parents/children of each other
@@ -485,7 +490,7 @@ public class EntitySynchronizer
                 NewExternalData dataSet = dsWithConn.getDataSet();
                 if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Child"))
                 {
-                    if (notRegisteredDataSets.contains(dataSet.getCode()) == false)
+                    if (skippedDataSets.contains(dataSet.getCode()) == false)
                     {
                         NewExternalData childDataSet = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
                         List<String> parentDataSetCodes = childDataSet.getParentDataSetCodes();
@@ -496,7 +501,7 @@ public class EntitySynchronizer
                 else if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Component"))
                 {
                     NewExternalData componentDataSet = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
-                    if (notRegisteredDataSets.contains(componentDataSet.getCode()) == false)
+                    if (skippedDataSets.contains(componentDataSet.getCode()) == false)
                     {
                         NewContainerDataSet containerDataSet = (NewContainerDataSet) dataSet;
                         List<String> containedDataSetCodes = containerDataSet.getContainedDataSetCodes();
@@ -515,13 +520,16 @@ public class EntitySynchronizer
                     || dataSetsCodesToRetry.contains(dataSet.getCode()) == true
                     || isParentModified(dsToParents, dataSet))
             {
-                if (physicalDSMap.containsKey(dataSet.getCode()) == false && service.tryGetDataSet(dataSet.getCode()) == null)
+                if (blackListedDataSetCodes.contains(dataSet.getCode()) == false)
                 {
-                    builder.dataSet(dataSet);
-                }
-                else
-                {
-                    datasetsToUpdate.put(dataSet.getCode(), dataSet);
+                    if (physicalDSMap.containsKey(dataSet.getCode()) == false && service.tryGetDataSet(dataSet.getCode()) == null)
+                    {
+                        builder.dataSet(dataSet);
+                    }
+                    else
+                    {
+                        datasetsToUpdate.put(dataSet.getCode(), dataSet);
+                    }
                 }
             }
         }
@@ -644,26 +652,26 @@ public class EntitySynchronizer
 
     private void saveFailedEntitiesFile(List<String> notRegisteredDataSetCodes, List<String> notSyncedAttachmentsHolders) throws IOException
     {
-        File notSyncedDataSetsFile = new File(config.getNotSyncedEntitiesFileName());
-        if (notSyncedDataSetsFile.exists())
+        File notSyncedEntitiesFile = new File(config.getNotSyncedEntitiesFileName());
+        if (notSyncedEntitiesFile.exists())
         {
-            backupAndResetNotSyncedDataSetsFile(notSyncedDataSetsFile);
+            backupAndResetNotSyncedDataSetsFile(notSyncedEntitiesFile);
         }
 
         // first write the data set codes to be retried next time we sync
         for (String dsCode : notRegisteredDataSetCodes)
         {
-            FileUtilities.appendToFile(notSyncedDataSetsFile, SyncEntityKind.DATA_SET.getLabel() + "-" + dsCode, true);
+            FileUtilities.appendToFile(notSyncedEntitiesFile, SyncEntityKind.DATA_SET.getLabel() + "-" + dsCode, true);
         }
         // append the ids of holder entities for the failed attachment synchronizations
         for (String holderCode : notSyncedAttachmentsHolders)
         {
-            FileUtilities.appendToFile(notSyncedDataSetsFile, holderCode, true);
+            FileUtilities.appendToFile(notSyncedEntitiesFile, holderCode, true);
         }
         // append the blacklisted codes to the end of the file
         for (String dsCode : blackListedDataSetCodes)
         {
-            FileUtilities.appendToFile(notSyncedDataSetsFile, dsCode, true);
+            FileUtilities.appendToFile(notSyncedEntitiesFile, ("#" + SyncEntityKind.DATA_SET.getLabel() + "-" + dsCode), true);
         }
     }
 

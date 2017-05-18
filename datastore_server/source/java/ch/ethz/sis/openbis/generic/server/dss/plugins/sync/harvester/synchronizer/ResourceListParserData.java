@@ -114,16 +114,21 @@ public class ResourceListParserData
         return materialsToProcess;
     }
 
-    public Map<String, IncomingDataSet> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate, Set<String> dataSetsCodesToRetry)
+    public Map<String, IncomingDataSet> filterPhysicalDataSetsByLastModificationDate(Date lastSyncDate, Set<String> dataSetsCodesToRetry,
+            Set<String> blackListedDataSetCodes)
     {
         Map<String, IncomingDataSet> dsMap = new HashMap<String, ResourceListParserData.IncomingDataSet>();
         for (String permId : dataSetsToProcess.keySet())
         {
             IncomingDataSet ds = dataSetsToProcess.get(permId);
+            String dataSetCode = ds.getDataSet().getCode();
             if (ds.getKind() == DataSetKind.PHYSICAL
-                    && (ds.lastModificationDate.after(lastSyncDate) || dataSetsCodesToRetry.contains(ds.getDataSet().getCode())))
+                    && (ds.lastModificationDate.after(lastSyncDate) == true || dataSetsCodesToRetry.contains(dataSetCode)) == true)
             {
-                dsMap.put(permId, ds);
+                if (blackListedDataSetCodes.contains(dataSetCode) == false)
+                {
+                    dsMap.put(permId, ds);
+                }
             }
         }
         return dsMap;

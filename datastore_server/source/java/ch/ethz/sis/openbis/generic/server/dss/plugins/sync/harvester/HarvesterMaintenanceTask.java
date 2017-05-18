@@ -336,7 +336,6 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
     private Set<String> getBlackListedDataSetCodes(String fileName)
     {
         return getDataSetCodeLines(fileName, "#DATA_SET");
-
     }
 
     private void sendErrorEmail(SyncConfig config, String subject)
