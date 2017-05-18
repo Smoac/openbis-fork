@@ -31,3 +31,11 @@ dry-run = false
 #default = false
 verbose = true
 
+#parallelized execution settings
+#machine-load = 0.5
+#max-threads  = 10
+#retries-on-failure = 0
+#stop-on-first-failure = false
+
+#default folder is temp which will be created under the store root
+harvester-tmp-dir = temp
