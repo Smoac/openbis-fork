@@ -680,10 +680,12 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
                         
             if config_dict['index1Name'] in lane_sample_properties[key]:
                 index1 = lane_sample_properties[key][config_dict['index1Name']]
-            
+                len_index1 = index_length_dict[int(lane_int)][0]
+                    
             if config_dict['10XIndexSet'] in lane_sample_properties[key]:
                 index1 = lane_sample_properties[key][config_dict['10XIndexSet']]
-            
+                # Do not modify the index length, as these are index sets provided by 10x 
+                len_index1 = len(index1)
                                  
             if config_dict['index2Name'] in lane_sample_properties[key]:
                 index2 = lane_sample_properties[key][config_dict['index2Name']]
@@ -696,7 +698,6 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
             # except:
             #    prefix = ""
     
-            len_index1 = index_length_dict[int(lane_int)][0]
             len_index2 = index_length_dict[int(lane_int)][1]
     
             lane_string = ""
