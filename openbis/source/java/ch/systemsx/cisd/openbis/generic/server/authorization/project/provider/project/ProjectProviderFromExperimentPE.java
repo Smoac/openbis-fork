@@ -20,32 +20,23 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.project.IProject;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.project.ProjectFromProjectPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.object.SingleObjectProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectProviderFromTechId extends SingleObjectProvider<TechId>
+public class ProjectProviderFromExperimentPE extends SingleObjectProvider<ExperimentPE>
 {
 
-    public ProjectProviderFromTechId(TechId techId)
+    public ProjectProviderFromExperimentPE(ExperimentPE experimentPE)
     {
-        super(techId);
+        super(experimentPE);
     }
 
     @Override
-    protected IProject createProject(IAuthorizationDataProvider dataProvider, TechId techId)
+    protected IProject createProject(IAuthorizationDataProvider dataProvider, ExperimentPE experimentPE)
     {
-        ProjectPE projectPE = dataProvider.tryGetProjectByTechId(techId);
-
-        if (projectPE != null)
-        {
-            return new ProjectFromProjectPE(projectPE);
-        } else
-        {
-            return null;
-        }
+        return new ProjectFromProjectPE(experimentPE.getProject());
     }
 
 }

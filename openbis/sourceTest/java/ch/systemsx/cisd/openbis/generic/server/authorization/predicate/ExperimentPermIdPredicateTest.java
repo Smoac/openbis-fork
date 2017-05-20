@@ -19,37 +19,72 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jmock.Expectations;
+
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class NewProjectPredicateTest extends CommonPredicateTest<NewProject>
+public class ExperimentPermIdPredicateTest extends CommonPredicateTest<PermId>
 {
 
+    private static final PermId EXPERIMENT_PERM_ID = new PermId("experimentPermId");
+
+    private static final PermId NON_EXISTENT_EXPERIMENT_PERM_ID = new PermId("nonExistentExperimentPermId");
+
     @Override
-    protected void expectWithAll(IAuthorizationConfig config, List<NewProject> objects)
+    protected void expectWithAll(IAuthorizationConfig config, final List<PermId> objects)
     {
-        expectAuthorizationConfig(config);
+        final PermId object = objects.get(0);
+
         prepareProvider(ALL_SPACES_PE);
+        expectAuthorizationConfig(config);
+
+        context.checking(new Expectations()
+            {
+                {
+                    if (object != null)
+                    {
+                        allowing(provider).tryGetExperimentByPermId(object.getId());
+
+                        if (EXPERIMENT_PERM_ID.equals(object))
+                        {
+                            will(returnValue(SPACE_PROJECT_EXPERIMENT_PE));
+                        } else if (NON_EXISTENT_EXPERIMENT_PERM_ID.equals(object))
+                        {
+                            will(returnValue(null));
+                        }
+                    }
+                }
+            });
     }
 
     @Override
-    protected NewProject createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected PermId createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        return new NewProject("/" + spacePE.getCode() + "/" + projectPE.getCode(), "description");
+        if (SPACE_PE.equals(spacePE) && SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return EXPERIMENT_PERM_ID;
+        } else if (NON_EXISTENT_SPACE_PE.equals(spacePE) && NON_EXISTENT_SPACE_PROJECT_PE.equals(projectPE))
+        {
+            return NON_EXISTENT_EXPERIMENT_PERM_ID;
+        } else
+        {
+            throw new RuntimeException();
+        }
     }
 
     @Override
-    protected Status evaluateObjects(List<NewProject> objects, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<PermId> objects, RoleWithIdentifier... roles)
     {
-        NewProjectPredicate predicate = new NewProjectPredicate();
+        ExperimentPermIdPredicate predicate = new ExperimentPermIdPredicate();
         predicate.init(provider);
         return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0));
     }
@@ -58,7 +93,7 @@ public class NewProjectPredicateTest extends CommonPredicateTest<NewProject>
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertException(t, UserFailureException.class, "No new project specified.");
+        assertException(t, UserFailureException.class, "No experiment perm id specified.");
     }
 
     @Override

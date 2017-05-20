@@ -25,10 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 /**
  * @author pkupczyk
  */
-public class ProjectProviderFromIdentifierObject extends SingleObjectProvider<ProjectIdentifier>
+public class ProjectProviderFromProjectIdentifierObject extends SingleObjectProvider<ProjectIdentifier>
 {
 
-    public ProjectProviderFromIdentifierObject(ProjectIdentifier projectIdentifier)
+    public ProjectProviderFromProjectIdentifierObject(ProjectIdentifier projectIdentifier)
     {
         super(projectIdentifier);
     }

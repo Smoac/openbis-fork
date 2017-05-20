@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -35,9 +38,9 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
 
     protected abstract O createObject(SpacePE spacePE, ProjectPE projectPE);
 
-    protected abstract Status evaluateObject(O object, RoleWithIdentifier... roles);
+    protected abstract Status evaluateObjects(List<O> objects, RoleWithIdentifier... roles);
 
-    protected void expectWithAll(IAuthorizationConfig config, O object)
+    protected void expectWithAll(IAuthorizationConfig config, List<O> objects)
     {
 
     }
@@ -47,40 +50,30 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     {
         try
         {
-            expectWithAll(config, null);
-            expectWithNull(config, null);
-            Status result = evaluateObject(null);
+            List<O> objects = Arrays.asList((O) null);
+            expectWithAll(config, objects);
+            Status result = evaluateObjects(objects);
             assertWithNull(config, result, null);
         } catch (Throwable t)
         {
             assertWithNull(config, null, t);
         }
-
-    }
-
-    protected void expectWithNull(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(UserFailureException.class, t.getClass());
-        assertEquals("Unspecified value", t.getMessage());
+        assertException(t, UserFailureException.class, "Unspecified value");
     }
 
     @Test(dataProvider = AUTHORIZATION_CONFIG_PROVIDER)
     public void testWithNonexistentObjectForInstanceUser(IAuthorizationConfig config)
     {
         O object = createObject(NON_EXISTENT_SPACE_PE, NON_EXISTENT_SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithNonexistentObjectForInstanceUser(config, object);
-        Status result = evaluateObject(object, createInstanceRole(RoleCode.ADMIN));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createInstanceRole(RoleCode.ADMIN));
         assertWithNonexistentObjectForInstanceUser(config, result);
-    }
-
-    protected void expectWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
@@ -92,14 +85,10 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithNonexistentObjectForSpaceUser(IAuthorizationConfig config)
     {
         O object = createObject(NON_EXISTENT_SPACE_PE, NON_EXISTENT_SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithNonexistentObjectForSpaceUser(config, object);
-        Status result = evaluateObject(object, createSpaceRole(RoleCode.ADMIN, SPACE_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createSpaceRole(RoleCode.ADMIN, SPACE_PE));
         assertWithNonexistentObjectForSpaceUser(config, result);
-    }
-
-    protected void expectWithNonexistentObjectForSpaceUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNonexistentObjectForSpaceUser(IAuthorizationConfig config, Status result)
@@ -111,14 +100,10 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithNonexistentObjectForProjectUser(IAuthorizationConfig config)
     {
         O object = createObject(NON_EXISTENT_SPACE_PE, NON_EXISTENT_SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithNonexistentObjectForProjectUser(config, object);
-        Status result = evaluateObject(object, createProjectRole(RoleCode.ADMIN, SPACE_CODE, SPACE_PROJECT_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createProjectRole(RoleCode.ADMIN, SPACE_PROJECT_PE));
         assertWithNonexistentObjectForProjectUser(config, result);
-    }
-
-    protected void expectWithNonexistentObjectForProjectUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNonexistentObjectForProjectUser(IAuthorizationConfig config, Status result)
@@ -130,14 +115,10 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithNoAllowedRoles(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithNoAllowedRoles(config, object);
-        Status result = evaluateObject(object);
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects);
         assertWithNoAllowedRoles(config, result);
-    }
-
-    protected void expectWithNoAllowedRoles(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNoAllowedRoles(IAuthorizationConfig config, Status result)
@@ -149,14 +130,10 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithMultipleAllowedRoles(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithMultipleAllowedRoles(config, object);
-        Status result = evaluateObject(object, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE_CODE), createSpaceRole(RoleCode.ADMIN, SPACE_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE_PE), createSpaceRole(RoleCode.ADMIN, SPACE_PE));
         assertWithMultipleAllowedRoles(config, result);
-    }
-
-    protected void expectWithMultipleAllowedRoles(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithMultipleAllowedRoles(IAuthorizationConfig config, Status result)
@@ -168,14 +145,10 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithInstanceUser(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithInstanceUser(config, object);
-        Status result = evaluateObject(object, createInstanceRole(RoleCode.ADMIN));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createInstanceRole(RoleCode.ADMIN));
         assertWithInstanceUser(config, result);
-    }
-
-    protected void expectWithInstanceUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithInstanceUser(IAuthorizationConfig config, Status result)
@@ -187,15 +160,11 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithMatchingSpaceAndMatchingProjectUser(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithMatchingSpaceAndMatchingProjectUser(config, object);
-        Status result = evaluateObject(object, createSpaceRole(RoleCode.ADMIN, SPACE_CODE),
-                createProjectRole(RoleCode.ADMIN, SPACE_CODE, SPACE_PROJECT_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createSpaceRole(RoleCode.ADMIN, SPACE_PE),
+                createProjectRole(RoleCode.ADMIN, SPACE_PROJECT_PE));
         assertWithMatchingSpaceAndMatchingProjectUser(config, result);
-    }
-
-    protected void expectWithMatchingSpaceAndMatchingProjectUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithMatchingSpaceAndMatchingProjectUser(IAuthorizationConfig config, Status result)
@@ -207,15 +176,11 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithMatchingSpaceAndNonMatchingProjectUser(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithMatchingSpaceAndNonMatchingProjectUser(config, object);
-        Status result = evaluateObject(object, createSpaceRole(RoleCode.ADMIN, SPACE_CODE),
-                createProjectRole(RoleCode.ADMIN, ANOTHER_SPACE_CODE, ANOTHER_SPACE_PROJECT_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createSpaceRole(RoleCode.ADMIN, SPACE_PE),
+                createProjectRole(RoleCode.ADMIN, ANOTHER_SPACE_PROJECT_PE));
         assertWithMatchingSpaceAndNonMatchingProjectUser(config, result);
-    }
-
-    protected void expectWithMatchingSpaceAndNonMatchingProjectUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithMatchingSpaceAndNonMatchingProjectUser(IAuthorizationConfig config, Status result)
@@ -227,15 +192,11 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithNonMatchingSpaceAndMatchingProjectUser(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithNonMatchingSpaceAndMatchingProjectUser(config, object);
-        Status result = evaluateObject(object, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE_CODE),
-                createProjectRole(RoleCode.ADMIN, SPACE_CODE, SPACE_PROJECT_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE_PE),
+                createProjectRole(RoleCode.ADMIN, SPACE_PROJECT_PE));
         assertWithNonMatchingSpaceAndMatchingProjectUser(config, result);
-    }
-
-    protected void expectWithNonMatchingSpaceAndMatchingProjectUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNonMatchingSpaceAndMatchingProjectUser(IAuthorizationConfig config, Status result)
@@ -253,20 +214,29 @@ public abstract class CommonPredicateTest<O> extends AuthorizationTestCase
     public void testWithNonMatchingSpaceAndNonMatchingProjectUser(IAuthorizationConfig config)
     {
         O object = createObject(SPACE_PE, SPACE_PROJECT_PE);
-        expectWithAll(config, object);
-        expectWithNonMatchingSpaceAndNonMatchingProjectUser(config, object);
-        Status result = evaluateObject(object, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE_CODE),
-                createProjectRole(RoleCode.ADMIN, ANOTHER_SPACE_CODE, ANOTHER_SPACE_PROJECT_CODE));
+        List<O> objects = Arrays.asList(object);
+        expectWithAll(config, objects);
+        Status result = evaluateObjects(objects, createSpaceRole(RoleCode.ADMIN, ANOTHER_SPACE_PE),
+                createProjectRole(RoleCode.ADMIN, ANOTHER_SPACE_PROJECT_PE));
         assertWithNonMatchingSpaceAndNonMatchingProjectUser(config, result);
-    }
-
-    protected void expectWithNonMatchingSpaceAndNonMatchingProjectUser(IAuthorizationConfig config, O object)
-    {
     }
 
     protected void assertWithNonMatchingSpaceAndNonMatchingProjectUser(IAuthorizationConfig config, Status result)
     {
         assertError(result);
+    }
+
+    protected static void assertException(Throwable actualException, Class<?> expectedClass, String expectedMessage)
+    {
+        if (false == actualException.getClass().equals(expectedClass))
+        {
+            actualException.printStackTrace(System.err);
+            fail();
+        } else
+        {
+            actualException.printStackTrace(System.out);
+        }
+        assertEquals(expectedMessage, actualException.getMessage());
     }
 
 }

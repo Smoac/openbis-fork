@@ -23,20 +23,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
 import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectsProviderFromExperimentV1Collection;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
+
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
 
 /**
  * A predicate for lists of entities of {@link Experiment}s.
@@ -53,14 +59,13 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
         @Select(sql = "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
                 + "where e.id = any(?{1}) union "
                 + "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
-                + "where e.perm_id = any(?{2})", parameterBindings =
-        { LongArrayMapper.class, StringArrayMapper.class })
+                + "where e.perm_id = any(?{2})", parameterBindings = { LongArrayMapper.class, StringArrayMapper.class })
         public List<Long> getExperimentSpaceIds(long[] experimentIds, String[] experimentPermIds);
     }
 
     private final static int ARRAY_SIZE_LIMIT = 999;
 
-    private final IExperimentToSpaceQuery experimentToSpaceQuery =
+    private IExperimentToSpaceQuery experimentToSpaceQuery =
             QueryTool.getManagedQuery(IExperimentToSpaceQuery.class);
 
     //
@@ -77,13 +82,28 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<Experiment> experiments)
     {
+        IProjectAuthorization<Experiment> pa = new ProjectAuthorizationBuilder<Experiment>()
+                .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectsProviderFromExperimentV1Collection(experiments))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
         // All fields relevant for authorization are expected to be filled:
         // - technical id
         // - permanent id
         // - identifier
-        final List<Long> ids = new ArrayList<Long>(experiments.size());
-        final List<String> permIds = new ArrayList<String>(experiments.size());
-        for (Experiment experiment : experiments)
+        
+        Collection<Experiment> remainingExperiments = pa.getObjectsWithoutAccess();
+        
+        final List<Long> ids = new ArrayList<Long>(remainingExperiments.size());
+        final List<String> permIds = new ArrayList<String>(remainingExperiments.size());
+        for (Experiment experiment : remainingExperiments)
         {
             if (experiment.getId() == null)
             {
@@ -156,6 +176,11 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
             result[i] = list.get(i);
         }
         return result;
+    }
+
+    void setExperimentToSpaceQuery(IExperimentToSpaceQuery experimentToSpaceQuery)
+    {
+        this.experimentToSpaceQuery = experimentToSpaceQuery;
     }
 
 }

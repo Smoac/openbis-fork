@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -32,19 +33,18 @@ public class ProjectIdPredicateWithPermIdTest extends ProjectPermIdPredicateTest
 {
 
     @Override
-    protected Status evaluateObject(PermId object, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<PermId> objects, RoleWithIdentifier... roles)
     {
         ProjectIdPredicate predicate = new ProjectIdPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object != null ? new ProjectPermIdId(object.getId()) : null);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0) != null ? new ProjectPermIdId(objects.get(0).getId()) : null);
     }
 
     @Override
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(UserFailureException.class, t.getClass());
-        assertEquals("No project id specified.", t.getMessage());
+        assertException(t, UserFailureException.class, "No project id specified.");
     }
 
 }

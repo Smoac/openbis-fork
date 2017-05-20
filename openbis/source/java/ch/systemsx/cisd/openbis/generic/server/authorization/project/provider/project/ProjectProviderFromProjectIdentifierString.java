@@ -24,10 +24,10 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.ob
 /**
  * @author pkupczyk
  */
-public class ProjectProviderFromIdentifierString extends SingleObjectProvider<String>
+public class ProjectProviderFromProjectIdentifierString extends SingleObjectProvider<String>
 {
 
-    public ProjectProviderFromIdentifierString(String projectIdentifier)
+    public ProjectProviderFromProjectIdentifierString(String projectIdentifier)
     {
         super(projectIdentifier);
     }

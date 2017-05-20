@@ -25,10 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 /**
  * @author pkupczyk
  */
-public class ProjectProviderFromIIdentifierHolder extends SingleObjectProvider<IIdentifierHolder>
+public class ProjectProviderFromProjectIIdentifierHolder extends SingleObjectProvider<IIdentifierHolder>
 {
 
-    public ProjectProviderFromIIdentifierHolder(IIdentifierHolder identifierHolder)
+    public ProjectProviderFromProjectIIdentifierHolder(IIdentifierHolder identifierHolder)
     {
         super(identifierHolder);
     }

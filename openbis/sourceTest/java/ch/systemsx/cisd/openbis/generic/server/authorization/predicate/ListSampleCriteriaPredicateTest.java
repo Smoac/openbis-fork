@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
@@ -47,8 +48,9 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         {
             predicate.doEvaluation(createPerson(), createRoles(false),
                     ListSampleCriteria.createForExperiment(new TechId(1L)));
-        } catch (final AssertionError e)
+        } catch (final Exception e)
         {
+            assertEquals("Data provider cannot be null", e.getMessage());
             fail = false;
         }
         assertFalse(fail);
@@ -128,6 +130,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createSpaces());
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
         context.checking(new Expectations()
             {
                 {
@@ -148,6 +151,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createSpaces());
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
         context.checking(new Expectations()
             {
                 {

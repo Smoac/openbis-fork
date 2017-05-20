@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromIdentifierObject;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectIdentifierObject;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -52,7 +52,7 @@ public class ProjectIdentifierPredicate extends DelegatedPredicate<SpaceIdentifi
                 .withData(authorizationDataProvider)
                 .withUser(new UserProviderFromPersonPE(person))
                 .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
-                .withObjects(new ProjectProviderFromIdentifierObject(value))
+                .withObjects(new ProjectProviderFromProjectIdentifierObject(value))
                 .build();
 
         if (pa.getObjectsWithoutAccess().isEmpty())

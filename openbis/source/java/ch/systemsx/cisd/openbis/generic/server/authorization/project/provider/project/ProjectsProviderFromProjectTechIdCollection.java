@@ -34,12 +34,12 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.data.object
 /**
  * @author pkupczyk
  */
-public class ProjectsProviderFromTechIdCollection implements IObjectsProvider<TechId>
+public class ProjectsProviderFromProjectTechIdCollection implements IObjectsProvider<TechId>
 {
 
     private List<TechId> techIds;
 
-    public ProjectsProviderFromTechIdCollection(List<TechId> techIds)
+    public ProjectsProviderFromProjectTechIdCollection(List<TechId> techIds)
     {
         this.techIds = techIds;
     }
@@ -65,7 +65,6 @@ public class ProjectsProviderFromTechIdCollection implements IObjectsProvider<Te
                 IProject project = projectPE != null ? new ProjectFromProjectPE(projectPE) : null;
                 objects.add(new Object<TechId>(techId, project));
             }
-
         }
 
         return objects;

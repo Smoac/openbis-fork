@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -32,14 +33,14 @@ public class ProjectUpdatesPredicateWithPermIdTest extends ProjectPermIdPredicat
 {
 
     @Override
-    protected Status evaluateObject(PermId object, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<PermId> objects, RoleWithIdentifier... roles)
     {
         ProjectUpdatesDTO updates = null;
 
-        if (object != null)
+        if (objects.get(0) != null)
         {
             updates = new ProjectUpdatesDTO();
-            updates.setPermId(object.getId());
+            updates.setPermId(objects.get(0).getId());
         }
 
         ProjectUpdatesPredicate predicate = new ProjectUpdatesPredicate();
@@ -51,8 +52,7 @@ public class ProjectUpdatesPredicateWithPermIdTest extends ProjectPermIdPredicat
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(UserFailureException.class, t.getClass());
-        assertEquals("No project updates specified.", t.getMessage());
+        assertException(t, UserFailureException.class, "No project updates specified.");
     }
 
 }

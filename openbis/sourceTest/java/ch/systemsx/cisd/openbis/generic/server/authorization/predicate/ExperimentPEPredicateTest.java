@@ -20,30 +20,50 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectIdPredicateWithIdentifierTest extends ProjectAugmentedCodePredicateTest
+public class ExperimentPEPredicateTest extends CommonPredicateTest<ExperimentPE>
 {
 
     @Override
-    protected Status evaluateObjects(List<String> objects, RoleWithIdentifier... roles)
+    protected ExperimentPE createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        ProjectIdPredicate predicate = new ProjectIdPredicate();
+        ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setProject(projectPE);
+        return experimentPE;
+    }
+
+    @Override
+    protected Status evaluateObjects(List<ExperimentPE> objects, RoleWithIdentifier... roles)
+    {
+        ExperimentPEPredicate predicate = new ExperimentPEPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0) != null ? new ProjectIdentifierId(objects.get(0)) : null);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0));
+    }
+
+    @Override
+    protected void expectWithAll(IAuthorizationConfig config, List<ExperimentPE> object)
+    {
+        expectAuthorizationConfig(config);
     }
 
     @Override
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
-        assertNull(result);
-        assertException(t, UserFailureException.class, "No project id specified.");
+        assertError(result);
+    }
+
+    @Override
+    protected void assertWithNonexistentObjectForInstanceUser(IAuthorizationConfig config, Status result)
+    {
+        assertOK(result);
     }
 
 }

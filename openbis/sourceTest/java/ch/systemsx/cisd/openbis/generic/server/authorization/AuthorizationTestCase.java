@@ -63,25 +63,53 @@ public class AuthorizationTestCase extends AssertJUnit
 
     protected static final String SPACE_PROJECT_CODE = "P1";
 
+    protected static final String SPACE_ANOTHER_PROJECT_CODE = "P11";
+
+    protected static final String SPACE_PROJECT_EXPERIMENT_CODE = "E1";
+
+    protected static final String SPACE_ANOTHER_PROJECT_EXPERIMENT_CODE = "E11";
+
     protected static final String ANOTHER_SPACE_CODE = "G2";
 
     protected static final String ANOTHER_SPACE_PROJECT_CODE = "P2";
+
+    protected static final String ANOTHER_SPACE_ANOTHER_PROJECT_CODE = "P22";
+
+    protected static final String ANOTHER_SPACE_PROJECT_EXPERIMENT_CODE = "E2";
+
+    protected static final String ANOTHER_SPACE_ANOTHER_PROJECT_EXPERIMENT_CODE = "E22";
 
     protected static final String NON_EXISTENT_SPACE_CODE = "G3";
 
     protected static final String NON_EXISTENT_SPACE_PROJECT_CODE = "P3";
 
+    protected static final String NON_EXISTENT_SPACE_PROJECT_EXPERIMENT_CODE = "E3";
+
     protected static final SpacePE SPACE_PE = new SpacePE();
 
     protected static final ProjectPE SPACE_PROJECT_PE = new ProjectPE();
+
+    protected static final ProjectPE SPACE_ANOTHER_PROJECT_PE = new ProjectPE();
+
+    protected static final ExperimentPE SPACE_PROJECT_EXPERIMENT_PE = new ExperimentPE();
+
+    protected static final ExperimentPE SPACE_ANOTHER_PROJECT_EXPERIMENT_PE = new ExperimentPE();
 
     protected static final SpacePE ANOTHER_SPACE_PE = new SpacePE();
 
     protected static final ProjectPE ANOTHER_SPACE_PROJECT_PE = new ProjectPE();
 
+    protected static final ProjectPE ANOTHER_SPACE_ANOTHER_PROJECT_PE = new ProjectPE();
+
+    protected static final ExperimentPE ANOTHER_SPACE_PROJECT_EXPERIMENT_PE = new ExperimentPE();
+
+    protected static final ExperimentPE ANOTHER_SPACE_ANOTHER_PROJECT_EXPERIMENT_PE = new ExperimentPE();
+
     protected static final SpacePE NON_EXISTENT_SPACE_PE = new SpacePE();
 
     protected static final ProjectPE NON_EXISTENT_SPACE_PROJECT_PE = new ProjectPE();
+
+    protected static final ExperimentPE NON_EXISTENT_SPACE_PROJECT_EXPERIMENT_PE = new ExperimentPE();
 
     protected static final List<SpacePE> ALL_SPACES_PE = Arrays.asList(SPACE_PE, ANOTHER_SPACE_PE);
 
@@ -89,20 +117,53 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         PERSON_PE.setUserId("test");
 
+        SPACE_PE.setId(1000L);
         SPACE_PE.setCode(SPACE_CODE);
 
         SPACE_PROJECT_PE.setCode(SPACE_PROJECT_CODE);
         SPACE_PROJECT_PE.setSpace(SPACE_PE);
 
+        SPACE_ANOTHER_PROJECT_PE.setId(1200L);
+        SPACE_ANOTHER_PROJECT_PE.setCode(SPACE_ANOTHER_PROJECT_CODE);
+        SPACE_ANOTHER_PROJECT_PE.setSpace(SPACE_PE);
+
+        SPACE_PROJECT_EXPERIMENT_PE.setId(1110L);
+        SPACE_PROJECT_EXPERIMENT_PE.setCode(SPACE_PROJECT_EXPERIMENT_CODE);
+        SPACE_PROJECT_EXPERIMENT_PE.setProject(SPACE_PROJECT_PE);
+
+        SPACE_ANOTHER_PROJECT_EXPERIMENT_PE.setId(1210L);
+        SPACE_ANOTHER_PROJECT_EXPERIMENT_PE.setCode(SPACE_ANOTHER_PROJECT_EXPERIMENT_CODE);
+        SPACE_ANOTHER_PROJECT_EXPERIMENT_PE.setProject(SPACE_ANOTHER_PROJECT_PE);
+
+        ANOTHER_SPACE_PE.setId(2000L);
         ANOTHER_SPACE_PE.setCode(ANOTHER_SPACE_CODE);
 
+        ANOTHER_SPACE_PROJECT_PE.setId(2100L);
         ANOTHER_SPACE_PROJECT_PE.setCode(ANOTHER_SPACE_PROJECT_CODE);
         ANOTHER_SPACE_PROJECT_PE.setSpace(ANOTHER_SPACE_PE);
 
+        ANOTHER_SPACE_ANOTHER_PROJECT_PE.setId(2200L);
+        ANOTHER_SPACE_ANOTHER_PROJECT_PE.setCode(ANOTHER_SPACE_ANOTHER_PROJECT_CODE);
+        ANOTHER_SPACE_ANOTHER_PROJECT_PE.setSpace(ANOTHER_SPACE_PE);
+
+        ANOTHER_SPACE_PROJECT_EXPERIMENT_PE.setId(2110L);
+        ANOTHER_SPACE_PROJECT_EXPERIMENT_PE.setCode(ANOTHER_SPACE_PROJECT_EXPERIMENT_CODE);
+        ANOTHER_SPACE_PROJECT_EXPERIMENT_PE.setProject(ANOTHER_SPACE_PROJECT_PE);
+
+        ANOTHER_SPACE_ANOTHER_PROJECT_EXPERIMENT_PE.setId(2210L);
+        ANOTHER_SPACE_ANOTHER_PROJECT_EXPERIMENT_PE.setCode(ANOTHER_SPACE_ANOTHER_PROJECT_EXPERIMENT_CODE);
+        ANOTHER_SPACE_ANOTHER_PROJECT_EXPERIMENT_PE.setProject(ANOTHER_SPACE_ANOTHER_PROJECT_PE);
+
+        NON_EXISTENT_SPACE_PE.setId(3000L);
         NON_EXISTENT_SPACE_PE.setCode(NON_EXISTENT_SPACE_CODE);
 
+        NON_EXISTENT_SPACE_PROJECT_PE.setId(3100L);
         NON_EXISTENT_SPACE_PROJECT_PE.setCode(NON_EXISTENT_SPACE_PROJECT_CODE);
         NON_EXISTENT_SPACE_PROJECT_PE.setSpace(NON_EXISTENT_SPACE_PE);
+
+        NON_EXISTENT_SPACE_PROJECT_EXPERIMENT_PE.setId(3110L);
+        NON_EXISTENT_SPACE_PROJECT_EXPERIMENT_PE.setCode(NON_EXISTENT_SPACE_PROJECT_EXPERIMENT_CODE);
+        NON_EXISTENT_SPACE_PROJECT_EXPERIMENT_PE.setProject(NON_EXISTENT_SPACE_PROJECT_PE);
     }
 
     protected Mockery context;
@@ -118,7 +179,12 @@ public class AuthorizationTestCase extends AssertJUnit
         projectPE.setCode(projectCode);
         projectPE.setSpace(spacePE);
 
-        return new RoleWithIdentifier(RoleLevel.PROJECT, roleCode, null, projectPE);
+        return createProjectRole(roleCode, projectPE);
+    }
+
+    protected RoleWithIdentifier createProjectRole(RoleCode roleCode, ProjectPE project)
+    {
+        return new RoleWithIdentifier(RoleLevel.PROJECT, roleCode, null, project);
     }
 
     /**
@@ -133,7 +199,12 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceCode);
-        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, groupPE, null);
+        return createSpaceRole(roleCode, groupPE);
+    }
+
+    protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, SpacePE space)
+    {
+        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, space, null);
     }
 
     /**

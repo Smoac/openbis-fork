@@ -67,6 +67,20 @@ public interface IAuthorizationDataProvider
     public SpacePE tryGetSpace(String spaceCode);
 
     /**
+     * Returns the experiment for the given <var>techId</var>
+     * 
+     * @return <code>null</code> if no experiment can be found.
+     */
+    public ExperimentPE tryGetExperimentByTechId(TechId techIds);
+
+    /**
+     * Returns experiments for the given collection of <var>techIds</var>
+     * 
+     * @return Map of found experiments.
+     */
+    public Map<TechId, ExperimentPE> tryGetExperimentsByTechIds(Collection<TechId> techId);
+
+    /**
      * Returns the experiment for the given <var>permId</var> or <code>null</code>, if it does not exist.
      */
     public ExperimentPE tryGetExperimentByPermId(String permId);
@@ -102,7 +116,7 @@ public interface IAuthorizationDataProvider
      * 
      * @return Map of found projects.
      */
-    public Map<TechId, ProjectPE> tryGetProjectsByTechIds(Collection<TechId> techId);
+    public Map<TechId, ProjectPE> tryGetProjectsByTechIds(Collection<TechId> techIds);
 
     /**
      * Returns the project for the given <var>permId</var>

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataPEPredicate;
@@ -556,8 +557,11 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             person = session.tryGetPerson();
             allowedRoles = DefaultAccessController.getUserRoles(person);
             experimentPredicate = new ExperimentPEPredicate();
+            experimentPredicate.init(new AuthorizationDataProvider(daoFactory));
             samplesPredicate = new SamplePEPredicate();
+            samplesPredicate.init(new AuthorizationDataProvider(daoFactory));
             dataSetPredicate = new DataPEPredicate();
+            dataSetPredicate.init(new AuthorizationDataProvider(daoFactory));
         }
 
         void addTrashOperation(EntityKind entityKind, List<TechId> entityIds, boolean isOriginalDeletion)

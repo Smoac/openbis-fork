@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.jmock.Expectations;
 
@@ -39,8 +40,10 @@ public class ProjectPermIdPredicateTest extends CommonPredicateTest<PermId>
     private static final PermId NON_EXISTENT_PROJECT_PERM_ID = new PermId("nonExistentProjectPermId");
 
     @Override
-    protected void expectWithAll(IAuthorizationConfig config, final PermId object)
+    protected void expectWithAll(IAuthorizationConfig config, final List<PermId> objects)
     {
+        final PermId object = objects.get(0);
+
         prepareProvider(ALL_SPACES_PE);
         expectAuthorizationConfig(config);
 
@@ -76,19 +79,18 @@ public class ProjectPermIdPredicateTest extends CommonPredicateTest<PermId>
     }
 
     @Override
-    protected Status evaluateObject(PermId object, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<PermId> objects, RoleWithIdentifier... roles)
     {
         ProjectPermIdPredicate predicate = new ProjectPermIdPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0));
     }
 
     @Override
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(UserFailureException.class, t.getClass());
-        assertEquals("No project perm id specified.", t.getMessage());
+        assertException(t, UserFailureException.class, "No project perm id specified.");
     }
 
     @Override

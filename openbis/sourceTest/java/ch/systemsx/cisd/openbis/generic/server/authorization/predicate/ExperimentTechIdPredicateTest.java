@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -34,12 +34,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 /**
  * @author pkupczyk
  */
-public class ProjectTechIdPredicateTest extends CommonPredicateTest<TechId>
+public class ExperimentTechIdPredicateTest extends CommonPredicateTest<TechId>
 {
 
-    private static TechId PROJECT_ID = new TechId(123L);
+    private static TechId EXPERIMENT_ID = new TechId(123L);
 
-    private static TechId NON_EXISTENT_PROJECT_ID = new TechId(234L);
+    private static TechId NON_EXISTENT_EXPERIMENT_ID = new TechId(234L);
 
     @Override
     protected void expectWithAll(IAuthorizationConfig config, final List<TechId> objects)
@@ -52,22 +52,22 @@ public class ProjectTechIdPredicateTest extends CommonPredicateTest<TechId>
         context.checking(new Expectations()
             {
                 {
-                    allowing(provider).tryGetSpace(SpaceOwnerKind.PROJECT, object);
+                    allowing(provider).tryGetSpace(SpaceOwnerKind.EXPERIMENT, object);
 
-                    if (PROJECT_ID.equals(object))
+                    if (EXPERIMENT_ID.equals(object))
                     {
                         will(returnValue(SPACE_PE));
-                    } else if (NON_EXISTENT_PROJECT_ID.equals(object))
+                    } else if (NON_EXISTENT_EXPERIMENT_ID.equals(object))
                     {
                         will(returnValue(null));
                     }
 
-                    allowing(provider).tryGetProjectByTechId(object);
+                    allowing(provider).tryGetExperimentByTechId(object);
 
-                    if (PROJECT_ID.equals(object))
+                    if (EXPERIMENT_ID.equals(object))
                     {
-                        will(returnValue(SPACE_PROJECT_PE));
-                    } else if (NON_EXISTENT_PROJECT_ID.equals(object))
+                        will(returnValue(SPACE_PROJECT_EXPERIMENT_PE));
+                    } else if (NON_EXISTENT_EXPERIMENT_ID.equals(object))
                     {
                         will(returnValue(null));
                     }
@@ -80,10 +80,10 @@ public class ProjectTechIdPredicateTest extends CommonPredicateTest<TechId>
     {
         if (SPACE_PE.equals(spacePE) && SPACE_PROJECT_PE.equals(projectPE))
         {
-            return PROJECT_ID;
+            return EXPERIMENT_ID;
         } else if (NON_EXISTENT_SPACE_PE.equals(spacePE) && NON_EXISTENT_SPACE_PROJECT_PE.equals(projectPE))
         {
-            return NON_EXISTENT_PROJECT_ID;
+            return NON_EXISTENT_EXPERIMENT_ID;
         } else
         {
             throw new RuntimeException();
@@ -93,7 +93,7 @@ public class ProjectTechIdPredicateTest extends CommonPredicateTest<TechId>
     @Override
     protected Status evaluateObjects(List<TechId> objects, RoleWithIdentifier... roles)
     {
-        ProjectTechIdPredicate predicate = new ProjectTechIdPredicate();
+        ExperimentTechIdPredicate predicate = new ExperimentTechIdPredicate();
         predicate.init(provider);
         return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0));
     }

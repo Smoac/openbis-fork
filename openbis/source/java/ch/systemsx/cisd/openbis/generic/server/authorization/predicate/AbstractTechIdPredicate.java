@@ -23,7 +23,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromTechId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentTechId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectTechId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -74,6 +75,24 @@ public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<Tec
         {
             super(SpaceOwnerKind.EXPERIMENT);
         }
+
+        @Override
+        protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, TechId techId)
+        {
+            IProjectAuthorization<TechId> pa = new ProjectAuthorizationBuilder<TechId>()
+                    .withData(authorizationDataProvider)
+                    .withUser(new UserProviderFromPersonPE(person))
+                    .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                    .withObjects(new ProjectProviderFromExperimentTechId(techId))
+                    .build();
+
+            if (pa.getObjectsWithoutAccess().isEmpty())
+            {
+                return Status.OK;
+            }
+
+            return super.doEvaluation(person, allowedRoles, techId);
+        }
     }
 
     public static class SpaceTechIdPredicate extends AbstractTechIdPredicate
@@ -98,7 +117,7 @@ public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<Tec
                     .withData(authorizationDataProvider)
                     .withUser(new UserProviderFromPersonPE(person))
                     .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
-                    .withObjects(new ProjectProviderFromTechId(techId))
+                    .withObjects(new ProjectProviderFromProjectTechId(techId))
                     .build();
 
             if (pa.getObjectsWithoutAccess().isEmpty())

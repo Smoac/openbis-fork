@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -32,14 +33,14 @@ public class ProjectUpdatesPredicateWithTechIdTest extends ProjectTechIdPredicat
 {
 
     @Override
-    protected Status evaluateObject(TechId object, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<TechId> objects, RoleWithIdentifier... roles)
     {
         ProjectUpdatesDTO updates = null;
 
-        if (object != null)
+        if (objects.get(0) != null)
         {
             updates = new ProjectUpdatesDTO();
-            updates.setTechId(object);
+            updates.setTechId(objects.get(0));
         }
 
         ProjectUpdatesPredicate predicate = new ProjectUpdatesPredicate();
@@ -51,8 +52,7 @@ public class ProjectUpdatesPredicateWithTechIdTest extends ProjectTechIdPredicat
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(UserFailureException.class, t.getClass());
-        assertEquals("No project updates specified.", t.getMessage());
+        assertException(t, UserFailureException.class, "No project updates specified.");
     }
 
 }

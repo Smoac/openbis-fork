@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -33,7 +34,7 @@ public class ProjectPredicateTest extends CommonPredicateTest<Project>
 {
 
     @Override
-    protected void expectWithAll(IAuthorizationConfig config, Project object)
+    protected void expectWithAll(IAuthorizationConfig config, List<Project> objects)
     {
         expectAuthorizationConfig(config);
         prepareProvider(ALL_SPACES_PE);
@@ -46,19 +47,18 @@ public class ProjectPredicateTest extends CommonPredicateTest<Project>
     }
 
     @Override
-    protected Status evaluateObject(Project object, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<Project> objects, RoleWithIdentifier... roles)
     {
         ProjectPredicate predicate = new ProjectPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0));
     }
 
     @Override
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(UserFailureException.class, t.getClass());
-        assertEquals("No project specified.", t.getMessage());
+        assertException(t, UserFailureException.class, "No project specified.");
     }
 
     @Override

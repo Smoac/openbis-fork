@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
@@ -31,7 +32,7 @@ public class ProjectPEPredicateTest extends CommonPredicateTest<ProjectPE>
 {
 
     @Override
-    protected void expectWithAll(IAuthorizationConfig config, ProjectPE object)
+    protected void expectWithAll(IAuthorizationConfig config, List<ProjectPE> objects)
     {
         expectAuthorizationConfig(config);
     }
@@ -43,18 +44,18 @@ public class ProjectPEPredicateTest extends CommonPredicateTest<ProjectPE>
     }
 
     @Override
-    protected Status evaluateObject(ProjectPE object, RoleWithIdentifier... roles)
+    protected Status evaluateObjects(List<ProjectPE> objects, RoleWithIdentifier... roles)
     {
         ProjectPEPredicate predicate = new ProjectPEPredicate();
         predicate.init(provider);
-        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), object);
+        return predicate.evaluate(PERSON_PE, Arrays.asList(roles), objects.get(0));
     }
 
     @Override
     protected void assertWithNull(IAuthorizationConfig config, Status result, Throwable t)
     {
         assertNull(result);
-        assertEquals(NullPointerException.class, t.getClass());
+        assertException(t, NullPointerException.class, null);
     }
 
     @Override

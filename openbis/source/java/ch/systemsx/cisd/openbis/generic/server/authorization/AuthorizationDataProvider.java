@@ -67,6 +67,27 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
+    public ExperimentPE tryGetExperimentByTechId(TechId techId)
+    {
+        return daoFactory.getExperimentDAO().tryGetByTechId(techId);
+    }
+
+    @Override
+    public Map<TechId, ExperimentPE> tryGetExperimentsByTechIds(Collection<TechId> techIds)
+    {
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(TechId.asLongs(techIds));
+
+        Map<TechId, ExperimentPE> map = new HashMap<TechId, ExperimentPE>();
+
+        for (ExperimentPE experiment : experiments)
+        {
+            map.put(new TechId(experiment.getId()), experiment);
+        }
+
+        return map;
+    }
+
+    @Override
     public ExperimentPE tryGetExperimentByPermId(String permId)
     {
         return daoFactory.getExperimentDAO().tryGetByPermID(permId);
