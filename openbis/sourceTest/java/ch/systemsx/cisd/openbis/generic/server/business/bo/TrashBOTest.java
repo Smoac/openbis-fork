@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
@@ -66,8 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Piotr Buczek
  */
-@Friend(toClasses =
-{ ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
+@Friend(toClasses = { ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
 public final class TrashBOTest extends AbstractBOTest
 {
 
@@ -209,6 +209,9 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(daoFactory).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, null)));
+
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
                     will(returnValue(0));
                 }
@@ -234,7 +237,8 @@ public final class TrashBOTest extends AbstractBOTest
         {
             assertEquals(
                     "Deletion not possible because the following data sets are not deletable:\n"
-                            + " Status: ARCHIVE_PENDING, data sets: [DS1]", ex.getMessage());
+                            + " Status: ARCHIVE_PENDING, data sets: [DS1]",
+                    ex.getMessage());
         }
 
         context.assertIsSatisfied();
