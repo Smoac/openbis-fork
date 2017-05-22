@@ -170,9 +170,9 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
             {
                 String jettySSLIni = FileUtils.readFileToString(jettySSLIniFile);
                 jettySSLIni =
-                        jettySSLIni.replaceAll("jetty\\.keystore\\.password=.*", "jetty.keystore.password=" + keyStorePassword)
-                                .replaceAll("jetty\\.keymanager\\.password=.*", "jetty.keymanager.password=" + keyPassword)
-                                .replaceAll("jetty\\.truststore\\.password=.*", "jetty.truststore.password=" + keyStorePassword);
+                        jettySSLIni.replaceAll("jetty\\.sslContext\\.keyStorePassword=.*", "jetty.sslContext.keyStorePassword=" + keyStorePassword)
+                                .replaceAll("jetty\\.sslContext\\.keyManagerPassword=.*", "jetty.sslContext.keyManagerPassword=" + keyPassword)
+                                .replaceAll("jetty\\.sslContext\\.trustStorePassword=.*", "jetty.sslContext.trustStorePassword=" + keyStorePassword);
 
                 FileUtils.writeStringToFile(jettySSLIniFile, jettySSLIni);
             } catch (IOException ex)
