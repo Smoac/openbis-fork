@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, SIS
+ * Copyright 2017 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph;
 
-public class EdgeNodePair
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+
+/**
+ * 
+ *
+ * @author Ganime Betul Akin
+ */
+public interface IEntityRetriever
 {
-    private final Edge edge;
+    public EntityGraph<INode> getEntityGraph(String spaceId);
 
-    private final INode node;
-
-    public EdgeNodePair(Edge edge, INode node)
-    {
-        this.edge = edge;
-        this.node = node;
-    }
-
-    public Edge getEdge()
-    {
-        return edge;
-    }
-
-    public INode getNode()
-    {
-        return node;
-    }
+    public List<Material> fetchMaterials();
 }

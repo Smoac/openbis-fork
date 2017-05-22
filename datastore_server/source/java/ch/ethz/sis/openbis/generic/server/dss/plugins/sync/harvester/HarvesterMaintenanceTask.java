@@ -199,7 +199,8 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 Date newCutOffTimestamp = new Date();
 
                 EntitySynchronizer synchronizer =
-                        new EntitySynchronizer(service, dataStoreCode, storeRoot, cutOffTimestamp, notSyncedDataSetCodes,
+                        new EntitySynchronizer(service, dataStoreCode, storeRoot, cutOffTimestamp, timestamps.lastIncSyncTimestamp,
+                                notSyncedDataSetCodes,
                                 blackListedDataSetCodes,
                                 notSyncedAttachmentHolderCodes,
                                 context, config,

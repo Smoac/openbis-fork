@@ -27,11 +27,11 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 
-public class EntityGraph<N extends Node<?>>
+public class EntityGraph<N extends INode>
 {
-    private final Map<String, N> nodes;
+    private final Map<String, INode> nodes;
 
-    private final Map<N, List<EdgeNodePair>> adjacencyMap;
+    private final Map<INode, List<EdgeNodePair>> adjacencyMap;
 
     // the following flags make sure then we don't end up in a cycle when a sample is the component of a its child sample
     // or when a data set is the component of its child data set
@@ -41,8 +41,8 @@ public class EntityGraph<N extends Node<?>>
 
     public EntityGraph()
     {
-        this.nodes = new HashMap<String, N>();
-        this.adjacencyMap = new HashMap<N, List<EdgeNodePair>>();
+        this.nodes = new HashMap<String, INode>();
+        this.adjacencyMap = new HashMap<INode, List<EdgeNodePair>>();
     }
 
     public boolean isVisitedAsParent(String identifier)
@@ -65,7 +65,7 @@ public class EntityGraph<N extends Node<?>>
         visitedContainers.add(identifier);
     }
 
-    public void addEdge(N startNode, N endNode, Edge edge)
+    public void addEdge(INode startNode, INode endNode, Edge edge)
     {
         List<EdgeNodePair> adjacencyList = adjacencyMap.get(startNode);
         if (adjacencyList == null)
@@ -86,12 +86,12 @@ public class EntityGraph<N extends Node<?>>
             }
         }
         EdgeNodePair enPair = new EdgeNodePair(edge, endNode);
-        startNode.addConnection(enPair);
+        // startNode.addConnection(enPair);
         adjacencyList.add(enPair);
         addNode(endNode);
     }
 
-    public void addNode(N node)
+    public void addNode(INode node)
     {
         String identifier = node.getIdentifier();
         if (nodes.containsKey(identifier) == false)
@@ -103,9 +103,9 @@ public class EntityGraph<N extends Node<?>>
     }
 
 
-    public List<N> getNodes()
+    public List<INode> getNodes()
     {
-        return new ArrayList<N>(nodes.values());
+        return new ArrayList<INode>(nodes.values());
     }
 
     public String getEdgesForDOTRepresentation()
@@ -121,7 +121,7 @@ public class EntityGraph<N extends Node<?>>
     private String getEdgesForNode(boolean forTest)
     {
         StringBuffer sb = new StringBuffer();
-        for (Node<?> node : getNodes())
+        for (INode node : getNodes())
         {
             List<EdgeNodePair> list = adjacencyMap.get(node);
             if (list.isEmpty() && node.getEntityKind().equals("DATA_SET") == false)
@@ -136,7 +136,7 @@ public class EntityGraph<N extends Node<?>>
             }
             for (EdgeNodePair edgeNodePair : list)
             {
-                Node<?> neighbourNode = edgeNodePair.getNode();
+                INode neighbourNode = edgeNodePair.getNode();
                 sb.append("\"" + node.getCode() + "(" + getDifferentiatorStr(node, forTest) + ")\" -> "
                         + getRightHandNodeRep(neighbourNode, forTest));
                 if (edgeNodePair.getEdge().getType().equals(Edge.COMPONENT))
@@ -154,24 +154,20 @@ public class EntityGraph<N extends Node<?>>
         return sb.toString();
     }
 
-    private String getRightHandNodeRep(Node<?> node, boolean forTest)
+    private String getRightHandNodeRep(INode node, boolean forTest)
     {
         return "\"" + node.getCode() + "(" + getDifferentiatorStr(node, forTest) + ")\"";
     }
 
-    private String getDifferentiatorStr(Node<?> node, boolean forTest)
+    private String getDifferentiatorStr(INode node, boolean forTest)
     {
         if (forTest == false)
         {
             String differentiatorStr = "";
-            if (node.getEntityKind().equals(SyncEntityKind.EXPERIMENT.getLabel()) || node.getEntityKind().equals(SyncEntityKind.PROJECT.getLabel())) // in
-                                                                                                                                             // order
-                                                                                                                                             // to
-                                                                                                                                             // differentiate
-                                                                                                                                             // between
-                                                                                                     // experiments/projects in the same space but
-                                                                                                     // under different
+            // in order
+            // to differentiate between experiments/projects in the same space but under different
             // projects/spaces
+            if (node.getEntityKind().equals(SyncEntityKind.EXPERIMENT.getLabel()) || node.getEntityKind().equals(SyncEntityKind.PROJECT.getLabel()))
             {
                 differentiatorStr = node.getIdentifier();
                 ;
@@ -218,10 +214,10 @@ public class EntityGraph<N extends Node<?>>
     
     public void printGraph(String space)
     {
-        for (Node<?> node : nodes.values())
-        {
-            // printNeighboursForNode(node);
-        }
+        // for (INode node : nodes.values())
+        // {
+        // printNeighboursForNode(node);
+        // }
         printGraphInDOT(space);
     }
 
@@ -247,7 +243,7 @@ public class EntityGraph<N extends Node<?>>
         List<EdgeNodePair> neighboursForEntityWithIdentifier = getNeighboursForEntityWithIdentifier(nodeIdentifierFrom, null);
         for (EdgeNodePair edgeNodePair : neighboursForEntityWithIdentifier)
         {
-            Node<?> connectedNode = edgeNodePair.getNode();
+            INode connectedNode = edgeNodePair.getNode();
             String connectionType = edgeNodePair.getEdge().getType();
             if (connectedNode.getIdentifier().equals(nodeIdentifierTo)
                     && connType.equals(connectionType))
@@ -270,13 +266,13 @@ public class EntityGraph<N extends Node<?>>
 
     public List<EdgeNodePair> getNeighboursForEntityWithIdentifier(String identifier, String connType)
     {
-        Node<?> node = getNodeForIdentifier(identifier);
+        INode node = getNodeForIdentifier(identifier);
         return getNeighboursForEntity(node, connType);
     }
 
     public List<EdgeNodePair> getNeighboursForEntity(String permId, String connType)
     {
-        Node<?> node = getNodeWithPermId(permId);
+        INode node = getNodeWithPermId(permId);
         // TODO throw an exception if node not found
         if (node == null)
         {
@@ -285,7 +281,7 @@ public class EntityGraph<N extends Node<?>>
         return getNeighboursForEntity(node, connType);
     }
 
-    private List<EdgeNodePair> getNeighboursForEntity(Node<?> node, String connType)
+    private List<EdgeNodePair> getNeighboursForEntity(INode node, String connType)
     {
         if (adjacencyMap.containsKey(node) == false)
         {
@@ -304,10 +300,10 @@ public class EntityGraph<N extends Node<?>>
         return list;
     }
 
-    public Node<?> getNodeWithPermId(String permId)
+    public INode getNodeWithPermId(String permId)
     {
         // TODO make this more efficient by mapping nodes by permId as well
-        for (Node<?> node : nodes.values())
+        for (INode node : nodes.values())
         {
             if (node.getPermId().equals(permId))
             {
@@ -317,7 +313,7 @@ public class EntityGraph<N extends Node<?>>
         return null;
     }
 
-    public Node<?> getNodeForIdentifier(String identifier)
+    public INode getNodeForIdentifier(String identifier)
     {
         return nodes.get(identifier);
         // for (Node<?> node : nodes.values())

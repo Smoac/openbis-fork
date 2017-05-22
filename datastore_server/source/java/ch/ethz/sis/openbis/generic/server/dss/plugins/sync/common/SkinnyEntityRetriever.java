@@ -32,9 +32,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
@@ -44,6 +47,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -54,13 +59,13 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Ed
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.IEntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.INode;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.SkinnyNode;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
 
-public class EntityRetriever implements IEntityRetriever
+public class SkinnyEntityRetriever implements IEntityRetriever
 {
     private EntityGraph<INode> graph = new EntityGraph<INode>();
 
@@ -70,22 +75,22 @@ public class EntityRetriever implements IEntityRetriever
 
     private final String sessionToken;
 
-    private EntityRetriever(IApplicationServerApi v3Api, String sessionToken, IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
+    private SkinnyEntityRetriever(IApplicationServerApi v3Api, String sessionToken, IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
         this.v3Api = v3Api;
         this.sessionToken = sessionToken;
         this.masterDataRegistrationTransaction = masterDataRegistrationTransaction;
     }
     
-    public static EntityRetriever createWithMasterDataRegistationTransaction(IApplicationServerApi v3Api, String sessionToken,
+    public static SkinnyEntityRetriever createWithMasterDataRegistationTransaction(IApplicationServerApi v3Api, String sessionToken,
             IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
-        return new EntityRetriever(v3Api, sessionToken, masterDataRegistrationTransaction);
+        return new SkinnyEntityRetriever(v3Api, sessionToken, masterDataRegistrationTransaction);
     }
 
-    public static EntityRetriever createWithSessionToken(IApplicationServerApi v3Api, String sessionToken)
+    public static SkinnyEntityRetriever createWithSessionToken(IApplicationServerApi v3Api, String sessionToken)
     {
-        return new EntityRetriever(v3Api, sessionToken, null);
+        return new SkinnyEntityRetriever(v3Api, sessionToken, null);
     }
 
     @Override
@@ -113,7 +118,7 @@ public class EntityRetriever implements IEntityRetriever
         return v3Api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
     }
 
-    private void buildEntityGraph(String spaceId)
+    public void buildEntityGraph(String spaceId)
     {
         graph = new EntityGraph<INode>();
 
@@ -131,12 +136,16 @@ public class EntityRetriever implements IEntityRetriever
 
         ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
         projectFetchOptions.withSpace();
-        projectFetchOptions.withAttachments();
 
         List<Project> projects = v3Api.searchProjects(sessionToken, prjCriteria, projectFetchOptions).getObjects();
         for (Project project : projects)
         {
-            Node<Project> prjNode = new Node<Project>(project);
+            SkinnyNode prjNode = new SkinnyNode(project.getPermId().toString(), 
+                    SyncEntityKind.PROJECT.getLabel(), 
+                    project.getIdentifier().toString(), 
+                    null,
+                    project.getSpace(),
+                    project.getCode());
             graph.addNode(prjNode);
             findExperiments(prjNode);
         }
@@ -153,18 +162,20 @@ public class EntityRetriever implements IEntityRetriever
     private void findSharedSamples()
     {
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
         fetchOptions.withType();
-        fetchOptions.withExperiment();
         fetchOptions.withSpace();
-        fetchOptions.withAttachments();
 
         List<Sample> samples = v3Api.searchSamples(sessionToken, new SampleSearchCriteria(), fetchOptions).getObjects();
         for (Sample sample : samples)
         {
             if (sample.getSpace() == null)
             {
-                Node<Sample> sampleNode = new Node<Sample>(sample);
+                INode sampleNode = new SkinnyNode(sample.getPermId().toString(),
+                        SyncEntityKind.SAMPLE.getLabel(),
+                        sample.getIdentifier().toString(),
+                        sample.getType().getCode(),
+                        null,
+                        sample.getCode());
                 graph.addNode(sampleNode);
                 findChildAndComponentSamples(sampleNode);
                 findAndAttachDataSets(sampleNode);
@@ -172,21 +183,24 @@ public class EntityRetriever implements IEntityRetriever
         }
     }
 
-    private void findExperiments(Node<Project> prjNode)
+    private void findExperiments(INode prjNode)
     {
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
         criteria.withProject().withCode().thatEquals(prjNode.getCode());
-        criteria.withProject().withSpace().withCode().thatEquals(prjNode.getEntity().getSpace().getCode());
+        criteria.withProject().withSpace().withCode().thatEquals(prjNode.getSpace().getCode());
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.withProperties();
         fetchOptions.withProject().withSpace();
         fetchOptions.withType();
-        fetchOptions.withAttachments();
 
         List<Experiment> experiments = v3Api.searchExperiments(sessionToken, criteria, fetchOptions).getObjects();
         for (Experiment exp : experiments)
         {
-            Node<Experiment> expNode = new Node<Experiment>(exp);
+            INode expNode = new SkinnyNode(exp.getPermId().toString(),
+                    SyncEntityKind.EXPERIMENT.getLabel(),
+                    exp.getIdentifier().toString(),
+                    exp.getType().getCode(),
+                    exp.getProject().getSpace(),
+                    exp.getCode());
             graph.addEdge(prjNode, expNode, new Edge(CONNECTION));
             findSamplesForExperiment(expNode);
             findAndAttachDataSetsForExperiment(expNode);
@@ -201,39 +215,44 @@ public class EntityRetriever implements IEntityRetriever
         criteria.withAndOperator();
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
         fetchOptions.withType();
-        fetchOptions.withExperiment();
         fetchOptions.withSpace();
-        fetchOptions.withAttachments();
 
         List<Sample> samples = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
         for (Sample sample : samples)
         {
-            Node<Sample> sampleNode = new Node<Sample>(sample);
+            INode sampleNode = new SkinnyNode(sample.getPermId().toString(),
+                    SyncEntityKind.SAMPLE.getLabel(),
+                    sample.getIdentifier().toString(),
+                    sample.getType().getCode(),
+                    sample.getSpace(),
+                    sample.getCode());
             graph.addNode(sampleNode);
             findChildAndComponentSamples(sampleNode);
             findAndAttachDataSets(sampleNode);
         }
     }
 
-    private void findSamplesForExperiment(Node<Experiment> expNode)
+    private void findSamplesForExperiment(INode expNode)
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withExperiment().withId().thatEquals(expNode.getEntity().getPermId());
+        criteria.withExperiment().withId().thatEquals(new ExperimentPermId(expNode.getPermId()));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
         fetchOptions.withDataSets();
         fetchOptions.withType();
         fetchOptions.withExperiment();
         fetchOptions.withSpace();
-        fetchOptions.withAttachments();
 
         List<Sample> samples = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
         for (Sample sample : samples)
         {
-            Node<Sample> sampleNode = new Node<Sample>(sample);
+            INode sampleNode = new SkinnyNode(sample.getPermId().toString(),
+                    SyncEntityKind.SAMPLE.getLabel(),
+                    sample.getIdentifier().toString(),
+                    sample.getType().getCode(),
+                    sample.getSpace(),
+                    sample.getCode());
             graph.addEdge(expNode, sampleNode, new Edge(CONNECTION));
 
             findAndAttachDataSets(sampleNode);
@@ -241,55 +260,62 @@ public class EntityRetriever implements IEntityRetriever
         }
     }
 
-    private void findAndAttachDataSetsForExperiment(Node<Experiment> expNode)
+    private void findAndAttachDataSetsForExperiment(INode expNode)
     {
         DataSetSearchCriteria dsCriteria = new DataSetSearchCriteria();
-        dsCriteria.withExperiment().withId().thatEquals(expNode.getEntity().getIdentifier());
+        dsCriteria.withExperiment().withId().thatEquals(new ExperimentIdentifier(expNode.getIdentifier()));
 
         DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
         dsFetchOptions.withType();
         dsFetchOptions.withSample();
         dsFetchOptions.withExperiment();
-        dsFetchOptions.withProperties();
+        // dsFetchOptions.withProperties();
 
         List<DataSet> dataSets = v3Api.searchDataSets(sessionToken, dsCriteria, dsFetchOptions).getObjects();
         for (DataSet dataSet : dataSets)
         {
-            Node<DataSet> dataSetNode = new Node<DataSet>(dataSet);
+            INode dataSetNode = new SkinnyNode(dataSet.getPermId().toString(),
+                    SyncEntityKind.DATA_SET.getLabel(),
+                    dataSet.getCode().toString(),
+                    dataSet.getType().getCode(),
+                    null,
+                    dataSet.getCode());
             graph.addEdge(expNode, dataSetNode, new Edge(CONNECTION));
             findChildAndContainedDataSets(dataSetNode);
         }
     }
 
-    private void findAndAttachDataSets(Node<Sample> sampleNode)
+    private void findAndAttachDataSets(INode sampleNode)
     {
         DataSetSearchCriteria dsCriteria = new DataSetSearchCriteria();
-        dsCriteria.withSample().withId().thatEquals(sampleNode.getEntity().getIdentifier());
+        dsCriteria.withSample().withId().thatEquals(new SampleIdentifier(sampleNode.getIdentifier()));
 
         DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
         dsFetchOptions.withType();
         dsFetchOptions.withSample();
         dsFetchOptions.withExperiment();
-        dsFetchOptions.withProperties();
 
         List<DataSet> dataSets = v3Api.searchDataSets(sessionToken, dsCriteria, dsFetchOptions).getObjects();
         for (DataSet dataSet : dataSets)
         {
-            Node<DataSet> dataSetNode = new Node<DataSet>(dataSet);
+            INode dataSetNode = new SkinnyNode(dataSet.getPermId().toString(),
+                    SyncEntityKind.DATA_SET.getLabel(),
+                    dataSet.getCode().toString(),
+                    dataSet.getType().getCode(),
+                    null,
+                    dataSet.getCode());
             graph.addEdge(sampleNode, dataSetNode, new Edge(CONNECTION));
             findChildAndContainedDataSets(dataSetNode);
         }
     }
 
-    private void findChildAndComponentSamples(Node<Sample> sampleNode)
+    private void findChildAndComponentSamples(INode sampleNode)
     {
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
         fetchOptions.withType();
         fetchOptions.withDataSets();
         fetchOptions.withExperiment();
         fetchOptions.withSpace();
-        fetchOptions.withAttachments();
 
         // first find the children
         if (graph.isVisitedAsParent(sampleNode.getIdentifier()) == false)
@@ -306,14 +332,19 @@ public class EntityRetriever implements IEntityRetriever
         }
     }
 
-    private void findComponentSamples(Node<Sample> sampleNode, SampleFetchOptions fetchOptions)
+    private void findComponentSamples(INode sampleNode, SampleFetchOptions fetchOptions)
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withContainer().withId().thatEquals(sampleNode.getEntity().getPermId());
+        criteria.withContainer().withId().thatEquals(new SamplePermId(sampleNode.getPermId()));
         List<Sample> components = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
         for (Sample sample : components)
         {
-            Node<Sample> subSampleNode = new Node<Sample>(sample);
+            INode subSampleNode = new SkinnyNode(sample.getPermId().toString(),
+                    SyncEntityKind.SAMPLE.getLabel(),
+                    sample.getIdentifier().toString(),
+                    sample.getType().getCode(),
+                    sample.getSpace(),
+                    sample.getCode());
             graph.addEdge(sampleNode, subSampleNode, new Edge(COMPONENT));
 
             findAndAttachDataSets(subSampleNode);
@@ -321,14 +352,19 @@ public class EntityRetriever implements IEntityRetriever
         }
     }
 
-    private void findChildSamples(Node<Sample> sampleNode, SampleFetchOptions fetchOptions)
+    private void findChildSamples(INode sampleNode, SampleFetchOptions fetchOptions)
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withParents().withId().thatEquals(sampleNode.getEntity().getPermId());
+        criteria.withParents().withId().thatEquals(new SamplePermId(sampleNode.getPermId()));
         List<Sample> children = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
         for (Sample sample : children)
         {
-            Node<Sample> subSampleNode = new Node<Sample>(sample);
+            INode subSampleNode = new SkinnyNode(sample.getPermId().toString(),
+                    SyncEntityKind.SAMPLE.getLabel(),
+                    sample.getIdentifier().toString(),
+                    sample.getType().getCode(),
+                    sample.getSpace(),
+                    sample.getCode());
             graph.addEdge(sampleNode, subSampleNode, new Edge(CHILD));
    
             findAndAttachDataSets(subSampleNode);
@@ -336,13 +372,12 @@ public class EntityRetriever implements IEntityRetriever
         }
     }
 
-    private void findChildAndContainedDataSets(Node<DataSet> dsNode)
+    private void findChildAndContainedDataSets(INode dsNode)
     {
         DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
         dsFetchOptions.withType();
         dsFetchOptions.withSample();
         dsFetchOptions.withExperiment();
-        dsFetchOptions.withProperties();
 
         // first find the children
         if (graph.isVisitedAsParent(dsNode.getIdentifier()) == false)
@@ -359,27 +394,37 @@ public class EntityRetriever implements IEntityRetriever
         }
     }
 
-    private void findComponentDataSets(Node<DataSet> dsNode, DataSetFetchOptions dsFetchOptions)
+    private void findComponentDataSets(INode dsNode, DataSetFetchOptions dsFetchOptions)
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        criteria.withContainer().withId().thatEquals(dsNode.getEntity().getPermId());
+        criteria.withContainer().withId().thatEquals(new DataSetPermId(dsNode.getPermId()));
         List<DataSet> components = v3Api.searchDataSets(sessionToken, criteria, dsFetchOptions).getObjects();
         for (DataSet ds : components)
         {
-            Node<DataSet> containedDsNode = new Node<DataSet>(ds);
+            INode containedDsNode = new SkinnyNode(ds.getPermId().toString(),
+                    SyncEntityKind.DATA_SET.getLabel(),
+                    ds.getCode().toString(),
+                    ds.getType().getCode(),
+                    null,
+                    ds.getCode());
             graph.addEdge(dsNode, containedDsNode, new Edge(COMPONENT));
             findChildAndContainedDataSets(containedDsNode);
         }
     }
 
-    private void findChildDataSets(Node<DataSet> dsNode, DataSetFetchOptions dsFetchOptions)
+    private void findChildDataSets(INode dsNode, DataSetFetchOptions dsFetchOptions)
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        criteria.withParents().withId().thatEquals(dsNode.getEntity().getPermId());
+        criteria.withParents().withId().thatEquals(new DataSetPermId(dsNode.getPermId()));
         List<DataSet> children = v3Api.searchDataSets(sessionToken, criteria, dsFetchOptions).getObjects();
         for (DataSet ds : children)
         {
-            Node<DataSet> childDsNode = new Node<DataSet>(ds);
+            INode childDsNode = new SkinnyNode(ds.getPermId().toString(),
+                    SyncEntityKind.DATA_SET.getLabel(),
+                    ds.getCode().toString(),
+                    ds.getType().getCode(),
+                    null,
+                    ds.getCode());
             graph.addEdge(dsNode, childDsNode, new Edge(CHILD));
 
             findChildAndContainedDataSets(childDsNode);
@@ -393,7 +438,6 @@ public class EntityRetriever implements IEntityRetriever
 
         final MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withType();
-        fetchOptions.withProperties();
         
         SearchResult<Material> searchResult =
                 v3Api.searchMaterials(sessionToken, criteria, fetchOptions);

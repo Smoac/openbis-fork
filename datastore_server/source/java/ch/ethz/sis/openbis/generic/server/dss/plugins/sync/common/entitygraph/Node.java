@@ -40,13 +40,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 
-public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHolder & IPermIdHolder & IRegistrationDateHolder & IRegistratorHolder>
+public class Node<T extends IModificationDateHolder & IModifierHolder & IRegistrationDateHolder & IRegistratorHolder & IPermIdHolder & ICodeHolder>
+        implements INode
 {
-    private final T entity;
-
     private final List<EdgeNodePair> connections;
 
     private final List<Attachment> attachments;
+
+    protected final T entity;
 
     public T getEntity()
     {
@@ -93,16 +94,7 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
         return true;
     }
 
-    public String getCode()
-    {
-        return this.entity.getCode();
-    }
-
-    public String getPermId()
-    {
-        return this.entity.getPermId().toString();
-    }
-
+    @Override
     public Map<String, String> getPropertiesOrNull()
     {
         if (IPropertiesHolder.class.isAssignableFrom(entity.getClass()) == false)
@@ -114,14 +106,7 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
 
     public String getSpaceOrNull()
     {
-        if(entity instanceof Experiment) {
-           return  ((Experiment)entity).getProject().getSpace().getCode();
-        }
-        if (ISpaceHolder.class.isAssignableFrom(entity.getClass()) == false)
-        {
-            return null;
-        }
-        Space space = ((ISpaceHolder) entity).getSpace();
+        Space space = getSpace();
         if (space == null)
         {
             return null;
@@ -182,28 +167,7 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
         return null;
     }
 
-    public String getIdentifier()
-    {
-        if (entity instanceof Project)
-        {
-            return ((Project) entity).getIdentifier().getIdentifier();
-        }
-        if (entity instanceof Experiment)
-        {
-            return ((Experiment) entity).getIdentifier().getIdentifier();
-        }
-        if (entity instanceof Sample)
-        {
-            return ((Sample) entity).getIdentifier().getIdentifier();
-        }
-        else if (entity instanceof DataSet)
-        {
-            return ((DataSet) entity).getPermId().toString();
-        }
-        // TODO exception
-        return null;
-    }
-
+    @Override
     public String getTypeCodeOrNull()
     {
         if (IPropertiesHolder.class.isAssignableFrom(entity.getClass()) == false)
@@ -225,33 +189,7 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
         return null;
     }
 
-    public String getEntityKind()
-    {
-        if (entity instanceof Project)
-        {
-            return SyncEntityKind.PROJECT.getLabel();
-        }
-        else if (entity instanceof Experiment)
-        {
-            return SyncEntityKind.EXPERIMENT.getLabel();
-        }
-        else if (entity instanceof Sample)
-        {
-            return SyncEntityKind.SAMPLE.getLabel();
-        }
-        else if (entity instanceof DataSet)
-        {
-            return SyncEntityKind.DATA_SET.getLabel();
-        }
-        // TODO exception
-        return null;
-    }
-
-    public Date getRegistrationDate()
-    {
-        return entity.getRegistrationDate();
-    }
-
+    @Override
     public void addConnection(EdgeNodePair enPair)
     {
         connections.add(enPair);
@@ -276,5 +214,87 @@ public class Node<T extends ICodeHolder & IModificationDateHolder & IModifierHol
             return holder.getAttachments();
         }
         return null;
+    }
+
+    @Override
+    public String getPermId()
+    {
+        return this.entity.getPermId().toString();
+    }
+
+    @Override
+    public String getIdentifier()
+    {
+        if (entity instanceof Project)
+        {
+            return ((Project) entity).getIdentifier().getIdentifier();
+        }
+        if (entity instanceof Experiment)
+        {
+            return ((Experiment) entity).getIdentifier().getIdentifier();
+        }
+        if (entity instanceof Sample)
+        {
+            return ((Sample) entity).getIdentifier().getIdentifier();
+        }
+        else if (entity instanceof DataSet)
+        {
+            return ((DataSet) entity).getPermId().toString();
+        }
+        // TODO exception
+        return null;
+    }
+
+    @Override
+    public String getCode()
+    {
+        return this.entity.getCode();
+    }
+
+    public Date getRegistrationDate()
+    {
+        return entity.getRegistrationDate();
+    }
+
+    @Override
+    public String getEntityKind()
+    {
+        if (entity instanceof Project)
+        {
+            return SyncEntityKind.PROJECT.getLabel();
+        }
+        else if (entity instanceof Experiment)
+        {
+            return SyncEntityKind.EXPERIMENT.getLabel();
+        }
+        else if (entity instanceof Sample)
+        {
+            return SyncEntityKind.SAMPLE.getLabel();
+        }
+        else if (entity instanceof DataSet)
+        {
+            return SyncEntityKind.DATA_SET.getLabel();
+        }
+        // TODO exception
+        return null;
+    }
+
+    @Override
+    public Space getSpace()
+    {
+        if (entity instanceof Experiment)
+        {
+            return ((Experiment) entity).getProject().getSpace();
+        }
+        if (ISpaceHolder.class.isAssignableFrom(entity.getClass()) == false)
+        {
+            return null;
+        }
+        Space space = ((ISpaceHolder) entity).getSpace();
+        if (space == null)
+        {
+            return null;
+        }
+        return space;
     }
 }

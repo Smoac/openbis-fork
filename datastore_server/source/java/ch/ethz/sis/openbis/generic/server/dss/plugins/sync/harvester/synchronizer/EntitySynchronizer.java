@@ -59,10 +59,11 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.EntityRetriever;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SkinnyEntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.EntityGraph;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.IEntityRetriever;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.INode;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.ParallelizedExecutionPreferences;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
@@ -150,6 +151,10 @@ public class EntitySynchronizer
 
     private final Date lastSyncTimestamp;
 
+    // the following indicates the actual value in the file, not the cutoff calculated according to full sync prefs
+    // it is later read in data set deletions.
+    private final Date lastIncSyncTimestamp;
+
     private final Set<String> dataSetsCodesToRetry;
 
     private final Set<String> attachmentHolderCodesToRetry;
@@ -161,7 +166,8 @@ public class EntitySynchronizer
     private final Set<String> blackListedDataSetCodes;
 
     public EntitySynchronizer(IEncapsulatedOpenBISService service, String dataStoreCode, File storeRoot, Date lastSyncTimestamp,
-            Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes, Set<String> attachmentHolderCodesToRetry,
+            Date lastIncSyncTimestamp, Set<String> dataSetsCodesToRetry, Set<String> blackListedDataSetCodes,
+            Set<String> attachmentHolderCodesToRetry,
             DataSetProcessingContext context,
             SyncConfig config, Logger operationLog)
     {
@@ -169,6 +175,7 @@ public class EntitySynchronizer
         this.dataStoreCode = dataStoreCode;
         this.storeRoot = storeRoot;
         this.lastSyncTimestamp = lastSyncTimestamp;
+        this.lastIncSyncTimestamp = lastIncSyncTimestamp;
         this.dataSetsCodesToRetry = dataSetsCodesToRetry;
         this.attachmentHolderCodesToRetry = attachmentHolderCodesToRetry;
         this.blackListedDataSetCodes = blackListedDataSetCodes;
@@ -232,9 +239,11 @@ public class EntitySynchronizer
             verboseLogEntityOperations(builder.getDetails());
         }
 
+        // MultiKeyMap<String, String> newEntities = new MultiKeyMap<String, String>();
         if (config.isDryRun() == false)
         {
             AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
+            // newEntities = getNewEntities(builder);
             operationLog.info("Entity operation result: " + operationResult);
         }
         operationLog.info("\n");
@@ -244,7 +253,7 @@ public class EntitySynchronizer
 
         if (config.isVerbose())
         {
-            verboseLogProcessAttachments(attachmentHoldersToProcess);
+            verboseLogProcessAttachments(attachmentHoldersToProcess); // newEntities
         }
         List<String> notSyncedAttachmentsHolders = new ArrayList<String>();
         if (config.isDryRun() == false)
@@ -306,11 +315,32 @@ public class EntitySynchronizer
         return data.getResourceListTimestamp();
     }
 
+    private MultiKeyMap<String, String> getNewEntities(AtomicEntityOperationDetailsBuilder builder)
+    {
+        MultiKeyMap<String, String> newEntities = new MultiKeyMap<String, String>();
+        List<NewSample> sampleRegistrations = builder.getDetails().getSampleRegistrations();
+        for (NewSample newSample : sampleRegistrations)
+        {
+            newEntities.put(SyncEntityKind.SAMPLE.getLabel(), newSample.getPermID(), newSample.getIdentifier());
+        }
+        List<NewExperiment> experimentRegistrations = builder.getDetails().getExperimentRegistrations();
+        for (NewExperiment newExperiment : experimentRegistrations)
+        {
+            newEntities.put(SyncEntityKind.EXPERIMENT.getLabel(), newExperiment.getPermID(), newExperiment.getIdentifier());
+        }
+        List<NewProject> projectRegistrations = builder.getDetails().getProjectRegistrations();
+        for (NewProject newProject : projectRegistrations)
+        {
+            newEntities.put(SyncEntityKind.PROJECT.getLabel(), newProject.getPermID(), newProject.getIdentifier());
+        }
+        return newEntities;
+    }
+
     private void verboseLogPhysicalDataSetRegistrations(Map<String, IncomingDataSet> physicalDSMap)
     {
         if (physicalDSMap.isEmpty() == false)
         {
-            operationLog.info("-------The following physical data sets will be registered-------");
+            operationLog.info("-------The following physical data sets will be processed-------");
             for (String dsCode : physicalDSMap.keySet())
             {
                 operationLog.info(dsCode);
@@ -318,13 +348,22 @@ public class EntitySynchronizer
         }
     }
 
-    private void verboseLogProcessAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess)
+    private void verboseLogProcessAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess) // MultiKeyMap<String, String> newEntities
     {
         if (attachmentHoldersToProcess.isEmpty() == false)
         {
             operationLog.info("-------Attachments for the following entities will be processed-------");
             for (IncomingEntity<?> holder : attachmentHoldersToProcess)
             {
+//                // the following is done to not list holders in the log when they are just being created and have no attachments
+//                // updated ones will logged because the attachments might have been deleted.
+//                if (newEntities.containsKey(holder.getEntityKind().getLabel(), holder.getPermID()) == true)
+//                {
+//                    if (holder.hasAttachments() == false)
+//                    {
+//                        continue;
+//                    }
+//                }
                 operationLog.info(holder.getIdentifer());
             }
         }
@@ -731,8 +770,8 @@ public class EntitySynchronizer
     private void processDeletions(ResourceListParserData data) throws NoSuchAlgorithmException, UnsupportedEncodingException
     {
         String sessionToken = ServiceProvider.getOpenBISService().getSessionToken();
-        EntityRetriever entityRetriever =
-                EntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), sessionToken);
+        IEntityRetriever entityRetriever =
+                SkinnyEntityRetriever.createWithSessionToken(ServiceProvider.getV3ApplicationService(), sessionToken);
 
         Set<String> incomingProjectPermIds = data.getProjectsToProcess().keySet();
         Set<String> incomingExperimentPermIds = data.getExperimentsToProcess().keySet();
@@ -752,9 +791,9 @@ public class EntitySynchronizer
         // first find out the entities to be deleted
         for (String harvesterSpaceId : data.getHarvesterSpaceList())
         {
-            EntityGraph<Node<?>> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpaceId);
-            List<Node<?>> entities = harvesterEntityGraph.getNodes();
-            for (Node<?> entity : entities)
+            EntityGraph<INode> harvesterEntityGraph = entityRetriever.getEntityGraph(harvesterSpaceId);
+            List<INode> entities = harvesterEntityGraph.getNodes();
+            for (INode entity : entities)
             {
                 String permId = entity.getPermId();
                 String identifier = entity.getIdentifier();
@@ -817,12 +856,14 @@ public class EntitySynchronizer
                         }
                         else
                         {
-                            if (dsWithConns.getKind() == DataSetKind.PHYSICAL && dsWithConns.getLastModificationDate().after(lastSyncTimestamp))
+                            if (dsWithConns.getKind() == DataSetKind.PHYSICAL && dsWithConns.getLastModificationDate().after(lastIncSyncTimestamp))
                             {
                                 PhysicalDataSet physicalDS = service.tryGetDataSet(permId).tryGetAsDataSet();
                                 sameDS = deepCompareDataSets(permId);
                                 if (sameDS == false)
+                                {
                                     physicalDataSetsDelete.add(physicalDS);
+                                }
                             }
                         }
                         if (sameDS == false)
@@ -909,32 +950,36 @@ public class EntitySynchronizer
             operationLog.warn("One or more materials could not be deleted due to: " + e.getMessage());
         }
         
-        // StringBuffer summary = new StringBuffer();
-        // if (projectsToDelete.size() > 0)
-        // {
-        // summary.append(projectsToDelete.size() + " projects,");
-        // }
-        // if (materialdsToDelete.size() > 0)
-        // {
-        // summary.append(materialdsToDelete.size() + " materials,");
-        // }
-        // if (expDeletionId != null)
-        // {
-        // summary.append(experimentsToDelete.size() + " experiments,");
-        // }
-        // if (smpDeletionId != null)
-        // {
-        // summary.append(samplesToDelete.size() + " samples,");
-        // }
-        // if (dsDeletionId != null)
-        // {
-        // summary.append(dataSetsToDelete.size() + " data sets");
-        // }
-        //
-        // if (summary.length() > 0)
-        // {
-        // operationLog.info(summary.substring(0, summary.length() - 1) + " have been deleted:");
-        // }
+        // The following summary is not accurate if an error occurs in material deletions
+        StringBuffer summary = new StringBuffer();
+        if (projectsToDelete.size() > 0)
+        {
+            summary.append(projectsToDelete.size() + " projects,");
+        }
+        if (materialsToDelete.size() > 0)
+        {
+            summary.append(materialsToDelete.size() + " materials,");
+        }
+        if (expDeletionId != null)
+        {
+            summary.append(experimentsToDelete.size() + " experiments,");
+        }
+        if (smpDeletionId != null)
+        {
+            summary.append(samplesToDelete.size() + " samples,");
+        }
+        if (dsDeletionId != null)
+        {
+            summary.append(dataSetsToDelete.size() + " data sets");
+        }
+        if (summary.length() > 0)
+        {
+            operationLog.info(summary.substring(0, summary.length() - 1) + " have been deleted:");
+        }
+        else
+        {
+            operationLog.info("Nothing has been deleted:");
+        }
         for (PhysicalDataSet physicalDS : physicalDataSetsDelete)
         {
             operationLog.info("Is going to delete the location: " + physicalDS.getLocation());

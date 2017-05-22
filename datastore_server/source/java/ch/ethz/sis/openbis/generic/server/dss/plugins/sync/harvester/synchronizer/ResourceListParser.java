@@ -446,6 +446,7 @@ public class ResourceListParser
     {
         Element docElement = (Element) xdNode;
         NodeList connsNode = docElement.getElementsByTagName("x:binaryData");
+        // if a sample/experiment/project node has binaryData element, it can only be because of attachments
         if (connsNode.getLength() == 1)
         {
             return true;
