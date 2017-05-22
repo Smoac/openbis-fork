@@ -239,11 +239,11 @@ public class EntitySynchronizer
             verboseLogEntityOperations(builder.getDetails());
         }
 
-        // MultiKeyMap<String, String> newEntities = new MultiKeyMap<String, String>();
+        MultiKeyMap<String, String> newEntities = new MultiKeyMap<String, String>();
         if (config.isDryRun() == false)
         {
             AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
-            // newEntities = getNewEntities(builder);
+            newEntities = getNewEntities(builder);
             operationLog.info("Entity operation result: " + operationResult);
         }
         operationLog.info("\n");
@@ -253,8 +253,9 @@ public class EntitySynchronizer
 
         if (config.isVerbose())
         {
-            verboseLogProcessAttachments(attachmentHoldersToProcess); // newEntities
+            verboseLogProcessAttachments(attachmentHoldersToProcess, newEntities);
         }
+
         List<String> notSyncedAttachmentsHolders = new ArrayList<String>();
         if (config.isDryRun() == false)
         {
@@ -348,22 +349,22 @@ public class EntitySynchronizer
         }
     }
 
-    private void verboseLogProcessAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess) // MultiKeyMap<String, String> newEntities
+    private void verboseLogProcessAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess, MultiKeyMap<String, String> newEntities)
     {
         if (attachmentHoldersToProcess.isEmpty() == false)
         {
             operationLog.info("-------Attachments for the following entities will be processed-------");
             for (IncomingEntity<?> holder : attachmentHoldersToProcess)
             {
-//                // the following is done to not list holders in the log when they are just being created and have no attachments
-//                // updated ones will logged because the attachments might have been deleted.
-//                if (newEntities.containsKey(holder.getEntityKind().getLabel(), holder.getPermID()) == true)
-//                {
-//                    if (holder.hasAttachments() == false)
-//                    {
-//                        continue;
-//                    }
-//                }
+                // the following is done to not list holders in the log when they are just being created and have no attachments
+                // updated ones will logged because the attachments might have been deleted.
+                if (newEntities.containsKey(holder.getEntityKind().getLabel(), holder.getPermID()) == true)
+                {
+                    if (holder.hasAttachments() == false)
+                    {
+                        continue;
+                    }
+                }
                 operationLog.info(holder.getIdentifer());
             }
         }
