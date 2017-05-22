@@ -3,9 +3,6 @@
 #   Output Managed by Log4j 1.2.x
 #
 
-[name]
-logging
-
 [depend]
 resources
 
