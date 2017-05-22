@@ -66,7 +66,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$container.append($form);
 
 		this._paintGeneralSection($formColumn);
-		this._paintStorageSection($formColumn);
+		// this._paintStorageSection($formColumn);
 		this._paintDataSetTypesForFileNamesSection($formColumn);
 
 	}
@@ -176,38 +176,38 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	//
 	// Storage
 	//
-	this._paintStorageSection = function($container) {
-		var $fieldset = this._getFieldset($container, "Storage", "settings-section-storage");
+	// this._paintStorageSection = function($container) {
+	// 	var $fieldset = this._getFieldset($container, "Storage", "settings-section-storage");
 
-		// enabled
-		var $checkbox = $("<input>", { type : "checkbox" });
-		$checkbox.attr("checked", true); // TODO get value
-		$fieldset.append(this._getFormGroup($checkbox, "Enabled:"));
+	// 	// enabled
+	// 	var $checkbox = $("<input>", { type : "checkbox" });
+	// 	$checkbox.attr("checked", true); // TODO get value
+	// 	$fieldset.append(this._getFormGroup($checkbox, "Enabled:"));
 
-		this._appendSlider({
-			$container : $fieldset,
-			value : profile.storagesConfiguration.storageSpaceLowWarning,
-			labelText : "Low storage space warning:",
-			id : "settings-slider-low-storage",
-		});
+	// 	this._appendSlider({
+	// 		$container : $fieldset,
+	// 		value : profile.storagesConfiguration.storageSpaceLowWarning,
+	// 		labelText : "Low storage space warning:",
+	// 		id : "settings-slider-low-storage",
+	// 	});
 
-		this._appendSlider({
-			$container : $fieldset,
-			value : profile.storagesConfiguration.boxSpaceLowWarning,
-			labelText : "Low box space warning:",
-			id : "settings-slider-low-box",
-		});
+	// 	this._appendSlider({
+	// 		$container : $fieldset,
+	// 		value : profile.storagesConfiguration.boxSpaceLowWarning,
+	// 		labelText : "Low box space warning:",
+	// 		id : "settings-slider-low-box",
+	// 	});
 
-		// var storageProperties = this._getStorageProperties();
+	// 	var storageProperties = this._getStorageProperties();
 
-		// var $storagePropertySection = $("<input>", { type : "text", class : "form-control" });
-		// $storagePropertySection.val(storageProperties.STORAGE_PROPERTY_GROUP); // TODO get value
-		// $fieldset.append(this._getFormGroup($storagePropertySection, "Storage property section:"));
+	// 	var $storagePropertySection = $("<input>", { type : "text", class : "form-control" });
+	// 	$storagePropertySection.val(storageProperties.STORAGE_PROPERTY_GROUP); // TODO get value
+	// 	$fieldset.append(this._getFormGroup($storagePropertySection, "Storage property section:"));
 
-		// var $storagePropertySection = $("<input>", { type : "text", class : "form-control" });
-		// $storagePropertySection.val(storageProperties.STORAGE_GROUP_DISPLAY_NAME); // TODO get value
-		// $fieldset.append(this._getFormGroup($storagePropertySection, "Storage section display name:"));
-	}
+	// 	var $storagePropertySection = $("<input>", { type : "text", class : "form-control" });
+	// 	$storagePropertySection.val(storageProperties.STORAGE_GROUP_DISPLAY_NAME); // TODO get value
+	// 	$fieldset.append(this._getFormGroup($storagePropertySection, "Storage section display name:"));
+	// }
 
 	this._getStorageProperties = function() {
 		var storageProperties = storagesConfiguration.STORAGE_PROPERTIES;
