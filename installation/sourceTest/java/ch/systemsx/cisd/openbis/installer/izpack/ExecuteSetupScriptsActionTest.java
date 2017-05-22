@@ -177,7 +177,8 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         Properties properties = loadProperties(dssServicePropertiesFile);
         assertEquals("my-<store>", properties.getProperty(Utils.DSS_KEYSTORE_PASSWORD_KEY));
         assertEquals("my-<key>", properties.getProperty(Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY));
-        assertEquals("[jetty.keystore.password=my-<store>, jetty.keymanager.password=my-<key>, jetty.truststore.password=my-<store>]",
+        assertEquals(
+                "[jetty.sslContext.keyStorePassword=my-<store>, jetty.sslContext.keyManagerPassword=my-<key>, jetty.sslContext.trustStorePassword=my-<store>]",
                 loadFilteredAndTrimmedJettyXMLFile().toString());
     }
 
@@ -187,7 +188,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         List<String> result = new ArrayList<String>();
         for (String line : lines)
         {
-            if (line.indexOf("password=") > 0)
+            if (line.indexOf("Password=") > 0)
             {
                 result.add(line.trim());
             }
