@@ -654,7 +654,7 @@ function MainController(profile) {
 			if(!data[0]) {
 				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 			} else {
-				var newView = new SettingsFormController(this, data[0], mode);
+				var newView = new SettingsFormController(_this, data[0], mode);
 				var views = _this._getNewViewModel(true, true, false);
 				newView.init(views);
 				_this.currentView = newView;

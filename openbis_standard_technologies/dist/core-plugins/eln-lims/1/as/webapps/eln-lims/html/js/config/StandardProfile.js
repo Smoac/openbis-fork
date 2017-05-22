@@ -801,12 +801,10 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 			}
 		}
 		
-		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
-			if(fileName.endsWith("fasta")) {
-				return "SEQ_FILE";
-			} else {
-				return null;
-			}
-		}
+
+		this.dataSetTypeForFileNameMap = [
+				{ fileNameExtension : "fasta", dataSetType : "SEQ_FILE" },
+		];
+
 }
 });

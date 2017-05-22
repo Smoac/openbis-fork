@@ -446,7 +446,14 @@ $.extend(DefaultProfile.prototype, {
 		/*
 		 * Used by DataSet Uploader
 		 */
+		this.dataSetTypeForFileNameMap = [];
+
 		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
+			for (var dataSetTypeForFileName of this.dataSetTypeForFileNameMap) {
+				if (fileName.endsWith(dataSetTypeForFileName.filenameExtension)) {
+					return dataSetTypeForFileName.dataSetType;
+				}
+			}
 			return null;
 		}
 		

@@ -723,3 +723,14 @@ table.downloads {
     margin-top: 0;
     margin-bottom: 5px;
 }
+
+/*
+ * Settgins
+ */
+.borderless td, .borderless th {
+    border: none !important;
+}
+
+#settings-slider-low-storage, #settings-slider-low-box {
+	width : 100% !important;
+}
