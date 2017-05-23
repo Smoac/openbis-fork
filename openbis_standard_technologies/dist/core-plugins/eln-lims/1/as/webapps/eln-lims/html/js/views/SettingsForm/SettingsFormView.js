@@ -320,7 +320,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					return {
 						label : option,
 						value : option,
-						selected : option === rowData.hintType.label,
+						selected : rowData.hintType && option === rowData.hintType.label,
 					};
 				}), "hints for children/parents");
 			}).bind(this),
@@ -335,7 +335,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 						value : option,
 						selected : option === rowData.TYPE,
 					};
-				}), "hint for type");
+				}), "hints for type");
 			},
 			"Min" : function(rowData) {
 				return $("<input>", { type : "text", class : "form-control" }).val(rowData.MIN_COUNT);
