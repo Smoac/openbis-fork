@@ -25,7 +25,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
 	this._sampleTypeProtocolsTableModel = null;
-	this._sampleTypeDefinitionsTableModel = null;
+	this._sampleTypeDefinitionsTableModels = {}; // key: sample type; value: table model
 
 	this.repaint = function(views) {
 
@@ -80,7 +80,18 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
 			sampleTypeProtocols : this._sampleTypeProtocolsTableModel.getValues(),
+			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsSettings(),
 		};
+	}
+
+	this._getSampleTypeDefinitionsSettings = function() {
+		var sampleTypeDefinitionsSettings = {};
+		var sampleTypes = Object.keys(this._sampleTypeDefinitionsTableModels);
+		for (sampleType of sampleTypes) {
+			var tableModel = this._sampleTypeDefinitionsTableModels[sampleType];
+			sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
+		}
+		return sampleTypeDefinitionsSettings;
 	}
 
 	//
@@ -303,8 +314,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$fieldset.append($div);
 			// table for sample type
 			var sampleTypeSettings = profile.sampleTypeDefinitionsExtension[sampleType.code];
-			this._sampleTypeDefinitionsTableModel = this._getSampleTypeDefinitionTableModel(sampleTypeSettings);
-			$sampleTypeFieldset.append(this._getTable(this._sampleTypeDefinitionsTableModel));
+			var tableModel = this._getSampleTypeDefinitionTableModel(sampleTypeSettings);
+			$sampleTypeFieldset.append(this._getTable(tableModel));
+			this._sampleTypeDefinitionsTableModels[sampleType.code] = tableModel;
 		}
 	}
 
@@ -320,7 +332,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					return {
 						label : option,
 						value : option,
-						selected : rowData.hintType && option === rowData.hintType.label,
+						selected : rowData.hintType && option === rowData.hintType,
 					};
 				}), "hints for children/parents");
 			}).bind(this),
@@ -355,19 +367,34 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			return this._getTable(annotationPropertiesTableModel);
 		}).bind(this);
 		// add data
-		var hintTypes = [
-			{ field : "SAMPLE_CHILDREN_HINT", label : "Children" },
-			{ field : "SAMPLE_PARENTS_HINT", label : "Parents" },
-		];
-		for (var hintType of hintTypes) {
-			if (sampleTypeSettings && sampleTypeSettings[hintType.field]) {
-				for (var hintTypeSettings of sampleTypeSettings[hintType.field]) {
-					hintTypeSettings.hintType = hintType;
+		var hintTypesMap = new Map();
+		hintTypesMap.set("Children", "SAMPLE_CHILDREN_HINT");
+		hintTypesMap.set("Parents", "SAMPLE_PARENTS_HINT");
+		for (var [hintTypeLabel, hintTypeField] of hintTypesMap) {
+			if (sampleTypeSettings && sampleTypeSettings[hintTypeField]) {
+				for (var hintTypeSettings of sampleTypeSettings[hintTypeField]) {
+					hintTypeSettings.hintType = hintTypeLabel;
 					tableModel.addRow(hintTypeSettings);
 				}
 			}
 		}
 		// transform output
+		tableModel.valuesTransformer = function(values) {
+			var definitionsExtension = {};
+			for (var value of values) {
+				var hintTypeField = hintTypesMap.get(value["Hint type"]);
+				if ( ! definitionsExtension[hintTypeField]) {
+					definitionsExtension[hintTypeField] = [];
+				}
+				var hints = {};
+				hints.LABEL = value["Label"];
+				hints.TYPE = value["Type"];
+				if (value["Min"]) { hints.MIN_COUNT = value["Min"]; };
+				if (value["Max"]) { hints.MAX_COUNT = value["Max"]; };
+				definitionsExtension[hintTypeField].push(hints);				
+			}
+			return definitionsExtension;
+		}
 		return tableModel;
 	}
 
