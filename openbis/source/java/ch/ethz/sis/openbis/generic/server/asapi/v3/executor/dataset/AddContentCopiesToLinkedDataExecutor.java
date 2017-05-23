@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +20,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 @Component
 public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesToLinkedDataExecutor
@@ -86,6 +89,10 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
             entity.setContentCopies(new HashSet<ContentCopyPE>());
         }
         entity.getContentCopies().addAll(contentCopies);
+
+        Date timeStamp = daoFactory.getTransactionTimestamp();
+        PersonPE person = context.getSession().tryGetPerson();
+        RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
     }
 
     private LocationType getLocationType(ContentCopyCreation ccc, ExternalDataManagementSystemPE edms)

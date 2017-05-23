@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author pkupczyk
@@ -124,6 +127,10 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
 
             addContentCopiesToLinkedDataExecutor.add(context, entity, update.getContentCopies().getAdded());
         }
+
+        Date timeStamp = daoFactory.getTransactionTimestamp();
+        PersonPE person = context.getSession().tryGetPerson();
+        RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
     }
 
     private void assertAllRemovalsExists(LinkDataPE entity, LinkedDataUpdate update)

@@ -3,7 +3,9 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -127,7 +129,7 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
         ContentCopyPermId ccid = new ContentCopyPermId(uuid());
         update(dataset(id).without(ccid));
     }
-    
+
     @Test
     void removeAllCopies()
     {
@@ -263,5 +265,67 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
         DataSetPermId id = create(linkDataSet());
 
         update(dataset(id).withExternalDms(dms));
+    }
+
+    @Test
+    void modificationTimeIsUpdatedWhenCopyIsAdded()
+    {
+        ExternalDmsPermId dms = create(externalDms());
+        DataSetPermId id = create(linkDataSet().with(copyAt(dms)));
+        Date mod1 = get(id).getModificationDate();
+
+        update(dataset(id).withNewCopies(copyAt(dms)));
+
+        Date mod2 = get(id).getModificationDate();
+        assertThat(mod1, lessThan(mod2));
+    }
+
+    @Test
+    void modificationTimeIsUpdatedWhenCopyIsRemoved()
+    {
+        String removed = uuid();
+        String stays = uuid();
+
+        ExternalDmsPermId dms = create(externalDms());
+        DataSetPermId id = create(linkDataSet().with(copyAt(dms).withExternalCode(removed), copyAt(dms).withExternalCode(stays)));
+        DataSet dataSet = get(id);
+        Date mod1 = dataSet.getModificationDate();
+
+        List<ContentCopy> contentCopies = dataSet.getLinkedData().getContentCopies();
+        ContentCopyPermId removedId =
+                contentCopies.get(0).getExternalCode().equals(removed) ? contentCopies.get(0).getId() : contentCopies.get(1).getId();
+        update(dataset(id).without(removedId));
+
+        Date mod2 = get(id).getModificationDate();
+        assertThat(mod1, lessThan(mod2));
+    }
+
+    @Test
+    void modificationTimeIsUpdatedWhenSettingLegacyExternalCode()
+    {
+        ExternalDmsPermId dms = create(externalDms().withType(ExternalDmsAddressType.URL));
+        DataSetPermId id = create(linkDataSet().with(copyAt(dms)));
+        Date mod1 = get(id).getModificationDate();
+
+        String code = uuid();
+        update(dataset(id).withExternalCode(code));
+
+        Date mod2 = get(id).getModificationDate();
+        assertThat(mod1, lessThan(mod2));
+    }
+
+    @Test
+    void modificationTimeIsUpdatedWhenSettingLegacyExternalDms()
+    {
+        ExternalDmsPermId dms1 = create(externalDms().withType(ExternalDmsAddressType.URL));
+        ExternalDmsPermId dms2 = create(externalDms().withType(ExternalDmsAddressType.OPENBIS));
+
+        DataSetPermId id = create(linkDataSet().with(copyAt(dms1)));
+        Date mod1 = get(id).getModificationDate();
+
+        update(dataset(id).withExternalDms(dms2));
+
+        Date mod2 = get(id).getModificationDate();
+        assertThat(mod1, lessThan(mod2));
     }
 }

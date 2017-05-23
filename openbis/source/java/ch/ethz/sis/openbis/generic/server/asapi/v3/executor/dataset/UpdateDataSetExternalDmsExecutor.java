@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,11 +32,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IMapExternalDmsByIdExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ContentCopyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocationType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author pkupczyk
@@ -45,6 +49,9 @@ public class UpdateDataSetExternalDmsExecutor extends
         AbstractUpdateEntityToOneRelationExecutor<DataSetUpdate, DataPE, IExternalDmsId, ExternalDataManagementSystemPE> implements
         IUpdateDataSetExternalDmsExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapExternalDmsByIdExecutor mapExternalDmsByIdExecutor;
@@ -129,6 +136,10 @@ public class UpdateDataSetExternalDmsExecutor extends
                     }
 
                     next.setExternalDataManagementSystem(related);
+
+                    Date timeStamp = daoFactory.getTransactionTimestamp();
+                    PersonPE person = context.getSession().tryGetPerson();
+                    RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
                 } else
                 {
                     throw new UserFailureException("Cannot set external data management system to content copy of type " + next.getLocationType());
