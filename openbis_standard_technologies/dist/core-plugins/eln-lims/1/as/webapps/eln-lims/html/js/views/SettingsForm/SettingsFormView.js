@@ -25,6 +25,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
 	this._sampleTypeProtocolsTableModel = null;
+	this._sampleTypeDefinitionsTableModel = null;
 
 	this.repaint = function(views) {
 
@@ -68,7 +69,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		this._paintGeneralSection($formColumn);
 		// this._paintStorageSection($formColumn);
 		this._paintDataSetTypesForFileNamesSection($formColumn);
-
+		this._paintSampleTypesDefinition($formColumn);
 	}
 
 	this._getSettings = function() {
@@ -291,6 +292,115 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	}
 
 	//
+	// sample type definitions
+	//
+	this._paintSampleTypesDefinition = function($container) {
+		var $fieldset = this._getFieldset($container, "Sample type definitions", "settings-section-sampletype-definitions");
+		for (var sampleType of profile.getAllSampleTypes()) {
+			// layout
+			var $div = $("<div>").css("padding-left", "15px");
+			var $sampleTypeFieldset = this._getFieldset($div, sampleType.code, "settings-section-sampletype-" + sampleType.code);
+			$fieldset.append($div);
+			// table for sample type
+			var sampleTypeSettings = profile.sampleTypeDefinitionsExtension[sampleType.code];
+			this._sampleTypeDefinitionsTableModel = this._getSampleTypeDefinitionTableModel(sampleTypeSettings);
+			$sampleTypeFieldset.append(this._getTable(this._sampleTypeDefinitionsTableModel));
+		}
+	}
+
+	this._getSampleTypeDefinitionTableModel = function(sampleTypeSettings) {
+		var tableModel = this._getTableModel();
+		tableModel.dynamicRows = true;
+		// define columns
+		tableModel.columnNames = ["Hint type", "Label", "Type", "Min", "Max"];
+		tableModel.rowBuilders = {
+			"Hint type" : (function(rowData) {
+				var options = ["Children", "Parents"];
+				return FormUtil.getDropdown(options.map(function(option) {
+					return {
+						label : option,
+						value : option,
+						selected : option === rowData.hintType.label,
+					};
+				}), "hints for children/parents");
+			}).bind(this),
+			"Label" :  function(rowData) {
+				return $("<input>", { type : "text", class : "form-control" }).val(rowData.LABEL);
+			},
+			"Type" : function(rowData) {
+				var options = profile.getAllSampleTypes().map( function(_) { return _.code; } );
+				return FormUtil.getDropdown(options.map(function(option) {
+					return {
+						label : option,
+						value : option,
+						selected : option === rowData.TYPE,
+					};
+				}), "hint for type");
+			},
+			"Min" : function(rowData) {
+				return $("<input>", { type : "text", class : "form-control" }).val(rowData.MIN_COUNT);
+			},
+			"Max" : function(rowData) {
+				return $("<input>", { type : "text", class : "form-control" }).val(rowData.MAX_COUNT);
+			},
+		};
+		// extra
+		tableModel.rowExtraBuilder = (function(rowData) {
+			var annotationPropertiesTableModel = this._getAnnotationPropertiesTableModel();
+			if (rowData.ANNOTATION_PROPERTIES) {
+				for (var annotationProperty of rowData.ANNOTATION_PROPERTIES) {
+					annotationPropertiesTableModel.addRow(annotationProperty);
+				}
+			}
+			return this._getTable(annotationPropertiesTableModel);
+		}).bind(this);
+		// add data
+		var hintTypes = [
+			{ field : "SAMPLE_CHILDREN_HINT", label : "Children" },
+			{ field : "SAMPLE_PARENTS_HINT", label : "Parents" },
+		];
+		for (var hintType of hintTypes) {
+			if (sampleTypeSettings && sampleTypeSettings[hintType.field]) {
+				for (var hintTypeSettings of sampleTypeSettings[hintType.field]) {
+					hintTypeSettings.hintType = hintType;
+					tableModel.addRow(hintTypeSettings);
+				}
+			}
+		}
+		// transform output
+		return tableModel;
+	}
+
+	this._getAnnotationPropertiesTableModel = function() {
+		var tableModel = this._getTableModel();
+		tableModel.dynamicRows = true;
+		// define columns
+		tableModel.columnNames = ["Annotation property type", "Mandatory"];
+		tableModel.rowBuilders = {
+			"Annotation property type" : function(rowData) {
+				var options = profile.allPropertyTypes.map( function(_) { return _.code; } );
+				return FormUtil.getDropdown(options.map(function(option) {
+					return {
+						label : option,
+						value : option,
+						selected : option === rowData.TYPE,
+					};
+				}), "select property type");
+			},
+			"Mandatory" : function(rowData) {
+				var $checkbox = $("<input>", { type : "checkbox" });
+				if (rowData.MANDATORY) {
+					$checkbox.attr("checked", true);
+				}
+				return $checkbox;
+			},
+		}
+		// add data
+		// transform output
+		return tableModel;
+	}
+
+	//
 	// general
 	//
 
@@ -326,6 +436,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		tableModel.columnNames = []; // array of strings
 		tableModel.rowBuilders = {}; // key (column name); value (function to build widget)
 		tableModel.rows = []; // array of maps with key (column name); value (widget)
+		tableModel.rowExtraBuilder = null; // optional builder for expandable component per row
+		tableModel.rowExtras = []; // array of extras corresponding to the rows
 		tableModel.dynamicRows = false; // allows adding / removing rows
 		tableModel.valuesTransformer = function(values) { return values }; // optional transformer
 		tableModel.getValues = (function() {
@@ -348,6 +460,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				rowWidgets[columnName] = rowBuilder(rowData);
 			}
 			tableModel.rows.push(rowWidgets);
+			if (tableModel.rowExtraBuilder) {
+				tableModel.rowExtras.push(tableModel.rowExtraBuilder(rowData));
+			}
 			return rowWidgets;
 		};
 		return tableModel;
@@ -365,12 +480,15 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getTable = function(tableModel) {
 		var $table = $("<table>", { class : "table borderless table-compact" });
-		if ( ! tableModel.dynamicRows) {
+		if (tableModel.dynamicRows != true) {
 			$table.css("width", "initial");
 		}
-		// head		
+		// head
 		var $thead = $("<thead>");
         var $trHead = $("<tr>");
+		if (tableModel.rowExtraBuilder) {
+			$trHead.append($("<th>").css("width", "30px"));
+		}
         for (var columnName of tableModel.columnNames) {
             $trHead.append($("<th>").css("vertical-align", "middle").text(columnName));
         }
@@ -383,7 +501,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			} else {
 				$addButton.on("click", (function() {
 					var rowWidgets = tableModel.addRow({});
-					this._addRow($tbody, tableModel, rowWidgets);				
+					if (tableModel.rowExtraBuilder) {
+						var $extra = tableModel.rowExtras[tableModel.rowExtras.length-1];
+						this._addRow($tbody, tableModel, rowWidgets, $extra);
+					} else {
+						this._addRow($tbody, tableModel, rowWidgets);
+					}
 				}).bind(this))
 			}
 			$trHead.append($("<th>").append($addButton));
@@ -392,16 +515,52 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$table.append($thead);
 		// body
         var $tbody = $("<tbody>");
-		for (var row of tableModel.rows) {
-			this._addRow($tbody, tableModel, row);
+		for (var i of Object.keys(tableModel.rows)) {
+			var row = tableModel.rows[i];
+
+			if (tableModel.rowExtraBuilder) {
+				// add extra as row after actual row
+				var $extra = tableModel.rowExtras[i];
+				this._addRow($tbody, tableModel, row, $extra);
+			} else {
+				this._addRow($tbody, tableModel, row);				
+			}
 		}
 		$table.append($tbody);
 		return $table
 	}
 
-	this._addRow = function($tbody, tableModel, tableModelRow) {
+	this._addRow = function($tbody, tableModel, tableModelRow, $extra) {
 		var $tr = $("<tr>");
 		$tbody.append($tr);
+		var $extraRow = null;
+
+		// add expand / collapse for extra
+		if ($extra) {
+			// create extra row
+			var colspan = tableModel.columnNames.length + 1;
+			if (tableModel.dynamicRows) {
+				colspan++;
+			}
+			$extraRow = $("<tr>")
+				.append($("<td>").css("padding-left", "50px").attr("colspan", colspan)
+					.append($extra));
+			// hiding / showing extra row
+			$extraRow.hide();
+			var $td = $("<td>");
+			var $expandCollapse = $("<div>", { class : "glyphicon glyphicon-plus-sign" }).css("vertical-align", "middle");
+			$expandCollapse.on("click", (function($extraRow, $expandCollapse) {
+				$extraRow.toggle();
+				if ($extraRow.is(":visible")) {
+					$expandCollapse.removeClass("glyphicon-plus-sign").addClass("glyphicon-minus-sign");
+				} else {
+					$expandCollapse.removeClass("glyphicon-minus-sign").addClass("glyphicon-plus-sign");
+				}
+			}).bind(this, $extraRow, $expandCollapse));
+			$tr.append($td);
+			$td.append($expandCollapse);
+		}
+
 		for (var columnName of tableModel.columnNames) {
 			var $td = $("<td>");
 			$tr.append($td);
@@ -422,11 +581,18 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			} else {
 				$removeButton.on("click", function() {
 					$tr.remove();
+					if ($extraRow) {
+						$extraRow.remove();
+					}
 					var rowIndex = tableModel.rows.indexOf(tableModelRow);
 					tableModel.rows.splice(rowIndex, 1);
 				});
 			}
 			$tr.append($("<td>").append($removeButton));
+		}
+		// add extra row
+		if ($extraRow) {
+			$tbody.append($extraRow);
 		}
 	}
 
