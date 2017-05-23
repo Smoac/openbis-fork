@@ -210,41 +210,41 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	// 	$fieldset.append(this._getFormGroup($storagePropertySection, "Storage section display name:"));
 	// }
 
-	this._getStorageProperties = function() {
-		var storageProperties = storagesConfiguration.STORAGE_PROPERTIES;
-		if (storageProperties && storageProperties === Array && storageProperties.legendText > 0) {
-			return storagesConfiguration.STORAGE_PROPERTIES[0];
-		}
-		return {};
-	}
+	// this._getStorageProperties = function() {
+	// 	var storageProperties = storagesConfiguration.STORAGE_PROPERTIES;
+	// 	if (storageProperties && storageProperties === Array && storageProperties.legendText > 0) {
+	// 		return storagesConfiguration.STORAGE_PROPERTIES[0];
+	// 	}
+	// 	return {};
+	// }
 
-	this._appendSlider = function(params) {
-		var $slider = $("<input>", {
-			class : "span2",
-			type : "text",
-			"data-slider-min" :"0",
-			"data-slider-max" : "100",
-			"data-slider-step" : "1",
-			"data-slider-value" : params.value * 100,
-			"data-slider-id" : params.id,
-		});
-		params.$container.append(this._getFormGroup($slider, params.labelText));
+	// this._appendSlider = function(params) {
+	// 	var $slider = $("<input>", {
+	// 		class : "span2",
+	// 		type : "text",
+	// 		"data-slider-min" :"0",
+	// 		"data-slider-max" : "100",
+	// 		"data-slider-step" : "1",
+	// 		"data-slider-value" : params.value * 100,
+	// 		"data-slider-id" : params.id,
+	// 	});
+	// 	params.$container.append(this._getFormGroup($slider, params.labelText));
 
-		$slider.slider({
-			// tooltip : "always"
-		});
+	// 	$slider.slider({
+	// 		// tooltip : "always"
+	// 	});
 
-		// TODO get value
-	}
+	// 	// TODO get value
+	// }
 
-	this._getFormGroup = function($input, labelText) {
-		var $formGroup = $("<div>", { class : "form-group" });
-		$formGroup.append($("<label>", { class : "control-label" }).text(labelText));
-		var $controls = $("<div>", { class : "controls" });
-		$formGroup.append($controls);
-		$controls.append($input);
-		return $formGroup;
-	}
+	// this._getFormGroup = function($input, labelText) {
+	// 	var $formGroup = $("<div>", { class : "form-group" });
+	// 	$formGroup.append($("<label>", { class : "control-label" }).text(labelText));
+	// 	var $controls = $("<div>", { class : "controls" });
+	// 	$formGroup.append($controls);
+	// 	$controls.append($input);
+	// 	return $formGroup;
+	// }
 
 	//
 	// dataset types for filenames
