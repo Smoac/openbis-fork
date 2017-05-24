@@ -479,7 +479,8 @@ var FormUtil = new function() {
 		return $btn;
 	}
 	
-	this.getShowHideButton = function($elementToHide, key) {
+	// settingLoadedCallback can be used to avoid flickering
+	this.getShowHideButton = function($elementToHide, key, settingLoadedCallback) {
 		var $showHideButton = FormUtil.getButtonWithIcon('glyphicon-chevron-down', function() {
 			$elementToHide.slideToggle();
 			var $thisButton = $($(this).children()[0]);
@@ -503,11 +504,14 @@ var FormUtil = new function() {
 				$thisButton.addClass("glyphicon-chevron-right");
 				$elementToHide.toggle();
 			}
+			if (settingLoadedCallback) {
+				settingLoadedCallback();
+			}
 		});
 		
 		$showHideButton.addClass("btn-showhide");
 		$showHideButton.css({ "border" : "none", "margin-bottom" : "4px", "margin-left" : "-11px" });
-		
+
 		return $showHideButton;
 	}
 	

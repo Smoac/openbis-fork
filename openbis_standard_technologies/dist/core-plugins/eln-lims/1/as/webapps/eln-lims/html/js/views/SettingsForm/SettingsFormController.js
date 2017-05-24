@@ -22,13 +22,10 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	this.init = function(views) {
 		this._settingsFormView.repaint(views);
 	}
-	
+
 	this.save = function(settings) {
-		console.log("settings:");
-		console.log(settings);
 		var errors = this._validateSettings(settings);
 		if (errors.length > 0) {
-			// TODO handle errors
 			alert(errors.join("\n\n"));
 		} else {
 			// TODO store settings
@@ -42,15 +39,11 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	}
 
 	this.getForcedDisableRTFOptions = function() {
-		return profile.allPropertyTypes.map(function(propertyType) {
-			return propertyType.code;
-		});
+		return profile.allPropertyTypes.map(function(_) { return _.code; });
 	}
 
 	this.getForcedMonospaceFontOptions = function() {
-		return profile.allPropertyTypes.map(function(propertyType) {
-			return propertyType.code;
-		});
+		return profile.allPropertyTypes.map(function(_) { return _.code; });
 	}
 
 	this.getSampleTypeProtocolsOptions = function() {
@@ -58,7 +51,15 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	}
 
 	this.getInventorySpacesOptions = function() {
-		return profile.allSpaces; // TODO is this correct? what about "STOCK_CATALOG"?
+		return profile.allSpaces;
+	}
+
+	this.getSampleTypeOptions = function() {
+		return profile.getAllSampleTypes().map( function(_) { return _.code; } )
+	}
+
+	this.getAnnotationPropertyTypeOptions = function() {
+		return profile.allPropertyTypes.map( function(_) { return _.code; } );
 	}
 
 	this._applySettingsToProfile = function(settings) {
@@ -69,6 +70,7 @@ function SettingsFormController(mainController, settingsSample, mode) {
 			"forceMonospaceFont",
 			"inventorySpaces",
 			"sampleTypeProtocols",
+			"sampleTypeDefinitionsExtension",
 		];
 		for (var field of fields) {
 			if (settings[field]) {
@@ -86,7 +88,62 @@ function SettingsFormController(mainController, settingsSample, mode) {
 		this._validateInventorySpaces(settings, errors);
 		this._validateDataSetTypeForFileNameMap(settings, errors);
 		this._validateSampleTypeProtocols(settings, errors);
+		this._validateSampleTypeDefinitionsExtension(settings, errors);
 		return errors;
+	}
+
+	this._validateSampleTypeDefinitionsExtension = function(settings, errors) {
+		if (settings.sampleTypeDefinitionsExtension) {
+			for (var sampleType of Object.keys(settings.sampleTypeDefinitionsExtension)) {
+				// not checking for valid sample type
+				// config can contain entries which are not yet defined
+				// but if sample type exists, more strict validation is used
+				var sampleTypeExists = this.getSampleTypeOptions().indexOf(sampleType) !== -1;
+				var hints = settings.sampleTypeDefinitionsExtension[sampleType];
+				for (var hintType of Object.keys(hints)) {
+					if (hintType === "SAMPLE_CHILDREN_HINT" || hintType === "SAMPLE_PARENTS_HINT") {
+						var hintArray = hints[hintType];
+						for (var hint of hintArray) {
+							if (hint.LABEL == null || hint.LABEL.length === 0) {
+								errors.push("Sample type definitions hint labels can't be empty.");
+							}
+							if (typeof(hint.TYPE) !== "string") {
+								errors.push("Sample type definitions hint type (" +
+											hint.TYPE +
+											 ") must be a string.");
+							}
+							if (sampleTypeExists && this.getSampleTypeOptions().indexOf(hint.TYPE) === -1) {
+								errors.push("Sample type definitions hint type (" +
+											hint.TYPE +
+											 ") must be an existing property type.");
+							}
+							if (hint.MIN_COUNT && typeof(hint.MIN_COUNT) !== "number") {
+								errors.push("Sample type definitions hint MIN_COUNT must be a number but is: " +
+											hint.MIN_COUNT);
+							}
+							if (hint.MAX_COUNT && typeof(hint.MAX_COUNT) !== "number") {
+								errors.push("Sample type definitions hint MAX_COUNT must be a number but is: " +
+											hint.MAX_COUNT);
+							}
+							if (hint.ANNOTATION_PROPERTIES) {
+								var propertyTypeOptions = this.getAnnotationPropertyTypeOptions();
+								for (var annotationProperty of hint.ANNOTATION_PROPERTIES) {
+									// debugger;
+									if (sampleTypeExists && (annotationProperty.TYPE == null || propertyTypeOptions.indexOf(annotationProperty.TYPE) === -1)) {
+										errors.push("Annotation properties must have an existing property type but is: " +
+													annotationProperty.TYPE);
+									}
+									if (annotationProperty.MANDATORY == null || typeof(annotationProperty.MANDATORY) !== "boolean") {
+										errors.push("Annotation properties must have a boolean MANDATORY field but is: "
+													+ annotationProperty.MANDATORY);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	this._validateMainMenu = function(settings, errors) {
@@ -95,9 +152,9 @@ function SettingsFormController(mainController, settingsSample, mode) {
 			for (var menuItem of Object.keys(settings.mainMenu)) {
 				if (availableMenuItems.indexOf(menuItem) === -1) {
 					errors.push(menuItem + 
-					" is not a Main Menu Item. Available items: " +
-					availableMenuItems.join(", " +
-					"."));
+								" is not a Main Menu Item. Available items: " +
+								availableMenuItems.join(", " +
+								"."));
 				}
 				if (typeof(settings.mainMenu[menuItem]) !== "boolean") {
 					errors.push(menuItem + ": " + settings.mainMenu[menuItem] + " is not of type 'boolean'.");
@@ -149,7 +206,7 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	this._validateDataSetTypeForFileNameMap = function(settings, errors) {
 		if (settings.dataSetTypeForFileNameMap) {
 			for (var dataSetTypeForFileName of settings.dataSetTypeForFileNameMap) {
-				if ( ! dataSetTypeForFileName.dataSetType) {
+				if (dataSetTypeForFileName.dataSetType == null) {
 					errors.push("dataSetTypeForFileNameMap must contain a field named dataSetType.");
 				} else if (this.getAllDatasetTypeCodeOptions().indexOf(dataSetTypeForFileName.dataSetType) === -1) {
 					errors.push("Dataset type " + 
@@ -158,7 +215,7 @@ function SettingsFormController(mainController, settingsSample, mode) {
 								this.getAllDatasetTypeCodeOptions().join(", ") +
 								".");
 				}
-				if ( ! dataSetTypeForFileName.fileNameExtension) {
+				if (dataSetTypeForFileName.fileNameExtension == null) {
 					errors.push("dataSetTypeForFileNameMap must contain a field named fileNameExtension.");
 				} else if (dataSetTypeForFileName.fileNameExtension.length == 0) {
 					errors.push("Filename extension can't be empty.");

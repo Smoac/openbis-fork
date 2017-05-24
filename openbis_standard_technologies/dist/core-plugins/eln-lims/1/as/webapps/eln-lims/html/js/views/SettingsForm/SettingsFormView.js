@@ -64,12 +64,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$header.append($formTitle);
 		$header.append(FormUtil.getToolbar(toolbarModel));
 
-		$container.append($form);
-
 		this._paintGeneralSection($formColumn);
 		// this._paintStorageSection($formColumn);
 		this._paintDataSetTypesForFileNamesSection($formColumn);
 		this._paintSampleTypesDefinition($formColumn);
+
+		$container.append($form);
 	}
 
 	this._getSettings = function() {
@@ -89,7 +89,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var sampleTypes = Object.keys(this._sampleTypeDefinitionsTableModels);
 		for (sampleType of sampleTypes) {
 			var tableModel = this._sampleTypeDefinitionsTableModels[sampleType];
-			sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
+			var values = tableModel.getValues();
+			if (Object.keys(values).length !== 0) {
+				sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
+			}
 		}
 		return sampleTypeDefinitionsSettings;
 	}
@@ -324,9 +327,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var tableModel = this._getTableModel();
 		tableModel.dynamicRows = true;
 		// define columns
-		tableModel.columnNames = ["Hint type", "Label", "Type", "Min", "Max"];
+		tableModel.columnNames = ["Hints for", "Label", "Type", "Min", "Max"];
 		tableModel.rowBuilders = {
-			"Hint type" : (function(rowData) {
+			"Hints for" : (function(rowData) {
 				var options = ["Children", "Parents"];
 				return FormUtil.getDropdown(options.map(function(option) {
 					return {
@@ -334,21 +337,21 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 						value : option,
 						selected : rowData.hintType && option === rowData.hintType,
 					};
-				}), "hints for children/parents");
+				}), "select children/parents");
 			}).bind(this),
 			"Label" :  function(rowData) {
 				return $("<input>", { type : "text", class : "form-control" }).val(rowData.LABEL);
 			},
-			"Type" : function(rowData) {
-				var options = profile.getAllSampleTypes().map( function(_) { return _.code; } );
+			"Type" : (function(rowData) {
+				var options = this._settingsFormController.getSampleTypeOptions();
 				return FormUtil.getDropdown(options.map(function(option) {
 					return {
 						label : option,
 						value : option,
 						selected : option === rowData.TYPE,
 					};
-				}), "hints for type");
-			},
+				}), "select sample type");
+			}).bind(this),
 			"Min" : function(rowData) {
 				return $("<input>", { type : "text", class : "form-control" }).val(rowData.MIN_COUNT);
 			},
@@ -364,6 +367,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					annotationPropertiesTableModel.addRow(annotationProperty);
 				}
 			}
+			tableModel.rowExtraModels.push(annotationPropertiesTableModel);
 			return this._getTable(annotationPropertiesTableModel);
 		}).bind(this);
 		// add data
@@ -373,24 +377,26 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		for (var [hintTypeLabel, hintTypeField] of hintTypesMap) {
 			if (sampleTypeSettings && sampleTypeSettings[hintTypeField]) {
 				for (var hintTypeSettings of sampleTypeSettings[hintTypeField]) {
-					hintTypeSettings.hintType = hintTypeLabel;
-					tableModel.addRow(hintTypeSettings);
+					var hintTypeSettingsCopy = $.extend(true, {}, hintTypeSettings);
+					hintTypeSettingsCopy.hintType = hintTypeLabel;
+					tableModel.addRow(hintTypeSettingsCopy);
 				}
 			}
 		}
 		// transform output
 		tableModel.valuesTransformer = function(values) {
 			var definitionsExtension = {};
-			for (var value of values) {
-				var hintTypeField = hintTypesMap.get(value["Hint type"]);
+			for (var rowValues of values) {
+				var hintTypeField = hintTypesMap.get(rowValues["Hints for"]);
 				if ( ! definitionsExtension[hintTypeField]) {
 					definitionsExtension[hintTypeField] = [];
 				}
 				var hints = {};
-				hints.LABEL = value["Label"];
-				hints.TYPE = value["Type"];
-				if (value["Min"]) { hints.MIN_COUNT = value["Min"]; };
-				if (value["Max"]) { hints.MAX_COUNT = value["Max"]; };
+				hints.LABEL = rowValues["Label"];
+				hints.TYPE = rowValues["Type"];
+				if (rowValues["Min"]) { hints.MIN_COUNT = Number(rowValues["Min"]); };
+				if (rowValues["Max"]) { hints.MAX_COUNT = Number(rowValues["Max"]); };
+				hints.ANNOTATION_PROPERTIES = rowValues.extraValues;
 				definitionsExtension[hintTypeField].push(hints);				
 			}
 			return definitionsExtension;
@@ -404,8 +410,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		// define columns
 		tableModel.columnNames = ["Annotation property type", "Mandatory"];
 		tableModel.rowBuilders = {
-			"Annotation property type" : function(rowData) {
-				var options = profile.allPropertyTypes.map( function(_) { return _.code; } );
+			"Annotation property type" : (function(rowData) {
+				var options = this._settingsFormController.getAnnotationPropertyTypeOptions();
 				return FormUtil.getDropdown(options.map(function(option) {
 					return {
 						label : option,
@@ -413,7 +419,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 						selected : option === rowData.TYPE,
 					};
 				}), "select property type");
-			},
+			}).bind(this),
 			"Mandatory" : function(rowData) {
 				var $checkbox = $("<input>", { type : "checkbox" });
 				if (rowData.MANDATORY) {
@@ -422,8 +428,16 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				return $checkbox;
 			},
 		}
-		// add data
+		// add data - done by caller
 		// transform output
+		tableModel.valuesTransformer = function(values) {
+			return values.map(function(rowValues) {
+				return {
+					TYPE : rowValues["Annotation property type"],
+					MANDATORY : rowValues["Mandatory"],
+				};
+			});
+		}
 		return tableModel;
 	}
 
@@ -465,16 +479,21 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		tableModel.rows = []; // array of maps with key (column name); value (widget)
 		tableModel.rowExtraBuilder = null; // optional builder for expandable component per row
 		tableModel.rowExtras = []; // array of extras corresponding to the rows
+		tableModel.rowExtraModels = [] // row extra models can be placed here. models need getValues() function
 		tableModel.dynamicRows = false; // allows adding / removing rows
 		tableModel.valuesTransformer = function(values) { return values }; // optional transformer
 		tableModel.getValues = (function() {
 			var values = [];
-			for (var row of tableModel.rows) {
+			for (var i of Object.keys(tableModel.rows)) {
+				var row = tableModel.rows[i];
 				var rowValues = {};
 				for (var columnName of tableModel.columnNames) {
 					var $widget = row[columnName];
 					var value = this._getWidgetValue($widget);
 					rowValues[columnName] = value;
+				}
+				if (tableModel.rowExtraModels.length === tableModel.rows.length) {
+					rowValues.extraValues = tableModel.rowExtraModels[i].getValues();
 				}
 				values.push(rowValues);
 			}
@@ -626,17 +645,18 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._styleWidget = function($widget) {
 		if ($widget.is("select")) {
 			$widget.select2({ width: '100%', theme: "bootstrap" })
-		} else if ($widget.is("input") && $widget.attr("type") === "checkbox") {
-			// TODO avoid flickering
-			// $widget.bootstrapSwitch();
 		}
 	}
 
 	this._getFieldset = function($container, legendText, key) {
 		var $fieldsetOwner = $("<div>");
+		// hide and show after setting has been loaded by getShowHideButton to avoid flickering
+		$fieldsetOwner.hide();
 		var $fieldset = $("<div>");
 		var $legend = $("<legend>").text(legendText);
-		$legend.prepend(FormUtil.getShowHideButton($fieldset, key));
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, key, (function($fieldsetOwner) {
+			$fieldsetOwner.show();
+		}).bind(this, $fieldsetOwner)));
 		$fieldsetOwner.append($legend).append($fieldset);
 		$container.append($fieldsetOwner);
 		return $fieldset;
