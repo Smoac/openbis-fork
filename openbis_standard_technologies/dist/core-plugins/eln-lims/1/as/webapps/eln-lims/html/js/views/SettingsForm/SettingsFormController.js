@@ -24,14 +24,25 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	}
 
 	this.save = function(settings) {
+		var _this = this;
 		var errors = this._validateSettings(settings);
 		if (errors.length > 0) {
-			alert(errors.join("\n\n"));
+			Util.showError(this._getSanitizedErrorString(errors));
 		} else {
 			// TODO store settings
 			this._applySettingsToProfile(settings);
 			this._mainController.changeView("showSettingsPage");
 		}
+	}
+
+	this._getSanitizedErrorString = function(errors) {
+		var $container = $("<div>");
+		var $ul = $("<ul>");
+		for (var error of errors) {
+			$ul.append($("<li>").text(error));
+		}
+		$container.append($ul);
+		return $container.html();
 	}
 
 	this.getAllDatasetTypeCodeOptions = function() {
@@ -100,41 +111,42 @@ function SettingsFormController(mainController, settingsSample, mode) {
 				// but if sample type exists, more strict validation is used
 				var sampleTypeExists = this.getSampleTypeOptions().indexOf(sampleType) !== -1;
 				var hints = settings.sampleTypeDefinitionsExtension[sampleType];
+				var errorPrefix = "Error in definitions extension for sample type " + sampleType + ": ";
 				for (var hintType of Object.keys(hints)) {
+					if (hintType == "undefined") {
+						errors.push(errorPrefix + "Hint type (children/parents) is undefined");
+					}
 					if (hintType === "SAMPLE_CHILDREN_HINT" || hintType === "SAMPLE_PARENTS_HINT") {
 						var hintArray = hints[hintType];
 						for (var hint of hintArray) {
 							if (hint.LABEL == null || hint.LABEL.length === 0) {
-								errors.push("Sample type definitions hint labels can't be empty.");
+								errors.push(errorPrefix + "Sample type definitions hint labels can't be empty.");
 							}
 							if (typeof(hint.TYPE) !== "string") {
-								errors.push("Sample type definitions hint type (" +
+								errors.push(errorPrefix + "Sample type definitions hint type (" +
 											hint.TYPE +
 											 ") must be a string.");
-							}
-							if (sampleTypeExists && this.getSampleTypeOptions().indexOf(hint.TYPE) === -1) {
-								errors.push("Sample type definitions hint type (" +
+							} else if (sampleTypeExists && this.getSampleTypeOptions().indexOf(hint.TYPE) === -1) {
+								errors.push(errorPrefix + "Sample type definitions hint type (" +
 											hint.TYPE +
 											 ") must be an existing property type.");
 							}
-							if (hint.MIN_COUNT && typeof(hint.MIN_COUNT) !== "number") {
-								errors.push("Sample type definitions hint MIN_COUNT must be a number but is: " +
-											hint.MIN_COUNT);
+							if (hint.MIN_COUNT != null && (typeof(hint.MIN_COUNT) !== "number" || isNaN(hint.MIN_COUNT))) {
+								errors.push(errorPrefix + "Sample type definitions hint MIN_COUNT must be a number.");
 							}
-							if (hint.MAX_COUNT && typeof(hint.MAX_COUNT) !== "number") {
-								errors.push("Sample type definitions hint MAX_COUNT must be a number but is: " +
-											hint.MAX_COUNT);
+							if (hint.MAX_COUNT != null && (typeof(hint.MAX_COUNT) !== "number" || isNaN(hint.MAX_COUNT))) {
+								errors.push(errorPrefix + "Sample type definitions hint MAX_COUNT must be a number.");
 							}
 							if (hint.ANNOTATION_PROPERTIES) {
 								var propertyTypeOptions = this.getAnnotationPropertyTypeOptions();
 								for (var annotationProperty of hint.ANNOTATION_PROPERTIES) {
 									// debugger;
 									if (sampleTypeExists && (annotationProperty.TYPE == null || propertyTypeOptions.indexOf(annotationProperty.TYPE) === -1)) {
-										errors.push("Annotation properties must have an existing property type but is: " +
+										errors.push(errorPrefix + "Annotation properties must have an existing property type but is: " +
 													annotationProperty.TYPE);
 									}
 									if (annotationProperty.MANDATORY == null || typeof(annotationProperty.MANDATORY) !== "boolean") {
-										errors.push("Annotation properties must have a boolean MANDATORY field but is: "
+										errors.push(errorPrefix + "Annotation properties must have a boolean MANDATORY field but is: "
 													+ annotationProperty.MANDATORY);
 									}
 								}
