@@ -31,45 +31,54 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 		var $container = views.content;
 
-		var $form = $("<div>");
-		var $formColumn = $("<div>");
-		$form.append($formColumn);
+		Util.blockUI(null, null, true);
+		// delay painting just a bit so blockUI can be shown
+		window.setTimeout((function($container) {
 
-		var typeTitle = "Settings";
+			var $form = $("<div>");
+			var $formColumn = $("<div>");
+			$form.append($formColumn);
 
-		var $formTitle = $("<h2>").append(typeTitle);
+			var typeTitle = "Settings";
 
-		//
-		// Toolbar
-		//
-		var toolbarModel = [];		
+			var $formTitle = $("<h2>").append(typeTitle);
 
-		if(this._settingsFormModel.mode === FormMode.VIEW) {
-			//Edit
-			var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-				mainController.changeView("showEditSettingsPage");
-			});
-			toolbarModel.push({ component : $editButton, tooltip: "Edit" });
-		} else { //Create and Edit
-			//Save
-			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", (function() {
-				this._settingsFormController.save(this._getSettings());
-			}).bind(this), "Save");
-			$saveBtn.removeClass("btn-default");
-			$saveBtn.addClass("btn-primary");
-			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
-		}
-		
-		var $header = views.header;
-		$header.append($formTitle);
-		$header.append(FormUtil.getToolbar(toolbarModel));
+			//
+			// Toolbar
+			//
+			var toolbarModel = [];		
 
-		this._paintGeneralSection($formColumn);
-		// this._paintStorageSection($formColumn);
-		this._paintDataSetTypesForFileNamesSection($formColumn);
-		this._paintSampleTypesDefinition($formColumn);
+			if(this._settingsFormModel.mode === FormMode.VIEW) {
+				//Edit
+				var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+					mainController.changeView("showEditSettingsPage");
+				});
+				toolbarModel.push({ component : $editButton, tooltip: "Edit" });
+			} else { //Create and Edit
+				//Save
+				var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", (function() {
+					this._settingsFormController.save(this._getSettings());
+				}).bind(this), "Save");
+				$saveBtn.removeClass("btn-default");
+				$saveBtn.addClass("btn-primary");
+				toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+			}
+			
+			var $header = views.header;
+			$header.append($formTitle);
+			$header.append(FormUtil.getToolbar(toolbarModel));
 
-		$container.append($form);
+			this._paintGeneralSection($formColumn);
+			// this._paintStorageSection($formColumn);
+			this._paintDataSetTypesForFileNamesSection($formColumn);
+			this._paintSampleTypesDefinition($formColumn);
+
+			$container.append($form);
+
+			Util.unblockUI();
+
+		}).bind(this, $container), 20);
+
 	}
 
 	this._getSettings = function() {
