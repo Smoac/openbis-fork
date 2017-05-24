@@ -122,7 +122,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._getMainMenuItemsTableModel = function() {
 		var tableModel = this._getTableModel();
 		// define columns
-		tableModel.columnNames = ["Main Menu Item", "enabled"];
+		tableModel.columns = [{ label : "Main Menu Item"}, { label : "enabled"}];
 		tableModel.rowBuilders = {
 			"Main Menu Item" : function(rowData) {
 				return $("<span>").text(rowData.menuItemName);
@@ -273,7 +273,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var tableModel = this._getTableModel();
 		tableModel.dynamicRows = true;
 		// define columns
-		tableModel.columnNames = ["Filename extension", "Dataset type"];
+		tableModel.columns = [{ label : "Filename extension" }, { label : "Dataset type" }];
 		tableModel.rowBuilders = {
 			"Filename extension" : function(rowData) {
 				return $("<input>", { type : "text", class : "form-control" }).val(rowData.fileNameExtension);
@@ -327,7 +327,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var tableModel = this._getTableModel();
 		tableModel.dynamicRows = true;
 		// define columns
-		tableModel.columnNames = ["Hints for", "Label", "Type", "Min", "Max"];
+		tableModel.columns = [
+			{ label : "Hints for", width : "140px" },
+			{ label : "Label" },
+			{ label : "Type" },
+			{ label : "Min", width : "80px" },
+			{ label : "Max", width : "80px" }
+		];
 		tableModel.rowBuilders = {
 			"Hints for" : (function(rowData) {
 				var options = ["Children", "Parents"];
@@ -408,7 +414,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var tableModel = this._getTableModel();
 		tableModel.dynamicRows = true;
 		// define columns
-		tableModel.columnNames = ["Annotation property type", "Mandatory"];
+		tableModel.columns = [{ label : "Annotation property type" }, { label : "Mandatory", width : "160px" }];
 		tableModel.rowBuilders = {
 			"Annotation property type" : (function(rowData) {
 				var options = this._settingsFormController.getAnnotationPropertyTypeOptions();
@@ -449,7 +455,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var tableModel = this._getTableModel();
 		tableModel.dynamicRows = true;
 		// define columns
-		tableModel.columnNames = [params.columnName];
+		tableModel.columns = [{ label : params.columnName }];
 		tableModel.rowBuilders[params.columnName] = function(rowData) {
 			return FormUtil.getDropdown(params.options.map(function(option) {
 				return {
@@ -474,7 +480,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getTableModel = function() {
 		var tableModel = {};
-		tableModel.columnNames = []; // array of strings
+		tableModel.columns = []; // array of elements with label and optional width
 		tableModel.rowBuilders = {}; // key (column name); value (function to build widget)
 		tableModel.rows = []; // array of maps with key (column name); value (widget)
 		tableModel.rowExtraBuilder = null; // optional builder for expandable component per row
@@ -487,10 +493,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			for (var i of Object.keys(tableModel.rows)) {
 				var row = tableModel.rows[i];
 				var rowValues = {};
-				for (var columnName of tableModel.columnNames) {
-					var $widget = row[columnName];
+				for (var column of tableModel.columns) {
+					var $widget = row[column.label];
 					var value = this._getWidgetValue($widget);
-					rowValues[columnName] = value;
+					rowValues[column.label] = value;
 				}
 				if (tableModel.rowExtraModels.length === tableModel.rows.length) {
 					rowValues.extraValues = tableModel.rowExtraModels[i].getValues();
@@ -501,9 +507,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}).bind(this);
 		tableModel.addRow = function(rowData) {
 			var rowWidgets = {};
-			for (var columnName of tableModel.columnNames) {
-				var rowBuilder = tableModel.rowBuilders[columnName];
-				rowWidgets[columnName] = rowBuilder(rowData);
+			for (var column of tableModel.columns) {
+				var rowBuilder = tableModel.rowBuilders[column.label];
+				rowWidgets[column.label] = rowBuilder(rowData);
 			}
 			tableModel.rows.push(rowWidgets);
 			if (tableModel.rowExtraBuilder) {
@@ -535,8 +541,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		if (tableModel.rowExtraBuilder) {
 			$trHead.append($("<th>").css("width", "30px"));
 		}
-        for (var columnName of tableModel.columnNames) {
-            $trHead.append($("<th>").css("vertical-align", "middle").text(columnName));
+        for (var column of tableModel.columns) {
+			var $th = $("<th>").css("vertical-align", "middle").text(column.label);
+			if (column.width) {
+				$th.css("width", column.width);
+			}
+            $trHead.append($th);
         }
 		// add row button
 		if (tableModel.dynamicRows) {
@@ -555,7 +565,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					}
 				}).bind(this))
 			}
-			$trHead.append($("<th>").append($addButton));
+			$trHead.append($("<th>").css("width", "80px").append($addButton));
 		}
 		$thead.append($trHead);
 		$table.append($thead);
@@ -584,12 +594,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		// add expand / collapse for extra
 		if ($extra) {
 			// create extra row
-			var colspan = tableModel.columnNames.length + 1;
+			var colspan = tableModel.columns.length + 1;
 			if (tableModel.dynamicRows) {
 				colspan++;
 			}
 			$extraRow = $("<tr>")
-				.append($("<td>").css("padding-left", "50px").attr("colspan", colspan)
+				.append($("<td>").css({"padding-left" : "50px", "padding-right" : "50px"}).attr("colspan", colspan)
 					.append($extra));
 			// hiding / showing extra row
 			$extraRow.hide();
@@ -607,10 +617,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$td.append($expandCollapse);
 		}
 
-		for (var columnName of tableModel.columnNames) {
+		for (var column of tableModel.columns) {
 			var $td = $("<td>");
 			$tr.append($td);
-			var $widget = tableModelRow[columnName];
+			var $widget = tableModelRow[column.label];
 			$td.append($widget);
 			// disbale widget if in view mode
 			if (this._settingsFormModel.mode === FormMode.VIEW) {
