@@ -49,7 +49,7 @@ var Util = new function() {
 		});
 	}
 	
-	this.blockUI = function(message, extraCSS) {
+	this.blockUI = function(message, extraCSS, disabledFadeAnimation) {
 		this.unblockUI();
 		BlockScrollUtil.disable_scroll();
 		
@@ -71,11 +71,17 @@ var Util = new function() {
 		}
 		
 		$('#navbar').block({ message: '', css: { width: '0px' } });
+		var params = { css : css };
 		if(message) {
-			$.blockUI({ message: message, css: css});
+			params.message = message;
 		} else {
-			$.blockUI({ message: '<h1><img src="./img/busy.gif" /> Just a moment...</h1>', css: css });
+			params.message = '<h1><img src="./img/busy.gif" /> Just a moment...</h1>';
 		}
+		if (disabledFadeAnimation) {
+			params.fadeIn = 0;
+			params.fadeOut = 0;
+		}
+		$.blockUI(params);
 		
 		//Enable/Disable scroll when the mouse goes in/out
 		$('.blockUI.blockMsg.blockPage').hover(function() {
