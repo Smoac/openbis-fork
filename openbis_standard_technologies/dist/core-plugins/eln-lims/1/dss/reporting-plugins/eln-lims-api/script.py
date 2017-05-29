@@ -191,6 +191,8 @@ def process(tr, parameters, tableBuilder):
 		isOk = True;
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
+	if method == "updateUserInformation":
+		isOk = updateUserInformation(tr, parameters, tableBuilder);
 	if method == "getDirectLinkURL":
 		result = getDirectLinkURL();
 		isOk = True;
@@ -466,6 +468,18 @@ def registerUserPassword(tr, parameters, tableBuilder):
 	if os.path.isfile(path):
 		subprocess.call([path, 'add', userId, '-p', password]) #Adds the user, if the user exists, will fail
 		subprocess.call([path, 'change', userId, '-p', password]) #Changes the user pass, works always
+		return True;
+	else:
+		return False;
+
+def updateUserInformation(tr, parameters, tableBuilder):
+	userId = parameters.get("userId"); #String
+	firstName = parameters.get("firstName"); #String
+	lastName = parameters.get("lastName"); #String
+	email = parameters.get("email"); #String
+	path = '../openBIS-server/jetty/bin/passwd.sh';
+	if os.path.isfile(path):
+		subprocess.call([path, 'change', userId, '-f', firstName, '-l', lastName, '-e', email]) #Changes the user info, fails silently if the user doesnt exist
 		return True;
 	else:
 		return False;
