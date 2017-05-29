@@ -53,6 +53,8 @@ class Utils
     static final String CORE_PLUGINS_PROPERTIES_PATH = CORE_PLUGINS_PATH + "core-plugins.properties";
 
     static final String JETTY_SSL_INI_PATH = "start.d/ssl.ini";
+    
+    static final String JETTY_DEPLOY_INI_PATH = "start.d/deploy.ini";
 
     static final String KEYSTORE_PATH = "etc/openBIS.keystore";
 

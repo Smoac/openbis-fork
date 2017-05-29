@@ -22,14 +22,17 @@ import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContex
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
+import com.izforge.izpack.api.handler.AbstractUIHandler;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Executes a script that configures the installation, copies key store (if specified) and inject passwords.
@@ -39,6 +42,12 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
 {
+    private static final String OPENBIS_JETTY_VERSION_KEY = "openbis.jetty.version";
+
+    private static final String JETTY_BEFORE_9_2 = "pre-9.2";
+
+    private static final String JETTY_9_2 = "9.2";
+    
     static final String DATA_SOURCES_KEY = "data-sources";
 
     static final String PATHINFO_DB_DATA_SOURCE = "path-info-db";
@@ -72,8 +81,10 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
     private static final String RESTORE_CONFIG_FROM_BACKUP_SCRIPT = "restore-config-from-backup.sh";
 
     @Override
-    public synchronized void executeAction(AutomatedInstallData data)
+    public synchronized void executeActionWithHandler(AutomatedInstallData data, AbstractUIHandler handler)
     {
+        File installDir = GlobalInstallationContext.installDir;
+        String newJettyVersion = getJettyVersion(installDir);
         if (GlobalInstallationContext.isFirstTimeInstallation)
         {
             executePostInstallationScript(data);
@@ -87,12 +98,94 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
                 data.getVariable(GlobalInstallationContext.KEY_STORE_PASSWORD_VARNAME);
         String certificatePassword =
                 data.getVariable(GlobalInstallationContext.KEY_PASSWORD_VARNAME);
-        File installDir = GlobalInstallationContext.installDir;
         String pathinfoDBEnabled =
                 data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED);
         enablePathinfoDB("false".equalsIgnoreCase(pathinfoDBEnabled) == false, installDir);
         installKeyStore(keyStoreFileName, installDir);
+        String previousJettyVersion = getJettyVersion(installDir);
+        if (previousJettyVersion.equals(JETTY_BEFORE_9_2))
+        {
+            return;
+        }
+        if (newJettyVersion.equals(previousJettyVersion) == false)
+        {
+            String message;
+            if (previousJettyVersion.equals(JETTY_9_2))
+            {
+                message = handleJetty92ToNewerVersion(installDir, previousJettyVersion, newJettyVersion);
+            } else
+            {
+                message = "Different jetty version: " + previousJettyVersion + " -> " + newJettyVersion;
+            }
+            showWarning(handler, newJettyVersion, message);
+        }
         injectPasswords(keyStorePassword, certificatePassword, installDir);
+    }
+
+    private String handleJetty92ToNewerVersion(File installDir, String previousJettyVersion, String newJettyVersion)
+    {
+        String migratedIniFiles = "";
+        if (Utils.isASInstalled(installDir))
+        {
+            File sslIniFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
+            if (sslIniFile.exists())
+            {
+                try
+                {
+                    String sslIni = FileUtils.readFileToString(sslIniFile);
+                    sslIni = sslIni.replaceAll("jetty\\.secure\\.port=(.*)", "jetty.ssl.port=$1");
+                    sslIni = sslIni.replaceAll("jetty\\.keystore\\.password=(.*)", "jetty.sslContext.keyStorePassword=$1");
+                    sslIni = sslIni.replaceAll("jetty\\.keymanager\\.password=(.*)", "jetty.sslContext.keyManagerPassword=$1");
+                    sslIni = sslIni.replaceAll("jetty\\.truststore\\.password=(.*)", "jetty.sslContext.trustStorePassword=$1");
+                    FileUtils.writeStringToFile(sslIniFile, sslIni);
+                    migratedIniFiles = sslIniFile.getName();
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
+            File deployIniFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_DEPLOY_INI_PATH);
+            if (deployIniFile.exists())
+            {
+                try
+                {
+                    String deployIni = FileUtils.readFileToString(deployIniFile);
+                    deployIni = deployIni.replaceAll("jetty\\.deploy\\.monitoredDirName=(.*)", "jetty.deploy.monitoredDir=$1");
+                    deployIni += "\n" + OPENBIS_JETTY_VERSION_KEY + "=" + newJettyVersion + "\n";
+                    FileUtils.writeStringToFile(deployIniFile, deployIni);
+                    migratedIniFiles += " and " + deployIniFile.getName();
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
+        }
+        if (migratedIniFiles.isEmpty())
+        {
+            return "Automatic migration of Jetty from version " + previousJettyVersion + " to " + newJettyVersion 
+                    + " wasn't possible.\nPlease, adapt the ini files in "
+                    + "<installation folder>/openBIS-server/jetty/start.d accordingly.\n"
+                    + "See http://www.eclipse.org/jetty/documentation/current/quick-start-configure.html "
+                    + "for more details."; 
+        }
+        return "Automatic migration of Jetty from version " + previousJettyVersion + " to " + newJettyVersion 
+                + " has been performed for " + migratedIniFiles 
+                + " in <installation folder>/openBIS-server/jetty/start.d.\n"
+                + "Nevertheless all ini files should be checked after installation and adapted accordingly "
+                + "especially in case of some custom configuration.\n"
+                + "See http://www.eclipse.org/jetty/documentation/current/quick-start-configure.html "
+                + "for more details."; 
+    }
+    
+    private void showWarning(AbstractUIHandler handler, String newJettyVersion, String message)
+    {
+        System.out.println("========== WARNING: New Jetty Version ========");
+        System.out.println(message);
+        System.out.println("==============================================");
+        if (handler != null)
+        {
+            handler.emitWarning("New Jetty Version " + newJettyVersion, message);
+        }
     }
 
     void installKeyStore(String keyStoreFileName, File installDir)
@@ -181,7 +274,34 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
             }
         }
     }
-
+    
+    private String getJettyVersion(File installDir)
+    {
+        if (GlobalInstallationContext.isFirstTimeInstallation)
+        {
+            return "";
+        }
+        File jettyDeployIniFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_DEPLOY_INI_PATH);
+        if (jettyDeployIniFile.exists() == false)
+        {
+            return JETTY_BEFORE_9_2;
+        }
+        List<String> list = FileUtilities.loadToStringList(jettyDeployIniFile);
+        for (String line : list)
+        {
+            if (line.trim().startsWith(OPENBIS_JETTY_VERSION_KEY))
+            {
+                String[] splittedLine = line.split("=");
+                if (splittedLine.length > 1)
+                {
+                    return splittedLine[1].trim();
+                }
+                break;
+            }
+        }
+        return JETTY_9_2;
+    }
+    
     private void executRestoreConfigScript(AutomatedInstallData data)
     {
         String script = getAdminScript(data, RESTORE_CONFIG_FROM_BACKUP_SCRIPT);

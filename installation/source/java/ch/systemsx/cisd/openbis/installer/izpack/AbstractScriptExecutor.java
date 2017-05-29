@@ -41,15 +41,22 @@ public abstract class AbstractScriptExecutor implements PanelAction
     {
         try
         {
-            executeAction(data);
+            executeActionWithHandler(data, handler);
         } catch (Exception ex)
         {
             ex.printStackTrace();
             handler.emitErrorAndBlockNext("Error", ex.toString());
         }
     }
+    
+    protected void executeActionWithHandler(AutomatedInstallData data, AbstractUIHandler handler)
+    {
+        executeAction(data);
+    }
 
-    protected abstract void executeAction(AutomatedInstallData data);
+    protected void executeAction(AutomatedInstallData data)
+    {
+    }
 
     protected String getAdminScript(AutomatedInstallData data, String scriptFileName)
     {
