@@ -130,7 +130,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createSpaces());
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         context.checking(new Expectations()
             {
                 {
@@ -151,7 +151,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createSpaces());
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         context.checking(new Expectations()
             {
                 {

@@ -27,7 +27,6 @@ import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -54,8 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 @Friend(toClasses = RoleWithIdentifier.class)
 public class AuthorizationTestCase extends AssertJUnit
 {
-
-    protected static final String AUTHORIZATION_CONFIG_PROVIDER = "authorizationConfigProvider";
 
     protected static final PersonPE PERSON_PE = new PersonPE();
 
@@ -504,14 +501,6 @@ public class AuthorizationTestCase extends AssertJUnit
                     will(returnValue(config));
                 }
             });
-    }
-
-    @DataProvider(name = AUTHORIZATION_CONFIG_PROVIDER)
-    protected Object[][] provideAuthorizationConfig()
-    {
-        return new Object[][] {
-                { new TestAuthorizationConfig(false, null) },
-                { new TestAuthorizationConfig(true, PERSON_PE.getUserId()) } };
     }
 
     protected static void assertOK(Status status)

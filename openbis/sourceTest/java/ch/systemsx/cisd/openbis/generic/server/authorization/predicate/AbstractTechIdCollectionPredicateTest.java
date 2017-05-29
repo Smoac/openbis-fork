@@ -46,7 +46,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         context.checking(new Expectations()
             {
                 {
@@ -153,7 +153,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testExperimentTechIdCollectionPredicateFails()
     {
         ExperimentTechIdCollectionPredicate predicate = new ExperimentTechIdCollectionPredicate();
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()

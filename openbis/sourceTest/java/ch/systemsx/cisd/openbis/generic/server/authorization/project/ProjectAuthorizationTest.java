@@ -81,7 +81,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(false, null)));
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
 
                     allowing(userProvider).getUserId();
                     will(returnValue(USER_ID));
@@ -101,7 +101,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, null)));
+                    will(returnValue(new TestAuthorizationConfig(true, false)));
 
                     allowing(userProvider).getUserId();
                     will(returnValue(USER_ID));
@@ -121,7 +121,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> object = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
 
@@ -146,7 +146,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(false, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(false, true)));
 
                     allowing(userProvider).getUserId();
                     will(returnValue(USER_ID));
@@ -166,7 +166,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(null));
@@ -189,7 +189,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     allowing(objectsProvider).getObjects(dataProvider);
                     will(returnValue(Arrays.asList()));
@@ -212,7 +212,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
@@ -238,7 +238,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
@@ -264,7 +264,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectWithoutProject = new Object<String>(ORIGINAL_OBJECT_A, null);
 
@@ -289,7 +289,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectWithProject = new Object<String>(ORIGINAL_OBJECT_A, objectProject);
 
@@ -320,7 +320,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectWithOtherProject = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_OTHER);
 
@@ -345,7 +345,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
@@ -371,7 +371,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
@@ -397,7 +397,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
@@ -423,7 +423,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);
@@ -449,7 +449,7 @@ public class ProjectAuthorizationTest extends Assert
             {
                 {
                     allowing(dataProvider).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(true, USER_ID)));
+                    will(returnValue(new TestAuthorizationConfig(true, true)));
 
                     IObject<String> objectA = new Object<String>(ORIGINAL_OBJECT_A, PROJECT_X);
                     IObject<String> objectB = new Object<String>(ORIGINAL_OBJECT_B, PROJECT_Y);

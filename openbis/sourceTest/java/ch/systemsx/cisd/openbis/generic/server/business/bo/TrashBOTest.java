@@ -210,7 +210,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     allowing(daoFactory).getAuthorizationConfig();
-                    will(returnValue(new TestAuthorizationConfig(false, null)));
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
 
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
                     will(returnValue(0));

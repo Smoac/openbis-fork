@@ -52,7 +52,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     public final void testDoEvaluationWithoutDAOFactory()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         boolean fail = true;
         try
         {
@@ -71,7 +71,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(Collections.<SpacePE> emptyList(), createSpace(), ENTITY_KIND, TECH_ID);
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID).isError());
         context.assertIsSatisfied();
@@ -82,7 +82,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(createSpaces(), createSpace(), ENTITY_KIND, TECH_ID);
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
@@ -98,7 +98,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         person.setHomeSpace(createSpace());
         final SpacePE homeGroup = createSpace();
         prepareProvider(createSpaces(), homeGroup, ENTITY_KIND, TECH_ID);
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
         final Status evaluation = predicate.doEvaluation(person, createRoles(false), TECH_ID);
         assertEquals(Status.OK, evaluation);
@@ -110,7 +110,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(createSpaces(), createAnotherSpace(), ENTITY_KIND, TECH_ID);
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
@@ -128,7 +128,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         final SpacePE anotherGroup = createSpace(ANOTHER_SPACE_CODE);
         groups.add(anotherGroup);
         prepareProvider(groups, anotherGroup, ENTITY_KIND, TECH_ID);
-        expectAuthorizationConfig(new TestAuthorizationConfig(false, null));
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
