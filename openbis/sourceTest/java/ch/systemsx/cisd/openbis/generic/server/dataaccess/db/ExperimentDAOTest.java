@@ -151,7 +151,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
         assertEqualsOrGreater(7, experiments.size());
-        final ExperimentPE expInDefault = experiments.get(0);
+        final ExperimentPE expInDefault = experiments.get(8);
         assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, expInDefault.getIdentifier());
 
         final ProjectPE projectDefault = expInDefault.getProject();
@@ -201,7 +201,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
         assertEqualsOrGreater(7, experiments.size());
-        final ExperimentPE exp = experiments.get(0);
+        final ExperimentPE exp = experiments.get(8);
         assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, exp.getIdentifier());
 
         final SpacePE spaceCisd = exp.getProject().getSpace();

@@ -136,7 +136,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<SpaceWithProjectsAndRoleAssignments> spaces =
                 generalInformationService.listSpacesWithProjectsAndRoleAssignments(sessionToken,
                         null);
-        assertEquals(3, spaces.size());
+        assertEquals(5, spaces.size());
         loginAsObserver();
 
         spaces =
@@ -160,7 +160,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
         assertEquals(
-                "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                "[/AUTH-SPACE-1/AUTH-PROJECT-11, /AUTH-SPACE-1/AUTH-PROJECT-12, /AUTH-SPACE-2/AUTH-PROJECT-21, /AUTH-SPACE-2/AUTH-PROJECT-22, /CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
                 projects.toString());
 
         loginAsObserver();

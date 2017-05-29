@@ -149,10 +149,10 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
             });
         checkSpace("CISD", "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE]",
                 "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance), ETL_SERVER(space)]",
-                spaces.get(0));
+                spaces.get(2));
         checkSpace("TESTGROUP", "[/TESTGROUP/TESTPROJ]",
-                "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance)]", spaces.get(2));
-        assertEquals(3, spaces.size());
+                "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance)]", spaces.get(4));
+        assertEquals(5, spaces.size());
     }
 
     @Test
@@ -484,7 +484,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<Experiment> result =
                 generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
         assertEquals(true, result.size() > 0);
-        Experiment resultExperiment = result.get(0);
+        Experiment resultExperiment = result.get(8);
         boolean identifierIsOk = "/CISD/DEFAULT/EXP-REUSE".equals(resultExperiment.getIdentifier());
         identifierIsOk |= "/CISD/NEMO/EXP-TEST-2".equals(resultExperiment.getIdentifier());
         identifierIsOk |=

@@ -63,10 +63,12 @@ public final class GroupDAOTest extends AbstractDAOTest
     {
         final List<SpacePE> groups = daoFactory.getSpaceDAO().listSpaces();
         Collections.sort(groups);
-        assertEquals("CISD", groups.get(0).getCode());
-        assertEquals("TEST-SPACE", groups.get(1).getCode());
-        assertEquals("TESTGROUP", groups.get(2).getCode());
-        assertEquals(3, groups.size());
+        assertEquals("AUTH-SPACE-1", groups.get(0).getCode());
+        assertEquals("AUTH-SPACE-2", groups.get(1).getCode());
+        assertEquals("CISD", groups.get(2).getCode());
+        assertEquals("TEST-SPACE", groups.get(3).getCode());
+        assertEquals("TESTGROUP", groups.get(4).getCode());
+        assertEquals(5, groups.size());
     }
 
     @Test
@@ -75,10 +77,12 @@ public final class GroupDAOTest extends AbstractDAOTest
         final List<SpacePE> groups =
                 daoFactory.getSpaceDAO().listSpaces();
         Collections.sort(groups);
-        assertEquals("CISD", groups.get(0).getCode());
-        assertEquals("TEST-SPACE", groups.get(1).getCode());
-        assertEquals("TESTGROUP", groups.get(2).getCode());
-        assertEquals(3, groups.size());
+        assertEquals("AUTH-SPACE-1", groups.get(0).getCode());
+        assertEquals("AUTH-SPACE-2", groups.get(1).getCode());
+        assertEquals("CISD", groups.get(2).getCode());
+        assertEquals("TEST-SPACE", groups.get(3).getCode());
+        assertEquals("TESTGROUP", groups.get(4).getCode());
+        assertEquals(5, groups.size());
     }
 
     @Test(groups = "broken")
