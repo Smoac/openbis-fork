@@ -48,7 +48,7 @@ $.extend(DefaultProfile.prototype, {
 				showTrashcan : true,
 				showSettings : true,
 				showVocabularyViewer : true,
-				showUserManager : true
+				showUserManager : true,
 		}
 		
 		this.orderLabInfo = {
@@ -801,7 +801,14 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			});
 		}
-		
+
+		this.initSettings = function(callback) {
+			var settingsManager = new SettingsManager(this.serverFacade);
+			settingsManager.loadSettingsAndApplyToProfile((function() {
+				callback();
+			}));
+		}
+
 		//
 		// Initializes
 		//
@@ -813,7 +820,9 @@ $.extend(DefaultProfile.prototype, {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
-									callbackWhenDone();
+									_this.initSettings(function() {
+										callbackWhenDone();
+									});
 								});
 							});
 						});

@@ -528,16 +528,21 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         this._sideMenuWidgetModel.menuDOMBody.append($tree);
         this._sideMenuWidgetModel.tree = $tree;
         
-        $tree.fancytree("getTree").getNodeByKey("LAB_NOTEBOOK").setExpanded(true);
+		var labNotebook = $tree.fancytree("getTree").getNodeByKey("LAB_NOTEBOOK");
+		if (labNotebook) {
+	        labNotebook.setExpanded(true);
+		}
         var inventoryNode = $tree.fancytree("getTree").getNodeByKey("INVENTORY");
-        inventoryNode.setExpanded(true).done(function(){
-            inventoryNode.visit(function(node){
-                node.setExpanded(true).done(function(){
-                    node.visit(function(node2){
-                        node2.setExpanded(true);
-                    })
-                });
-            })
-        });
+		if (inventoryNode) {
+			inventoryNode.setExpanded(true).done(function(){
+				inventoryNode.visit(function(node){
+					node.setExpanded(true).done(function(){
+						node.visit(function(node2){
+							node2.setExpanded(true);
+						})
+					});
+				})
+			});
+		}
     }
 }

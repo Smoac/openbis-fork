@@ -27,8 +27,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._sampleTypeProtocolsTableModel = null;
 	this._sampleTypeDefinitionsTableModels = {}; // key: sample type; value: table model
 
-	this.repaint = function(views) {
+	this.repaint = function(views, profileToEdit) {
 
+		this._profileToEdit = profileToEdit;
 		var $container = views.content;
 
 		Util.blockUI(null, null, true);
@@ -99,9 +100,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		for (sampleType of sampleTypes) {
 			var tableModel = this._sampleTypeDefinitionsTableModels[sampleType];
 			var values = tableModel.getValues();
-			if (Object.keys(values).length !== 0) {
-				sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
-			}
+			sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
 		}
 		return sampleTypeDefinitionsSettings;
 	}
@@ -145,10 +144,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			}
 		};
 		// add data
-		for (var menuItemName of Object.keys(profile.mainMenu)) {
-			tableModel.addRow({
-				menuItemName : menuItemName,
-				enabled : profile.mainMenu[menuItemName] });
+		for (var menuItemName of Object.keys(this._profileToEdit.mainMenu)) {
+			if (menuItemName !== "showSettings") {
+				tableModel.addRow({
+					menuItemName : menuItemName,
+					enabled : this._profileToEdit.mainMenu[menuItemName]
+				});
+			}
 		}
 		// transform output
 		tableModel.valuesTransformer = function(values) {
@@ -166,7 +168,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			columnName : "Forced Disable RTF",
 			placeholder : "select property type",
 			options : this._settingsFormController.getForcedDisableRTFOptions(),
-			initialValues : profile.forcedDisableRTF,
+			initialValues : this._profileToEdit.forcedDisableRTF,
 		});
 	}
 
@@ -175,7 +177,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			columnName : "Forced Monospace Font",
 			placeholder : "select property type",
 			options : this._settingsFormController.getForcedMonospaceFontOptions(),
-			initialValues : profile.forceMonospaceFont,
+			initialValues : this._profileToEdit.forceMonospaceFont,
 		});
 	}
 
@@ -184,7 +186,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			columnName : "Inventory Spaces",
 			placeholder : "select space",
 			options : this._settingsFormController.getInventorySpacesOptions(),
-			initialValues : profile.inventorySpaces,
+			initialValues : this._profileToEdit.inventorySpaces,
 		});
 	}
 
@@ -193,7 +195,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			columnName : "Sample Type Protocols",
 			placeholder : "select protocol",
 			options : this._settingsFormController.getSampleTypeProtocolsOptions(),
-			initialValues : profile.sampleTypeProtocols,
+			initialValues : this._profileToEdit.sampleTypeProtocols,
 		});
 	}
 
@@ -210,14 +212,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	// 	this._appendSlider({
 	// 		$container : $fieldset,
-	// 		value : profile.storagesConfiguration.storageSpaceLowWarning,
+	// 		value : this._profileToEdit.storagesConfiguration.storageSpaceLowWarning,
 	// 		labelText : "Low storage space warning:",
 	// 		id : "settings-slider-low-storage",
 	// 	});
 
 	// 	this._appendSlider({
 	// 		$container : $fieldset,
-	// 		value : profile.storagesConfiguration.boxSpaceLowWarning,
+	// 		value : this._profileToEdit.storagesConfiguration.boxSpaceLowWarning,
 	// 		labelText : "Low box space warning:",
 	// 		id : "settings-slider-low-box",
 	// 	});
@@ -299,7 +301,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			}).bind(this),
 		};
 		// add data
-		for (var dataSetTypeForFileName of profile.dataSetTypeForFileNameMap) {
+		for (var dataSetTypeForFileName of this._profileToEdit.dataSetTypeForFileNameMap) {
 			tableModel.addRow(dataSetTypeForFileName);
 		}
 		// transform output
@@ -319,13 +321,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	//
 	this._paintSampleTypesDefinition = function($container) {
 		var $fieldset = this._getFieldset($container, "Sample type definitions", "settings-section-sampletype-definitions");
-		for (var sampleType of profile.getAllSampleTypes()) {
+		for (var sampleType of this._profileToEdit.getAllSampleTypes()) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
 			var $sampleTypeFieldset = this._getFieldset($div, sampleType.code, "settings-section-sampletype-" + sampleType.code);
 			$fieldset.append($div);
 			// table for sample type
-			var sampleTypeSettings = profile.sampleTypeDefinitionsExtension[sampleType.code];
+			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
 			var tableModel = this._getSampleTypeDefinitionTableModel(sampleTypeSettings);
 			$sampleTypeFieldset.append(this._getTable(tableModel));
 			this._sampleTypeDefinitionsTableModels[sampleType.code] = tableModel;

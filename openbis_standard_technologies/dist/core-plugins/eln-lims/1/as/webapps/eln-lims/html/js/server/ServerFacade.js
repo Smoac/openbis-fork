@@ -1738,4 +1738,27 @@ function ServerFacade(openbisServer) {
 		
 		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, null, callbackFunction);
 	}
+
+	//
+	// V3 Save Functions
+	//
+
+	this.updateSample = function(sampleV1, callbackFunction) {
+		require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SamplePermId"], 
+        function(SampleUpdate, SamplePermId) {
+			var sampleUpdate = new SampleUpdate();
+            sampleUpdate.setSampleId(new SamplePermId(sampleV1.permId));
+			
+			for(var propertyCode in sampleV1.properties) {
+				sampleUpdate.setProperty(propertyCode, sampleV1.properties[propertyCode]);
+			}
+
+            mainController.openbisV3.updateSamples([ sampleUpdate ]).done(function() {
+                callbackFunction(true);
+            }).fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				callbackFunction(false);
+			});
+        });
+	}
 }

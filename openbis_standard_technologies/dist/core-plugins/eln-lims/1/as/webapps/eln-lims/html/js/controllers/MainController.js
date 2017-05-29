@@ -650,7 +650,7 @@ function MainController(profile) {
 	
 	this._showSettingsPage = function(mode) {
 		var _this = this;
-		this.serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS" }, function(data) {
+		this.serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "withProperties" : true }, function(data) {
 			if(!data[0]) {
 				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 			} else {
@@ -658,7 +658,6 @@ function MainController(profile) {
 				var views = _this._getNewViewModel(true, true, false);
 				newView.init(views);
 				_this.currentView = newView;
-				//window.scrollTo(0,0);
 			}
 		});
 	}
