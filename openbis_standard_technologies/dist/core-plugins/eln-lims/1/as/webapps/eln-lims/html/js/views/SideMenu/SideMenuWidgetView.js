@@ -165,7 +165,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         var treeModelUtils = [];
-        
+
+        if(profile.mainMenu.showUserProfile) {
+        	var settingsLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null);
+        	treeModelUtils.push({ title : settingsLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
+        }
+
         if(profile.mainMenu.showDrawingBoard) {
         	var drawingBoardLink = _this.getLinkForNode("Drawing Board", "DRAWING_BOARD", "showDrawingBoard", null);
         	treeModelUtils.push({ title : drawingBoardLink, entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
@@ -210,7 +215,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	var settingsLink = _this.getLinkForNode("Settings", "SETTINGS", "showSettingsPage", null);
         	treeModelUtils.push({ title : settingsLink, entityType: "SETTINGS", key : "SETTINGS", folder : false, lazy : false, view : "showSettingsPage", icon : "glyphicon glyphicon-cog" });
         }
-        
+
         treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, expanded : true, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
         treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         

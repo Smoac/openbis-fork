@@ -243,6 +243,10 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+				case "showUserProfilePage":
+					document.title = "User Profile";
+					this._showUserProfilePage();
+					break;
 				case "showSettingsPage":
 					document.title = "Settings";
 					this._showSettingsPage(FormMode.VIEW);
@@ -524,7 +528,7 @@ function MainController(profile) {
 					}, 'text');
 					break;
 				default:
-					window.alert("The system tried to create a non existing view");
+					window.alert("The system tried to create a non existing view: " + newViewChange);
 					break;
 			}
 		} catch(err) {
@@ -647,7 +651,14 @@ function MainController(profile) {
 		
 		return modificableViews;
 	}
-	
+
+	this._showUserProfilePage = function() {
+		var newView = new UserProfileController(this);
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
+		this.currentView = newView;
+	}
+
 	this._showSettingsPage = function(mode) {
 		var _this = this;
 		this.serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "withProperties" : true }, function(data) {

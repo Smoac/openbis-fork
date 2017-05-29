@@ -49,6 +49,7 @@ $.extend(DefaultProfile.prototype, {
 				showSettings : true,
 				showVocabularyViewer : true,
 				showUserManager : true,
+				showUserProfile : true,
 		}
 		
 		this.orderLabInfo = {
