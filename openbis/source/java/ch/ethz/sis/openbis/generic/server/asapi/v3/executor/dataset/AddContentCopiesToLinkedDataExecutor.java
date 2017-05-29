@@ -36,6 +36,8 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
     @Override
     public void add(IOperationContext context, LinkDataPE entity, Collection<ContentCopyCreation> added)
     {
+        PersonPE person = context.getSession().tryGetPerson();
+
         Set<IExternalDmsId> emdsIds = new HashSet<>();
         for (ContentCopyCreation ccc : added)
         {
@@ -81,7 +83,7 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
                     }
                     copy.setPath(path);
             }
-
+            copy.setRegistrator(person);
             contentCopies.add(copy);
         }
         if (entity.getContentCopies() == null)
@@ -91,7 +93,6 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
         entity.getContentCopies().addAll(contentCopies);
 
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        PersonPE person = context.getSession().tryGetPerson();
         RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
     }
 

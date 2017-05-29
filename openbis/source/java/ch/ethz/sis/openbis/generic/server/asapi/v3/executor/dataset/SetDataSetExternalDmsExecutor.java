@@ -84,20 +84,30 @@ public class SetDataSetExternalDmsExecutor extends
 
             if (contentCopies.size() == 1)
             {
-                ContentCopyPE next = contentCopies.iterator().next();
+                ContentCopyPE current = contentCopies.iterator().next();
+
+                ContentCopyPE newCopy = new ContentCopyPE();
+                newCopy.setExternalCode(current.getExternalCode());
+                newCopy.setDataSet(current.getDataSet());
+                newCopy.setRegistrator(context.getSession().tryGetPerson());
+
                 switch (related.getAddressType())
                 {
                     case OPENBIS:
-                        next.setLocationType(LocationType.OPENBIS);
+                        newCopy.setLocationType(LocationType.OPENBIS);
                         break;
                     case URL:
-                        next.setLocationType(LocationType.URL);
+                        newCopy.setLocationType(LocationType.URL);
                         break;
                     default:
                         throw new UserFailureException("Cannot set external data management system of dataset to be of type "
                                 + related.getAddressType() + " using legacy methods");
                 }
-                next.setExternalDataManagementSystem(related);
+
+                newCopy.setExternalDataManagementSystem(related);
+
+                contentCopies.remove(current);
+                contentCopies.add(newCopy);
             } else
             {
                 throw new UserFailureException("Cannot set external data management system to linked dataset with multiple or zero copies");

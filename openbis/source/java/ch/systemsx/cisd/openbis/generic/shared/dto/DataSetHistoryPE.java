@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -41,6 +42,14 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
     private DataPE dataSet;
 
     private ExperimentPE experiment;
+
+    private ExternalDataManagementSystemPE externalDms;
+
+    private String externalCode;
+
+    private String path;
+
+    private String gitCommitHash;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
     @JoinColumn(name = ColumnNames.MAIN_DATA_SET_COLUMN)
@@ -104,6 +113,51 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
         this.experiment = experiment;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExternalDataManagementSystemPE.class)
+    @JoinColumn(name = ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN)
+    public ExternalDataManagementSystemPE getExternalDms()
+    {
+        return externalDms;
+    }
+
+    public void setExternalDms(ExternalDataManagementSystemPE externalDms)
+    {
+        this.externalDms = externalDms;
+    }
+
+    @Column(name = ColumnNames.EXTERNAL_CODE_COLUMN)
+    public String getExternalCode()
+    {
+        return externalCode;
+    }
+
+    public void setExternalCode(String externalCode)
+    {
+        this.externalCode = externalCode;
+    }
+
+    @Column(name = ColumnNames.PATH_COLUMN)
+    public String getPath()
+    {
+        return path;
+    }
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    @Column(name = ColumnNames.GIT_COMMIT_HASH_COLUMN)
+    public String getGitCommitHash()
+    {
+        return gitCommitHash;
+    }
+
+    public void setGitCommitHash(String gitCommitHash)
+    {
+        this.gitCommitHash = gitCommitHash;
+    }
+
     @Override
     @Transient
     public IMatchingEntity getRelatedEntity()
@@ -117,6 +171,9 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
         } else if (dataSet != null)
         {
             return dataSet;
+        } else if (externalDms != null)
+        {
+            return new MatchingContentCopy(externalCode, path, gitCommitHash, externalDms);
         }
         return null;
     }

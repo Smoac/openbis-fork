@@ -23,8 +23,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 
 @Entity
 @Table(name = TableNames.CONTENT_COPIES_TABLE)
-public class ContentCopyPE
+public class ContentCopyPE extends HibernateAbstractRegistrationHolder
 {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
 

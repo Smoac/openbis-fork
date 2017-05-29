@@ -119,30 +119,40 @@ public class UpdateDataSetExternalDmsExecutor extends
             Set<ContentCopyPE> contentCopies = dataSet.getContentCopies();
             if (contentCopies.size() == 1)
             {
-                ContentCopyPE next = contentCopies.iterator().next();
-                if (next.getExternalCode() != null)
+                PersonPE person = context.getSession().tryGetPerson();
+
+                ContentCopyPE current = contentCopies.iterator().next();
+
+                ContentCopyPE newCopy = new ContentCopyPE();
+                newCopy.setExternalCode(current.getExternalCode());
+                newCopy.setDataSet(current.getDataSet());
+                newCopy.setRegistrator(person);
+
+                if (current.getExternalCode() != null)
                 {
                     switch (related.getAddressType())
                     {
                         case OPENBIS:
-                            next.setLocationType(LocationType.OPENBIS);
+                            newCopy.setLocationType(LocationType.OPENBIS);
                             break;
                         case URL:
-                            next.setLocationType(LocationType.URL);
+                            newCopy.setLocationType(LocationType.URL);
                             break;
                         default:
                             throw new UserFailureException("Cannot set extenal data management system of dataset to be of type "
                                     + related.getAddressType() + " using legacy methods");
                     }
 
-                    next.setExternalDataManagementSystem(related);
+                    newCopy.setExternalDataManagementSystem(related);
+
+                    contentCopies.add(newCopy);
+                    contentCopies.remove(current);
 
                     Date timeStamp = daoFactory.getTransactionTimestamp();
-                    PersonPE person = context.getSession().tryGetPerson();
                     RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
                 } else
                 {
-                    throw new UserFailureException("Cannot set external data management system to content copy of type " + next.getLocationType());
+                    throw new UserFailureException("Cannot set external data management system to content copy of type " + current.getLocationType());
                 }
             } else
             {

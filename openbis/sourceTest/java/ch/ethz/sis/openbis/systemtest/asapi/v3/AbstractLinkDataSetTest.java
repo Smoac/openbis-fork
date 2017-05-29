@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -39,6 +41,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetHistoryPE;
 
 public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
 {
@@ -130,6 +133,7 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
 
     protected class ContentCopyCreationBuilder
     {
+
         private ExternalDmsPermId edmsId;
 
         private ExternalDmsAddressType type;
@@ -139,6 +143,31 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
         private String path;
 
         private String gitCommitHash;
+
+        public ExternalDmsPermId getEdmsId()
+        {
+            return edmsId;
+        }
+
+        public ExternalDmsAddressType getType()
+        {
+            return type;
+        }
+
+        public String getExternalCode()
+        {
+            return externalCode;
+        }
+
+        public String getPath()
+        {
+            return path;
+        }
+
+        public String getGitCommitHash()
+        {
+            return gitCommitHash;
+        }
 
         public ContentCopyCreationBuilder(ExternalDmsPermId edmsId)
         {
@@ -391,4 +420,21 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
                 { ExternalDmsAddressType.FILE_SYSTEM, null, null, "hash" }
         };
     }
+
+    protected List<DataSetHistoryPE> historyOf(DataSetPermId id)
+    {
+        Session session = daoFactory.getSessionFactory().openSession();
+        Query query = session.createQuery(
+                "FROM DataSetHistoryPE as entry "
+                        + "LEFT JOIN FETCH entry.entityInternal "
+                        + "LEFT JOIN FETCH entry.externalDms "
+                        + "WHERE entry.entityInternal.code = :code")
+                .setParameter("code", id.getPermId());
+
+        @SuppressWarnings("unchecked")
+        List<DataSetHistoryPE> result = query.list();
+        session.close();
+        return result;
+    }
+
 }

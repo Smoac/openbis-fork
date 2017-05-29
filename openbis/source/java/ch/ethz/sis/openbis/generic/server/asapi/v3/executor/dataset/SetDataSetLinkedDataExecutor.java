@@ -129,9 +129,11 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
         {
             throw new UserFailureException("External code can not be null.");
         }
+        copy.setRegistrator(context.getSession().tryGetPerson());
 
         Set<ContentCopyPE> contentCopies = new HashSet<>();
         contentCopies.add(copy);
+
         dataSet.setContentCopies(contentCopies);
     }
 }

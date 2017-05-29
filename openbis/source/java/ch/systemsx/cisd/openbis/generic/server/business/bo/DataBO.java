@@ -442,6 +442,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             copy.setLocationType(LocationType.URL);
         }
+        copy.setRegistrator(tryToGetRegistrator(newData));
         dataPE.setContentCopies(Collections.singleton(copy));
 
         dataPE.setDataProducerCode(newData.getDataProducerCode());

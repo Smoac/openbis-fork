@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MatchingContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -54,7 +57,7 @@ public class EntityHistoryTranslator
     }
 
     private static EntityHistory translate(AbstractEntityPropertyHistoryPE entityPropertyHistory,
-            Map<MaterialTypePE, MaterialType> materialTypeCache, 
+            Map<MaterialTypePE, MaterialType> materialTypeCache,
             Map<PropertyTypePE, PropertyType> cache, String baseIndexURL,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -78,26 +81,37 @@ public class EntityHistoryTranslator
             String entityType = null;
             if (entityHistory.getRelatedEntity() != null)
             {
-                switch (entityHistory.getRelatedEntity().getEntityKind())
+                if (entityHistory.getRelatedEntity() instanceof MatchingContentCopy)
                 {
-                    case DATA_SET:
-                        entityType = EntityKind.DATA_SET.getDescription();
-                        result.setRelatedEntity(DataSetTranslator
-                                .translateBasicProperties((DataPE) entityHistory.getRelatedEntity()));
-                        break;
-                    case EXPERIMENT:
-                        entityType = EntityKind.EXPERIMENT.getDescription();
-                        result.setRelatedEntity(ExperimentTranslator.translate(
-                                (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL,
-                                null, managedPropertyEvaluatorFactory));
-                        break;
-                    case SAMPLE:
-                        entityType = EntityKind.SAMPLE.getDescription();
-                        result.setRelatedEntity(SampleTranslator.translate(
-                                (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL, null,
-                                managedPropertyEvaluatorFactory));
-                        break;
-                    case MATERIAL:
+                    result.setValue(entityHistory.getRelatedEntity().toString());
+                    PropertyType pt = new PropertyType();
+                    pt.setCode("Content copy");
+                    pt.setLabel("Content copy");
+                    pt.setDataType(new DataType(DataTypeCode.VARCHAR));
+                    result.setPropertyType(pt);
+                } else
+                {
+                    switch (entityHistory.getRelatedEntity().getEntityKind())
+                    {
+                        case DATA_SET:
+                            entityType = EntityKind.DATA_SET.getDescription();
+                            result.setRelatedEntity(DataSetTranslator
+                                    .translateBasicProperties((DataPE) entityHistory.getRelatedEntity()));
+                            break;
+                        case EXPERIMENT:
+                            entityType = EntityKind.EXPERIMENT.getDescription();
+                            result.setRelatedEntity(ExperimentTranslator.translate(
+                                    (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL,
+                                    null, managedPropertyEvaluatorFactory));
+                            break;
+                        case SAMPLE:
+                            entityType = EntityKind.SAMPLE.getDescription();
+                            result.setRelatedEntity(SampleTranslator.translate(
+                                    (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL, null,
+                                    managedPropertyEvaluatorFactory));
+                            break;
+                        case MATERIAL:
+                    }
                 }
             }
             if (entityHistory.getSpace() != null)

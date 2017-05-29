@@ -79,14 +79,25 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
             Set<ContentCopyPE> contentCopies = entity.getContentCopies();
             if (contentCopies.size() == 1)
             {
-                ContentCopyPE next = contentCopies.iterator().next();
-                if (next.getExternalCode() != null)
+                ContentCopyPE current = contentCopies.iterator().next();
+
+                ContentCopyPE newCopy = new ContentCopyPE();
+                newCopy.setExternalCode(current.getExternalCode());
+                newCopy.setDataSet(current.getDataSet());
+                newCopy.setExternalDataManagementSystem(current.getExternalDataManagementSystem());
+                newCopy.setRegistrator(context.getSession().tryGetPerson());
+                newCopy.setLocationType(current.getLocationType());
+
+                if (current.getExternalCode() != null)
                 {
-                    next.setExternalCode(update.getExternalCode().getValue());
+                    newCopy.setExternalCode(update.getExternalCode().getValue());
                 } else
                 {
-                    throw new UserFailureException("Cannot set external code to content copy of type" + next.getLocationType());
+                    throw new UserFailureException("Cannot set external code to content copy of type" + current.getLocationType());
                 }
+                contentCopies.remove(current);
+                contentCopies.add(newCopy);
+
             } else
             {
                 throw new UserFailureException("Cannot set external code to linked dataset with multiple or zero copies");
@@ -111,7 +122,7 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
 
             for (ContentCopyPE cc : entity.getContentCopies())
             {
-                if (removed.contains(new ContentCopyPermId(cc.getId().toString())))
+                if (cc.getId() != null && removed.contains(new ContentCopyPermId(cc.getId().toString())))
                 {
                     remove.add(cc);
                 }
