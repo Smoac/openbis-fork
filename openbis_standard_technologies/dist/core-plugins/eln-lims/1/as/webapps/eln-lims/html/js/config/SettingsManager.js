@@ -21,18 +21,15 @@ function SettingsManager(serverFacade) {
 
 	this.loadSettings = function(callback) {
 		this._serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "withProperties" : true }, (function(data) {
-			if(!data[0]) {
-				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+			if (data && data[0] && data[0].properties && data[0].properties.ELN_SETTINGS) {
+				var settings = JSON.parse(data[0].properties.ELN_SETTINGS);
+				callback(settings);
 			} else {
-				if (data[0].properties && data[0].properties.ELN_SETTINGS) {
-					var settings = JSON.parse(data[0].properties.ELN_SETTINGS);
-					callback(settings);
-				} else {
-					callback();
-				}
+				callback();
 			}
 		}).bind(this))
 	}
+
 
 	// Loads settings and logs validation errors to console.
 	// Applies the settings to the profile even if they are invalid.

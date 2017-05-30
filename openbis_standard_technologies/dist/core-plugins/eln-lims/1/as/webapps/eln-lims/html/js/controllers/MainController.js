@@ -667,7 +667,7 @@ function MainController(profile) {
 		var _this = this;
 		this.serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "withProperties" : true }, function(data) {
 			if(!data[0]) {
-				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+				window.alert("Settings sample doesn't exist, settings can't be edited, this is not supposed to happen, contact your admin.");
 			} else {
 				var newView = new SettingsFormController(_this, data[0], mode);
 				var views = _this._getNewViewModel(true, true, false);

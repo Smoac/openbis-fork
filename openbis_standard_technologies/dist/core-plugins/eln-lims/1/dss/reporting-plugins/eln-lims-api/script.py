@@ -394,10 +394,10 @@ def init(tr, parameters, tableBuilder):
 		defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
 	
+	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
+			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:
-		if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
-			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
 			
 		if isSampleTypeAvailable(installedTypes, "ANTIBODY"):
 			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
