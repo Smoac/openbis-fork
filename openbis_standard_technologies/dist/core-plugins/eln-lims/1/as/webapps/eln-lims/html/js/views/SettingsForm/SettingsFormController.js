@@ -24,7 +24,9 @@ function SettingsFormController(mainController, settingsSample, mode) {
 		// apply settings to copy of profile, even if invalid, for editing
 		var profileToEdit = jQuery.extend(true, {}, profile);
 		this._settingsManager.loadSettings((function(settings) {
-			this._settingsManager.applySettingsToProfile(settings, profileToEdit);
+			if (settings) {
+				this._settingsManager.applySettingsToProfile(settings, profileToEdit);
+			}
 			this._settingsFormView.repaint(views, profileToEdit);
 		}).bind(this));
 	}

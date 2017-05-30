@@ -24,8 +24,12 @@ function SettingsManager(serverFacade) {
 			if(!data[0]) {
 				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 			} else {
-				var settings = JSON.parse(data[0].properties.ELN_SETTINGS);
-				callback(settings);
+				if (data[0].properties && data[0].properties.ELN_SETTINGS) {
+					var settings = JSON.parse(data[0].properties.ELN_SETTINGS);
+					callback(settings);
+				} else {
+					callback();
+				}
 			}
 		}).bind(this))
 	}
@@ -34,12 +38,14 @@ function SettingsManager(serverFacade) {
 	// Applies the settings to the profile even if they are invalid.
     this.loadSettingsAndApplyToProfile = function(doneCallback) {
 		this.loadSettings((function(settings) {
-			var errors = this._validateSettings(settings);
-			if (errors.length > 0) {
-				console.log("The settings contain the following errors:");
-				console.log(errors);
+			if (settings) {
+				var errors = this._validateSettings(settings);
+				if (errors.length > 0) {
+					console.log("The settings contain the following errors:");
+					console.log(errors);
+				}
+				this.applySettingsToProfile(settings, profile);
 			}
-			this.applySettingsToProfile(settings, profile);
 			doneCallback();
 		}).bind(this));
     }
