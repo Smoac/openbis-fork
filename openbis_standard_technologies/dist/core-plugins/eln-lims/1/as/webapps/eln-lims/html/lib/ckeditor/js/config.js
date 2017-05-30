@@ -10,7 +10,9 @@ CKEDITOR.editorConfig = function( config ) {
 	config.specialChars = config.specialChars.concat( ['&alpha;', '&beta;', '&gamma;', '&delta;', 
 	                                                    '&epsilon;', '&zeta;', '&eta;', '&theta;', '&kappa;', '&lambda;', '&mu;', '&xi;', '&pi;', '&rho;', '&sigma;', 
 	                                                    '&upsilon;', '&phi;', '&psi;', '&omega;', '&Delta;', '&Sigma;', '&Phi;', '&Omega;'] );
-	config.extraPlugins='base64image,confighelper';
+	config.extraPlugins='confighelper';
+//	config.extraPlugins='uploadimage,confighelper';
+//	config.uploadUrl = '/uploader/upload.php';
 	config.stylesSet = false;
 	config.toolbarGroups = [
 	    					{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
