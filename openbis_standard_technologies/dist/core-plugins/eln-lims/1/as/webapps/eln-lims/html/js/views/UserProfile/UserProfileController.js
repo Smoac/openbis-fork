@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function UserProfileController(mainController) {
+function UserProfileController(mainController, mode) {
 	this._mainController = mainController;
-	this._userProfileModel = new UserProfileModel();
+	this._userProfileModel = new UserProfileModel(mode);
 	this._userProfileView = new UserProfileView(this, this._userProfileModel);
 
 	this.init = function(views) {
@@ -27,6 +27,44 @@ function UserProfileController(mainController) {
 		var userId = this._mainController.serverFacade.getUserId();
 		var resetPasswordController = new ResetPasswordController(userId);
 		resetPasswordController.init();
+	}
+
+	this.getUserInformation = function(callback) {
+		var userId = this._mainController.serverFacade.getUserId();
+		this._mainController.serverFacade.listPersons(function(response) {
+			for (person of response.result) {
+				if (person.userId === userId) {
+					callback(person);
+				}
+			}
+		});
+	}
+
+	this.save = function(userInformation) {
+		var errors = this._validate(userInformation);
+		if (errors.length > 0) {
+			Util.showError(FormUtil._getSanitizedErrorString("Validation Error:", errors));
+			return;
+		}
+		var userId = this._mainController.serverFacade.getUserId();
+		this._mainController.serverFacade.updateUserInformation(userId, userInformation, function(ok) {
+			if (ok) {
+				mainController.changeView("showUserProfilePage");
+			} else {
+				Util.showError(FormUtil._getSanitizedErrorString("Error:", ["Could not save user information."]));
+			}
+		});
+	}
+
+	this._validate = function(userInformation) {
+		var errors = [];
+		var fields = ["firstName", "lastName", "email"];
+		for (var field of fields) {
+			if (userInformation[field] == null || userInformation[field].length === 0) {
+				errors.push(field + " can not be empty.");
+			}
+		}
+		return errors;
 	}
 
 }

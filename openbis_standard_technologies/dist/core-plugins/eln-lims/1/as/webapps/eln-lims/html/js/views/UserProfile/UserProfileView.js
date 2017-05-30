@@ -18,17 +18,38 @@ function UserProfileView(userProfileController, userProfileModel) {
 	this._userProfileController = userProfileController;
 	this._userProfileModel = userProfileModel;
 
-	this.repaint = function(views, profileToEdit) {
+    this._$firstNameInput = null;
+    this._$lastNameInput = null;
+    this._$emailInput = null;
+
+	this.repaint = function(views) {
 
         // header
         var $header = views.header;
         var typeTitle = "User Profile";
         var $formTitle = $("<h2>").append(typeTitle);
         $header.append($formTitle);
+
+        var toolbarModel = [];		
+        if(this._userProfileModel.mode === FormMode.VIEW) {
+            //Edit
+            var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+                mainController.changeView("showEditUserProfilePage");
+            });
+            toolbarModel.push({ component : $editButton, tooltip: "Edit" });
+        } else { //Create and Edit
+            //Save
+            var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", (function() {
+                this._userProfileController.save(this._getUserInformation());
+            }).bind(this), "Save");
+            $saveBtn.removeClass("btn-default");
+            $saveBtn.addClass("btn-primary");
+            toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+        }
 		// ToolBox
-		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
-		$toolbox.append(this._getOptionsMenu());
-		$header.append($toolbox);
+        var $options = this._getOptionsMenu();
+        toolbarModel.push({ component : $options, tooltip: null });
+        $header.append(FormUtil.getToolbar(toolbarModel));
 
         // formColumn for content
 		var $container = views.content;
@@ -36,6 +57,28 @@ function UserProfileView(userProfileController, userProfileModel) {
         var $formColumn = $("<div>");
         $form.append($formColumn);
         $container.append($form);
+
+        this._userProfileController.getUserInformation((function(getUserInformation) {
+            // first name
+            this._$firstNameInput = $("<input>", { type : "text", class : "form-control" });
+            this._$firstNameInput.val(getUserInformation.firstName);
+            $formColumn.append(this._getFormGroup(this._$firstNameInput, "First Name:"));
+            // last name
+            this._$lastNameInput = $("<input>", { type : "text", class : "form-control" });
+            this._$lastNameInput.val(getUserInformation.lastName);
+            $formColumn.append(this._getFormGroup(this._$lastNameInput, "Last Name:"));
+            // user email
+            this._$emailInput = $("<input>", { type : "text", class : "form-control" });
+            this._$emailInput.val(getUserInformation.email);
+            $formColumn.append(this._getFormGroup(this._$emailInput, "Email:"));
+            // disable in view mode
+            if (this._userProfileModel.mode === FormMode.VIEW) {
+                this._$firstNameInput.prop("disabled", true);
+                this._$lastNameInput.prop("disabled", true);
+                this._$emailInput.prop("disabled", true);
+            }
+        }).bind(this));
+
     }
 
 	this._getOptionsMenu = function() {
@@ -48,4 +91,20 @@ function UserProfileView(userProfileController, userProfileModel) {
         return FormUtil.getOperationsMenu(items);
 	}
 
+    this._getUserInformation = function() {
+        return {
+            firstName : this._$firstNameInput.val(),
+            lastName : this._$lastNameInput.val(),
+            email : this._$emailInput.val(),
+        };
+    }
+
+	this._getFormGroup = function($input, labelText) {
+		var $formGroup = $("<div>", { class : "form-group" });
+		$formGroup.append($("<label>", { class : "control-label" }).text(labelText));
+		var $controls = $("<div>", { class : "controls" });
+		$formGroup.append($controls);
+		$controls.append($input);
+		return $formGroup;
+	}
 }

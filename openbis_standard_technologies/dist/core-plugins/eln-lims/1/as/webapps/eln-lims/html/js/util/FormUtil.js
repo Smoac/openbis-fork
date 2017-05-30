@@ -899,4 +899,20 @@ var FormUtil = new function() {
     	var n = Number(str);
     	return String(n) === str;
 	}
+
+	//
+	// errors
+	//
+
+	// errors: array of strings
+	this._getSanitizedErrorString = function(title, errors) {
+		var $container = $("<div>");
+        $container.append($("<h3>").text(title));
+		var $ul = $("<ul>");
+		for (var error of errors) {
+			$ul.append($("<li>").text(error));
+		}
+		$container.append($ul);
+		return $container.html();
+	}
 }

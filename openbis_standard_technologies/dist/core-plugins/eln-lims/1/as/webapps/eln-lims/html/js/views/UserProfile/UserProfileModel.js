@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
-function UserProfileModel() {
+function UserProfileModel(mode) {
+    this.mode = mode;
 }

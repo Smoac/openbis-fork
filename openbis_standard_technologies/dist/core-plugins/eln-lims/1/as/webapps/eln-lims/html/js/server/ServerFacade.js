@@ -115,6 +115,18 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listPersons(callbackFunction);
 	};
 	
+	this.updateUserInformation = function(userId, userInformation, callbackFunction) {
+		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
+			{
+				"method" : "updateUserInformation",
+				"userId" : userId,
+				"firstName" : userInformation.firstName,
+				"lastName" : userInformation.lastName,
+				"email" : userInformation.email,
+			},
+			this._handleAggregationServiceData.bind(this, callbackFunction));
+	}
+
 	this.registerUserPassword = function(userId, userPass, callbackFunction) {
 		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
 			{
@@ -122,15 +134,17 @@ function ServerFacade(openbisServer) {
 				"userId" : userId,
 				"password" : userPass
 			},
-			function(data){
-				if(data.result.rows[0][0].value == "OK") {
-					callbackFunction(true);
-				} else {
-					callbackFunction(false);
-				}
-			});
+			this._handleAggregationServiceData.bind(this, callbackFunction));
 	}
-	
+
+	this._handleAggregationServiceData = function(callbackFunction, data) {
+		if(data.result.rows[0][0].value == "OK") {
+			callbackFunction(true);
+		} else {
+			callbackFunction(false);
+		}
+	}
+
 	this.createELNUser = function(userId, callback) {
  		var _this = this;
  		var inventorySpacesToRegister = [];

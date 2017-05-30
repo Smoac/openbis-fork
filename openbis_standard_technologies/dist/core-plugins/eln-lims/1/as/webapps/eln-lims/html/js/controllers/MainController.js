@@ -245,7 +245,11 @@ function MainController(profile) {
 			switch (newViewChange) {
 				case "showUserProfilePage":
 					document.title = "User Profile";
-					this._showUserProfilePage();
+					this._showUserProfilePage(FormMode.VIEW);
+					break;
+				case "showEditUserProfilePage":
+					document.title = "Edit User Profile";
+					this._showUserProfilePage(FormMode.EDIT);
 					break;
 				case "showSettingsPage":
 					document.title = "Settings";
@@ -652,8 +656,8 @@ function MainController(profile) {
 		return modificableViews;
 	}
 
-	this._showUserProfilePage = function() {
-		var newView = new UserProfileController(this);
+	this._showUserProfilePage = function(mode) {
+		var newView = new UserProfileController(this, mode);
 		var views = this._getNewViewModel(true, true, false);
 		newView.init(views);
 		this.currentView = newView;

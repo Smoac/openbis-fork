@@ -7,7 +7,7 @@ function SettingsManager(serverFacade) {
 		var _this = this;
 		var errors = this._validateSettings(settings);
 		if (errors.length > 0) {
-			Util.showError(this._getSanitizedErrorString(errors));
+			Util.showError(FormUtil._getSanitizedErrorString("Settings validation errors:", errors));
 		} else {
 			settingsSample.properties = { "ELN_SETTINGS" : JSON.stringify(settings) };
 			this._serverFacade.updateSample(settingsSample, function(ok) {
@@ -43,17 +43,6 @@ function SettingsManager(serverFacade) {
 			doneCallback();
 		}).bind(this));
     }
-
-	this._getSanitizedErrorString = function(errors) {
-		var $container = $("<div>");
-        $container.append($("<h3>").text("Settings validation errors:"));
-		var $ul = $("<ul>");
-		for (var error of errors) {
-			$ul.append($("<li>").text(error));
-		}
-		$container.append($ul);
-		return $container.html();
-	}
 
 	this.getAllDatasetTypeCodeOptions = function() {
 		return profile.allDatasetTypeCodes;
