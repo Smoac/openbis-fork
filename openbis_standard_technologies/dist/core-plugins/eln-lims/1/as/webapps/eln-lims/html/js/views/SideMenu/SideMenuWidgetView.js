@@ -208,7 +208,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModelUtils.push({ title : trashCanLink, entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
         }
         
-        if(profile.mainMenu.showSettings) {
+        if(profile.isAdmin && profile.mainMenu.showSettings) {
         	var settingsLink = _this.getLinkForNode("Settings", "SETTINGS", "showSettingsPage", null);
         	treeModelUtils.push({ title : settingsLink, entityType: "SETTINGS", key : "SETTINGS", folder : false, lazy : false, view : "showSettingsPage", icon : "glyphicon glyphicon-cog" });
         }
