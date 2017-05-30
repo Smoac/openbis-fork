@@ -96,6 +96,8 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
                     throw new UserFailureException("Cannot set external code to content copy of type" + current.getLocationType());
                 }
                 contentCopies.remove(current);
+                daoFactory.getSessionFactory().getCurrentSession().flush();
+
                 contentCopies.add(newCopy);
 
             } else
@@ -112,6 +114,7 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
                 daoFactory.getSessionFactory().getCurrentSession().delete(cc);
             }
             entity.getContentCopies().removeAll(entity.getContentCopies());
+            daoFactory.getSessionFactory().getCurrentSession().flush();
 
             addContentCopiesToLinkedDataExecutor.add(context, entity, set);
 
@@ -135,6 +138,7 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
             {
                 daoFactory.getSessionFactory().getCurrentSession().delete(cc);
             }
+            daoFactory.getSessionFactory().getCurrentSession().flush();
 
             addContentCopiesToLinkedDataExecutor.add(context, entity, update.getContentCopies().getAdded());
         }

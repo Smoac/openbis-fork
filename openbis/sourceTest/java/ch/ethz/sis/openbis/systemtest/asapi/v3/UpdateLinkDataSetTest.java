@@ -71,6 +71,23 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
     }
 
     @Test
+    void removeAndAddCopyWithSameInfoInSameRequest()
+    {
+        String externalCode = uuid();
+        ExternalDmsPermId dms = create(externalDms());
+        ContentCopyCreationBuilder copy = copyAt(dms).withExternalCode(externalCode);
+        DataSetPermId id = create(linkDataSet().with(copy.build()));
+
+        ContentCopyPermId toBeRemoved = get(id).getLinkedData().getContentCopies().get(0).getId();
+
+        update(dataset(id).without(toBeRemoved).withNewCopies(copy));
+
+        DataSet dataset = get(id);
+        assertThat(dataset.getLinkedData().getContentCopies().size(), is(1));
+        assertThat(dataset.getLinkedData().getContentCopies().get(0).getExternalCode(), is(externalCode));
+    }
+
+    @Test
     void removeLastCopy()
     {
         ExternalDmsPermId dms = create(externalDms());

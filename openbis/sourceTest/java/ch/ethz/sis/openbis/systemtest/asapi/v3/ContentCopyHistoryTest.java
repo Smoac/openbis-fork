@@ -108,6 +108,18 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
         assertThat(historyOf(id), hasItem(representing(copy)));
     }
 
+    @Test
+    void updatingExternalCodeToSameValueThroughLegacyMethodWorks()
+    {
+        ExternalDmsPermId dms = create(externalDms().withType(ExternalDmsAddressType.OPENBIS));
+        ContentCopyCreationBuilder copy = copyAt(dms).withExternalCode("a code");
+        DataSetPermId id = create(linkDataSet().with(copy.build()));
+
+        update(dataset(id).withExternalCode("a code"));
+
+        assertThat(historyOf(id), hasItem(representing(copy)));
+    }
+
     private String describe(DataSetHistoryPE entry)
     {
         return new ToStringBuilder(entry)
