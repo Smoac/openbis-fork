@@ -812,7 +812,7 @@ var FormUtil = new function() {
 				originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
 			}
 			//Clean the contents
-			originalValue = html.sanitize(originalValue);
+//			originalValue = html.sanitize(originalValue);
 		}
 		return originalValue;
 	}
