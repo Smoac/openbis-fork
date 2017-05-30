@@ -104,8 +104,11 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.ifRestoredSessionActive(callbackFunction);
 	}
 
-	this.logout = function(callbackFunction) {
-		this.openbisServer.logout(callbackFunction);
+	this.logout = function() {
+		$("#mainContainer").hide();
+		this.openbisServer.logout(function() {
+			location.reload();
+		});
 	}
 	
 	//

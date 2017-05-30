@@ -49,11 +49,13 @@ function UserProfileController(mainController, mode) {
 			return;
 		}
 		var userId = this._mainController.serverFacade.getUserId();
-		this._mainController.serverFacade.updateUserInformation(userId, userInformation, function(ok) {
+		this._mainController.serverFacade.updateUserInformation(userId, userInformation, (function(ok) {
 			if (ok) {
-				mainController.changeView("showUserProfilePage");
+				Util.showInfo("Profile saved. You will be logged out automatically in order to reload the profile data upon login.", (function() {
+					this._mainController.serverFacade.logout();
+				}).bind(this));
 			}
-		});
+		}).bind(this));
 	}
 
 	this._validate = function(userInformation) {
