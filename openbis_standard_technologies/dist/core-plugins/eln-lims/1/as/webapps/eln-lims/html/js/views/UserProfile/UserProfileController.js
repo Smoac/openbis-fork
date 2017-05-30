@@ -31,12 +31,14 @@ function UserProfileController(mainController, mode) {
 
 	this.getUserInformation = function(callback) {
 		var userId = this._mainController.serverFacade.getUserId();
-		this._mainController.serverFacade.listPersons(function(response) {
-			for (person of response.result) {
-				if (person.userId === userId) {
-					callback(person);
-				}
-			}
+
+		this._mainController.serverFacade.getSessionInformation(function(sessionInfo) {
+			var userInformation = {
+				firstName : sessionInfo.person.firstName,
+				lastName : sessionInfo.person.lastName,
+				email : sessionInfo.person.email,
+			};
+			callback(userInformation);
 		});
 	}
 
@@ -50,8 +52,6 @@ function UserProfileController(mainController, mode) {
 		this._mainController.serverFacade.updateUserInformation(userId, userInformation, function(ok) {
 			if (ok) {
 				mainController.changeView("showUserProfilePage");
-			} else {
-				Util.showError(FormUtil._getSanitizedErrorString("Error:", ["Could not save user information."]));
 			}
 		});
 	}

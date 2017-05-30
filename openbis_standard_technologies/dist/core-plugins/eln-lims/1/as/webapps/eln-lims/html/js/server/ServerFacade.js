@@ -141,6 +141,7 @@ function ServerFacade(openbisServer) {
 		if(data.result.rows[0][0].value == "OK") {
 			callbackFunction(true);
 		} else {
+			Util.showError("Call failed to server: <pre>" + JSON.stringify(data, null, 2) + "</pre>");
 			callbackFunction(false);
 		}
 	}
@@ -1774,5 +1775,14 @@ function ServerFacade(openbisServer) {
 				callbackFunction(false);
 			});
         });
+	}
+
+	this.getSessionInformation = function(callbackFunction) {
+		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
+                callbackFunction(sessionInfo);
+        }).fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				callbackFunction(false);
+		});
 	}
 }
