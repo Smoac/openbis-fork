@@ -127,6 +127,9 @@ function GridView(gridModel) {
 				if(!usedLabels[labels[i].displayName]) {
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
 					if(labels[i].displayName) {
+						//TODO SSDM-5083 - Implementation hints
+						//TODO Check if data is sample and, if then, get the PrintUtil.getTable and put it as tooltip
+						//TODO Check PlateView.js 516
 						labelContainer.tooltipster({
 							content: $("<span>").html(labels[i].displayName)
 						});
