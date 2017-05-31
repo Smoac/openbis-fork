@@ -126,10 +126,16 @@ function GridView(gridModel) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
-					if(labels[i].displayName) {
-						//TODO SSDM-5083 - Implementation hints
-						//TODO Check if data is sample and, if then, get the PrintUtil.getTable and put it as tooltip
-						//TODO Check PlateView.js 516
+					if (labels[i].data && labels[i].data["@type"] && labels[i].data["@type"] === "Sample") {
+						var sample = labels[i].data;
+						var tooltip = PrintUtil.getTable(sample, false, null, 'inspectorWhiteFont',
+								'colorEncodedWellAnnotations-holder-' + sample.permId);
+						labelContainer.tooltipster({
+							content: $(tooltip),
+							interactive: true,
+							position : 'right'
+						});
+					} else if(labels[i].displayName) {
 						labelContainer.tooltipster({
 							content: $("<span>").html(labels[i].displayName)
 						});
