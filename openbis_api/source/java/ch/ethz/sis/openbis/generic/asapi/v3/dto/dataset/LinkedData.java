@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.annotation.TechPreview;
 
@@ -77,13 +76,7 @@ public class LinkedData implements Serializable
     @JsonIgnore
     public ExternalDms getExternalDms()
     {
-        if (getFetchOptions() != null && getFetchOptions().hasExternalDms())
-        {
-            return externalDms;
-        } else
-        {
-            throw new NotFetchedException("External data management system has not been fetched.");
-        }
+        return externalDms;
     }
 
     // Method automatically generated with DtoGenerator

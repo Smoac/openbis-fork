@@ -19,7 +19,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IContentCopyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
@@ -104,9 +103,7 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
     protected DataSet get(DataSetPermId id)
     {
         DataSetFetchOptions fo = new DataSetFetchOptions();
-        LinkedDataFetchOptions lfo = new LinkedDataFetchOptions();
-        lfo.withExternalDms();
-        fo.withLinkedDataUsing(lfo);
+        fo.withLinkedData().withExternalDms();
         Map<IDataSetId, DataSet> result = v3api.getDataSets(session, Collections.singletonList(id), fo);
         return result.get(id);
     }
