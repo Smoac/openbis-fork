@@ -210,6 +210,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				mainController.changeView('showCreateDataSetPageFromPermId',_this._sampleFormModel.sample.permId);
 			});
 			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
+
+			//Get dropbox folder name
+			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-circle-arrow-up", (function () {
+				var nameElements = [
+					"O",
+					_this._sampleFormModel.sample.spaceCode,
+					_this._sampleFormModel.sample.code,
+				];
+				FormUtil.showDropboxFolderNameDialog(nameElements, "Sample");
+			}).bind(this));
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset with Dropbox" });
 			
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
@@ -224,6 +235,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._sampleFormController.createUpdateCopySample();
@@ -706,17 +718,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 					component += "</div>";
 					component += "</div>";
-					
-				var css = {
-						'text-align' : 'left',
-						'top' : '15%',
-						'width' : '70%',
-						'left' : '15%',
-						'right' : '20%',
-						'overflow' : 'auto'
-				};
 				
-				Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+				Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", FormUtil.getDialogCss());
 				
 				$("#newSampleCodeForCopy").on("keyup", function(event) {
 					$(this).val($(this).val().toUpperCase());

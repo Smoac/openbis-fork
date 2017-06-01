@@ -104,7 +104,22 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				mainController.changeView('showCreateDataSetPageFromExpPermId',_this._experimentFormModel.experiment.permId);
 			});
 			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
-			
+
+			//Get dropbox folder name
+			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-circle-arrow-up", (function () {
+				var splitExperimentIdentifier = _this._experimentFormModel.experiment.identifier.split("/");
+				var space = splitExperimentIdentifier[1];
+				var project = splitExperimentIdentifier[2];
+				var nameElements = [
+					"E",
+					space,
+					project,
+					_this._experimentFormModel.experiment.code,
+				];
+				FormUtil.showDropboxFolderNameDialog(nameElements, "Experiment");
+			}).bind(this));
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset with Dropbox" });
+
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 				Util.blockUI();

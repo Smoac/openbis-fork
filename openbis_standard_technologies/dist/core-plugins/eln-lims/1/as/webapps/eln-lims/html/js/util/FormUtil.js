@@ -918,4 +918,140 @@ var FormUtil = new function() {
 		$container.append($ul);
 		return $container.html();
 	}
+
+	//
+	// Dropbox folder name dialog
+	//
+
+	/**
+	 * @param {string[]} nameElements - First elements of the folder name.
+	 * @param {string} nodeType - "Sample" or "Experiment".
+	 */
+	this.showDropboxFolderNameDialog = function(nameElements, nodeType) {
+
+		var $dialog = $("<div>");
+		$dialog
+			.append($("<div>")
+				.append($("<legend>").text("Upload Dataset with Dropbox")));
+
+		mainController.serverFacade.listDataSetTypes((function(data) {
+
+			var dataSetTypes = data.result;
+
+			var $formFieldContainer = $("<div>");
+			$dialog.append($formFieldContainer);
+
+			// info text
+			var infoText = "Create a folder with the provided Dropbox Folder Name in your "
+						 + "Dropbox location containing a file to attach it to this " + nodeType + ".";
+			$formFieldContainer
+				.append($("<div>")
+					.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
+						.css("margin-right", "3px"))
+					.append($("<span>").text(infoText)));
+
+			// dataset type dropdown
+			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
+			$dataSetTypeSelector.attr("id", "dataSetTypeSelector");
+			$formFieldContainer
+				.append($("<div>", { class : "form-group" })
+					.append($("<label>", { class : "control-label" }).text("Data Set Type:")))
+					.append($dataSetTypeSelector);
+
+			// name
+			var $nameInput = $("<input>", { type : "text", id : "nameInput", class : "form-control", disabled : true });
+			$formFieldContainer
+				.append($("<div>", { class : "form-group" })
+					.append($("<label>", { class : "control-label" }).text("Name:")))
+					.append($nameInput);
+
+			// dropbox folder name ouput
+			var $dropboxFolderName = $("<input>", {
+				class : "form-control",
+				id : "dropboxFolderName",
+				readonly : "readonly",
+				type : "text",
+				value :  this._getDropboxFolderName(nameElements),
+				onClick : "this.setSelectionRange(0, this.value.length)"
+			});
+			// copy to clipboard button
+			var $copyToClipboardButton = FormUtil.getButtonWithIcon("glyphicon-copy");
+			$copyToClipboardButton.attr("id", "copyToClipboardButton");
+			$formFieldContainer
+				.append($("<div>", { class : "form-group" })
+					.append($("<label>", { class : "control-label" })
+						.text("Dropbox Folder Name:"))
+					.append($("<div>", { class : "input-group" })
+						.append($dropboxFolderName)
+						.append($("<span>", { class : "input-group-btn"})
+							.append($copyToClipboardButton))));
+
+			// close button
+			var $cancelButton = $("<a>", {
+				class : "btn btn-default",
+				id : "dropboxFolderNameClose"
+			}).text("Close").css("margin-top", "15px");
+			$dialog.append($cancelButton);
+			Util.blockUI($dialog.html(), this.getDialogCss());
+
+			// attach events
+			$dataSetTypeSelector = $("#dataSetTypeSelector");
+			$nameInput = $("#nameInput");
+			$dropboxFolderName = $("#dropboxFolderName");
+			$copyToClipboardButton = $("#copyToClipboardButton");
+			$("#dropboxFolderNameClose").on("click", function(event) {
+				Util.unblockUI();
+			});
+			// update folder name on type selector / name change
+			$dataSetTypeSelector.change((function() {
+				var dataSetTypeCode = $dataSetTypeSelector.val();
+				var name = null;
+				// dataset type code UNKNOWN has no name
+				if (dataSetTypeCode === "UNKNOWN") {
+					$nameInput.val("");
+					$nameInput.attr("disabled", "true");
+				} else {
+					var name = $nameInput.val();
+					$nameInput.removeAttr("disabled");					
+				}
+				var folderName = this._getDropboxFolderName(nameElements, dataSetTypeCode, name);
+				$dropboxFolderName.val(folderName);
+			}).bind(this));
+			$nameInput.on("input", (function() {
+				var dataSetTypeCode = $dataSetTypeSelector.val();
+				var name = $nameInput.val();
+				var folderName = this._getDropboxFolderName(nameElements, dataSetTypeCode, name);
+				$dropboxFolderName.val(folderName);
+			}).bind(this));
+			// copy to clipboard
+			$copyToClipboardButton.on("click", function() {
+				$dropboxFolderName.select();
+				document.execCommand("copy");
+			});
+			$copyToClipboardButton.attr("title", "copy to clipboard");
+			$copyToClipboardButton.tooltipster();
+
+		}).bind(this));
+	}
+
+	this._getDropboxFolderName = function(nameElements, dataSetTypeCode, name) {
+		var folderName = nameElements.join("+");
+		for (var optionalPart of [dataSetTypeCode, name]) {
+			if (optionalPart) {
+				folderName += "+" + optionalPart;				
+			}
+		}
+		return folderName;
+	}
+
+	this.getDialogCss = function() {
+		return {
+				'text-align' : 'left',
+				'top' : '15%',
+				'width' : '70%',
+				'left' : '15%',
+				'right' : '20%',
+				'overflow' : 'auto'
+		};
+	}
 }
