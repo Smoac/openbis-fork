@@ -772,7 +772,10 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (CKEditor)
 	//
 	CKEDITOR.on( 'instanceReady', function( ev ) {
-	    ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+		var sessionToken = mainController.serverFacade.getSession();
+		ev.editor.config.filebrowserUploadUrl = '/openbis/file-service/eln-lims?sessionID=' + sessionToken;
+		ev.editor.config.uploadUrl = '/openbis/file-service/eln-lims?sessionID=' + sessionToken;
+		ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
 	});
 	
 	this.activateRichTextProperties = function($component, componentOnChange, propertyType) {
