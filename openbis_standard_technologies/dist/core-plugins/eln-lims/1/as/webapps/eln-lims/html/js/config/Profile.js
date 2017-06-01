@@ -451,7 +451,7 @@ $.extend(DefaultProfile.prototype, {
 
 		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
 			for (var dataSetTypeForFileName of this.dataSetTypeForFileNameMap) {
-				if (fileName.endsWith(dataSetTypeForFileName.filenameExtension)) {
+				if (fileName && fileName.endsWith(dataSetTypeForFileName.fileNameExtension)) {
 					return dataSetTypeForFileName.dataSetType;
 				}
 			}
