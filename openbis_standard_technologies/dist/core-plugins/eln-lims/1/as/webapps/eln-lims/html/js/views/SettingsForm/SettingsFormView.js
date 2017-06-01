@@ -220,7 +220,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				var allDatasetTypeCodes = this._settingsFormController.getAllDatasetTypeCodeOptions();
 				return FormUtil.getDropdown(allDatasetTypeCodes.map(function(option) {
 					return {
-						label : option,
+						label : Util.getDisplayNameFromCode(option),
 						value : option,
 						selected : option === rowData.dataSetType,
 					};
@@ -251,7 +251,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		for (var sampleType of this._profileToEdit.getAllSampleTypes()) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
-			var $sampleTypeFieldset = this._getFieldset($div, sampleType.code, "settings-section-sampletype-" + sampleType.code, true);
+			var displayName = Util.getDisplayNameFromCode(sampleType.code);
+			var $sampleTypeFieldset = this._getFieldset($div, displayName, "settings-section-sampletype-" + sampleType.code, true);
 			$fieldset.append($div);
 			// table for sample type
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
@@ -290,7 +291,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				var options = this._settingsFormController.getSampleTypeOptions();
 				return FormUtil.getDropdown(options.map(function(option) {
 					return {
-						label : option,
+						label : Util.getDisplayNameFromCode(option),
 						value : option,
 						selected : option === rowData.TYPE,
 					};
@@ -358,7 +359,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				var options = this._settingsFormController.getAnnotationPropertyTypeOptions();
 				return FormUtil.getDropdown(options.map(function(option) {
 					return {
-						label : option,
+						label : Util.getDisplayNameFromCode(option),
 						value : option,
 						selected : option === rowData.TYPE,
 					};
