@@ -251,7 +251,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		for (var sampleType of this._profileToEdit.getAllSampleTypes()) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
-			var $sampleTypeFieldset = this._getFieldset($div, sampleType.code, "settings-section-sampletype-" + sampleType.code);
+			var $sampleTypeFieldset = this._getFieldset($div, sampleType.code, "settings-section-sampletype-" + sampleType.code, true);
 			$fieldset.append($div);
 			// table for sample type
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
@@ -596,13 +596,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 	}
 
-	this._getFieldset = function($container, legendText, key) {
+	this._getFieldset = function($container, legendText, key, dontRestoreState) {
 		var $fieldsetOwner = $("<div>");
-		// hide and show after setting has been loaded by getShowHideButton to avoid flickering
-		$fieldsetOwner.hide();
+		if ( ! dontRestoreState) {
+			$fieldsetOwner.hide();
+		}
 		var $fieldset = $("<div>");
 		var $legend = $("<legend>").text(legendText);
-		$legend.prepend(FormUtil.getShowHideButton($fieldset, key, (function($fieldsetOwner) {
+		$legend.prepend(FormUtil.getShowHideButton($fieldset, key, dontRestoreState, (function($fieldsetOwner) {
 			$fieldsetOwner.show();
 		}).bind(this, $fieldsetOwner)));
 		$fieldsetOwner.append($legend).append($fieldset);
