@@ -260,6 +260,13 @@ HOST = [ FIRST_TIME_VERSIONED, "HOST", "Host organism",
                                     ["DONKEY", "donkey", None]
                                 ]];
 
+STORAGE_VALIDATION_LEVEL = [ FIRST_TIME_VERSIONED, "STORAGE_VALIDATION_LEVEL", "Validation Level",
+                                        [
+                                            ["RACK",            "Rack Validation",          None],
+                                            ["BOX",             "Box  Validation",          None],
+                                            ["BOX_POSITION",    "Box Position Validation",  None]
+                                        ]];
+
 DETECTION = [ FIRST_TIME_VERSIONED, "DETECTION", "Protein detection system",
                                         [
                                             ["HRP", "horseradish peroxydase", "The antibody is conjugated with the horseradish peroxydase"],
@@ -840,20 +847,6 @@ FLY = [FIRST_TIME_VERSIONED, True, "FLY", "", [
     ]];
 
 ##
-## Storage Properties used by mostly by materials
-##
-
-STORAGE_PROPERTIES = [
-        [FIRST_TIME_VERSIONED, "STORAGE_NAMES",        "Physical Storage",        "Storage Name",            DataType.CONTROLLEDVOCABULARY,        "STORAGE_NAMES",    "Storage Name", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_ROW",            "Physical Storage",        "Storage Row",            DataType.INTEGER,                    None,                "Storage Row", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_COLUMN",        "Physical Storage",        "Storage Column",        DataType.INTEGER,                    None,                "Storage Column", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",    "Physical Storage",        "Storage Box Name",        DataType.VARCHAR,                    None,                "Storage Box Name", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",    "Physical Storage",        "Storage Box Size",        DataType.CONTROLLEDVOCABULARY,        "STORAGE_BOX_SIZE",    "Storage Box Size", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_USER",        "Physical Storage",        "Storage User Id",        DataType.VARCHAR,                    None,                "Storage User Id", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_POSITION",    "Physical Storage",        "Storage Position",        DataType.VARCHAR,                    None,                "Storage Position", None, None]
-];
-
-##
 ## Sample Types - Non Materials
 ##
 
@@ -923,6 +916,33 @@ WESTERN_BLOTTING_PROTOCOL = [FIRST_TIME_VERSIONED, True, "WESTERN_BLOTTING_PROTO
 ##
 GENERAL_ELN_SETTINGS = [MANDATORY_ITEM_VERSION, False, "GENERAL_ELN_SETTINGS", "Used to store the settings of the ELN application", [
         [MANDATORY_ITEM_VERSION, "ELN_SETTINGS",   "Settings",    "ELN Settings",    DataType.VARCHAR,        None, "ELN Settings", None, None, False, False]
+]];
+
+##
+## Types - Storage
+##
+STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE_RACK", "", [
+    [FIRST_TIME_VERSIONED, "NAME",                          "General",              "Name",                         DataType.VARCHAR,                   None,                           "Name",             None, None],
+    [FIRST_TIME_VERSIONED, "ROW_NUM",                       "General",              "Row",                          DataType.INTEGER,                   None,                           "Row",              None, None],
+    [FIRST_TIME_VERSIONED, "COLUMN_NUM",                    "General",              "Column",                       DataType.INTEGER,                   None,                           "Column",           None, None],
+    [FIRST_TIME_VERSIONED, "BOX_NUM",                       "General",              "Box Number",                   DataType.INTEGER,                   None,                           "Box Number",       None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_SPACE_WARNING",         "General",              "Storage Space Warning",        DataType.INTEGER,                   None,                           "Storage Space Warning",    None, None],
+    [FIRST_TIME_VERSIONED, "BOX_SPACE_WARNING",             "General",              "Box Space Warning",            DataType.INTEGER,                   None,                           "Box Space Warning",       None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_VALIDATION_LEVEL",      "General",              "Validation level",             DataType.CONTROLLEDVOCABULARY,      "STORAGE_VALIDATION_LEVEL",     "Validation level", None, None],
+    [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",             "Comments List",                DataType.XML,                       None,                           "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
+    [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",             "Annotations State",            DataType.XML,                       None,                           "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
+]];
+
+STORAGE_POSITION = [MANDATORY_ITEM_VERSION, False, "STORAGE_POSITION", "", [
+    [FIRST_TIME_VERSIONED, "STORAGE_NAMES",                 "Physical Storage",        "Storage Name",              DataType.CONTROLLEDVOCABULARY,       "STORAGE_NAMES",     "Storage Name",       None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_ROW",                   "Physical Storage",        "Storage Row",               DataType.INTEGER,                    None,                "Storage Row",        None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_COLUMN",                "Physical Storage",        "Storage Column",            DataType.INTEGER,                    None,                "Storage Column",     None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",   None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",   None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",    None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_POSITION",              "Physical Storage",        "Storage Position",          DataType.VARCHAR,                    None,                "Storage Position",   None, None],
+    [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",                "Comments List",             DataType.XML,                        None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
+    [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",                "Annotations State",         DataType.XML,                        None,                "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
 ]];
     
 ##

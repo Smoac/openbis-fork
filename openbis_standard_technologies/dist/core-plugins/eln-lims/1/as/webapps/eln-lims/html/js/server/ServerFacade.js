@@ -354,6 +354,7 @@ function ServerFacade(openbisServer) {
 				prefix+"*",
 				false,
 				function(results) {
+					var nextCode;
 					if(results.length == 0){
 						nextcode = prefix + "1";
 					} else{
@@ -370,7 +371,7 @@ function ServerFacade(openbisServer) {
 						    return a - b;
 						});
 						var nextid = codes[codes.length-1] + 1;
-						var nextcode = prefix + nextid;
+						nextcode = prefix + nextid;
 					}
 					action(nextcode);
 				});

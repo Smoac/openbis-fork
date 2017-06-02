@@ -225,19 +225,45 @@ function SampleFormController(mainController, mode, sample) {
 			var samplesToCreate = [];
 			_this._sampleFormModel.sampleLinksChildren.getSamples().forEach(function(child) {
 				if(child.newSample) {
+				  child.experimentIdentifier = experimentIdentifier;
 				  child.properties = {};
+				  child.children = [];
 					if(profile.storagesConfiguration["isEnabled"]) {
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
+						var uuid = Util.guid();
+						var storagePosition = {
+								newSample : true,
+								code : uuid,
+								identifier : "/STORAGE/" + uuid,
+								sampleTypeCode : "STORAGE_POSITION",
+								properties : {}
+						};
+						
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
+					
+						child.children.push(storagePosition);
 					}
 					samplesToCreate.push(child);
 				}
 			});
+			
+			if(_this._sampleFormModel.sample.children) {
+				_this._sampleFormModel.sample.children.forEach(function(child) {
+					if(child.newSample) {
+						samplesToCreate.push(child);
+					} else if(child.deleteSample) {
+						if(!samplesToDelete) {
+							samplesToDelete = [];
+						}
+						samplesToDelete.push(child.id);
+					}
+				});
+			}
 			
 			//Method
 			var method = "";
@@ -408,13 +434,12 @@ function SampleFormController(mainController, mode, sample) {
 			}
 			
 			if(samplesToDelete) {
-				mainController.serverFacade.deleteSamples(samplesToDelete, 
-															"Order " + _this._sampleFormModel.sample.code + " Created", 
+				mainController.serverFacade.deleteSamples(samplesToDelete,  "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier, 
 															function() {
 																Util.showSuccess(message, callbackOk);
 																_this._sampleFormModel.isFormDirty = false;
 															}, 
-															true);
+															false);
 			} else {
 				Util.showSuccess(message, callbackOk);
 				_this._sampleFormModel.isFormDirty = false;

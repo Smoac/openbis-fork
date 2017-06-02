@@ -260,11 +260,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from General Section
 		//
-		var isStorageAvailable = false;
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name === "General") {
-				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 			}
 		}
 		
@@ -327,11 +326,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"]) {
 			childrenTitle = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"];
 		}
+		
+		var currentChildrenLinksNoStorage = [];
+		if(currentChildrenLinks != null) {
+			for(var cIdx = 0; cIdx < currentChildrenLinks.length; cIdx++) {
+				if(currentChildrenLinks[cIdx].sampleTypeCode !== "STORAGE_POSITION") {
+					currentChildrenLinksNoStorage.push(currentChildrenLinks[cIdx]);
+				}
+			}
+		}
+		
 		var childrenAnyTypeDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"];
 		this._sampleFormModel.sampleLinksChildren = new LinksController(childrenTitle,
 															requiredChildren,
 															isDisabled,
-															currentChildrenLinks,
+															currentChildrenLinksNoStorage,
 															this._sampleFormModel.mode === FormMode.CREATE,
 															childrenAnyTypeDisabled,
 															sampleTypeCode);
@@ -357,11 +366,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from non General Section
 		//
-		var isStorageAvailable = false;
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name !== "General") {
-				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 			}
 		}
 		
@@ -380,6 +388,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Storage
 		//
+		var isStorageAvailable = profile.isSampleTypeWithStorage(this._sampleFormModel.sample.sampleTypeCode);
 		if(isStorageAvailable) {
 			var $fieldsetOwner = $("<div>");
 			var $legend = $("<legend>").append("Storage");
@@ -392,7 +401,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);	
 			storageListController.init(storageListContainer);
-			
 		}
 		
 		//
@@ -499,12 +507,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$legend.text("Metadata");
 		} else {
 			$legend.remove();
-		}
-			
-		var storagePropertyGroup = profile.getPropertyGroupFromStorage(propertyTypeGroup.name);
-		if(storagePropertyGroup) {
-			$legend.remove();
-			return true;
 		}
 			
 		var propertyGroupPropertiesOnForm = 0;

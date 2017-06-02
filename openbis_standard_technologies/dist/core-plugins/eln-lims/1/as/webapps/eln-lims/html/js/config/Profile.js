@@ -128,11 +128,16 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
+		this.inventorySpaces = ["MATERIALS", "METHODS", "STORAGE"]; //"STOCK_CATALOG"
 		this.inventorySpacesReadOnly = ["ELN_SETTINGS"]; //"STOCK_ORDERS"
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
+		this.sampleTypeStorageEnabled = ["ANTIBODY", "BACTERIA", "CHEMICAL", "ENZYME", "CELL_LINE", "FLY", "MEDIA", "OLIGO", "PLASMID", "YEAST", "SOLUTION_BUFFER", "RNA"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
+		
+		this.isSampleTypeWithStorage = function(sampleTypeCode) {
+			return $.inArray(sampleTypeCode, this.sampleTypeStorageEnabled) !== -1;
+		}
 		
 		this.isELNIdentifier = function(identifier) {
 			var space = identifier.split("/")[1];
@@ -152,10 +157,10 @@ $.extend(DefaultProfile.prototype, {
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS"],
+				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE_RACK"],
 				"experimentTypeCodes" : []
 		}
-		this.hideSpaces = ["ELN_SETTINGS"];
+		this.hideSpaces = ["ELN_SETTINGS", "STORAGE"];
 		
 		this.propertyReplacingCode = "NAME";
 		
@@ -228,52 +233,24 @@ $.extend(DefaultProfile.prototype, {
 				return null;
 			}
 			
-			var storagePropertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
-			if(!storagePropertyGroups) {
-				return null;
-			}
-			
-			for(var i = 0; i < storagePropertyGroups.length; i++) {
-				if(storagePropertyGroupDisplayName === storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"]) {
-					propertyGroup = {};
-					propertyGroup.groupDisplayName = storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"];
-					propertyGroup.nameProperty = storagePropertyGroups[i]["NAME_PROPERTY"];
-					propertyGroup.rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
-					propertyGroup.columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
-					propertyGroup.boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
-					propertyGroup.boxSizeProperty = storagePropertyGroups[i]["BOX_SIZE_PROPERTY"];
-					propertyGroup.userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
-					propertyGroup.positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
-					return propertyGroup;
-				}
-			}
-			
-			return null;
+			propertyGroup = {};
+			propertyGroup.groupDisplayName = "Physical Storage";
+			propertyGroup.nameProperty = "STORAGE_NAMES";
+			propertyGroup.rowProperty = "STORAGE_ROW";
+			propertyGroup.columnProperty = "STORAGE_COLUMN";
+			propertyGroup.boxProperty = "STORAGE_BOX_NAME";
+			propertyGroup.boxSizeProperty = "STORAGE_BOX_SIZE";
+			propertyGroup.userProperty = "STORAGE_USER";
+			propertyGroup.positionProperty = "STORAGE_POSITION";
+			return propertyGroup;
 		}
 		
 		this.getStoragePropertyGroups = function() {
 			if(!this.storagesConfiguration["isEnabled"]) {
 				return null;
 			}
-			
-			var storagePropertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
-			if(!storagePropertyGroups) {
-				return null;
-			}
-			
-			var propertyGroups = [];
-			for(var i = 0; i < storagePropertyGroups.length; i++) {
-				propertyGroups[i] = {};
-				propertyGroups[i].groupDisplayName = storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"];
-				propertyGroups[i].nameProperty = storagePropertyGroups[i]["NAME_PROPERTY"];
-				propertyGroups[i].rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
-				propertyGroups[i].columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
-				propertyGroups[i].boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
-				propertyGroups[i].boxSizeProperty = storagePropertyGroups[i]["BOX_SIZE_PROPERTY"];
-				propertyGroups[i].userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
-				propertyGroups[i].positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
-			}
-			return propertyGroups;
+
+			return [this.getStoragePropertyGroup()];
 		}
 		
 		this.getStorageConfiguation = function(storageCode) {

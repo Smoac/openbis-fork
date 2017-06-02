@@ -30,6 +30,9 @@ def initBasicMasterData(tr):
     elnTypes.createVocabularyWithTerms(tr, elnTypes.OWNER);
     elnTypes.createVocabularyWithTerms(tr, elnTypes.EXPERIMENTAL_READOUT);
     elnTypes.createVocabularyWithTerms(tr, elnTypes.MACHINE);
+    elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_VALIDATION_LEVEL);
+    elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_NAMES);
+    elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_BOX_SIZE);
     
     ##
     ## Property Types for annotations
@@ -59,7 +62,8 @@ def initBasicMasterData(tr):
     ##
     elnTypes.createSampleTypeWithProperties(tr, elnTypes.GENERAL_ELN_SETTINGS);
     elnTypes.createSampleTypeWithProperties(tr, elnTypes.EXPERIMENTAL_STEP);
-    
+    elnTypes.createSampleTypeWithProperties(tr, elnTypes.STORAGE_RACK);
+    elnTypes.createSampleTypeWithProperties(tr, elnTypes.STORAGE_POSITION);
     ##
     ## Ordering System
     ##

@@ -58,44 +58,52 @@ function StorageListView(storageListController, storageListModel) {
 			sortable : true
 		}];
 		
+		if(!this._storageListModel.isDisabled) {
+			columns.push(this.createOperationsColumn());
+		}
+		
 		var getDataList = function(callback) {
 			var dataList = [];
-			var sample = _this._storageListModel.sample;
-			var sampleTypeCode = sample.sampleTypeCode;
-			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+			var sampleChildren = _this._storageListModel.sample.children;
+			if(!sampleChildren) {
+				sampleChildren = [];
+				_this._storageListModel.sample.children = sampleChildren;
+			}
+			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
+			var storagePropertyGroup = profile.getStoragePropertyGroup();
 			
-			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-				var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
+			for(var i = 0; i < sampleChildren.length; i++) {
+				var sample = sampleChildren[i];
+				if(sample.sampleTypeCode !== "STORAGE_POSITION" || sample.deleteSample) {
+					continue;
+				}
+				var userProperty = sample.properties[storagePropertyGroup.userProperty];
 				
-				if(storagePropertyGroup) {
-					var userProperty = sample.properties[storagePropertyGroup.userProperty];
-					
-					var namePropertyTypeCode = storagePropertyGroup.nameProperty;
-					var namePropertyCode = sample.properties[namePropertyTypeCode];
-					var nameProperty = null;
-					if(namePropertyCode) {
-						var namePropertyTerm = profile.getVocabularyTermByCodes("STORAGE_NAMES", namePropertyCode);
-						if(namePropertyTerm && namePropertyTerm.label) {
-							nameProperty = namePropertyTerm.label;
-						} else {
-							nameProperty = namePropertyCode;
-						}
+				var namePropertyTypeCode = storagePropertyGroup.nameProperty;
+				var namePropertyCode = sample.properties[namePropertyTypeCode];
+				var nameProperty = null;
+				if(namePropertyCode) {
+					var namePropertyTerm = profile.getVocabularyTermByCodes("STORAGE_NAMES", namePropertyCode);
+					if(namePropertyTerm && namePropertyTerm.label) {
+						nameProperty = namePropertyTerm.label;
+					} else {
+						nameProperty = namePropertyCode;
 					}
-					
-					if(	(userProperty && userProperty !== "") ||
-						(nameProperty && nameProperty !== "")) {
-						dataList.push({
-							groupDisplayName : storagePropertyGroup.groupDisplayName,
-							nameProperty : nameProperty,
-							rowProperty : sample.properties[storagePropertyGroup.rowProperty],
-							columnProperty : sample.properties[storagePropertyGroup.columnProperty],
-							boxProperty : sample.properties[storagePropertyGroup.boxProperty],
-							boxSizeProperty : sample.properties[storagePropertyGroup.boxSizeProperty],
-							positionProperty : sample.properties[storagePropertyGroup.positionProperty],
-							userProperty : userProperty
-						});
-					}
+				}
+				
+				if(	(userProperty && userProperty !== "") ||
+					(nameProperty && nameProperty !== "")) {
+					dataList.push({
+						'$object' : sample,
+						groupDisplayName : storagePropertyGroup.groupDisplayName,
+						nameProperty : nameProperty,
+						rowProperty : sample.properties[storagePropertyGroup.rowProperty],
+						columnProperty : sample.properties[storagePropertyGroup.columnProperty],
+						boxProperty : sample.properties[storagePropertyGroup.boxProperty],
+						boxSizeProperty : sample.properties[storagePropertyGroup.boxSizeProperty],
+						positionProperty : sample.properties[storagePropertyGroup.positionProperty],
+						userProperty : userProperty
+					});
 				}
 			}
 			callback(dataList);
@@ -103,8 +111,8 @@ function StorageListView(storageListController, storageListModel) {
 		
 		var rowClick = null;
 		if(!this._storageListModel.isDisabled) {
-			rowClick = function(e) {
-				_this.showStorageWidget(e)
+			rowClick = function(data) {
+				_this.showStorageWidget(data.data['$object'])
 			}
 		}
 		
@@ -116,77 +124,27 @@ function StorageListView(storageListController, storageListModel) {
 		
 		var $storageAddButton = $("<a>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));
 		
-		
 		$storageAddButton.on("click", function(event) {
-			var sample = _this._storageListModel.sample;
-			var sampleTypeCode = sample.sampleTypeCode;
-			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-			
-			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-				var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
-				
-				if(storagePropertyGroup) {
-					var userProperty = sample.properties[storagePropertyGroup.userProperty];
-					if(!userProperty || userProperty === "") { //Not Used
-						sample.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0]; //Mark to show
-					}
-				}
-			}
-			
-			if(_this.getUsedStorages() === _this.getMaxStorages()) {
-				$storageAddButton.attr("disabled", "");
-			}
-			
-			_this._dataGrid.refresh();
+			var uuid = Util.guid();
+			var newChildSample = {
+					newSample : true,
+					code : uuid,
+					identifier : "/STORAGE/" + uuid,
+					sampleTypeCode : "STORAGE_POSITION",
+					properties : {}
+			};
+			_this._storageListModel.sample.children.push(newChildSample);
+			rowClick({ data : { '$object' : newChildSample }});
 		});
 		
-		if(this._storageListModel.isDisabled || this.getUsedStorages() === this.getMaxStorages()) {
+		if(this._storageListModel.isDisabled) {
 			$storageAddButton.attr("disabled", "");
 		}
 		
 		$container.append($storageAddButton);
-		$container.append("NOTE: Storages limited to " + this.getMaxStorages() + " for this type.");
 	}
 	
-	this.getUsedStorages = function() {
-		var count = 0;
-		var sample = this._storageListModel.sample;
-		var sampleTypeCode = sample.sampleTypeCode;
-		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
-		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-			var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
-			
-			if(storagePropertyGroup) {
-				var userProperty = sample.properties[storagePropertyGroup.userProperty];
-				if(userProperty) {
-					count++;
-				}
-			}
-		}
-		return count;
-	}
-	
-	this.getMaxStorages = function() {
-		var count = 0;
-		var sample = this._storageListModel.sample;
-		var sampleTypeCode = sample.sampleTypeCode;
-		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
-		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-			var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
-			
-			if(storagePropertyGroup) {
-				count++;
-			}
-		}
-		return count;
-	}
-	
-	this.showStorageWidget = function(e) {
+	this.showStorageWidget = function(sampleChild) {
 		var _this = this;
 		var css = {
 				'text-align' : 'left',
@@ -203,9 +161,8 @@ function StorageListView(storageListController, storageListModel) {
 			
 		Util.blockUI(container, css);
 		
-		
 		var storageController = new StorageController({
-			title : e.data.groupDisplayName,
+			title : "Physical Storage",
 			storagePropertyGroupSelector : "off",
 			storageSelector : "on",
 			userSelector : "off",
@@ -220,10 +177,11 @@ function StorageListView(storageListController, storageListModel) {
 			boxPositionMultiple: "on",
 			positionDragAndDropEnabled: "off"
 		});
-		var storagePropGroup = profile.getStoragePropertyGroup(e.data.groupDisplayName);
+		
+		var storagePropGroup = profile.getStoragePropertyGroup();
 		storageController.getModel().storagePropertyGroup = storagePropGroup;
-		this._storageListController._saveState(storagePropGroup);
-		storageController.bindSample(this._storageListModel.sample, this._storageListModel.isDisabled);
+		this._storageListController._saveState(sampleChild, storagePropGroup);
+		storageController.bindSample(sampleChild, this._storageListModel.isDisabled);
 		
 		var storageContainer = $("#storage-pop-up-container");
 		storageController.getView().repaint(storageContainer);
@@ -239,9 +197,52 @@ function StorageListView(storageListController, storageListModel) {
 		});
 		
 		$("#storage-cancel").on("click", function(event) {
-			_this._storageListController._restoreState();
+			_this._storageListController._restoreState(sampleChild);
 			Util.unblockUI();
 			_this._dataGrid.refresh();
 		});
 	}
+	
+	this.createOperationsColumn = function() {
+		var _this = this;
+		return {
+			label : "",
+			property : "_Operations_",
+			isExportable: false,
+			showByDefault: true,
+			sortable : false,
+			render : function(data) {
+				var $minus = FormUtil.getButtonWithIcon("glyphicon-minus", function(event) { 
+					event.stopPropagation();
+					event.preventDefault();
+					var sample = data['$object'];
+					_this.removeChildFromSampleOrMarkToDelete(sample);
+					_this._dataGrid.refresh();
+				}, null, "Delete");
+				return $minus;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
+		}
+	}
+	
+	this.removeChildFromSampleOrMarkToDelete = function(child) {
+		if(child.newSample) {
+			//Remove
+			var allChildren = this._storageListModel.sample.children;
+			for(var i = 0; i < allChildren.length; i++) {
+				if(allChildren[i].permId === child.permId) {
+					allChildren.splice(i,1);
+				}
+			}
+		} else {
+			//Mark To delete
+			child.deleteSample = true;
+		}
+	}
+	
 }

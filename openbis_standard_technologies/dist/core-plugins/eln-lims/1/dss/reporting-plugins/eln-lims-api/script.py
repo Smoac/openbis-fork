@@ -372,6 +372,7 @@ def init(tr, parameters, tableBuilder):
 			
 	## Installing Mandatory Spaces/Projects on every login if missing
 	insertSpaceIfMissing(tr, "ELN_SETTINGS");
+	insertSpaceIfMissing(tr, "STORAGE");
 	insertSpaceIfMissing(tr, "METHODS");
 	insertSpaceIfMissing(tr, "MATERIALS");
 
@@ -394,11 +395,30 @@ def init(tr, parameters, tableBuilder):
 		defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
 	
+	if isSampleTypeAvailable(installedTypes, "STORAGE_RACK"):
+			bench = insertSampleIfMissing(tr, "/STORAGE/BENCH", "STORAGE_RACK");
+			bench.setPropertyValue("NAME", "Bench");
+			bench.setPropertyValue("ROW_NUM", "1");
+			bench.setPropertyValue("COLUMN_NUM", "1");
+			bench.setPropertyValue("BOX_NUM", "9999");
+			bench.setPropertyValue("STORAGE_SPACE_WARNING", "80");
+			bench.setPropertyValue("BOX_SPACE_WARNING", "80");
+			bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			
+			defaultStorage = insertSampleIfMissing(tr, "/STORAGE/DEFAULT_STORAGE", "STORAGE_RACK");
+			defaultStorage.setPropertyValue("NAME", "Bench");
+			defaultStorage.setPropertyValue("ROW_NUM", "4");
+			defaultStorage.setPropertyValue("COLUMN_NUM", "4");
+			defaultStorage.setPropertyValue("BOX_NUM", "9999");
+			defaultStorage.setPropertyValue("STORAGE_SPACE_WARNING", "80");
+			defaultStorage.setPropertyValue("BOX_SPACE_WARNING", "80");
+			defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			
 	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
 			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
+	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:
-			
 		if isSampleTypeAvailable(installedTypes, "ANTIBODY"):
 			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
 			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ANTIBODY_COLLECTION_1", "MATERIALS", "Antibody Collection 1");
@@ -806,14 +826,34 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
 			sampleChildrenNewIdentifiers.append(newSampleChild["identifier"]);
 			child.setParentSampleIdentifiers([sampleIdentifier]);
-			if experiment != None:
-				child.setExperiment(experiment);
+			childExperimentIdentifier = None
+			childExperiment = None
+			if "experimentIdentifier" in newSampleChild:
+				childExperimentIdentifier = newSampleChild["experimentIdentifier"];
+				childExperiment = tr.getExperiment(childExperimentIdentifier);
+			if childExperiment != None:
+				child.setExperiment(childExperiment);
 			for key in newSampleChild["properties"].keySet():
 				propertyValue = unicode(newSampleChild["properties"][key]);
 				if propertyValue == "":
 					propertyValue = None;
-				
-				child.setPropertyValue(key,propertyValue);
+				child.setPropertyValue(key, propertyValue);
+			if ("children" in newSampleChild) and (newSampleChild["children"] != None):
+				for childChildrenData in newSampleChild["children"]:
+					childChildren = tr.createNewSample(childChildrenData["identifier"], childChildrenData["sampleTypeCode"]); #Create Sample given his id
+					childChildren.setParentSampleIdentifiers([newSampleChild["identifier"]]);
+					childChildrenExperimentIdentifier = None
+					childChildrenExperiment = None
+					if "experimentIdentifier" in childChildrenData:
+						childChildrenExperimentIdentifier = childChildrenData["experimentIdentifier"];
+						childChildrenExperiment = tr.getExperiment(childChildrenExperimentIdentifier);
+					if childChildrenExperiment != None:
+						childChildren.setExperiment(childChildrenExperiment);
+					for key in childChildrenData["properties"].keySet():
+						propertyValue = unicode(childChildrenData["properties"][key]);
+						if propertyValue == "":
+							propertyValue = None;
+						childChildren.setPropertyValue(key, propertyValue);
 	
 	#Add sample children that are not newly created
 	if sampleChildrenAdded != None:
