@@ -554,8 +554,13 @@ public class ResourceListParser
         sampleType.setCode(type);
         
         SampleIdentifier identifier = createSampleIdentifier(code, space);
+        String expIdentifier = null;
+        ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(experiment);
+        if (experimentIdentifier != null) {
+            expIdentifier = experimentIdentifier.toString();
+        }
         NewSample newSample = new NewSample(identifier.toString(), sampleType, null, null,
-                getExperimentIdentifier(experiment).toString(), null, null, null,
+                expIdentifier, null, null, null,
                 null);
         newSample.setPermID(permId);
         if (space == null)
