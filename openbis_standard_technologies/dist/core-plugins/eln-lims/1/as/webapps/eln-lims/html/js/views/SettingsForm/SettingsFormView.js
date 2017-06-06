@@ -581,6 +581,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					}
 					var rowIndex = tableModel.rows.indexOf(tableModelRow);
 					tableModel.rows.splice(rowIndex, 1);
+					if (tableModel.rowExtraModels) {
+						tableModel.rowExtraModels.splice(rowIndex, 1);
+					}
 				});
 			}
 			$tr.append($("<td>").append($removeButton));
