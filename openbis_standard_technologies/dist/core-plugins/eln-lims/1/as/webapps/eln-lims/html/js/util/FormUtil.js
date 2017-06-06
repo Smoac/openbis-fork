@@ -938,12 +938,12 @@ var FormUtil = new function() {
 	 * @param {string[]} nameElements - First elements of the folder name.
 	 * @param {string} nodeType - "Sample" or "Experiment".
 	 */
-	this.showDropboxFolderNameDialog = function(nameElements, nodeType) {
+	this.showDropboxFolderNameDialog = function(nameElements) {
 
 		var $dialog = $("<div>");
 		$dialog
 			.append($("<div>")
-				.append($("<legend>").text("Upload Dataset with Dropbox")));
+				.append($("<legend>").text("Name generator for dataset upload with dropbox")));
 
 		mainController.serverFacade.listDataSetTypes((function(data) {
 
@@ -953,8 +953,8 @@ var FormUtil = new function() {
 			$dialog.append($formFieldContainer);
 
 			// info text
-			var infoText = "Create a folder with the provided Dropbox Folder Name in your "
-						 + "Dropbox location containing a file to attach it to this " + nodeType + ".";
+			var infoText = "In your dropbox location, create a folder containing the data you want to upload. " + 
+							"Name this folder with the provided Dropbox Folder Name.";
 			$formFieldContainer
 				.append($("<div>")
 					.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
@@ -966,14 +966,14 @@ var FormUtil = new function() {
 			$dataSetTypeSelector.attr("id", "dataSetTypeSelector");
 			$formFieldContainer
 				.append($("<div>", { class : "form-group" })
-					.append($("<label>", { class : "control-label" }).text("Data Set Type:")))
+					.append($("<label>", { class : "control-label" }).text("Dataset type:")))
 					.append($dataSetTypeSelector);
 
 			// name
 			var $nameInput = $("<input>", { type : "text", id : "nameInput", class : "form-control", disabled : true });
 			$formFieldContainer
 				.append($("<div>", { class : "form-group" })
-					.append($("<label>", { class : "control-label" }).text("Name:")))
+					.append($("<label>", { class : "control-label" }).text("Dataset name:")))
 					.append($nameInput);
 
 			// dropbox folder name ouput

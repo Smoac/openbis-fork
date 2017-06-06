@@ -218,9 +218,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					_this._sampleFormModel.sample.spaceCode,
 					_this._sampleFormModel.sample.code,
 				];
-				FormUtil.showDropboxFolderNameDialog(nameElements, "Sample");
+				FormUtil.showDropboxFolderNameDialog(nameElements);
 			}).bind(this));
-			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset with Dropbox" });
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Name generator for dataset upload with dropbox" });
 			
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
