@@ -10,7 +10,8 @@ CKEDITOR.editorConfig = function( config ) {
 	config.specialChars = config.specialChars.concat( ['&alpha;', '&beta;', '&gamma;', '&delta;', 
 	                                                    '&epsilon;', '&zeta;', '&eta;', '&theta;', '&kappa;', '&lambda;', '&mu;', '&xi;', '&pi;', '&rho;', '&sigma;', 
 	                                                    '&upsilon;', '&phi;', '&psi;', '&omega;', '&Delta;', '&Sigma;', '&Phi;', '&Omega;'] );
-	config.extraPlugins = 'uploadimage,confighelper';
+	config.extraPlugins = 'confighelper';
+	config.filebrowserUploadUrl = "/openbis/file-service/eln-lims?sessionID=" + mainController.serverFacade.getSession();
 	config.stylesSet = false;
 	config.toolbarGroups = [
 	    					{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
