@@ -446,11 +446,11 @@ class OpenbisController(_Controller):
         self.dssProperties['proteomics-database-kind'] = self.databaseKind
         self.dssPropertiesModified = True
         if port != '8443':
-            self.httpsIniFile = "%s/servers/openBIS-server/jetty/start.d/https.ini" % installPath
-            if os.path.exists(self.httpsIniFile):
-                self.httpsIni = util.readProperties(self.httpsIniFile)
-                self.httpsIni['https.port'] = port
-                util.writeProperties(self.httpsIniFile, self.httpsIni)
+            self.sslIniFile = "%s/servers/openBIS-server/jetty/start.d/ssl.ini" % installPath
+            if os.path.exists(self.sslIniFile):
+                self.sslIni = util.readProperties(self.sslIniFile)
+                self.sslIni['jetty.ssl.port'] = port
+                util.writeProperties(self.sslIniFile, self.sslIni)
         if dropDatabases:
             util.dropDatabase(PSQL_EXE, "openbis_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "pathinfo_%s" % self.databaseKind)
