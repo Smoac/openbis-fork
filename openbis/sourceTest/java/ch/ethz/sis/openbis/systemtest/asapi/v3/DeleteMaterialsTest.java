@@ -73,7 +73,7 @@ public class DeleteMaterialsTest extends AbstractDeletionTest
                 {
                     v3api.deleteMaterials(sessionToken, Collections.singletonList(materialId), getOptions());
                 }
-            }, "BACTERIUM-X (BACTERIUM) is being used. Delete all connected data  first.");
+            }, "'BACTERIUM-X (BACTERIUM)' is being used. Delete all connected data  first.");
 
     }
 }
