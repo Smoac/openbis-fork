@@ -154,7 +154,12 @@ public class FileServiceServlet extends AbstractServlet
         response.setStatus(HttpServletResponse.SC_OK);
         String imageURL = "/openbis" + APP_PREFIX + filePath;
         String funcNum = multipartRequest.getParameter("CKEditorFuncNum");
-        writeResponse(response, "<script>window.parent.CKEDITOR.tools.callFunction(" + funcNum + ", \"" + imageURL + "\");</script>");
+        if(funcNum != null && !funcNum.isEmpty()) { //CKEditor specific case
+            writeResponse(response, "<script>window.parent.CKEDITOR.tools.callFunction(" + funcNum + ", \"" + imageURL + "\");</script>");
+        } else { //Generic Upload
+            writeResponse(response, imageURL);
+        }
+        
     }
     
     private void writeError(HttpServletResponse response, String message) throws IOException
