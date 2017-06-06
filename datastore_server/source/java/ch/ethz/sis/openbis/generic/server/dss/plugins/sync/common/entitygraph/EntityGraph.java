@@ -86,7 +86,7 @@ public class EntityGraph<N extends INode>
             }
         }
         EdgeNodePair enPair = new EdgeNodePair(edge, endNode);
-        // startNode.addConnection(enPair);
+        startNode.addConnection(enPair);
         adjacencyList.add(enPair);
         addNode(endNode);
     }
