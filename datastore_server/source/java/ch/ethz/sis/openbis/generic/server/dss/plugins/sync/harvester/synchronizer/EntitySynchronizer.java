@@ -283,7 +283,7 @@ public class EntitySynchronizer
         {
             verboseLogPhysicalDataSetRegistrations(physicalDSMap);
         }
-        
+
         List<String> notRegisteredDataSetCodes = new ArrayList<>();
         if (config.isDryRun() == false)
         {
@@ -294,8 +294,8 @@ public class EntitySynchronizer
 
             notRegisteredDataSetCodes = dsRegistrationSummary.notRegisteredDataSetCodes;
             operationLog.info("Data set synchronization summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
-                + dsRegistrationSummary.updatedDsCount
-                + " data set(s) were updated.\n"
+                    + dsRegistrationSummary.updatedDsCount
+                    + " data set(s) were updated.\n"
                     + notRegisteredDataSetCodes.size()
                     + " data set(s) FAILED to register.\n"
                     + blackListedDataSetCodes.size() + " data set(s)"
@@ -381,10 +381,12 @@ public class EntitySynchronizer
             }
         }
     }
+
     private void verboseLogEntityOperations(AtomicEntityOperationDetails details)
     {
         List<NewSpace> spaceRegistrations = details.getSpaceRegistrations();
-        if(spaceRegistrations.size() > 0) {
+        if (spaceRegistrations.size() > 0)
+        {
             operationLog.info("-------The following spaces will be created------- ");
             for (NewSpace newSpace : spaceRegistrations)
             {
@@ -428,7 +430,8 @@ public class EntitySynchronizer
 
     private void verboseLogSampleUpdates(List<SampleUpdatesDTO> sampleUpdates)
     {
-        if (sampleUpdates.isEmpty() == false) {
+        if (sampleUpdates.isEmpty() == false)
+        {
             operationLog.info("-------The following samples will be updated-------");
             for (SampleUpdatesDTO dto : sampleUpdates)
             {
@@ -470,12 +473,10 @@ public class EntitySynchronizer
             if (identifier instanceof NewSample)
             {
                 entityKind = SyncEntityKind.SAMPLE.getLabel();
-            }
-            else if (identifier instanceof NewExperiment)
+            } else if (identifier instanceof NewExperiment)
             {
                 entityKind = SyncEntityKind.EXPERIMENT.getLabel();
-            }
-            else if (identifier instanceof NewExperiment)
+            } else if (identifier instanceof NewExperiment)
             {
                 entityKind = SyncEntityKind.PROJECT.getLabel();
             }
@@ -537,8 +538,7 @@ public class EntitySynchronizer
                         parentDataSetCodes.add(dataSet.getCode());
                         dsToParents.put(childDataSet.getCode(), new HashSet<String>(parentDataSetCodes));
                     }
-                }
-                else if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Component"))
+                } else if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Component"))
                 {
                     NewExternalData componentDataSet = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
                     if (skippedDataSets.contains(componentDataSet.getCode()) == false)
@@ -565,8 +565,7 @@ public class EntitySynchronizer
                     if (physicalDSMap.containsKey(dataSet.getCode()) == false && service.tryGetDataSet(dataSet.getCode()) == null)
                     {
                         builder.dataSet(dataSet);
-                    }
-                    else
+                    } else
                     {
                         datasetsToUpdate.put(dataSet.getCode(), dataSet);
                     }
@@ -597,10 +596,9 @@ public class EntitySynchronizer
                 NewContainerDataSet containerDS = (NewContainerDataSet) dataSet;
                 if (dsToContained.containsKey(containerDS.getCode()))
                 {
-                    dsBatchUpdatesDTO.setModifiedContainedDatasetCodesOrNull(dsToContained.get(dataSet.getCode()).toArray(new
-                            String[containerDS.getContainedDataSetCodes().size()]));
-                }
-                else
+                    dsBatchUpdatesDTO.setModifiedContainedDatasetCodesOrNull(
+                            dsToContained.get(dataSet.getCode()).toArray(new String[containerDS.getContainedDataSetCodes().size()]));
+                } else
                 {
                     dsBatchUpdatesDTO.setModifiedContainedDatasetCodesOrNull(new String[0]);
                 }
@@ -611,8 +609,7 @@ public class EntitySynchronizer
                 dsBatchUpdatesDTO.setModifiedParentDatasetCodesOrNull(dsToParents.get(dataSet.getCode()).toArray(
                         new String[dataSet.getParentDataSetCodes().size()]));
                 // TODO should this always be true or should we flag the ones that require parent update. Same for container
-            }
-            else
+            } else
             {
                 dsBatchUpdatesDTO.setModifiedParentDatasetCodesOrNull(new String[0]);
             }
@@ -623,8 +620,7 @@ public class EntitySynchronizer
                 Sample sampleWithExperiment = service.tryGetSampleWithExperiment(sampleIdentifier);
                 dsBatchUpdatesDTO.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sampleWithExperiment.getIdentifier()));
                 dsBatchUpdatesDTO.getDetails().setSampleUpdateRequested(true);
-            }
-            else
+            } else
             {
                 dsBatchUpdatesDTO.setSampleIdentifierOrNull(null);
                 dsBatchUpdatesDTO.getDetails().setSampleUpdateRequested(true);
@@ -636,16 +632,16 @@ public class EntitySynchronizer
                 Experiment experiment = service.tryGetExperiment(expIdentifier);
                 dsBatchUpdatesDTO.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(experiment.getIdentifier()));
                 dsBatchUpdatesDTO.getDetails().setExperimentUpdateRequested(true);
-            }
-            else
+            } else
             {
                 dsBatchUpdatesDTO.setExperimentIdentifierOrNull(null);
                 dsBatchUpdatesDTO.getDetails().setExperimentUpdateRequested(true);
             }
             builder.dataSetUpdate(dsBatchUpdatesDTO);
         }
-        
-        if (config.isVerbose()) {
+
+        if (config.isVerbose())
+        {
             verboseLogDataSetUpdateOperation(builder.getDetails().getDataSetUpdates());
         }
         if (config.isDryRun())
@@ -737,16 +733,16 @@ public class EntitySynchronizer
     {
         if (config.isVerbose() == true)
         {
-//            operationLog.info("-------The following master data will be synchronized-------");
-//            verboseLogMasterData(masterData.getFileFormatTypesToProcess().keySet(), "File Formats");
-//            verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
-//            verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
-//            verboseLogMasterData(masterData.getVocabulariesToProcess().keySet(), "Controlled Vocabularies");
-//            verboseLogMasterData(masterData.getMaterialTypesToProcess().keySet(), "Material Types");
-//            verboseLogMasterData(masterData.getSampleTypesToProcess().keySet(), "Sample Types");
-//            verboseLogMasterData(masterData.getExperimentTypesToProcess().keySet(), "Experiment Types");
-//            verboseLogMasterData(masterData.getDataSetTypesToProcess().keySet(), "Data set Types");
-//            verboseLogMasterData(masterData.getPropertyTypesToProcess().keySet(), "Property Types");
+            // operationLog.info("-------The following master data will be synchronized-------");
+            // verboseLogMasterData(masterData.getFileFormatTypesToProcess().keySet(), "File Formats");
+            // verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
+            // verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
+            // verboseLogMasterData(masterData.getVocabulariesToProcess().keySet(), "Controlled Vocabularies");
+            // verboseLogMasterData(masterData.getMaterialTypesToProcess().keySet(), "Material Types");
+            // verboseLogMasterData(masterData.getSampleTypesToProcess().keySet(), "Sample Types");
+            // verboseLogMasterData(masterData.getExperimentTypesToProcess().keySet(), "Experiment Types");
+            // verboseLogMasterData(masterData.getDataSetTypesToProcess().keySet(), "Data set Types");
+            // verboseLogMasterData(masterData.getPropertyTypesToProcess().keySet(), "Property Types");
         }
         MasterDataSynchronizer masterDataSyncronizer =
                 new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), config.isDryRun(), operationLog);
@@ -803,15 +799,13 @@ public class EntitySynchronizer
                         ProjectPermId projectPermId = new ProjectPermId(permId);
                         projectsToDelete.put(projectPermId, identifier);
                     }
-                }
-                else if (entity.getEntityKind().equals(SyncEntityKind.EXPERIMENT.getLabel()))
+                } else if (entity.getEntityKind().equals(SyncEntityKind.EXPERIMENT.getLabel()))
                 {
                     ExperimentPermId experimentPermId = new ExperimentPermId(permId);
                     if (incomingExperimentPermIds.contains(permId) == false)
                     {
                         experimentsToDelete.put(experimentPermId, identifier);
-                    }
-                    else
+                    } else
                     {
                         NewExperiment exp = data.getExperimentsToProcess().get(permId).getExperiment();
                         if (typeCodeOrNull.equals(exp.getExperimentTypeCode()) == false)
@@ -819,15 +813,13 @@ public class EntitySynchronizer
                             experimentsToDelete.put(experimentPermId, identifier);
                         }
                     }
-                }
-                else if (entity.getEntityKind().equals(SyncEntityKind.SAMPLE.getLabel()))
+                } else if (entity.getEntityKind().equals(SyncEntityKind.SAMPLE.getLabel()))
                 {
                     SamplePermId samplePermId = new SamplePermId(permId);
                     if (incomingSamplePermIds.contains(permId) == false)
                     {
                         samplesToDelete.put(samplePermId, identifier);
-                    }
-                    else
+                    } else
                     {
                         NewSample smp = data.getSamplesToProcess().get(permId).getSample();
                         if (typeCodeOrNull.equals(smp.getSampleType().getCode()) == false)
@@ -835,15 +827,13 @@ public class EntitySynchronizer
                             samplesToDelete.put(samplePermId, identifier);
                         }
                     }
-                }
-                else if (entity.getEntityKind().equals(SyncEntityKind.DATA_SET.getLabel()))
+                } else if (entity.getEntityKind().equals(SyncEntityKind.DATA_SET.getLabel()))
                 {
                     DataSetPermId dataSetPermId = new DataSetPermId(permId);
                     if (incomingDataSetCodes.contains(permId) == false)
                     {
                         dataSetsToDelete.put(dataSetPermId, dataSetPermId.getPermId());
-                    }
-                    else
+                    } else
                     {
                         boolean sameDS = true;
                         IncomingDataSet dsWithConns = data.getDataSetsToProcess().get(permId);
@@ -851,8 +841,7 @@ public class EntitySynchronizer
                         if (typeCodeOrNull.equals(ds.getDataSetType().getCode()) == false)
                         {
                             sameDS = false;
-                        }
-                        else
+                        } else
                         {
                             if (dsWithConns.getKind() == DataSetKind.PHYSICAL && dsWithConns.getLastModificationDate().after(lastIncSyncTimestamp))
                             {
@@ -887,13 +876,14 @@ public class EntitySynchronizer
         operationLog.info("-------Processing deletions-------");
         if (config.isVerbose() == true)
         {
-            if(dataSetsToDelete.isEmpty() == false 
-                    || samplesToDelete.isEmpty() == false 
+            if (dataSetsToDelete.isEmpty() == false
+                    || samplesToDelete.isEmpty() == false
                     || experimentsToDelete.isEmpty() == false
                     || projectsToDelete.isEmpty() == false
-                    || materialsToDelete.isEmpty() == false) {
-                        operationLog.info("!!!!!!!!!!!!!The following will be PERMAMENTLY removed from openbis!!!!!!!!!!!!!");
-                    }
+                    || materialsToDelete.isEmpty() == false)
+            {
+                operationLog.info("!!!!!!!!!!!!!The following will be PERMAMENTLY removed from openbis!!!!!!!!!!!!!");
+            }
             verboseLogDeletions(dataSetsToDelete.values(), "data sets");
             verboseLogDeletions(samplesToDelete.values(), "samples");
             verboseLogDeletions(experimentsToDelete.values(), "experiments");
@@ -947,7 +937,7 @@ public class EntitySynchronizer
         {
             operationLog.warn("One or more materials could not be deleted due to: " + e.getMessage());
         }
-        
+
         // The following summary is not accurate if an error occurs in material deletions
         StringBuffer summary = new StringBuffer();
         if (projectsToDelete.size() > 0)
@@ -973,8 +963,7 @@ public class EntitySynchronizer
         if (summary.length() > 0)
         {
             operationLog.info(summary.substring(0, summary.length() - 1) + " have been deleted:");
-        }
-        else
+        } else
         {
             operationLog.info("Nothing has been deleted:");
         }
@@ -1024,8 +1013,7 @@ public class EntitySynchronizer
                 {
                     // ADD EXPERIMENT
                     builder.experiment(incomingExp);
-                }
-                else
+                } else
                 {
                     // UPDATE EXPERIMENT
                     ExperimentUpdatesDTO expUpdate = createExperimentUpdateDTOs(incomingExp, experiment);
@@ -1085,8 +1073,7 @@ public class EntitySynchronizer
                 if (material == null)
                 {
                     builder.material(incomingMaterial);
-                }
-                else
+                } else
                 {
                     List<IEntityProperty> newPropList =
                             prepareUpdatedPropertyList(incomingMaterial.getProperties(), material.getProperties());
@@ -1121,8 +1108,7 @@ public class EntitySynchronizer
                 {
                     // ADD PROJECT
                     builder.project(incomingProject);
-                }
-                else
+                } else
                 {
                     // UPDATE PROJECT
                     builder.projectUpdate(createProjectUpdateDTO(incomingProject, project));
@@ -1155,8 +1141,7 @@ public class EntitySynchronizer
                     newExp.setIdentifier(prj.getProject().getIdentifier() + "/" + expCode);
                     // add new experiment node
                 }
-            }
-            else
+            } else
             {
                 // This means the XML contains the connection but not the connected entity.
                 // This is an unlikely scenario.
@@ -1204,8 +1189,7 @@ public class EntitySynchronizer
                 {
                     // ADD SAMPLE
                     builder.sample(incomingSample);
-                }
-                else
+                } else
                 {
                     // defer creation of sample update objects until all samples have been gone through;
                     samplesToUpdate.put(sampleIdentifier, incomingSample);
@@ -1217,8 +1201,7 @@ public class EntitySynchronizer
                         if (childSampleWithConns == null)
                         {
                             // TODO Handle sample delete
-                        }
-                        else
+                        } else
                         {
                             // the childSample will appear in the incoming samples list anyway
                             // but we want to make sure its parent modification is handled
@@ -1234,8 +1217,7 @@ public class EntitySynchronizer
                 {
                     NewSample containedSample = samplesToProcess.get(conn.getToPermId()).getSample();
                     containedSample.setContainerIdentifier(incomingSample.getIdentifier());
-                }
-                else if (conn.getType().equals("Child"))
+                } else if (conn.getType().equals("Child"))
                 {
                     NewSample childSample = samplesToProcess.get(conn.getToPermId()).getSample();
                     String[] parents = childSample.getParentsOrNull();
@@ -1243,8 +1225,7 @@ public class EntitySynchronizer
                     if (parents == null)
                     {
                         parentIds = new ArrayList<String>();
-                    }
-                    else
+                    } else
                     {
                         parentIds = new ArrayList<String>(Arrays.asList(parents));
                     }
@@ -1434,8 +1415,8 @@ public class EntitySynchronizer
 
     private DataSetBatchUpdatesDTO createDataSetBatchUpdateDTO(NewExternalData dataSet, AbstractExternalData dsInHarvester)
     {
-        ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable = new
-                ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
+        ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable updateUpdatable =
+                new ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable(dsInHarvester, service);
         DataSetBatchUpdatesDTO dsBatchUpdatesDTO = ConversionUtils.convertToDataSetBatchUpdatesDTO(updateUpdatable);
         dsBatchUpdatesDTO.setDatasetId(TechId.create(dsInHarvester));
 

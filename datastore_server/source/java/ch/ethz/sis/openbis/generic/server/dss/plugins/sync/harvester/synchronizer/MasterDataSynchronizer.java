@@ -47,18 +47,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
- * 
- *
  * @author Ganime Betul Akin
  */
 public class MasterDataSynchronizer
 {
-	final ISynchronizerFacade synchronizerFacade;
-	final ICommonServer commonServer;
-	final String sessionToken;
-	final boolean dryRun;
+    final ISynchronizerFacade synchronizerFacade;
+
+    final ICommonServer commonServer;
+
+    final String sessionToken;
+
+    final boolean dryRun;
 
     final Map<TechId, List<VocabularyTerm>> vocabularyTermsToBeDeleted;
+
     final Map<TechId, String> vocabularyTechIdToCode = new HashMap<TechId, String>();
 
     public MasterDataSynchronizer(String harvesterUser, String harvesterPassword, boolean dryRun, Logger operationLog)
@@ -70,8 +72,9 @@ public class MasterDataSynchronizer
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
         vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
     }
-    
-    public void synchronizeMasterData(ResourceListParserData.MasterData masterData) {
+
+    public void synchronizeMasterData(ResourceListParserData.MasterData masterData)
+    {
         MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = masterData.getPropertyAssignmentsToProcess();
         processFileFormatTypes(masterData.getFileFormatTypesToProcess());
         processValidationPlugins(masterData.getValidationPluginsToProcess());
@@ -83,7 +86,7 @@ public class MasterDataSynchronizer
         processEntityTypes(masterData.getDataSetTypesToProcess(), propertyAssignmentsToProcess);
         processEntityTypes(masterData.getExperimentTypesToProcess(), propertyAssignmentsToProcess);
         processDeferredMaterialTypePropertyAssignments(propertyAssignmentsToProcess);
-        
+
         synchronizerFacade.printSummary();
     }
 
@@ -91,7 +94,8 @@ public class MasterDataSynchronizer
     {
         for (TechId vocabularyId : vocabularyTermsToBeDeleted.keySet())
         {
-            synchronizerFacade.deleteVocabularyTerms(vocabularyId, vocabularyTechIdToCode.get(vocabularyId), vocabularyTermsToBeDeleted.get(vocabularyId),
+            synchronizerFacade.deleteVocabularyTerms(vocabularyId, vocabularyTechIdToCode.get(vocabularyId),
+                    vocabularyTermsToBeDeleted.get(vocabularyId),
                     Collections.<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement> emptyList());
         }
     }
@@ -128,14 +132,13 @@ public class MasterDataSynchronizer
                 existingPluginOrNull.setScript(incomingplugin.getScript());
                 existingPluginOrNull.setDescription(incomingplugin.getDescription());
                 synchronizerFacade.updateValidationPlugin(existingPluginOrNull);
-            }
-            else
+            } else
             {
                 synchronizerFacade.registerValidationPlugin(incomingplugin);
             }
         }
     }
-    
+
     private void processFileFormatTypes(Map<String, FileFormatType> fileFormatTypesToProcess)
     {
         List<FileFormatType> fileFormatTypes = commonServer.listFileFormatTypes(sessionToken);
@@ -153,10 +156,9 @@ public class MasterDataSynchronizer
             {
                 existingTypeOrNull.setDescription(incomingType.getDescription());
                 synchronizerFacade.updateFileFormatType(existingTypeOrNull);
-            }
-            else
+            } else
             {
-            	synchronizerFacade.registerFileFormatType(incomingType);
+                synchronizerFacade.registerFileFormatType(incomingType);
             }
         }
     }
@@ -184,8 +186,7 @@ public class MasterDataSynchronizer
                 existingVocabulary.setChosenFromList(newVocabulary.isChosenFromList());
                 synchronizerFacade.updateVocabulary(existingVocabulary);
                 processVocabularyTerms(sessionToken, commonServer, newVocabulary, existingVocabulary);
-            }
-            else
+            } else
             {
                 synchronizerFacade.registerVocabulary(newVocabulary);
             }
@@ -200,7 +201,7 @@ public class MasterDataSynchronizer
         {
             incomingTermMap.put(term.getCode(), term);
         }
-  
+
         List<VocabularyTerm> termsToBeAdded = new ArrayList<VocabularyTerm>();
         List<VocabularyTerm> termsToBeUpdated = new ArrayList<VocabularyTerm>();
         for (VocabularyTerm incomingTerm : incomingTerms)
@@ -210,8 +211,7 @@ public class MasterDataSynchronizer
             if (existingTerm == null)
             {
                 termsToBeAdded.add(incomingTerm);
-            }
-            else
+            } else
             {
                 existingTerm.setLabel(incomingTerm.getLabel());
                 existingTerm.setDescription(incomingTerm.getDescription());
@@ -253,7 +253,7 @@ public class MasterDataSynchronizer
         }
         return null;
     }
-    
+
     private void processEntityTypes(Map<String, ? extends EntityType> entityTypesToProcess,
             MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess)
     {
@@ -276,15 +276,14 @@ public class MasterDataSynchronizer
             if (existingEntityType != null)
             {
                 updateEntityType(entityKind, incomingEntityType);
-//                existingEntityType.setCode(incomingEntityType.getCode());
-//                existingEntityType.setDescription(incomingEntityType.getDescription());
-//                existingEntityType.setValidationScript(incomingEntityType.getValidationScript());
+                // existingEntityType.setCode(incomingEntityType.getCode());
+                // existingEntityType.setDescription(incomingEntityType.getDescription());
+                // existingEntityType.setValidationScript(incomingEntityType.getValidationScript());
                 if (list != null && entityKind != EntityKind.MATERIAL) // defer material property assignments until after property types are processed
                 {
                     processPropertyAssignments(existingEntityType, list);
                 }
-            }
-            else
+            } else
             {
                 registerEntityType(entityKind, incomingEntityType);
                 if (list != null && entityKind != EntityKind.MATERIAL) // defer material property assignments until after property types are processed
@@ -315,8 +314,7 @@ public class MasterDataSynchronizer
             if (found)
             {
                 synchronizerFacade.updatePropertyTypeAssignment(newETPTAssignment);
-            }
-            else
+            } else
             {
                 synchronizerFacade.assignPropertyType(newETPTAssignment);
             }
@@ -367,13 +365,13 @@ public class MasterDataSynchronizer
                 synchronizerFacade.registerSampleType((SampleType) incomingEntityType);
                 break;
             case DATA_SET:
-            	synchronizerFacade.registerDataSetType((DataSetType) incomingEntityType);
+                synchronizerFacade.registerDataSetType((DataSetType) incomingEntityType);
                 break;
             case EXPERIMENT:
-            	synchronizerFacade.registerExperimentType((ExperimentType) incomingEntityType);
+                synchronizerFacade.registerExperimentType((ExperimentType) incomingEntityType);
                 break;
             case MATERIAL:
-            	synchronizerFacade.registerMaterialType((MaterialType) incomingEntityType);
+                synchronizerFacade.registerMaterialType((MaterialType) incomingEntityType);
                 break;
             default:
                 throw new UserFailureException("register not implemented for entity kind: " + entityKind.name());
@@ -385,16 +383,16 @@ public class MasterDataSynchronizer
         switch (entityKind)
         {
             case SAMPLE:
-            	synchronizerFacade.updateSampleType(incomingEntityType);
+                synchronizerFacade.updateSampleType(incomingEntityType);
                 break;
             case DATA_SET:
                 synchronizerFacade.updateDataSetType(incomingEntityType);
                 break;
             case EXPERIMENT:
-            	synchronizerFacade.updateExperimentType(incomingEntityType);
+                synchronizerFacade.updateExperimentType(incomingEntityType);
                 break;
             case MATERIAL:
-            	synchronizerFacade.updateMaterialType(incomingEntityType);
+                synchronizerFacade.updateMaterialType(incomingEntityType);
                 break;
             default:
                 throw new UserFailureException("update not implemented for entity kind: " + entityKind.name());
@@ -403,7 +401,8 @@ public class MasterDataSynchronizer
 
     private List<? extends EntityType> getExistingEntityTypes(EntityKind entityKind)
     {
-        switch (entityKind) {
+        switch (entityKind)
+        {
             case SAMPLE:
                 return commonServer.listSampleTypes(sessionToken);
             case DATA_SET:
@@ -436,10 +435,9 @@ public class MasterDataSynchronizer
                 propertyTypeOrNull.setLabel(incomingPropertyType.getLabel());
                 propertyTypeOrNull.setDescription(incomingPropertyType.getDescription());
                 synchronizerFacade.updatePropertyType(propertyTypeOrNull);
-            }
-            else
+            } else
             {
-            	synchronizerFacade.registerPropertyType(incomingPropertyType);
+                synchronizerFacade.registerPropertyType(incomingPropertyType);
             }
         }
     }
