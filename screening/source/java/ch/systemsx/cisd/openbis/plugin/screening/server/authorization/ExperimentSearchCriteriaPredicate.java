@@ -26,11 +26,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
@@ -43,19 +43,19 @@ public final class ExperimentSearchCriteriaPredicate implements
 {
     private final IPredicate<TechId> experimentPredicate;
 
-    private final SpaceIdentifierPredicate spacePredicate;
+    private final ProjectIdentifierPredicate projectPredicate;
 
     public ExperimentSearchCriteriaPredicate()
     {
         this.experimentPredicate = new ExperimentTechIdPredicate();
-        this.spacePredicate = new SpaceIdentifierPredicate();
+        this.projectPredicate = new ProjectIdentifierPredicate();
     }
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         experimentPredicate.init(provider);
-        spacePredicate.init(provider);
+        projectPredicate.init(provider);
     }
 
     @Override
@@ -77,9 +77,8 @@ public final class ExperimentSearchCriteriaPredicate implements
                             experiment.getExperimentId());
                 } else if (project != null)
                 {
-                    SpaceIdentifier space =
-                            new SpaceIdentifier(project.getSpaceCode());
-                    return spacePredicate.evaluate(person, allowedRoles, space);
+                    ProjectIdentifier projectIdentifier = new ProjectIdentifier(project.getSpaceCode(), project.getProjectCode());
+                    return projectPredicate.evaluate(person, allowedRoles, projectIdentifier);
                 }
             } catch (DataAccessException ex)
             {

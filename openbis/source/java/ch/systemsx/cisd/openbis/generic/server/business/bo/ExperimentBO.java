@@ -140,7 +140,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public void loadDataByTechId(TechId experimentId)
     {
         String[] connections =
-        { PROPERTY_TYPES };
+                { PROPERTY_TYPES };
         experiment = getExperimentDAO().tryGetByTechId(experimentId, connections);
         if (experiment == null)
         {
@@ -278,7 +278,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                     + filename
                     + "' "
                     + (versionOrNull == null ? "(latestaa version)" : "(version '" + versionOrNull
-                            + "')") + " not found in experiment '" + experiment.getIdentifier() + "'.");
+                            + "')")
+                    + " not found in experiment '" + experiment.getIdentifier() + "'.");
         }
     }
 
@@ -454,11 +455,14 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         updateProperties(experiment.getEntityType(), updates.getProperties(), extractPropertiesCodes(updates.getProperties()), experiment,
                 experiment);
 
-        ProjectPE project = findProject(updates.getProjectIdentifier());
-        ProjectPE previousProject = experiment.getProject();
-        if (project.equals(previousProject) == false)
+        if (updates.getProjectIdentifier() != null)
         {
-            relationshipService.assignExperimentToProject(session, experiment, project);
+            ProjectPE project = findProject(updates.getProjectIdentifier());
+            ProjectPE previousProject = experiment.getProject();
+            if (project.equals(previousProject) == false)
+            {
+                relationshipService.assignExperimentToProject(session, experiment, project);
+            }
         }
 
         for (NewAttachment attachment : updates.getAttachments())

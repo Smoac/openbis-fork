@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -97,8 +98,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses =
-{ ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult.class,
+@Friend(toClasses = { ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult.class,
         PlateGeometryContainer.class })
 public class ScreeningApiImpl
 {
@@ -262,6 +262,7 @@ public class ScreeningApiImpl
     private void filterForUser(final PersonPE user, final List<ExperimentIdentifier> experimentIds)
     {
         final ScreeningExperimentValidator validator = new ScreeningExperimentValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
         final Iterator<ExperimentIdentifier> it = experimentIds.iterator();
         while (it.hasNext())
         {
@@ -847,7 +848,7 @@ public class ScreeningApiImpl
                 {
                     return (o1.getExperimentPlateIdentifier().getAugmentedCode() + ":" + o1
                             .getWellPosition()).compareTo(o2.getExperimentPlateIdentifier()
-                            .getAugmentedCode() + ":" + o2.getWellPosition());
+                                    .getAugmentedCode() + ":" + o2.getWellPosition());
                 }
             });
         return plateWellReferences;
@@ -871,7 +872,7 @@ public class ScreeningApiImpl
                 {
                     return (o1.getExperimentPlateIdentifier().getAugmentedCode() + ":" + o1
                             .getWellPosition()).compareTo(o2.getExperimentPlateIdentifier()
-                            .getAugmentedCode() + ":" + o2.getWellPosition());
+                                    .getAugmentedCode() + ":" + o2.getWellPosition());
                 }
             });
         return plateWellReferences;

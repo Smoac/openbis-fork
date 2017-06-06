@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithT
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link UpdatedExperimentsWithType}.
@@ -37,7 +37,7 @@ public final class UpdatedExperimentsWithTypePredicate extends
         AbstractPredicate<UpdatedExperimentsWithType>
 {
 
-    private final IPredicate<SpaceIdentifier> delegate;
+    private final IPredicate<ProjectIdentifier> delegate;
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
@@ -65,14 +65,14 @@ public final class UpdatedExperimentsWithTypePredicate extends
 
     // for tests only
     @Deprecated
-    UpdatedExperimentsWithTypePredicate(IPredicate<SpaceIdentifier> delegate)
+    UpdatedExperimentsWithTypePredicate(IPredicate<ProjectIdentifier> delegate)
     {
         this.delegate = delegate;
     }
 
     public UpdatedExperimentsWithTypePredicate()
     {
-        delegate = new SpaceIdentifierPredicate();
+        delegate = new ProjectIdentifierPredicate();
     }
 
     @Override

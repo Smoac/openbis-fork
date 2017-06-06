@@ -18,10 +18,11 @@ package ch.systemsx.cisd.openbis.systemtest.authorization.validator.project;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.CommonValidatorSystemTest;
 
 /**
@@ -36,7 +37,9 @@ public class ProjectByIdentiferValidatorSystemTest extends CommonValidatorSystem
     @Override
     protected Project createObject(SpacePE spacePE, ProjectPE projectPE)
     {
-        return new Project(spacePE.getCode(), projectPE.getCode());
+        Project project = new Project();
+        project.setIdentifier(new ProjectIdentifier(spacePE.getCode(), projectPE.getCode()).toString());
+        return project;
     }
 
     @Override

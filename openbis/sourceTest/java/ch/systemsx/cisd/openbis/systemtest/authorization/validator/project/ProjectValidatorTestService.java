@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 
@@ -34,16 +35,14 @@ public class ProjectValidatorTestService
 
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = ProjectByIdentiferValidator.class)
-    public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project testProjectByIdentifierValidator(IAuthSessionProvider sessionProvider,
-            ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project project)
+    public Project testProjectByIdentifierValidator(IAuthSessionProvider sessionProvider, Project project)
     {
         return project;
     }
 
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
-    public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project testProjectValidator(IAuthSessionProvider sessionProvider,
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
+    public Project testProjectValidator(IAuthSessionProvider sessionProvider, Project project)
     {
         return project;
     }

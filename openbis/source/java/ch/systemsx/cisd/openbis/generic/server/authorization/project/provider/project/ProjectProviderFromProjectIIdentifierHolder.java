@@ -28,15 +28,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 public class ProjectProviderFromProjectIIdentifierHolder extends SingleObjectProvider<IIdentifierHolder>
 {
 
-    public ProjectProviderFromProjectIIdentifierHolder(IIdentifierHolder identifierHolder)
+    public ProjectProviderFromProjectIIdentifierHolder(IIdentifierHolder projectIdentifierHolder)
     {
-        super(identifierHolder);
+        super(projectIdentifierHolder);
     }
 
     @Override
-    protected IProject createProject(IAuthorizationDataProvider dataProvider, IIdentifierHolder identifierHolder)
+    protected IProject createProject(IAuthorizationDataProvider dataProvider, IIdentifierHolder projectIdentifierHolder)
     {
-        return new ProjectFromIIdentifierHolder(identifierHolder);
+        return new ProjectFromIIdentifierHolder(projectIdentifierHolder);
     }
 
 }

@@ -16,7 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromNewExperiment;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -44,6 +54,24 @@ public final class NewExperimentPredicate extends
         ExperimentIdentifier identifier =
                 new ExperimentIdentifierFactory(value.getIdentifier()).createIdentifier();
         return identifier;
+    }
+
+    @Override
+    public Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, NewExperiment value)
+    {
+        IProjectAuthorization<NewExperiment> pa = new ProjectAuthorizationBuilder<NewExperiment>()
+                .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectProviderFromNewExperiment(value))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
+        return super.doEvaluation(person, allowedRoles, value);
     }
 
     @Override

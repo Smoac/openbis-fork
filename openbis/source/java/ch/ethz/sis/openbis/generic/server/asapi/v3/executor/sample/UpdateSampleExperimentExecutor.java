@@ -30,8 +30,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.NewDataSetToSampleExperimentAssignmentManager;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -44,6 +46,9 @@ public class UpdateSampleExperimentExecutor extends
         AbstractUpdateEntityToOneRelationExecutor<SampleUpdate, SamplePE, IExperimentId, ExperimentPE>
         implements IUpdateSampleExperimentExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
@@ -84,7 +89,10 @@ public class UpdateSampleExperimentExecutor extends
     @Override
     protected void check(IOperationContext context, SamplePE entity, IExperimentId relatedId, ExperimentPE related)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }

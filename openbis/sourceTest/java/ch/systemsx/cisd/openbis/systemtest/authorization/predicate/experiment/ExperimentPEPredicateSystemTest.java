@@ -68,9 +68,15 @@ public class ExperimentPEPredicateSystemTest extends CommonPredicateSystemTest<E
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNullForInstanceUser(PersonPE person, Throwable t)
     {
         assertNoException(t);
+    }
+
+    @Override
+    protected void assertWithNull(PersonPE person, Throwable t)
+    {
+        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
     }
 
     @Override

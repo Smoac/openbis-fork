@@ -16,6 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentIdentifierString;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -35,6 +45,24 @@ public class ExperimentAugmentedCodePredicate extends DelegatedPredicate<SpaceId
     public SpaceIdentifier tryConvert(String value)
     {
         return new ExperimentIdentifierFactory(value).createIdentifier();
+    }
+
+    @Override
+    public Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String value)
+    {
+        IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
+                .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectProviderFromExperimentIdentifierString(value))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
+        return super.doEvaluation(person, allowedRoles, value);
     }
 
     @Override

@@ -28,7 +28,7 @@ abstract class AbstractExperimentPredicate<T> extends AbstractPredicate<T>
 {
     protected final ExperimentTechIdPredicate experimentTechIdPredicate;
 
-    protected final SpaceIdentifierPredicate spacePredicate;
+    protected final ProjectIdentifierPredicate projectPredicate;
 
     protected final ExperimentPermIdPredicate experimentPermIdPredicate;
 
@@ -37,7 +37,7 @@ abstract class AbstractExperimentPredicate<T> extends AbstractPredicate<T>
     public AbstractExperimentPredicate()
     {
         this.experimentTechIdPredicate = new ExperimentTechIdPredicate();
-        this.spacePredicate = new SpaceIdentifierPredicate();
+        this.projectPredicate = new ProjectIdentifierPredicate();
         this.experimentPermIdPredicate = new ExperimentPermIdPredicate();
         this.experimentAugmentedCodePredicate = new ExperimentAugmentedCodePredicate();
     }
@@ -46,7 +46,7 @@ abstract class AbstractExperimentPredicate<T> extends AbstractPredicate<T>
     public final void init(IAuthorizationDataProvider provider)
     {
         experimentTechIdPredicate.init(provider);
-        spacePredicate.init(provider);
+        projectPredicate.init(provider);
         experimentPermIdPredicate.init(provider);
         experimentAugmentedCodePredicate.init(provider);
     }

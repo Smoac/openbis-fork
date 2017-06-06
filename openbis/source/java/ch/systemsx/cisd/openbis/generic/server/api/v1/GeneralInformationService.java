@@ -595,8 +595,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         // filter by user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
-        final ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
         final ArrayList<Experiment> experiments = new ArrayList<Experiment>(allExperiments.size());
+
+        final ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         for (Experiment experiment : allExperiments)
         {
             if (validator.doValidation(person, experiment))
@@ -799,9 +802,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        final ArrayList<DataSet> datasets = new ArrayList<DataSet>(unfilteredDatasets.size());
+
         final DataSetByExperimentOrSampleIdentifierValidator validator =
                 new DataSetByExperimentOrSampleIdentifierValidator();
-        final ArrayList<DataSet> datasets = new ArrayList<DataSet>(unfilteredDatasets.size());
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         for (DataSet dataset : unfilteredDatasets)
         {
             if (validator.doValidation(person, dataset))
@@ -856,9 +862,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         final List<DataSet> unfilteredDatasets = Translator.translate(dataSets, connectionsToGet);
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        final ArrayList<DataSet> datasets = new ArrayList<DataSet>(unfilteredDatasets.size());
+
         final DataSetByExperimentOrSampleIdentifierValidator validator =
                 new DataSetByExperimentOrSampleIdentifierValidator();
-        final ArrayList<DataSet> datasets = new ArrayList<DataSet>(unfilteredDatasets.size());
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         for (DataSet dataset : unfilteredDatasets)
         {
             if (validator.doValidation(person, dataset))
@@ -1038,6 +1047,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final DataSetByExperimentOrSampleIdentifierValidator experimentIdentifierValidator =
                 new DataSetByExperimentOrSampleIdentifierValidator();
+
+        experimentIdentifierValidator.init(new AuthorizationDataProvider(getDAOFactory()));
 
         final ArrayList<DataSet> dataSets = new ArrayList<DataSet>(allDataSets.size());
         for (DataSet dataSet : allDataSets)

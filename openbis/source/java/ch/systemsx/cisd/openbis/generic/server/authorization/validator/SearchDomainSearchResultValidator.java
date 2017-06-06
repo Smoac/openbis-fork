@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -35,6 +36,15 @@ public class SearchDomainSearchResultValidator extends AbstractValidator<SearchD
     private final SampleValidator sampleValidator = new SampleValidator();
 
     private final ExperimentValidator experimentValidator = new ExperimentValidator();
+
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        super.init(provider);
+        dataSetValidator.init(provider);
+        sampleValidator.init(provider);
+        experimentValidator.init(provider);
+    }
 
     @Override
     public boolean doValidation(PersonPE person, SearchDomainSearchResultWithFullEntity value)

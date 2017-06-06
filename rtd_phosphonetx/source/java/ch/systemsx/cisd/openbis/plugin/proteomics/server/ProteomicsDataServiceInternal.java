@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -86,8 +87,6 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
     private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
             new RawDataSampleValidator();
-
-    private static final IValidator<Experiment> EXPERIMENT_VALIDATOR = new ExperimentValidator();
 
     private ICommonBusinessObjectFactory commonBoFactory;
 
@@ -242,6 +241,10 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         List<String> dataSetCodes = new ArrayList<String>();
         IExperimentDAO experimentDAO = getDAOFactory().getExperimentDAO();
         IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
+        ExperimentValidator validator = new ExperimentValidator();
+
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         for (long experimentID : searchExperimentIDs)
         {
             ExperimentPE experiment = experimentDAO.tryGetByTechId(new TechId(experimentID));
@@ -255,7 +258,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             Experiment translatedExperiment =
                     ExperimentTranslator.translate(experiment, "", null,
                             managedPropertyEvaluatorFactory);
-            if (EXPERIMENT_VALIDATOR.isValid(person, translatedExperiment))
+            if (validator.isValid(person, translatedExperiment))
             {
                 List<DataPE> dataSets = dataSetDAO.listDataSets(experiment);
                 dataSetCodes.addAll(Code.extractCodes(dataSets));

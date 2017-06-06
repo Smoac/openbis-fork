@@ -50,7 +50,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
     protected static final String PERSON_WITH_OR_WITHOUT_PA_PROVIDER = "personProvider";
 
     @Autowired
-    private IDAOFactory daoFactory;
+    protected IDAOFactory daoFactory;
 
     private BufferedAppender logRecorder;
 

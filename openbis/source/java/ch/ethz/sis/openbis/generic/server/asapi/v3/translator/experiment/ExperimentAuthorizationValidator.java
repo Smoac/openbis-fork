@@ -16,21 +16,23 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.lemnik.eodsql.QueryTool;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -39,13 +41,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class ExperimentAuthorizationValidator implements IExperimentAuthorizationValidator
 {
 
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Override
     public Set<Long> validate(PersonPE person, Collection<Long> experimentIds)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
         List<ExperimentAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(experimentIds));
-        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
         Set<Long> result = new HashSet<Long>();
+
+        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
 
         for (ExperimentAuthorizationRecord record : records)
         {

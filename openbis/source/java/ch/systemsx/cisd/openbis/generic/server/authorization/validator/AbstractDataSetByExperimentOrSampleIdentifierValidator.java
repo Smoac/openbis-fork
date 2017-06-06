@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -29,6 +30,14 @@ public abstract class AbstractDataSetByExperimentOrSampleIdentifierValidator<DAT
     private final ExperimentByIdentiferValidator experimentValidator = new ExperimentByIdentiferValidator();
 
     private final SampleByIdentiferValidator sampleValidator = new SampleByIdentiferValidator();
+
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        super.init(provider);
+        experimentValidator.init(provider);
+        sampleValidator.init(provider);
+    }
 
     @Override
     public boolean doValidation(PersonPE person, final DATA_SET dataSet)

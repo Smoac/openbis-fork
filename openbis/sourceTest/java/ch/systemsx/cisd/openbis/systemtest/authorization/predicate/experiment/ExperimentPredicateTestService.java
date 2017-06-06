@@ -24,13 +24,25 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ExperimentTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEOrNullPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewExperimentPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewExperimentsWithTypePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.UpdatedExperimentsWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 
@@ -66,8 +78,50 @@ public class ExperimentPredicateTestService
     }
 
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExperimentPEOrNullPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExperimentPEOrNullPredicate.class) ExperimentPE experimentPE)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentListPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentListPredicate.class) List<Experiment> experimentList)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExperimentAugmentedCodePredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) String experimentAugmentedCode)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testNewExperimentPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class) NewExperiment newExperiment)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExperimentIdPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExperimentIdPredicate.class) IExperimentId experimentId)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExperimentUpdatesPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO experimentUpdates)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testNewExperimentsWithTypePredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class) NewExperimentsWithType experimentsWithType)
+    {
+    }
+
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testUpdatedExperimentsWithTypePredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class) UpdatedExperimentsWithType experimentsWithType)
     {
     }
 

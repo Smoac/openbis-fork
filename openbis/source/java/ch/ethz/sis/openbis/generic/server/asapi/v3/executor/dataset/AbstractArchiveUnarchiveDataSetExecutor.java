@@ -31,9 +31,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -41,6 +43,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  */
 abstract class AbstractArchiveUnarchiveDataSetExecutor
 {
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Autowired
     protected IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
@@ -76,7 +81,10 @@ abstract class AbstractArchiveUnarchiveDataSetExecutor
             assertAuthorization(context, dataSetId, dataSet);
             if (false == dataSetCodes.contains(dataSet.getCode()))
             {
-                if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), dataSet))
+                DataSetPEByExperimentOrSampleIdentifierValidator validator = new DataSetPEByExperimentOrSampleIdentifierValidator();
+                validator.init(new AuthorizationDataProvider(daoFactory));
+
+                if (false == validator.doValidation(context.getSession().tryGetPerson(), dataSet))
                 {
                     throw new UnauthorizedObjectAccessException(dataSetId);
                 }

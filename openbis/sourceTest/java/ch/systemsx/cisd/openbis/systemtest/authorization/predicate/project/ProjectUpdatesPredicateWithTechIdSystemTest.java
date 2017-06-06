@@ -67,19 +67,7 @@ public class ProjectUpdatesPredicateWithTechIdSystemTest extends CommonPredicate
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
-    {
-        assertUserFailureExceptionThatProjectDoesNotExist(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t)
-    {
-        assertUserFailureExceptionThatProjectDoesNotExist(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
     {
         assertUserFailureExceptionThatProjectDoesNotExist(t);
     }

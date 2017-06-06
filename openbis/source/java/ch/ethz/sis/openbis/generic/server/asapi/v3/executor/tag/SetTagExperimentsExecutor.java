@@ -27,7 +27,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -37,6 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 public class SetTagExperimentsExecutor extends SetTagEntitiesExecutor<IExperimentId, ExperimentPE>
         implements ISetTagExperimentsExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
@@ -68,7 +73,10 @@ public class SetTagExperimentsExecutor extends SetTagEntitiesExecutor<IExperimen
     @Override
     protected void check(IOperationContext context, IExperimentId relatedId, ExperimentPE related)
     {
-        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }

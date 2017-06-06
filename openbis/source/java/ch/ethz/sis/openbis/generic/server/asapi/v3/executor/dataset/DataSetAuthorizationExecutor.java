@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -23,12 +24,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -43,6 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 @Component
 public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     private boolean canCreate(PersonPE person)
     {
@@ -65,7 +71,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
         {
             return;
         }
-        
+
         boolean isCreatorPersonAllowed = false;
         boolean isPersonAllowed = false;
 
@@ -85,8 +91,11 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
                     "Data set creation can be only executed by a system user or a user with at least " + RoleWithHierarchy.SPACE_ETL_SERVER
                             + " role.");
         }
-        
-        if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(dataSet.getRegistrator(), dataSet))
+
+        DataSetPEByExperimentOrSampleIdentifierValidator validator = new DataSetPEByExperimentOrSampleIdentifierValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(dataSet.getRegistrator(), dataSet))
         {
             throw new UnauthorizedObjectAccessException(new DataSetPermId(dataSet.getPermId()));
         }
@@ -107,8 +116,11 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
             isStorageConfirmed = true;
         }
 
+        DataSetPEByExperimentOrSampleIdentifierValidator validator = new DataSetPEByExperimentOrSampleIdentifierValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
         if (isStorageConfirmed
-                && false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), dataSet))
+                && false == validator.doValidation(context.getSession().tryGetPerson(), dataSet))
         {
             throw new UnauthorizedObjectAccessException(id);
         }

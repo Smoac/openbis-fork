@@ -50,18 +50,53 @@ public abstract class CommonPredicateSystemTest<O> extends CommonAuthorizationSy
     protected abstract void evaluateObjects(IAuthSessionProvider sessionProvider, List<O> objects);
 
     @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)
-    public void testWithNull(PersonPE person)
+    public void testWithNullForInstanceUser(PersonPE person)
     {
         person.setRoleAssignments(Collections.singleton(createInstanceRole(RoleCode.ADMIN)));
 
         List<O> objects = Arrays.asList((O) null);
         Throwable t = tryEvaluateObjects(createSessionProvider(person), objects);
-        assertWithNull(person, t);
+        assertWithNullForInstanceUser(person, t);
     }
 
     protected void assertWithNull(PersonPE person, Throwable t)
     {
         assertException(t, UserFailureException.class, "Unspecified value");
+    }
+
+    protected void assertWithNullForInstanceUser(PersonPE person, Throwable t)
+    {
+        assertWithNull(person, t);
+    }
+
+    @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)
+    public void testWithNullForSpaceUser(PersonPE person)
+    {
+        person.setRoleAssignments(Collections.singleton(createSpaceRole(RoleCode.ADMIN, getSpace1())));
+
+        List<O> objects = Arrays.asList((O) null);
+        Throwable t = tryEvaluateObjects(createSessionProvider(person), objects);
+        assertWithNullForSpaceUser(person, t);
+    }
+
+    protected void assertWithNullForSpaceUser(PersonPE person, Throwable t)
+    {
+        assertWithNull(person, t);
+    }
+
+    @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)
+    public void testWithNullForProjectUser(PersonPE person)
+    {
+        person.setRoleAssignments(Collections.singleton(createProjectRole(RoleCode.ADMIN, getProject11())));
+
+        List<O> objects = Arrays.asList((O) null);
+        Throwable t = tryEvaluateObjects(createSessionProvider(person), objects);
+        assertWithNullForProjectUser(person, t);
+    }
+
+    protected void assertWithNullForProjectUser(PersonPE person, Throwable t)
+    {
+        assertWithNull(person, t);
     }
 
     @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)
@@ -75,9 +110,14 @@ public abstract class CommonPredicateSystemTest<O> extends CommonAuthorizationSy
         assertWithNonexistentObjectForInstanceUser(person, t);
     }
 
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
     {
         assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+    }
+
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    {
+        assertWithNonexistentObject(person, t);
     }
 
     @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)
@@ -93,7 +133,7 @@ public abstract class CommonPredicateSystemTest<O> extends CommonAuthorizationSy
 
     protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t)
     {
-        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+        assertWithNonexistentObject(person, t);
     }
 
     @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)
@@ -109,7 +149,7 @@ public abstract class CommonPredicateSystemTest<O> extends CommonAuthorizationSy
 
     protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t)
     {
-        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+        assertWithNonexistentObject(person, t);
     }
 
     @Test(dataProvider = PERSON_WITH_OR_WITHOUT_PA_PROVIDER)

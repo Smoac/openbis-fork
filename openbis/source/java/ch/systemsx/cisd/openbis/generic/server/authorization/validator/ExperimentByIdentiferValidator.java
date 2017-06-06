@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentIIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
@@ -29,6 +36,27 @@ public class ExperimentByIdentiferValidator extends AbstractIdentifierValidator
     protected String extractSpaceCodeOrNull(String identifier)
     {
         return ExperimentIdentifierFactory.parse(identifier).getSpaceCode();
+    }
+
+    @Override
+    public boolean doValidation(PersonPE person, IIdentifierHolder value)
+    {
+        boolean result = super.doValidation(person, value);
+
+        if (result)
+        {
+            return result;
+        } else
+        {
+            IProjectAuthorization<IIdentifierHolder> pa = new ProjectAuthorizationBuilder<IIdentifierHolder>()
+                    .withData(authorizationDataProvider)
+                    .withUser(new UserProviderFromPersonPE(person))
+                    .withRoles(new RolesProviderFromPersonPE(person))
+                    .withObjects(new ProjectProviderFromExperimentIIdentifierHolder(value))
+                    .build();
+
+            return pa.getObjectsWithoutAccess().isEmpty();
+        }
     }
 
 }

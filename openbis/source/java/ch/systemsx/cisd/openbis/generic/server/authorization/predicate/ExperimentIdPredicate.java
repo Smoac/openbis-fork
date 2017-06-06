@@ -46,7 +46,7 @@ public class ExperimentIdPredicate extends AbstractExperimentPredicate<IExperime
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             IExperimentId experimentId)
     {
-        assert spacePredicate.initialized : "Predicate has not been initialized";
+        assert projectPredicate.initialized : "Predicate has not been initialized";
         assert experimentTechIdPredicate.initialized : "Predicate has not been initialized";
         assert experimentPermIdPredicate.initialized : "Predicate has not been initialized";
         assert experimentAugmentedCodePredicate.initialized : "Predicate has not been initialized";

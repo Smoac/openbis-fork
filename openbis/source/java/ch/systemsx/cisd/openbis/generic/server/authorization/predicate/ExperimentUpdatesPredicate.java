@@ -42,7 +42,7 @@ public class ExperimentUpdatesPredicate extends AbstractExperimentPredicate<Expe
             final List<RoleWithIdentifier> allowedRoles,
             final ExperimentUpdatesDTO updates)
     {
-        assert spacePredicate.initialized : "Predicate has not been initialized";
+        assert projectPredicate.initialized : "Predicate has not been initialized";
         assert experimentTechIdPredicate.initialized : "Predicate has not been initialized";
 
         // Skip all further checks if the person has instance-wide write permissions.
@@ -59,7 +59,14 @@ public class ExperimentUpdatesPredicate extends AbstractExperimentPredicate<Expe
         {
             return status;
         }
-        status = spacePredicate.doEvaluation(person, allowedRoles, updates.getProjectIdentifier());
-        return status;
+
+        if (updates.getProjectIdentifier() != null)
+        {
+            status = projectPredicate.doEvaluation(person, allowedRoles, updates.getProjectIdentifier());
+            return status;
+        } else
+        {
+            return Status.OK;
+        }
     }
 }
