@@ -552,10 +552,10 @@ public class ResourceListParser
         String space = extractSpace(xdNode, true);
         SampleType sampleType = new SampleType();
         sampleType.setCode(type);
-
+        
         SampleIdentifier identifier = createSampleIdentifier(code, space);
         NewSample newSample = new NewSample(identifier.toString(), sampleType, null, null,
-                experiment, null, null, null,
+                getExperimentIdentifier(experiment).toString(), null, null, null,
                 null);
         newSample.setPermID(permId);
         if (space == null)
