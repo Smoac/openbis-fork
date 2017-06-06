@@ -745,7 +745,7 @@ public class EntitySynchronizer
             // verboseLogMasterData(masterData.getPropertyTypesToProcess().keySet(), "Property Types");
         }
         MasterDataSynchronizer masterDataSyncronizer =
-                new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), config.isDryRun(), operationLog);
+                new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), config.isDryRun(), config.isVerbose(), operationLog);
         masterDataSyncronizer.synchronizeMasterData(masterData);
     }
 

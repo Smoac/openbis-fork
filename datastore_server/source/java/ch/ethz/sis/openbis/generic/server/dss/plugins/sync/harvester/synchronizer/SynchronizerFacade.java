@@ -76,6 +76,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
     Set<String> validationPluginsToAdd = new HashSet<String>();
 
     final boolean dryRun;
+    
+    final boolean verbose;
 
     Set<String> vocabulariesToAdd = new HashSet<String>();
 
@@ -103,22 +105,24 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     Map<String, String> materialTypesToUpdate = new HashMap<String, String>();
 
-    public SynchronizerFacade(String openBisServerUrl, String harvesterUser, String harvesterPassword, boolean dryRun, Logger operationLog)
+    public SynchronizerFacade(String openBisServerUrl, String harvesterUser, String harvesterPassword, boolean dryRun, boolean verbose, Logger operationLog)
     {
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
         this.dryRun = dryRun;
+        this.verbose = verbose || dryRun;
         this.operationLog = operationLog;
     }
 
     @Override
     public void updateFileFormatType(AbstractType type)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             String change = "Description :" + type.getDescription();
             fileformatTypesToUpdate.put(type.getCode(), change);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updateFileFormatType(sessionToken, type);
         }
@@ -127,10 +131,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerFileFormatType(FileFormatType type)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             fileformatTypesToAdd.add(type.getCode());
-        } else
+        }         
+        if(dryRun == false)
         {
             commonServer.registerFileFormatType(sessionToken, type);
         }
@@ -139,10 +144,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updatePropertyTypeAssignment(NewETPTAssignment newETPTAssignment)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             propertyAssignmentsToUpdate.add(newETPTAssignment);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updatePropertyTypeAssignment(sessionToken, newETPTAssignment);
         }
@@ -151,10 +157,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void assignPropertyType(NewETPTAssignment newETPTAssignment)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             propertyAssignmentsToAdd.add(newETPTAssignment);
-        } else
+        }
+        if(dryRun == false)
         {
             commonServer.assignPropertyType(sessionToken, newETPTAssignment);
         }
@@ -163,10 +170,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode, String entityTypeCode)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             propertyAssignmentsToBreak.put(entityTypeCode + "(" + entityKind.name() + ")", propertyTypeCode);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.unassignPropertyType(sessionToken, entityKind, propertyTypeCode, entityTypeCode);
         }
@@ -175,11 +183,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updatePropertyType(PropertyType propertyType)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             String change = "Label :" + propertyType.getLabel() + " , description :" + propertyType.getDescription();
             propertyTypesToUpdate.put(propertyType.getCode(), change);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updatePropertyType(sessionToken, propertyType);
         }
@@ -188,10 +197,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerPropertyType(PropertyType propertyType)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             propertyTypesToAdd.add(propertyType.getCode());
-        } else
+        }
+        if(dryRun == false)
         {
             commonServer.registerPropertyType(sessionToken, propertyType);
         }
@@ -200,11 +210,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateValidationPlugin(Script script)
     {
-        if (dryRun)
-        {// "Name :" + script.getName() + ",
-            String change = "Description :" + script.getDescription() + ", script :" + script.getScript();
+        if (verbose == true)
+        {
+            String change = "Description :" + script.getDescription(); //+ ", script :" + script.getScript();
             validationPluginsToUpdate.put(script.getName(), change);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updateScript(sessionToken, script);
         }
@@ -213,10 +224,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerValidationPlugin(Script script)
     {
-        if (dryRun)
+        if (verbose == true)
         {
             validationPluginsToAdd.add(script.getName());
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.registerScript(sessionToken, script);
         }
@@ -225,10 +237,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerVocabulary(NewVocabulary vocab)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             vocabulariesToAdd.add(vocab.getCode());
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.registerVocabulary(sessionToken, vocab);
         }
@@ -237,11 +250,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateVocabulary(Vocabulary vocab)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             String change = "Code : " + vocab.getCode() + ", description :" + vocab.getDescription();
             vocabulariesToUpdate.put(vocab.getCode(), change);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updateVocabulary(sessionToken, vocab);
         }
@@ -250,10 +264,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerSampleType(SampleType sampleType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             sampleTypesToAdd.add(sampleType.getCode());
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.registerSampleType(sessionToken, sampleType);
         }
@@ -262,10 +277,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerDataSetType(DataSetType dataSetType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             dataSetTypesToAdd.add(dataSetType.getCode());
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.registerDataSetType(sessionToken, dataSetType);
         }
@@ -274,10 +290,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerExperimentType(ExperimentType experimentType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             experimentTypesToAdd.add(experimentType.getCode());
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.registerExperimentType(sessionToken, experimentType);
         }
@@ -286,10 +303,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerMaterialType(MaterialType materialType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             materialTypesToAdd.add(materialType.getCode());
-        } else
+        }
+        if(dryRun == false)
         {
             commonServer.registerMaterialType(sessionToken, materialType);
         }
@@ -299,10 +317,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     public void deleteVocabularyTerms(TechId vocabularyId, String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             vocabularyTermsToDelete.put(vocabularyCode, termsToBeDeleted);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, termsToBeDeleted, termsToBeReplaced);
         }
@@ -311,12 +330,13 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateVocabularyTerm(VocabularyTerm term)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             String change = "Label :" + term.getLabel() + ", Ordinal :" + term.getOrdinal() +
                     ", Description :" + term.getDescription();
             vocabulariesToUpdate.put(term.getCode(), change);
-        } else
+        }
+        if(dryRun == false)
         {
             commonServer.updateVocabularyTerm(sessionToken, term);
         }
@@ -325,11 +345,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateSampleType(EntityType entityType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
             sampleTypesToUpdate.put(entityType.getCode(), change);
-        } else
+        }        
+        if(dryRun == false)
         {
             commonServer.updateSampleType(sessionToken, entityType);
         }
@@ -338,11 +359,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateDataSetType(EntityType entityType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
             dataSetTypesToUpdate.put(entityType.getCode(), change);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updateDataSetType(sessionToken, entityType);
         }
@@ -351,11 +373,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateExperimentType(EntityType entityType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
             experimentTypesToUpdate.put(entityType.getCode(), change);
-        } else
+        }
+        if(dryRun == false)
         {
             commonServer.updateExperimentType(sessionToken, entityType);
         }
@@ -364,11 +387,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateMaterialType(EntityType entityType)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
             materialTypesToUpdate.put(entityType.getCode(), change);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.updateMaterialType(sessionToken, entityType);
         }
@@ -377,10 +401,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void addVocabularyTerms(String vocabularyCode, TechId techId, List<VocabularyTerm> termsToBeAdded)
     {
-        if (dryRun == true)
+        if (verbose == true)
         {
             vocabularyTermsToAdd.put(vocabularyCode, termsToBeAdded);
-        } else
+        } 
+        if(dryRun == false)
         {
             commonServer.addVocabularyTerms(sessionToken, techId, termsToBeAdded, null, true);
         }
@@ -389,6 +414,9 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void printSummary()
     {
+        if (verbose == false) {
+            return;
+        }
         printSummary(fileformatTypesToAdd, "file format types", "added");
         printSummary(fileformatTypesToUpdate, "file format types", "updated");
 

@@ -63,11 +63,11 @@ public class MasterDataSynchronizer
 
     final Map<TechId, String> vocabularyTechIdToCode = new HashMap<TechId, String>();
 
-    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword, boolean dryRun, Logger operationLog)
+    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword, boolean dryRun, boolean verbose, Logger operationLog)
     {
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
         this.dryRun = dryRun;
-        this.synchronizerFacade = new SynchronizerFacade(openBisServerUrl, harvesterUser, harvesterPassword, dryRun, operationLog);
+        this.synchronizerFacade = new SynchronizerFacade(openBisServerUrl, harvesterUser, harvesterPassword, dryRun, verbose, operationLog);
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
         vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
