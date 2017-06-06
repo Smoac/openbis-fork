@@ -736,9 +736,14 @@ public abstract class DeletionTest extends AbstractTest
 
     protected MaterialPermId createMaterial(String code, Map<String, String> properties)
     {
+        return createMaterial(code, "DELETION_TEST", properties);
+    }
+
+    protected MaterialPermId createMaterial(String code, String typeCode, Map<String, String> properties)
+    {
         MaterialCreation material = new MaterialCreation();
         material.setCode(code);
-        material.setTypeId(new EntityTypePermId("DELETION_TEST"));
+        material.setTypeId(new EntityTypePermId(typeCode));
 
         for (Map.Entry<String, String> entry : properties.entrySet())
         {
