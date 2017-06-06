@@ -21,6 +21,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._datasetTypesTableModel = null;
 
 	this._mainMenuItemsTableModel = null;
+	this._forcedDisableRTFTableModel = null;
+	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
 	this._sampleTypeProtocolsTableModel = null;
 	this._sampleTypeDefinitionsTableModels = {}; // key: sample type; value: table model
@@ -83,6 +85,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		return {
 			dataSetTypeForFileNameMap : this._datasetTypesTableModel.getValues(),
 			mainMenu : this._mainMenuItemsTableModel.getValues(),
+			forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
+			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
 			sampleTypeProtocols : this._sampleTypeProtocolsTableModel.getValues(),
 			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsSettings(),
@@ -109,6 +113,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		this._mainMenuItemsTableModel = this._getMainMenuItemsTableModel();
 		$fieldset.append(this._getTable(this._mainMenuItemsTableModel));
 
+		this._forcedDisableRTFTableModel = this._getForcedDisableRTFTableModel();
+		$fieldset.append(this._getTable(this._forcedDisableRTFTableModel));
+
+		this._forcedMonospaceTableModel = this._getForcedMonospaceTableModel();
+		$fieldset.append(this._getTable(this._forcedMonospaceTableModel));
+
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
 		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
 
@@ -133,9 +143,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			}
 		};
 		// add data
-		var editableMenuItems = ["showLabNotebook", "showInventory", "showStorageManager"];
 		for (var menuItemName of Object.keys(this._profileToEdit.mainMenu)) {
-			if (editableMenuItems.indexOf(menuItemName) !== -1) {
+			if (menuItemName !== "showSettings") {
 				tableModel.addRow({
 					menuItemName : menuItemName,
 					enabled : this._profileToEdit.mainMenu[menuItemName]
@@ -151,6 +160,24 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			return mainMenu;
 		};
 		return tableModel;
+	}
+
+	this._getForcedDisableRTFTableModel = function() {
+		return this._getSingleColumnDropdownTableModel({
+			columnName : "Forced Disable RTF",
+			placeholder : "select property type",
+			options : this._settingsFormController.getForcedDisableRTFOptions(),
+			initialValues : this._profileToEdit.forcedDisableRTF,
+		});
+	}
+
+	this._getForcedMonospaceTableModel = function() {
+		return this._getSingleColumnDropdownTableModel({
+			columnName : "Forced Monospace Font",
+			placeholder : "select property type",
+			options : this._settingsFormController.getForcedMonospaceFontOptions(),
+			initialValues : this._profileToEdit.forceMonospaceFont,
+		});
 	}
 
 	this._getInventorySpacesTableModel = function() {
