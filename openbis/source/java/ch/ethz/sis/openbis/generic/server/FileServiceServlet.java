@@ -151,13 +151,10 @@ public class FileServiceServlet extends AbstractServlet
         operationLog.info(multipartFile.getSize() + " bytes have been uploaded for file '" 
                 + originalFilename + "' and stored in '" + filePath + "'.");
         
-        response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
-        writeResponse(response, "{\n" + 
-                "    \"uploaded\": 1,\n" + 
-                "    \"fileName\": \"foo.jpg\",\n" + 
-                "    \"url\": \"/openbis" + APP_PREFIX + filePath + "\"\n" + 
-                "}");
+        String imageURL = "/openbis" + APP_PREFIX + filePath;
+        String funcNum = multipartRequest.getParameter("CKEditorFuncNum");
+        writeResponse(response, "<script>window.parent.CKEDITOR.tools.callFunction(" + funcNum + ", \"" + imageURL + "\");</script>");
     }
     
     private void writeError(HttpServletResponse response, String message) throws IOException
