@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -52,16 +53,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  */
 public class MasterDataSynchronizer
 {
-    final String sessionToken;
-
-    final ICommonServer commonServer;
-
+	final ISynchronizerFacade synchronizerFacade;
+	final ICommonServer commonServer;
+	final String sessionToken;
+	final boolean dryRun;
 
     final Map<TechId, List<VocabularyTerm>> vocabularyTermsToBeDeleted;
+    final Map<TechId, String> vocabularyTechIdToCode = new HashMap<TechId, String>();
 
-    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword)
+    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword, boolean dryRun, Logger operationLog)
     {
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
+        this.dryRun = dryRun;
+        this.synchronizerFacade = new SynchronizerFacade(openBisServerUrl, harvesterUser, harvesterPassword, dryRun, operationLog);
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
         vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
@@ -79,13 +83,15 @@ public class MasterDataSynchronizer
         processEntityTypes(masterData.getDataSetTypesToProcess(), propertyAssignmentsToProcess);
         processEntityTypes(masterData.getExperimentTypesToProcess(), propertyAssignmentsToProcess);
         processDeferredMaterialTypePropertyAssignments(propertyAssignmentsToProcess);
+        
+        synchronizerFacade.printSummary();
     }
 
     public void cleanupUnusedMasterData()
     {
         for (TechId vocabularyId : vocabularyTermsToBeDeleted.keySet())
         {
-            commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, vocabularyTermsToBeDeleted.get(vocabularyId),
+            synchronizerFacade.deleteVocabularyTerms(vocabularyId, vocabularyTechIdToCode.get(vocabularyId), vocabularyTermsToBeDeleted.get(vocabularyId),
                     Collections.<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement> emptyList());
         }
     }
@@ -100,7 +106,6 @@ public class MasterDataSynchronizer
             {
                 processPropertyAssignments(entityType, list);
             }
-
         }
     }
 
@@ -122,11 +127,11 @@ public class MasterDataSynchronizer
                 existingPluginOrNull.setName(incomingplugin.getName());
                 existingPluginOrNull.setScript(incomingplugin.getScript());
                 existingPluginOrNull.setDescription(incomingplugin.getDescription());
-                commonServer.updateScript(sessionToken, existingPluginOrNull);
+                synchronizerFacade.updateValidationPlugin(existingPluginOrNull);
             }
             else
             {
-                commonServer.registerScript(sessionToken, incomingplugin);
+                synchronizerFacade.registerValidationPlugin(incomingplugin);
             }
         }
     }
@@ -147,11 +152,11 @@ public class MasterDataSynchronizer
             if (existingTypeOrNull != null)
             {
                 existingTypeOrNull.setDescription(incomingType.getDescription());
-                commonServer.updateFileFormatType(sessionToken, existingTypeOrNull);
+                synchronizerFacade.updateFileFormatType(existingTypeOrNull);
             }
             else
             {
-                commonServer.registerFileFormatType(sessionToken, incomingType);
+            	synchronizerFacade.registerFileFormatType(incomingType);
             }
         }
     }
@@ -177,12 +182,12 @@ public class MasterDataSynchronizer
                 existingVocabulary.setManagedInternally(newVocabulary.isManagedInternally());
                 existingVocabulary.setURLTemplate(newVocabulary.getURLTemplate());
                 existingVocabulary.setChosenFromList(newVocabulary.isChosenFromList());
-                commonServer.updateVocabulary(sessionToken, existingVocabulary);
+                synchronizerFacade.updateVocabulary(existingVocabulary);
                 processVocabularyTerms(sessionToken, commonServer, newVocabulary, existingVocabulary);
             }
             else
             {
-                commonServer.registerVocabulary(sessionToken, newVocabulary);
+                synchronizerFacade.registerVocabulary(newVocabulary);
             }
         }
     }
@@ -230,10 +235,10 @@ public class MasterDataSynchronizer
         {
             vocabularyTermsToBeDeleted.put(new TechId(existingVocabulary.getId()), termsToBeDeleted);
         }
-        commonServer.addVocabularyTerms(sessionToken, new TechId(existingVocabulary.getId()), termsToBeAdded, null, true);
+        synchronizerFacade.addVocabularyTerms(existingVocabulary.getCode(), new TechId(existingVocabulary.getId()), termsToBeAdded);
         for (VocabularyTerm term : termsToBeUpdated)
         {
-            commonServer.updateVocabularyTerm(sessionToken, term);
+            synchronizerFacade.updateVocabularyTerm(term);
         }
     }
 
@@ -271,6 +276,9 @@ public class MasterDataSynchronizer
             if (existingEntityType != null)
             {
                 updateEntityType(entityKind, incomingEntityType);
+//                existingEntityType.setCode(incomingEntityType.getCode());
+//                existingEntityType.setDescription(incomingEntityType.getDescription());
+//                existingEntityType.setValidationScript(incomingEntityType.getValidationScript());
                 if (list != null && entityKind != EntityKind.MATERIAL) // defer material property assignments until after property types are processed
                 {
                     processPropertyAssignments(existingEntityType, list);
@@ -285,14 +293,13 @@ public class MasterDataSynchronizer
                 }
             }
         }
-
     }
 
     private void assignProperties(List<NewETPTAssignment> list)
     {
         for (NewETPTAssignment newETPTAssignment : list)
         {
-            commonServer.assignPropertyType(sessionToken, newETPTAssignment);
+            synchronizerFacade.assignPropertyType(newETPTAssignment);
         }
     }
 
@@ -307,11 +314,11 @@ public class MasterDataSynchronizer
             boolean found = findInExistingPropertyAssignments(newETPTAssignment, assignedPropertyTypes);
             if (found)
             {
-                commonServer.updatePropertyTypeAssignment(sessionToken, newETPTAssignment);
+                synchronizerFacade.updatePropertyTypeAssignment(newETPTAssignment);
             }
             else
             {
-                commonServer.assignPropertyType(sessionToken, newETPTAssignment);
+                synchronizerFacade.assignPropertyType(newETPTAssignment);
             }
         }
         // remove property assignments that are no longer valid
@@ -319,7 +326,7 @@ public class MasterDataSynchronizer
         {
             if (findInIncomingPropertyAssignments(etpt, incomingAssignmentsList) == false)
             {
-                commonServer.unassignPropertyType(sessionToken, existingEntityType.getEntityKind(), etpt.getPropertyType().getCode(), etpt
+                synchronizerFacade.unassignPropertyType(existingEntityType.getEntityKind(), etpt.getPropertyType().getCode(), etpt
                         .getEntityType().getCode());
             }
         }
@@ -357,16 +364,16 @@ public class MasterDataSynchronizer
         switch (entityKind)
         {
             case SAMPLE:
-                commonServer.registerSampleType(sessionToken, (SampleType) incomingEntityType);
+                synchronizerFacade.registerSampleType((SampleType) incomingEntityType);
                 break;
             case DATA_SET:
-                commonServer.registerDataSetType(sessionToken, (DataSetType) incomingEntityType);
+            	synchronizerFacade.registerDataSetType((DataSetType) incomingEntityType);
                 break;
             case EXPERIMENT:
-                commonServer.registerExperimentType(sessionToken, (ExperimentType) incomingEntityType);
+            	synchronizerFacade.registerExperimentType((ExperimentType) incomingEntityType);
                 break;
             case MATERIAL:
-                commonServer.registerMaterialType(sessionToken, (MaterialType) incomingEntityType);
+            	synchronizerFacade.registerMaterialType((MaterialType) incomingEntityType);
                 break;
             default:
                 throw new UserFailureException("register not implemented for entity kind: " + entityKind.name());
@@ -378,16 +385,16 @@ public class MasterDataSynchronizer
         switch (entityKind)
         {
             case SAMPLE:
-                commonServer.updateSampleType(sessionToken, incomingEntityType);
+            	synchronizerFacade.updateSampleType(incomingEntityType);
                 break;
             case DATA_SET:
-                commonServer.updateDataSetType(sessionToken, incomingEntityType);
+                synchronizerFacade.updateDataSetType(incomingEntityType);
                 break;
             case EXPERIMENT:
-                commonServer.updateExperimentType(sessionToken, incomingEntityType);
+            	synchronizerFacade.updateExperimentType(incomingEntityType);
                 break;
             case MATERIAL:
-                commonServer.updateMaterialType(sessionToken, incomingEntityType);
+            	synchronizerFacade.updateMaterialType(incomingEntityType);
                 break;
             default:
                 throw new UserFailureException("update not implemented for entity kind: " + entityKind.name());
@@ -428,11 +435,11 @@ public class MasterDataSynchronizer
             {
                 propertyTypeOrNull.setLabel(incomingPropertyType.getLabel());
                 propertyTypeOrNull.setDescription(incomingPropertyType.getDescription());
-                commonServer.updatePropertyType(sessionToken, propertyTypeOrNull);
+                synchronizerFacade.updatePropertyType(propertyTypeOrNull);
             }
             else
             {
-                commonServer.registerPropertyType(sessionToken, incomingPropertyType);
+            	synchronizerFacade.registerPropertyType(incomingPropertyType);
             }
         }
     }

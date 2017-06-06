@@ -737,23 +737,20 @@ public class EntitySynchronizer
     {
         if (config.isVerbose() == true)
         {
-            operationLog.info("-------The following master data will be synchronized-------");
-            verboseLogMasterData(masterData.getFileFormatTypesToProcess().keySet(), "File Formats");
-            verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
-            verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
-            verboseLogMasterData(masterData.getVocabulariesToProcess().keySet(), "Controlled Vocabularies");
-            verboseLogMasterData(masterData.getMaterialTypesToProcess().keySet(), "Material Types");
-            verboseLogMasterData(masterData.getSampleTypesToProcess().keySet(), "Sample Types");
-            verboseLogMasterData(masterData.getExperimentTypesToProcess().keySet(), "Experiment Types");
-            verboseLogMasterData(masterData.getDataSetTypesToProcess().keySet(), "Data set Types");
-            verboseLogMasterData(masterData.getPropertyTypesToProcess().keySet(), "Property Types");
+//            operationLog.info("-------The following master data will be synchronized-------");
+//            verboseLogMasterData(masterData.getFileFormatTypesToProcess().keySet(), "File Formats");
+//            verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
+//            verboseLogMasterData(masterData.getValidationPluginsToProcess().keySet(), "Validation Plugins");
+//            verboseLogMasterData(masterData.getVocabulariesToProcess().keySet(), "Controlled Vocabularies");
+//            verboseLogMasterData(masterData.getMaterialTypesToProcess().keySet(), "Material Types");
+//            verboseLogMasterData(masterData.getSampleTypesToProcess().keySet(), "Sample Types");
+//            verboseLogMasterData(masterData.getExperimentTypesToProcess().keySet(), "Experiment Types");
+//            verboseLogMasterData(masterData.getDataSetTypesToProcess().keySet(), "Data set Types");
+//            verboseLogMasterData(masterData.getPropertyTypesToProcess().keySet(), "Property Types");
         }
-        if (config.isDryRun() == false)
-        {
-            MasterDataSynchronizer masterDataSyncronizer =
-                    new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass());
-            masterDataSyncronizer.synchronizeMasterData(masterData);
-        }
+        MasterDataSynchronizer masterDataSyncronizer =
+                new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), config.isDryRun(), operationLog);
+        masterDataSyncronizer.synchronizeMasterData(masterData);
     }
 
     private void verboseLogMasterData(Set<String> types, String typeName)
