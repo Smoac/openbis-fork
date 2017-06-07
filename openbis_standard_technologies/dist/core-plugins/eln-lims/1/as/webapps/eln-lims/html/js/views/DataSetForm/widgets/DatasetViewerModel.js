@@ -91,11 +91,18 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	this.getPreviewLink = function(datasetCode, datasetFile) {
 		var previewLink = null;
 		if(this._isPreviewableImage(datasetFile.pathInDataSet)) {
-			var imageURLAsString = profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+			var imageURLAsString = this.getImageUrl(datasetCode, datasetFile);
 			var onclick = "Util.showImage(\"" + imageURLAsString + "\");"
 			previewLink = "<span onclick='" + onclick + "' class='glyphicon glyphicon-search'></span>";
 		}
 		return previewLink;
 	}
-	
+
+	this.getImageUrl = function(datasetCode, datasetFile) {
+		if(this._isPreviewableImage(datasetFile.pathInDataSet)) {
+			return profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+		}
+		return null;
+	}
+
 }

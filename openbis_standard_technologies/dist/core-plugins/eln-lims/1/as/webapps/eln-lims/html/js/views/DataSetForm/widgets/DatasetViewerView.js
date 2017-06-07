@@ -153,6 +153,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 						var file = files.result[fIdx];
 						
 						var titleValue = null;
+						var imageUrl = null;
 						if (file.isDirectory) {
 							titleValue = file.pathInListing;
 							var directLink = _this._dataSetViewerModel.getDirectDirectoryLink(code, file.pathInDataSet);
@@ -163,11 +164,21 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 							var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
 							titleValue = $fileLink[0].outerHTML;
 							var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
+							imageUrl = _this._dataSetViewerModel.getImageUrl(code, file);
 							if (previewLink) {
 								titleValue = previewLink + " " + titleValue;
 							}
 						}
-						results.push({ title : titleValue, key : file.pathInDataSet, folder : file.isDirectory, lazy : file.isDirectory, datasetCode : parentDatasetCode });
+						results.push({
+							// node properties
+							title : titleValue,
+							key : file.pathInDataSet,
+							folder : file.isDirectory,
+							lazy : file.isDirectory,
+							// custom data
+							datasetCode : parentDatasetCode,
+							imageUrl : imageUrl,
+						});
 					}
 					
 					dfd.resolve(results);
@@ -189,14 +200,50 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 				});
 			}
 		};
-		
+
+		// add tooltip for images
+		var onRenderNode = function(event, data) {
+
+			if (data.node.data.imageUrl == null) {
+				return;
+			}
+
+			var $img = $("<img>", { src : data.node.data.imageUrl });
+			var $tooltip = $("<div>", { class : "tooltip_templates" }).append($("<span>")
+				.append($img));
+
+			var $span = $(data.node.span);
+			$span.tooltipster({
+				content : $tooltip,
+				position : "left",
+				functionFormat : function(instance, helper, content) {
+
+					var containerWidth = $(helper.origin).offset().left*0.9;
+					var containerHeight = $(window).height()*0.9;
+
+					var $img = content.find("img");
+					var imageSize = Util.getImageSize(containerWidth, containerHeight, $img);
+
+					$img.css({
+						width : "" + imageSize.width + "px",
+						height : "" + imageSize.height + "px",
+						"background-color" : "white",
+					});
+
+					return content;
+				}
+			});
+
+		}
+
 		$tree.fancytree({
 			extensions: ["dnd", "edit", "glyph"], //, "wide"
 			glyph: glyph_opts,
 			source: treeModel,
 			createNode: onCreateNode,
 			click: onClick,
-			lazyLoad : onLazyLoad
+			lazyLoad : onLazyLoad,
+			renderNode : onRenderNode,
 		});
 		
 	}

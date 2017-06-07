@@ -390,32 +390,37 @@ var Util = new function() {
 		}
 		
 		var $image = $("<img>", {"src" : imageURL});
-		$image.load(function() {
-			var imageWidth = $image[0].width;
-			var imageHeight = $image[0].height;
-			
-			if(containerWidth < imageWidth) {
-				var newImageWidth = containerWidth;
-				var newImageHeight = imageHeight * newImageWidth / imageWidth;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			if(containerHeight < imageHeight) {
-				var newImageHeight = containerHeight;
-				var newImageWidth = imageWidth * newImageHeight / imageHeight;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			$image.attr("width", imageWidth);
-			$image.attr("height", imageHeight);
+		$image.load((function() {
+			var imageSize = this.getImageSize(containerWidth, containerHeight, $image);
+			$image.attr("width", imageSize.width);
+			$image.attr("height", imageSize.height);
 			showImageB($image);
-		});
+		}).bind(this));
 	}
-	
+
+	this.getImageSize = function(containerWidth, containerHeight, $image) {
+		var imageWidth = $image[0].width;
+		var imageHeight = $image[0].height;
+		
+		if(containerWidth < imageWidth) {
+			var newImageWidth = containerWidth;
+			var newImageHeight = imageHeight * newImageWidth / imageWidth;
+			
+			imageWidth = newImageWidth;
+			imageHeight = newImageHeight;
+		}
+		
+		if(containerHeight < imageHeight) {
+			var newImageHeight = containerHeight;
+			var newImageWidth = imageWidth * newImageHeight / imageHeight;
+			
+			imageWidth = newImageWidth;
+			imageHeight = newImageHeight;
+		}
+
+		return {width : imageWidth, height : imageHeight};		
+	}
+
 	//
 	// Date Formating
 	//
