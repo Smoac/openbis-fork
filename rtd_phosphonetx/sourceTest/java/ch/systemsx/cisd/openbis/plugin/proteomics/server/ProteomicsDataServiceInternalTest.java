@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -187,8 +188,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         prepareProcessDataSets(testSession, new HashMap<String, String>(), "ds1", "ds2");
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
-                new long[]
-                { e1.getId(), e2.getId() });
+                new long[] { e1.getId(), e2.getId() });
 
         context.assertIsSatisfied();
     }
@@ -199,9 +199,13 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         Session testSession = createSessionAndPrepareGetSession(GROUP_CODE + 2);
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
+
         context.checking(new Expectations()
             {
                 {
+                    allowing(daoFactory).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
                     one(experimentDAO).tryGetByTechId(new TechId(e1.getId()));
                     will(returnValue(e1));
 
@@ -212,8 +216,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         prepareProcessDataSets(testSession, new HashMap<String, String>());
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
-                new long[]
-                { e1.getId(), e2.getId() });
+                new long[] { e1.getId(), e2.getId() });
 
         context.assertIsSatisfied();
     }
@@ -238,8 +241,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         prepareProcessDataSets(testSession, new HashMap<String, String>(), "ds1");
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
-                new long[]
-                { e1.getId() });
+                new long[] { e1.getId() });
 
         context.assertIsSatisfied();
     }

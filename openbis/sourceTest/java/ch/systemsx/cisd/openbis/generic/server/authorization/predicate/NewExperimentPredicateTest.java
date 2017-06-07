@@ -42,9 +42,12 @@ public final class NewExperimentPredicateTest extends AuthorizationTestCase
         try
         {
             predicate.evaluate(createPerson(), createRoles(false), createNewExperiment());
-        } catch (final AssertionError e)
+        } catch (final IllegalArgumentException e)
         {
-            fail = false;
+            if (e.getMessage().equals("Data provider cannot be null"))
+            {
+                fail = false;
+            }
         }
         assertFalse(fail);
     }

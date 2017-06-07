@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
@@ -37,6 +38,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
                 "/" + SPACE_CODE + "/P/E1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
         prepareProvider(createSpaces());
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -52,6 +54,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
                 "/" + ANOTHER_SPACE_CODE + "/P/E1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
         prepareProvider(createSpaces());
+        expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
