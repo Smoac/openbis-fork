@@ -84,13 +84,15 @@ public class SkinnyNode implements INode
     @Override
     public Map<String, String> getPropertiesOrNull()
     {
-        throw new UnsupportedOperationException();
+        return null;
+        //throw new UnsupportedOperationException();
     }
 
     @Override
     public void addConnection(EdgeNodePair enPair)
     {
-        throw new UnsupportedOperationException();
+        //do nothing
+        //throw new UnsupportedOperationException();
     }
 
 }
