@@ -68,7 +68,7 @@ def process(tr, parameters, tableBuilder):
 		raise UserFailureException(errorMessage);
 	
 	if method == "insertDataSet":
-		isOk = insertDataSet(tr, parameters, tableBuilder);
+		isOk, result = insertDataSet(tr, parameters, tableBuilder);
 	
 	if isOk:
 		tableBuilder.addHeader("STATUS");
@@ -161,4 +161,4 @@ def insertDataSet(tr, parameters, tableBuilder):
 		dss_service.deleteSessionWorkspaceFile(session_token, fileName);
 	
 	#Return from the call
-	return True;
+	return True, dataSet.getDataSetCode()
