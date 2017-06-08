@@ -66,7 +66,7 @@ public class FileServiceServlet extends AbstractServlet
     private static final String KEY_PREFIX = "file-server.";
     
     private static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
-    private static final String DEFAULT_REPO_PATH = "../../data/file-server";
+    private static final String DEFAULT_REPO_PATH = "../../../data/file-server";
     
     private static final String MAX_SIZE_KEY = KEY_PREFIX + "maximum-file-size-in-MB";
     private static final int DEFAULT_MAX_SIZE = 10;
@@ -90,12 +90,13 @@ public class FileServiceServlet extends AbstractServlet
             throws Exception, IOException
     {
         String fullPath = request.getPathInfo();
-        if (fullPath.startsWith(APP_PREFIX) == false)
+        int indexOfPrefix = fullPath.indexOf(APP_PREFIX);
+        if (indexOfPrefix < 0)
         {
             return;
         }
         
-        PathInfo pathInfo = new PathInfo(fullPath.substring(APP_PREFIX.length()));
+        PathInfo pathInfo = new PathInfo(fullPath.substring(indexOfPrefix + APP_PREFIX.length()));
         File filesRepository = getFilesRepository();
         operationLog.info(fullPath);
         if (request instanceof MultipartHttpServletRequest)
@@ -191,7 +192,7 @@ public class FileServiceServlet extends AbstractServlet
                 + originalFilename + "' and stored in '" + filePath + "'.");
 
         response.setStatus(HttpServletResponse.SC_OK);
-        String imageURL = "/openbis" + APP_PREFIX + filePath + "?" + GenericSharedConstants.SESSION_ID_PARAMETER + "=${sessionID}";
+        String imageURL = "/openbis/openbis" + APP_PREFIX + filePath + "?" + GenericSharedConstants.SESSION_ID_PARAMETER + "=${sessionID}";
         writeDownloadUrl(multipartRequest, response, pathInfo, imageURL);
     }
 
