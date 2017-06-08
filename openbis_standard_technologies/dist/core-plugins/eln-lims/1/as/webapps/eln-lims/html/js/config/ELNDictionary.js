@@ -26,31 +26,31 @@ ELNDictionary.settingsView = {
 	sections : {
 		mainMenu : {
 			title : "Main Menu",
-			info : "CHANGE ME",
+			info : "This options gives the oportunity to the administrator to show/hide different section of the user interface from the main menu.",
 		},
 		forcedDisableRTF : {
 			title : "Forced Disable RTF",
-			info : "CHANGE ME",
+			info : "When listing a MULTILINE_TEXT property type on this section the rich text editor will be disabled on the forms.",
 		},
 		forceMonospaceFont : {
 			title : "Forced Monospace Font",
-			info : "CHANGE ME",
+			info : "When listing a MULTILINE_TEXT property type on this section it will use a monospace font.",
 		},
 		inventorySpaces : {
 			title : "Inventory Spaces",
-			info : "CHANGE ME",
+			info : "When listing a SPACE code on this section, it will be treated by the user interface as a invetory space, being shown on the apropiate section.",
 		},
 		sampleTypeProtocols : {
-			title : "Sample Type Protocols",
-			info : "CHANGE ME",
+			title : ELNDictionary.Sample + " Type Protocols",
+			info : "When listing a " + ELNDictionary.Sample + " Type on thi section, it will be trated as a protocol type, protocols can be duplicated on the Parents/Children widget.",
 		},
 		dataSetTypeForFileName : {
 			title : "Dataset types for filenames",
-			info : "CHANGE ME",			
+			info : "When listing a combination of file extension / " + ELNDictionary.Sample + " Type on thi section the dataset uploader will select a dataset type by default, this decision can be overriden by users afterwards but provides a nice default to avoid mistakes.",			
 		},
 		sampleTypeDefinitionsExtension : {
-			title : "Sample type definitions",
-			info : "CHANGE ME",			
+			title : ELNDictionary.Sample +" Type definitions Extension",
+			info : "This section is used to extend the common openBIS definions to give: 1. Intended parent/children hints. 2. Support annotations for these links using properties.",			
 		},
 	}
 }
