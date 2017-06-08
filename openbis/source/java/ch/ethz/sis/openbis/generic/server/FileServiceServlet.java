@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -28,6 +29,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -39,8 +41,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 
 
 /**
@@ -58,8 +63,19 @@ public class FileServiceServlet extends AbstractServlet
     public static final String FILE_SERVICE_PATH_MAPPING = FILE_SERVICE_PATH + "/**/*";
 
     private static final String APP_PREFIX = "/" + FILE_SERVICE_PATH + "/";
-    private static final String REPO_PATH_KEY = "file-server.repository-path";
+    private static final String KEY_PREFIX = "file-server.";
+    
+    private static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
     private static final String DEFAULT_REPO_PATH = "../../data/file-server";
+    
+    private static final String MAX_SIZE_KEY = KEY_PREFIX + "maximum-file-size-in-MB";
+    private static final int DEFAULT_MAX_SIZE = 10;
+    
+    private static final String DOWNLOAD_CHECK_KEY = KEY_PREFIX + "download-check";
+    private static final boolean DEFAULT_DOWNLOAD_CHECK = true;
+    
+    private static final String DOWNLOAD_URL_PLACE_HOLDER = "download-url";
+    private static final String ERROR_MESSAGE_PLACE_HOLDER = "error-message";
     
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileServiceServlet.class);
     
@@ -78,121 +94,191 @@ public class FileServiceServlet extends AbstractServlet
         {
             return;
         }
+        
         PathInfo pathInfo = new PathInfo(fullPath.substring(APP_PREFIX.length()));
-        File filesRepository = new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
+        File filesRepository = getFilesRepository();
         operationLog.info(fullPath);
         if (request instanceof MultipartHttpServletRequest)
         {
             handleUpload((MultipartHttpServletRequest) request, response, filesRepository, pathInfo);
         } else
         {
-            handleDownload(response, filesRepository, pathInfo);
+            handleDownload(request, response, filesRepository, pathInfo);
         }
         
     }
 
-    private void handleDownload(HttpServletResponse response, File filesRepository, 
+    private void handleDownload(HttpServletRequest request, HttpServletResponse response, File filesRepository, 
             PathInfo pathInfo) throws IOException
     {
-        File file = new File(filesRepository, pathInfo.getRealmAndPath());
-        if (file.isFile())
+        if (canDownload(request) == false)
         {
-            response.setContentLength((int) file.length());
-            String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file.getName());
-            response.setContentType(contentType);
-            ServletOutputStream outputStream = null;
-            FileInputStream inputStream = null;
-            try
-            {
-                outputStream = response.getOutputStream();
-                inputStream = new FileInputStream(file);
-                IOUtils.copy(inputStream, outputStream);
-                operationLog.info(file.length() + " bytes of file '" + pathInfo + "' have been deliverd.");
-            } catch (IOException ex)
-            {
-                operationLog.error("Delivering file '" + pathInfo + "' failed.", ex);
-                writeError(response, ex.getMessage());
-            } finally
-            {
-                IOUtils.closeQuietly(inputStream);
-                IOUtils.closeQuietly(outputStream);
-            }
-        } else
+            operationLog.warn("Download not authorized: " + pathInfo);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        File file = new File(filesRepository, pathInfo.getSectionAndPath());
+        if (file.isFile() == false)
         {
             operationLog.warn("Unknown file: " + pathInfo);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
+        response.setContentLength((int) file.length());
+        String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file.getName());
+        response.setContentType(contentType);
+        ServletOutputStream outputStream = null;
+        FileInputStream inputStream = null;
+        try
+        {
+            outputStream = response.getOutputStream();
+            inputStream = new FileInputStream(file);
+            IOUtils.copy(inputStream, outputStream);
+            operationLog.info(file.length() + " bytes of file '" + pathInfo + "' have been deliverd.");
+        } catch (IOException ex)
+        {
+            operationLog.error("Delivering file '" + pathInfo + "' failed.", ex);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
+        }
+    }
+    
+    private boolean canDownload(HttpServletRequest request)
+    {
+        Properties props = configurer.getResolvedProps();
+        if (PropertyUtils.getBoolean(props, DOWNLOAD_CHECK_KEY, DEFAULT_DOWNLOAD_CHECK) == false)
+        {
+            return true;
+        }
+        return isSessionActive(request);
     }
 
     private void handleUpload(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
             File filesRepository, PathInfo pathInfo) throws IOException
     {
-        String sessionToken = getSessionToken(multipartRequest);
-        if (service.isSessionActive(sessionToken) == false)
+        if (isSessionActive(multipartRequest) == false)
         {
-            writeError(response, "Session time out");
-            operationLog.warn("Session time out for session " + sessionToken);
+            writeError(multipartRequest, response, pathInfo, "Session time out");
             return;
         }
         Iterator<String> fileNamesIterator = multipartRequest.getFileNames();
         if (fileNamesIterator.hasNext() == false)
         {
-            writeError(response, "No file.");
+            writeError(multipartRequest, response, pathInfo, "No file.");
+            return;
         }
         String name = fileNamesIterator.next();
         MultipartFile multipartFile = multipartRequest.getFile(name);
-        String uuid = UUID.randomUUID().toString();
         String originalFilename = multipartFile.getOriginalFilename();
-        String filePath = pathInfo.getRealm() + "/" + uuid.substring(0, 2) + "/" + uuid.substring(2, 4) 
-                + "/" + uuid.substring(4, 6) + "/" + uuid + "/" + originalFilename; 
+        int maxSizeInMB = PropertyUtils.getInt(configurer.getResolvedProps(), MAX_SIZE_KEY, DEFAULT_MAX_SIZE);
+        long maxSize = maxSizeInMB * FileUtils.ONE_MB;
+        if (multipartFile.getSize() > maxSize)
+        {
+            writeError(multipartRequest, response, pathInfo, "File " + originalFilename 
+                    + " is to large. It should have not more than " + maxSizeInMB + " MB.");
+            return;
+        }
+        String uuid = UUID.randomUUID().toString();
+        String filePath = pathInfo.getSection() + "/" + uuid.substring(0, 2) + "/" + uuid.substring(2, 4)
+                + "/" + uuid.substring(4, 6) + "/" + uuid + "/" + originalFilename;
         File file = new File(filesRepository, filePath);
         file.getParentFile().mkdirs();
         multipartFile.transferTo(file);
-        operationLog.info(multipartFile.getSize() + " bytes have been uploaded for file '" 
+        operationLog.info(multipartFile.getSize() + " bytes have been uploaded for file '"
                 + originalFilename + "' and stored in '" + filePath + "'.");
-        
+
         response.setStatus(HttpServletResponse.SC_OK);
-        String imageURL = "/openbis" + APP_PREFIX + filePath;
-        String funcNum = multipartRequest.getParameter("CKEditorFuncNum");
-        if(funcNum != null && !funcNum.isEmpty()) { //CKEditor specific case
-            writeResponse(response, "<script>window.parent.CKEDITOR.tools.callFunction(" + funcNum + ", \"" + imageURL + "\");</script>");
-        } else { //Generic Upload
-            writeResponse(response, imageURL);
-        }
-        
+        String imageURL = "/openbis" + APP_PREFIX + filePath + "?" + GenericSharedConstants.SESSION_ID_PARAMETER + "=${sessionID}";
+        writeDownloadUrl(multipartRequest, response, pathInfo, imageURL);
     }
-    
-    private void writeError(HttpServletResponse response, String message) throws IOException
+
+    private boolean isSessionActive(HttpServletRequest request)
     {
-        writeResponse(response, "{'uploaded': 0, 'error': {'message': '" + message + "'}}");
+        return service.isSessionActive(getSessionToken(request));
     }
     
+    private void writeDownloadUrl(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+            PathInfo pathInfo, String downloadUrl) throws IOException
+    {
+        writeResponse(multipartRequest, response, pathInfo, "download-url-template", 
+                DOWNLOAD_URL_PLACE_HOLDER, downloadUrl);
+    }
+
+    private void writeError(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+            PathInfo pathInfo, String errorMessage) throws IOException
+    {
+        operationLog.warn("Return the following error message for '" + pathInfo + "': " + errorMessage);
+        writeResponse(multipartRequest, response, pathInfo, "error-message-template", 
+                ERROR_MESSAGE_PLACE_HOLDER, errorMessage);
+    }
+    
+    private void writeResponse(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+            PathInfo pathInfo, String type, String placeHolder, String placeHolderValue) throws IOException
+    {
+        Template template = getTemplate(pathInfo, type, "${" + placeHolder + "}");
+        bindPlaceholdersToRequestParameters(template, multipartRequest);
+        template.attemptToBind(placeHolder, placeHolderValue);
+        writeResponse(response, template.createText(false));
+    }
+
+    private void bindPlaceholdersToRequestParameters(Template template, MultipartHttpServletRequest multipartRequest)
+    {
+        for (String placeholderName : template.getPlaceholderNames())
+        {
+            String value = multipartRequest.getParameter(placeholderName);
+            if (value != null)
+            {
+                template.attemptToBind(placeholderName, value);
+            }
+        }
+    }
+    
+    private Template getTemplate(PathInfo pathInfo, String type, String defaultValue)
+    {
+        String key = KEY_PREFIX + "section_" + pathInfo.getSection() + "." + type;
+        String template = configurer.getResolvedProps().getProperty(key);
+        if (template == null)
+        {
+            operationLog.warn("No template configured for '" + key + "'. Using default template: " + defaultValue);
+            template = defaultValue;
+        }
+        return new Template(template);
+    }
+    
+    private File getFilesRepository()
+    {
+        return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
+    }
+
     private static final class PathInfo
     {
-        private final String realmAndPath;
-        private final String realm;
+        private final String sectionAndPath;
+        private final String section;
 
-        PathInfo(String realmAndPath)
+        PathInfo(String sectionAndPath)
         {
-            this.realmAndPath = realmAndPath;
-            String[] splittedString = realmAndPath.split("/", 2);
-            realm = splittedString[0];
+            this.sectionAndPath = sectionAndPath;
+            String[] splittedString = sectionAndPath.split("/", 2);
+            section = splittedString[0];
         }
 
-        public String getRealmAndPath()
+        public String getSectionAndPath()
         {
-            return realmAndPath;
+            return sectionAndPath;
         }
 
-        public String getRealm()
+        public String getSection()
         {
-            return realm;
+            return section;
         }
 
         @Override
         public String toString()
         {
-            return realmAndPath;
+            return sectionAndPath;
         }
     }
 }
