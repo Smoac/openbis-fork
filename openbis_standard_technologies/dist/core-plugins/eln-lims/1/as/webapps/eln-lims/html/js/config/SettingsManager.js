@@ -3,7 +3,6 @@ function SettingsManager(serverFacade) {
     this._serverFacade = serverFacade;
 
 	this.validateAndsave = function(settingsSample, settings, doneCallback) {
-		console.log(settings);
 		var _this = this;
 		var errors = this._validateSettings(settings);
 		if (errors.length > 0) {
@@ -90,8 +89,10 @@ function SettingsManager(serverFacade) {
 			}
 		}
 		// main menu
-		for (var menuItem of Object.keys(settings.mainMenu)) {
-			targetProfile.mainMenu[menuItem] = settings.mainMenu[menuItem];
+		for (var menuItem of Object.keys(targetProfile.mainMenu)) {
+			if (settings.mainMenu[menuItem] != undefined) {
+				targetProfile.mainMenu[menuItem] = settings.mainMenu[menuItem];
+			}
 		}
 		// sampleTypeDefinitionsExtension
 		for (var sampleType of Object.keys(settings.sampleTypeDefinitionsExtension)) {
