@@ -418,16 +418,28 @@ $.extend(Grid.prototype, {
 		var columns = [];
 
 		var columnsModel = {};
+		var maxColumns = 15;
+		var enabledColumns = 0;
 		
 		_this.getAllColumns().forEach(function(column) {
 			var checkBoxForColumn = _this.panel.find(".columnDropdown").find("[value='" + column.property + "']");
 			var isChecked = (checkBoxForColumn.length === 1 && checkBoxForColumn[0] && checkBoxForColumn[0].checked)?true:false;
 			if(column.showByDefault || isChecked) {
-				columns.push(column);
-				columnsModel[column.property] = true;
+				if(enabledColumns > maxColumns) {
+					// Ignore
+				} else {
+					columns.push(column);
+					columnsModel[column.property] = true;
+					enabledColumns++;
+				}
 			}
+			
 		});
 
+		if(enabledColumns > maxColumns) {
+			Util.showError("Only the first " + maxColumns + " selected columns will be shown.", function(){}, true);
+		}
+		
 		if(this.onChangeState) {
 			if(this.tableSettings.columns) {
 				for(key in columnsModel) {
