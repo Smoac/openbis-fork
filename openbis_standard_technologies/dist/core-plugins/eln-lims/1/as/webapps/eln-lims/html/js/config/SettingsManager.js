@@ -102,7 +102,6 @@ function SettingsManager(serverFacade) {
 
     this._validateSettings = function(settings) {
 		var errors = [];
-		this._validateMainMenu(settings, errors);
 		this._validateForcedDisableRTF(settings, errors);
 		this._validateForcedMonospaceFont(settings, errors);
 		this._validateInventorySpaces(settings, errors);
@@ -162,23 +161,6 @@ function SettingsManager(serverFacade) {
 							}
 						}
 					}
-				}
-			}
-		}
-	}
-
-	this._validateMainMenu = function(settings, errors) {
-		if (settings.mainMenu) {
-			var availableMenuItems = Object.keys(profile.mainMenu);
-			for (var menuItem of Object.keys(settings.mainMenu)) {
-				if (availableMenuItems.indexOf(menuItem) === -1) {
-					errors.push(menuItem + 
-								" is not a Main Menu Item. Available items: " +
-								availableMenuItems.join(", " +
-								"."));
-				}
-				if (typeof(settings.mainMenu[menuItem]) !== "boolean") {
-					errors.push(menuItem + ": " + settings.mainMenu[menuItem] + " is not of type 'boolean'.");
 				}
 			}
 		}
