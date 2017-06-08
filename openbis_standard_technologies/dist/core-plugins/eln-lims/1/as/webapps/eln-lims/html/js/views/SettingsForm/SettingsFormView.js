@@ -27,37 +27,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._sampleTypeProtocolsTableModel = null;
 	this._sampleTypeDefinitionsTableModels = {}; // key: sample type; value: table model
 
-	this.texts = {
-		mainMenu : {
-			title : "Main Menu",
-			info : "CHANGE ME",
-		},
-		forcedDisableRTF : {
-			title : "Forced Disable RTF",
-			info : "CHANGE ME",
-		},
-		forceMonospaceFont : {
-			title : "Forced Monospace Font",
-			info : "CHANGE ME",
-		},
-		inventorySpaces : {
-			title : "Inventory Spaces",
-			info : "CHANGE ME",
-		},
-		sampleTypeProtocols : {
-			title : "Sample Type Protocols",
-			info : "CHANGE ME",
-		},
-		dataSetTypeForFileName : {
-			title : "Dataset types for filenames",
-			info : "CHANGE ME",			
-		},
-		sampleTypeDefinitionsExtension : {
-			title : "Sample type definitions",
-			info : "CHANGE ME",			
-		},
-	}
-
 	this.repaint = function(views, profileToEdit) {
 
 		this._profileToEdit = profileToEdit;
@@ -100,13 +69,15 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$header.append($formTitle);
 			$header.append(FormUtil.getToolbar(toolbarModel));
 
-			this._paintMainMenuSection($formColumn, this.texts.mainMenu);
-			this._paintForcedDisableRtfSection($formColumn, this.texts.forcedDisableRTF);
-			this._paintForcedMonospaceSection($formColumn, this.texts.forceMonospaceFont);
-			this._paintInventorySpacesSection($formColumn, this.texts.inventorySpaces);
-			this._paintSampleTypeProtocolsSection($formColumn, this.texts.sampleTypeProtocols);
-			this._paintDataSetTypesForFileNamesSection($formColumn, this.texts.dataSetTypeForFileName);
-			this._paintSampleTypesDefinition($formColumn, this.texts.sampleTypeDefinitionsExtension);
+			var texts = ELNDictionary.settingsView.sections;
+
+			this._paintMainMenuSection($formColumn, texts.mainMenu);
+			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
+			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
+			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
+			this._paintSampleTypeProtocolsSection($formColumn, texts.sampleTypeProtocols);
+			this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
+			this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
 
 			$container.append($form);
 
