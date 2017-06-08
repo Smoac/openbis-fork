@@ -27,6 +27,37 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._sampleTypeProtocolsTableModel = null;
 	this._sampleTypeDefinitionsTableModels = {}; // key: sample type; value: table model
 
+	this.texts = {
+		mainMenu : {
+			title : "Main Menu",
+			info : "CHANGE ME",
+		},
+		forcedDisableRTF : {
+			title : "Forced Disable RTF",
+			info : "CHANGE ME",
+		},
+		forceMonospaceFont : {
+			title : "Forced Monospace Font",
+			info : "CHANGE ME",
+		},
+		inventorySpaces : {
+			title : "Inventory Spaces",
+			info : "CHANGE ME",
+		},
+		sampleTypeProtocols : {
+			title : "Sample Type Protocols",
+			info : "CHANGE ME",
+		},
+		dataSetTypeForFileName : {
+			title : "Dataset types for filenames",
+			info : "CHANGE ME",			
+		},
+		sampleTypeDefinitionsExtension : {
+			title : "Sample type definitions",
+			info : "CHANGE ME",			
+		},
+	}
+
 	this.repaint = function(views, profileToEdit) {
 
 		this._profileToEdit = profileToEdit;
@@ -69,9 +100,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$header.append($formTitle);
 			$header.append(FormUtil.getToolbar(toolbarModel));
 
-			this._paintGeneralSection($formColumn);
-			this._paintDataSetTypesForFileNamesSection($formColumn);
-			this._paintSampleTypesDefinition($formColumn);
+			this._paintMainMenuSection($formColumn, this.texts.mainMenu);
+			this._paintForcedDisableRtfSection($formColumn, this.texts.forcedDisableRTF);
+			this._paintForcedMonospaceSection($formColumn, this.texts.forceMonospaceFont);
+			this._paintInventorySpacesSection($formColumn, this.texts.inventorySpaces);
+			this._paintSampleTypeProtocolsSection($formColumn, this.texts.sampleTypeProtocols);
+			this._paintDataSetTypesForFileNamesSection($formColumn, this.texts.dataSetTypeForFileName);
+			this._paintSampleTypesDefinition($formColumn, this.texts.sampleTypeDefinitionsExtension);
 
 			$container.append($form);
 
@@ -104,24 +139,37 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		return sampleTypeDefinitionsSettings;
 	}
 
-	//
-	// general
-	//
-	this._paintGeneralSection = function($container) {
-		var $fieldset = this._getFieldset($container, "General", "settings-section-general");
-
+	this._paintMainMenuSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-main-menu");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._mainMenuItemsTableModel = this._getMainMenuItemsTableModel();
 		$fieldset.append(this._getTable(this._mainMenuItemsTableModel));
+	}
 
+	this._paintForcedDisableRtfSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-disable-rtf");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._forcedDisableRTFTableModel = this._getForcedDisableRTFTableModel();
 		$fieldset.append(this._getTable(this._forcedDisableRTFTableModel));
+	}
 
+	this._paintForcedMonospaceSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-monospace");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._forcedMonospaceTableModel = this._getForcedMonospaceTableModel();
 		$fieldset.append(this._getTable(this._forcedMonospaceTableModel));
+	}
 
+	this._paintInventorySpacesSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-inventory-spaces");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
 		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
+	}
 
+	this._paintSampleTypeProtocolsSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-protocols");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._sampleTypeProtocolsTableModel = this._getSampleTypeProtocolsTableModel();
 		$fieldset.append(this._getTable(this._sampleTypeProtocolsTableModel));
 	}
@@ -164,7 +212,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getForcedDisableRTFTableModel = function() {
 		return this._getSingleColumnDropdownTableModel({
-			columnName : "Forced Disable RTF",
+			columnName : "Property Type",
 			placeholder : "select property type",
 			options : this._settingsFormController.getForcedDisableRTFOptions(),
 			initialValues : this._profileToEdit.forcedDisableRTF,
@@ -173,7 +221,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getForcedMonospaceTableModel = function() {
 		return this._getSingleColumnDropdownTableModel({
-			columnName : "Forced Monospace Font",
+			columnName : "Property Type",
 			placeholder : "select property type",
 			options : this._settingsFormController.getForcedMonospaceFontOptions(),
 			initialValues : this._profileToEdit.forceMonospaceFont,
@@ -182,7 +230,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getInventorySpacesTableModel = function() {
 		return this._getSingleColumnDropdownTableModel({
-			columnName : "Inventory Spaces",
+			columnName : "Space",
 			placeholder : "select space",
 			options : this._settingsFormController.getInventorySpacesOptions(),
 			initialValues : this._profileToEdit.inventorySpaces,
@@ -191,7 +239,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getSampleTypeProtocolsTableModel = function() {
 		return this._getSingleColumnDropdownTableModel({
-			columnName : "Sample Type Protocols",
+			columnName : "Sample Type",
 			placeholder : "select protocol",
 			options : this._settingsFormController.getSampleTypeProtocolsOptions(),
 			initialValues : this._profileToEdit.sampleTypeProtocols,
@@ -201,8 +249,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	//
 	// dataset types for filenames
 	//
-	this._paintDataSetTypesForFileNamesSection = function($container) {
-		var $fieldset = this._getFieldset($container, "Dataset types for filenames", "settings-section-dataset-types");
+	this._paintDataSetTypesForFileNamesSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-dataset-types");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._datasetTypesTableModel = this._getDatasetTypesTableModel();
 		$fieldset.append(this._getTable(this._datasetTypesTableModel));
 	}
@@ -246,8 +295,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	//
 	// sample type definitions
 	//
-	this._paintSampleTypesDefinition = function($container) {
-		var $fieldset = this._getFieldset($container, "Sample type definitions", "settings-section-sampletype-definitions");
+	this._paintSampleTypesDefinition = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-definitions");
+		$fieldset.append(FormUtil.getInfoText(text.info));
 		for (var sampleType of this._profileToEdit.getAllSampleTypes()) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");

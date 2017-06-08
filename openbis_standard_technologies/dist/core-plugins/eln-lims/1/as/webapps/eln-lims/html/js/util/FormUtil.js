@@ -957,11 +957,7 @@ var FormUtil = new function() {
 			// info text
 			var infoText = "In your dropbox location, create a folder containing the data you want to upload. " + 
 							"Name this folder with the provided Dropbox Folder Name.";
-			$formFieldContainer
-				.append($("<div>")
-					.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
-						.css("margin-right", "3px"))
-					.append($("<span>").text(infoText)));
+			$formFieldContainer.append(FormUtil.getInfoText(infoText));
 
 			// dataset type dropdown
 			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
@@ -1066,5 +1062,12 @@ var FormUtil = new function() {
 				'right' : '20%',
 				'overflow' : 'auto'
 		};
+	}
+
+	this.getInfoText = function(infoText) {
+		return $("<div>")
+			.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
+				.css("margin-right", "3px"))
+			.append($("<span>").text(infoText));
 	}
 }
