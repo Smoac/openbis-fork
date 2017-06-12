@@ -1455,7 +1455,7 @@ function ServerFacade(openbisServer) {
 		}, callbackFunction);
 	}
 	
-	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
+	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete, withParents)
 	{	
 		var properyKeyValueList = [];
 	
@@ -1472,6 +1472,7 @@ function ServerFacade(openbisServer) {
 			"withProperties" : true,
 			"withAncestors" : isComplete,
 			"withDescendants" : isComplete,
+			"withParents" : withParents,
 			"properyKeyValueList" : properyKeyValueList
 		}, callbackFunction);
 	}

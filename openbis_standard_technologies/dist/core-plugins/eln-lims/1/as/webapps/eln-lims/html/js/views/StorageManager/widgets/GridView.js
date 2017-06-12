@@ -125,11 +125,30 @@ function GridView(gridModel) {
 		if(labels) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
-					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					var sample = null;
 					if (labels[i].data && labels[i].data["@type"] && labels[i].data["@type"] === "Sample") {
-						var sample = labels[i].data;
-						var tooltip = PrintUtil.getTable(sample, false, null, 'inspectorWhiteFont',
-								'colorEncodedWellAnnotations-holder-' + sample.permId);
+						sample = jQuery.extend(true, {}, labels[i].data);
+					}
+					
+					if(sample && sample.sampleTypeCode === "STORAGE_POSITION") {
+						if(sample.parents && sample.parents[0]) {
+							if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
+								// Label
+								labels[i].displayName = sample.parents[0].properties[profile.propertyReplacingCode];
+								// Tooltip, show also information from the parent
+								sample.properties[profile.propertyReplacingCode] = sample.parents[0].properties[profile.propertyReplacingCode];
+							} else {
+								//Label
+								labels[i].displayName = sample.parents[0].code;
+								//Tooltip, show also information from the parent
+								sample.code = sample.parents[0].code;
+							}
+						}
+					}
+					
+					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					if (sample) {
+						var tooltip = PrintUtil.getTable(sample, false, null, 'inspectorWhiteFont', 'colorEncodedWellAnnotations-holder-' + sample.permId, null, null);
 						labelContainer.tooltipster({
 							content: $(tooltip),
 							interactive: true,

@@ -322,7 +322,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 						}
 					}
 				}
-			});
+			}, null, true);
 		}
 	}
 	

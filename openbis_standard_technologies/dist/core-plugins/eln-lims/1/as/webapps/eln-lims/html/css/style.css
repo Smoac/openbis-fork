@@ -367,6 +367,100 @@ body,
 	border : none;
 }
 
+/*
+ * Inspector
+ */
+.inspectorsContainer {
+	width:100%;
+	margin-top: 20px;
+	margin-left: 20px;
+}
+
+.inspectorsContainer div {
+	float:left;
+}
+
+.inspectorLabel {
+	white-space: nowrap;
+}
+.inspectorLineBreak {
+	word-wrap: break-word;
+	overflow: hidden;
+	overflow-x: auto;
+	width:300px;
+}
+
+div.inspectorWhiteFont {
+	color: white !important;	
+}
+
+div.inspector {
+	width: 500px;
+	text-decoration: none;
+	color: #000;
+	display: block;
+	overflow: hidden;
+	padding: 20px;
+	border-radius: 10px;
+}
+
+div.inspector > .table th,
+div.inspector > .table td {
+	border-top: none;
+	line-height: 12px;
+}
+
+.inspectorExtra {
+	margin-left: 0px !important;
+}
+
+.inspectorExtra svg {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.property {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.properties {
+  padding-top:10px;
+  width: 100%;	
+}
+
+.properties td:nth-child(odd) {
+  /* background-color:#DDDDDD; */
+  width:25%;
+}
+
+.properties td:nth-child(even) {
+  /* background-color:#fbfbfb; */
+  width:75%;
+}
+
+.inspectorToolbar {
+opacity: 0.5;
+}
+
+.inspectorToolbar:hover {
+opacity: 0.8;
+}
+
+.downloads {
+	color: black;
+	background-color:#DDDDDD;;
+}
+
+table.downloads {
+  font-family: "Trebuchet MS", sans-serif;
+	font-size: 14px;
+	table-layout: fixed;
+	border-collapse: collapse;
+	margin: 0px;
+	padding: 0px;
+}
+
 /* 
  * Inspector - Glow Effect
  */

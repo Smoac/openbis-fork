@@ -69,24 +69,25 @@ var PrintUtil = new function() {
 		if(customClass) {
 			$newInspector.addClass(customClass);
 		}
-			
+		
 		if(optionalTitle) {
 			$newInspector.append(optionalTitle);
 		} else {
 			var nameLabel = entity.properties[profile.propertyReplacingCode];
 			if(!nameLabel) {
-				if(entity.sampleTypeCode) {
-					var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", entity.permId);
-					var codeLink = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(entity.code);
-					codeLink.click(function() {
-						mainController.changeView("showViewSamplePageFromPermId", entity.permId);
-					});
-					nameLabel = codeLink;
-				} else {
-					nameLabel = entity.code;
-				}
+				nameLabel = entity.code;
 			}
-			$newInspector.append($("<strong>").append(nameLabel));
+			
+			if(entity.sampleTypeCode) {
+				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", entity.permId);
+				var codeLink = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(nameLabel);
+				codeLink.click(function() {
+					mainController.changeView("showViewSamplePageFromPermId", entity.permId);
+				});
+				$newInspector.append($("<strong>").append(codeLink));
+			} else {
+				$newInspector.append($("<strong>").append(nameLabel));
+			}
 		}
 		
 		var $newInspectorTable = $("<table>", { "class" : "properties table table-condensed" });
