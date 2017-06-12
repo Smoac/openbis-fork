@@ -345,12 +345,7 @@ function SampleFormController(mainController, mode, sample) {
 					//2. Default Bench properties
 					var defaultStoragePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][0];
 					parameters["defaultBenchProperties"] = {};
-					var defaultBench = "";
-					var $benchDropdown = FormUtil.getDefaultBenchDropDown();
-					if($benchDropdown.length > 1) {
-						defaultBench = $benchDropdown.children()[1].value;
-					}
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = "BENCH";
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";

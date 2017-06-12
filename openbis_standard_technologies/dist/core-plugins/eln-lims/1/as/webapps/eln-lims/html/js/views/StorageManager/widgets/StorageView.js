@@ -21,7 +21,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._gridViewPosition = gridViewPosition;
 	
 	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
-	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", false);
+	this._defaultStoragesDropDown = null;
 	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
@@ -29,126 +29,134 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._positionContainer = $("<div>");
 	
 	this.repaint = function($container) {
-		//
-		// Paint View
-		//
 		var _this = this;
-		//$container.empty(); To allow display into a pop-up
-		if( this._storageModel.config.title) { //It can be null
-			$container.append("<h2>" + this._storageModel.config.title + "</h2>");
-		}
 		
-		if(this._storageModel.config.storagePropertyGroupSelector === "on") {
-			//Paint
-			var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
-			$container.append($controlGroupStoragesGroups);
-			this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(this._storageGroupsDropDown.val());
-			//Attach Event
-			this._storageGroupsDropDown.change(function(event) {
-				_this._storageController.setSelectStorageGroup($(this).val());
-			});
-		}
-		
-		if(this._storageModel.config.storageSelector === "on") {
-			//Sample to bind
-			if(this._storageModel.sample) {
-				this._defaultStoragesDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
+		FormUtil.getDefaultStoragesDropDown("", false, function($storagesDropdownComponent) {
+			_this._defaultStoragesDropDown = $storagesDropdownComponent;
+			
+			//
+			// Paint View
+			//
+			
+			//$container.empty(); To allow display into a pop-up
+			if( _this._storageModel.config.title) { //It can be null
+				$container.append("<h2>" + _this._storageModel.config.title + "</h2>");
 			}
-			//Paint
-			var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
-			$container.append($controlGroupStorages);
-			//Attach Event
-			this._defaultStoragesDropDown.change(function(event) {
-				var storageName = $(this).val();
-				if(_this._storageModel.sample) { //Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = storageName;
-				}
-				_this._storageController.setSelectStorage(storageName);
-				
-				if(storageName === "") {
-					_this._storageModel.cleanSample(false);
-				} else {
-					_this._storageModel.cleanSample(true);
-				}
-			});
-		}
-		
-		if(this._storageModel.config.userSelector === "on" && !this._storageModel.sample) {
-			//Paint
-			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdDropdown, "User Id Filter");
-			$container.append($controlGroupUserId);
-			this._userIdDropdown.multiselect();
-			//Attach Event
-			this._userIdDropdown.change(function() {
-				var selectedUserIds = $(this).val();
-				_this._storageController.setUserIdsSelected(selectedUserIds);
-			});
-		} else if(this._storageModel.sample) { //If someone is updating a sample, his user should go with it
-			this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-		}
-		
-		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
-		if(this._storageModel.sample) {
-			this._storageController.setSelectStorage(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
-		}
-		
-		if(this._storageModel.config.boxSelector === "on" || this._storageModel.config.rackSelector === "on") {
-			//Paint
-			this._boxField.hide();
-			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxField, "Box Name");
-			$container.append($controlGroupBox);
-			//Attach Event
-			this._boxField.keyup(function() {
-				if(_this._storageModel.sample) { // Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = $(this).val();
-				}
-				_this._storageController.setBoxSelected($(this).val());
-			});
-			// Sample to bind
-			if(this._storageModel.sample && this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]) {
-				this._boxField.show();
-				this._boxField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
-				this._storageController.setBoxSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
-				this._boxField.attr("disabled", "");
+			
+			if( _this._storageModel.config.storagePropertyGroupSelector === "on") {
+				//Paint
+				var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(_this._storageGroupsDropDown, "Group");
+				$container.append($controlGroupStoragesGroups);
+				_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(_this._storageGroupsDropDown.val());
+				//Attach Event
+				_this._storageGroupsDropDown.change(function(event) {
+					_this._storageController.setSelectStorageGroup($(this).val());
+				});
 			}
-		}
-		
-		if(this._storageModel.config.boxSizeSelector === "on") {
-			//Paint
-			this._boxSizeDropDown.hide();
-			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxSizeDropDown, "Box Size");
-			$container.append($controlGroupBox);
-			//Attach Event
-			this._boxSizeDropDown.change(function() {
-				if(_this._storageModel.sample) { // Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
+			
+			if(_this._storageModel.config.storageSelector === "on") {
+				//Sample to bind
+				if(_this._storageModel.sample) {
+					_this._defaultStoragesDropDown.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty]);
 				}
-				_this._storageController.setBoxSizeSelected($(this).val(), true);
-			});
-			// Sample to bind
-			if(this._storageModel.sample && this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]) {
-				this._boxSizeDropDown.show();
-				this._boxSizeDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
-				_this._storageController.setBoxSizeSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
-				this._boxSizeDropDown.attr("disabled", "");
+				//Paint
+				var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(_this._defaultStoragesDropDown, "Storage");
+				$container.append($controlGroupStorages);
+				//Attach Event
+				_this._defaultStoragesDropDown.change(function(event) {
+					var storageName = $(this).val();
+					if(_this._storageModel.sample) { //Sample to bind
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = storageName;
+					}
+					_this._storageController.setSelectStorage(storageName);
+					
+					if(storageName === "") {
+						_this._storageModel.cleanSample(false);
+					} else {
+						_this._storageModel.cleanSample(true);
+					}
+				});
 			}
-		}
+			
+			if(_this._storageModel.config.userSelector === "on" && !_this._storageModel.sample) {
+				//Paint
+				var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(_this._userIdDropdown, "User Id Filter");
+				$container.append($controlGroupUserId);
+				_this._userIdDropdown.multiselect();
+				//Attach Event
+				_this._userIdDropdown.change(function() {
+					var selectedUserIds = $(this).val();
+					_this._storageController.setUserIdsSelected(selectedUserIds);
+				});
+			} else if(_this._storageModel.sample) { //If someone is updating a sample, his user should go with it
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+			}
+			
+			$container.append(FormUtil.getFieldForComponentWithLabel(_this._gridContainer, "Rack"));
+			if(_this._storageModel.sample) {
+				_this._storageController.setSelectStorage(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty]);
+			}
+			
+			if(_this._storageModel.config.boxSelector === "on" || _this._storageModel.config.rackSelector === "on") {
+				//Paint
+				_this._boxField.hide();
+				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxField, "Box Name");
+				$container.append($controlGroupBox);
+				//Attach Event
+				_this._boxField.keyup(function() {
+					if(_this._storageModel.sample) { // Sample to bind
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = $(this).val();
+					}
+					_this._storageController.setBoxSelected($(this).val());
+				});
+				// Sample to bind
+				if(_this._storageModel.sample && _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty]) {
+					_this._boxField.show();
+					_this._boxField.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty]);
+					_this._storageController.setBoxSelected(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty]);
+					_this._boxField.attr("disabled", "");
+				}
+			}
+			
+			if(_this._storageModel.config.boxSizeSelector === "on") {
+				//Paint
+				_this._boxSizeDropDown.hide();
+				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxSizeDropDown, "Box Size");
+				$container.append($controlGroupBox);
+				//Attach Event
+				_this._boxSizeDropDown.change(function() {
+					if(_this._storageModel.sample) { // Sample to bind
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
+					}
+					_this._storageController.setBoxSizeSelected($(this).val(), true);
+				});
+				// Sample to bind
+				if(_this._storageModel.sample && _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty]) {
+					_this._boxSizeDropDown.show();
+					_this._boxSizeDropDown.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty]);
+					_this._storageController.setBoxSizeSelected(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
+					this._boxSizeDropDown.attr("disabled", "");
+				}
+			}
+			
+			if(_this._storageModel.config.positionSelector === "on") {
+				$container.append(FormUtil.getFieldForComponentWithLabel(_this._positionContainer, "Box Position"));
+			}
+			if(_this._storageModel.config.positionSelector === "on" && _this._storageModel.sample) {
+				_this.showPosField(this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
+			}
+			
+			if(_this._storageModel.isDisabled) {
+				_this._storageGroupsDropDown.attr("disabled", "");
+				_this._defaultStoragesDropDown.attr("disabled", "");
+				_this._userIdDropdown.attr("disabled", "");
+				_this._boxField.attr("disabled", "");
+			}
+			
+			_this._storageController.initFinish();
+		});
 		
-		if(this._storageModel.config.positionSelector === "on") {
-			$container.append(FormUtil.getFieldForComponentWithLabel(this._positionContainer, "Box Position"));
-		}
-		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
-			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
-		}
 		
-		if(this._storageModel.isDisabled) {
-			this._storageGroupsDropDown.attr("disabled", "");
-			this._defaultStoragesDropDown.attr("disabled", "");
-			this._userIdDropdown.attr("disabled", "");
-			this._boxField.attr("disabled", "");
-		}
-		
-		this._storageController.initFinish();
 	}
 	
 	this.refreshUserIdContents = function() {

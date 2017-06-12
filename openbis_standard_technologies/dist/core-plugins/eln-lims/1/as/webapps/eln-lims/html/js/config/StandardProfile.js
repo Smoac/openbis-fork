@@ -49,24 +49,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE", //Should be Vocabulary.
 					"USER_PROPERTY" : 		"STORAGE_USER", //Should be text.
 					"POSITION_PROPERTY" : 	"STORAGE_POSITION" //Should be text.
-				}],
-				/*
-				 * Storages map, can hold configurations for several storages.
-				 */
-				"STORAGE_CONFIGS": {
-					"BENCH" : { //Freezer name given by the NAME_PROPERTY
-						"VALIDATION_LEVEL" : ValidationLevel.BOX_POSITION, //When non present it defaults to BOX_POSITION
-						"ROW_NUM" : 1, //Number of rows
-						"COLUMN_NUM" : 1, //Number of columns
-						"BOX_NUM" : 1 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-					},
-					"DEFAULT_STORAGE" : { //Freezer name given by the NAME_PROPERTY
-						"VALIDATION_LEVEL" : ValidationLevel.BOX_POSITION, //When non present it defaults to BOX_POSITION
-						"ROW_NUM" : 1, //Number of rows
-						"COLUMN_NUM" : 1, //Number of columns
-						"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-					}
-				}
+				}]
 			};
 	
 		/* New Sample definition tests*/

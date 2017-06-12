@@ -805,11 +805,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	// Children Generator
 	//
 	this._childrenAdded = function() {
-		var $childrenStorageDropdown = FormUtil.getDefaultBenchDropDown('childrenStorageSelector', true);
-		if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
-			var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
-			$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
-		}
+		FormUtil.getDefaultBenchDropDown('childrenStorageSelector', true, function($childrenStorageDropdown) {
+			if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
+				var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
+				$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
+			}
+		});
 	}
 	
 	this._generateChildren = function() {

@@ -146,19 +146,21 @@ var FormUtil = new function() {
 		return $dropDownToogle;
 	}
 	
-	this.getDefaultBenchDropDown = function(id, isRequired) {
-		var $storageDropDown = this.getDefaultStoragesDropDown(id, isRequired);
-		if(!$storageDropDown) {
-			return null;
-		}
-		for(var i = $storageDropDown.children().length -1; i >= 0 ; i--){
-			var isEmpty = $storageDropDown.children()[i].value === "";
-			var isBench = $storageDropDown.children()[i].value.indexOf("BENCH") > -1;
-			if(!isEmpty && !isBench){
-				$storageDropDown.children()[i].remove();
-		    }
-		}
-		return $storageDropDown;
+	this.getDefaultBenchDropDown = function(id, isRequired, callbackFunction) {
+		this.getDefaultStoragesDropDown(id, isRequired, function($storageDropDown) {
+			if(!$storageDropDown) {
+				return null;
+			}
+			for(var i = $storageDropDown.children().length -1; i >= 0 ; i--) {
+				var isEmpty = $storageDropDown.children()[i].value === "";
+				var isBench = $storageDropDown.children()[i].value.indexOf("BENCH") > -1;
+				if(!isEmpty && !isBench){
+					$storageDropDown.children()[i].remove();
+			    }
+			}
+			callbackFunction($storageDropDown);
+		});
+		
 	}
 	
 	this.getDefaultStorageBoxSizesDropDown = function(id, isRequired) {
@@ -177,20 +179,31 @@ var FormUtil = new function() {
 		return $storageBoxesDropDown;
 	}
 	
-	this.getDefaultStoragesDropDown = function(id, isRequired) {
+	this.getDefaultStoragesDropDown = function(id, isRequired, callbackFunction) {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
 		}
-		var storageVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]);
-		if(!storageVocabularyProp) {
-			return null;
-		}
-		var $storageDropDown = this.getFieldForPropertyType(storageVocabularyProp);
-		$storageDropDown.attr('id', id);
-		if (isRequired) {
-			$storageDropDown.attr('required', '');
-		}
-		return $storageDropDown;
+		
+		profile.getStoragesConfiguation(function(storageConfigurations) {
+			var $component = $("<select>", {"id" : id, class : 'form-control'});
+			if (isRequired) {
+				$component.attr('required', '');
+			}
+			
+			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
+			for(var idx = 0; idx < storageConfigurations.length; idx++) {
+				var storageConfiguration = storageConfigurations[idx];
+				var label = null;
+				if(storageConfiguration.label) {
+					label = storageConfiguration.label;
+				} else {
+					label = storageConfiguration.code;
+				}
+				
+				$component.append($("<option>").attr('value',storageConfiguration.code).text(label));
+			}
+			callbackFunction($component);
+		});
 	}
 	
 	this.getStoragePropertyGroupsDropdown = function(id, isRequired) {

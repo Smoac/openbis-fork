@@ -266,7 +266,7 @@ function StorageManagerController(mainController) {
 	});
 	
 	this.init = function(views) {
-		if(!FormUtil.getDefaultStoragesDropDown("", true)) {
+		if(!profile.storagesConfiguration["isEnabled"]) {
 			Util.showError("You need to configure the storage options to manage them. :-)");
 		} else {
 			this._storageManagerView.repaint(views);

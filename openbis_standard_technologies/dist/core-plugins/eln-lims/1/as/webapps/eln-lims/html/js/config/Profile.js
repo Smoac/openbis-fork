@@ -253,29 +253,44 @@ $.extend(DefaultProfile.prototype, {
 			return [this.getStoragePropertyGroup()];
 		}
 		
-		this.getStorageConfiguation = function(storageCode) {
-			if(!this.storagesConfiguration["isEnabled"]) {
-				return null;
-			}
-			
-			var configurationMap = this.storagesConfiguration["STORAGE_CONFIGS"][storageCode];
-			if(!configurationMap) {
-				return null;
-			}
-			
-			var configObj = {
-					validationLevel : configurationMap["VALIDATION_LEVEL"],
-					rowNum : configurationMap["ROW_NUM"],
-					colNum : configurationMap["COLUMN_NUM"],
-					boxNum : configurationMap["BOX_NUM"]
-			}
-			
-			if(configObj.validationLevel === null || configObj.validationLevel === undefined) {
-				configObj.validationLevel = ValidationLevel.BOX_POSITION;
-			}
-			
-			return configObj;
+		this.getStorageConfigFromSample = function(sample) {
+			return {
+				code : sample.code,
+				label : sample.properties[profile.propertyReplacingCode],
+				validationLevel : ValidationLevel[sample.properties["STORAGE_VALIDATION_LEVEL"]],
+				spaceWarning : sample.properties["STORAGE_SPACE_WARNING"],
+				rowNum : sample.properties["ROW_NUM"],
+				colNum : sample.properties["COLUMN_NUM"],
+				boxNum : sample.properties["BOX_NUM"]
+			};
 		}
+		
+		this.getStoragesConfiguation = function(callbackFunction) {
+			var _this = this;
+			if(!this.storagesConfiguration["isEnabled"]) {
+				callbackFunction(null);
+			}
+			
+			mainController.serverFacade.searchByType("STORAGE_RACK", function(results) {
+				var configs = [];
+				for(var idx = 0; idx < results.length; idx++) {
+					configs.push(_this.getStorageConfigFromSample(results[idx]));
+				}
+				callbackFunction(configs);
+			});
+		}
+		
+		this.getStorageConfiguation = function(storageCode, callbackFunction) {
+			var _this = this;
+			if(!this.storagesConfiguration["isEnabled"]) {
+				callbackFunction(null);
+			}
+			
+			mainController.serverFacade.searchWithType("STORAGE_RACK", storageCode, null, function(results) {
+				callbackFunction(_this.getStorageConfigFromSample(results[0]));
+			});
+		}
+		
 		
 		this.getPropertyGroupFromStorage = function(propertyGroupName) {
 			if(!this.storagesConfiguration["isEnabled"]) { return false; }

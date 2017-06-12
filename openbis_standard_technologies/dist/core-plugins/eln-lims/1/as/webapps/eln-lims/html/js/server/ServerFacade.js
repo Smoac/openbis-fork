@@ -1424,6 +1424,14 @@ function ServerFacade(openbisServer) {
 		}, callbackFunction);
 	}
 	
+	this.searchByType = function(sampleType, callbackFunction)
+	{
+		this.searchSamples({
+			"sampleTypeCode" : sampleType,
+			"withProperties" : true
+		}, callbackFunction);
+	}
+	
 	this.searchByTypeWithParents = function(sampleType, callbackFunction)
 	{
 		this.searchSamples({
