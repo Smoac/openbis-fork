@@ -95,8 +95,7 @@ public class SearchProjectTest extends AbstractTest
     {
         ProjectSearchCriteria criteria = new ProjectSearchCriteria();
         criteria.withCode().thatContains("pRoJ");
-        testSearch(TEST_USER, criteria, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT", "/AUTH-SPACE-2/AUTH-PROJECT-21",
-                "/AUTH-SPACE-2/AUTH-PROJECT-22", "/AUTH-SPACE-1/AUTH-PROJECT-11", "/AUTH-SPACE-1/AUTH-PROJECT-12", "/TEST-SPACE/PROJECT-TO-DELETE");
+        testSearch(TEST_USER, criteria, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/PROJECT-TO-DELETE");
     }
 
     @Test

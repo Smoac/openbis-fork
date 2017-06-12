@@ -565,7 +565,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     {
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
         criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo("2008-11-05");
-        testSearch(TEST_USER, criteria, 15);
+        testSearch(TEST_USER, criteria, 7);
     }
 
     @Test
@@ -573,7 +573,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     {
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
         criteria.withModificationDate().thatEquals("2009-03-18");
-        testSearch(TEST_USER, criteria, 20);
+        testSearch(TEST_USER, criteria, 12);
     }
 
     @Test
