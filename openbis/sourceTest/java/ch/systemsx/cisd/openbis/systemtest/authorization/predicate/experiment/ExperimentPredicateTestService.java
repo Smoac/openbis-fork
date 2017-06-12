@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -53,72 +54,84 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 public class ExperimentPredicateTestService
 {
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentTechIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentTechId)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentTechIdCollectionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentTechIdCollectionPredicate.class) List<TechId> experimentTechIds)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentPermIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentPermIdPredicate.class) PermId experimentPermId)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentPEPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experimentPE)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentPEOrNullPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentPEOrNullPredicate.class) ExperimentPE experimentPE)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentListPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentListPredicate.class) List<Experiment> experimentList)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentAugmentedCodePredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) String experimentAugmentedCode)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testNewExperimentPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class) NewExperiment newExperiment)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentIdPredicate.class) IExperimentId experimentId)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentUpdatesPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO experimentUpdates)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testNewExperimentsWithTypePredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class) NewExperimentsWithType experimentsWithType)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testUpdatedExperimentsWithTypePredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class) UpdatedExperimentsWithType experimentsWithType)

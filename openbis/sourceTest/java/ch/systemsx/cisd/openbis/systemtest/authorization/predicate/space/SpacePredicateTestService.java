@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.authorization.predicate.space;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class SpacePredicateTestService
 {
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testSpaceIdentifierPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)

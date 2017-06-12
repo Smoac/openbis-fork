@@ -42,10 +42,14 @@ import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.SystemTestCase;
 import ch.systemsx.cisd.openbis.dss.generic.server.Utils;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
@@ -65,6 +69,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
 {
+
+    private static final String ADMIN_USER = "admin";
+
     private static final class FailureReport
     {
         private File referenceImage;
@@ -476,14 +483,45 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         screeningServer = (IScreeningServer) bean;
         screeningApiServer = (IScreeningApiServer) bean;
         analysisSettingServer = (IAnalysisSettingSetter) bean;
-        sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
+
+        setUpUser();
+
         screeningFacade =
                 ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
                         TestInstanceHostUtils.getOpenBISUrl(), screeningApiServer);
 
         v3api = (IApplicationServerApi) applicationContext
                 .getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME);
+    }
 
+    private void setUpUser()
+    {
+        ICommonServerForInternalUse commonServerInternal =
+                (ICommonServerForInternalUse) applicationContext
+                        .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
+        String systemSessionToken = commonServerInternal.tryToAuthenticateAsSystem().getSessionToken();
+
+        if (false == hasUser(systemSessionToken, ADMIN_USER))
+        {
+            commonServerInternal.registerPerson(systemSessionToken, ADMIN_USER);
+            Grantee grantee = Grantee.createPerson(ADMIN_USER);
+            commonServerInternal.registerInstanceRole(systemSessionToken, RoleCode.ADMIN, grantee);
+        }
+
+        sessionToken = screeningClientService.tryToLogin(ADMIN_USER, "a").getSessionID();
+    }
+
+    private boolean hasUser(String systemSessionToken, String userId)
+    {
+        List<Person> persons = commonServer.listPersons(systemSessionToken);
+        for (Person person : persons)
+        {
+            if (person.getUserId().equals(userId))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

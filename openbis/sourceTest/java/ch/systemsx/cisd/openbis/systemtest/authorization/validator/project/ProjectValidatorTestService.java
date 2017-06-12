@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.authorization.validator.project;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 public class ProjectValidatorTestService
 {
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = ProjectByIdentiferValidator.class)
     public Project testProjectByIdentifierValidator(IAuthSessionProvider sessionProvider, Project project)
@@ -40,6 +42,7 @@ public class ProjectValidatorTestService
         return project;
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public Project testProjectValidator(IAuthSessionProvider sessionProvider, Project project)

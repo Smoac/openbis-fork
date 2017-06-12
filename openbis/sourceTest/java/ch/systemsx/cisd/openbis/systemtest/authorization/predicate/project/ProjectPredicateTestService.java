@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.authorization.predicate.project;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -50,59 +51,69 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 public class ProjectPredicateTestService
 {
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectPEPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE projectPE)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testNewProjectPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = NewProjectPredicate.class) NewProject newProject)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectIdentifierPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectPredicate(IAuthSessionProvider sessionProvider, @AuthorizationGuard(guardClass = ProjectPredicate.class) Project project)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectIdPredicate.class) IProjectId projectId)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectAugmentedCodePredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectAugmentedCodePredicate.class) String projectAugmentedCode)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectUpdatesPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) ProjectUpdatesDTO projectUpdatesDTO)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectTechIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectTechId)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectPermIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectPermIdPredicate.class) PermId projectPermId)
     {
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectTechIdCollectionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectTechIdCollectionPredicate.class) List<TechId> projectTechIds)

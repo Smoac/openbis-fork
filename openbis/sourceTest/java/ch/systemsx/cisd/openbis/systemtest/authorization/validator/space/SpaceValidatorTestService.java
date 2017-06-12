@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.authorization.validator.space;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 public class SpaceValidatorTestService
 {
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = SimpleSpaceValidator.class)
     public Space testSimpleSpaceValidator(IAuthSessionProvider sessionProvider, Space space)
@@ -40,6 +42,7 @@ public class SpaceValidatorTestService
         return space;
     }
 
+    @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = SpaceValidator.class)
     public Space testSpaceValidator(IAuthSessionProvider sessionProvider, Space space)
