@@ -88,12 +88,21 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 					}
 					
 					Util.blockUI();
-					mainController.serverFacade.searchWithIdentifiers(sampleIdentifiers, function(selectedFinal) {
+					mainController.serverFacade.searchWithIdentifiers(sampleIdentifiers, function(selectedSamples) {
 						var sampleTechIds = [];
-						for(var sIdx = 0; sIdx < selectedFinal.length; sIdx++) {
-							sampleTechIds.push(selectedFinal[sIdx].id);
-							warningText += selectedFinal[sIdx].identifier + " ";
+						for(var sIdx = 0; sIdx < selectedSamples.length; sIdx++) {
+							var selectedSample = selectedSamples[sIdx];
+							sampleTechIds.push(selectedSample.id);
+							warningText += selectedSample.identifier + " ";
+							
+							for(var idx = 0; idx < selectedSample.children.length; idx++) {
+								var child = selectedSample.children[idx];
+								if(child.sampleTypeCode === "STORAGE_POSITION") {
+									sampleTechIds.push(child.id);
+								}
+							}
 						}
+						
 						var modalView = new DeleteEntityController(function(reason) {
 							mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
 								if(data.error) {
