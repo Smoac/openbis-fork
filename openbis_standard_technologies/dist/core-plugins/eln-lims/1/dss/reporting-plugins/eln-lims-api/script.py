@@ -396,23 +396,29 @@ def init(tr, parameters, tableBuilder):
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
 	
 	if isSampleTypeAvailable(installedTypes, "STORAGE_RACK"):
-			bench = insertSampleIfMissing(tr, "/STORAGE/BENCH", "STORAGE_RACK");
-			bench.setPropertyValue("NAME", "Bench");
-			bench.setPropertyValue("ROW_NUM", "1");
-			bench.setPropertyValue("COLUMN_NUM", "1");
-			bench.setPropertyValue("BOX_NUM", "9999");
-			bench.setPropertyValue("STORAGE_SPACE_WARNING", "80");
-			bench.setPropertyValue("BOX_SPACE_WARNING", "80");
-			bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			try:
+				bench = insertSampleIfMissing(tr, "/STORAGE/BENCH", "STORAGE_RACK");
+				bench.setPropertyValue("NAME", "Bench");
+				bench.setPropertyValue("ROW_NUM", "1");
+				bench.setPropertyValue("COLUMN_NUM", "1");
+				bench.setPropertyValue("BOX_NUM", "9999");
+				bench.setPropertyValue("STORAGE_SPACE_WARNING", "80");
+				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
+				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			except:
+				pass # Do nothing if sample existed already
 			
-			defaultStorage = insertSampleIfMissing(tr, "/STORAGE/DEFAULT_STORAGE", "STORAGE_RACK");
-			defaultStorage.setPropertyValue("NAME", "Default Storage");
-			defaultStorage.setPropertyValue("ROW_NUM", "4");
-			defaultStorage.setPropertyValue("COLUMN_NUM", "4");
-			defaultStorage.setPropertyValue("BOX_NUM", "9999");
-			defaultStorage.setPropertyValue("STORAGE_SPACE_WARNING", "80");
-			defaultStorage.setPropertyValue("BOX_SPACE_WARNING", "80");
-			defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			try:
+				defaultStorage = insertSampleIfMissing(tr, "/STORAGE/DEFAULT_STORAGE", "STORAGE_RACK");
+				defaultStorage.setPropertyValue("NAME", "Default Storage");
+				defaultStorage.setPropertyValue("ROW_NUM", "4");
+				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
+				defaultStorage.setPropertyValue("BOX_NUM", "9999");
+				defaultStorage.setPropertyValue("STORAGE_SPACE_WARNING", "80");
+				defaultStorage.setPropertyValue("BOX_SPACE_WARNING", "80");
+				defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			except:
+				pass # Do nothing if sample existed already
 			
 	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
 			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
