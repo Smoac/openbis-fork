@@ -336,33 +336,7 @@ function SampleFormController(mainController, mode, sample) {
 				if(!copyChildrenOnCopy) {
 					parameters["sampleChildren"] = [];
 				} else if(profile.storagesConfiguration["isEnabled"]) {
-					//1. All properties belonging to benches, to not to copy
-					for(var i = 0; i < profile.storagesConfiguration["STORAGE_PROPERTIES"].length; i++) {
-						var storagePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][i];
-						var listToUse = "notCopyProperties";
-						if(i === 0) {
-							listToUse = "defaultBenchPropertyList";
-						}
-						
-						parameters[listToUse].push(storagePropertyGroup["NAME_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["ROW_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["COLUMN_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["BOX_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["BOX_SIZE_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["USER_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["POSITION_PROPERTY"]);
-					}
-					
-					//2. Default Bench properties
-					var defaultStoragePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][0];
-					parameters["defaultBenchProperties"] = {};
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = "BENCH";
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_SIZE_PROPERTY"]] = "1X1";
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["POSITION_PROPERTY"]] = "A1";
+					// Copying children no longer copies storage information
 				}
 				parameters["sampleChildrenNew"] = [];
 				parameters["sampleChildrenRemoved"] = [];
