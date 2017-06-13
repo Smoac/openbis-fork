@@ -15,16 +15,6 @@
  */
 
 function StorageController(configOverride) {
-	//Upgraded storage model detection
-	if(profile.storagesConfiguration["isEnabled"]) {
-		var groups = profile.getStoragePropertyGroups();
-		for(var i = 0; i < groups.length; i++) {
-			if(!groups[i].boxSizeProperty || !groups[i].positionProperty) {
-				Util.showError("Your Storage Model does not work properly with the current ELN version: Storage group '" + groups[i].groupDisplayName + "' is missing the boxSizeProperty or positionProperty.");
-				return;
-			}
-		}
-	}
 	//Pointer to himself
 	var _this = this;
 	

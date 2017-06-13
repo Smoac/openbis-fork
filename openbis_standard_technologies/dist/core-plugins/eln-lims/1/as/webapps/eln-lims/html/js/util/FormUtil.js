@@ -206,22 +206,6 @@ var FormUtil = new function() {
 		});
 	}
 	
-	this.getStoragePropertyGroupsDropdown = function(id, isRequired) {
-		var propertyGroups = this.profile.getStoragePropertyGroups();
-		
-		var $component = $("<select>", {"id" : id, class : 'form-control'});
-		if (isRequired) {
-			$component.attr('required', '');
-		}
-		
-		for(var i = 0; i < propertyGroups.length; i++) {
-			var propertyGroup = propertyGroups[i];
-			$component.append($("<option>").attr('value',propertyGroup.groupDisplayName).text(propertyGroup.groupDisplayName));
-		}
-		
-		return $component;
-	}
-	
 	this.getBoxPositionsDropdown = function(id, isRequired, code) {
 		var numRows = null;
 		var numCols = null;

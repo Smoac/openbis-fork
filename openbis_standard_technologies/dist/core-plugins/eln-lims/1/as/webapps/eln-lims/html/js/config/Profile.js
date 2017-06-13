@@ -228,7 +228,7 @@ $.extend(DefaultProfile.prototype, {
 			return dataStoreURL;
 		}
 		
-		this.getStoragePropertyGroup = function(storagePropertyGroupDisplayName) {
+		this.getStoragePropertyGroup = function() {
 			if(!this.storagesConfiguration["isEnabled"]) {
 				return null;
 			}
@@ -243,14 +243,6 @@ $.extend(DefaultProfile.prototype, {
 			propertyGroup.userProperty = "STORAGE_USER";
 			propertyGroup.positionProperty = "STORAGE_POSITION";
 			return propertyGroup;
-		}
-		
-		this.getStoragePropertyGroups = function() {
-			if(!this.storagesConfiguration["isEnabled"]) {
-				return null;
-			}
-
-			return [this.getStoragePropertyGroup()];
 		}
 		
 		this.getStorageConfigFromSample = function(sample) {

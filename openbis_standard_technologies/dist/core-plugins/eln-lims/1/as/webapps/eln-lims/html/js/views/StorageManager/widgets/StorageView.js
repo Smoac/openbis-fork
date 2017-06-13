@@ -20,7 +20,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._gridViewRack = gridViewRack;
 	this._gridViewPosition = gridViewPosition;
 	
-	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
 	this._defaultStoragesDropDown = null;
 	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
@@ -140,7 +139,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			}
 			
 			if(_this._storageModel.isDisabled) {
-				_this._storageGroupsDropDown.attr("disabled", "");
 				_this._defaultStoragesDropDown.attr("disabled", "");
 				_this._userIdDropdown.attr("disabled", "");
 				_this._boxField.attr("disabled", "");
