@@ -123,7 +123,7 @@ html4 .ATTRIBS = {
     'img::hspace': 0,
     'img::ismap': 0,
     'img::name': 7,
-    'img::src': 0,
+    'img::src': 1,
     'img::usemap': 11,
     'img::vspace': 0,
     'img::width': 0,

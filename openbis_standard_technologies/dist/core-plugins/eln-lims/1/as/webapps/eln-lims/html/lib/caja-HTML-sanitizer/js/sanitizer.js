@@ -956,17 +956,17 @@ var html = (function(html4) {
                         }
                         break;
                     case html4.atype['URI']:
-                        value = safeUri(value,
-                            getUriEffect(tagName, attribName),
-                            getLoaderType(tagName, attribName),
-                            {
-                                "TYPE": "MARKUP",
-                                "XML_ATTR": attribName,
-                                "XML_TAG": tagName
-                            }, opt_naiveUriRewriter);
-                        if (opt_logger) {
-                            log(opt_logger, tagName, attribName, oldValue, value);
-                        }
+//                        value = safeUri(value,
+//                            getUriEffect(tagName, attribName),
+//                            getLoaderType(tagName, attribName),
+//                            {
+//                                "TYPE": "MARKUP",
+//                                "XML_ATTR": attribName,
+//                                "XML_TAG": tagName
+//                            }, opt_naiveUriRewriter);
+//                        if (opt_logger) {
+//                            log(opt_logger, tagName, attribName, oldValue, value);
+//                        }
                         break;
                     case html4.atype['URI_FRAGMENT']:
                         if (value && '#' === value.charAt(0)) {
