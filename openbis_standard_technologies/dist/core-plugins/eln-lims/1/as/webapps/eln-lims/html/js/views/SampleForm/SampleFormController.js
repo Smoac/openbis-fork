@@ -248,13 +248,14 @@ function SampleFormController(mainController, mode, sample) {
 								properties : {}
 						};
 						
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-						storagePosition.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
+						var storagePropertyGroup = profile.getStoragePropertyGroup();
+						storagePosition.properties[storagePropertyGroup.nameProperty] = $("#childrenStorageSelector").val();
+						storagePosition.properties[storagePropertyGroup.rowProperty] = 1;
+						storagePosition.properties[storagePropertyGroup.columnProperty] = 1;
+						storagePosition.properties[storagePropertyGroup.boxSizeProperty] = "1X1";
+						storagePosition.properties[storagePropertyGroup.boxProperty] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
+						storagePosition.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+						storagePosition.properties[storagePropertyGroup.positionProperty] = "A1";
 					
 						child.children.push(storagePosition);
 					}

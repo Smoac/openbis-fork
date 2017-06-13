@@ -292,23 +292,6 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
-		
-		this.getPropertyGroupFromStorage = function(propertyGroupName) {
-			if(!this.storagesConfiguration["isEnabled"]) { return false; }
-			var _this = this;
-			var propertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
-			var selectedPropertyGroup = null;
-			if(propertyGroups) {
-				propertyGroups.forEach(function(propertyGroup) {
-					if(propertyGroup["STORAGE_PROPERTY_GROUP"] === propertyGroupName) {
-						selectedPropertyGroup = propertyGroup;
-					}
-				});
-			}
-			return selectedPropertyGroup;
-		}
-		
-		
 		this.dataSetViewerConf = {
 			"DATA_SET_TYPES" : [".*"],
 			"FILE_NAMES" : [".*"]

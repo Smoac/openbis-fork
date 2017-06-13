@@ -167,7 +167,7 @@ var FormUtil = new function() {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
 		}
-		var storageBoxesVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]);
+		var storageBoxesVocabularyProp = this.profile.getPropertyType(this.profile.getStoragePropertyGroup().boxSizeProperty);
 		if(!storageBoxesVocabularyProp) {
 			return null;
 		}
