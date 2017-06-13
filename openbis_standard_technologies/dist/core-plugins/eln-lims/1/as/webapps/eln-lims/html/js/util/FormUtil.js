@@ -190,7 +190,7 @@ var FormUtil = new function() {
 				$component.attr('required', '');
 			}
 			
-			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
+			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an Storage"));
 			for(var idx = 0; idx < storageConfigurations.length; idx++) {
 				var storageConfiguration = storageConfigurations[idx];
 				var label = null;
