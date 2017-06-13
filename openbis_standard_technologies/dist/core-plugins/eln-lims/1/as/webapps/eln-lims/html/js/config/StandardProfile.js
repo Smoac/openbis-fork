@@ -10,32 +10,8 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.hideCodes = true;
 		
-//
-//		Template to populate multiple storage groups
-//
-//		var getStoragGroupFromTemplate = function(groupNumber) {
-//			return {
-//				"STORAGE_PROPERTY_GROUP" : "Physical Storage " + groupNumber, //Where the storage will be painted.
-//				"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage " + groupNumber, //Storage Group Name
-//				"NAME_PROPERTY" : 		"STORAGE_NAME_" + groupNumber, //Should be a Vocabulary.
-//				"ROW_PROPERTY" : 		"STORAGE_ROW_" + groupNumber, //Should be an integer.
-//				"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_" + groupNumber,  //Should be an integer.
-//				"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_" + groupNumber, //Should be text.
-//				"USER_PROPERTY" : 		"STORAGE_USER_" + groupNumber, //Should be text.
-//				"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_" + groupNumber, //Should be Vocabulary.
-//				"POSITION_PROPERTY" : 	"STORAGE_BOX_POSITION_" + groupNumber //Should be text.
-//			};
-//		}
-//		
-//		var numberOfStorageGroups = 65;
-//		for(var sIdx = 1; sIdx <= numberOfStorageGroups; sIdx++) {
-//			this.storagesConfiguration["STORAGE_PROPERTIES"].push(getStoragGroupFromTemplate(sIdx));
-//		}
-		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
-				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
-				"boxSpaceLowWarning" : 0.8, //Box goes over 80%
 				/*
 				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
 				 */

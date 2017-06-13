@@ -215,6 +215,7 @@ function StorageController(configOverride) {
 		//
 		this._storageModel.storageCode = selectedStorageCode;
 		profile.getStorageConfiguation(selectedStorageCode, function(storageConfig) {
+			_this._storageModel.storageConfig = storageConfig;
 			if(storageConfig) {
 				_this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
 			} else {
@@ -289,7 +290,8 @@ function StorageController(configOverride) {
 						if(storageConfig) {
 							var totalPositions = storageConfig.rowNum * storageConfig.colNum * storageConfig.boxNum;
 							var used = positionsUsed / totalPositions;
-							if(used >= profile.storagesConfiguration["storageSpaceLowWarning"]) {
+							var available = parseInt(storageConfig.lowRackSpaceWarning) / 100;
+							if(used >= available) {
 								Util.showInfo("Storage space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
 							}
 						}

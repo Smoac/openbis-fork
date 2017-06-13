@@ -258,7 +258,8 @@ $.extend(DefaultProfile.prototype, {
 				code : sample.code,
 				label : sample.properties[profile.propertyReplacingCode],
 				validationLevel : ValidationLevel[sample.properties["STORAGE_VALIDATION_LEVEL"]],
-				spaceWarning : sample.properties["STORAGE_SPACE_WARNING"],
+				lowRackSpaceWarning : sample.properties["STORAGE_SPACE_WARNING"],
+				lowBoxSpaceWarning : sample.properties["BOX_SPACE_WARNING"],
 				rowNum : sample.properties["ROW_NUM"],
 				colNum : sample.properties["COLUMN_NUM"],
 				boxNum : sample.properties["BOX_NUM"]

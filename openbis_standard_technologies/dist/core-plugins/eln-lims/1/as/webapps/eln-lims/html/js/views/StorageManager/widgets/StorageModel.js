@@ -40,6 +40,7 @@ function StorageModel(configOverride) {
 	this.sample = null; //If this sample is set, his properties are binded to the view values.
 	this.isDisabled = false;
 	
+	this.storageConfig = null;
 	this.storagePropertyGroup = null; //Selected Storage Property Group
 	this.storageCode = null; //Selected Storage
 	this.userIds = null;
