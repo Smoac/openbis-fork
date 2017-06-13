@@ -38,6 +38,8 @@ public final class GenericSharedConstants
     public static final String DATA_STORE_SERVER_SERVICE_NAME =
             DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/dss";
 
+    public static final String SESSION_ID_COOKIE = "openbis";
+
     public static final String SESSION_ID_PARAMETER = "sessionID";
 
 }

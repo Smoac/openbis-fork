@@ -192,7 +192,7 @@ public class FileServiceServlet extends AbstractServlet
                 + originalFilename + "' and stored in '" + filePath + "'.");
 
         response.setStatus(HttpServletResponse.SC_OK);
-        String imageURL = "/openbis/openbis" + APP_PREFIX + filePath + "?" + GenericSharedConstants.SESSION_ID_PARAMETER + "=${sessionID}";
+        String imageURL = "/openbis/openbis" + APP_PREFIX + filePath;
         writeDownloadUrl(multipartRequest, response, pathInfo, imageURL);
     }
 
