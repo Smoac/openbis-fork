@@ -167,7 +167,7 @@ def getSampleByIdentifierForUpdate(tr, identifier):
    	if len(found) == 1:
    		return tr.makeSampleMutable(found[0]);
    	else:
-   		raise UserFailureException(identifier + " Not found by search service.");
+   		return None;
    	
 def username(sessiontoken):
     m = re.compile('(.*)-[^-]*').match(sessiontoken)
@@ -406,7 +406,7 @@ def init(tr, parameters, tableBuilder):
 			bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
 			
 			defaultStorage = insertSampleIfMissing(tr, "/STORAGE/DEFAULT_STORAGE", "STORAGE_RACK");
-			defaultStorage.setPropertyValue("NAME", "Bench");
+			defaultStorage.setPropertyValue("NAME", "Default Storage");
 			defaultStorage.setPropertyValue("ROW_NUM", "4");
 			defaultStorage.setPropertyValue("COLUMN_NUM", "4");
 			defaultStorage.setPropertyValue("BOX_NUM", "9999");
@@ -823,7 +823,9 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	sampleChildrenNewIdentifiers = [];
 	if sampleChildrenNew != None:
 		for newSampleChild in sampleChildrenNew:
-			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
+			child = getSampleByIdentifierForUpdate(tr, newSampleChild["identifier"]); #Retrieve Sample
+			if child is None:
+				child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
 			sampleChildrenNewIdentifiers.append(newSampleChild["identifier"]);
 			child.setParentSampleIdentifiers([sampleIdentifier]);
 			childExperimentIdentifier = None

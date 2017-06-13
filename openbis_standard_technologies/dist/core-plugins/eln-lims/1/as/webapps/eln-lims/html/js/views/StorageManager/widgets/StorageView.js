@@ -135,7 +135,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 					_this._boxSizeDropDown.show();
 					_this._boxSizeDropDown.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty]);
 					_this._storageController.setBoxSizeSelected(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
-					this._boxSizeDropDown.attr("disabled", "");
+					_this._boxSizeDropDown.attr("disabled", "");
 				}
 			}
 			
@@ -143,7 +143,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 				$container.append(FormUtil.getFieldForComponentWithLabel(_this._positionContainer, "Box Position"));
 			}
 			if(_this._storageModel.config.positionSelector === "on" && _this._storageModel.sample) {
-				_this.showPosField(this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
+				_this.showPosField(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
 			}
 			
 			if(_this._storageModel.isDisabled) {
@@ -155,8 +155,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			
 			_this._storageController.initFinish();
 		});
-		
-		
 	}
 	
 	this.refreshUserIdContents = function() {

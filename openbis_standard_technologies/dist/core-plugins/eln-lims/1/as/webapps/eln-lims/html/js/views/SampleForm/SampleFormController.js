@@ -90,7 +90,17 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.deleteSample = function(reason) {
 		var _this = this;
-		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.id], reason, function(data) {
+		
+		var samplesToDelete = [this._sampleFormModel.sample.id];
+		
+		for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
+			var child = this._sampleFormModel.sample.children[idx];
+			if(child.sampleTypeCode === "STORAGE_POSITION") {
+				samplesToDelete.push(child.id);
+			}
+		}
+		
+		mainController.serverFacade.deleteSamples(samplesToDelete, reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {

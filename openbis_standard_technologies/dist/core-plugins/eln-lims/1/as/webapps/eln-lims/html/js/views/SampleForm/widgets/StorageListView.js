@@ -112,6 +112,10 @@ function StorageListView(storageListController, storageListModel) {
 		var rowClick = null;
 		if(!this._storageListModel.isDisabled) {
 			rowClick = function(data) {
+				var oldSample = data.data['$object'];
+				oldSample.newSample = true;
+				delete oldSample["@id"];
+				delete oldSample["@type"];
 				_this.showStorageWidget(data.data['$object'])
 			}
 		}

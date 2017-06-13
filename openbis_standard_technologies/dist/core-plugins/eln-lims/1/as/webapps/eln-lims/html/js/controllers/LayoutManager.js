@@ -345,7 +345,7 @@ var LayoutManager = {
 		this.isLoadingView = true;
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true;
-		console.log("reloadView called with isFirstTime:" + isFirstTime);
+		// console.log("reloadView called with isFirstTime:" + isFirstTime);
 		this._init(isFirstTime);
 
 		var width = $( window ).width();

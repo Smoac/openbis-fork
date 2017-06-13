@@ -153,14 +153,25 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var warningText = null;
 			if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
 				warningText = ""
+				var childrenThatAreNotPositions = 0;
+				for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
+					var child = this._sampleFormModel.sample.children[idx];
+					if(child.sampleTypeCode !== "STORAGE_POSITION") {
+						childrenThatAreNotPositions++;
+					}
+				}
+				
 				if(this._sampleFormModel.sample.children.length > 0) {
-					warningText += "The sample has " + this._sampleFormModel.sample.children.length + " children samples, these relationships will be broken but the children will remain:\n";
-					var numChildrenToShow = this._sampleFormModel.sample.children.length;
+					warningText += "The sample has " + childrenThatAreNotPositions + " children samples, these relationships will be broken but the children will remain:\n";
+					var numChildrenToShow = childrenThatAreNotPositions;
 					if(numChildrenToShow > 10) {
 						numChildrenToShow = 10;
 					}
 					for(var cIdx = 0 ; cIdx < numChildrenToShow; cIdx++) {
-						warningText += "\n\t" + this._sampleFormModel.sample.children[cIdx].code;
+						var child = this._sampleFormModel.sample.children[cIdx];
+						if(child.sampleTypeCode !== "STORAGE_POSITION") {
+							warningText += "\n\t" + child.code;
+						}
 					}
 					if(numChildrenToShow > 10) {
 						warningText += "\n\t...";
