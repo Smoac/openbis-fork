@@ -179,14 +179,14 @@ function StorageController(configOverride) {
 		this._storageView.hidePosField();
 	}
 	
-	this.setSelectStorageGroup = function(storageGroupName) {
+	this.setSelectStorageGroup = function() {
 		//Delete old state
 		this._deleteRackBoxContentStateInModelView();
 		this._storageView.resetSelectStorageDropdown();
 		this._gridController.getModel().reset();
 		
 		//Set new state
-		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
+		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup();
 		this._storageView.refreshGrid();
 		this.updateDragEvents();
 	}

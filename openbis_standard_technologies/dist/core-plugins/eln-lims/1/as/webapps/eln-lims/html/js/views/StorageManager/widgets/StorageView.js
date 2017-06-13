@@ -44,14 +44,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			}
 			
 			if( _this._storageModel.config.storagePropertyGroupSelector === "on") {
-				//Paint
-				var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(_this._storageGroupsDropDown, "Group");
-				$container.append($controlGroupStoragesGroups);
-				_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(_this._storageGroupsDropDown.val());
-				//Attach Event
-				_this._storageGroupsDropDown.change(function(event) {
-					_this._storageController.setSelectStorageGroup($(this).val());
-				});
+				_this._storageController.setSelectStorageGroup();
 			}
 			
 			if(_this._storageModel.config.storageSelector === "on") {
