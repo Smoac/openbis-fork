@@ -55,6 +55,12 @@ public class DataSetFile implements Serializable
     @JsonProperty
     private int checksumCRC32;
 
+    @JsonProperty
+    private String checksum;
+    
+    @JsonProperty
+    private String checksumType;
+
     @JsonIgnore
     public DataSetFilePermId getPermId()
     {
@@ -136,5 +142,27 @@ public class DataSetFile implements Serializable
     public void setChecksumCRC32(int checksumCRC32)
     {
         this.checksumCRC32 = checksumCRC32;
+    }
+
+    @JsonIgnore
+    public String getChecksum()
+    {
+        return checksum;
+    }
+
+    public void setChecksum(String checksum)
+    {
+        this.checksum = checksum;
+    }
+
+    @JsonIgnore
+    public String getChecksumType()
+    {
+        return checksumType;
+    }
+
+    public void setChecksumType(String checksumType)
+    {
+        this.checksumType = checksumType;
     }
 }

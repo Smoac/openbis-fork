@@ -344,11 +344,11 @@ public class PathInfoDatabaseTest extends SystemTestCase
             long parentId;
 
             id = dao.createDataSet("ds-1", "a/b/c/");
-            parentId = dao.createDataSetFile(id, null, "", "ds-1", 0, true, new Date(4711));
+            parentId = dao.createDataSetFile(id, null, "", "ds-1", 0, true, null, null, new Date(4711));
             numberOfEntries += feedDataBase(dao, id, parentId, 3, "", "");
 
             id = dao.createDataSet("ds-2", "a2/b2/c2/");
-            parentId = dao.createDataSetFile(id, null, "", "ds-2", 0, true, new Date(4722));
+            parentId = dao.createDataSetFile(id, null, "", "ds-2", 0, true, null, null, new Date(4722));
             numberOfEntries += feedDataBase(dao, id, parentId, 1, "", "special_characters_%?.");
 
             dao.commit();
@@ -371,7 +371,7 @@ public class PathInfoDatabaseTest extends SystemTestCase
             String fileName = fileNamePrefix + "file-" + i + "-" + (i * i) + (directory ? "" : "-xyz.xml");
             long id =
                     dao.createDataSetFile(dataSetId, parentId, prefix + fileName, fileName, level
-                            * 100 + i, directory, new Date(4711));
+                            * 100 + i, directory, null, null, new Date(4711));
             numberOfEntries++;
             if (directory)
             {

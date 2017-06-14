@@ -83,25 +83,28 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                     will(returnValue(42L));
 
                     one(dao).createDataSetFile(with(42L), with(new IsNull<Long>()), with(""),
-                            with(ROOT_PATH), with(38L), with(true), with(any(Date.class)));
+                            with(ROOT_PATH), with(38L), with(true), 
+                            with(new IsNull<Integer>()), with(new IsNull<String>()), with(any(Date.class)));
                     will(returnValue(100L));
 
                     one(dao).createDataSetFile(with(42L), with(100L), with("dir"), with("dir"),
-                            with(26L), with(true), with(any(Date.class)));
+                            with(26L), with(true), with(new IsNull<Integer>()), with(new IsNull<String>()), 
+                            with(any(Date.class)));
                     will(returnValue(101L));
 
                     one(dao).createDataSetFile(with(42L), with(101L), with("dir/dir"), with("dir"),
-                            with(0L), with(true), with(any(Date.class)));
+                            with(0L), with(true), with(new IsNull<Integer>()), with(new IsNull<String>()), 
+                            with(any(Date.class)));
                     will(returnValue(104L));
 
                     one(dao).createDataSetFiles(
                             with(equal(Arrays.asList(
                                     new PathEntryDTO(42L, 101L, "dir/hello.txt", "hello.txt", 11L,
-                                            222957957, false, new Date(file1.lastModified())),
+                                            222957957, null, false, new Date(file1.lastModified())),
                                     new PathEntryDTO(42L, 101L, "dir/read.me", "read.me", 15L,
-                                            1246790599, false, new Date(file2.lastModified())),
+                                            1246790599, null, false, new Date(file2.lastModified())),
                                     new PathEntryDTO(42L, 100L, "read.me", "read.me", 12L,
-                                            (int) 3188708281L, false,
+                                            (int) 3188708281L, null, false,
                                             new Date(file2.lastModified()))))));
 
                     one(dao).commit();
@@ -134,24 +137,27 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                     will(returnValue(42L));
 
                     one(dao).createDataSetFile(with(42L), with(new IsNull<Long>()), with(""),
-                            with(ROOT_PATH), with(38L), with(true), with(any(Date.class)));
+                            with(ROOT_PATH), with(38L), with(true), 
+                            with(new IsNull<Integer>()), with(new IsNull<String>()), with(any(Date.class)));
                     will(returnValue(100L));
 
                     one(dao).createDataSetFile(with(42L), with(100L), with("dir"), with("dir"),
-                            with(26L), with(true), with(any(Date.class)));
+                            with(26L), with(true), with(new IsNull<Integer>()), with(new IsNull<String>()), 
+                            with(any(Date.class)));
                     will(returnValue(101L));
 
                     one(dao).createDataSetFile(with(42L), with(101L), with("dir/dir"), with("dir"),
-                            with(0L), with(true), with(any(Date.class)));
+                            with(0L), with(true), with(new IsNull<Integer>()), with(new IsNull<String>()), 
+                            with(any(Date.class)));
                     will(returnValue(104L));
 
                     one(dao).createDataSetFiles(
                             with(equal(Arrays.asList(new PathEntryDTO(42L, 101L, "dir/hello.txt",
-                                    "hello.txt", 11L, null, false, new Date(file1.lastModified())),
+                                    "hello.txt", 11L, null, null, false, new Date(file1.lastModified())),
                                     new PathEntryDTO(42L, 101L, "dir/read.me", "read.me", 15L,
-                                            null, false, new Date(file2.lastModified())),
+                                            null, null, false, new Date(file2.lastModified())),
                                     new PathEntryDTO(42L, 100L, "read.me", "read.me", 12L, null,
-                                            false, new Date(file2.lastModified()))))));
+                                            null, false, new Date(file2.lastModified()))))));
 
                     one(dao).commit();
                 }

@@ -42,14 +42,10 @@ public interface IPathsInfoDAO extends TransactionQuery
     public void deleteDataSet(String code);
 
     @Select("insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
-            + "size_in_bytes, is_directory, last_modified) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}) returning id")
+            + "size_in_bytes, is_directory, checksum_crc32, checksum, last_modified) "
+            + "values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}, ?{8}, ?{9}) returning id")
     public long createDataSetFile(long dataSetId, Long parentId, String relativePath,
-            String fileName, long sizeInBytes, boolean directory, Date lastModifiedDate);
-
-    @Select("insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
-            + "size_in_bytes, is_directory, checksum_crc32, last_modified) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}, ?{8}) returning id")
-    public long createDataSetFileWithChecksum(long dataSetId, Long parentId, String relativePath,
-            String fileName, long sizeInBytes, boolean directory, int checksum, Date lastModifiedDate);
+            String fileName, long sizeInBytes, boolean directory, Integer checksumCRC32, String checksum, Date lastModifiedDate);
 
     @Select("select registration_timestamp from last_feeding_event")
     public Date getRegistrationTimestampOfLastFeedingEvent();

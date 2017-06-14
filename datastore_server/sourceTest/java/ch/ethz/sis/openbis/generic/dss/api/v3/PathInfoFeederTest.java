@@ -95,6 +95,10 @@ public class PathInfoFeederTest
     {
         Date start = new Date();
         Iterable<PathEntryDTO> result = runWith(file().withPath("path/to/file.txt"), directory().withPath("another/path/to/directory"));
+        for (PathEntryDTO pathEntryDTO : result)
+        {
+            System.out.println("RESULT:"+pathEntryDTO);
+        }
         Date end = new Date();
 
         Date date = result.iterator().next().getLastModifiedDate();
@@ -267,14 +271,12 @@ public class PathInfoFeederTest
                                 entry.setFileName((String) invocation.getParameter(3));
                                 entry.setSizeInBytes((long) invocation.getParameter(4));
                                 entry.setDirectory((boolean) invocation.getParameter(5));
-                                if (invocation.getParameter(6) instanceof Integer)
+                                if (invocation.getParameter(6) != null)
                                 {
                                     entry.setChecksumCRC32((int) invocation.getParameter(6));
-                                    entry.setLastModifiedDate((Date) invocation.getParameter(7));
-                                } else
-                                {
-                                    entry.setLastModifiedDate((Date) invocation.getParameter(6));
                                 }
+                                entry.setChecksum((String) invocation.getParameter(7));
+                                entry.setLastModifiedDate((Date) invocation.getParameter(8));
 
                                 result.add(entry);
                                 return counter++;
@@ -283,11 +285,8 @@ public class PathInfoFeederTest
                         };
 
                     allowing(mockDao).createDataSetFile(with(any(long.class)), with(any(Long.class)), with(any(String.class)),
-                            with(any(String.class)), with(any(long.class)), with(any(boolean.class)), with(any(Date.class)));
-                    will(action);
-
-                    allowing(mockDao).createDataSetFileWithChecksum(with(any(long.class)), with(any(Long.class)), with(any(String.class)),
-                            with(any(String.class)), with(any(long.class)), with(any(boolean.class)), with(any(int.class)), with(any(Date.class)));
+                            with(any(String.class)), with(any(long.class)), with(any(boolean.class)), with(any(Integer.class)), with(any(String.class)), 
+                            with(any(Date.class)));
                     will(action);
 
                 }

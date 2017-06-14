@@ -175,7 +175,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
     {
         PathEntryDTO pathEntry =
                 new PathEntryDTO(dataSetCode.hashCode(), null, relativePath, relativePath, 0, null,
-                        false, new Date(0));
+                        null, false, new Date(0));
         pathEntry.setId(Long.parseLong(dataSetCode));
         pathEntry.setDataSetCode(dataSetCode);
         return pathEntry;

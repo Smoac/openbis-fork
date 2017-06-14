@@ -357,7 +357,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                     Long id = dataSet.getId();
                     will(returnValue(id));
                     
-                    one(dao).createDataSetFile(id, null, "", dataSetCode, 0L, true, new Date(file.lastModified()));
+                    one(dao).createDataSetFile(id, null, "", dataSetCode, 0L, true, null, null, new Date(file.lastModified()));
                     
                     one(dao).commit();
                     

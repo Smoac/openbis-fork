@@ -34,7 +34,7 @@ class DirectoryNode implements DataSetContentNode
         this(parentPath, name, new HashMap<String, DataSetContentNode>());
     }
 
-    public DirectoryNode addFile(Path path, long length, Integer checksum)
+    public DirectoryNode addFile(Path path, long length, Integer checksumCRC32, String checksum)
     {
         if (path.getParent() != null)
         {
@@ -46,7 +46,7 @@ class DirectoryNode implements DataSetContentNode
                 node = new DirectoryNode(getFullPath(), directoryName.toString());
             }
 
-            return newNode(directoryName.toString(), node.addFile(tail, length, checksum));
+            return newNode(directoryName.toString(), node.addFile(tail, length, checksumCRC32, checksum));
         } else
         {
             if (children.containsKey(path.toString()))
@@ -54,7 +54,7 @@ class DirectoryNode implements DataSetContentNode
                 throw new IllegalArgumentException("duplicate file: " + path.toString() + "/" + this.getFullPath());
             }
 
-            return newNode(path.toString(), new FileNode(getFullPath(), path.toString(), length, checksum));
+            return newNode(path.toString(), new FileNode(getFullPath(), path.toString(), length, checksumCRC32, checksum));
         }
     }
 
@@ -100,7 +100,13 @@ class DirectoryNode implements DataSetContentNode
     }
 
     @Override
-    public Integer getChecksum()
+    public Integer getChecksumCRC32()
+    {
+        return null;
+    }
+
+    @Override
+    public String getChecksum()
     {
         return null;
     }

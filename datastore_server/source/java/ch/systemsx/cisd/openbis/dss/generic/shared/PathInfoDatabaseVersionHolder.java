@@ -26,7 +26,7 @@ public class PathInfoDatabaseVersionHolder implements IDatabaseVersionHolder
     @Override
     public String getDatabaseVersion()
     {
-        return "008"; // S206
+        return "009"; // S255
     }
 
 }

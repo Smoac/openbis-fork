@@ -39,6 +39,8 @@ public class DataSetPathInfo
 
     private Integer checksumCRC32;
 
+    private String checksum;
+
     private DataSetPathInfo parent;
 
     private List<DataSetPathInfo> children = new ArrayList<DataSetPathInfo>();
@@ -91,6 +93,16 @@ public class DataSetPathInfo
     public void setChecksumCRC32(Integer checksumCRC32)
     {
         this.checksumCRC32 = checksumCRC32;
+    }
+
+    public String getChecksum()
+    {
+        return checksum;
+    }
+
+    public void setChecksum(String checksum)
+    {
+        this.checksum = checksum;
     }
 
     public Date getLastModified()

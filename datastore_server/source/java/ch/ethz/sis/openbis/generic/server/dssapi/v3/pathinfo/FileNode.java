@@ -6,10 +6,13 @@ class FileNode implements DataSetContentNode
 
     private final long length;
 
-    private final Integer checksum;
+    private final Integer checksumCRC32;
 
-    public FileNode(String parentPath, String name, long length, Integer checksum)
+    private final String checksum;
+
+    public FileNode(String parentPath, String name, long length, Integer checksumCRC32, String checksum)
     {
+        this.checksum = checksum;
         if (parentPath == null)
         {
             this.fullPath = name;
@@ -18,7 +21,7 @@ class FileNode implements DataSetContentNode
             this.fullPath = parentPath + "/" + name;
         }
         this.length = length;
-        this.checksum = checksum;
+        this.checksumCRC32 = checksumCRC32;
     }
 
     @Override
@@ -28,7 +31,13 @@ class FileNode implements DataSetContentNode
     }
 
     @Override
-    public Integer getChecksum()
+    public Integer getChecksumCRC32()
+    {
+        return checksumCRC32;
+    }
+
+    @Override
+    public String getChecksum()
     {
         return checksum;
     }

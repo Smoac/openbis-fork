@@ -39,9 +39,9 @@ public class IPathsInfoDAOTest extends SystemTestCase
         IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
 
         long dataSetId = dao.createDataSet("DATA_SET_WITH_SIZE", "abc");
-        long rootDirectoryId = dao.createDataSetFile(dataSetId, null, "", "root", 123L, true, new Date());
-        dao.createDataSetFile(dataSetId, rootDirectoryId, "root", "file1.txt", 100L, false, new Date());
-        dao.createDataSetFile(dataSetId, rootDirectoryId, "root", "file2.txt", 23L, false, new Date());
+        long rootDirectoryId = dao.createDataSetFile(dataSetId, null, "", "root", 123L, true, null, null, new Date());
+        dao.createDataSetFile(dataSetId, rootDirectoryId, "root", "file1.txt", 100L, false, null, null, new Date());
+        dao.createDataSetFile(dataSetId, rootDirectoryId, "root", "file2.txt", 23L, false, null, null, new Date());
 
         List<PathEntryDTO> entries = dao.listDataSetsSize(new String[] { "DATA_SET_WITH_SIZE" });
 

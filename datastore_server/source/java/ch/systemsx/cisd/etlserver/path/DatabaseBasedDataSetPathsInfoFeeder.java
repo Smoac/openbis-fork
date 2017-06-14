@@ -73,7 +73,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         {
             final long directoryId =
                     dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
-                            pathInfo.getSizeInBytes(), directory, pathInfo.getLastModifiedDate());
+                            pathInfo.getSizeInBytes(), directory, null, null, pathInfo.getLastModifiedDate());
             if (relativePath.length() > 0)
             {
                 relativePath += '/';
@@ -86,7 +86,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         } else
         {
             addFilePathToBatch(new PathEntryDTO(dataSetId, parentId, relativePath, fileName,
-                    pathInfo.getSizeInBytes(), pathInfo.getChecksumCRC32(), false,
+                    pathInfo.getSizeInBytes(), pathInfo.getChecksumCRC32(), null, false,
                     pathInfo.getLastModifiedDate()));
         }
     }

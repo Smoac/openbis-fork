@@ -56,6 +56,8 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public Integer checksum_crc32;
 
+        public String checksum;
+
         public boolean is_directory;
 
         public Date last_modified;
@@ -72,12 +74,12 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     {
 
         static String SELECT_DATA_SET_FILES =
-                "SELECT id, parent_id, relative_path, file_name, size_in_bytes, checksum_crc32, "
+                "SELECT id, parent_id, relative_path, file_name, size_in_bytes, checksum_crc32, checksum, "
                         + "is_directory, last_modified FROM data_set_files ";
 
         static String SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO =
                 "SELECT f.id, f.dase_id, f.parent_id, f.relative_path, f.file_name, f.size_in_bytes, "
-                        + "f.checksum_crc32, f.is_directory, f.last_modified, s.code "
+                        + "f.checksum_crc32, f.checksum, f.is_directory, f.last_modified, s.code "
                         + " FROM data_set_files f LEFT JOIN data_sets s ON (s.id = f.dase_id) ";
 
         @Select("SELECT id FROM data_sets WHERE code = ?{1}")
@@ -148,6 +150,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             // Build new info
             DataSetPathInfo dataSetPathInfo = new DataSetPathInfo();
             dataSetPathInfo.setChecksumCRC32(fileRecord.checksum_crc32);
+            dataSetPathInfo.setChecksum(fileRecord.checksum);
             dataSetPathInfo.setDirectory(fileRecord.is_directory);
             dataSetPathInfo.setFileName(fileRecord.file_name);
             dataSetPathInfo.setId(fileRecord.id);
@@ -350,6 +353,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             result.setDirectory(record.is_directory);
             result.setSizeInBytes(record.size_in_bytes);
             result.setChecksumCRC32(record.checksum_crc32);
+            result.setChecksum(record.checksum);
             result.setLastModified(record.last_modified);
             return result;
         }
@@ -388,6 +392,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                     dataSetPathInfo.setDirectory(dataSetFileRecord.is_directory);
                     dataSetPathInfo.setSizeInBytes(dataSetFileRecord.size_in_bytes);
                     dataSetPathInfo.setChecksumCRC32(dataSetFileRecord.checksum_crc32);
+                    dataSetPathInfo.setChecksum(dataSetFileRecord.checksum);
                     dataSetPathInfo.setLastModified(dataSetFileRecord.last_modified);
                     idToInfoMap.put(dataSetFileRecord.id, dataSetPathInfo);
                     Long parentId = dataSetFileRecord.parent_id;

@@ -50,7 +50,13 @@ public class PathInfoFeeder
                 root = root.addDirectory(Paths.get(file.getPath()));
             } else
             {
-                root = root.addFile(Paths.get(file.getPath()), file.getFileLength(), file.getChecksumCRC32());
+                String checksum = file.getChecksum();
+                if (checksum != null)
+                {
+                    String checksumType = file.getChecksumType(); // checksumType != null already checked
+                    checksum = checksumType + ":" + checksum;
+                }
+                root = root.addFile(Paths.get(file.getPath()), file.getFileLength(), file.getChecksumCRC32(), checksum);
             }
         }
         this.dataSetId = dataSetId;
@@ -65,15 +71,8 @@ public class PathInfoFeeder
     {
         long id;
         String fullPath = node.getFullPath() == null ? "" : node.getFullPath();
-        if (node.getChecksum() == null)
-        {
-            id = dao.createDataSetFile(dataSetId, parentId, fullPath, name, node.getLength(),
-                    node.isDirectory(), timestamp);
-        } else
-        {
-            id = dao.createDataSetFileWithChecksum(dataSetId, parentId, fullPath, name, node.getLength(),
-                    node.isDirectory(), node.getChecksum(), timestamp);
-        }
+        id = dao.createDataSetFile(dataSetId, parentId, fullPath, name, node.getLength(),
+                node.isDirectory(), node.getChecksumCRC32(), node.getChecksum(), timestamp);
 
         if (node.isDirectory())
         {
@@ -101,11 +100,14 @@ public class PathInfoFeeder
         String path = file.getPath();
         check(path == null || path.length() == 0, "Path of " + file + " was null");
         check(path.startsWith("/"), "Path '" + path + "' is absolute");
+        check(file.getChecksum() != null && file.getChecksumType() == null, "Checksum with out type specified: " + file.getChecksum());
         check(file.isDirectory() == false && file.getFileLength() == null, "Size of '" + path + "' is null");
         check(file.isDirectory() && file.getFileLength() != null, "Directory '" + path + "' has size "
                 + file.getFileLength());
-        check(file.isDirectory() && file.getChecksumCRC32() != null, "Directory '" + path + "' has checksum "
+        check(file.isDirectory() && file.getChecksumCRC32() != null, "Directory '" + path + "' has CRC32 checksum "
                 + file.getChecksumCRC32());
+        check(file.isDirectory() && file.getChecksum() != null && file.getChecksumType() != null, "Directory '" + path + "' has checksum of type "
+                + file.getChecksumType() + ": " + file.getChecksum());
     }
 
     private static void check(boolean condition, String message)

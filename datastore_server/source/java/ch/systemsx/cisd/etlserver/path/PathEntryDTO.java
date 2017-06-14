@@ -48,6 +48,9 @@ public class PathEntryDTO
     @ResultColumn("checksum_crc32")
     private Integer checksumCRC32;
 
+    @ResultColumn("checksum")
+    private String checksum;
+    
     @ResultColumn("is_directory")
     private Boolean directory;
 
@@ -62,7 +65,7 @@ public class PathEntryDTO
     }
 
     public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
-            long sizeInBytes, Integer checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
+            long sizeInBytes, Integer checksumCRC32OrNull, String checksum, boolean isDirectory, Date lastModifiedDate)
     {
         this.dataSetId = dataSetId;
         this.parentId = parentId;
@@ -70,6 +73,7 @@ public class PathEntryDTO
         this.fileName = fileName;
         this.sizeInBytes = sizeInBytes;
         this.checksumCRC32 = checksumCRC32OrNull;
+        this.checksum = checksum;
         this.directory = isDirectory;
         this.lastModifiedDate = lastModifiedDate;
     }
@@ -90,6 +94,7 @@ public class PathEntryDTO
         result = prime * result + ((relativePath == null) ? 0 : relativePath.hashCode());
         result = prime * result + (int) (sizeInBytes ^ (sizeInBytes >>> 32));
         result = prime * result + (checksumCRC32 == null ? 0 : checksumCRC32);
+        result = prime * result + (checksum == null ? 0 : checksum.hashCode());
         return result;
     }
 
@@ -138,6 +143,10 @@ public class PathEntryDTO
         {
             return false;
         }
+        if (equals(checksum, other.checksum) == false)
+        {
+            return false;
+        }
 
         return true;
     }
@@ -152,13 +161,18 @@ public class PathEntryDTO
         return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
     }
 
+    private boolean equals(String s1OrNull, String s2OrNull)
+    {
+        return s1OrNull == null ? s1OrNull == s2OrNull : s1OrNull.equals(s2OrNull);
+    }
+    
     @Override
     public String toString()
     {
         return "PathEntryDTO [dataSetId=" + dataSetId + ", parentId=" + parentId
                 + ", relativePath=" + relativePath + ", fileName=" + fileName + ", sizeInBytes="
-                + sizeInBytes + ", checksum=" + checksumCRC32 + ", lastModifiedDate="
-                + lastModifiedDate + ", isDirectory=" + directory + "]";
+                + sizeInBytes + ", checksumCRC32=" + checksumCRC32 + ", checksum=" + checksum 
+                + ", lastModifiedDate=" + lastModifiedDate + ", isDirectory=" + directory + "]";
     }
 
     public long getId()
@@ -229,6 +243,16 @@ public class PathEntryDTO
     public void setChecksumCRC32(Integer checksumCRC32)
     {
         this.checksumCRC32 = checksumCRC32;
+    }
+
+    public String getChecksum()
+    {
+        return checksum;
+    }
+
+    public void setChecksum(String checksum)
+    {
+        this.checksum = checksum;
     }
 
     public Date getLastModifiedDate()

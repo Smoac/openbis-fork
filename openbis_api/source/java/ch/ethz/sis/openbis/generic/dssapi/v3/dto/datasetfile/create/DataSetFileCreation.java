@@ -18,6 +18,10 @@ public class DataSetFileCreation implements ICreation
     private Long fileLength;
 
     private Integer checksumCRC32;
+    
+    private String checksum;
+    
+    private String checksumType;
 
     public String getPath()
     {
@@ -58,4 +62,25 @@ public class DataSetFileCreation implements ICreation
     {
         this.checksumCRC32 = checksumCRC32;
     }
+    
+    public String getChecksum()
+    {
+        return checksum;
+    }
+
+    public void setChecksum(String checksum)
+    {
+        this.checksum = checksum;
+    }
+
+    public String getChecksumType()
+    {
+        return checksumType;
+    }
+
+    public void setChecksumType(String checksumType)
+    {
+        this.checksumType = checksumType;
+    }
+
 }

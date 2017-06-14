@@ -4,9 +4,11 @@ interface DataSetContentNode
 {
     long getLength();
 
-    Integer getChecksum();
+    Integer getChecksumCRC32();
 
     String getFullPath();
 
     boolean isDirectory();
+    
+    String getChecksum();
 }
