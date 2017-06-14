@@ -209,6 +209,7 @@ getContent
 getCount
 getChecksumCRC32
 getChecksum
+getChecksumType
 getCreationId
 getCreations
 getCreatorPerson
@@ -606,6 +607,7 @@ setContainers
 setContent
 setChecksumCRC32
 setChecksum
+setChecksumType
 setCreationId
 setCreatorPerson
 setCriteria
