@@ -86,6 +86,11 @@ function StorageListView(storageListController, storageListModel) {
 				delete oldSample["@type"];
 				_this.showStorageWidget(data.data['$object'])
 			}
+		} else {
+			rowClick = function(data) {
+				var oldSample = data.data['$object'];
+				mainController.changeView('showViewSamplePageFromPermId', oldSample.permId);
+			}
 		}
 		
 		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET");
