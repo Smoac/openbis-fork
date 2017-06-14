@@ -24,39 +24,25 @@ function StorageListView(storageListController, storageListModel) {
 		//
 		// Data Grid
 		//
-		var columns = [ {
-			label : 'Group',
-			property : 'groupDisplayName',
-			sortable : true
-		} , {
-			label : 'Name',
-			property : 'nameProperty',
-			sortable : true
-		} , {
-			label : 'Row',
-			property : 'rowProperty',
-			sortable : true
-		}, {
-			label : 'Column',
-			property : 'columnProperty',
-			sortable : true
-		}, {
-			label : 'Box',
-			property : 'boxProperty',
-			sortable : true
-		}, {
-			label : 'Box Size',
-			property : 'boxSizeProperty',
-			sortable : true
-		}, {
-			label : 'Position',
-			property : 'positionProperty',
-			sortable : true
-		}, {
-			label : 'User',
-			property : 'userProperty',
-			sortable : true
-		}];
+		var columns = [];
+		
+		var storagePropertyCodes = profile.getAllPropertiCodesForTypeCode("STORAGE_POSITION");
+		var storagePropertyCodesAsMap = {};
+		var propertiesToSkip = ["XMLCOMMENTS", "ANNOTATIONS_STATE"];
+		for(var pIdx = 0; pIdx < storagePropertyCodes.length; pIdx++) {
+			if($.inArray(storagePropertyCodes[pIdx], propertiesToSkip) !== -1) {
+				continue;
+			}
+			storagePropertyCodesAsMap[storagePropertyCodes[pIdx]] = true;
+		}
+		for (propertyCode in storagePropertyCodesAsMap) {
+			var propertyType = profile.getPropertyType(propertyCode);
+			columns.push({
+				label : propertyType.label,
+				property : propertyType.code,
+				sortable : true
+			});
+		}
 		
 		if(!this._storageListModel.isDisabled) {
 			columns.push(this.createOperationsColumn());
@@ -69,42 +55,24 @@ function StorageListView(storageListController, storageListModel) {
 				sampleChildren = [];
 				_this._storageListModel.sample.children = sampleChildren;
 			}
-			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
-			var storagePropertyGroup = profile.getStoragePropertyGroup();
 			
+			var storagePropertyGroup = profile.getStoragePropertyGroup();
 			for(var i = 0; i < sampleChildren.length; i++) {
 				var sample = sampleChildren[i];
 				if(sample.sampleTypeCode !== "STORAGE_POSITION" || sample.deleteSample) {
 					continue;
 				}
-				var userProperty = sample.properties[storagePropertyGroup.userProperty];
 				
-				var namePropertyTypeCode = storagePropertyGroup.nameProperty;
-				var namePropertyCode = sample.properties[namePropertyTypeCode];
-				var nameProperty = null;
-				if(namePropertyCode) {
-					var namePropertyTerm = profile.getVocabularyTermByCodes("STORAGE_NAMES", namePropertyCode);
-					if(namePropertyTerm && namePropertyTerm.label) {
-						nameProperty = namePropertyTerm.label;
+				var object = { '$object' : sample };
+				for (propertyCode in storagePropertyCodesAsMap) {
+					var propertyType = profile.getPropertyType(propertyCode);
+					if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+						object[propertyCode] = FormUtil.getVocabularyLabelForTermCode(propertyType, sample.properties[propertyCode]);
 					} else {
-						nameProperty = namePropertyCode;
+						object[propertyCode] = sample.properties[propertyCode];
 					}
 				}
-				
-				if(	(userProperty && userProperty !== "") ||
-					(nameProperty && nameProperty !== "")) {
-					dataList.push({
-						'$object' : sample,
-						groupDisplayName : storagePropertyGroup.groupDisplayName,
-						nameProperty : nameProperty,
-						rowProperty : sample.properties[storagePropertyGroup.rowProperty],
-						columnProperty : sample.properties[storagePropertyGroup.columnProperty],
-						boxProperty : sample.properties[storagePropertyGroup.boxProperty],
-						boxSizeProperty : sample.properties[storagePropertyGroup.boxSizeProperty],
-						positionProperty : sample.properties[storagePropertyGroup.positionProperty],
-						userProperty : userProperty
-					});
-				}
+				dataList.push(object);
 			}
 			callback(dataList);
 		}
@@ -188,22 +156,24 @@ function StorageListView(storageListController, storageListModel) {
 		storageController.bindSample(sampleChild, this._storageListModel.isDisabled);
 		
 		var storageContainer = $("#storage-pop-up-container");
-		storageController.getView().repaint(storageContainer);
-		
-		storageContainer.append(containerButtons);
-		$("#storage-accept").on("click", function(event) {
-			storageController.isValid(function(isValid) {
-				if(isValid) {
-					Util.unblockUI();
-					_this._dataGrid.refresh();
-				}
+		storageController.getView().repaint(storageContainer, function() {
+			storageContainer.append(containerButtons);
+			
+			$("#storage-accept").on("click", function(event) {
+				storageController.isValid(function(isValid) {
+					if(isValid) {
+						Util.unblockUI();
+						_this._dataGrid.refresh();
+					}
+				});
 			});
-		});
-		
-		$("#storage-cancel").on("click", function(event) {
-			_this._storageListController._restoreState(sampleChild);
-			Util.unblockUI();
-			_this._dataGrid.refresh();
+			
+			$("#storage-cancel").on("click", function(event) {
+				_this._storageListController._restoreState(sampleChild);
+				Util.unblockUI();
+				_this._dataGrid.refresh();
+			});
+			
 		});
 	}
 	
