@@ -17,22 +17,17 @@
 package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -48,7 +43,6 @@ import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptReader;
@@ -256,53 +250,6 @@ public class PutDataSetService
             {
 
             }
-        }
-    }
-    public String putFileToStoreShare(String sessionToken, String filePath, String dataSetTypeCodeOrNull, String permIdOrNull, InputStream inputStream) {
-        {
-            if (false == isInitialized)
-            {
-                doInitialization();
-            }
-
-            try
-            {
-                ServiceProvider.getOpenBISService().checkSession(sessionToken);
-                if (filePath.contains("../"))
-                {
-                    throw new IOExceptionUnchecked("filePath must not contain '../'");
-                }
-                String uniqueFolderName = permIdOrNull == null? openBisService.createPermId(): permIdOrNull;
-                File temporaryDataSetDir =
-                        new File(getTemporaryIncomingRoot(dataSetTypeCodeOrNull), uniqueFolderName);
-                if(false == temporaryDataSetDir.exists()) {
-                    temporaryDataSetDir.mkdir();
-                }
-                final String subDir = FilenameUtils.getFullPath(filePath);
-                final String filename = FilenameUtils.getName(filePath);
-                final File dir = new File(temporaryDataSetDir, subDir);
-                dir.mkdirs();
-                final File file = new File(dir, filename);
-                OutputStream ostream = null;
-                try
-                {
-                    ostream = new FileOutputStream(file);
-                    long size = IOUtils.copyLarge(inputStream, ostream);
-                    ostream.close();
-                    return uniqueFolderName;
-                } catch (IOException ex)
-                {
-                    file.delete();
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                } finally
-                {
-                    IOUtils.closeQuietly(ostream);
-                }
-            }
-            catch (UserFailureException e)
-            {
-                throw new IllegalArgumentException(e);
-            } 
         }
     }
 
