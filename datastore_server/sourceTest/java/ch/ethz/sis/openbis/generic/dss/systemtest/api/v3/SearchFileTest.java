@@ -45,6 +45,7 @@ public class SearchFileTest extends AbstractFileTest
                 assertEquals(
                         dataSetFile.getPath().length() - 1 - dataSetFile.getPath().indexOf('/', "original/.".length()) + "file content of ".length(),
                         dataSetFile.getFileLength());
+                System.out.println(dataSetFile+":"+dataSetFile.getChecksumCRC32());
             }
         }
     }

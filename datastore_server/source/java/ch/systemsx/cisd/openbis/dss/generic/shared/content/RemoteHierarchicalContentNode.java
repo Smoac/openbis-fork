@@ -134,6 +134,12 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     }
 
     @Override
+    public String getChecksum() throws UnsupportedOperationException
+    {
+        return path.getChecksum();
+    }
+
+    @Override
     public int getChecksumCRC32() throws UnsupportedOperationException
     {
         return path.getChecksumCRC32();

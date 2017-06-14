@@ -177,9 +177,22 @@ public class PathInfoFeederTest
     @Test
     public void checksumIsNotRequiredForFiles()
     {
-        runWith(file().withChecksum(null));
+        runWith(file().withChecksum((Integer) null));
+    }
+    
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void withChecksumButWithoutChecksumType()
+    {
+        runWith(file().withChecksum("caffee1234"));
     }
 
+    @Test
+    public void withChecksum()
+    {
+        Collection<PathEntryDTO> entries = runWith(file().withChecksum("caffee1234").withChecksumType("TEST"));
+        assertThat(fileFrom(entries, "path/to/file.txt").getChecksum(), is("TEST:caffee1234"));
+    }
+    
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void absolutePathsAreNotAcceptedForDirectories()
     {

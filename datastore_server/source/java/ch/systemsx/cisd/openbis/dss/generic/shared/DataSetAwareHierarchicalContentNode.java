@@ -113,6 +113,12 @@ public class DataSetAwareHierarchicalContentNode implements IHierarchicalContent
     }
 
     @Override
+    public String getChecksum() throws UnsupportedOperationException
+    {
+        return node.getChecksum();
+    }
+
+    @Override
     public boolean isChecksumCRC32Precalculated()
     {
         return node.isChecksumCRC32Precalculated();

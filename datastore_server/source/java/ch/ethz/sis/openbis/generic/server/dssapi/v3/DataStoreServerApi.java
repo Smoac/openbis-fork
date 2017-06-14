@@ -209,7 +209,11 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                     if (node.isDirectory() == false)
                     {
                         file.setFileLength(node.getFileLength());
-                        file.setChecksumCRC32(node.getChecksumCRC32());
+                        if (node.isChecksumCRC32Precalculated())
+                        {
+                            file.setChecksumCRC32(node.getChecksumCRC32());
+                        }
+                        setChecksumOf(file, node.getChecksum());
                     }
                     result.add(file);
                 }
@@ -217,6 +221,21 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         }
 
         return new SearchResult<DataSetFile>(result, result.size());
+    }
+
+    private void setChecksumOf(DataSetFile file, String checksum)
+    {
+        if (checksum == null)
+        {
+            return;
+        }
+        String[] splitted = checksum.split(":", 2);
+        if (splitted.length < 2 || splitted[0].length() == 0 || splitted[1].length() == 0)
+        {
+            return;
+        }
+        file.setChecksumType(splitted[0]);
+        file.setChecksum(splitted[1]);
     }
 
     @Transactional(readOnly = true)

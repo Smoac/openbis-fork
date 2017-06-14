@@ -165,6 +165,12 @@ public class FilteredHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
+        public String getChecksum() throws UnsupportedOperationException
+        {
+            return node.getChecksum();
+        }
+
+        @Override
         public int getChecksumCRC32() throws UnsupportedOperationException
         {
             return node.getChecksumCRC32();

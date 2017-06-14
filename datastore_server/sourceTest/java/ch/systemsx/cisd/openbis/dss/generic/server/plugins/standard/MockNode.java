@@ -109,6 +109,12 @@ final class MockNode implements IHierarchicalContentNode
     }
 
     @Override
+    public String getChecksum() throws UnsupportedOperationException
+    {
+        return null;
+    }
+
+    @Override
     public int getChecksumCRC32() throws UnsupportedOperationException
     {
         return checksum;

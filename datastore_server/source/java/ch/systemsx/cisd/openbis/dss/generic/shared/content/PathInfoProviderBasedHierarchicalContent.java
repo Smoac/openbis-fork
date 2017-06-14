@@ -273,6 +273,12 @@ public class PathInfoProviderBasedHierarchicalContent implements IHierarchicalCo
         }
 
         @Override
+        protected String doGetChecksum()
+        {
+            return pathInfo.getChecksum();
+        }
+
+        @Override
         public boolean isChecksumCRC32Precalculated()
         {
             return pathInfo.getChecksumCRC32() != null;

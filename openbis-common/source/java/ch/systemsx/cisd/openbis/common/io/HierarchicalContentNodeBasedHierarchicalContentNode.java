@@ -80,6 +80,12 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
             }
 
             @Override
+            public String getChecksum() throws UnsupportedOperationException
+            {
+                return "";
+            }
+
+            @Override
             public int getChecksumCRC32() throws UnsupportedOperationException
             {
                 return 0;
@@ -205,6 +211,12 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
     public long getFileLength() throws UnsupportedOperationException
     {
         return getContent().getFileLength();
+    }
+
+    @Override
+    public String getChecksum() throws UnsupportedOperationException
+    {
+        return getContent().getChecksum();
     }
 
     @Override

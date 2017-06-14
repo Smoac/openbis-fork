@@ -110,6 +110,12 @@ public class ImageUtilTest extends AssertJUnit
         }
 
         @Override
+        public String getChecksum() throws UnsupportedOperationException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public int getChecksumCRC32() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();

@@ -102,6 +102,16 @@ public interface IHierarchicalContentNode
      * calling {@link #getChecksumCRC32()} or if this node does not have a CRC32 checksum (like e.g. a directory).
      */
     boolean isChecksumCRC32Precalculated();
+    
+    /**
+     * Returns the checksum of a file abstracted by this node.
+     * The returned value is of the form <code>&lt;checksum type&gt;:&lt;checksum&gt;</code>.
+     * If it isn't defined a <code>null</code> is returned. It will not be calculated contrary to the
+     * behavior of {@link #getChecksumCRC32()}.
+     * 
+     * @throws UnsupportedOperationException if the node is an abstraction of a directory.
+     */
+    String getChecksum() throws UnsupportedOperationException;
 
     /**
      * Returns a read only {@link IRandomAccessFile} with file content of the node. *

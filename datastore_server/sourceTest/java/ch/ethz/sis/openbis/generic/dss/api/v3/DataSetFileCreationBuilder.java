@@ -14,7 +14,11 @@ public class DataSetFileCreationBuilder
 
     private Long fileLength;
 
-    private Integer checksum;
+    private Integer checksumCRC32;
+
+    private String checksum;
+
+    private String checksumType;
 
     public DataSetFileCreationBuilder(boolean isDirectory)
     {
@@ -25,7 +29,7 @@ public class DataSetFileCreationBuilder
         {
             this.isDirectory = false;
             this.fileLength = new Long(rnd.nextInt(1024 * 1024 * 1024));
-            this.checksum = rnd.nextInt();
+            this.checksumCRC32 = rnd.nextInt();
         }
         this.path = randomPath();
     }
@@ -44,10 +48,22 @@ public class DataSetFileCreationBuilder
 
     public DataSetFileCreationBuilder withChecksum(Integer checksum)
     {
+        this.checksumCRC32 = checksum;
+        return this;
+    }
+    
+    public DataSetFileCreationBuilder withChecksum(String checksum)
+    {
         this.checksum = checksum;
         return this;
     }
 
+    public DataSetFileCreationBuilder withChecksumType(String checksumType)
+    {
+        this.checksumType = checksumType;
+        return this;
+    }
+    
     public DataSetFileCreation build()
     {
         DataSetFileCreation dsfc = new DataSetFileCreation();
@@ -57,10 +73,9 @@ public class DataSetFileCreationBuilder
         {
             dsfc.setFileLength(fileLength);
         }
-        if (checksum != null)
-        {
-            dsfc.setChecksumCRC32(checksum);
-        }
+        dsfc.setChecksumCRC32(checksumCRC32);
+        dsfc.setChecksum(checksum);
+        dsfc.setChecksumType(checksumType);
         return dsfc;
     }
 

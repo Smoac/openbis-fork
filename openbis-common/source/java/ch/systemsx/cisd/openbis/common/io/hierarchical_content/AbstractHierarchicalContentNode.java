@@ -88,6 +88,14 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
         }
     }
 
+    private final void requireFile()
+    {
+        if (isDirectory() && isPhysicalFile() == false)
+        {
+            throw new UnsupportedOperationException(OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY + getRelativePath());
+        }
+    }
+    
     @Override
     public final List<IHierarchicalContentNode> getChildNodes()
     {
@@ -108,6 +116,18 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
         return doGetChecksumCRC32();
     }
 
+    @Override
+    public final String getChecksum() throws UnsupportedOperationException
+    {
+        requireFile();
+        return doGetChecksum();
+    }
+    
+    protected String doGetChecksum()
+    {
+        return null;
+    }
+    
     @Override
     public final IRandomAccessFile getFileContent()
     {
