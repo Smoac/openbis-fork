@@ -33,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 abstract class AbstractPathInfoDatabaseFeedingTask
 {
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
+    
+    static final String CHECKSUM_TYPE_KEY = "checksum-type";
 
     protected IDataSetDirectoryProvider directoryProvider;
 
@@ -41,6 +43,8 @@ abstract class AbstractPathInfoDatabaseFeedingTask
     protected IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
 
     protected boolean computeChecksum;
+    
+    protected String checksumType;
 
     protected void feedPathInfoDatabase(IDatasetLocation dataSet)
     {
@@ -60,7 +64,7 @@ abstract class AbstractPathInfoDatabaseFeedingTask
             }
             DatabaseBasedDataSetPathsInfoFeeder feeder =
                     new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory,
-                            computeChecksum);
+                            computeChecksum, checksumType);
             Long id = dao.tryGetDataSetId(dataSetCode);
             if (id == null)
             {

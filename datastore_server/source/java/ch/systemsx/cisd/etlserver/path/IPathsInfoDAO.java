@@ -57,9 +57,9 @@ public interface IPathsInfoDAO extends TransactionQuery
     public void createLastFeedingEvent(Date registrationTimestamp);
 
     @Update(sql = "insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
-            + "size_in_bytes, checksum_crc32, is_directory, last_modified) values "
+            + "size_in_bytes, checksum_crc32, checksum, is_directory, last_modified) values "
             + "(?{1.dataSetId}, ?{1.parentId}, ?{1.relativePath}, ?{1.fileName}, ?{1.sizeInBytes}, "
-            + "?{1.checksumCRC32}, ?{1.directory}, ?{1.lastModifiedDate})", batchUpdate = true)
+            + "?{1.checksumCRC32}, ?{1.checksum}, ?{1.directory}, ?{1.lastModifiedDate})", batchUpdate = true)
     public void createDataSetFiles(Collection<PathEntryDTO> filePaths);
 
     @Select("select f.id, d.code as data_set_code, relative_path " +

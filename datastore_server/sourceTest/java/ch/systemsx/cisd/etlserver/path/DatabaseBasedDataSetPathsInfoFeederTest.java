@@ -113,7 +113,7 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
 
         IDataSetPathsInfoFeeder feeder =
                 new DatabaseBasedDataSetPathsInfoFeeder(dao,
-                        new DefaultFileBasedHierarchicalContentFactory(), true);
+                        new DefaultFileBasedHierarchicalContentFactory(), true, null);
         feeder.addPaths("ds-1", "a/b/c/", workingDirectory);
         feeder.commit();
     }
@@ -165,7 +165,7 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
 
         IDataSetPathsInfoFeeder feeder =
                 new DatabaseBasedDataSetPathsInfoFeeder(dao,
-                        new DefaultFileBasedHierarchicalContentFactory(), false);
+                        new DefaultFileBasedHierarchicalContentFactory(), false, null);
         feeder.addPaths("ds-1", "a/b/c/", workingDirectory);
         feeder.commit();
     }

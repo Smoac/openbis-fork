@@ -16,12 +16,20 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.CRC32;
 
+import org.apache.commons.io.IOUtils;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
@@ -33,7 +41,7 @@ final class PathInfo
 {
     private static final List<PathInfo> NO_CHILDREN = Collections.emptyList();
 
-    static PathInfo createPathInfo(IHierarchicalContentNode node, boolean computeChecksum)
+    static PathInfo createPathInfo(IHierarchicalContentNode node, boolean computeChecksum, String checksumType)
     {
         if (node.exists() == false)
         {
@@ -45,7 +53,7 @@ final class PathInfo
         pathInfo.directory = node.isDirectory();
         if (pathInfo.directory)
         {
-            pathInfo.children = createPathInfos(node, computeChecksum);
+            pathInfo.children = createPathInfos(node, computeChecksum, checksumType);
             long sum = 0;
             for (PathInfo childInfo : pathInfo.children)
             {
@@ -56,12 +64,71 @@ final class PathInfo
         } else
         {
             pathInfo.sizeInBytes = node.getFileLength();
-            pathInfo.checksumCRC32 = computeChecksum ? node.getChecksumCRC32() : null;
+            setChecksum(pathInfo, node, computeChecksum, checksumType);
         }
         return pathInfo;
     }
 
-    private static List<PathInfo> createPathInfos(IHierarchicalContentNode node, boolean computeChecksum)
+    private static void setChecksum(PathInfo pathInfo, IHierarchicalContentNode node, 
+            boolean computeChecksum, String checksumType)
+    {
+        if (computeChecksum == false)
+        {
+            return;
+        }
+        if (checksumType == null)
+        {
+            pathInfo.checksumCRC32 = node.getChecksumCRC32();
+        }
+        MessageDigest messageDigest = getMessageDigest(checksumType);
+        CRC32 crc = new CRC32();
+        feedChecksumCalculators(node, messageDigest, crc);
+        pathInfo.checksumCRC32 = (int) crc.getValue();
+        StringBuilder builder = new StringBuilder(checksumType).append(':');
+        byte[] digest = messageDigest.digest();
+        for (byte b : digest)
+        {
+            int v = b & 0xff;
+            builder.append(Integer.toHexString(v >> 4)).append(Integer.toHexString(v & 0xf));
+        }
+        pathInfo.checksum = builder.toString();
+    }
+
+    private static void feedChecksumCalculators(IHierarchicalContentNode node, MessageDigest messageDigest, CRC32 crc)
+    {
+        InputStream inputStream = null;
+        try
+        {
+            inputStream = node.getInputStream();
+            byte[] buffer = new byte[4096];
+            int n = 0;
+            while ((n = inputStream.read(buffer)) > 0) 
+            {
+                messageDigest.update(buffer, 0, n);
+                crc.update(buffer, 0, n);
+            }
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
+    
+    private static MessageDigest getMessageDigest(String checksumType)
+    {
+        try
+        {
+            return MessageDigest.getInstance(checksumType);
+        } catch (NoSuchAlgorithmException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        
+    }
+
+    private static List<PathInfo> createPathInfos(IHierarchicalContentNode node, boolean computeChecksum, String checksumType)
     {
         if (node.isDirectory() == false)
         {
@@ -71,7 +138,7 @@ final class PathInfo
         List<IHierarchicalContentNode> childNodes = node.getChildNodes();
         for (IHierarchicalContentNode child : childNodes)
         {
-            childInfos.add(createPathInfo(child, computeChecksum));
+            childInfos.add(createPathInfo(child, computeChecksum, checksumType));
         }
         Collections.sort(childInfos, new Comparator<PathInfo>()
             {
@@ -89,6 +156,8 @@ final class PathInfo
     private long sizeInBytes;
 
     private Integer checksumCRC32;
+    
+    private String checksum;
 
     private PathInfo parent;
 
@@ -111,6 +180,11 @@ final class PathInfo
     public Integer getChecksumCRC32()
     {
         return checksumCRC32;
+    }
+
+    public String getChecksum()
+    {
+        return checksum;
     }
 
     public PathInfo getParent()

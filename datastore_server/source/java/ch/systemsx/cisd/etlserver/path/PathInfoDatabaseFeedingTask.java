@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,6 +28,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -108,13 +111,15 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
     public PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(service, getDirectoryProvider(), createDAO(), createContentFactory(),
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER, getComputeChecksumFlag(properties), 0, 0, 0);
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER, getComputeChecksumFlag(properties), 
+                getAndCheckChecksumType(properties), 0, 0, 0);
     }
 
     @Private
     PathInfoDatabaseFeedingTask(IEncapsulatedOpenBISService service,
             IDataSetDirectoryProvider directoryProvider, IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory, ITimeProvider timeProvider, boolean computeChecksum,
+            IHierarchicalContentFactory hierarchicalContentFactory, ITimeProvider timeProvider, 
+            boolean computeChecksum, String checksumType,
             int chunkSize, int maxNumberOfChunks, long timeLimit)
     {
         this.service = service;
@@ -123,6 +128,7 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
         this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.timeProvider = timeProvider;
         this.computeChecksum = computeChecksum;
+        this.checksumType = checksumType;
         this.chunkSize = chunkSize;
         maxNumerOfChunks = maxNumberOfChunks;
         this.timeLimit = timeLimit;
@@ -143,6 +149,7 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
         dao = createDAO();
         hierarchicalContentFactory = createContentFactory();
         computeChecksum = getComputeChecksumFlag(properties);
+        checksumType = getAndCheckChecksumType(properties);
         chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
         maxNumerOfChunks =
                 PropertyUtils.getInt(properties, MAX_NUMBER_OF_CHUNKS_KEY,
@@ -163,6 +170,23 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
     private static boolean getComputeChecksumFlag(Properties properties)
     {
         return PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
+    }
+
+    private static String getAndCheckChecksumType(Properties properties)
+    {
+        String checksumType = properties.getProperty(CHECKSUM_TYPE_KEY);
+        if (checksumType != null)
+        {
+            checksumType = checksumType.trim();
+            try
+            {
+                MessageDigest.getInstance(checksumType);
+            } catch (NoSuchAlgorithmException ex)
+            {
+                throw new ConfigurationFailureException("Unsupported checksum type: " + checksumType);
+            }
+        }
+        return checksumType;
     }
 
     private static final int waitingPeriodForStorageConfirmationInSeconds = 3600;

@@ -583,7 +583,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             long timeLimite)
     {
         return new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory,
-                new MockTimeProvider(0, 1000), true, chunkSize, maxNumberOfChunks, timeLimite);
+                new MockTimeProvider(0, 1000), true, null, chunkSize, maxNumberOfChunks, timeLimite);
     }
 
 }

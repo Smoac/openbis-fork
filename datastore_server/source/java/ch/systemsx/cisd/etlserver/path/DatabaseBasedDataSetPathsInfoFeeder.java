@@ -42,12 +42,15 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
 
     private final boolean computeChecksum;
 
+    private final String checksumType;
+    
     public DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum)
+            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum, String checksumType)
     {
         this.dao = dao;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.computeChecksum = computeChecksum;
+        this.checksumType = checksumType;
     }
 
     @Override
@@ -59,7 +62,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
                         IDelegatedAction.DO_NOTHING);
         PathInfo root =
                 PathInfo.createPathInfo(hierarchicalContentFactory.asHierarchicalContentNode(
-                        content, dataSetRoot), computeChecksum);
+                        content, dataSetRoot), computeChecksum, checksumType);
         addPaths(dataSetId, null, "", root);
         return root.getSizeInBytes();
     }
@@ -86,7 +89,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         } else
         {
             addFilePathToBatch(new PathEntryDTO(dataSetId, parentId, relativePath, fileName,
-                    pathInfo.getSizeInBytes(), pathInfo.getChecksumCRC32(), null, false,
+                    pathInfo.getSizeInBytes(), pathInfo.getChecksumCRC32(), pathInfo.getChecksum(), false,
                     pathInfo.getLastModifiedDate()));
         }
     }
