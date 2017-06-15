@@ -549,12 +549,6 @@ PLASMID_RELATIONSHIP = [FIRST_TIME_VERSIONED, "PLASMID_RELATIONSHIP", "Kind of p
                                             ["LOST", "Lost", None],
                                             ["OTHER", "Other", None]
                                         ]];
-                                        
-STORAGE_NAMES = [FIRST_TIME_VERSIONED, "STORAGE_NAMES", "Storages available on the lab",
-                                        [
-                                            ["BENCH", "Bench", None],
-                                            ["DEFAULT_STORAGE", "Default Storage", None]
-                                        ]];
 
 STORAGE_BOX_SIZE = [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE", "Boxes available on the lab",
                                         [
@@ -934,7 +928,7 @@ STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE_RACK", "", [
 ]];
 
 STORAGE_POSITION = [MANDATORY_ITEM_VERSION, False, "STORAGE_POSITION", "", [
-    [FIRST_TIME_VERSIONED, "STORAGE_NAMES",                 "Physical Storage",        "Storage Name",              DataType.CONTROLLEDVOCABULARY,       "STORAGE_NAMES",     "Storage Name",       None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_NAMES",                 "Physical Storage",        "Storage Name",              DataType.VARCHAR,                    None,                "Storage Name",       None, None, False, False],
     [FIRST_TIME_VERSIONED, "STORAGE_ROW",                   "Physical Storage",        "Storage Row",               DataType.INTEGER,                    None,                "Storage Row",        None, None, False, False],
     [FIRST_TIME_VERSIONED, "STORAGE_COLUMN",                "Physical Storage",        "Storage Column",            DataType.INTEGER,                    None,                "Storage Column",     None, None, False, False],
     [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",   None, None, False, False],

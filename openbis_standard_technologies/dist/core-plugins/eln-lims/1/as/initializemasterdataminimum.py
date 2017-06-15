@@ -31,7 +31,6 @@ def initBasicMasterData(tr):
     elnTypes.createVocabularyWithTerms(tr, elnTypes.EXPERIMENTAL_READOUT);
     elnTypes.createVocabularyWithTerms(tr, elnTypes.MACHINE);
     elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_VALIDATION_LEVEL);
-    elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_NAMES);
     elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_BOX_SIZE);
     
     ##
