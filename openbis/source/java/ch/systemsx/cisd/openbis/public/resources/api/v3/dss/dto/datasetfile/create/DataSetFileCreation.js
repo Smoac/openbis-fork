@@ -8,6 +8,8 @@ define([ "stjs" ], function(stjs) {
 		prototype.directory = null;
 		prototype.fileLength = null;
 		prototype.checksumCRC32 = null;
+		prototype.checksum = null;
+		prototype.checksumType = null;
 		
 		prototype.getPath = function() {
 			return this.path;
@@ -32,6 +34,18 @@ define([ "stjs" ], function(stjs) {
 		};
 		prototype.setChecksumCRC32 = function(checksumCRC32) {
 			this.checksumCRC32 = checksumCRC32;
+		};
+		prototype.getChecksum = function() {
+			return this.checksum;
+		};
+		prototype.setChecksum = function(checksum) {
+			this.checksum = checksum;
+		};
+		prototype.getChecksumType = function() {
+			return this.checksumType;
+		};
+		prototype.setChecksumType = function(checksumType) {
+			this.checksumType = checksumType;
 		};
 	}, {
 	});

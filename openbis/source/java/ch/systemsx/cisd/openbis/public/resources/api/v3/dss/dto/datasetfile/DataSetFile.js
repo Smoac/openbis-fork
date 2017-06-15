@@ -11,6 +11,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.directory = null;
 		prototype.fileLength = null;
 		prototype.checksumCRC32 = null;
+		prototype.checksum = null;
+		prototype.checksumType = null;
 
 		prototype.getPermId = function() {
 			return this.permId;
@@ -53,6 +55,18 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setChecksumCRC32 = function(checksumCRC32) {
 			this.checksumCRC32 = checksumCRC32;
+		};
+		prototype.getChecksum = function() {
+			return this.checksum;
+		};
+		prototype.setChecksum = function(checksum) {
+			this.checksum = checksum;
+		};
+		prototype.getChecksumType = function() {
+			return this.checksumType;
+		};
+		prototype.setChecksumType = function(checksumType) {
+			this.checksumType = checksumType;
 		};
 	}, {
 		permId : "DataSetFilePermId",
