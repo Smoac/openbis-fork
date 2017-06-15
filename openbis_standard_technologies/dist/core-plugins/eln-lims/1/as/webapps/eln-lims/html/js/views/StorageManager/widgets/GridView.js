@@ -126,6 +126,7 @@ function GridView(gridModel) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
 					var sample = null;
+					var optSampleTitle = null;
 					if (labels[i].data && labels[i].data["@type"] && labels[i].data["@type"] === "Sample") {
 						sample = jQuery.extend(true, {}, labels[i].data);
 					}
@@ -143,12 +144,18 @@ function GridView(gridModel) {
 								//Tooltip, show also information from the parent
 								sample.code = sample.parents[0].code;
 							}
+							
+							var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.parents[0].permId);
+							optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(labels[i].displayName);
+							optSampleTitle.click(function() {
+								mainController.changeView("showViewSamplePageFromPermId", sample.parents[0].permId);
+							});
 						}
 					}
 					
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
 					if (sample) {
-						var tooltip = PrintUtil.getTable(sample, false, null, 'inspectorWhiteFont', 'colorEncodedWellAnnotations-holder-' + sample.permId, null, null);
+						var tooltip = PrintUtil.getTable(sample, false, optSampleTitle, 'inspectorWhiteFont', 'colorEncodedWellAnnotations-holder-' + sample.permId, null, null);
 						labelContainer.tooltipster({
 							content: $(tooltip),
 							interactive: true,
