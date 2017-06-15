@@ -31,9 +31,17 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.DataStoreServerApiJsonServer;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -46,6 +54,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
  *
  * @author Ganime Betul Akin
  */
+@RestController
+@RequestMapping({"store_share_file_upload", "/datastore_server/store_share_file_upload"})
 public class StoreShareFileUploadServlet extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
@@ -84,7 +94,6 @@ public class StoreShareFileUploadServlet extends HttpServlet
         {
             FileItemIterator iterator = uploadRequest.getFiles();
 
-            String permIdOrNull = null;
             while (iterator.hasNext())
             {
                 FileItemStream file = null;
@@ -94,7 +103,7 @@ public class StoreShareFileUploadServlet extends HttpServlet
                 {
                     file = iterator.next();
                     stream = file.openStream();
-                    permIdOrNull = putService.putFileToStoreShare(uploadRequest.getSessionId(), file.getName(), dataSetTypeCodeOrNull, permIdOrNull, stream);
+                    putService.putFileToStoreShare(uploadRequest.getSessionId(), file.getName(), dataSetTypeCodeOrNull, uploadId, stream);
                 } 
                 catch (Exception e) {
                    operationLog.error(e.getMessage());

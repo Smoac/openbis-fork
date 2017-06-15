@@ -258,7 +258,7 @@ public class PutDataSetService
             }
         }
     }
-    public String putFileToStoreShare(String sessionToken, String filePath, String dataSetTypeCodeOrNull, String permIdOrNull, InputStream inputStream) {
+    public String putFileToStoreShare(String sessionToken, String filePath, String dataSetTypeCodeOrNull, String uploadId, InputStream inputStream) {
         {
             if (false == isInitialized)
             {
@@ -272,7 +272,7 @@ public class PutDataSetService
                 {
                     throw new IOExceptionUnchecked("filePath must not contain '../'");
                 }
-                String uniqueFolderName = permIdOrNull == null? openBisService.createPermId(): permIdOrNull;
+                String uniqueFolderName = uploadId;
                 File temporaryDataSetDir =
                         new File(getTemporaryIncomingRoot(dataSetTypeCodeOrNull), uniqueFolderName);
                 if(false == temporaryDataSetDir.exists()) {
@@ -367,7 +367,7 @@ public class PutDataSetService
         return mailClient;
     }
 
-    String getShareId(String dataSetTypeOrNull)
+    public String getShareId(String dataSetTypeOrNull)
     {
         return getThreadGlobalState(dataSetTypeOrNull).getShareId();
     }
@@ -452,9 +452,7 @@ public class PutDataSetService
         }
         return storeRoot;
     }
-
 }
-
 /**
  * Helper class to simplify initializing the final fields of the {@link PutDataSetService}.
  * 
