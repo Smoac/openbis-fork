@@ -780,7 +780,7 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (CKEditor)
 	//
 	CKEDITOR.on( 'instanceReady', function( ev ) {
-		ev.editor.config.filebrowserUploadUrl = "/openbis/file-service/eln-lims?sessionID=" + mainController.serverFacade.getSession();
+		ev.editor.config.filebrowserUploadUrl = "/openbis/openbis/file-service/eln-lims?sessionID=" + mainController.serverFacade.getSession();
 		ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
 		ev.editor.document.on('drop', function (ev) {
 		      ev.data.preventDefault(true);
