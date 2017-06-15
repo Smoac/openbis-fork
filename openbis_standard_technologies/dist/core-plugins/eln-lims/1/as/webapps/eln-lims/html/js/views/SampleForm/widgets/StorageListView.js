@@ -25,6 +25,35 @@ function StorageListView(storageListController, storageListModel) {
 		// Data Grid
 		//
 		var columns = [];
+		columns.push({
+			label : 'Link',
+			property : 'link',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				var storagePropertyGroup = profile.getStoragePropertyGroup();
+				var displayName = data[storagePropertyGroup.boxProperty] + " : " + data[storagePropertyGroup.positionProperty];
+				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			}
+		});
+		columns.push({
+			label : 'Identifier',
+			property : 'identifier',
+			isExportable: true,
+			sortable : true,
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
 		
 		var storagePropertyCodes = profile.getAllPropertiCodesForTypeCode("STORAGE_POSITION");
 		var storagePropertyCodesAsMap = {};
@@ -64,6 +93,7 @@ function StorageListView(storageListController, storageListModel) {
 				}
 				
 				var object = { '$object' : sample };
+				object["identifier"] = sample.identifier;
 				for (propertyCode in storagePropertyCodesAsMap) {
 					var propertyType = profile.getPropertyType(propertyCode);
 					if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
@@ -85,11 +115,6 @@ function StorageListView(storageListController, storageListModel) {
 				delete oldSample["@id"];
 				delete oldSample["@type"];
 				_this.showStorageWidget(data.data['$object'])
-			}
-		} else {
-			rowClick = function(data) {
-				var oldSample = data.data['$object'];
-				mainController.changeView('showViewSamplePageFromPermId', oldSample.permId);
 			}
 		}
 		
