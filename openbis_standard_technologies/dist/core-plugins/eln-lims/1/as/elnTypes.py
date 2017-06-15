@@ -934,13 +934,13 @@ STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE_RACK", "", [
 ]];
 
 STORAGE_POSITION = [MANDATORY_ITEM_VERSION, False, "STORAGE_POSITION", "", [
-    [FIRST_TIME_VERSIONED, "STORAGE_NAMES",                 "Physical Storage",        "Storage Name",              DataType.CONTROLLEDVOCABULARY,       "STORAGE_NAMES",     "Storage Name",       None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_ROW",                   "Physical Storage",        "Storage Row",               DataType.INTEGER,                    None,                "Storage Row",        None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_COLUMN",                "Physical Storage",        "Storage Column",            DataType.INTEGER,                    None,                "Storage Column",     None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",   None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",   None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",    None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_POSITION",              "Physical Storage",        "Storage Position",          DataType.VARCHAR,                    None,                "Storage Position",   None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_NAMES",                 "Physical Storage",        "Storage Name",              DataType.CONTROLLEDVOCABULARY,       "STORAGE_NAMES",     "Storage Name",       None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_ROW",                   "Physical Storage",        "Storage Row",               DataType.INTEGER,                    None,                "Storage Row",        None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_COLUMN",                "Physical Storage",        "Storage Column",            DataType.INTEGER,                    None,                "Storage Column",     None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",   None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",   None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",    None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_POSITION",              "Physical Storage",        "Storage Position",          DataType.VARCHAR,                    None,                "Storage Position",   None, None, False, False],
     [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",                "Comments List",             DataType.XML,                        None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
     [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",                "Annotations State",         DataType.XML,                        None,                "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
 ]];

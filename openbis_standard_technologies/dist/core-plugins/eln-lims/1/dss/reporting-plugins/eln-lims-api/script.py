@@ -397,7 +397,7 @@ def init(tr, parameters, tableBuilder):
 	
 	if isSampleTypeAvailable(installedTypes, "STORAGE_RACK"):
 			try:
-				bench = insertSampleIfMissing(tr, "/STORAGE/BENCH", "STORAGE_RACK");
+				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", "STORAGE_RACK");
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
 				bench.setPropertyValue("COLUMN_NUM", "1");
@@ -409,7 +409,7 @@ def init(tr, parameters, tableBuilder):
 				pass # Do nothing if sample existed already
 			
 			try:
-				defaultStorage = insertSampleIfMissing(tr, "/STORAGE/DEFAULT_STORAGE", "STORAGE_RACK");
+				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", "STORAGE_RACK");
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
 				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
