@@ -790,6 +790,13 @@ $.extend(DefaultProfile.prototype, {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
 									_this.initSettings(function() {
+										//Check if the new storage system can be enabled
+										var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE_RACK");
+										var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
+										_this.storagesConfiguration = { 
+												"isEnabled" : storageRack && storagePositionType
+										};
+										
 										callbackWhenDone();
 									});
 								});

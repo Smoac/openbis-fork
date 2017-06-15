@@ -9,7 +9,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.hideCodes = true;
 		
-		this.storagesConfiguration = { "isEnabled" : true };
+		this.storagesConfiguration = { "isEnabled" : false };
 	
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {

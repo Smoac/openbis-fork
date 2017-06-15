@@ -400,7 +400,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Storage
 		//
 		var isStorageAvailable = profile.isSampleTypeWithStorage(this._sampleFormModel.sample.sampleTypeCode);
-		if(isStorageAvailable) {
+		if(isStorageAvailable && profile.storagesConfiguration["isEnabled"]) {
 			var $fieldsetOwner = $("<div>");
 			var $legend = $("<legend>").append("Storage");
 			var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
