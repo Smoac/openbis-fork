@@ -205,126 +205,131 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	}
 	
 	this.showPosField = function(boxSizeCode, isNew) {
-		if(this._storageModel.config.positionSelector === "on") {
-			//Pointer to himself
-			var _this = this;
-			
-			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
-			var propertyValues = [this._storageModel.boxName];
-			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
-				//Labels
-				var labels = [];
-				samples.forEach(function(element, index, array) {
-					var displayName = null;
-					var name = element.properties[profile.propertyReplacingCode];
-					if(name) {
-						displayName = element.code +"(" + name + ")";
-					} else {
-						displayName = element.code;
-					}
-					
-					var positionProp  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-					if(positionProp) {
-						var positions = positionProp.split(" ");
-						for(var pIdx = 0; pIdx < positions.length; pIdx++) {
-							var position = positions[pIdx];
-							if (position) {
-								var xyPos = Util.getXYfromLetterNumberCombination(position);
-								var x = xyPos[0];
-								var y = xyPos[1];
-								
-								var row = labels[x];
-								if(!row) {
-									row = [];
-									labels[x] = row;
-								}
-								
-								var col = row[y];
-								if(!col) {
-									col = [];
-									row[y] = col;
-								}
-								
-								if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
-									continue;
-								} else {
-									label = { displayName : displayName, data : element };
-									col.push(label);
+		var _this = this;
+		
+		if(!this._storageModel.storageConfig) {
+			setTimeout(function(){
+				_this.showPosField(boxSizeCode, isNew);
+			}, 100);
+		} else {
+			if(this._storageModel.config.positionSelector === "on") {
+				var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
+				var propertyValues = [this._storageModel.boxName];
+				mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
+					//Labels
+					var labels = [];
+					samples.forEach(function(element, index, array) {
+						var displayName = null;
+						var name = element.properties[profile.propertyReplacingCode];
+						if(name) {
+							displayName = element.code +"(" + name + ")";
+						} else {
+							displayName = element.code;
+						}
+						
+						var positionProp  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+						if(positionProp) {
+							var positions = positionProp.split(" ");
+							for(var pIdx = 0; pIdx < positions.length; pIdx++) {
+								var position = positions[pIdx];
+								if (position) {
+									var xyPos = Util.getXYfromLetterNumberCombination(position);
+									var x = xyPos[0];
+									var y = xyPos[1];
+									
+									var row = labels[x];
+									if(!row) {
+										row = [];
+										labels[x] = row;
+									}
+									
+									var col = row[y];
+									if(!col) {
+										col = [];
+										row[y] = col;
+									}
+									
+									if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
+										continue;
+									} else {
+										label = { displayName : displayName, data : element };
+										col.push(label);
+									}
 								}
 							}
-						}
-					} else {
-						//Not position found
-					}
-				});
-				
-				//Repaint
-				if(boxSizeCode) {
-					_this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
-					var rowsAndCols = boxSizeCode.split("X");
-					var numRows = parseInt(rowsAndCols[0]);
-					var numCols = parseInt(rowsAndCols[1]);
-					_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
-					_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY, isSelectedOrDeleted) {
-						var newPosition = Util.getLetterForNumber(posX) + posY;
-						var isMultiple = _this._storageController._gridControllerPosition.getModel().isSelectMultiple;
-						var boxPosition = _this._storageModel.boxPosition;
-						
-						if(!boxPosition || !isMultiple) {
-							boxPosition = "";
-						}
-						
-						//Add delete position, takes in count some non standard inputs that can be done in batch registration/update
-						if(isMultiple && !isSelectedOrDeleted) {
-							boxPosition = boxPosition.replace(newPosition, '');
 						} else {
-							boxPosition += " " + newPosition;
+							//Not position found
 						}
-						boxPosition = boxPosition.replace(/  +/g, ' ');
-						boxPosition = boxPosition.trim();
-						//
+					});
+					
+					//Repaint
+					if(boxSizeCode) {
+						_this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
+						var rowsAndCols = boxSizeCode.split("X");
+						var numRows = parseInt(rowsAndCols[0]);
+						var numCols = parseInt(rowsAndCols[1]);
+						_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
+						_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY, isSelectedOrDeleted) {
+							var newPosition = Util.getLetterForNumber(posX) + posY;
+							var isMultiple = _this._storageController._gridControllerPosition.getModel().isSelectMultiple;
+							var boxPosition = _this._storageModel.boxPosition;
+							
+							if(!boxPosition || !isMultiple) {
+								boxPosition = "";
+							}
+							
+							//Add delete position, takes in count some non standard inputs that can be done in batch registration/update
+							if(isMultiple && !isSelectedOrDeleted) {
+								boxPosition = boxPosition.replace(newPosition, '');
+							} else {
+								boxPosition += " " + newPosition;
+							}
+							boxPosition = boxPosition.replace(/  +/g, ' ');
+							boxPosition = boxPosition.trim();
+							//
+							
+							//Binded sample
+							if(_this._storageModel.sample) {
+								_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = boxPosition;
+							}
+							_this._storageModel.boxPosition = boxPosition;
+						}); 
 						
+						//
+						// Box low of space alert
+						//
+						var positionsUsed = samples.length;
+						var totalPositions = numRows * numCols;
+						var used = positionsUsed / totalPositions;
+						var available = parseInt(_this._storageModel.storageConfig.lowBoxSpaceWarning) / 100;
+						if(used >= available) {
+							Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+						}
+					}
+					
+					_this._storageController._gridControllerPosition.init(_this._positionContainer);
+					
+					if(isNew) {
 						//Binded sample
 						if(_this._storageModel.sample) {
-							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = boxPosition;
+							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
 						}
-						_this._storageModel.boxPosition = boxPosition;
-					}); 
-					
-					//
-					// Box low of space alert
-					//
-					var positionsUsed = samples.length;
-					var totalPositions = numRows * numCols;
-					var used = positionsUsed / totalPositions;
-					var available = parseInt(_this._storageModel.storageConfig.lowBoxSpaceWarning) / 100;
-					if(used >= available) {
-						Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
-					}
-				}
-				
-				_this._storageController._gridControllerPosition.init(_this._positionContainer);
-				
-				if(isNew) {
-					//Binded sample
-					if(_this._storageModel.sample) {
-						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
-					}
-					_this._storageModel.boxPosition = null;
-				} else {
-					if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
-						_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-						var positions = _this._storageModel.boxPosition.split(" ");
-						for(var pIdx = 0; pIdx < positions.length; pIdx++) {
-							var position = positions[pIdx];
-							if(position) {
-								var xyPos = Util.getXYfromLetterNumberCombination(position);
-								_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+						_this._storageModel.boxPosition = null;
+					} else {
+						if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
+							_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+							var positions = _this._storageModel.boxPosition.split(" ");
+							for(var pIdx = 0; pIdx < positions.length; pIdx++) {
+								var position = positions[pIdx];
+								if(position) {
+									var xyPos = Util.getXYfromLetterNumberCombination(position);
+									_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+								}
 							}
 						}
 					}
-				}
-			}, null, true);
+				}, null, true);
+			}
 		}
 	}
 	
