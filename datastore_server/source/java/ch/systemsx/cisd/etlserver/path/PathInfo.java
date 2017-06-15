@@ -79,7 +79,8 @@ final class PathInfo
         if (checksumType == null)
         {
             pathInfo.checksumCRC32 = node.getChecksumCRC32();
-        }
+            return;
+        } 
         MessageDigest messageDigest = getMessageDigest(checksumType);
         CRC32 crc = new CRC32();
         feedChecksumCalculators(node, messageDigest, crc);
