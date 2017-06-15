@@ -102,7 +102,7 @@ public final class AttachmentDownloadServletTest
                     will(returnValue(CommonTestUtils.TECH_ID.toString()));
                     one(servletRequest).getParameter(GenericSharedConstants.SESSION_ID_PARAMETER);
                     will(returnValue(null));
-
+                    one(servletRequest).getCookies();
                     one(servletRequest).getSession(false);
                     will(Expectations.returnValue(httpSession));
 
