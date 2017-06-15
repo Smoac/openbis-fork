@@ -138,6 +138,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         }
         chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
         computeChecksum = PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, true);
+        checksumType = getAndCheckChecksumType(properties);
         dataSetType = properties.getProperty(DATA_SET_TYPE_KEY);
     }
     

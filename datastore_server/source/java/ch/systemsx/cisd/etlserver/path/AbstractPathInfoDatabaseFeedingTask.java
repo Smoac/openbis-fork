@@ -17,9 +17,13 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -35,6 +39,23 @@ abstract class AbstractPathInfoDatabaseFeedingTask
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
     
     static final String CHECKSUM_TYPE_KEY = "checksum-type";
+
+    static String getAndCheckChecksumType(Properties properties)
+    {
+        String checksumType = properties.getProperty(CHECKSUM_TYPE_KEY);
+        if (checksumType != null)
+        {
+            checksumType = checksumType.trim();
+            try
+            {
+                MessageDigest.getInstance(checksumType);
+            } catch (NoSuchAlgorithmException ex)
+            {
+                throw new ConfigurationFailureException("Unsupported checksum type: " + checksumType);
+            }
+        }
+        return checksumType;
+    }
 
     protected IDataSetDirectoryProvider directoryProvider;
 

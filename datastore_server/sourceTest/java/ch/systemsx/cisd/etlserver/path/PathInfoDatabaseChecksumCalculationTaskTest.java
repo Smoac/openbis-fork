@@ -53,24 +53,6 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
 
     private IHierarchicalContentProvider contentProvider;
 
-    private PathInfoDatabaseChecksumCalculationTask task;
-
-    private ITimeProvider timeProvider = new ITimeProvider()
-        {
-            private long previousTime;
-
-            private long currentTime = 1000;
-
-            @Override
-            public long getTimeInMilliseconds()
-            {
-                long nextTime = previousTime + currentTime;
-                previousTime = currentTime;
-                currentTime = nextTime;
-                return currentTime;
-            }
-        };
-
     private IHierarchicalContent content1;
 
     private IHierarchicalContent content2;
@@ -93,7 +75,6 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
         node1 = context.mock(IHierarchicalContentNode.class, "node 1");
         node2 = context.mock(IHierarchicalContentNode.class, "node 2");
         node3 = context.mock(IHierarchicalContentNode.class, "node 3");
-        task = new PathInfoDatabaseChecksumCalculationTask(dao, contentProvider, timeProvider);
     }
 
     @AfterMethod
@@ -135,7 +116,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(node1).getInputStream();
                     will(returnValue(new ByteArrayInputStream("a".getBytes())));
 
-                    one(dao).updateChecksum(e1.getId(), 1908338681);
+                    one(dao).updateChecksum(e1.getId(), 1908338681, null);
 
                     one(content1).getNode("f2.txt");
                     will(returnValue(node2));
@@ -143,7 +124,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(node2).getInputStream();
                     will(returnValue(new ByteArrayInputStream("b".getBytes())));
 
-                    one(dao).updateChecksum(e2.getId(), -390611389);
+                    one(dao).updateChecksum(e2.getId(), -390611389, null);
 
                     one(dao).commit();
 
@@ -153,24 +134,67 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(node3).getInputStream();
                     will(returnValue(new ByteArrayInputStream("c".getBytes())));
 
-                    one(dao).updateChecksum(e3.getId(), 112844655);
+                    one(dao).updateChecksum(e3.getId(), 112844655, null);
 
                     one(dao).commit();
                 }
             });
+        PathInfoDatabaseChecksumCalculationTask task 
+                = new PathInfoDatabaseChecksumCalculationTask(dao, contentProvider, timeProvider(), null);
+        System.out.println(task);
 
         task.execute();
 
         assertEquals(LOG_INFO_PREFIX + "Start calculating checksums of 4 files in 3 data sets.\n"
                 + LOG_INFO_PREFIX
-                + "1 seconds needed to update checksums of 2 files of data set 1.\n"
+                + "10 seconds needed to update checksums of 2 files of data set 1.\n"
                 + LOG_INFO_PREFIX
-                + "2 seconds needed to update checksums of 1 files of data set 2.\n"
+                + "20 seconds needed to update checksums of 1 files of data set 2.\n"
                 + LOG_INFO_PREFIX + "Checksums of 3 files in 2 data sets have been calculated.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testWithSHA256Checksum()
+    {
+        final PathEntryDTO e1 = pathEntry("1", "f1.txt");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listDataSetFilesWithUnkownChecksum();
+                    will(returnValue(Arrays.asList(e1)));
+
+                    one(dao).commit();
+
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp("1");
+                    will(returnValue(content1));
+
+                    one(content1).getNode("f1.txt");
+                    will(returnValue(node1));
+
+                    one(node1).getInputStream();
+                    will(returnValue(new ByteArrayInputStream("a".getBytes())));
+
+                    one(dao).updateChecksum(e1.getId(), -390611389, "SHA-256:ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb");
+
+                    one(dao).commit();
+                }
+            });
+        PathInfoDatabaseChecksumCalculationTask task 
+                = new PathInfoDatabaseChecksumCalculationTask(dao, contentProvider, timeProvider(), "SHA-256");
+        System.out.println(task);
+        
+        task.execute();
+        
+        assertEquals(LOG_INFO_PREFIX + "Start calculating checksums of 1 files in 1 data sets.\n"
+                + LOG_INFO_PREFIX
+                + "10 seconds needed to update checksums of 1 files of data set 1.\n"
+                + LOG_INFO_PREFIX + "Checksums of 1 files in 1 data sets have been calculated.",
+                logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
+    
     private PathEntryDTO pathEntry(String dataSetCode, String relativePath)
     {
         PathEntryDTO pathEntry =
@@ -179,6 +203,26 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
         pathEntry.setId(Long.parseLong(dataSetCode));
         pathEntry.setDataSetCode(dataSetCode);
         return pathEntry;
+    }
+    
+    private ITimeProvider timeProvider()
+    {
+        return new ITimeProvider()
+            {
+                private long previousTime;
+
+                private long currentTime = 10000;
+
+                @Override
+                public long getTimeInMilliseconds()
+                {
+                    System.err.println(this);
+                    long nextTime = previousTime + currentTime;
+                    previousTime = currentTime;
+                    currentTime = nextTime;
+                    return currentTime;
+                }
+            };
     }
 
 }

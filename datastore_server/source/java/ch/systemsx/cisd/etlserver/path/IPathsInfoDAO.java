@@ -67,8 +67,8 @@ public interface IPathsInfoDAO extends TransactionQuery
             "where checksum_crc32 is null and is_directory = 'F'")
     public List<PathEntryDTO> listDataSetFilesWithUnkownChecksum();
 
-    @Update("update data_set_files set checksum_crc32 = ?{2} where id = ?{1}")
-    public void updateChecksum(long id, int checksum);
+    @Update("update data_set_files set checksum_crc32 = ?{2}, checksum = ?{3} where id = ?{1}")
+    public void updateChecksum(long id, int checksumCRC32, String checksum);
 
     @Select(sql = "select d.code as data_set_code, size_in_bytes " +
             "from data_set_files as f join data_sets as d on f.dase_id = d.id " +

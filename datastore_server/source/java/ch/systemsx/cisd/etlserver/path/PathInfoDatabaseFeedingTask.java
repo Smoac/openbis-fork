@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -28,7 +26,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -170,23 +167,6 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
     private static boolean getComputeChecksumFlag(Properties properties)
     {
         return PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
-    }
-
-    private static String getAndCheckChecksumType(Properties properties)
-    {
-        String checksumType = properties.getProperty(CHECKSUM_TYPE_KEY);
-        if (checksumType != null)
-        {
-            checksumType = checksumType.trim();
-            try
-            {
-                MessageDigest.getInstance(checksumType);
-            } catch (NoSuchAlgorithmException ex)
-            {
-                throw new ConfigurationFailureException("Unsupported checksum type: " + checksumType);
-            }
-        }
-        return checksumType;
     }
 
     private static final int waitingPeriodForStorageConfirmationInSeconds = 3600;

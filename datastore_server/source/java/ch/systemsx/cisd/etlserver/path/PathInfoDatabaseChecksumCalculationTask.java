@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-
-import net.lemnik.eodsql.QueryTool;
+import java.util.zip.CRC32;
 
 import org.apache.log4j.Logger;
 
@@ -35,9 +35,12 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
+
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * Maintenance task to calculate checksums for file entries in the pathinfo database with unknown checksum.
@@ -55,16 +58,19 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
 
     private ITimeProvider timeProvider;
 
+    private String checksumType;
+
     public PathInfoDatabaseChecksumCalculationTask()
     {
     }
 
     PathInfoDatabaseChecksumCalculationTask(IPathsInfoDAO dao,
-            IHierarchicalContentProvider hierarchicalContentProvider, ITimeProvider timeProvider)
+            IHierarchicalContentProvider hierarchicalContentProvider, ITimeProvider timeProvider, String checksumType)
     {
         this.dao = dao;
         this.hierarchicalContentProvider = hierarchicalContentProvider;
         this.timeProvider = timeProvider;
+        this.checksumType = checksumType;
     }
 
     @Override
@@ -73,6 +79,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
         dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
         hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+        checksumType = AbstractPathInfoDatabaseFeedingTask.getAndCheckChecksumType(properties);
     }
 
     @Override
@@ -95,10 +102,21 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
                     List<PathEntryDTO> pathEntries = entry.getValue();
                     for (PathEntryDTO pathEntry : pathEntries)
                     {
-                        final int checksum =
-                                IOUtilities.getChecksumCRC32(content.getNode(
-                                        pathEntry.getRelativePath()).getInputStream());
-                        dao.updateChecksum(pathEntry.getId(), checksum);
+                        IHierarchicalContentNode node = content.getNode(pathEntry.getRelativePath());
+                        String checksum = null;
+                        int checksumCRC32;
+                        if (checksumType == null)
+                        {
+                            checksumCRC32 = IOUtilities.getChecksumCRC32(node.getInputStream());
+                        } else
+                        {
+                            MessageDigest messageDigest = PathInfo.getMessageDigest(checksumType);
+                            CRC32 crc = new CRC32();
+                            PathInfo.feedChecksumCalculators(node, messageDigest, crc);
+                            checksumCRC32 = (int) crc.getValue();
+                            checksum = PathInfo.renderChecksum(checksumType, messageDigest);
+                        }
+                        dao.updateChecksum(pathEntry.getId(), checksumCRC32, checksum);
                         fileCounter++;
                     }
                     dao.commit();

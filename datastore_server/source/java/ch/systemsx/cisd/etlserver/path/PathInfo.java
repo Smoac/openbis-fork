@@ -84,17 +84,21 @@ final class PathInfo
         CRC32 crc = new CRC32();
         feedChecksumCalculators(node, messageDigest, crc);
         pathInfo.checksumCRC32 = (int) crc.getValue();
+        pathInfo.checksum = renderChecksum(checksumType, messageDigest);
+    }
+
+    static String renderChecksum(String checksumType, MessageDigest messageDigest)
+    {
         StringBuilder builder = new StringBuilder(checksumType).append(':');
-        byte[] digest = messageDigest.digest();
-        for (byte b : digest)
+        for (byte b : messageDigest.digest())
         {
             int v = b & 0xff;
             builder.append(Integer.toHexString(v >> 4)).append(Integer.toHexString(v & 0xf));
         }
-        pathInfo.checksum = builder.toString();
+        return builder.toString();
     }
 
-    private static void feedChecksumCalculators(IHierarchicalContentNode node, MessageDigest messageDigest, CRC32 crc)
+    static void feedChecksumCalculators(IHierarchicalContentNode node, MessageDigest messageDigest, CRC32 crc)
     {
         InputStream inputStream = null;
         try
@@ -116,7 +120,7 @@ final class PathInfo
         }
     }
     
-    private static MessageDigest getMessageDigest(String checksumType)
+    static MessageDigest getMessageDigest(String checksumType)
     {
         try
         {
