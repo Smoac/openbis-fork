@@ -258,6 +258,66 @@ public class PutDataSetService
             }
         }
     }
+    
+    public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        if (false == isInitialized)
+        {
+            doInitialization();
+        }
+
+        try
+        {
+            String dataSetTypeOrNull = newDataSet.tryDataSetType();
+            ITopLevelDataSetRegistrator registrator =
+                    registratorMap.getRegistratorForType(dataSetTypeOrNull);
+
+            File uploadedDataSetDir =
+                    new File(getTemporaryIncomingRoot(dataSetTypeOrNull), uploadId);
+
+            String permId = openBisService.createPermId();
+            File temporaryDataSetDir =
+                    new File(getTemporaryIncomingRoot(dataSetTypeOrNull), permId);
+            
+            if(false == uploadedDataSetDir.renameTo(temporaryDataSetDir)) {
+                throw new ConfigurationFailureException("Could not rename : "
+                        + uploadedDataSetDir + " to " + temporaryDataSetDir);
+
+            }
+
+            final List<DataSetInformation> infos;
+            // Branch -- use the old logic for the ETLServerPlugins
+            if (registrator instanceof PutDataSetServerPluginHolder)
+            {
+                infos =
+                        new PutDataSetExecutor(this,
+                                ((PutDataSetServerPluginHolder) registrator).getPlugin(),
+                                sessionToken, newDataSet, temporaryDataSetDir).executeWithoutWriting();
+            } else
+            {
+                infos =
+                        new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken,
+                                newDataSet, temporaryDataSetDir).executeWithoutWriting();
+            }
+            StringBuilder sb = new StringBuilder();
+            for (DataSetInformation info : infos)
+            {
+                sb.append(info.getDataSetCode());
+                sb.append(",");
+            }
+
+            // Remove the trailing comma
+            if (sb.length() > 0)
+            {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            return sb.toString();
+        } catch (UserFailureException e)
+        {
+            throw new IllegalArgumentException(e);
+        } 
+    }
     public String putFileToStoreShare(String sessionToken, String filePath, String dataSetTypeCodeOrNull, String uploadId, InputStream inputStream) {
         {
             if (false == isInitialized)
@@ -447,6 +507,29 @@ public class PutDataSetService
                 if (incomingDir.isDirectory())
                 {
                     return incomingDir;
+                }
+            }
+        }
+        return storeRoot;
+    }
+
+    private File getTemporaryIncomingRoot(String dataSetTypeCodeOrNull, String tempName)
+    {
+        TopLevelDataSetRegistratorGlobalState globalState =
+                getThreadGlobalState(dataSetTypeCodeOrNull);
+        File storeRoot = globalState.getStoreRootDir();
+        if (false == StringUtils.isBlank(globalState.getShareId()))
+        {
+            File shareRoot = new File(storeRoot, globalState.getShareId());
+            if (shareRoot.isDirectory())
+            {
+                File incomingDir = new File(shareRoot, "rpc-incoming");
+                incomingDir.mkdir();
+                File tempDir = new File(incomingDir, "temp");
+                tempDir.mkdir();
+                if (tempDir.isDirectory())
+                {
+                    return tempDir;
                 }
             }
         }

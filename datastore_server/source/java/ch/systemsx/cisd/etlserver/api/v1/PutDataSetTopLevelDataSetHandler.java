@@ -98,6 +98,42 @@ class PutDataSetTopLevelDataSetHandler
     private final File dataSet;
 
     PutDataSetTopLevelDataSetHandler(PutDataSetService service,
+            ITopLevelDataSetRegistrator registrator, String sessionToken, NewDataSetDTO newDataSet, File temporaryIncomingDir)
+    {
+        this.service = service;
+        this.registrator = registrator;
+        this.sessionToken = sessionToken;
+        this.newDataSet = newDataSet;
+        this.temporaryIncomingDir = temporaryIncomingDir;
+        this.inputStream = null;
+        String dataSetFolderName = newDataSet.getDataSetFolderName();
+        boolean dataSetIsASingleFile =
+                NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME.equals(dataSetFolderName)
+                        && newDataSet.getFileInfos().size() == 1;
+        if (dataSetIsASingleFile)
+        {
+            dataSetDir = temporaryIncomingDir;
+            dataSet =
+                    new File(temporaryIncomingDir, newDataSet.getFileInfos().get(0)
+                            .getPathInDataSet());
+        } else
+        {
+            this.dataSetDir = new File(temporaryIncomingDir, dataSetFolderName);
+            dataSet = dataSetDir;
+        }
+        if (dataSetDir.exists())
+        {
+            deleteDataSetDir();
+        }
+        if (false == this.dataSetDir.mkdir())
+        {
+            throw new EnvironmentFailureException("Could not create directory for data set "
+                    + dataSet.getName());
+        }
+
+    }   
+    
+    PutDataSetTopLevelDataSetHandler(PutDataSetService service,
             ITopLevelDataSetRegistrator registrator, String sessionToken, NewDataSetDTO newDataSet,
             InputStream inputStream)
     {
@@ -150,6 +186,33 @@ class PutDataSetTopLevelDataSetHandler
         }
 
         writeDataSetToTempDirectory();
+
+        // Register the data set
+        try
+        {
+            DataSetRegistratorDelegate delegate = new DataSetRegistratorDelegate();
+            registrator.handle(dataSet, sessionToken, getCallerDataSetInformation(), delegate);
+            return delegate.registeredDataSets;
+        } finally
+        {
+            deleteDataSetDir();
+        }
+
+    }
+
+    /**
+     * Run the put command; this method assumes the data set is already in the rpc-icoming folder in the share.
+     * 
+     */
+    public List<DataSetInformation> executeWithoutWriting() throws UserFailureException
+    {
+        // Check that the session owner has at least user access to the space the new data
+        // set should belongs to
+        SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
+        if (spaceId != null)
+        {
+            getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
+        }
 
         // Register the data set
         try

@@ -134,6 +134,30 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         handler = plugin.getDataSetHandler(this, service.getOpenBisService());
     }
 
+    PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
+            NewDataSetDTO newDataSet, File temporaryIncomingDir)
+    {
+        this.service = service;
+        this.plugin = plugin;
+        this.sessionToken = sessionToken;
+        this.newDataSet = newDataSet;
+        this.inputStream = null;
+        this.copier = FastRecursiveHardLinkMaker.tryCreate(RSyncConfig.getInstance().getAdditionalCommandLineOptions());
+        this.temporaryIncomingDir = temporaryIncomingDir;
+        this.dataSetDir = new File(temporaryIncomingDir, newDataSet.getDataSetFolderName());
+        if (dataSetDir.exists())
+        {
+            deleteDataSetDir();
+        }
+        if (false == this.dataSetDir.mkdir())
+        {
+            throw new EnvironmentFailureException("Could not create directory for data set "
+                    + newDataSet.getDataSetFolderName());
+        }
+
+        overridingTypeExtractor = new OverridingTypeExtractor();
+        handler = plugin.getDataSetHandler(this, service.getOpenBisService());
+    }
     /**
      * Run the put command; does *not* close the input stream &mdash; clients of the executor are expected to close the input stream when appropriate.
      * 
@@ -161,6 +185,31 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             deleteDataSetDir();
         }
 
+    }
+    /**
+     * Run the put command; this method assumes the data set is already in the rpc-icoming folder in the share.
+     * 
+     */
+    public List<DataSetInformation> executeWithoutWriting() throws UserFailureException
+    {
+        // Check that the session owner has at least user access to the space the new data
+        // set should belongs to
+        SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
+        if (spaceId != null)
+        {
+            getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
+        }
+
+        overrideOrNull = null;
+
+        // Register the data set
+        try
+        {
+            return handler.handleDataSet(dataSetDir);
+        } finally
+        {
+            deleteDataSetDir();
+        }
     }
 
     @Override
