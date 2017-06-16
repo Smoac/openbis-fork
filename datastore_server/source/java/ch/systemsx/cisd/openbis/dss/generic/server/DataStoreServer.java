@@ -57,6 +57,7 @@ import com.googlecode.jsonrpc4j.spring.JsonServiceExporter;
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.upload.StoreShareFileUploadServlet;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
@@ -262,6 +263,8 @@ public class DataStoreServer
                 + "/session_workspace_file_upload");
         servletContextHandler.addServlet(SessionWorkspaceFileDownloadServlet.class, applicationName
                 + "/session_workspace_file_download");
+        servletContextHandler.addServlet(StoreShareFileUploadServlet.class, applicationName
+                + "/store_share_file_upload");
 
         initializeRpcServices(servletContextHandler, applicationContext, configParams);
         registerPluginServlets(servletContextHandler, configParams.getPluginServlets());
