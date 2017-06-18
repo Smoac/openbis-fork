@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.dssapi.v3;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -45,6 +49,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.IDataStoreId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
@@ -74,12 +81,17 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
-
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -330,16 +342,67 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         return new DataStoreServerApiLogger(context);
     }
 
+    private NewDataSetDTO getNewDataSet(FullDataSetCreation dataSetCreation, File temporaryIncomingDir) throws IOException
+    {
+        ISampleId sampleIdentifier = dataSetCreation.getMetadataCreation().getSampleId();
+        IExperimentId experimentIdentifier = dataSetCreation.getMetadataCreation().getExperimentId();
+        DataSetOwnerType ownerType = DataSetOwnerType.SAMPLE;
+        DataSetOwner owner = null;
+        if (sampleIdentifier != null)
+        {
+            owner = new NewDataSetDTO.DataSetOwner(ownerType, sampleIdentifier.toString());
+        } else if (experimentIdentifier != null)
+        {
+            ownerType = DataSetOwnerType.EXPERIMENT;
+            owner = new NewDataSetDTO.DataSetOwner(ownerType, experimentIdentifier.toString());
+        }
+        if(owner == null) {
+            throw new UserFailureException("A dataset needs either a Sample or Experiment as owner.");
+        }
+        IEntityTypeId typeId = dataSetCreation.getMetadataCreation().getTypeId();
+        
+        List<FileInfoDssDTO> fileInfos = FileInfoDssBuilder.getFileInfos(temporaryIncomingDir);
+
+        NewDataSetDTO dataSet = new NewDataSetDTO(typeId.toString(), owner, null, fileInfos);
+        return dataSet;
+    }
+    
+    private List<FullDataSetCreation> filterPhysicalDataSets(List<FullDataSetCreation> newDataSets)
+    {
+        return newDataSets
+        .stream()
+        .filter((dataSetCreation) -> dataSetCreation.getMetadataCreation().getPhysicalData() != null)
+        .collect(Collectors.toList());
+    }
+
+    private List<FullDataSetCreation> filterNonPhysicalDataSets(List<FullDataSetCreation> newDataSets)
+    {
+        return newDataSets
+        .stream()
+        .filter((dataSetCreation) -> dataSetCreation.getMetadataCreation().getPhysicalData() == null)
+        .collect(Collectors.toList());
+    }
+
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
     {
+        injectDataStoreIdAndCodesIfNeeded(newDataSets);
+        List<FullDataSetCreation> physicalDataSets = filterPhysicalDataSets(newDataSets);
+        createPhysicalDataSets(sessionToken, physicalDataSets);
+
+        List<FullDataSetCreation> nonPhysicalDataSets = filterNonPhysicalDataSets(newDataSets);
+        return createNonPhysicalDataSets(sessionToken, nonPhysicalDataSets);
+    }
+
+    private List<DataSetPermId> createNonPhysicalDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
+    {
         if (PathInfoDataSourceProvider.isDataSourceDefined() == false)
         {
             throw new IllegalStateException("Pathinfo DB not configured - cannot store dataset file information");
         }
-        injectDataStoreIdAndCodesIfNeeded(newDataSets);
+
         IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
 
         for (int i = 0; i < newDataSets.size(); i++)
@@ -372,6 +435,34 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         }
 
         return as.createDataSets(sessionToken, metadata);
+    }
+
+    private void createPhysicalDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
+    {
+        for (FullDataSetCreation dataSetCreation : newDataSets)
+        {
+            PutDataSetService putService =
+                    new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);   
+            putService.setStoreDirectory(ServiceProvider.getConfigProvider().getStoreRoot());
+            NewDataSetDTO newDataset;
+            try
+            {   DataSetCreation metadataCreation = dataSetCreation.getMetadataCreation();
+                CreationId creationId = metadataCreation.getCreationId();
+                String dataSetTypeCodeNull = null;
+                IEntityTypeId typeId = metadataCreation.getTypeId();
+                if(null != typeId) {
+                    dataSetTypeCodeNull = typeId.toString(); 
+                }
+                File temporaryIncomingDir =  putService.getTemporaryIncomingDir(dataSetTypeCodeNull, creationId.toString());
+                newDataset = getNewDataSet(dataSetCreation, temporaryIncomingDir);
+                String code = dataSetCreation.getMetadataCreation().getCode();
+                putService.putDataSet(sessionToken, newDataset, creationId.toString(), code);
+                
+            } catch (IOException e)
+            {
+                operationLog.error(e.getMessage());
+            }
+        }
     }
     
     private void injectDataStoreIdAndCodesIfNeeded(List<FullDataSetCreation> newDataSets)

@@ -259,7 +259,7 @@ public class PutDataSetService
         }
     }
     
-    public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
+    public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, String uploadId, String dataSetCode)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         if (false == isInitialized)
@@ -276,9 +276,8 @@ public class PutDataSetService
             File uploadedDataSetDir =
                     new File(getTemporaryIncomingRoot(dataSetTypeOrNull), uploadId);
 
-            String permId = openBisService.createPermId();
             File temporaryDataSetDir =
-                    new File(getTemporaryIncomingRoot(dataSetTypeOrNull), permId);
+                    new File(getTemporaryIncomingRoot(dataSetTypeOrNull), dataSetCode);
             
             if(false == uploadedDataSetDir.renameTo(temporaryDataSetDir)) {
                 throw new ConfigurationFailureException("Could not rename : "
@@ -513,8 +512,13 @@ public class PutDataSetService
         return storeRoot;
     }
 
-    private File getTemporaryIncomingRoot(String dataSetTypeCodeOrNull, String tempName)
+    public File getTemporaryIncomingDir(String dataSetTypeCodeOrNull, String creationId)
     {
+        if (false == isInitialized)
+        {
+            doInitialization();
+        }
+
         TopLevelDataSetRegistratorGlobalState globalState =
                 getThreadGlobalState(dataSetTypeCodeOrNull);
         File storeRoot = globalState.getStoreRootDir();
@@ -524,12 +528,9 @@ public class PutDataSetService
             if (shareRoot.isDirectory())
             {
                 File incomingDir = new File(shareRoot, "rpc-incoming");
-                incomingDir.mkdir();
-                File tempDir = new File(incomingDir, "temp");
-                tempDir.mkdir();
-                if (tempDir.isDirectory())
-                {
-                    return tempDir;
+                File tempDir = new File(incomingDir, creationId);
+                if(false == tempDir.exists()) {
+                    throw new UserFailureException("The folder for the creation Id " + creationId + " could not be found. Have you uploaded the file first?" );
                 }
             }
         }
