@@ -179,7 +179,7 @@ public class FileServiceServlet extends AbstractServlet
         if (multipartFile.getSize() > maxSize)
         {
             writeError(multipartRequest, response, pathInfo, "File " + originalFilename 
-                    + " is to large. It should have not more than " + maxSizeInMB + " MB.");
+                    + " is to large. Maximum allowed size is  " + maxSizeInMB + "MB.");
             return;
         }
         String uuid = UUID.randomUUID().toString();
