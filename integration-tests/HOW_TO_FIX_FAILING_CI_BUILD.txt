@@ -16,3 +16,20 @@ cd ~/hudson/tests-16.05/integration-tests/targets/
 ln -s ../../../test-data test-data
 
 
+Problem:
+
+ERROR in test_openbis_sync: No such file or directory: 'targets/sissource_private-token.txt'
+
+Solution:
+ssh ci@bs-ci01.ethz.ch
+cp ~/jenkins/test-data/sissource_private-token.txt ~/jenkins/workspace_dist/integration-tests/targets/
+
+If ~/jenkins/test-data/sissource_private-token.txt is undefined it can be created as follows:
+
+1. Log in into sissource web site.
+2. Open your settings (found in the upper right corner as a drop-down item)
+3. Choose 'Access Tokens'
+4. Enter 'OpenbisSync' for the field Name
+5. Choose an expiration date
+6. Tick the check box of 'api Access you API' (not sure whether this is really needed)
+7. Store the generated token in the file ~/jenkins/test-data/sissource_private-token.txt

@@ -346,10 +346,6 @@ class TestCase(systemtest.testcase.TestCase):
 class GitLabArtifactRepository(GitArtifactRepository):
     """
     Artifact repository for a gitlab projects.
-    Note: it requires project id as the project "argument". This can be found by using the following command:
-    curl --header "PRIVATE-TOKEN:Rz1DbhpVBXSUpRny5Dbr"  "https://sissource.ethz.ch/api/v4/projects?per_page=99999"
-    after logging in and retrieving the private token with
-    curl https://sissource.ethz.ch/api/v4/session --data-urlencode 'login=’ --data-urlencode 'password=’
     """
     def __init__(self, localRepositoryFolder, host = 'sissource.ethz.ch'):
         GitArtifactRepository.__init__(self, localRepositoryFolder)
@@ -358,8 +354,13 @@ class GitLabArtifactRepository(GitArtifactRepository):
     def downloadArtifact(self, project, pattern):
         url = "https://%s/%s/repository/%s" % (self.host, project, pattern)
         util.printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
-        request = Request(url, headers = {'PRIVATE-TOKEN' : 'Rz1DbhpVBXSUpRny5Dbr'})
+        private_token = self._read_private_token()
+        request = Request(url, headers = {'PRIVATE-TOKEN' : private_token})
         self._download(urllib2.urlopen(request), pattern)
         return pattern
     
+    def _read_private_token(self):
+        with open('targets/sissource_private-token.txt', 'r') as f:
+            return f.readline().strip()
+
 TestCase(settings, __file__).runTest()
