@@ -296,7 +296,7 @@ class TestCase(systemtest.testcase.TestCase):
 
     def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
-        path = repository.getPathToArtifact('10', 'archive.zip')
+        path = repository.getPathToArtifact('sis/OpenbisSync', 'archive.zip')
         util.printAndFlush("downloaded repository as : %s" % path)
         destination = "%s/servers/core-plugins/%s/" % (openbisController.installPath, openbisController.instanceName)
         commit_id = self.getLatestCommitHashForCorePlugin('sissource.ethz.ch', 10)
@@ -356,7 +356,7 @@ class GitLabArtifactRepository(GitArtifactRepository):
         self.host = host
 
     def downloadArtifact(self, project, pattern):
-        url = "https://%s/api/v4/projects/%s/repository/%s" % (self.host, project, pattern)
+        url = "https://%s/%s/repository/%s" % (self.host, project, pattern)
         util.printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
         request = Request(url, headers = {'PRIVATE-TOKEN' : 'Rz1DbhpVBXSUpRny5Dbr'})
         self._download(urllib2.urlopen(request), pattern)
