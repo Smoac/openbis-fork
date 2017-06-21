@@ -12,9 +12,13 @@ configurations.create('testRuntimeFirst')
 configurations.create('testRuntimeSecond')
 
 dependencies {
+
+	compile (project(':openbis')) {
+		exclude group: 'google', module: 'gwt-user'
+	}
+
 	compile project(':common'),
 			project(':openbis-common'),
-			project(':openbis'),
 			// authentication and dbmigration are required as they contain later versions of 
 			// some classes than cisd-cifex.jar. They need to be in classpath before cisd-cifex.jar
 			project(':authentication'),
@@ -30,10 +34,13 @@ dependencies {
 			'lyncode:xoai-data-provider:+'
 
 	runtime 'sun:jai:+'
+
+	testCompile (project(path: ':openbis', configuration: 'tests')) {
+		exclude group: 'google', module: 'gwt-user'
+	}
 				
 	testCompile project(path: ':common', configuration: 'tests'),
-				project(path: ':openbis-common', configuration: 'tests'),
-				project(path: ':openbis', configuration: 'tests')						
+				project(path: ':openbis-common', configuration: 'tests')
 
 	testRuntimeFirst 'javax:servlet-api:+'
 	testRuntimeSecond 'google:gwt-user:+'
