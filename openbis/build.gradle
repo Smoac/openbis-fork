@@ -30,7 +30,7 @@ dependencies {
 			'apache:poi-ooxml:3.8-20120326',
 			'hibernate:hibernate-validator:4.2.0.Final',
 			'unimi:fastutil:5.1.5',
-			'apache:commons-collections:+',
+			'apache:commons-collections4:+',
 			'springframework:spring-context-support:+',
 			'ehcache:ehcache:2.10.0',
 			'jline:jline:+'
