@@ -19,8 +19,8 @@ configurations.all {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
-    distributionUrl = "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
+    gradleVersion = '3.5'
+    distributionUrl = "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/3.5/gradle-3.5-all.zip"
 }
 
 sourceCompatibility='1.8'
@@ -198,8 +198,8 @@ task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
 }
 
 def deleteSymbolicLinksRecursively(file) {
-    absolutePath = file.getAbsolutePath()
-    canonicalPath = file.getCanonicalPath()
+    def absolutePath = file.getAbsolutePath()
+    def canonicalPath = file.getCanonicalPath()
     if (absolutePath.equals(canonicalPath) == false) {
         file.delete();
     } else if (file.isDirectory()) {
@@ -261,16 +261,7 @@ compileTestJava {
 
 def createJvmArgs() {
     def args = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-nowarn']
-    appendCompatibilityOption(args, '-source', sourceCompatibility)
-    appendCompatibilityOption(args, '-target', targetCompatibility)
     return args
-}
-
-def appendCompatibilityOption(args, option, versionCompatibility) {
-    if (JavaVersion.current().equals(JavaVersion.toVersion(versionCompatibility))) {
-        args.add(option)
-        args.add(versionCompatibility.toString())
-    }
 }
 
 processTestResources {
