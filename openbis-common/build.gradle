@@ -12,7 +12,7 @@ dependencies {
 		'sis:sis-jhdf5:+',
 		'lemnik:eodsql:+',
 		'springframework:spring-jdbc:+',
-		'apache:commons-collections:+',
+		'apache:commons-collections4:+',
 		'truezip:truezip:+'
 		
 	testCompile project(path: ':common', configuration: 'tests'),
