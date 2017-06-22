@@ -25,7 +25,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
@@ -102,48 +101,51 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION ex
                 }
             };
 
-        final Map<RELATED_ID, RELATED_PE> loadedMap = map(context, toLoadIds);
-        final Set<RELATED_PE> checked = new HashSet<RELATED_PE>();
+        if (false == toLoadIds.isEmpty())
+        {
+            final Map<RELATED_ID, RELATED_PE> loadedMap = map(context, toLoadIds);
+            final Set<RELATED_PE> checked = new HashSet<RELATED_PE>();
 
-        new MapBatchProcessor<ENTITY_CREATION, ENTITY_PE>(context, batch)
-            {
-                @Override
-                public void process(ENTITY_CREATION creation, ENTITY_PE entity)
+            new MapBatchProcessor<ENTITY_CREATION, ENTITY_PE>(context, batch)
                 {
-                    Collection<? extends RELATED_ID> relatedIds = getRelatedIds(context, creation);
-
-                    if (relatedIds != null)
+                    @Override
+                    public void process(ENTITY_CREATION creation, ENTITY_PE entity)
                     {
-                        Collection<RELATED_PE> relatedCollection = new LinkedHashSet<RELATED_PE>();
+                        Collection<? extends RELATED_ID> relatedIds = getRelatedIds(context, creation);
 
-                        for (RELATED_ID relatedId : relatedIds)
+                        if (relatedIds != null)
                         {
-                            RELATED_PE related = loadedMap.get(relatedId);
+                            Collection<RELATED_PE> relatedCollection = new LinkedHashSet<RELATED_PE>();
 
-                            if (related == null)
+                            for (RELATED_ID relatedId : relatedIds)
                             {
-                                throw new ObjectNotFoundException(relatedId);
-                            } else
-                            {
-                                if (false == checked.contains(related))
+                                RELATED_PE related = loadedMap.get(relatedId);
+
+                                if (related == null)
                                 {
-                                    check(context, relatedId, related);
-                                    checked.add(related);
+                                    throw new ObjectNotFoundException(relatedId);
+                                } else
+                                {
+                                    if (false == checked.contains(related))
+                                    {
+                                        check(context, relatedId, related);
+                                        checked.add(related);
+                                    }
+                                    relatedCollection.add(related);
                                 }
-                                relatedCollection.add(related);
                             }
+
+                            relatedMap.put(creation, relatedCollection);
                         }
-
-                        relatedMap.put(creation, relatedCollection);
                     }
-                }
 
-                @Override
-                public IProgress createProgress(ENTITY_CREATION creation, ENTITY_PE entity, int objectIndex, int totalObjectCount)
-                {
-                    return new SetRelationProgress(entity, creation, getRelationName(), objectIndex, totalObjectCount);
-                }
-            };
+                    @Override
+                    public IProgress createProgress(ENTITY_CREATION creation, ENTITY_PE entity, int objectIndex, int totalObjectCount)
+                    {
+                        return new SetRelationProgress(entity, creation, getRelationName(), objectIndex, totalObjectCount);
+                    }
+                };
+        }
 
         return relatedMap;
     }

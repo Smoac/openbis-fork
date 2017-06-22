@@ -18,13 +18,17 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -122,4 +126,40 @@ public class DeleteProjectTest extends AbstractDeletionTest
                 }
             }, permId);
     }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String testSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectCreation creation = new ProjectCreation();
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setCode("PROJECT_TO_DELETE");
+
+        List<ProjectPermId> permIds = v3api.createProjects(testSessionToken, Collections.singletonList(creation));
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        ProjectDeletionOptions options = new ProjectDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertProjectExists(permIds.get(0));
+
+        if (user.isTestSpaceUser())
+        {
+            v3api.deleteProjects(sessionToken, permIds, options);
+            assertProjectDoesNotExist(permIds.get(0));
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteProjects(sessionToken, permIds, options);
+                    }
+                }, permIds.get(0));
+        }
+    }
+
 }

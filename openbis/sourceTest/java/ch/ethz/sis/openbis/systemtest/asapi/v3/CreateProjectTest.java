@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -165,68 +166,41 @@ public class CreateProjectTest extends AbstractTest
             }, projectIdentifier);
     }
 
-    @Test
-    public void testCreateProjectWithSpaceAdminWithProjectAuthorizationOff()
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         final ProjectCreation project = new ProjectCreation();
         project.setCode("ANOTHER_TEST_PROJECT");
         project.setSpaceId(new SpacePermId("TEST-SPACE"));
 
-        String sessionToken = v3api.login(TEST_SPACE_PA_OFF, PASSWORD);
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
-
-        assertEquals(permIds.size(), 1);
-    }
-
-    @Test
-    public void testCreateProjectWithSpaceAdminWithProjectAuthorizationOn()
-    {
-        final ProjectCreation project = new ProjectCreation();
-        project.setCode("ANOTHER_TEST_PROJECT");
-        project.setSpaceId(new SpacePermId("TEST-SPACE"));
-
-        String sessionToken = v3api.login(TEST_SPACE_PA_ON, PASSWORD);
-
-        List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
-
-        assertEquals(permIds.size(), 1);
-    }
-
-    @Test
-    public void testCreateProjectWithProjectAdminWithProjectAuthorizationOff()
-    {
-        final ProjectCreation project = new ProjectCreation();
-        project.setCode("ANOTHER_TEST_PROJECT");
-        project.setSpaceId(new SpacePermId("TEST-SPACE"));
-
-        assertAuthorizationFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
+        if (user.isTestSpaceUser())
+        {
+            List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
+            assertEquals(permIds.size(), 1);
+        } else if (user.isTestProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
                 {
-                    String sessionToken = v3api.login(TEST_PROJECT_PA_OFF, PASSWORD);
-                    v3api.createProjects(sessionToken, Collections.singletonList(project));
-                }
-            });
-    }
-
-    @Test
-    public void testCreateProjectWithProjectAdminWithProjectAuthorizationOn()
-    {
-        final ProjectCreation project = new ProjectCreation();
-        project.setCode("TEST-SPACE");
-        project.setSpaceId(new SpacePermId("ANOTHER_TEST_PROJECT"));
-
-        assertAuthorizationFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
+                    @Override
+                    public void execute()
+                    {
+                        v3api.createProjects(sessionToken, Collections.singletonList(project));
+                    }
+                });
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
                 {
-                    String sessionToken = v3api.login(TEST_PROJECT_PA_ON, PASSWORD);
-                    v3api.createProjects(sessionToken, Collections.singletonList(project));
-                }
-            });
+
+                    @Override
+                    public void execute()
+                    {
+                        v3api.createProjects(sessionToken, Collections.singletonList(project));
+                    }
+                }, project.getSpaceId());
+        }
     }
 
     @Test

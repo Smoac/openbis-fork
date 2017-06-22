@@ -50,6 +50,8 @@ import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
 import junit.framework.Assert;
 
 /**
@@ -491,6 +493,39 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertTrue(experiment.getTags().isEmpty());
         assertEquals(experiment.getRegistrator().getUserId(), TEST_USER);
         assertEquals(experiment.getModifier().getUserId(), TEST_USER);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        AttachmentCreation attachment = new AttachmentCreation();
+        attachment.setContent("test content".getBytes());
+        attachment.setFileName("test.txt");
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("ANOTHER_TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        creation.setProperty("DESCRIPTION", "a description");
+        creation.setAttachments(Arrays.asList(attachment));
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
+            assertEquals(permIds.size(), 1);
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.createExperiments(sessionToken, Collections.singletonList(creation));
+                    }
+                }, creation.getProjectId());
+        }
     }
 
     @Test

@@ -421,7 +421,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> listSamplesForExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) String experimentIdentifierString)
@@ -820,7 +820,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentListPredicate.class) List<Experiment> experiments, EnumSet<Connections> connections)
@@ -1063,7 +1063,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) List<String> experimentIdentifiers)
@@ -1247,7 +1247,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdPredicate.class) IExperimentId experimentId, boolean allVersions)
     {

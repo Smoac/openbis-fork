@@ -38,7 +38,7 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
@@ -46,7 +46,7 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void canUpdate(IOperationContext context, IExperimentId id,
@@ -56,7 +56,7 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_EXPERIMENT")
     public void canDelete(IOperationContext context, IExperimentId id,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment)
@@ -64,14 +64,14 @@ public class ExperimentAuthorizationExecutor implements IExperimentAuthorization
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_EXPERIMENT")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_EXPERIMENT")
     public void canSearch(IOperationContext context)
     {

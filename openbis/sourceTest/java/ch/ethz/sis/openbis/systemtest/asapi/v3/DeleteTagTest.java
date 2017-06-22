@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -169,6 +170,20 @@ public class DeleteTagTest extends AbstractDeletionTest
                     deleteTag(TEST_USER, PASSWORD, before.getPermId(), options);
                 }
             }, before.getPermId());
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        TagCreation creation = new TagCreation();
+        creation.setCode("TAG_TO_DELETE");
+
+        final Tag before = createTag(user.getUserId(), PASSWORD, creation);
+
+        final TagDeletionOptions options = new TagDeletionOptions();
+        options.setReason("It is just a test");
+
+        deleteTag(user.getUserId(), PASSWORD, before.getPermId(), options);
     }
 
     private Tag createTag(String user, String password, TagCreation creation)

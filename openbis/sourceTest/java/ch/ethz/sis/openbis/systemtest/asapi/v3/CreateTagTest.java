@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -319,6 +320,17 @@ public class CreateTagTest extends AbstractTest
                     createTag(TEST_USER, PASSWORD, creation);
                 }
             }, materialId);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        TagCreation creation = new TagCreation();
+        creation.setCode("TEST_TAG");
+        creation.setDescription("test description");
+
+        Tag tag = createTag(user.getUserId(), PASSWORD, creation);
+        assertEquals(tag.getCode(), creation.getCode());
     }
 
     private Tag createTag(String user, String password, TagCreation creation)

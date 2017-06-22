@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
@@ -35,6 +37,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
 import junit.framework.Assert;
 
 /**
@@ -165,7 +169,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testExperimentWithAdminUserInAnotherSpace()
+    public void testDeleteWithAdminUserInAnotherSpace()
     {
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
@@ -182,6 +186,44 @@ public class DeleteExperimentTest extends AbstractDeletionTest
                     v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
                 }
             }, permId);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String testSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("EXPERIMENT_TO_DELETE");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        creation.setProperty("DESCRIPTION", "a description");
+
+        List<ExperimentPermId> permIds = v3api.createExperiments(testSessionToken, Collections.singletonList(creation));
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertExperimentExists(permIds.get(0));
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            IDeletionId deletionId = v3api.deleteExperiments(sessionToken, permIds, options);
+            Assert.assertNotNull(deletionId);
+            assertExperimentDoesNotExist(permIds.get(0));
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteExperiments(sessionToken, permIds, options);
+                    }
+                }, permIds.get(0));
+        }
     }
 
 }

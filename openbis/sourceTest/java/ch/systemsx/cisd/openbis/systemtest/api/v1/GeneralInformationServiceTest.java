@@ -93,6 +93,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
+import junit.framework.Assert;
 
 /**
  * @author Franz-Josef Elmer
@@ -1689,6 +1692,55 @@ public class GeneralInformationServiceTest extends SystemTestCase
             assertEquals(
                     "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+        String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = generalInformationService.listExperiments(session, Arrays.asList(identifier));
+            assertEquals(1, experiments.size());
+            assertEquals(identifier, experiments.get(0).getIdentifier());
+        } else
+        {
+            try
+            {
+                generalInformationService.listExperiments(session, Arrays.asList(identifier));
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListAttachmentsForExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+        String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Attachment> attachments =
+                    generalInformationService.listAttachmentsForExperiment(session, new ExperimentIdentifierId(identifier), false);
+            assertEquals(1, attachments.size());
+            assertEquals("testExperiment.txt", attachments.get(0).getFileName());
+        } else
+        {
+            try
+            {
+                generalInformationService.listAttachmentsForExperiment(session, new ExperimentIdentifierId(identifier), false);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         }
     }
 

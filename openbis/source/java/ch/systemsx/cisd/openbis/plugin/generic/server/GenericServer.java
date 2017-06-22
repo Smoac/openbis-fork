@@ -300,7 +300,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AttachmentWithContent getExperimentFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, String filename, Integer versionOrNull)
             throws UserFailureException
@@ -637,7 +637,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public Experiment registerExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
@@ -782,7 +782,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public ExperimentUpdateResult updateExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates)
@@ -853,7 +853,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public void registerExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class)
@@ -891,7 +891,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
      * @param experiments Should be a NewExperimentsWithType where the newExperiments contains a collection of {@link UpdatedBasicExperiment} objects.
      */
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public void updateExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class)

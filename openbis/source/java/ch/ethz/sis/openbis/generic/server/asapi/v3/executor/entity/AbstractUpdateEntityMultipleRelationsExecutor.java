@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +54,13 @@ public abstract class AbstractUpdateEntityMultipleRelationsExecutor<ENTITY_UPDAT
             addRelatedIds(relatedIds, update);
         }
 
-        return map(context, relatedIds);
+        if (false == relatedIds.isEmpty())
+        {
+            return map(context, relatedIds);
+        } else
+        {
+            return new HashMap<RELATED_ID, RELATED_PE>();
+        }
     }
 
     protected void addRelatedIds(Set<RELATED_ID> relatedIds, FieldUpdateValue<RELATED_ID> update)

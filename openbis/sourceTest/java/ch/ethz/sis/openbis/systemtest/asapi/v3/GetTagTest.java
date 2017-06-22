@@ -28,10 +28,12 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -354,6 +356,20 @@ public class GetTagTest extends AbstractTest
         assertExperimentsNotFetched(tag);
         assertSamplesNotFetched(tag);
         assertDataSetsNotFetched(tag);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        TagCreation creation = new TagCreation();
+        creation.setCode("TAG_TO_GET");
+
+        List<TagPermId> permIds = v3api.createTags(sessionToken, Arrays.asList(creation));
+
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, permIds, new TagFetchOptions());
+        assertEquals(map.size(), 1);
     }
 
 }

@@ -43,6 +43,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -86,75 +87,43 @@ public class UpdateProjectTest extends AbstractTest
             }, projectId);
     }
 
-    @Test
-    public void testUpdateWithAdminUserInAnotherSpace()
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
-        testUpdateAndExpectUserDoesNotHaveAccess(TEST_ROLE_V3);
-    }
-
-    @Test
-    public void testUpdateWithSpaceAdminWithProjectAuthorizationOff()
-    {
-        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
-    }
-
-    @Test
-    public void testUpdateWithSpaceAdminWithProjectAuthorizationOn()
-    {
-        testUpdateAndExpectUserHasAccess(TEST_SPACE_PA_ON);
-    }
-
-    @Test
-    public void testUpdateWithProjectAdminWithProjectAuthorizationOff()
-    {
-        testUpdateAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
-    }
-
-    @Test
-    public void testUpdateWithProjectAdminWithProjectAuthorizationOn()
-    {
-        testUpdateAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
-    }
-
-    private void testUpdateAndExpectUserHasAccess(final String user)
-    {
-        String sessionToken = v3api.login(user, PASSWORD);
         IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
-
-        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
-        Project project = map.get(projectId);
-
-        Assert.assertEquals(project.getCode(), "TEST-PROJECT");
-        Assert.assertEquals(project.getDescription(), null);
 
         ProjectUpdate update = new ProjectUpdate();
         update.setProjectId(projectId);
         update.setDescription("a new description");
 
-        v3api.updateProjects(sessionToken, Arrays.asList(update));
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
-        project = map.get(projectId);
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
+            Project project = map.get(projectId);
 
-        Assert.assertEquals(project.getCode(), "TEST-PROJECT");
-        Assert.assertEquals(project.getDescription(), update.getDescription().getValue());
-    }
+            Assert.assertEquals(project.getCode(), "TEST-PROJECT");
+            Assert.assertEquals(project.getDescription(), null);
 
-    private void testUpdateAndExpectUserDoesNotHaveAccess(final String user)
-    {
-        final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
-        final ProjectUpdate update = new ProjectUpdate();
-        update.setProjectId(projectId);
+            v3api.updateProjects(sessionToken, Arrays.asList(update));
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
+            map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
+            project = map.get(projectId);
+
+            Assert.assertEquals(project.getCode(), "TEST-PROJECT");
+            Assert.assertEquals(project.getDescription(), update.getDescription().getValue());
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
                 {
-                    String sessionToken = v3api.login(user, PASSWORD);
-                    v3api.updateProjects(sessionToken, Collections.singletonList(update));
-                }
-            }, projectId);
+                    @Override
+                    public void execute()
+                    {
+                        v3api.updateProjects(sessionToken, Collections.singletonList(update));
+                    }
+                }, projectId);
+        }
     }
 
     @Test

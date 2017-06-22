@@ -72,11 +72,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -1111,6 +1113,37 @@ public class AbstractTest extends SystemTestCase
     protected static String toDblQuotes(String str)
     {
         return str.replaceAll("'", "\"");
+    }
+
+    protected static ProjectFetchOptions projectFetchOptionsFull()
+    {
+        ProjectFetchOptions fo = new ProjectFetchOptions();
+        fo.withAttachments();
+        fo.withExperiments();
+        fo.withHistory();
+        fo.withLeader();
+        fo.withModifier();
+        fo.withRegistrator();
+        fo.withSamples();
+        fo.withSpace();
+        return fo;
+    }
+
+    protected static ExperimentFetchOptions experimentFetchOptionsFull()
+    {
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+        fo.withAttachments();
+        fo.withDataSets();
+        fo.withHistory();
+        fo.withMaterialProperties();
+        fo.withModifier();
+        fo.withProject();
+        fo.withProperties();
+        fo.withRegistrator();
+        fo.withSamples();
+        fo.withTags();
+        fo.withType();
+        return fo;
     }
 
 }

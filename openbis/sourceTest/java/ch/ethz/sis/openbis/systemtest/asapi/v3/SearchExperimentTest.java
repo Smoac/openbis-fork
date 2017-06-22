@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -685,6 +686,29 @@ public class SearchExperimentTest extends AbstractExperimentTest
         List<Experiment> experiments2 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
         assertExperimentIdentifiersInOrder(experiments2, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/CISD/DEFAULT/EXP-REUSE",
                 "/CISD/NEMO/EXP-TEST-1");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+        criteria.withId().thatEquals(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+        SearchResult<Experiment> result = v3api.searchExperiments(sessionToken, criteria, experimentFetchOptionsFull());
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            assertEquals(result.getObjects().size(), 1);
+            assertEquals(result.getObjects().get(0).getIdentifier(), new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        } else
+        {
+            assertEquals(result.getObjects().size(), 0);
+        }
 
         v3api.logout(sessionToken);
     }

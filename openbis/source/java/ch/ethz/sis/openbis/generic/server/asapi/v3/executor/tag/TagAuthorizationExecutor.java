@@ -39,7 +39,7 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_TAG")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
     public void canCreate(IOperationContext context, MetaprojectPE tag)
@@ -51,7 +51,7 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_TAG")
     @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public void canUpdate(IOperationContext context, ITagId id, MetaprojectPE tag)
@@ -64,7 +64,7 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.METAPROJECT, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_TAG")
     public void canDelete(IOperationContext context, ITagId id, MetaprojectPE tag)
     {
@@ -75,14 +75,14 @@ public class TagAuthorizationExecutor implements ITagAuthorizationExecutor
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_TAG")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_TAG")
     public void canSearch(IOperationContext context)
     {

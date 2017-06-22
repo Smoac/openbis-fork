@@ -107,14 +107,6 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
     protected static final String TEST_NO_HOME_SPACE = "homeless";
 
-    protected static final String TEST_SPACE_PA_OFF = "test_space_pa_off";
-
-    protected static final String TEST_SPACE_PA_ON = "test_space_pa_on";
-
-    protected static final String TEST_PROJECT_PA_OFF = "test_project_pa_off";
-
-    protected static final String TEST_PROJECT_PA_ON = "test_project_pa_on";
-
     protected static final String PASSWORD = "password";
 
     protected static final String SESSION_KEY = "session-key";

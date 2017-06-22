@@ -38,7 +38,7 @@ public class UpdateExperimentAttachmentExecutor implements IUpdateExperimentAtta
     private IUpdateAttachmentForEntityExecutor executor;
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENT_ATTACHMENT")
     public void update(IOperationContext context, AttachmentHolderPE attachmentHolder, AttachmentListUpdateValue updates)
     {

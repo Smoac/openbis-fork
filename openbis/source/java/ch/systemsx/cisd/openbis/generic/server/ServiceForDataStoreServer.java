@@ -617,7 +617,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Experiment tryGetExperimentByPermId(String sessionToken, @AuthorizationGuard(guardClass = ExperimentPermIdPredicate.class) PermId permId)
             throws UserFailureException
     {
@@ -858,7 +858,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsByExperimentID(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             final TechId experimentID) throws UserFailureException

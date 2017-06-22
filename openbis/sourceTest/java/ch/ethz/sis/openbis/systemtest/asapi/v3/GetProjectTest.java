@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -482,57 +483,25 @@ public class GetProjectTest extends AbstractTest
         assertEquals(entry.getRelatedObjectId(), experimentPermIds.get(0));
     }
 
-    @Test
-    public void testGetWithSpaceAdminWithProjectAuthorizationOff()
-    {
-        testGetAndExpectUserHasAccess(TEST_SPACE_PA_OFF);
-    }
-
-    @Test
-    public void testGetWithSpaceAdminWithProjectAuthorizationOn()
-    {
-        testGetAndExpectUserHasAccess(TEST_SPACE_PA_ON);
-    }
-
-    @Test
-    public void testGetWithProjectAdminWithProjectAuthorizationOff()
-    {
-        testGetAndExpectUserDoesNotHaveAccess(TEST_PROJECT_PA_OFF);
-    }
-
-    @Test
-    public void testGetWithProjectAdminWithProjectAuthorizationOn()
-    {
-        testGetAndExpectUserHasAccess(TEST_PROJECT_PA_ON);
-    }
-
-    private void testGetAndExpectUserHasAccess(String user)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
         ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
 
         List<? extends IProjectId> ids = Arrays.asList(identifier1, identifier2);
 
-        String sessionToken = v3api.login(user, PASSWORD);
-        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, new ProjectFetchOptions());
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
 
-        assertEquals(map.size(), 1);
-        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
-
-        v3api.logout(sessionToken);
-    }
-
-    private void testGetAndExpectUserDoesNotHaveAccess(String user)
-    {
-        ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
-        ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
-
-        List<? extends IProjectId> ids = Arrays.asList(identifier1, identifier2);
-
-        String sessionToken = v3api.login(TEST_PROJECT_PA_OFF, PASSWORD);
-        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, new ProjectFetchOptions());
-
-        assertEquals(map.size(), 0);
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            assertEquals(map.size(), 1);
+            assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+        } else
+        {
+            assertEquals(map.size(), 0);
+        }
 
         v3api.logout(sessionToken);
     }

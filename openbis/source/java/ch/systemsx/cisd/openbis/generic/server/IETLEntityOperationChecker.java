@@ -81,13 +81,13 @@ public interface IETLEntityOperationChecker
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) List<ProjectUpdatesDTO> projectsToUpdate);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENTS_VIA_DSS")
     public void assertExperimentCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class) List<NewExperiment> newExperiments);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENTS_VIA_DSS")
     public void assertExperimentUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) List<ExperimentUpdatesDTO> experimentUpdates);

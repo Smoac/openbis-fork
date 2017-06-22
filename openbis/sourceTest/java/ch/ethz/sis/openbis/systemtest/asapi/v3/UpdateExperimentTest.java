@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
@@ -51,6 +52,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -711,6 +713,36 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                     v3api.updateExperiments(sessionToken, Collections.singletonList(update));
                 }
             }, permId);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        AttachmentCreation attachment = new AttachmentCreation();
+        attachment.setContent("test content".getBytes());
+        attachment.setFileName("test.txt");
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        update.setProperty("DESCRIPTION", "an updated description");
+        update.getAttachments().add(attachment);
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            v3api.updateExperiments(sessionToken, Collections.singletonList(update));
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.updateExperiments(sessionToken, Collections.singletonList(update));
+                    }
+                }, update.getExperimentId());
+        }
     }
 
     private ExperimentPermId createExperimentWithoutAttachments()

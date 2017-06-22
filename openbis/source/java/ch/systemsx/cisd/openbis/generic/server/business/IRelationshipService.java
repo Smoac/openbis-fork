@@ -71,8 +71,7 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER,
-            RoleWithHierarchy.SPACE_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER })
     @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
@@ -124,7 +123,7 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet,

@@ -316,7 +316,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
@@ -449,7 +449,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Material> listExperimentMaterials(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, MaterialType materialType)
     {
@@ -467,7 +467,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
@@ -735,7 +735,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria)
     {

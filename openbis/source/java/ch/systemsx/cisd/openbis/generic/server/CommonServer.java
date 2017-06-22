@@ -713,7 +713,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listExperimentExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
@@ -1004,9 +1004,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ExperimentIdentifier> experimentIdentifiers)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) List<ExperimentIdentifier> experimentIdentifiers)
     {
         Session session = getSession(sessionToken);
         IExperimentTable experimentTable = businessObjectFactory.createExperimentTable(session);
@@ -2122,7 +2122,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_EXPERIMENT")
     public void deleteExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdCollectionPredicate.class) List<TechId> experimentIds, String reason,
@@ -2234,7 +2234,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_EXPERIMENT_ATTACHMENT")
     public void deleteExperimentAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, List<String> fileNames, String reason)
@@ -2304,7 +2304,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Attachment> listExperimentAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
@@ -2438,9 +2438,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier identifier)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) ExperimentIdentifier identifier)
     {
         final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2465,7 +2465,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
@@ -2487,7 +2487,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public ExperimentUpdateResult updateExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates)
@@ -3793,7 +3793,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_PROPERTIES")
     public void updateExperimentProperties(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
