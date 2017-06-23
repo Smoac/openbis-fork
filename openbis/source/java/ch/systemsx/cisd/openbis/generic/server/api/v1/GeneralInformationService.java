@@ -486,7 +486,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects, String experimentTypeString)
@@ -496,7 +496,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects, String experimentTypeString)
@@ -506,7 +506,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects, String experimentTypeString)
@@ -1081,7 +1081,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
     {

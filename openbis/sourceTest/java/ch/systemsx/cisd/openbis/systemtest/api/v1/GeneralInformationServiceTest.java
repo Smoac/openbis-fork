@@ -1696,7 +1696,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
-    public void testListExperimentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    public void testListExperimentsByExperimentIdentifiersWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
         String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
@@ -1716,6 +1716,104 @@ public class GeneralInformationServiceTest extends SystemTestCase
             {
                 // expected
             }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByProjectsAndExperimentTypeWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Project project = new Project("TEST-SPACE", "TEST-PROJECT");
+        String experimentType = "SIRNA_HCS";
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = generalInformationService.listExperiments(session, Arrays.asList(project), experimentType);
+            assertEquals(1, experiments.size());
+            assertEquals("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", experiments.get(0).getIdentifier());
+        } else
+        {
+            try
+            {
+                generalInformationService.listExperiments(session, Arrays.asList(project), experimentType);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsHavingDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Project project = new Project("TEST-SPACE", "TEST-PROJECT");
+        String experimentType = "SIRNA_HCS";
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = generalInformationService.listExperimentsHavingDataSets(session, Arrays.asList(project), experimentType);
+            assertEquals(1, experiments.size());
+            assertEquals("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", experiments.get(0).getIdentifier());
+        } else
+        {
+            try
+            {
+                generalInformationService.listExperimentsHavingDataSets(session, Arrays.asList(project), experimentType);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsHavingSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Project project = new Project("TEST-SPACE", "TEST-PROJECT");
+        String experimentType = "SIRNA_HCS";
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = generalInformationService.listExperimentsHavingSamples(session, Arrays.asList(project), experimentType);
+            assertEquals(1, experiments.size());
+            assertEquals("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", experiments.get(0).getIdentifier());
+        } else
+        {
+            try
+            {
+                generalInformationService.listExperimentsHavingSamples(session, Arrays.asList(project), experimentType);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForExperimentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT, "TEST-PROJECT"));
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
+            assertEquals(1, experiments.size());
+            assertEquals("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", experiments.get(0).getIdentifier());
+        } else
+        {
+            List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
+            assertEquals(0, experiments.size());
         }
     }
 

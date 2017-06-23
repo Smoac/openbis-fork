@@ -968,28 +968,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, true, false);
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, true);
     }
@@ -1067,7 +1067,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ExperimentType> listExperimentTypes(String sessionToken)
     {
         final List<ExperimentTypePE> experimentTypes =
@@ -1596,7 +1596,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> searchForExperiments(String sessionToken,
             DetailedSearchCriteria criteria)
