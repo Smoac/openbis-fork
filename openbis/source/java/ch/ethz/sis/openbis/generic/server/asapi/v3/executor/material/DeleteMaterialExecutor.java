@@ -16,9 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,9 +33,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletion
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 
 /**
  * @author Jakub Straszewski
@@ -38,6 +46,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 public class DeleteMaterialExecutor extends AbstractDeleteEntityExecutor<Void, IMaterialId, MaterialPE, MaterialDeletionOptions> implements
         IDeleteMaterialExecutor
 {
+    private static final Comparator<Entry<Integer, List<TechId>>> INVERSE_LEVEL_COMPARATOR =
+            new SimpleComparator<Entry<Integer, List<TechId>>, Integer>()
+                {
+                    @Override
+                    public Integer evaluate(Entry<Integer, List<TechId>> item)
+                    {
+                        return -item.getKey();
+                    }
+                };
 
     @Autowired
     IMapMaterialByIdExecutor mapMaterialByIdExecutor;
@@ -63,12 +80,63 @@ public class DeleteMaterialExecutor extends AbstractDeleteEntityExecutor<Void, I
     @Override
     protected Void delete(IOperationContext context, Collection<MaterialPE> materials, MaterialDeletionOptions deletionOptions)
     {
-        IMaterialBO materialBO = businessObjectFactory.createMaterialBO(context.getSession());
-        for (MaterialPE material : materials)
+        Map<String, String> links = createLinks(materials);
+        List<Entry<Integer, List<TechId>>> entries = orderMaterialsByLevel(materials, links);
+        IMaterialTable materialTable = businessObjectFactory.createMaterialTable(context.getSession());
+        for (Entry<Integer, List<TechId>> entry : entries)
         {
-            materialBO.deleteByTechId(new TechId(material.getId()), deletionOptions.getReason());
+            materialTable.deleteByTechIds(entry.getValue(), deletionOptions.getReason());
         }
         return null;
+    }
+
+    private Map<String, String> createLinks(Collection<MaterialPE> materials)
+    {
+        Map<String, String> links = new HashMap<>();
+        for (MaterialPE material : materials)
+        {
+            Set<MaterialPropertyPE> properties = material.getProperties();
+            for (MaterialPropertyPE property : properties)
+            {
+                MaterialPE materialProperty = property.getMaterialValue();
+                if (materialProperty != null)
+                {
+                    links.put(material.getPermId(), materialProperty.getPermId());
+                    
+                }
+            }
+        }
+        return links;
+    }
+    
+    private List<Entry<Integer, List<TechId>>> orderMaterialsByLevel(Collection<MaterialPE> materials, 
+            Map<String, String> links)
+    {
+        Map<Integer, List<TechId>> levelMap = new HashMap<>();
+        for (MaterialPE material : materials)
+        {
+            int level = getLevel(material.getPermId(), links, 0);
+            List<TechId> ids = levelMap.get(level);
+            if (ids == null)
+            {
+                ids = new ArrayList<>();
+                levelMap.put(level, ids);
+            }
+            ids.add(new TechId(material));
+        }
+        List<Entry<Integer, List<TechId>>> entries = new ArrayList<>(levelMap.entrySet());
+        Collections.sort(entries, INVERSE_LEVEL_COMPARATOR);
+        return entries;
+    }
+
+    private int getLevel(String material, Map<String, String> links, int level)
+    {
+        String nextMaterial = links.get(material);
+        if (nextMaterial == null)
+        {
+            return level;
+        }
+        return getLevel(nextMaterial, links, level + 1);
     }
 
 }
