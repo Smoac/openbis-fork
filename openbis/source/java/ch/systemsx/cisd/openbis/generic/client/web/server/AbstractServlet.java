@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -37,7 +38,20 @@ public abstract class AbstractServlet extends AbstractController
 {
     protected final String getSessionToken(final HttpServletRequest request)
     {
+        // First, try to obtain session from request parameters
         String sessionToken = request.getParameter(GenericSharedConstants.SESSION_ID_PARAMETER);
+        // Second, try to obtain session from cookies
+        if(sessionToken == null) {
+            Cookie[] cookies = request.getCookies();
+            if(cookies != null) {
+                for(Cookie cookie:cookies) {
+                    if(cookie.getName().equals(GenericSharedConstants.SESSION_ID_COOKIE)) {
+                        sessionToken = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
         if (sessionToken != null)
         {
             return sessionToken;

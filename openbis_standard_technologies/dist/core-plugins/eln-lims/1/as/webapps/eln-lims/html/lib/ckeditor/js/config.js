@@ -7,7 +7,7 @@ CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
-	config.extraPlugins='confighelper';
+	config.extraPlugins = 'confighelper';
 	config.stylesSet = false;
 	config.toolbarGroups = [
 	    					{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
@@ -26,5 +26,6 @@ CKEDITOR.editorConfig = function( config ) {
 	    					{ name: 'others', groups: [ 'others' ] },
 	    					{ name: 'about', groups: [ 'about' ] }
 	    				];
-	config.removeButtons = 'Save,NewPage,Templates,About,Image,Flash,Smiley,Iframe,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Styles,Source';
+	config.removeButtons = 'Save,NewPage,Templates,About,Flash,Smiley,Iframe,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Styles,Source';
+	
 };

@@ -767,7 +767,11 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (CKEditor)
 	//
 	CKEDITOR.on( 'instanceReady', function( ev ) {
-	    ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+		ev.editor.config.filebrowserUploadUrl = "/openbis/openbis/file-service/eln-lims?sessionID=" + mainController.serverFacade.getSession();
+		ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
+		ev.editor.document.on('drop', function (ev) {
+		      ev.data.preventDefault(true);
+		});
 	});
 	
 	this.activateRichTextProperties = function($component, componentOnChange, propertyType) {
@@ -807,7 +811,7 @@ var FormUtil = new function() {
 				originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
 			}
 			//Clean the contents
-			originalValue = html.sanitize(originalValue);
+//			originalValue = html.sanitize(originalValue);
 		}
 		return originalValue;
 	}
