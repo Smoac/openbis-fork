@@ -46,7 +46,6 @@ class TestCase(systemtest.testcase.TestCase):
 
         '''Set openbis1 as the datasource'''
         self.installDataSourcePlugin(openbis1, openbis1_dss_port)
-        self.installEntityRegistrationPlugin(openbis1)
         
         '''Copy master data script'''
         filePath = "%s/servers/core-plugins/%s/1/as" % (openbis1.installPath, openbis1.instanceName)
@@ -115,7 +114,6 @@ class TestCase(systemtest.testcase.TestCase):
         openbis1=self.createOpenbisController(instanceName = 'openbis1', dropDatabases=False)
         openbis1.setDummyAuthentication()
         self.installDataSourcePlugin(openbis1, openbis1_dss_port)
-        self.installEntityRegistrationPlugin(openbis1)
          
         '''Copy master data script'''        
         filePath = "%s/servers/core-plugins/%s/1/as" % (openbis1.installPath, openbis1.instanceName)
@@ -296,10 +294,11 @@ class TestCase(systemtest.testcase.TestCase):
 
     def installPlugin(self, openbisController, plugin_name):
         repository = GitLabArtifactRepository(self.artifactRepository.localRepositoryFolder)
-        path = repository.getPathToArtifact('sis/OpenbisSync', 'archive.zip')
+        project = 'sis/OpenbisSync'
+        path = repository.getPathToArtifact(project, 'archive.zip')
         util.printAndFlush("downloaded repository as : %s" % path)
         destination = "%s/servers/core-plugins/%s/" % (openbisController.installPath, openbisController.instanceName)
-        commit_id = self.getLatestCommitHashForCorePlugin('sissource.ethz.ch', 10)
+        commit_id = repository.getLatestCommitHash(project)
         path_in_archive = "OpenbisSync-master-%s" % commit_id
         util.printAndFlush("path to plugin in repository repository as : %s" % path_in_archive)
         util.printAndFlush("Unzipping plugin % s into folder %s"% (plugin_name, destination))
@@ -324,9 +323,6 @@ class TestCase(systemtest.testcase.TestCase):
         pluginProps['databaseKind'] = openbisController.databaseKind
         util.writeProperties(plugin_properties_file, pluginProps)
         
-    def installEntityRegistrationPlugin(self, openbisController):
-        self.installPlugin(openbisController, "test")
-        
     def installHarvesterPlugin(self, openbisController):
         self.installPlugin(openbisController, "harvester")
 
@@ -335,13 +331,6 @@ class TestCase(systemtest.testcase.TestCase):
 
     def getMasterDataScriptFolder(self):
         return systemtest.testcase.TEMPLATES + "/" + self.name + "/master_data"
-    
-    def getLatestCommitHashForCorePlugin(self, host, project):
-        url = "https://%s/api/v4/projects/%s/repository/commits/master" % (host, project)
-        request = Request(url, headers = {'PRIVATE-TOKEN' : 'Rz1DbhpVBXSUpRny5Dbr'})
-        response = urllib2.urlopen(request)
-        result = json.load(response)
-        return result["id"]
     
 class GitLabArtifactRepository(GitArtifactRepository):
     """
@@ -354,10 +343,16 @@ class GitLabArtifactRepository(GitArtifactRepository):
     def downloadArtifact(self, project, pattern):
         url = "https://%s/%s/repository/%s" % (self.host, project, pattern)
         util.printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
-        private_token = self._read_private_token()
-        request = Request(url, headers = {'PRIVATE-TOKEN' : private_token})
+        request = Request(url, headers = {'PRIVATE-TOKEN' : self._read_private_token()})
         self._download(urllib2.urlopen(request), pattern)
         return pattern
+    
+    def getLatestCommitHash(self, project):
+        url = "https://%s/api/v4/projects/%s/repository/commits/master" % (self.host, project.replace('/','%2F'))
+        request = Request(url, headers = {'PRIVATE-TOKEN' : self._read_private_token()})
+        response = urllib2.urlopen(request)
+        result = json.load(response)
+        return result["id"]
     
     def _read_private_token(self):
         with open('targets/sissource_private-token.txt', 'r') as f:
