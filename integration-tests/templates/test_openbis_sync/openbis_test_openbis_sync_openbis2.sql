@@ -7758,8 +7758,6 @@ ALTER TABLE ONLY sample_type_property_types
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM gakin;
-GRANT ALL ON SCHEMA public TO gakin;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
@@ -7768,8 +7766,6 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 
 REVOKE ALL ON SEQUENCE attachment_content_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE attachment_content_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE attachment_content_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE attachment_content_id_seq TO openbis_readonly;
 
 
@@ -7778,8 +7774,6 @@ GRANT SELECT ON SEQUENCE attachment_content_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE attachment_contents FROM PUBLIC;
-REVOKE ALL ON TABLE attachment_contents FROM gakin;
-GRANT ALL ON TABLE attachment_contents TO gakin;
 GRANT SELECT ON TABLE attachment_contents TO openbis_readonly;
 
 
@@ -7788,8 +7782,6 @@ GRANT SELECT ON TABLE attachment_contents TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE attachment_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE attachment_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE attachment_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE attachment_id_seq TO openbis_readonly;
 
 
@@ -7798,8 +7790,6 @@ GRANT SELECT ON SEQUENCE attachment_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE attachments FROM PUBLIC;
-REVOKE ALL ON TABLE attachments FROM gakin;
-GRANT ALL ON TABLE attachments TO gakin;
 GRANT SELECT ON TABLE attachments TO openbis_readonly;
 
 
@@ -7808,8 +7798,6 @@ GRANT SELECT ON TABLE attachments TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE authorization_group_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE authorization_group_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE authorization_group_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE authorization_group_id_seq TO openbis_readonly;
 
 
@@ -7818,8 +7806,6 @@ GRANT SELECT ON SEQUENCE authorization_group_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE authorization_group_persons FROM PUBLIC;
-REVOKE ALL ON TABLE authorization_group_persons FROM gakin;
-GRANT ALL ON TABLE authorization_group_persons TO gakin;
 GRANT SELECT ON TABLE authorization_group_persons TO openbis_readonly;
 
 
@@ -7828,8 +7814,6 @@ GRANT SELECT ON TABLE authorization_group_persons TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE authorization_groups FROM PUBLIC;
-REVOKE ALL ON TABLE authorization_groups FROM gakin;
-GRANT ALL ON TABLE authorization_groups TO gakin;
 GRANT SELECT ON TABLE authorization_groups TO openbis_readonly;
 
 
@@ -7838,8 +7822,6 @@ GRANT SELECT ON TABLE authorization_groups TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE code_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE code_seq FROM gakin;
-GRANT ALL ON SEQUENCE code_seq TO gakin;
 GRANT SELECT ON SEQUENCE code_seq TO openbis_readonly;
 
 
@@ -7848,8 +7830,6 @@ GRANT SELECT ON SEQUENCE code_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE controlled_vocabularies FROM PUBLIC;
-REVOKE ALL ON TABLE controlled_vocabularies FROM gakin;
-GRANT ALL ON TABLE controlled_vocabularies TO gakin;
 GRANT SELECT ON TABLE controlled_vocabularies TO openbis_readonly;
 
 
@@ -7858,8 +7838,6 @@ GRANT SELECT ON TABLE controlled_vocabularies TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE controlled_vocabulary_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE controlled_vocabulary_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE controlled_vocabulary_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE controlled_vocabulary_id_seq TO openbis_readonly;
 
 
@@ -7868,8 +7846,6 @@ GRANT SELECT ON SEQUENCE controlled_vocabulary_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE controlled_vocabulary_terms FROM PUBLIC;
-REVOKE ALL ON TABLE controlled_vocabulary_terms FROM gakin;
-GRANT ALL ON TABLE controlled_vocabulary_terms TO gakin;
 GRANT SELECT ON TABLE controlled_vocabulary_terms TO openbis_readonly;
 
 
@@ -7878,8 +7854,6 @@ GRANT SELECT ON TABLE controlled_vocabulary_terms TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE core_plugin_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE core_plugin_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE core_plugin_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE core_plugin_id_seq TO openbis_readonly;
 
 
@@ -7888,8 +7862,6 @@ GRANT SELECT ON SEQUENCE core_plugin_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE core_plugins FROM PUBLIC;
-REVOKE ALL ON TABLE core_plugins FROM gakin;
-GRANT ALL ON TABLE core_plugins TO gakin;
 GRANT SELECT ON TABLE core_plugins TO openbis_readonly;
 
 
@@ -7898,8 +7870,6 @@ GRANT SELECT ON TABLE core_plugins TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE cvte_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE cvte_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE cvte_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE cvte_id_seq TO openbis_readonly;
 
 
@@ -7908,8 +7878,6 @@ GRANT SELECT ON SEQUENCE cvte_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_all FROM PUBLIC;
-REVOKE ALL ON TABLE data_all FROM gakin;
-GRANT ALL ON TABLE data_all TO gakin;
 GRANT SELECT ON TABLE data_all TO openbis_readonly;
 
 
@@ -7918,8 +7886,6 @@ GRANT SELECT ON TABLE data_all TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data FROM PUBLIC;
-REVOKE ALL ON TABLE data FROM gakin;
-GRANT ALL ON TABLE data TO gakin;
 GRANT SELECT ON TABLE data TO openbis_readonly;
 
 
@@ -7928,8 +7894,6 @@ GRANT SELECT ON TABLE data TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_deleted FROM PUBLIC;
-REVOKE ALL ON TABLE data_deleted FROM gakin;
-GRANT ALL ON TABLE data_deleted TO gakin;
 GRANT SELECT ON TABLE data_deleted TO openbis_readonly;
 
 
@@ -7938,8 +7902,6 @@ GRANT SELECT ON TABLE data_deleted TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_id_seq TO openbis_readonly;
 
 
@@ -7948,8 +7910,6 @@ GRANT SELECT ON SEQUENCE data_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_properties_history FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_properties_history FROM gakin;
-GRANT ALL ON TABLE data_set_properties_history TO gakin;
 GRANT SELECT ON TABLE data_set_properties_history TO openbis_readonly;
 
 
@@ -7958,8 +7918,6 @@ GRANT SELECT ON TABLE data_set_properties_history TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships_history FROM gakin;
-GRANT ALL ON TABLE data_set_relationships_history TO gakin;
 GRANT SELECT ON TABLE data_set_relationships_history TO openbis_readonly;
 
 
@@ -7968,8 +7926,6 @@ GRANT SELECT ON TABLE data_set_relationships_history TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_history_view FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_history_view FROM gakin;
-GRANT ALL ON TABLE data_set_history_view TO gakin;
 GRANT SELECT ON TABLE data_set_history_view TO openbis_readonly;
 
 
@@ -7978,8 +7934,6 @@ GRANT SELECT ON TABLE data_set_history_view TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_properties FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_properties FROM gakin;
-GRANT ALL ON TABLE data_set_properties TO gakin;
 GRANT SELECT ON TABLE data_set_properties TO openbis_readonly;
 
 
@@ -7988,8 +7942,6 @@ GRANT SELECT ON TABLE data_set_properties TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_set_property_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_set_property_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_set_property_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_set_property_id_seq TO openbis_readonly;
 
 
@@ -7998,8 +7950,6 @@ GRANT SELECT ON SEQUENCE data_set_property_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_set_relationship_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_set_relationship_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_set_relationship_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_set_relationship_id_seq TO openbis_readonly;
 
 
@@ -8008,8 +7958,6 @@ GRANT SELECT ON SEQUENCE data_set_relationship_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_relationships_all FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships_all FROM gakin;
-GRANT ALL ON TABLE data_set_relationships_all TO gakin;
 GRANT SELECT ON TABLE data_set_relationships_all TO openbis_readonly;
 
 
@@ -8018,8 +7966,6 @@ GRANT SELECT ON TABLE data_set_relationships_all TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_relationships FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships FROM gakin;
-GRANT ALL ON TABLE data_set_relationships TO gakin;
 GRANT SELECT ON TABLE data_set_relationships TO openbis_readonly;
 
 
@@ -8028,8 +7974,6 @@ GRANT SELECT ON TABLE data_set_relationships TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_set_relationships_history_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_set_relationships_history_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_set_relationships_history_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_set_relationships_history_id_seq TO openbis_readonly;
 
 
@@ -8038,8 +7982,6 @@ GRANT SELECT ON SEQUENCE data_set_relationships_history_id_seq TO openbis_readon
 --
 
 REVOKE ALL ON SEQUENCE data_set_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_set_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_set_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_set_type_id_seq TO openbis_readonly;
 
 
@@ -8048,8 +7990,6 @@ GRANT SELECT ON SEQUENCE data_set_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_type_property_types FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_type_property_types FROM gakin;
-GRANT ALL ON TABLE data_set_type_property_types TO gakin;
 GRANT SELECT ON TABLE data_set_type_property_types TO openbis_readonly;
 
 
@@ -8058,8 +7998,6 @@ GRANT SELECT ON TABLE data_set_type_property_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_set_types FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_types FROM gakin;
-GRANT ALL ON TABLE data_set_types TO gakin;
 GRANT SELECT ON TABLE data_set_types TO openbis_readonly;
 
 
@@ -8068,8 +8006,6 @@ GRANT SELECT ON TABLE data_set_types TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_store_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_store_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_store_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_store_id_seq TO openbis_readonly;
 
 
@@ -8078,8 +8014,6 @@ GRANT SELECT ON SEQUENCE data_store_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_store_service_data_set_types FROM PUBLIC;
-REVOKE ALL ON TABLE data_store_service_data_set_types FROM gakin;
-GRANT ALL ON TABLE data_store_service_data_set_types TO gakin;
 GRANT SELECT ON TABLE data_store_service_data_set_types TO openbis_readonly;
 
 
@@ -8088,8 +8022,6 @@ GRANT SELECT ON TABLE data_store_service_data_set_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_store_services FROM PUBLIC;
-REVOKE ALL ON TABLE data_store_services FROM gakin;
-GRANT ALL ON TABLE data_store_services TO gakin;
 GRANT SELECT ON TABLE data_store_services TO openbis_readonly;
 
 
@@ -8098,8 +8030,6 @@ GRANT SELECT ON TABLE data_store_services TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_store_services_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_store_services_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_store_services_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_store_services_id_seq TO openbis_readonly;
 
 
@@ -8108,8 +8038,6 @@ GRANT SELECT ON SEQUENCE data_store_services_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_stores FROM PUBLIC;
-REVOKE ALL ON TABLE data_stores FROM gakin;
-GRANT ALL ON TABLE data_stores TO gakin;
 GRANT SELECT ON TABLE data_stores TO openbis_readonly;
 
 
@@ -8118,8 +8046,6 @@ GRANT SELECT ON TABLE data_stores TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE data_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE data_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE data_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE data_type_id_seq TO openbis_readonly;
 
 
@@ -8128,8 +8054,6 @@ GRANT SELECT ON SEQUENCE data_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE data_types FROM PUBLIC;
-REVOKE ALL ON TABLE data_types FROM gakin;
-GRANT ALL ON TABLE data_types TO gakin;
 GRANT SELECT ON TABLE data_types TO openbis_readonly;
 
 
@@ -8138,8 +8062,6 @@ GRANT SELECT ON TABLE data_types TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE database_instance_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE database_instance_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE database_instance_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE database_instance_id_seq TO openbis_readonly;
 
 
@@ -8148,8 +8070,6 @@ GRANT SELECT ON SEQUENCE database_instance_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE database_version_logs FROM PUBLIC;
-REVOKE ALL ON TABLE database_version_logs FROM gakin;
-GRANT ALL ON TABLE database_version_logs TO gakin;
 GRANT SELECT ON TABLE database_version_logs TO openbis_readonly;
 
 
@@ -8158,8 +8078,6 @@ GRANT SELECT ON TABLE database_version_logs TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE deletion_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE deletion_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE deletion_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE deletion_id_seq TO openbis_readonly;
 
 
@@ -8168,8 +8086,6 @@ GRANT SELECT ON SEQUENCE deletion_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE deletions FROM PUBLIC;
-REVOKE ALL ON TABLE deletions FROM gakin;
-GRANT ALL ON TABLE deletions TO gakin;
 GRANT SELECT ON TABLE deletions TO openbis_readonly;
 
 
@@ -8178,8 +8094,6 @@ GRANT SELECT ON TABLE deletions TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE dstpt_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE dstpt_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE dstpt_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE dstpt_id_seq TO openbis_readonly;
 
 
@@ -8188,8 +8102,6 @@ GRANT SELECT ON SEQUENCE dstpt_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE entity_operations_log FROM PUBLIC;
-REVOKE ALL ON TABLE entity_operations_log FROM gakin;
-GRANT ALL ON TABLE entity_operations_log TO gakin;
 GRANT SELECT ON TABLE entity_operations_log TO openbis_readonly;
 
 
@@ -8198,8 +8110,6 @@ GRANT SELECT ON TABLE entity_operations_log TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE entity_operations_log_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE entity_operations_log_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE entity_operations_log_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE entity_operations_log_id_seq TO openbis_readonly;
 
 
@@ -8208,8 +8118,6 @@ GRANT SELECT ON SEQUENCE entity_operations_log_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE etpt_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE etpt_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE etpt_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE etpt_id_seq TO openbis_readonly;
 
 
@@ -8218,8 +8126,6 @@ GRANT SELECT ON SEQUENCE etpt_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE event_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE event_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE event_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE event_id_seq TO openbis_readonly;
 
 
@@ -8228,8 +8134,6 @@ GRANT SELECT ON SEQUENCE event_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE events FROM PUBLIC;
-REVOKE ALL ON TABLE events FROM gakin;
-GRANT ALL ON TABLE events TO gakin;
 GRANT SELECT ON TABLE events TO openbis_readonly;
 
 
@@ -8238,8 +8142,6 @@ GRANT SELECT ON TABLE events TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE experiment_code_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE experiment_code_seq FROM gakin;
-GRANT ALL ON SEQUENCE experiment_code_seq TO gakin;
 GRANT SELECT ON SEQUENCE experiment_code_seq TO openbis_readonly;
 
 
@@ -8248,8 +8150,6 @@ GRANT SELECT ON SEQUENCE experiment_code_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiment_properties_history FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_properties_history FROM gakin;
-GRANT ALL ON TABLE experiment_properties_history TO gakin;
 GRANT SELECT ON TABLE experiment_properties_history TO openbis_readonly;
 
 
@@ -8258,8 +8158,6 @@ GRANT SELECT ON TABLE experiment_properties_history TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiment_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_relationships_history FROM gakin;
-GRANT ALL ON TABLE experiment_relationships_history TO gakin;
 GRANT SELECT ON TABLE experiment_relationships_history TO openbis_readonly;
 
 
@@ -8268,8 +8166,6 @@ GRANT SELECT ON TABLE experiment_relationships_history TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiment_history_view FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_history_view FROM gakin;
-GRANT ALL ON TABLE experiment_history_view TO gakin;
 GRANT SELECT ON TABLE experiment_history_view TO openbis_readonly;
 
 
@@ -8278,8 +8174,6 @@ GRANT SELECT ON TABLE experiment_history_view TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE experiment_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE experiment_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE experiment_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE experiment_id_seq TO openbis_readonly;
 
 
@@ -8288,8 +8182,6 @@ GRANT SELECT ON SEQUENCE experiment_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiment_properties FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_properties FROM gakin;
-GRANT ALL ON TABLE experiment_properties TO gakin;
 GRANT SELECT ON TABLE experiment_properties TO openbis_readonly;
 
 
@@ -8298,8 +8190,6 @@ GRANT SELECT ON TABLE experiment_properties TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE experiment_property_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE experiment_property_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE experiment_property_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE experiment_property_id_seq TO openbis_readonly;
 
 
@@ -8308,8 +8198,6 @@ GRANT SELECT ON SEQUENCE experiment_property_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE experiment_relationships_history_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE experiment_relationships_history_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE experiment_relationships_history_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE experiment_relationships_history_id_seq TO openbis_readonly;
 
 
@@ -8318,8 +8206,6 @@ GRANT SELECT ON SEQUENCE experiment_relationships_history_id_seq TO openbis_read
 --
 
 REVOKE ALL ON SEQUENCE experiment_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE experiment_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE experiment_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE experiment_type_id_seq TO openbis_readonly;
 
 
@@ -8328,8 +8214,6 @@ GRANT SELECT ON SEQUENCE experiment_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiment_type_property_types FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_type_property_types FROM gakin;
-GRANT ALL ON TABLE experiment_type_property_types TO gakin;
 GRANT SELECT ON TABLE experiment_type_property_types TO openbis_readonly;
 
 
@@ -8338,8 +8222,6 @@ GRANT SELECT ON TABLE experiment_type_property_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiment_types FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_types FROM gakin;
-GRANT ALL ON TABLE experiment_types TO gakin;
 GRANT SELECT ON TABLE experiment_types TO openbis_readonly;
 
 
@@ -8348,8 +8230,6 @@ GRANT SELECT ON TABLE experiment_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiments_all FROM PUBLIC;
-REVOKE ALL ON TABLE experiments_all FROM gakin;
-GRANT ALL ON TABLE experiments_all TO gakin;
 GRANT SELECT ON TABLE experiments_all TO openbis_readonly;
 
 
@@ -8358,8 +8238,6 @@ GRANT SELECT ON TABLE experiments_all TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiments FROM PUBLIC;
-REVOKE ALL ON TABLE experiments FROM gakin;
-GRANT ALL ON TABLE experiments TO gakin;
 GRANT SELECT ON TABLE experiments TO openbis_readonly;
 
 
@@ -8368,8 +8246,6 @@ GRANT SELECT ON TABLE experiments TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE experiments_deleted FROM PUBLIC;
-REVOKE ALL ON TABLE experiments_deleted FROM gakin;
-GRANT ALL ON TABLE experiments_deleted TO gakin;
 GRANT SELECT ON TABLE experiments_deleted TO openbis_readonly;
 
 
@@ -8378,8 +8254,6 @@ GRANT SELECT ON TABLE experiments_deleted TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE external_data FROM PUBLIC;
-REVOKE ALL ON TABLE external_data FROM gakin;
-GRANT ALL ON TABLE external_data TO gakin;
 GRANT SELECT ON TABLE external_data TO openbis_readonly;
 
 
@@ -8388,8 +8262,6 @@ GRANT SELECT ON TABLE external_data TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE external_data_management_system_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE external_data_management_system_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE external_data_management_system_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE external_data_management_system_id_seq TO openbis_readonly;
 
 
@@ -8398,8 +8270,6 @@ GRANT SELECT ON SEQUENCE external_data_management_system_id_seq TO openbis_reado
 --
 
 REVOKE ALL ON TABLE external_data_management_systems FROM PUBLIC;
-REVOKE ALL ON TABLE external_data_management_systems FROM gakin;
-GRANT ALL ON TABLE external_data_management_systems TO gakin;
 GRANT SELECT ON TABLE external_data_management_systems TO openbis_readonly;
 
 
@@ -8408,8 +8278,6 @@ GRANT SELECT ON TABLE external_data_management_systems TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE file_format_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE file_format_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE file_format_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE file_format_type_id_seq TO openbis_readonly;
 
 
@@ -8418,8 +8286,6 @@ GRANT SELECT ON SEQUENCE file_format_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE file_format_types FROM PUBLIC;
-REVOKE ALL ON TABLE file_format_types FROM gakin;
-GRANT ALL ON TABLE file_format_types TO gakin;
 GRANT SELECT ON TABLE file_format_types TO openbis_readonly;
 
 
@@ -8428,8 +8294,6 @@ GRANT SELECT ON TABLE file_format_types TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE filter_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE filter_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE filter_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE filter_id_seq TO openbis_readonly;
 
 
@@ -8438,8 +8302,6 @@ GRANT SELECT ON SEQUENCE filter_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE filters FROM PUBLIC;
-REVOKE ALL ON TABLE filters FROM gakin;
-GRANT ALL ON TABLE filters TO gakin;
 GRANT SELECT ON TABLE filters TO openbis_readonly;
 
 
@@ -8448,8 +8310,6 @@ GRANT SELECT ON TABLE filters TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE grid_custom_columns FROM PUBLIC;
-REVOKE ALL ON TABLE grid_custom_columns FROM gakin;
-GRANT ALL ON TABLE grid_custom_columns TO gakin;
 GRANT SELECT ON TABLE grid_custom_columns TO openbis_readonly;
 
 
@@ -8458,8 +8318,6 @@ GRANT SELECT ON TABLE grid_custom_columns TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE grid_custom_columns_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE grid_custom_columns_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE grid_custom_columns_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE grid_custom_columns_id_seq TO openbis_readonly;
 
 
@@ -8468,8 +8326,6 @@ GRANT SELECT ON SEQUENCE grid_custom_columns_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE link_data FROM PUBLIC;
-REVOKE ALL ON TABLE link_data FROM gakin;
-GRANT ALL ON TABLE link_data TO gakin;
 GRANT SELECT ON TABLE link_data TO openbis_readonly;
 
 
@@ -8478,8 +8334,6 @@ GRANT SELECT ON TABLE link_data TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE locator_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE locator_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE locator_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE locator_type_id_seq TO openbis_readonly;
 
 
@@ -8488,8 +8342,6 @@ GRANT SELECT ON SEQUENCE locator_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE locator_types FROM PUBLIC;
-REVOKE ALL ON TABLE locator_types FROM gakin;
-GRANT ALL ON TABLE locator_types TO gakin;
 GRANT SELECT ON TABLE locator_types TO openbis_readonly;
 
 
@@ -8498,8 +8350,6 @@ GRANT SELECT ON TABLE locator_types TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE material_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE material_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE material_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE material_id_seq TO openbis_readonly;
 
 
@@ -8508,8 +8358,6 @@ GRANT SELECT ON SEQUENCE material_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE material_properties FROM PUBLIC;
-REVOKE ALL ON TABLE material_properties FROM gakin;
-GRANT ALL ON TABLE material_properties TO gakin;
 GRANT SELECT ON TABLE material_properties TO openbis_readonly;
 
 
@@ -8518,8 +8366,6 @@ GRANT SELECT ON TABLE material_properties TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE material_properties_history FROM PUBLIC;
-REVOKE ALL ON TABLE material_properties_history FROM gakin;
-GRANT ALL ON TABLE material_properties_history TO gakin;
 GRANT SELECT ON TABLE material_properties_history TO openbis_readonly;
 
 
@@ -8528,8 +8374,6 @@ GRANT SELECT ON TABLE material_properties_history TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE material_property_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE material_property_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE material_property_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE material_property_id_seq TO openbis_readonly;
 
 
@@ -8538,8 +8382,6 @@ GRANT SELECT ON SEQUENCE material_property_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE material_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE material_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE material_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE material_type_id_seq TO openbis_readonly;
 
 
@@ -8548,8 +8390,6 @@ GRANT SELECT ON SEQUENCE material_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE material_type_property_types FROM PUBLIC;
-REVOKE ALL ON TABLE material_type_property_types FROM gakin;
-GRANT ALL ON TABLE material_type_property_types TO gakin;
 GRANT SELECT ON TABLE material_type_property_types TO openbis_readonly;
 
 
@@ -8558,8 +8398,6 @@ GRANT SELECT ON TABLE material_type_property_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE material_types FROM PUBLIC;
-REVOKE ALL ON TABLE material_types FROM gakin;
-GRANT ALL ON TABLE material_types TO gakin;
 GRANT SELECT ON TABLE material_types TO openbis_readonly;
 
 
@@ -8568,8 +8406,6 @@ GRANT SELECT ON TABLE material_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE materials FROM PUBLIC;
-REVOKE ALL ON TABLE materials FROM gakin;
-GRANT ALL ON TABLE materials TO gakin;
 GRANT SELECT ON TABLE materials TO openbis_readonly;
 
 
@@ -8578,8 +8414,6 @@ GRANT SELECT ON TABLE materials TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE metaproject_assignment_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE metaproject_assignment_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE metaproject_assignment_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE metaproject_assignment_id_seq TO openbis_readonly;
 
 
@@ -8588,8 +8422,6 @@ GRANT SELECT ON SEQUENCE metaproject_assignment_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE metaproject_assignments_all FROM PUBLIC;
-REVOKE ALL ON TABLE metaproject_assignments_all FROM gakin;
-GRANT ALL ON TABLE metaproject_assignments_all TO gakin;
 GRANT SELECT ON TABLE metaproject_assignments_all TO openbis_readonly;
 
 
@@ -8598,8 +8430,6 @@ GRANT SELECT ON TABLE metaproject_assignments_all TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE metaproject_assignments FROM PUBLIC;
-REVOKE ALL ON TABLE metaproject_assignments FROM gakin;
-GRANT ALL ON TABLE metaproject_assignments TO gakin;
 GRANT SELECT ON TABLE metaproject_assignments TO openbis_readonly;
 
 
@@ -8608,8 +8438,6 @@ GRANT SELECT ON TABLE metaproject_assignments TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE metaproject_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE metaproject_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE metaproject_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE metaproject_id_seq TO openbis_readonly;
 
 
@@ -8618,8 +8446,6 @@ GRANT SELECT ON SEQUENCE metaproject_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE metaprojects FROM PUBLIC;
-REVOKE ALL ON TABLE metaprojects FROM gakin;
-GRANT ALL ON TABLE metaprojects TO gakin;
 GRANT SELECT ON TABLE metaprojects TO openbis_readonly;
 
 
@@ -8628,8 +8454,6 @@ GRANT SELECT ON TABLE metaprojects TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE mtpt_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE mtpt_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE mtpt_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE mtpt_id_seq TO openbis_readonly;
 
 
@@ -8638,8 +8462,6 @@ GRANT SELECT ON SEQUENCE mtpt_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE operation_executions FROM PUBLIC;
-REVOKE ALL ON TABLE operation_executions FROM gakin;
-GRANT ALL ON TABLE operation_executions TO gakin;
 GRANT SELECT ON TABLE operation_executions TO openbis_readonly;
 
 
@@ -8648,8 +8470,6 @@ GRANT SELECT ON TABLE operation_executions TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE perm_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE perm_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE perm_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE perm_id_seq TO openbis_readonly;
 
 
@@ -8658,8 +8478,6 @@ GRANT SELECT ON SEQUENCE perm_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE person_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE person_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE person_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE person_id_seq TO openbis_readonly;
 
 
@@ -8668,8 +8486,6 @@ GRANT SELECT ON SEQUENCE person_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE persons FROM PUBLIC;
-REVOKE ALL ON TABLE persons FROM gakin;
-GRANT ALL ON TABLE persons TO gakin;
 GRANT SELECT ON TABLE persons TO openbis_readonly;
 
 
@@ -8678,8 +8494,6 @@ GRANT SELECT ON TABLE persons TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE post_registration_dataset_queue FROM PUBLIC;
-REVOKE ALL ON TABLE post_registration_dataset_queue FROM gakin;
-GRANT ALL ON TABLE post_registration_dataset_queue TO gakin;
 GRANT SELECT ON TABLE post_registration_dataset_queue TO openbis_readonly;
 
 
@@ -8688,8 +8502,6 @@ GRANT SELECT ON TABLE post_registration_dataset_queue TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE post_registration_dataset_queue_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE post_registration_dataset_queue_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE post_registration_dataset_queue_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE post_registration_dataset_queue_id_seq TO openbis_readonly;
 
 
@@ -8698,8 +8510,6 @@ GRANT SELECT ON SEQUENCE post_registration_dataset_queue_id_seq TO openbis_reado
 --
 
 REVOKE ALL ON SEQUENCE project_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE project_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE project_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE project_id_seq TO openbis_readonly;
 
 
@@ -8708,8 +8518,6 @@ GRANT SELECT ON SEQUENCE project_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE project_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE project_relationships_history FROM gakin;
-GRANT ALL ON TABLE project_relationships_history TO gakin;
 GRANT SELECT ON TABLE project_relationships_history TO openbis_readonly;
 
 
@@ -8718,8 +8526,6 @@ GRANT SELECT ON TABLE project_relationships_history TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE project_relationships_history_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE project_relationships_history_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE project_relationships_history_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE project_relationships_history_id_seq TO openbis_readonly;
 
 
@@ -8728,8 +8534,6 @@ GRANT SELECT ON SEQUENCE project_relationships_history_id_seq TO openbis_readonl
 --
 
 REVOKE ALL ON TABLE projects FROM PUBLIC;
-REVOKE ALL ON TABLE projects FROM gakin;
-GRANT ALL ON TABLE projects TO gakin;
 GRANT SELECT ON TABLE projects TO openbis_readonly;
 
 
@@ -8738,8 +8542,6 @@ GRANT SELECT ON TABLE projects TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE property_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE property_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE property_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE property_type_id_seq TO openbis_readonly;
 
 
@@ -8748,8 +8550,6 @@ GRANT SELECT ON SEQUENCE property_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE property_types FROM PUBLIC;
-REVOKE ALL ON TABLE property_types FROM gakin;
-GRANT ALL ON TABLE property_types TO gakin;
 GRANT SELECT ON TABLE property_types TO openbis_readonly;
 
 
@@ -8758,8 +8558,6 @@ GRANT SELECT ON TABLE property_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE queries FROM PUBLIC;
-REVOKE ALL ON TABLE queries FROM gakin;
-GRANT ALL ON TABLE queries TO gakin;
 GRANT SELECT ON TABLE queries TO openbis_readonly;
 
 
@@ -8768,8 +8566,6 @@ GRANT SELECT ON TABLE queries TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE query_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE query_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE query_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE query_id_seq TO openbis_readonly;
 
 
@@ -8778,8 +8574,6 @@ GRANT SELECT ON SEQUENCE query_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE relationship_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE relationship_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE relationship_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE relationship_type_id_seq TO openbis_readonly;
 
 
@@ -8788,8 +8582,6 @@ GRANT SELECT ON SEQUENCE relationship_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE relationship_types FROM PUBLIC;
-REVOKE ALL ON TABLE relationship_types FROM gakin;
-GRANT ALL ON TABLE relationship_types TO gakin;
 GRANT SELECT ON TABLE relationship_types TO openbis_readonly;
 
 
@@ -8798,8 +8590,6 @@ GRANT SELECT ON TABLE relationship_types TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE role_assignment_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE role_assignment_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE role_assignment_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE role_assignment_id_seq TO openbis_readonly;
 
 
@@ -8808,8 +8598,6 @@ GRANT SELECT ON SEQUENCE role_assignment_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE role_assignments FROM PUBLIC;
-REVOKE ALL ON TABLE role_assignments FROM gakin;
-GRANT ALL ON TABLE role_assignments TO gakin;
 GRANT SELECT ON TABLE role_assignments TO openbis_readonly;
 
 
@@ -8818,8 +8606,6 @@ GRANT SELECT ON TABLE role_assignments TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE sample_code_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE sample_code_seq FROM gakin;
-GRANT ALL ON SEQUENCE sample_code_seq TO gakin;
 GRANT SELECT ON SEQUENCE sample_code_seq TO openbis_readonly;
 
 
@@ -8828,8 +8614,6 @@ GRANT SELECT ON SEQUENCE sample_code_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_properties_history FROM PUBLIC;
-REVOKE ALL ON TABLE sample_properties_history FROM gakin;
-GRANT ALL ON TABLE sample_properties_history TO gakin;
 GRANT SELECT ON TABLE sample_properties_history TO openbis_readonly;
 
 
@@ -8838,8 +8622,6 @@ GRANT SELECT ON TABLE sample_properties_history TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE sample_relationships_history FROM gakin;
-GRANT ALL ON TABLE sample_relationships_history TO gakin;
 GRANT SELECT ON TABLE sample_relationships_history TO openbis_readonly;
 
 
@@ -8848,8 +8630,6 @@ GRANT SELECT ON TABLE sample_relationships_history TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_history_view FROM PUBLIC;
-REVOKE ALL ON TABLE sample_history_view FROM gakin;
-GRANT ALL ON TABLE sample_history_view TO gakin;
 GRANT SELECT ON TABLE sample_history_view TO openbis_readonly;
 
 
@@ -8858,8 +8638,6 @@ GRANT SELECT ON TABLE sample_history_view TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE sample_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE sample_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE sample_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE sample_id_seq TO openbis_readonly;
 
 
@@ -8868,8 +8646,6 @@ GRANT SELECT ON SEQUENCE sample_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_properties FROM PUBLIC;
-REVOKE ALL ON TABLE sample_properties FROM gakin;
-GRANT ALL ON TABLE sample_properties TO gakin;
 GRANT SELECT ON TABLE sample_properties TO openbis_readonly;
 
 
@@ -8878,8 +8654,6 @@ GRANT SELECT ON TABLE sample_properties TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE sample_property_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE sample_property_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE sample_property_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE sample_property_id_seq TO openbis_readonly;
 
 
@@ -8888,8 +8662,6 @@ GRANT SELECT ON SEQUENCE sample_property_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE sample_relationship_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE sample_relationship_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE sample_relationship_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE sample_relationship_id_seq TO openbis_readonly;
 
 
@@ -8898,8 +8670,6 @@ GRANT SELECT ON SEQUENCE sample_relationship_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_relationships_all FROM PUBLIC;
-REVOKE ALL ON TABLE sample_relationships_all FROM gakin;
-GRANT ALL ON TABLE sample_relationships_all TO gakin;
 GRANT SELECT ON TABLE sample_relationships_all TO openbis_readonly;
 
 
@@ -8908,8 +8678,6 @@ GRANT SELECT ON TABLE sample_relationships_all TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_relationships FROM PUBLIC;
-REVOKE ALL ON TABLE sample_relationships FROM gakin;
-GRANT ALL ON TABLE sample_relationships TO gakin;
 GRANT SELECT ON TABLE sample_relationships TO openbis_readonly;
 
 
@@ -8918,8 +8686,6 @@ GRANT SELECT ON TABLE sample_relationships TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE sample_relationships_history_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE sample_relationships_history_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE sample_relationships_history_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE sample_relationships_history_id_seq TO openbis_readonly;
 
 
@@ -8928,8 +8694,6 @@ GRANT SELECT ON SEQUENCE sample_relationships_history_id_seq TO openbis_readonly
 --
 
 REVOKE ALL ON SEQUENCE sample_type_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE sample_type_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE sample_type_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE sample_type_id_seq TO openbis_readonly;
 
 
@@ -8938,8 +8702,6 @@ GRANT SELECT ON SEQUENCE sample_type_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_type_property_types FROM PUBLIC;
-REVOKE ALL ON TABLE sample_type_property_types FROM gakin;
-GRANT ALL ON TABLE sample_type_property_types TO gakin;
 GRANT SELECT ON TABLE sample_type_property_types TO openbis_readonly;
 
 
@@ -8948,8 +8710,6 @@ GRANT SELECT ON TABLE sample_type_property_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE sample_types FROM PUBLIC;
-REVOKE ALL ON TABLE sample_types FROM gakin;
-GRANT ALL ON TABLE sample_types TO gakin;
 GRANT SELECT ON TABLE sample_types TO openbis_readonly;
 
 
@@ -8958,8 +8718,6 @@ GRANT SELECT ON TABLE sample_types TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE samples_all FROM PUBLIC;
-REVOKE ALL ON TABLE samples_all FROM gakin;
-GRANT ALL ON TABLE samples_all TO gakin;
 GRANT SELECT ON TABLE samples_all TO openbis_readonly;
 
 
@@ -8968,8 +8726,6 @@ GRANT SELECT ON TABLE samples_all TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE samples FROM PUBLIC;
-REVOKE ALL ON TABLE samples FROM gakin;
-GRANT ALL ON TABLE samples TO gakin;
 GRANT SELECT ON TABLE samples TO openbis_readonly;
 
 
@@ -8978,8 +8734,6 @@ GRANT SELECT ON TABLE samples TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE samples_deleted FROM PUBLIC;
-REVOKE ALL ON TABLE samples_deleted FROM gakin;
-GRANT ALL ON TABLE samples_deleted TO gakin;
 GRANT SELECT ON TABLE samples_deleted TO openbis_readonly;
 
 
@@ -8988,8 +8742,6 @@ GRANT SELECT ON TABLE samples_deleted TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE script_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE script_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE script_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE script_id_seq TO openbis_readonly;
 
 
@@ -8998,8 +8750,6 @@ GRANT SELECT ON SEQUENCE script_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE scripts FROM PUBLIC;
-REVOKE ALL ON TABLE scripts FROM gakin;
-GRANT ALL ON TABLE scripts TO gakin;
 GRANT SELECT ON TABLE scripts TO openbis_readonly;
 
 
@@ -9008,8 +8758,6 @@ GRANT SELECT ON TABLE scripts TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE space_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE space_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE space_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE space_id_seq TO openbis_readonly;
 
 
@@ -9018,8 +8766,6 @@ GRANT SELECT ON SEQUENCE space_id_seq TO openbis_readonly;
 --
 
 REVOKE ALL ON TABLE spaces FROM PUBLIC;
-REVOKE ALL ON TABLE spaces FROM gakin;
-GRANT ALL ON TABLE spaces TO gakin;
 GRANT SELECT ON TABLE spaces TO openbis_readonly;
 
 
@@ -9028,8 +8774,6 @@ GRANT SELECT ON TABLE spaces TO openbis_readonly;
 --
 
 REVOKE ALL ON SEQUENCE stpt_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE stpt_id_seq FROM gakin;
-GRANT ALL ON SEQUENCE stpt_id_seq TO gakin;
 GRANT SELECT ON SEQUENCE stpt_id_seq TO openbis_readonly;
 
 
