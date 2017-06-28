@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.Dictionary;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
 
@@ -40,7 +41,7 @@ public final class GenericConstants
      */
     public static final String ID_PREFIX = "openbis_";
 
-    private static final String APPLICATION_NAME = "openbis";
+    private static final String APPLICATION_NAME = Dictionary.getDictionary("common").get(Dict.SPRING_APPLICATION_NAME);
 
     public static final String COMMON_SERVER_NAME = createServicePath("common");
 

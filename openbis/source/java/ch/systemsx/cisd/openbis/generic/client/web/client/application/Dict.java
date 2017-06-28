@@ -37,6 +37,8 @@ public abstract class Dict
         // Can not be instantiated.
     }
 
+    public static final String SPRING_APPLICATION_NAME = "springApplicationName";
+
     public static final String APPLICATION_NAME = "applicationName";
 
     public static final String OPENBIS_INSTANCE = "openbis_instance";
@@ -314,7 +316,7 @@ public abstract class Dict
     public static final String EXPERIMENT = "experiment";
 
     public static final String EXPERIMENTS = "experiments";
-    
+
     public static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
 
     public static final String PART_OF = "part_of";

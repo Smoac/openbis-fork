@@ -7,7 +7,8 @@ entityTypes.experiment = "Experiment";
 entityTypes.experiments = entityTypes.experiment + "s";
 
 var common = {
-
+		
+  springApplicationName: "openbis",
   applicationName: "openBIS",
   openbis_instance: "",
   footer: "openBIS (Version {0})",
