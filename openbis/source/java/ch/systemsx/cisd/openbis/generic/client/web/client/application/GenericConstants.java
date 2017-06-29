@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.Dictionary;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
@@ -51,8 +50,7 @@ public final class GenericConstants
     public final static String createServicePath(final String serviceName)
     {
         // Kind of hack. Unclear why an additional APPLICATION_NAME in productive mode is needed.
-        return "/" + APPLICATION_NAME + "/" + (GWT.isScript() ? APPLICATION_NAME + "/" : "")
-                + serviceName;
+        return "/" + APPLICATION_NAME + "/" + serviceName;
     }
 
     /** Name of the servlet to download an experiment attachment. */
