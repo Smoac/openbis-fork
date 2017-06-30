@@ -37,6 +37,8 @@ public abstract class Dict
         // Can not be instantiated.
     }
 
+    public static final String DEPLOYED_APPLICATION_NAME = "deployedAppName";
+
     public static final String SPRING_APPLICATION_NAME = "springApplicationName";
 
     public static final String APPLICATION_NAME = "applicationName";

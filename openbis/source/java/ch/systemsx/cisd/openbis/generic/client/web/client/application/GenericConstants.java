@@ -41,7 +41,9 @@ public final class GenericConstants
      */
     public static final String ID_PREFIX = "openbis_";
 
-    private static final String APPLICATION_NAME = Dictionary.getDictionary("common").get(Dict.SPRING_APPLICATION_NAME);
+    private static final String DEPLOYED_APPLICATION_NAME = Dictionary.getDictionary("common").get(Dict.DEPLOYED_APPLICATION_NAME);
+
+    private static final String SPRING_APPLICATION_NAME = Dictionary.getDictionary("common").get(Dict.SPRING_APPLICATION_NAME);
 
     public static final String COMMON_SERVER_NAME = createServicePath("common");
 
@@ -50,9 +52,13 @@ public final class GenericConstants
      */
     public final static String createServicePath(final String serviceName)
     {
-        // Kind of hack. Unclear why an additional APPLICATION_NAME in productive mode is needed.
-        return "/" + APPLICATION_NAME + "/" + (GWT.isScript() ? APPLICATION_NAME + "/" : "")
-                + serviceName;
+        if (GWT.isProdMode()) // Is Production
+        {
+            return "/" + DEPLOYED_APPLICATION_NAME + "/" + SPRING_APPLICATION_NAME + "/" + serviceName;
+        } else
+        {
+            return "/" + SPRING_APPLICATION_NAME + "/" + serviceName;
+        }
     }
 
     /** Name of the servlet to download an experiment attachment. */
