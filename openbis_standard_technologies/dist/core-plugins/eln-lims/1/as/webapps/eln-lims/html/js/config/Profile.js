@@ -157,7 +157,7 @@ $.extend(DefaultProfile.prototype, {
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE_RACK"],
+				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE"],
 				"experimentTypeCodes" : []
 		}
 		this.hideSpaces = ["ELN_SETTINGS", "STORAGE"];
@@ -264,7 +264,7 @@ $.extend(DefaultProfile.prototype, {
 				callbackFunction(null);
 			}
 			
-			mainController.serverFacade.searchByType("STORAGE_RACK", function(results) {
+			mainController.serverFacade.searchByType("STORAGE", function(results) {
 				var configs = [];
 				for(var idx = 0; idx < results.length; idx++) {
 					configs.push(_this.getStorageConfigFromSample(results[idx]));
@@ -279,7 +279,7 @@ $.extend(DefaultProfile.prototype, {
 				callbackFunction(null);
 			}
 			
-			mainController.serverFacade.searchWithType("STORAGE_RACK", storageCode, null, function(results) {
+			mainController.serverFacade.searchWithType("STORAGE", storageCode, null, function(results) {
 				callbackFunction(_this.getStorageConfigFromSample(results[0]));
 			});
 		}
@@ -791,7 +791,7 @@ $.extend(DefaultProfile.prototype, {
 								_this.initDatasetTypeCodes(function() {
 									_this.initSettings(function() {
 										//Check if the new storage system can be enabled
-										var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE_RACK");
+										var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
 										var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
 										_this.storagesConfiguration = { 
 												"isEnabled" : storageRack && storagePositionType

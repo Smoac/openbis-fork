@@ -919,7 +919,7 @@ GENERAL_ELN_SETTINGS = [MANDATORY_ITEM_VERSION, False, "GENERAL_ELN_SETTINGS", "
 ##
 ## Types - Storage
 ##
-STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE_RACK", "", [
+STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE", "", [
     [FIRST_TIME_VERSIONED, "NAME",                          "General",              "Name",                         DataType.VARCHAR,                   None,                           "Name",             None, None],
     [FIRST_TIME_VERSIONED, "ROW_NUM",                       "General",              "Row",                          DataType.INTEGER,                   None,                           "Row",              None, None],
     [FIRST_TIME_VERSIONED, "COLUMN_NUM",                    "General",              "Column",                       DataType.INTEGER,                   None,                           "Column",           None, None],

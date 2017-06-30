@@ -397,12 +397,12 @@ def init(tr, parameters, tableBuilder):
 		defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
 	
-	if isSampleTypeAvailable(installedTypes, "STORAGE_RACK"):
+	if isSampleTypeAvailable(installedTypes, "STORAGE"):
 			insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
 			storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
 			
 			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
-				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE_RACK");
+				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE");
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
 				bench.setPropertyValue("COLUMN_NUM", "1");
@@ -414,7 +414,7 @@ def init(tr, parameters, tableBuilder):
 				pass # Do nothing if sample existed already
 			
 			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
-				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE_RACK");
+				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE");
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
 				defaultStorage.setPropertyValue("COLUMN_NUM", "4");

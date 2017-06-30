@@ -119,7 +119,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 			var argsMap = {
-					"sampleTypeCode" : "STORAGE_RACK",
+					"sampleTypeCode" : "STORAGE",
 					"experimentIdentifier" : experimentIdentifier
 			}
 			var argsMapStr = JSON.stringify(argsMap);
@@ -135,7 +135,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var advancedSampleSearchCriteria = {
 				entityKind : "SAMPLE",
 				logicalOperator : "AND",
-				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : "STORAGE_RACK" } }
+				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : "STORAGE" } }
 		}
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, true, null, false);
 		var extraOptions = [];
