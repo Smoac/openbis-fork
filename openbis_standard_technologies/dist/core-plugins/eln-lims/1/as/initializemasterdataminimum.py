@@ -50,6 +50,7 @@ def initBasicMasterData(tr):
     elnTypes.getCommentsScript(tr, "EXPERIMENT");
     elnTypes.createExperimentTypeWithProperties(tr, elnTypes.MATERIALS);
     elnTypes.createExperimentTypeWithProperties(tr, elnTypes.METHODS);
+    elnTypes.createExperimentTypeWithProperties(tr, elnTypes.COLLECTION);
     elnTypes.createExperimentTypeWithProperties(tr, elnTypes.DEFAULT_EXPERIMENT);
         
     ##

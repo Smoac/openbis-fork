@@ -24,6 +24,10 @@ ELNDictionary.getExperimentKindName = function(identifier, isPlural) {
 
 ELNDictionary.settingsView = {
 	sections : {
+		storages : {
+			title : "Storages",
+			info : "Create and browse storages.",
+		},
 		mainMenu : {
 			title : "Main Menu",
 			info : "These options give the opportunity to the administrator to show/hide different sections of the user interface from the main menu.",

@@ -71,6 +71,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			var texts = ELNDictionary.settingsView.sections;
 
+			this._paintStoragesSection($formColumn, texts.storages);
 			this._paintMainMenuSection($formColumn, texts.mainMenu);
 			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
 			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
@@ -108,6 +109,37 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
 		}
 		return sampleTypeDefinitionsSettings;
+	}
+
+	this._paintStoragesSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-storages");
+		$fieldset.append(FormUtil.getInfoText(text.info));
+
+		var experimentIdentifier = "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION";
+
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+			var argsMap = {
+					"sampleTypeCode" : "STORAGE_RACK",
+					"experimentIdentifier" : experimentIdentifier
+			}
+			var argsMapStr = JSON.stringify(argsMap);
+			Util.unblockUI();
+			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+		}, null, "Create storage");
+
+		$fieldset.append($("<p>").append($addBtn));
+
+		var $gridContainer = $("<div>");
+		$fieldset.append($gridContainer);
+
+		var advancedSampleSearchCriteria = {
+				entityKind : "SAMPLE",
+				logicalOperator : "AND",
+				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : "STORAGE_RACK" } }
+		}
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, true, null, false);
+		var extraOptions = [];
+		dataGrid.init($gridContainer, extraOptions);
 	}
 
 	this._paintMainMenuSection = function($container, text) {

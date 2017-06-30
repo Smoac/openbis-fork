@@ -356,10 +356,12 @@ def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experime
 		experiment.setPropertyValue("NAME", experimentName);
 	return experiment;
 
-def insertSampleIfMissing(tr, sampleIdentifier, sampleType):
+def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType):
 	sample = tr.getSample(sampleIdentifier);
 	if sample == None:
 		sample = tr.createNewSample(sampleIdentifier,	sampleType);
+		if experiment != None:
+			sample.setExperiment(experiment);
 	return sample;
 	
 def init(tr, parameters, tableBuilder):
@@ -396,8 +398,11 @@ def init(tr, parameters, tableBuilder):
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
 	
 	if isSampleTypeAvailable(installedTypes, "STORAGE_RACK"):
-			try:
-				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", "STORAGE_RACK");
+			insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
+			storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
+			
+			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
+				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE_RACK");
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
 				bench.setPropertyValue("COLUMN_NUM", "1");
@@ -408,8 +413,8 @@ def init(tr, parameters, tableBuilder):
 			except:
 				pass # Do nothing if sample existed already
 			
-			try:
-				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", "STORAGE_RACK");
+			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
+				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE_RACK");
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
 				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
@@ -421,7 +426,7 @@ def init(tr, parameters, tableBuilder):
 				pass # Do nothing if sample existed already
 			
 	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
-			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
+			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS");
 	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:

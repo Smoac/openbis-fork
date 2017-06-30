@@ -1061,7 +1061,7 @@ var FormUtil = new function() {
 	}
 
 	this.getInfoText = function(infoText) {
-		return $("<div>")
+		return $("<p>")
 			.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
 				.css("margin-right", "3px"))
 			.append($("<span>").text(infoText));
