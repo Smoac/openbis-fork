@@ -34,6 +34,7 @@ from ch.systemsx.cisd.common.exceptions import UserFailureException
 
 from ch.ethz.sis import PlasmapperConnector
 
+import json
 import time
 import subprocess
 import os.path
@@ -136,6 +137,16 @@ def getProperties(tr, parameters):
 
 rtpropertiesToIgnore = ["FREEFORM_TABLE_STATE", "NAME", "SEQUENCE"];
 
+def updatePropertiesToIgnore(tr):
+	global rtpropertiesToIgnore;
+	sample = tr.getSample("/ELN_SETTINGS/GENERAL_ELN_SETTINGS");
+	if sample != None:
+		settingsJson = sample.getPropertyValue("ELN_SETTINGS");
+		if settingsJson != None:
+			settings = json.loads(settingsJson);
+			if "forcedDisableRTF" in settings:
+				rtpropertiesToIgnore = settings["forcedDisableRTF"];
+
 def isPropertyRichText(properties, propertyCode):
 	for property in properties:
 		if property.getCode() == propertyCode and property.getCode() not in rtpropertiesToIgnore:
@@ -209,21 +220,27 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	
 	if method == "insertExperiment":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	if method == "updateExperiment":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	
 	if method == "copySample":
 		isOk = copySample(tr, parameters, tableBuilder);
 	if method == "insertSample":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "moveSample":
 		isOk = moveSample(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
+		updatePropertiesToIgnore(tr);
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 	if method == "updateDataSet":
+		updatePropertiesToIgnore(tr);
 		isOk = updateDataSet(tr, parameters, tableBuilder);
 	
 	if method == "listFeatureVectorDatasetsPermIds":
