@@ -164,6 +164,16 @@ def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
 			return htmlSerializer.getAsString(propertytagNode);
 	return propertyValue;
 
+def getPropertyValue(propertiesInfo, metadata, key):
+	propertyValue = metadata[key];
+	if propertyValue != None:
+		propertyValue = unicode(propertyValue);
+	if propertyValue == "":
+		propertyValue = None;
+	else:
+		propertyValue = updateIfIsPropertyRichText(propertiesInfo, key, propertyValue);
+	return propertyValue;
+
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
 	code = identifier.split("/")[2];
@@ -570,11 +580,7 @@ def updateDataSet(tr, parameters, tableBuilder):
 	#dataSet.setSample(dataSetSample);
 	#Assign Data Set properties
 	for key in metadata.keySet():
-		propertyValue = unicode(metadata[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		else:
-			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+		propertyValue = getPropertyValue(properties, metadata, key);
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Return from the call
@@ -603,11 +609,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 	#Assign Data Set properties
 	for key in metadata.keySet():
-		propertyValue = unicode(metadata[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		else:
-			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+		propertyValue = getPropertyValue(properties, metadata, key);
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Move All Files using a tmp directory close to the datastore
@@ -760,6 +762,7 @@ def batchOperation(tr, parameters, tableBuilder):
 	return True;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):
+	properties = getProperties(tr, parameters);
 	
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
@@ -817,9 +820,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 				parentExperiment = tr.getExperiment(newSampleParent.get("experimentIdentifierOrNull"));
 				parent.setExperiment(parentExperiment);
 			for key in newSampleParent.get("properties").keySet():
-				propertyValue = unicode(newSampleParent.get("properties").get(key));
-				if propertyValue == "":
-					propertyValue = None;
+				propertyValue = getPropertyValue(properties, newSampleParent.get("properties"), key);
 				parent.setPropertyValue(key, propertyValue);
 			
 			if newSampleParent.get("parentsIdentifiers") != None:
@@ -832,15 +833,8 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	
 	#Assign sample properties
 	if sampleProperties != None:
-		properties = getProperties(tr, parameters);
 		for key in sampleProperties.keySet():
-			propertyValue = sampleProperties[key];
-			if sampleProperties[key] != None:
-				propertyValue = unicode(sampleProperties[key]);
-			if propertyValue == "":
-				propertyValue = None;
-			else:
-				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+			propertyValue = getPropertyValue(properties, sampleProperties, key);
 			sample.setPropertyValue(key, propertyValue);
 	
 	#Add sample parents
@@ -864,9 +858,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			if childExperiment != None:
 				child.setExperiment(childExperiment);
 			for key in newSampleChild["properties"].keySet():
-				propertyValue = unicode(newSampleChild["properties"][key]);
-				if propertyValue == "":
-					propertyValue = None;
+				propertyValue = getPropertyValue(properties, newSampleChild["properties"], key);
 				child.setPropertyValue(key, propertyValue);
 			if ("children" in newSampleChild) and (newSampleChild["children"] != None):
 				for childChildrenData in newSampleChild["children"]:
@@ -880,9 +872,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 					if childChildrenExperiment != None:
 						childChildren.setExperiment(childChildrenExperiment);
 					for key in childChildrenData["properties"].keySet():
-						propertyValue = unicode(childChildrenData["properties"][key]);
-						if propertyValue == "":
-							propertyValue = None;
+						propertyValue = getPropertyValue(properties, childChildrenData["properties"], key);
 						childChildren.setPropertyValue(key, propertyValue);
 	
 	#Add sample children that are not newly created
@@ -908,9 +898,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		for change in changesToDo:
 			sampleWithChanges = getSampleByIdentifierForUpdate(tr, change["identifier"]); #Retrieve Sample
 			for key in change["properties"].keySet():
-					propertyValue = unicode(change["properties"][key]);
-					if propertyValue == "":
-						propertyValue = None;
+					propertyValue = getPropertyValue(properties, change["properties"], key);
 					sampleWithChanges.setPropertyValue(key,propertyValue);
 		
 	#Return from the call
@@ -946,11 +934,7 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 		experiment = tr.getExperimentForUpdate(experimentIdentifier); #Retrieve Experiment
 	
 	for key in experimentProperties.keySet():
-		propertyValue = unicode(experimentProperties[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		else:
-			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+		propertyValue = getPropertyValue(properties, experimentProperties, key);
 		experiment.setPropertyValue(key,propertyValue);
 	
 	return True;
