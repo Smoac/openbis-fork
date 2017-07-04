@@ -239,7 +239,7 @@ function StorageListView(storageListController, storageListModel) {
 			//Remove
 			var allChildren = this._storageListModel.sample.children;
 			for(var i = 0; i < allChildren.length; i++) {
-				if(allChildren[i].permId === child.permId) {
+				if(allChildren[i].code === child.code) {
 					allChildren.splice(i,1);
 				}
 			}
