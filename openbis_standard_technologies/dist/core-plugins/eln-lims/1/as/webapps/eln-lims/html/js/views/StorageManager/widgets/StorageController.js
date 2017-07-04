@@ -224,13 +224,25 @@ function StorageController(configOverride) {
 						var userIds = [];
 						positionsUsed = 0;
 						samples.forEach(function(element, index, array) {
+							
 							var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
 							if(!boxCode || boxCode.trim().length === 0) {
-								boxCode = element.properties[profile.propertyReplacingCode];
-								if(!boxCode) {
-									boxCode = element.code;
+								if(element && element.sampleTypeCode === "STORAGE_POSITION") {
+									if(element.parents && element.parents[0]) {
+										if(profile.propertyReplacingCode &&  element.parents[0].properties && element.parents[0].properties[profile.propertyReplacingCode]) {
+											boxCode = element.parents[0].properties[profile.propertyReplacingCode];
+										} else {
+											boxCode = element.parents[0].code;
+										}
+									} else {
+										boxCode = element.properties[profile.propertyReplacingCode];
+										if(!boxCode) {
+											boxCode = element.code;
+										}
+									}
 								}
 							}
+							
 							var boxSize = element.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty];
 							var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
 							var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
@@ -291,7 +303,7 @@ function StorageController(configOverride) {
 						_this.setUserIds(userIds);
 						_this._gridController.getModel().labels = boxes;
 						_this._storageView.refreshGrid();
-			});
+			}, false, true);
 		});
 	}
 	
