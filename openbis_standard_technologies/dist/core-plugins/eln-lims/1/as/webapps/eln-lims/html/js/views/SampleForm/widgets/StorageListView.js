@@ -130,6 +130,7 @@ function StorageListView(storageListController, storageListModel) {
 			var uuid = Util.guid();
 			var newChildSample = {
 					newSample : true,
+					newSampleJustCreated : true,
 					code : uuid,
 					identifier : "/STORAGE/" + uuid,
 					sampleTypeCode : "STORAGE_POSITION",
@@ -192,6 +193,7 @@ function StorageListView(storageListController, storageListModel) {
 			$("#storage-accept").on("click", function(event) {
 				storageController.isValid(function(isValid) {
 					if(isValid) {
+						delete sampleChild.newSampleJustCreated;
 						Util.unblockUI();
 						_this._dataGrid.refresh();
 					}
@@ -199,7 +201,11 @@ function StorageListView(storageListController, storageListModel) {
 			});
 			
 			$("#storage-cancel").on("click", function(event) {
-				_this._storageListController._restoreState(sampleChild);
+				if(sampleChild.newSampleJustCreated) {
+					_this.removeChildFromSampleOrMarkToDelete(sampleChild);
+				} else {
+					_this._storageListController._restoreState(sampleChild);
+				}
 				Util.unblockUI();
 				_this._dataGrid.refresh();
 			});
