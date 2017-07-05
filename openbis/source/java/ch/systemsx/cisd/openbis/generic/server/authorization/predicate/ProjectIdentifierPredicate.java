@@ -34,9 +34,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public class ProjectIdentifierPredicate extends DelegatedPredicate<SpaceIdentifier, ProjectIdentifier>
 {
+
     public ProjectIdentifierPredicate()
     {
-        super(new SpaceIdentifierPredicate(false));
+        this(false);
+    }
+
+    public ProjectIdentifierPredicate(boolean okForNonExistentSpaces)
+    {
+        super(new SpaceIdentifierPredicate(okForNonExistentSpaces));
     }
 
     @Override

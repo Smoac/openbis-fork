@@ -86,6 +86,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampl
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplesWithTypePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierExistingSpacePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
@@ -553,7 +555,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> listExperimentsForProjects(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers,
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers,
             ExperimentFetchOptions experimentFetchOptions)
     {
         if (sessionToken == null)
@@ -953,7 +955,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         Set<SamplePropertyPE> properties = top.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
-                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(),
                 managedPropertyEvaluatorFactory);
     }
 
@@ -976,7 +978,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         Set<SamplePropertyPE> properties = sample.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
-                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(),
                 managedPropertyEvaluatorFactory);
     }
 
@@ -1694,7 +1696,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Project tryGetProject(String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
+            @AuthorizationGuard(guardClass = ProjectIdentifierExistingSpacePredicate.class) ProjectIdentifier projectIdentifier)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);

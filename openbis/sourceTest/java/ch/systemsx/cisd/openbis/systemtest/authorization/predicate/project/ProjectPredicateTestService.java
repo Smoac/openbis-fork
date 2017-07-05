@@ -28,9 +28,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierExistingSpacePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -115,8 +117,22 @@ public class ProjectPredicateTestService
 
     @Transactional
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testProjectPermIdStringPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ProjectPermIdStringPredicate.class) String projectPermIdString)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testProjectTechIdCollectionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ProjectTechIdCollectionPredicate.class) List<TechId> projectTechIds)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testProjectIdentifierExistingSpacePredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ProjectIdentifierExistingSpacePredicate.class) ProjectIdentifier projectIdentifier)
     {
     }
 

@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionT
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
@@ -921,7 +922,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Experiment> listMetaprojectExperiments(final String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -958,10 +959,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {
         List<ProjectIdentifier> projectIdentifiers = projectIdentifier != null ? Collections.singletonList(projectIdentifier) : null;
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
@@ -2246,9 +2247,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_ATTACHMENT")
-    public void updateExperimentAttachments(String sessionToken, TechId experimentId,
+    public void updateExperimentAttachments(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             Attachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -2260,9 +2262,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_EXPERIMENT_ATTACHMENT")
-    public void addExperimentAttachment(String sessionToken, TechId experimentId,
+    public void addExperimentAttachment(String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -2530,7 +2532,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
-    public IIdHolder getProjectIdHolder(String sessionToken, String projectPermId)
+    public IIdHolder getProjectIdHolder(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectPermIdStringPredicate.class) String projectPermId)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -2946,7 +2949,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("WRITE_PROJECT_ATTACHMENT")
-    public void updateProjectAttachments(String sessionToken, TechId projectId,
+    public void updateProjectAttachments(String sessionToken, @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
             Attachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -2960,7 +2963,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.PROJECT_ADMIN })
     @Capability("WRITE_PROJECT_ATTACHMENT")
-    public void addProjectAttachments(String sessionToken, TechId projectId,
+    public void addProjectAttachments(String sessionToken, @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
             NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -3588,7 +3591,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -4248,7 +4251,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd)
     {
@@ -4341,7 +4344,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Metaproject registerMetaproject(String sessionToken,
             IMetaprojectRegistration registration)
     {

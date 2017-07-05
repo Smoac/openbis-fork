@@ -31,7 +31,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -52,15 +53,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -68,7 +76,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -108,7 +119,7 @@ public class CommonServerTest extends SystemTestCase
 
     private AuthorizationGroup findAuthorizationGroup(List<AuthorizationGroup> spaces, final String spaceCode)
     {
-        return CollectionUtils.find(spaces, new Predicate<AuthorizationGroup>()
+        return IterableUtils.find(spaces, new Predicate<AuthorizationGroup>()
             {
                 @Override
                 public boolean evaluate(AuthorizationGroup object)
@@ -248,6 +259,81 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetProjectInfoByTechIdWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            Project project = commonServer.getProjectInfo(session.getSessionToken(), projectId);
+            assertNotNull(project);
+            assertEquals(project.getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
+        } else
+        {
+            try
+            {
+                commonServer.getProjectInfo(session.getSessionToken(), projectId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetProjectInfoByIdentifierWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            Project project = commonServer.getProjectInfo(session.getSessionToken(), projectIdentifier);
+            assertNotNull(project);
+            assertEquals(project.getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
+        } else
+        {
+            try
+            {
+                commonServer.getProjectInfo(session.getSessionToken(), projectIdentifier);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetProjectIdHolderWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String projectPermId = "20120814110011738-105"; // /TEST-SPACE/TEST-PROJECT
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            IIdHolder project = commonServer.getProjectIdHolder(session.getSessionToken(), projectPermId);
+            assertNotNull(project);
+            assertEquals(project.getId(), Long.valueOf(5));
+        } else
+        {
+            try
+            {
+                commonServer.getProjectIdHolder(session.getSessionToken(), projectPermId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testUpdateProjectWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
@@ -276,7 +362,80 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
-    public void testDeleteProjectWithProjectAuthorization(ProjectAuthorizationUser user)
+    public void testUpdateProjectAttachmentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
+
+        Attachment attachment = new Attachment();
+        attachment.setFileName("testProject.txt");
+        attachment.setTitle("new title");
+        attachment.setVersion(1);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            commonServer.updateProjectAttachments(session.getSessionToken(), projectId, attachment);
+
+            List<Attachment> attachments = commonServer.listProjectAttachments(session.getSessionToken(), projectId);
+            assertEquals(attachments.size(), 1);
+            assertEquals(attachments.get(0).getTitle(), attachment.getTitle());
+        } else
+        {
+            try
+            {
+                commonServer.updateProjectAttachments(session.getSessionToken(), projectId, attachment);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteProjectAttachmentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO testSession = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
+        String fileName = "testProject.txt";
+        String reason = "testReason";
+        Integer version = 1;
+
+        AttachmentWithContent before = genericServer.getProjectFileAttachment(testSession.getSessionToken(), projectId, fileName, version);
+
+        assertNotNull(before);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            commonServer.deleteProjectAttachments(session.getSessionToken(), projectId, Arrays.asList(fileName), reason);
+
+            try
+            {
+                genericServer.getProjectFileAttachment(testSession.getSessionToken(), projectId, fileName, version);
+                fail();
+            } catch (UserFailureException e)
+            {
+                assertEquals(e.getMessage(),
+                        "Attachment 'testProject.txt' (version '1') not found in project '/TEST-SPACE/TEST-PROJECT'.");
+            }
+        } else
+        {
+            try
+            {
+                commonServer.deleteProjectAttachments(session.getSessionToken(), projectId, Arrays.asList(fileName), reason);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteProjectsWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO testSession = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
@@ -328,6 +487,91 @@ public class CommonServerTest extends SystemTestCase
         } else
         {
             assertEntities("[]", projects);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListProjectAttachmentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Attachment> attachments = commonServer.listProjectAttachments(session.getSessionToken(), projectId);
+            assertEquals(attachments.size(), 1);
+            assertEquals(attachments.get(0).getFileName(), "testProject.txt");
+        } else
+        {
+            try
+            {
+                commonServer.listProjectAttachments(session.getSessionToken(), projectId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRegisterProjectWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "PA_TEST");
+
+        if (user.isTestSpaceUser())
+        {
+            commonServer.registerProject(session.getSessionToken(), projectIdentifier, "testDescription", user.getUserId(),
+                    Arrays.<NewAttachment> asList());
+
+            Project projectInfo = commonServer.getProjectInfo(session.getSessionToken(), projectIdentifier);
+            assertEquals(projectInfo.getIdentifier(), projectIdentifier.toString());
+        } else
+        {
+            try
+            {
+                commonServer.registerProject(session.getSessionToken(), projectIdentifier, "testDescription", user.getUserId(),
+                        Arrays.<NewAttachment> asList());
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testAddProjectAttachmentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
+
+        NewAttachment attachment = new NewAttachment();
+        attachment.setFilePath("testProject2.txt");
+        attachment.setContent("testContent2".getBytes());
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            commonServer.addProjectAttachments(session.getSessionToken(), projectId, attachment);
+
+            List<Attachment> attachments = commonServer.listProjectAttachments(session.getSessionToken(), projectId);
+            assertEquals(attachments.size(), 2);
+            assertEquals(attachments.get(0).getFileName(), "testProject.txt");
+            assertEquals(attachments.get(1).getFileName(), "testProject2.txt");
+        } else
+        {
+            try
+            {
+                commonServer.addProjectAttachments(session.getSessionToken(), projectId, attachment);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         }
     }
 
@@ -415,6 +659,244 @@ public class CommonServerTest extends SystemTestCase
             try
             {
                 commonServer.deleteExperimentAttachments(session.getSessionToken(), experimentId, Arrays.asList(fileName), reason);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByExperimentTypeAndProjectIdentifierWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), experimentType, projectIdentifier);
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.listExperiments(session.getSessionToken(), experimentType, projectIdentifier);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByExperimentTypeAndProjectIdentifiersWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.listExperiments(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsHavingSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments =
+                    commonServer.listExperimentsHavingSamples(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.listExperimentsHavingSamples(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsHavingDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments =
+                    commonServer.listExperimentsHavingDataSets(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.listExperimentsHavingDataSets(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListMetaprojectExperimentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        Metaproject metaproject = new Metaproject();
+        metaproject.setName("TEST_LIST_METAPROJECT_EXPERIMENTS");
+        metaproject = commonServer.registerMetaproject(session.getSessionToken(), metaproject);
+
+        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
+        assignments.addExperiment(new ExperimentIdentifierId("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+
+        commonServer.addToMetaproject(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()), assignments);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments =
+                    commonServer.listMetaprojectExperiments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
+
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).isStub(), false);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            List<Experiment> experiments =
+                    commonServer.listMetaprojectExperiments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).isStub(), true);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForExperimentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        DetailedSearchCriterion criterion = new DetailedSearchCriterion();
+        criterion.setField(DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.PROJECT));
+        criterion.setValue("TEST-PROJECT");
+
+        DetailedSearchCriteria criteria = new DetailedSearchCriteria();
+        criteria.setCriteria(Arrays.asList(criterion));
+        criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments =
+                    commonServer.searchForExperiments(session.getSessionToken(), criteria);
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            List<Experiment> experiments = commonServer.searchForExperiments(session.getSessionToken(), criteria);
+            assertEquals(experiments.size(), 0);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateExperimentAttachmentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+
+        Attachment attachment = new Attachment();
+        attachment.setFileName("testExperiment.txt");
+        attachment.setTitle("new title");
+        attachment.setVersion(1);
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            commonServer.updateExperimentAttachments(session.getSessionToken(), experimentId, attachment);
+
+            List<Attachment> attachments = commonServer.listExperimentAttachments(session.getSessionToken(), experimentId);
+            assertEquals(attachments.size(), 1);
+            assertEquals(attachments.get(0).getTitle(), attachment.getTitle());
+        } else
+        {
+            try
+            {
+                commonServer.updateExperimentAttachments(session.getSessionToken(), experimentId, attachment);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testAddExperimentAttachmentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+
+        NewAttachment attachment = new NewAttachment();
+        attachment.setFilePath("testExperiment2.txt");
+        attachment.setContent("testContent2".getBytes());
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            commonServer.addExperimentAttachment(session.getSessionToken(), experimentId, attachment);
+
+            List<Attachment> attachments = commonServer.listExperimentAttachments(session.getSessionToken(), experimentId);
+            assertEquals(attachments.size(), 2);
+            assertEquals(attachments.get(0).getFileName(), "testExperiment.txt");
+            assertEquals(attachments.get(1).getFileName(), "testExperiment2.txt");
+        } else
+        {
+            try
+            {
+                commonServer.addExperimentAttachment(session.getSessionToken(), experimentId, attachment);
                 fail();
             } catch (AuthorizationFailureException e)
             {
