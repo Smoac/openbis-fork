@@ -152,7 +152,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
 
         int afterDeletionPropertiesRowCount =
                 countRowsInTable(TableNames.EXPERIMENT_PROPERTIES_TABLE);
-        assertEquals(beforeDeletionPropertiesRowCount - 7, afterDeletionPropertiesRowCount);
+        assertEquals(beforeDeletionPropertiesRowCount - 8, afterDeletionPropertiesRowCount);
     }
 
     private EntityTypePropertyTypePE tryToGetAssignment(EntityKind entityKind,

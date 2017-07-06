@@ -282,7 +282,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         ec.addMatchClause(MatchClause.createPropertyMatch("DESCRIPTION", "A simple experiment"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(2, result.size());
+        assertEquals(9, result.size());
     }
 
     @Test

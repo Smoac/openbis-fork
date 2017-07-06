@@ -352,7 +352,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         UpdatedBasicExperiment update = new UpdatedBasicExperiment();
         update.setIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         update.setProperties(new IEntityProperty[] { property });
-        update.setBatchUpdateDetails(new ExperimentBatchUpdateDetails());
+        update.setBatchUpdateDetails(new ExperimentBatchUpdateDetails(Collections.singleton("DESCRIPTION")));
 
         ExperimentType type = new ExperimentType();
         type.setCode("SIRNA_HCS");
