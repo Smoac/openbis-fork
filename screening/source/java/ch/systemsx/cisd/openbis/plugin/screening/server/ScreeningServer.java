@@ -271,7 +271,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
+                        .translate(metaprojectPEs),
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -469,7 +470,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
@@ -523,8 +525,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         MaterialSummarySettings settings = new MaterialSummarySettings();
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setFeatureCodes(new ArrayList<String>());
-        settings.setReplicaMatrialTypePatterns(new String[]
-        { "GENE", "CONTROL", "COMPOUND" });
+        settings.setReplicaMatrialTypePatterns(new String[] { "GENE", "CONTROL", "COMPOUND" });
         settings.setMaterialDetailsPropertyType(ScreeningConstants.GENE_SYMBOLS);
         settings.setBiologicalReplicatePropertyTypeCodes("CONCENTRATION", "SIRNA");
         return settings;
@@ -651,7 +652,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
@@ -704,7 +705,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Plate> listPlates(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experiment) throws IllegalArgumentException
     {
@@ -821,7 +822,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer)
     {

@@ -21,9 +21,15 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractSpacePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentIdentifierString;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentPermId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 
@@ -49,6 +55,18 @@ public class ExperimentIdentifierPredicate extends AbstractSpacePredicate<Experi
     {
         if (value.getPermId() != null)
         {
+            IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
+                    .withData(authorizationDataProvider)
+                    .withUser(new UserProviderFromPersonPE(person))
+                    .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                    .withObjects(new ProjectProviderFromExperimentPermId(value.getPermId()))
+                    .build();
+
+            if (pa.getObjectsWithoutAccess().isEmpty())
+            {
+                return Status.OK;
+            }
+
             final ExperimentPE experimentOrNull =
                     authorizationDataProvider.tryGetExperimentByPermId(value.getPermId());
             if (experimentOrNull == null)
@@ -58,6 +76,18 @@ public class ExperimentIdentifierPredicate extends AbstractSpacePredicate<Experi
             }
             final SpacePE space = experimentOrNull.getProject().getSpace();
             return evaluate(allowedRoles, person, space.getCode());
+        }
+
+        IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
+                .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectProviderFromExperimentIdentifierString(value.getAugmentedCode()))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
         }
 
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, value.getSpaceCode());

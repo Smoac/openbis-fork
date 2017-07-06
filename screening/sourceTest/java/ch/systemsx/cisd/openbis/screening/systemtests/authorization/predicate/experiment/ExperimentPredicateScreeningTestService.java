@@ -23,7 +23,9 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.server.authorization.ExperimentIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.server.authorization.ExperimentSearchCriteriaPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -37,6 +39,13 @@ public class ExperimentPredicateScreeningTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testExperimentSearchCriteriaPredicate(IAuthSessionProvider session,
             @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExperimentIdentifierPredicate(IAuthSessionProvider session,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
     {
     }
 
