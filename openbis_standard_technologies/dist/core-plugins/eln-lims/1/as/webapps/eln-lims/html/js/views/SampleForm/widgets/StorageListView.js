@@ -48,21 +48,25 @@ function StorageListView(storageListController, storageListModel) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
 			}
 		});
-//		columns.push({
-//			label : 'Identifier',
-//			property : 'identifier',
-//			isExportable: true,
-//			sortable : true,
-//			filter : function(data, filter) {
-//				return data.identifier.toLowerCase().indexOf(filter) !== -1;
-//			},
-//			sort : function(data1, data2, asc) {
-//				var value1 = data1.identifier;
-//				var value2 = data2.identifier;
-//				var sortDirection = (asc)? 1 : -1;
-//				return sortDirection * naturalSort(value1, value2);
-//			}
-//		});
+		columns.push({
+			label : 'Identifier',
+			property : 'identifier',
+			isExportable: true,
+			sortable : false,
+			showByDefault: false,
+			render : function(data) {
+				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
 		
 		var storagePropertyCodes = profile.getAllPropertiCodesForTypeCode("STORAGE_POSITION");
 		var storagePropertyCodesAsMap = {};
