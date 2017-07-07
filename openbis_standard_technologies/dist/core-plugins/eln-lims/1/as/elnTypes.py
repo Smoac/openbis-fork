@@ -932,7 +932,7 @@ STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE", "", [
 ]];
 
 STORAGE_POSITION = [MANDATORY_ITEM_VERSION, False, "STORAGE_POSITION", "", [
-    [FIRST_TIME_VERSIONED, "STORAGE_CODE",                  "Physical Storage",        "Storage Object Code",       DataType.VARCHAR,                    None,                "Storage Object Code",     None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_CODE",                  "Physical Storage",        "Storage Code",              DataType.VARCHAR,                    None,                "Storage Code",            None, None, False, False],
     [FIRST_TIME_VERSIONED, "STORAGE_RACK_ROW",              "Physical Storage",        "Storage Rack Row",          DataType.INTEGER,                    None,                "Storage Rack Row",        None, None, False, False],
     [FIRST_TIME_VERSIONED, "STORAGE_RACK_COLUMN",           "Physical Storage",        "Storage Rack Column",       DataType.INTEGER,                    None,                "Storage Rack Column",     None, None, False, False],
     [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",        None, None, False, False],

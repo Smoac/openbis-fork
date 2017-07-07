@@ -19,7 +19,16 @@ function StorageListController(sample, isDisabled) {
 	this._storageListView = new StorageListView(this, this._storageListModel);
 	
 	this.init = function($container) {
-		this._storageListView.repaint($container);
+		var _this = this;
+		profile.getStoragesConfiguation(function(configurations) {
+			_this._storageListModel.storageLabels = {};
+			if(configurations) {
+				for(var idx = 0; idx < configurations.length; idx++) {
+					_this._storageListModel.storageLabels[configurations[idx].code] = configurations[idx].label;
+				}
+			}
+			_this._storageListView.repaint($container);
+		});
 	}
 	
 	this._saveState = function(sampleChild, storagePropGroup){

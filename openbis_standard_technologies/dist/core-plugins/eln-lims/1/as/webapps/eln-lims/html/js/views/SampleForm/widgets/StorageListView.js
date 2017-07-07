@@ -67,6 +67,13 @@ function StorageListView(storageListController, storageListModel) {
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
+		columns.push({
+			label : 'Storage Name',
+			property : 'storageName',
+			isExportable: false,
+			sortable : true,
+			showByDefault: true
+		});
 		
 		var storagePropertyCodes = profile.getAllPropertiCodesForTypeCode("STORAGE_POSITION");
 		var storagePropertyCodesAsMap = {};
@@ -114,6 +121,10 @@ function StorageListView(storageListController, storageListModel) {
 					} else {
 						object[propertyCode] = sample.properties[propertyCode];
 					}
+				}
+				
+				if(sample && sample.properties && sample.properties[profile.getStoragePropertyGroup().nameProperty]) {
+					object.storageName = _this._storageListModel.storageLabels[sample.properties[profile.getStoragePropertyGroup().nameProperty]];
 				}
 				dataList.push(object);
 			}
