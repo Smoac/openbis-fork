@@ -54,6 +54,7 @@ function StorageListView(storageListController, storageListModel) {
 			isExportable: true,
 			sortable : false,
 			showByDefault: false,
+			hide : true,
 			render : function(data) {
 				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
 			},

@@ -159,7 +159,7 @@ $.extend(Grid.prototype, {
 		var currentColumns = this.getAllColumns();
 		
 		columnsForDropdown.forEach(function(column, columnIndex) {
-			if(!column.showByDefault) {
+			if(!column.showByDefault && !column.hide) {
 				var checkbox = $("<input>")
 				.attr("type", "checkbox")
 				.attr("value", column.property)
@@ -424,7 +424,7 @@ $.extend(Grid.prototype, {
 		_this.getAllColumns().forEach(function(column) {
 			var checkBoxForColumn = _this.panel.find(".columnDropdown").find("[value='" + column.property + "']");
 			var isChecked = (checkBoxForColumn.length === 1 && checkBoxForColumn[0] && checkBoxForColumn[0].checked)?true:false;
-			if(column.showByDefault || isChecked) {
+			if(column.showByDefault || isChecked && !column.hide) {
 				if(enabledColumns > maxColumns) {
 					// Ignore
 				} else {
