@@ -236,7 +236,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this.getSampleTypeDropdown = function(id, isRequired) {
+	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
@@ -247,9 +247,13 @@ var FormUtil = new function() {
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
-			if(profile.isSampleTypeHidden(sampleType.code)) {
+			
+			if(showEvenIfHidden && ($.inArray(sampleType.code, showEvenIfHidden) !== -1)) {
+				// Show even if hidden
+			} else if (profile.isSampleTypeHidden(sampleType.code)) {
 				continue;
 			}
+			
 			var label = Util.getDisplayNameFromCode(sampleType.code);
 			var description = Util.getEmptyIfNull(sampleType.description);
 			if(description !== "") {
