@@ -235,9 +235,9 @@ $.extend(DefaultProfile.prototype, {
 			
 			propertyGroup = {};
 			propertyGroup.groupDisplayName = "Physical Storage";
-			propertyGroup.nameProperty = "STORAGE_NAMES";
-			propertyGroup.rowProperty = "STORAGE_ROW";
-			propertyGroup.columnProperty = "STORAGE_COLUMN";
+			propertyGroup.nameProperty = "STORAGE_CODE";
+			propertyGroup.rowProperty = "STORAGE_RACK_ROW";
+			propertyGroup.columnProperty = "STORAGE_RACK_COLUMN";
 			propertyGroup.boxProperty = "STORAGE_BOX_NAME";
 			propertyGroup.boxSizeProperty = "STORAGE_BOX_SIZE";
 			propertyGroup.userProperty = "STORAGE_USER";
