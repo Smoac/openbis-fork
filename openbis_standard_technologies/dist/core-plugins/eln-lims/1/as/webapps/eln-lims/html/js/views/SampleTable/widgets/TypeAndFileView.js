@@ -30,7 +30,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		
 		$window.append($('<legend>').append(this._typeAndFileModel.title));
 		
-		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown(null, true);
+		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown(null, true, ["STORAGE_POSITION"]);
 		$sampleTypeDropDown.change(function(event) {
 			_this._typeAndFileModel.sampleTypeCode = $(this).val();
 			_this.updateLink($(this).val());
