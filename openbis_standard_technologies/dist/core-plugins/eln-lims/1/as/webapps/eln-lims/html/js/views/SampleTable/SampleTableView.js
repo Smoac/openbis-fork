@@ -202,8 +202,12 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this.registerSamples = function(experimentIdentifier) {
 		var _this = this;
 		var allowedSampleTypes = null;
+		var forcedSpace = null;
 		if(this._sampleTableModel.sampleTypeCodeToUse) {
 			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+			if(experimentIdentifier) {
+				forcedSpace = experimentIdentifier.split("/")[1];
+			}
 		}
 		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
 			Util.blockUI();
@@ -227,6 +231,11 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					
 					if(infoData.result.identifiersPressent) {
 						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null, finalCallback);
+					} else if(forcedSpace || typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+						if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+							forcedSpace = "STORAGE";
+						}
+						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + forcedSpace, finalCallback);
 					} else {
 						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + space, finalCallback);
 						
