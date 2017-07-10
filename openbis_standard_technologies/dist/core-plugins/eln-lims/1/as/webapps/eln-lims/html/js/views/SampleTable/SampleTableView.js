@@ -67,6 +67,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			}
 			
 			var sampleTypeCodeToUse = (mandatorySampleTypeCode)?mandatorySampleTypeCode:sampleTypeCode;
+			this._sampleTableModel.sampleTypeCodeToUse = sampleTypeCodeToUse;
 			
 			//Add Sample Type
 			if(sampleTypeCodeToUse !== null) {
@@ -200,6 +201,10 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.registerSamples = function(experimentIdentifier) {
 		var _this = this;
+		var allowedSampleTypes = null;
+		if(this._sampleTableModel.sampleTypeCodeToUse) {
+			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+		}
 		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
 			Util.blockUI();
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
@@ -223,6 +228,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					if(infoData.result.identifiersPressent) {
 						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null, finalCallback);
 					} else {
+						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + space, finalCallback);
+						
 						mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 							var spaces = [];
 							for(var i = 0; i < data.result.length; i++) {
@@ -253,11 +260,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				}
 			);
 			});
-		});
+		}, allowedSampleTypes);
 		typeAndFileController.init();
 	}
 	
 	this.updateSamples = function(experimentIdentifier) {
+		if(this._sampleTableModel.sampleTypeCodeToUse) {
+			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+		}
 		var typeAndFileController = new TypeAndFileController('Update ' + ELNDictionary.Samples + '', "UPDATE", function(type, file) {
 			Util.blockUI();
 			var finalCallback = function(data) {
@@ -277,7 +287,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				//Code After the upload
 				mainController.serverFacade.updateSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null,finalCallback);
 			});
-		});
+		}, allowedSampleTypes);
 		typeAndFileController.init();
 	}
 }
