@@ -132,4 +132,3 @@ for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.ite
 ## Sample Types
 ##
 createSampleTypeWithProperties("CELL", "", definitions.cellDefinition);
-addStorageGroups(definitions.numberOfStorageGroups, "CELL");

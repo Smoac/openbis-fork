@@ -12,34 +12,6 @@ def getPropertyDefinitionByCode(definition, code):
             return property
     return None
 
-#
-# Scripts
-#
-
-
-#
-# Storage 
-#
-numberOfStorageGroups = 100
-
-def getStorageGroupPropertyCodes():
-    propertyCodes = [];
-    for property in getStorageGroupDefinition():
-        propertyCodes.append(property[0]);
-    return propertyCodes;
-
-def getStorageGroupDefinition():
-    return [
-    ["STORAGE_NAME",         "Physical Storage",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",            "Storage Name",           None, None, False],
-    ["STORAGE_ROW",          "Physical Storage",        "drawer",           DataType.INTEGER,                    None,                "Storage Row",            None, None, False],
-    ["STORAGE_COLUMN",       "Physical Storage",        "drawer",           DataType.INTEGER,                    None,                "Storage Column",         None, None, False],
-    ["STORAGE_BOX_NAME",     "Physical Storage",        "box nr.",          DataType.VARCHAR,                    None,                "Storage Box Name",       None, None, False],
-    ["STORAGE_USER",         "Physical Storage",        "frozen by",        DataType.VARCHAR,                    None,                "Storage User Id",        None, None, False],
-    ["STORAGE_BOX_SIZE",     "Physical Storage",        "box size",         DataType.CONTROLLEDVOCABULARY,      "STORAGE_BOX_SIZE",   "Storage Box size",       None, None, False],
-    ["STORAGE_BOX_POSITION", "Physical Storage",        "position",         DataType.VARCHAR,                    None,                "Storage Box Position",   None, None, False]
-];
-
-
 
 #
 # Sample Types
@@ -63,7 +35,7 @@ cellDefinition = [
     ["FROZEN",                          "General",                "frozen",                              DataType.TIMESTAMP,                  None,  "", None, None, False],
     ["GROWTH_TEMPERATURE",              "General",                "growth temperature",                  DataType.CONTROLLEDVOCABULARY,       "GROWTH_TEMPERATURE",  "", None, None, False],
     ["INVESTIGATOR",                    "General",                "investigator",                        DataType.CONTROLLEDVOCABULARY,       "LAB_MEMBERS",  "", None, None, False],
-    ["MEDIUM",                          "General",                "medium",                              DataType.CONTROLLEDVOCABULARY,       "MEDIUM",  "", None, None, False],
+    ["MEDIUM_FOR_CELL",                 "General",                "medium",                              DataType.CONTROLLEDVOCABULARY,       "MEDIUM",  "", None, None, False],
     ["MEDIUM_SPECIALS",                 "General",                "medium specials",                     DataType.VARCHAR,                    None,  "", None, None, False],
     ["MODIFICATION_DATE",               "General",                "modification date",                   DataType.TIMESTAMP,                  None,  "", None, None, False],
     ["MODIFIED_BY",                     "General",                "modified by",                         DataType.CONTROLLEDVOCABULARY,       "LAB_MEMBERS",  "", None, None, False],
@@ -79,7 +51,7 @@ cellDefinition = [
     ["SELECTION_PLASMID2",              "General",                "sel.2",                               DataType.CONTROLLEDVOCABULARY,       "SELECTION",  "", None, None, False],
     ["SELECTION_PLASMID3",              "General",                "sel.3",                               DataType.CONTROLLEDVOCABULARY,       "SELECTION",  "", None, None, False],    
     ["SERIAL_NUMBER",                   "General",                "serial number",                       DataType.INTEGER,                    None,  "", None, None, False],
-    ["SPECIES",                         "General",                "species",                             DataType.CONTROLLEDVOCABULARY,       "CELL_SPECIES",  "", None, None, False],
+    ["SPECIES_FOR_CELL",                "General",                "species",                             DataType.CONTROLLEDVOCABULARY,       "CELL_SPECIES",  "", None, None, False],
     ["TUBES",                           "Storage",                "tubes",                               DataType.INTEGER,                    None,  "", None, None, False],
     ["COMMENTS",                        "Comments",               "info",                                DataType.MULTILINE_VARCHAR,           None,  "", None, None, False]
 ];
