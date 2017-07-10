@@ -25,7 +25,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
 	this._sampleTypeProtocolsTableModel = null;
-	this._sampleTypeDefinitionsTableModels = {}; // key: sample type; value: table model
+	this._sampleTypeDefinitionsSettingsTableModels = {}; // key: sample type; value: table model
+	this._sampleTypeDefinitionsHintsTableModels = {}; // key: sample type; value: table model
 
 	this.repaint = function(views, profileToEdit) {
 
@@ -96,17 +97,27 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
 			sampleTypeProtocols : this._sampleTypeProtocolsTableModel.getValues(),
-			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsSettings(),
+			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
 		};
 	}
 
-	this._getSampleTypeDefinitionsSettings = function() {
+	this._getSampleTypeDefinitionsExtension = function() {
 		var sampleTypeDefinitionsSettings = {};
-		var sampleTypes = Object.keys(this._sampleTypeDefinitionsTableModels);
+		var sampleTypes = Object.keys(this._sampleTypeDefinitionsHintsTableModels);
 		for (sampleType of sampleTypes) {
-			var tableModel = this._sampleTypeDefinitionsTableModels[sampleType];
-			var values = tableModel.getValues();
-			sampleTypeDefinitionsSettings[sampleType] = tableModel.getValues();
+
+			var sampleTypeSection = {};
+
+			var hintsTableModel = this._sampleTypeDefinitionsHintsTableModels[sampleType];
+			sampleTypeSection = hintsTableModel.getValues();
+
+			var settingsTableModel = this._sampleTypeDefinitionsSettingsTableModels[sampleType];
+			var settingsValues = settingsTableModel.getValues();
+			for (var key in settingsValues) {
+				sampleTypeSection[key] = settingsValues[key];
+			}
+
+			sampleTypeDefinitionsSettings[sampleType] = sampleTypeSection;
 		}
 		return sampleTypeDefinitionsSettings;
 	}
@@ -179,6 +190,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getMainMenuItemsTableModel = function() {
 		var tableModel = this._getTableModel();
+		tableModel.fullWidth = false;
 		// define columns
 		tableModel.columns = [{ label : "Main Menu Item"}, { label : "enabled"}];
 		tableModel.rowBuilders = {
@@ -307,12 +319,113 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var displayName = Util.getDisplayNameFromCode(sampleType.code);
 			var $sampleTypeFieldset = this._getFieldset($div, displayName, "settings-section-sampletype-" + sampleType.code, true);
 			$fieldset.append($div);
-			// table for sample type
+
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
-			var tableModel = this._getSampleTypeDefinitionTableModel(sampleTypeSettings);
-			$sampleTypeFieldset.append(this._getTable(tableModel));
-			this._sampleTypeDefinitionsTableModels[sampleType.code] = tableModel;
+
+			// table for parents / children settings:
+			// SAMPLE_PARENTS_TITLE, SAMPLE_PARENTS_DISABLED, SAMPLE_PARENTS_ANY_TYPE_DISABLED, 
+			// SAMPLE_CHILDREN_TITLE, SAMPLE_CHILDREN_DISABLED, SAMPLE_CHILDREN_ANY_TYPE_DISABLED
+			var settingsTableModel = this._getSampleTypesDefinitionSettingsTableModel(sampleTypeSettings);
+			var settingsTable = this._getTable(settingsTableModel);
+			settingsTable.css( { "margin-left" : "30px" } );
+			$sampleTypeFieldset.append(settingsTable);
+			this._sampleTypeDefinitionsSettingsTableModels[sampleType.code] = settingsTableModel;
+
+			// table for parents / children hints for SAMPLE_PARENTS_HINT, SAMPLE_CHILDREN_HINT
+			var hintsTableModel = this._getSampleTypeDefinitionTableModel(sampleTypeSettings);
+			$sampleTypeFieldset.append(this._getTable(hintsTableModel));
+			this._sampleTypeDefinitionsHintsTableModels[sampleType.code] = hintsTableModel;
 		}
+	}
+
+	this._getSampleTypesDefinitionSettingsTableModel = function(sampleTypeSettings) {
+		var tableModel = this._getTableModel();
+		// define columns
+		tableModel.columns = [
+			{ label : "Settings for" },
+			{ label : "Title" },
+			{ label : "Disabled" },
+			{ label : "Any Type Disabled" }
+		];
+		tableModel.rowBuilders = {
+			"Settings for" : function(rowData) {
+				return $("<span>").text(rowData.parentsOrChildren);
+			},
+			"Title" : function(rowData) {
+				return $("<input>", { type : "text", class : "form-control" }).val(rowData.title);
+			},
+			"Disabled" : function(rowData) {
+				var $checkbox = $("<input>", { type : "checkbox" });
+				if (rowData.disabled) {
+					$checkbox.attr("checked", true);
+				}
+				return $checkbox;
+			},
+			"Any Type Disabled" : function(rowData) {
+				var $checkbox = $("<input>", { type : "checkbox" });
+				if (rowData.anyTypeDisabled) {
+					$checkbox.attr("checked", true);
+				}
+				return $checkbox;
+			},
+		};
+		// add data
+		if (sampleTypeSettings) { // values from profile
+			tableModel.addRow({
+				parentsOrChildren : "Parents",
+				title : sampleTypeSettings["SAMPLE_PARENTS_TITLE"] ? sampleTypeSettings["SAMPLE_PARENTS_TITLE"] : "",
+				disabled : sampleTypeSettings["SAMPLE_PARENTS_DISABLED"],
+				anyTypeDisabled : sampleTypeSettings["SAMPLE_PARENTS_ANY_TYPE_DISABLED"],
+			});
+			tableModel.addRow({
+				parentsOrChildren : "Children",
+				title : sampleTypeSettings["SAMPLE_CHILDREN_TITLE"] ? sampleTypeSettings["SAMPLE_CHILDREN_TITLE"] : "",
+				disabled : sampleTypeSettings["SAMPLE_CHILDREN_DISABLED"],
+				anyTypeDisabled : sampleTypeSettings["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"],
+			});
+		} else { // default values
+			tableModel.addRow({
+				parentsOrChildren : "Parents",
+				title : "",
+				disabled : false,
+				anyTypeDisabled : false,
+			});
+			tableModel.addRow({
+				parentsOrChildren : "Children",
+				title : "",
+				disabled : false,
+				anyTypeDisabled : false,
+			});
+		}
+		// transform output
+		tableModel.valuesTransformer = function(values) {
+			var settings = {};
+			for (var rowValues of values) {
+				if (rowValues["Settings for"] === "Parents") {
+					if (rowValues["Title"] && rowValues["Title"].length > 0) {
+						settings["SAMPLE_PARENTS_TITLE"] = rowValues["Title"];
+					}
+					if (rowValues["Disabled"]) {
+						settings["SAMPLE_PARENTS_DISABLED"] = true;
+					}
+					if (rowValues["Any Type Disabled"]) {
+						settings["SAMPLE_PARENTS_ANY_TYPE_DISABLED"] = true;
+					}
+				} else if (rowValues["Settings for"] === "Children") {
+					if (rowValues["Title"] && rowValues["Title"].length > 0) {
+						settings["SAMPLE_CHILDREN_TITLE"] = rowValues["Title"];
+					}
+					if (rowValues["Disabled"]) {
+						settings["SAMPLE_CHILDREN_DISABLED"] = true;
+					}
+					if (rowValues["Any Type Disabled"]) {
+						settings["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"] = true;
+					}
+				}
+			}
+			return settings;
+		}
+		return tableModel;
 	}
 
 	this._getSampleTypeDefinitionTableModel = function(sampleTypeSettings) {
@@ -479,6 +592,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		tableModel.rowExtras = []; // array of extras corresponding to the rows
 		tableModel.rowExtraModels = [] // row extra models can be placed here. models need getValues() function
 		tableModel.dynamicRows = false; // allows adding / removing rows
+		tableModel.fullWidth = true; // table is drawn using the full width if true
 		tableModel.valuesTransformer = function(values) { return values }; // optional transformer
 		tableModel.getValues = (function() {
 			var values = [];
@@ -524,7 +638,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._getTable = function(tableModel) {
 		var $table = $("<table>", { class : "table borderless table-compact" });
-		if (tableModel.dynamicRows != true) {
+		if (tableModel.fullWidth != true) {
 			$table.css("width", "initial");
 		}
 		// head
