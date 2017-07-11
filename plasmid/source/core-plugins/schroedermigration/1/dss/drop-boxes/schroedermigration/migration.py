@@ -45,14 +45,14 @@ def process(tr):
         while adaptor.next():
             entity = adaptor.getEntity()
             print "* ENTITY [" + str(entity.getIdentifier(tr)) + "]"
-            try:
-                if not entity.isInOpenBIS(tr):
-                    entity.write(tr)
+#             try:
+            if not entity.isInOpenBIS(tr):
+                entity.write(tr)
                     #print entity.getIdentifier(tr) + " - Updated"
-                else:
-                    addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
-            except Exception, error:
-                    addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), str(error.args))
+            else:
+                addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
+#             except Exception, error:
+#                     addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), str(error.args))
                     #print entity.getIdentifier(tr) + " - Already up to date"
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
     print "REPORT START"
@@ -66,15 +66,18 @@ def process(tr):
 ##
 def setEntityProperties(tr, definition, entity, properties):
     for propertyCode, propertyValue in properties.iteritems():
+            #print "CODE ---->" + propertyCode
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
-            if propertyValue is not None:
+            #print "DEF ---->" + str(propertyDefinition)
+            
+            if (propertyValue is not None) and (propertyDefinition is not None) and ((propertyDefinition[3] == DataType.VARCHAR) or (propertyDefinition[3] == DataType.MULTILINE_VARCHAR)):
                 propertyValue =  unicode(propertyValue)
 
-            if propertyDefinition is not None and propertyDefinition[3] == DataType.TIMESTAMP and propertyValue is not None:
-                date_val = datetime.strptime(propertyValue, "%Y")
+            if (propertyValue is not None) and (propertyDefinition is not None) and (propertyDefinition[3] == DataType.TIMESTAMP):
+                date_val = datetime.strptime(propertyValue, "%Y-%m-%d")
                 propertyValue = datetime.strftime(date_val, "%Y-%m-%d")
             
-            if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
+            if (propertyValue is not None) and (propertyDefinition is not None) and (propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY):
                 possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue
@@ -91,7 +94,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     propertyValue = newTerm.getCode()
                     print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
             
-            if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
+            if (propertyDefinition is not None): #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
 
 ##
@@ -185,8 +188,8 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
-             if sampleType == "CELL":
-             	experiment = getExperimentForUpdate("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", sampleType, tr)             
+             if sampleType == "CELL_LINE":
+             	experiment = getExperimentForUpdate("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", "MATERIALS", tr)             
              sample = tr.createNewSample(sampleIdentifier, sampleType)
              sample.setExperiment(experiment)
          if sample is not None:
@@ -246,137 +249,136 @@ class FMSchroederOpenBISDTO(OpenBISDTO):
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
 
-class FMSchroederBoxAdaptor(FileMakerEntityAdaptor):
-    selectBoxQuery = None
-    entityIdFieldName = None
-    entityCodeFieldName = None
-    
-    def addEntity(self, values):
-        self.entities.append(FMSchroederEntityBoxOpenBISDTO(values, self.definition))
-        
-    def init(self):
-        #print "Reading boxes for: " + self.__class__.__name__
-        emptyBox = 0
-        boxes = {}
-        EntityAdaptor.init(self)
-        preparedStatement = self.connection.prepareStatement(self.selectBoxQuery)
-        result = preparedStatement.executeQuery()
-        while result.next():
-            entityId = unicode(result.getString(self.entityIdFieldName))
-            if entityId is not None:
-                if entityId in sampleID2Sample:
-                    antibodyNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
-                    if antibodyNumber is not None:
-                        values = {}
-                        drawer = result.getString("drawer");
-                        row = None
-                        column = None
-                        if (drawer is not None) and (len(drawer) > 0) and ("/" in drawer):
-                            row = drawer.split("/")[0];
-                            column = drawer.split("/")[1];
-                        
-                        values["STORAGE_NAME"] = result.getString("location")
-                        values["STORAGE_ROW"] = row # syntax is y/x: x is the row
-                        values["STORAGE_COLUMN"] = column # syntax is y/x: y is the tower, i.e. the column
-                        values["STORAGE_BOX_NAME"] = result.getString("box label")
-                        values["STORAGE_BOX_SIZE"] = result.getString("box size")
-                        values["STORAGE_USER"] = result.getString("owner")
-                        values["STORAGE_BOX_POSITION"] = result.getString("position")
-                        
-                        allBoxes = []
-                        if antibodyNumber in boxes:
-                            allBoxes = boxes[antibodyNumber]
-                        else:
-                            boxes[antibodyNumber] = allBoxes
-                        allBoxes.append(values)
-                else:
-                    #The antibody is not there. What the *#%$&
-                    emptyBox += 1
-            else:
-                #The antibody is not there. What the *#%$&
-                emptyBox += 1
-        
-        print "- ERROR ADAPTOR Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
-        
-        for entiyCode, allBoxes in boxes.iteritems():
-            self.addEntity({
-                        "*CODE" : entiyCode,
-                        "*BOXESLIST" : allBoxes
-            })
-        
-        result.close()
-        preparedStatement.close()
+# class FMSchroederBoxAdaptor(FileMakerEntityAdaptor):
+#     selectBoxQuery = None
+#     entityIdFieldName = None
+#     entityCodeFieldName = None
+#     
+#     def addEntity(self, values):
+#         self.entities.append(FMSchroederEntityBoxOpenBISDTO(values, self.definition))
+#         
+#     def init(self):
+#         #print "Reading boxes for: " + self.__class__.__name__
+#         emptyBox = 0
+#         boxes = {}
+#         EntityAdaptor.init(self)
+#         preparedStatement = self.connection.prepareStatement(self.selectBoxQuery)
+#         result = preparedStatement.executeQuery()
+#         while result.next():
+#             entityId = unicode(result.getString(self.entityIdFieldName))
+#             if entityId is not None:
+#                 if entityId in sampleID2Sample:
+#                     antibodyNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
+#                     if antibodyNumber is not None:
+#                         values = {}
+#                         drawer = result.getString("drawer");
+#                         row = None
+#                         column = None
+#                         if (drawer is not None) and (len(drawer) > 0) and ("/" in drawer):
+#                             row = drawer.split("/")[0];
+#                             column = drawer.split("/")[1];
+#                         
+#                         values["STORAGE_CODE"] = result.getString("location")
+#                         values["STORAGE_RACK_ROW"] = row # syntax is y/x: x is the row
+#                         values["STORAGE_RACK_COLUMN"] = column # syntax is y/x: y is the tower, i.e. the column
+#                         values["STORAGE_BOX_NAME"] = result.getString("box label")
+#                         values["STORAGE_BOX_SIZE"] = result.getString("box size")
+#                         values["STORAGE_USER"] = result.getString("owner")
+#                         values["STORAGE_POSITION"] = result.getString("position")
+#                         
+#                         allBoxes = []
+#                         if antibodyNumber in boxes:
+#                             allBoxes = boxes[antibodyNumber]
+#                         else:
+#                             boxes[antibodyNumber] = allBoxes
+#                         allBoxes.append(values)
+#                 else:
+#                     #The antibody is not there. What the *#%$&
+#                     emptyBox += 1
+#             else:
+#                 #The antibody is not there. What the *#%$&
+#                 emptyBox += 1
+#         
+#         print "- ERROR ADAPTOR Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
+#         
+#         for entiyCode, allBoxes in boxes.iteritems():
+#             self.addEntity({
+#                         "*CODE" : entiyCode,
+#                         "*BOXESLIST" : allBoxes
+#             })
+#         
+#         result.close()
+#         preparedStatement.close()
 
-class FMSchroederEntityBoxOpenBISDTO(OpenBISDTO):
-    def getIdentifier(self, tr):
-        return self.values["*CODE"]
-    
-    def write(self, tr):
-        sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-        print "* INFO Boxes size: " + str(len(self.values["*BOXESLIST"]))
-        #Delete old boxes
-        for boxNum in range(1, definitions.numberOfStorageGroups+1):
-            for propertyCode in definitions.getStorageGroupPropertyCodes():
-                sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
-        
-        #Add new boxes
-        boxNum = 0
-        for box in self.values["*BOXESLIST"]:
-            boxNum += 1
-            for propertyCode, propertyValue in box.iteritems():
-                if propertyCode == "STORAGE_NAME":
-                    freezerName = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                    if freezerName is None:
-                        #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
-                        propertyValue = None
-                    else:
-                        propertyValue = freezerName
-                
-                if propertyValue is not None:
-                    propertyValue =  unicode(propertyValue)
-                    sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
-    
-    def isBoxPressent(self, boxSignature, tr):
-        sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-        if sample is not None:
-            for boxNum in range(1, definitions.numberOfStorageGroups+1):
-                storedSignature = "";
-                for propertyCode in definitions.getStorageGroupPropertyCodes():
-                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(boxNum))
-                    if propertyValue is not None:
-                        propertyValue = unicode(propertyValue)
-                        storedSignature += propertyValue
-                if storedSignature == boxSignature:
-                    #print "Found Box " + storedSignature.encode('ascii', 'ignore')
-                    return True
-        return False
-    
-    def isInOpenBIS(self, tr):
-        for box in self.values["*BOXESLIST"]:
-            boxSignature = "";
-            for propertyCode in definitions.getStorageGroupPropertyCodes():
-                propertyValue = box[propertyCode]
-                if propertyCode == "STORAGE_NAME":
-                    propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                #if propertyCode == "STORAGE_USER":
-                    #propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
-                    
-                if propertyValue is not None:
-                    propertyValue = unicode(propertyValue)
-                    boxSignature += propertyValue
-            if not self.isBoxPressent(boxSignature, tr):
-                return False
-        return True
+# class FMSchroederEntityBoxOpenBISDTO(OpenBISDTO):
+#     def getIdentifier(self, tr):
+#         return self.values["*CODE"]
+#     
+#     def write(self, tr):
+#         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
+#         print "* INFO Boxes size: " + str(len(self.values["*BOXESLIST"]))
+#         #Delete old boxes
+#         for boxNum in range(1, definitions.numberOfStorageGroups+1):
+#             for propertyCode in definitions.getStorageGroupPropertyCodes():
+#                 sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
+#         
+#         #Add new boxes
+#         boxNum = 0
+#         for box in self.values["*BOXESLIST"]:
+#             boxNum += 1
+#             for propertyCode, propertyValue in box.iteritems():
+#                 if propertyCode == "STORAGE_NAME":
+#                     freezerName = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+#                     if freezerName is None:
+#                         #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+#                         propertyValue = None
+#                     else:
+#                         propertyValue = freezerName
+#                 
+#                 if propertyValue is not None:
+#                     propertyValue =  unicode(propertyValue)
+#                     sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
+#     
+#     def isBoxPressent(self, boxSignature, tr):
+#         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
+#         if sample is not None:
+#             for boxNum in range(1, definitions.numberOfStorageGroups+1):
+#                 storedSignature = "";
+#                 for propertyCode in definitions.getStorageGroupPropertyCodes():
+#                     propertyValue = sample.getPropertyValue(propertyCode + "_" + str(boxNum))
+#                     if propertyValue is not None:
+#                         propertyValue = unicode(propertyValue)
+#                         storedSignature += propertyValue
+#                 if storedSignature == boxSignature:
+#                     #print "Found Box " + storedSignature.encode('ascii', 'ignore')
+#                     return True
+#         return False
+#     
+#     def isInOpenBIS(self, tr):
+#         for box in self.values["*BOXESLIST"]:
+#             boxSignature = "";
+#             for propertyCode in definitions.getStorageGroupPropertyCodes():
+#                 propertyValue = box[propertyCode]
+#                 if propertyCode == "STORAGE_NAME":
+#                     propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+#                 #if propertyCode == "STORAGE_USER":
+#                     #propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
+#                     
+#                 if propertyValue is not None:
+#                     propertyValue = unicode(propertyValue)
+#                     boxSignature += propertyValue
+#             if not self.isBoxPressent(boxSignature, tr):
+#                 return False
+#         return True
 
 
 ##
 ## Cells
 ##
 class CellAdaptor(FileMakerEntityAdaptor):
-    
     def init(self):
         self.selectQuery = "SELECT * FROM \"cells\""
-        self.definition = definitions.cellDefinition
+        self.definition = definitions.CELL_LINE
         FileMakerEntityAdaptor.init(self)
     
     def addEntity(self, values):
@@ -384,21 +386,21 @@ class CellAdaptor(FileMakerEntityAdaptor):
         
 class CellOpenBISDTO(FMSchroederOpenBISDTO):
     def write(self, tr):
-        code = self.values["CODE"]
+        code = self.values["*CODE"]
         if code is not None:
-            sample = getSampleForUpdate("/MATERIALS/"+code,"CELL", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"CELL_LINE", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        if "CODE" not in self.values:
-            self.values["CODE"] = "CELL_" + getNextGlobalSequence("CELL");
-            print "New Code Generated: " + self.values["CODE"]
-        return self.values["CODE"];
+        if "*CODE" not in self.values:
+            self.values["*CODE"] = "CELL_LINE_" + getNextGlobalSequence("CELL_LINE");
+            print "New Code Generated: " + self.values["*CODE"]
+        return self.values["*CODE"];
 
-class CellBoxAdaptor(FMSchroederBoxAdaptor):
-    selectBoxQuery = "SELECT * FROM \"cell boxes\""
-    entityIdFieldName = "cell ID"
-    entityCodeFieldName = "NAME"
+# class CellBoxAdaptor(FMSchroederBoxAdaptor):
+#     selectBoxQuery = "SELECT * FROM \"cell boxes\""
+#     entityIdFieldName = "cell ID"
+#     entityCodeFieldName = "NAME"
 
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 #fmConnString = "jdbc:filemaker://fm.ethz.ch/"
@@ -412,11 +414,7 @@ adaptors = [
              ]
            
 def createDataHierarchy(tr):
-    inventorySpace = tr.getSpace("MATERIALS")
-    if inventorySpace == None:
-        tr.createNewSpace("MATERIALS", None)
-        tr.createNewProject("/MATERIALS/CELL_LINES")
-        tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", "UNKNOWN");
+    pass
 
         
         
