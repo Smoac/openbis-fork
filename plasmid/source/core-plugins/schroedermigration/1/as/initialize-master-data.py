@@ -107,15 +107,6 @@ def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, v
         property.setVocabulary(vocabulariesCache[vocabularyCode]);
     return property;
 
-def addStorageGroups(numGroups, sampleType):
-    for storageIdx in range(1,(numGroups + 1)):
-        storageGroup = definitions.getStorageGroupDefinition();
-        for property in storageGroup:
-            property[0] = property[0] + "_" + str(storageIdx);
-            property[1] = property[1] + "_" + str(storageIdx);
-            property[5] = property[5] + "_" + str(storageIdx);
-        addPropertiesToSamples([sampleType], storageGroup);
-
 def findAssignment(entityType, propertyType):
     for assignment in tr.listPropertyAssignments():
         if assignment.getEntityKind().equals(entityType.getEntityKind()) and assignment.getEntityTypeCode() == entityType.getCode() and assignment.getPropertyTypeCode() == propertyType.getCode():
@@ -131,4 +122,5 @@ for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.ite
 ##
 ## Sample Types
 ##
-createSampleTypeWithProperties("CELL", "", definitions.cellDefinition);
+createSampleTypeWithProperties("CELL_LINE", "", definitions.CELL_LINE);
+createSampleTypeWithProperties("STORAGE_POSITION", "", definitions.STORAGE_POSITION);

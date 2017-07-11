@@ -17,7 +17,7 @@ def getPropertyDefinitionByCode(definition, code):
 # Sample Types
 #
 
-cellDefinition = [
+CELL_LINE = [
     ["CO2",                             "General",                "%CO2",                                DataType.CONTROLLEDVOCABULARY,       "CO2",  "", None, None, False],
     ["ATCC_NUM",                        "General",                "ATCC No.",                            DataType.VARCHAR,                    None,  "", None, None, False],
     ["NAME",                            "General",                "cell ID",                             DataType.VARCHAR,                    None,  "", None, None, False],
@@ -52,8 +52,36 @@ cellDefinition = [
     ["SELECTION_PLASMID3",              "General",                "sel.3",                               DataType.CONTROLLEDVOCABULARY,       "SELECTION",  "", None, None, False],    
     ["SERIAL_NUMBER",                   "General",                "serial number",                       DataType.INTEGER,                    None,  "", None, None, False],
     ["SPECIES_FOR_CELL",                "General",                "species",                             DataType.CONTROLLEDVOCABULARY,       "CELL_SPECIES",  "", None, None, False],
-    ["TUBES",                           "Storage",                "tubes",                               DataType.INTEGER,                    None,  "", None, None, False],
-    ["COMMENTS",                        "Comments",               "info",                                DataType.MULTILINE_VARCHAR,           None,  "", None, None, False]
+    ["TUBES",                           "General",                "tubes",                               DataType.INTEGER,                    None,  "", None, None, False],
+    ["COMMENTS",                        "General",                "info",                                DataType.MULTILINE_VARCHAR,          None,  "", None, None, False]
 ];
 
-
+STORAGE_POSITION = [
+    ["STORAGE_CODE",                  "Physical Storage",        "Storage Code",              DataType.VARCHAR,                    None,                "Storage Code",            None, None, False],
+    ["STORAGE_RACK_ROW",              "Physical Storage",        "Storage Rack Row",          DataType.INTEGER,                    None,                "Storage Rack Row",        None, None, False],
+    ["STORAGE_RACK_COLUMN",           "Physical Storage",        "Storage Rack Column",       DataType.INTEGER,                    None,                "Storage Rack Column",     None, None, False],
+    ["STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",        None, None, False],
+    ["STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",        None, None, False],
+    ["STORAGE_BOX_POSITION",          "Physical Storage",        "Storage Box Position",      DataType.VARCHAR,                    None,                "Storage Box Position",    None, None, False],
+    ["STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",         None, None, False],
+    ["BOX_NR",                        "General",                 "box nr.",                   DataType.INTEGER,                    None,                "",                        None, None, False],
+    ["DRAWER",                        "General",                 "drawer",                    DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["INVESTIGATOR",                  "General",                 "investigator",              DataType.CONTROLLEDVOCABULARY,       "LAB_MEMBERS",       "",                        None, None, False],
+    ["FROZEN",                        "General",                 "frozen",                    DataType.TIMESTAMP,                  None,                "",                        None, None, False],
+    ["CONCENTRATION",                 "General",                 "concentration",             DataType.REAL,                       None,                "",                        None, None, False],
+    ["COMMENTS",                      "General",                 "info",                      DataType.MULTILINE_VARCHAR,          None,                "",                        None, None, False],
+    ["FROZEN_BY",                     "General",                 "frozen by",                 DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["COLOUR",                        "General",                 "colour",                    DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["COLOUR_A1",                     "General",                 "colour A1",                 DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["COLOUR_REST",                   "General",                 "colour rest",               DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["COLOUR_BOX_NR",                 "General",                 "colour box nr",             DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["CREATION_DATE",                 "General",                 "creation date",             DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["MODIFICATION_DATE",             "General",                 "modification date",         DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["MODIFIED_BY",                   "General",                 "modified by",               DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["CLONE_",                        "General",                 "clone#",                    DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["PASSAGE",                       "General",                 "passage",                   DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["BOX_LABEL_VARIABLE",            "General",                 "box label variable",        DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["OWNER_VARIABLE",                "General",                 "owner variable",            DataType.VARCHAR,                    None,                "",                        None, None, False],
+    ["XMLCOMMENTS",                   "Comments",                "Comments List",             DataType.XML,                        None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None, False],
+    ["ANNOTATIONS_STATE",             "Comments",                "Annotations State",         DataType.XML,                        None,                "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None, False]                      
+];
