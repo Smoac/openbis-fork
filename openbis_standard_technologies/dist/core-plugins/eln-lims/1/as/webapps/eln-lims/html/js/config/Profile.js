@@ -240,8 +240,8 @@ $.extend(DefaultProfile.prototype, {
 			propertyGroup.columnProperty = "STORAGE_RACK_COLUMN";
 			propertyGroup.boxProperty = "STORAGE_BOX_NAME";
 			propertyGroup.boxSizeProperty = "STORAGE_BOX_SIZE";
+			propertyGroup.positionProperty = "STORAGE_BOX_POSITION";
 			propertyGroup.userProperty = "STORAGE_USER";
-			propertyGroup.positionProperty = "STORAGE_POSITION";
 			return propertyGroup;
 		}
 		
