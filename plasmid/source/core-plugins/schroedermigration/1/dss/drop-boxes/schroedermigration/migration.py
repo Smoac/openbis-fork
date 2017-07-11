@@ -229,14 +229,9 @@ class FileMakerEntityAdaptor(EntityAdaptor):
 ## Customer specific logic: different sample types
 ##
 class FMSchroederOpenBISDTO(OpenBISDTO):
-        def isSampleCacheable(self):
-            return True
-        
         def isInOpenBIS(self, tr):
             code = self.getIdentifier(tr)
             if code is not None:
-                if self.isSampleCacheable():
-                    sampleID2Sample[self.values["NAME"]] = self.values
                 sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
                 if sample is not None:
                     lastModificationData = self.values["MODIFICATION_DATE"].strip()
@@ -390,7 +385,9 @@ class CellOpenBISDTO(FMSchroederOpenBISDTO):
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"CELL_LINE", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
-    
+            global sampleID2Sample
+            sampleID2Sample[self.values["NAME"]] = sample
+        
     def getIdentifier(self, tr):
         if "*CODE" not in self.values:
             self.values["*CODE"] = "CELL_LINE_" + getNextGlobalSequence("CELL_LINE");
