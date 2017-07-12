@@ -56,6 +56,20 @@ def process(tr):
 #                     addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), str(error.args))
                     #print entity.getIdentifier(tr) + " - Already up to date"
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
+    # Set Parents
+    for sampleName in sampleID2Sample:
+            sample = sampleID2Sample[sampleName]
+            sampleParentName = sample.getPropertyValue("PARENTAL_CELL")
+            if sampleParentName != None and sampleParentName != "":
+                if sampleParentName in sampleID2Sample:
+                    sampleParent = sampleID2Sample[sampleParentName]
+                    if sample is not sampleParent:
+                        sample.setParentSampleIdentifiers([sampleParent.getSampleIdentifier()]);
+                    else:
+                        print "Sample depends on itself ===> '" + str(sampleParentName) + "'"
+                else:
+                    print "Missing sample parent ===> '" + str(sampleParentName) + "'"
+    #
     print "REPORT START"
     printNotMigratedEntities()
     definitionsVoc.printCreatedTerms()
@@ -293,7 +307,6 @@ class CellOpenBISDTO(FMSchroederOpenBISDTO):
     def getIdentifier(self, tr):
         if "*CODE" not in self.values:
             self.values["*CODE"] = "CELL_LINE_" + getNextGlobalSequence("CELL_LINE");
-            print "New Code Generated: " + self.values["*CODE"]
         return self.values["*CODE"];
 
 class CellBoxPositionAdaptor(FileMakerEntityAdaptor):
@@ -347,7 +360,6 @@ class CellBoxPositionOpenBISDTO(FMSchroederOpenBISDTO):
     def getIdentifier(self, tr):
         if "*CODE" not in self.values:
             self.values["*CODE"] = str(uuid.uuid4());
-            print "New Code Generated: " + self.values["*CODE"]
         return self.values["*CODE"];
 
 fmConnString = "jdbc:filemaker://127.0.0.1/"

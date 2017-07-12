@@ -74,7 +74,8 @@ def addPropertiesToSamples(sampleTypeCodes, properties):
     
 def addProperties(entity, properties):
     for property in properties:
-        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8], None);
+        if not property[0].startswith("*"):
+            addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8], None);
     
 def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory, position):
     property = None;
