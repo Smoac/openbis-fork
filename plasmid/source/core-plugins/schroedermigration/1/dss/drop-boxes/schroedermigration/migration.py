@@ -68,7 +68,7 @@ def process(tr):
                     else:
                         print "Sample depends on itself ===> '" + str(sampleParentName) + "'"
                 else:
-                    print "Missing sample parent ===> '" + str(sampleParentName) + "'"
+                    print "Missing sample parent ===> '" + sampleName + "' depends on '" + str(sampleParentName) + "'"
     #
     print "REPORT START"
     printNotMigratedEntities()
