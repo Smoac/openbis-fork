@@ -324,7 +324,11 @@ class CellBoxPositionOpenBISDTO(FMSchroederOpenBISDTO):
             if (drawer is not None) and (len(drawer) > 0) and ("/" in drawer):
                 row = drawer.split("/")[0];
                 column = drawer.split("/")[1];
-                          
+            
+            if self.values["*LOCATION"] == u"-140°C R5.38" and row == None and column == None:
+                row = "1"
+                column = "1"
+            
             if self.values["*LOCATION"] != None:
                 sample.setPropertyValue("STORAGE_CODE", racks[self.values["*LOCATION"]])
             
@@ -337,8 +341,6 @@ class CellBoxPositionOpenBISDTO(FMSchroederOpenBISDTO):
             sample.setPropertyValue("STORAGE_BOX_POSITION", self.values["*POSITION"])
             sample.setPropertyValue("STORAGE_USER", self.values["*OWNER"])
             
-            if self.values["*CELL_ID"] not in sampleID2Sample:
-                print "KEYS ==> " + str(sampleID2Sample.keys())
             sampleParent = sampleID2Sample[self.values["*CELL_ID"]];
             sample.setParentSampleIdentifiers([sampleParent.getSampleIdentifier()]);
         
@@ -359,7 +361,25 @@ adaptors = [
              ]
            
 def createDataHierarchy(tr):
-    pass
+    storageCollection = getExperimentForUpdate("/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", tr)
+    storageN2 = getSampleForUpdate("/ELN_SETTINGS/N2","STORAGE", tr)
+    storageN2.setExperiment(storageCollection)
+    storageN2.setPropertyValue("NAME", "N2")
+    storageN2.setPropertyValue("ROW_NUM", "10")
+    storageN2.setPropertyValue("COLUMN_NUM", "10")
+    storageN2.setPropertyValue("BOX_NUM", "9999")
+    storageN2.setPropertyValue("STORAGE_SPACE_WARNING", "80")
+    storageN2.setPropertyValue("BOX_SPACE_WARNING", "80")
+    storageN2.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION")
+    storage180 = getSampleForUpdate("/ELN_SETTINGS/MINUS140_R5.38","STORAGE", tr)
+    storage180.setExperiment(storageCollection)
+    storage180.setPropertyValue("NAME", "-140°C R5.38")
+    storage180.setPropertyValue("ROW_NUM", "1")
+    storage180.setPropertyValue("COLUMN_NUM", "1")
+    storage180.setPropertyValue("BOX_NUM", "9999")
+    storage180.setPropertyValue("STORAGE_SPACE_WARNING", "80")
+    storage180.setPropertyValue("BOX_SPACE_WARNING", "80")
+    storage180.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION")
 
         
         
