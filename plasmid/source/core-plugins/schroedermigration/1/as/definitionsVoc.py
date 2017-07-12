@@ -222,10 +222,6 @@ vocabularyDefinitions = {
                                 ["MICROG_MICROL",  "�g/�l"],
                                 ["MG_ML",  "mgl/ml"],
                                 ["UG_ML",  "ug/ml"]                               
-                                    ],  
-                        "FREEZER" : [
-                                ["N2",  "N2"],
-                                ["MINUS140_R5.38",  "-140°C R5.38"],
                                     ],
                          "STORAGE_BOX_SIZE" : [
                                 ["10X10", "10x10"]
