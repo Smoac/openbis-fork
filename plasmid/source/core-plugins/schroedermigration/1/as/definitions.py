@@ -54,8 +54,8 @@ CELL_LINE = [
     ["SPECIES_FOR_CELL",                "General",                "species",                             DataType.CONTROLLEDVOCABULARY,       "CELL_SPECIES",  "", None, None, False],
     ["TUBES",                           "General",                "tubes",                               DataType.INTEGER,                    None,  "", None, None, False],
     ["COMMENTS",                        "General",                "info",                                DataType.MULTILINE_VARCHAR,          None,  "", None, None, False],
-    ["XMLCOMMENTS",                     "Comments",               "Comments List",                       DataType.XML,                        None,  "Several comments can be added by different users", "COMMENTS_SAMPLE", None, None, False],
-    ["ANNOTATIONS_STATE",               "Comments",               "Annotations State",                   DataType.XML,                        None,  "Annotations State", "ANNOTATIONS_CELL_LINE", None, None, False]
+    ["XMLCOMMENTS",                     "Comments",               "Comments List",                       DataType.XML,                        None,  "Several comments can be added by different users", "COMMENTS_SAMPLE", None, False],
+    ["ANNOTATIONS_STATE",               "Comments",               "Annotations State",                   DataType.XML,                        None,  "Annotations State", "ANNOTATIONS_CELL_LINE", None, False]
 ];
 
 STORAGE_POSITION = [
