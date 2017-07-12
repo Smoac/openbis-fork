@@ -229,8 +229,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"SAMPLE_PARENTS_DISABLED" : true,
 				},
 				"STORAGE_POSITION" : {
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_DISABLED" : true,
+					"SAMPLE_CHILDREN_DISABLED" : true
 				},
 				"REQUEST" : {
 					"SAMPLE_PARENTS_TITLE" : "Products from Catalog",
