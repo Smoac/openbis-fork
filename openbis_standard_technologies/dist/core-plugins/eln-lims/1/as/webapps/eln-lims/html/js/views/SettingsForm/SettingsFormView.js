@@ -313,7 +313,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._paintSampleTypesDefinition = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-definitions");
 		$fieldset.append(FormUtil.getInfoText(text.info));
-		for (var sampleType of this._profileToEdit.getAllSampleTypes()) {
+		for (var sampleType of this._profileToEdit.getAllSampleTypes(true)) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
 			var displayName = Util.getDisplayNameFromCode(sampleType.code);
@@ -343,25 +343,25 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		// define columns
 		tableModel.columns = [
 			{ label : "Settings for" },
-			{ label : "Title" },
-			{ label : "Disabled" },
-			{ label : "Any Type Disabled" }
+			{ label : "Section name" },
+			{ label : "Disable section" },
+			{ label : "Disable addition of any object type" }
 		];
 		tableModel.rowBuilders = {
 			"Settings for" : function(rowData) {
 				return $("<span>").text(rowData.parentsOrChildren);
 			},
-			"Title" : function(rowData) {
+			"Section name" : function(rowData) {
 				return $("<input>", { type : "text", class : "form-control" }).val(rowData.title);
 			},
-			"Disabled" : function(rowData) {
+			"Disable section" : function(rowData) {
 				var $checkbox = $("<input>", { type : "checkbox" });
 				if (rowData.disabled) {
 					$checkbox.attr("checked", true);
 				}
 				return $checkbox;
 			},
-			"Any Type Disabled" : function(rowData) {
+			"Disable addition of any object type" : function(rowData) {
 				var $checkbox = $("<input>", { type : "checkbox" });
 				if (rowData.anyTypeDisabled) {
 					$checkbox.attr("checked", true);
@@ -402,23 +402,23 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var settings = {};
 			for (var rowValues of values) {
 				if (rowValues["Settings for"] === "Parents") {
-					if (rowValues["Title"] && rowValues["Title"].length > 0) {
-						settings["SAMPLE_PARENTS_TITLE"] = rowValues["Title"];
+					if (rowValues["Section name"] && rowValues["Section name"].length > 0) {
+						settings["SAMPLE_PARENTS_TITLE"] = rowValues["Section name"];
 					}
-					if (rowValues["Disabled"]) {
+					if (rowValues["Disable section"]) {
 						settings["SAMPLE_PARENTS_DISABLED"] = true;
 					}
-					if (rowValues["Any Type Disabled"]) {
+					if (rowValues["Disable addition of any object type"]) {
 						settings["SAMPLE_PARENTS_ANY_TYPE_DISABLED"] = true;
 					}
 				} else if (rowValues["Settings for"] === "Children") {
-					if (rowValues["Title"] && rowValues["Title"].length > 0) {
-						settings["SAMPLE_CHILDREN_TITLE"] = rowValues["Title"];
+					if (rowValues["Section name"] && rowValues["Section name"].length > 0) {
+						settings["SAMPLE_CHILDREN_TITLE"] = rowValues["Section name"];
 					}
-					if (rowValues["Disabled"]) {
+					if (rowValues["Disable section"]) {
 						settings["SAMPLE_CHILDREN_DISABLED"] = true;
 					}
-					if (rowValues["Any Type Disabled"]) {
+					if (rowValues["Disable addition of any object type"]) {
 						settings["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"] = true;
 					}
 				}

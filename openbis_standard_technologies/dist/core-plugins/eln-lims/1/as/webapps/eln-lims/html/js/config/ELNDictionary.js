@@ -34,15 +34,15 @@ ELNDictionary.settingsView = {
 		},
 		forcedDisableRTF : {
 			title : "Forced Disable RTF",
-			info : "When listing a MULTILINE_TEXT Property Type on this section the rich text editor will be disabled on the forms.",
+			info : "By default all MULTILINE_VARCHAR properties have RTF. Use this section to disable the RTF on specific properties.",
 		},
 		forceMonospaceFont : {
 			title : "Forced Monospace Font",
-			info : "When listing a MULTILINE_TEXT Property Type on this section it will use a monospace font.",
+			info : "Use this section to force the use of monospace font for selected MULTILINE_VARCHAR properties.",
 		},
 		inventorySpaces : {
 			title : "Inventory Spaces",
-			info : "When listing a Space code on this section, it will be treated by the user interface as an invetory space, being shown on the appropriate section.",
+			info : "By default all new spaces created in openBIS are shown under the Lab Notebook in the main menu. Spaces listed here are shown under the Inventory.",
 		},
 		sampleTypeProtocols : {
 			title : ELNDictionary.Sample + " Type Protocols",

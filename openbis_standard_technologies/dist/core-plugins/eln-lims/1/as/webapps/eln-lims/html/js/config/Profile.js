@@ -600,7 +600,7 @@ $.extend(DefaultProfile.prototype, {
 				var allNonHiddenSampleTypes = [];
 				for(var sIdx = 0; sIdx < this.allSampleTypes.length; sIdx++) {
 					var sampleType = this.allSampleTypes[sIdx];
-					if(!this.isSampleTypeHidden(sampleType.sampleTypeCode)) {
+					if(!this.isSampleTypeHidden(sampleType.code)) {
 						allNonHiddenSampleTypes.push(sampleType);
 					}
 				}
