@@ -200,7 +200,7 @@ $.extend(DefaultProfile.prototype, {
 			if(sampleType && sampleType.listable) {
 				return ($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1);
 			} else {
-				return true;
+				return false;
 			}
 		}
 		
@@ -595,8 +595,19 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 		
-		this.getAllSampleTypes = function() {
-			return this.allSampleTypes;
+		this.getAllSampleTypes = function(skipHidden) {
+			if(skipHidden) {
+				var allNonHiddenSampleTypes = [];
+				for(var sIdx = 0; sIdx < this.allSampleTypes.length; sIdx++) {
+					var sampleType = this.allSampleTypes[sIdx];
+					if(!this.isSampleTypeHidden(sampleType.sampleTypeCode)) {
+						allNonHiddenSampleTypes.push(sampleType);
+					}
+				}
+				return allNonHiddenSampleTypes;
+			} else {
+				return this.allSampleTypes;
+			}
 		}
 		
 		this.initPropertyTypes = function(callback) {
