@@ -27,7 +27,7 @@ function LinksView(linksController, linksModel) {
 	//
 	// External API
 	//
-	linksView.initContainerForType = function(sampleTypeCode, samples) {
+	linksView.initContainerForType = function(sampleTypeCode, samples, sampleTypeLabel) {
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
 		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		
@@ -49,7 +49,8 @@ function LinksView(linksController, linksModel) {
 			var $samplePickerContainer = $("<div>");
 			
 			if(sampleTypeCode) {
-				$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":")
+				var sampleTableContainerLabel = (sampleTypeLabel)?sampleTypeLabel:sampleTypeCode;
+				$sampleTableContainer.append($("<div>").append(sampleTableContainerLabel + ":")
 						.append("&nbsp;")
 						.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode))
 						.css("margin","5px"));

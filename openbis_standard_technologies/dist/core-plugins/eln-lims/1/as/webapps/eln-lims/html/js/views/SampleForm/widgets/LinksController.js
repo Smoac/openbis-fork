@@ -23,7 +23,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		
 		if(sampleTypeHints && showAnnotableTypes) {
 			for(var sIdx = 0; sIdx < sampleTypeHints.length; sIdx++) {
-				linksView.initContainerForType(sampleTypeHints[sIdx].TYPE);
+				linksView.initContainerForType(sampleTypeHints[sIdx].TYPE, undefined, sampleTypeHints[sIdx].LABEL);
 			}
 		}
 		
