@@ -75,9 +75,12 @@ def addPropertiesToSamples(sampleTypeCodes, properties):
 def addProperties(entity, properties):
     for property in properties:
         if not property[0].startswith("*"):
-            addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8], None);
+            showInEditViews = None;
+            if len(property) > 9 and property[9] is not None:
+                showInEditViews = property[9];
+            addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8], showInEditViews);
     
-def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory, position):
+def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory, showInEditViews):
     property = None;
     
     if propertyCode in propertiesCache:
@@ -85,18 +88,20 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
     else:
         property = createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode);
     
-    propertyAssignment = tr.assignPropertyType(entity, property);
+    propertyAssignment = tr.assignPropertyType(entity, property); #If the assignment already exists, returns the existing one
     propertyAssignment.setSection(section);
+    propertyAssignment.setShownEdit(True);
     propertyAssignment.setMandatory(isMandatory);
-    if position is not None:
-        propertyAssignment.setPositionInForms(position);
+    
+    if showInEditViews is not None:
+        propertyAssignment.setShownEdit(showInEditViews);
+    
     if managedScript != None:
         propertyAssignment.setManaged(True);
-        propertyAssignment.setShownEdit(True);
         propertyAssignment.setScriptName(managedScript);
     if dynamicScript != None:
         propertyAssignment.setDynamic(True);
-        propertyAssignment.setShownEdit(True);
+        propertyAssignment.setShownEdit(False);
         propertyAssignment.setScriptName(dynamicScript);
 
 def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode):
