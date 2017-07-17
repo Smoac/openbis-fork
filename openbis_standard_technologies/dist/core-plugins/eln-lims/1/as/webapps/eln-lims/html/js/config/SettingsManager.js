@@ -59,7 +59,7 @@ function SettingsManager(serverFacade) {
 	}
 
 	this.getSampleTypeProtocolsOptions = function() {
-		return profile.allSampleTypes.map((sampleType) => {return sampleType.code})
+		return profile.allSampleTypes.map(function(_) {return _.code})
 	}
 
 	this.getInventorySpacesOptions = function() {
