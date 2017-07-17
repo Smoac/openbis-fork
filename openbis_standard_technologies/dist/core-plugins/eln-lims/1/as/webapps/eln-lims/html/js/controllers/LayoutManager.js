@@ -97,7 +97,7 @@ var LayoutManager = {
 			this.secondColumnContent = $("<div>");
 			this.secondColumnContent.css({
 				display : "none",
-				"overflow-x" : "hidden",
+				"overflow-x" : "auto",
 				"overflow-y" : "auto"
 			});
 			
