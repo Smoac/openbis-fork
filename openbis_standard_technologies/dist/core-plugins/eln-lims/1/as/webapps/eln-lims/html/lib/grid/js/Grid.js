@@ -1,9 +1,9 @@
-function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
-	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable);
+function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight) {
+	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight);
 }
 
 $.extend(Grid.prototype, {
-	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
+	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight) {
 		this.columnsFirst = columnsFirst;
 		this.columnsDynamicFunc = columnsDynamicFunc;
 		this.columnsDynamic = [];
@@ -31,6 +31,7 @@ $.extend(Grid.prototype, {
 			this.addMultiSelect(columnsFirst);
 		}
 		this.lastUsedColumns = [];
+		this.staticHeight;
 	},
 	addMultiSelect : function(columns) {
 		var _this = this;
@@ -125,6 +126,7 @@ $.extend(Grid.prototype, {
 						thisGrid.list(options, callback);
 					}
 				},
+				staticHeight : thisGrid.staticHeight, //$( window ).height() - LayoutManager.secondColumnHeader.outerHeight() - 30,
 				list_selectable : false,
 				list_noItemsHTML : 'No items found',
 				list_rowRendered : function(helpers, callback) {
@@ -418,7 +420,7 @@ $.extend(Grid.prototype, {
 		var columns = [];
 
 		var columnsModel = {};
-		var maxColumns = 15;
+		var maxColumns = 50;
 		var enabledColumns = 0;
 		
 		_this.getAllColumns().forEach(function(column) {
@@ -645,7 +647,7 @@ $.extend(Grid.prototype, {
 			} else {
 				var newColumns = thisGrid.getVisibleColumns();
 				if(newColumns.length === thisGrid.lastUsedColumns.length) { //No changes
-					
+					result.columns = thisGrid.lastUsedColumns;
 				} else if(newColumns.length > thisGrid.lastUsedColumns.length) { //We added one column, first not matching column, we add to last used
 					var newLastUsedColumns = [];
 					for(var cIdx = 0; cIdx < thisGrid.lastUsedColumns.length; cIdx++) {
