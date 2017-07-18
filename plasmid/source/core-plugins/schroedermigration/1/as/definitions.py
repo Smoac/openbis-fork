@@ -17,6 +17,9 @@ def getPropertyDefinitionByCode(definition, code):
 # Sample Types
 #
 
+# Columns
+# propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory, showInEditViews
+
 CELL_LINE = [
     ["CO2",                             "General",                "%CO2",                                DataType.CONTROLLEDVOCABULARY,       "CO2",                "", None, None, False],
     ["ATCC_NUM",                        "General",                "ATCC No.",                            DataType.VARCHAR,                    None,                 "", None, None, False],
