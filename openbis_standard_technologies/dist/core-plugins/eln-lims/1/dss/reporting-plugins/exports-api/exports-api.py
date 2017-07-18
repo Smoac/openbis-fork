@@ -147,7 +147,7 @@ def process(tr, params, tableBuilder):
 def addToExportWithoutRepeating(entitiesToExport, entityFound):
     found = False;
     for entityToExport in entitiesToExport:
-        if entityToExport["permId"] == entityFound["permId"] and entityToExport["type"] == entityFound["type"]:
+        if entityToExport["type"] != "FILE" and entityToExport["permId"] == entityFound["permId"] and entityToExport["type"] == entityFound["type"]:
             found = True;
             break;
     if not found:
@@ -242,10 +242,7 @@ def expandAndexport(tr, params):
             operationLog.info("Found: " + str(results.getTotalCount()) + " files");
             for file in results.getObjects():
                 entityFound = { "type" : "FILE", "permId" : permId, "path" : file.getPath(), "isDirectory" : file.isDirectory(), "length" : file.getFileLength() };
-                if entityFound["isDirectory"]:
-                    entitiesToExpand.append(entityFound);
-                else:
-                    addToExportWithoutRepeating(entitiesToExport, entityFound);
+                addToExportWithoutRepeating(entitiesToExport, entityFound);
                     
     
     limitDataSizeInMegabytes = getConfigurationProperty(tr, 'limit-data-size-megabytes');
