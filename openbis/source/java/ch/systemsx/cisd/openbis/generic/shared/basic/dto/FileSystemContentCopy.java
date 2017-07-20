@@ -16,11 +16,13 @@ public class FileSystemContentCopy implements IContentCopy
 
     private String hash;
 
+	private String repositoryId;
+
     public FileSystemContentCopy()
     {
     }
 
-    public FileSystemContentCopy(String code, String label, String host, String directory, String path, String hash)
+    public FileSystemContentCopy(String code, String label, String host, String directory, String path, String hash, String repositoryId)
     {
         this.code = code;
         this.label = label;
@@ -28,6 +30,7 @@ public class FileSystemContentCopy implements IContentCopy
         this.directory = directory;
         this.path = path;
         this.hash = hash;
+        this.repositoryId = repositoryId;
     }
 
     @Override
@@ -42,13 +45,16 @@ public class FileSystemContentCopy implements IContentCopy
             labelString = code + " (" + label + ")";
         }
 
-        if (hash == null)
+        String location = "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path;
+        if (hash != null)
         {
-            return "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path;
-        } else
-        {
-            return "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path + "<br>Commit hash:" + hash;
+            location += "<br>Commit hash:" + hash;
         }
+        if (repositoryId != null)
+        {
+            location += "<br>Repository id:" + repositoryId;
+        }
+        return location;
     }
 
     @Override
@@ -81,9 +87,15 @@ public class FileSystemContentCopy implements IContentCopy
         return this.hash;
     }
 
+	@Override
+	public String getRespitoryId() {
+		return repositoryId;
+	}
+
     @Override
     public String getExternalCode()
     {
         return null;
     }
+
 }

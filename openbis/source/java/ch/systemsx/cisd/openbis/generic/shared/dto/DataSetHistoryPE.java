@@ -51,6 +51,8 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
 
     private String gitCommitHash;
 
+    private String gitRepositoryId;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
     @JoinColumn(name = ColumnNames.MAIN_DATA_SET_COLUMN)
     DataPE getEntityInternal()
@@ -158,7 +160,16 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
         this.gitCommitHash = gitCommitHash;
     }
 
-    @Override
+    @Column(name = ColumnNames.GIT_REPOSITORY_ID_COLUMN)
+    public String getGitRepositoryId() {
+		return gitRepositoryId;
+	}
+
+	public void setGitRepositoryId(String gitRepositoryId) {
+		this.gitRepositoryId = gitRepositoryId;
+	}
+
+	@Override
     @Transient
     public IMatchingEntity getRelatedEntity()
     {
@@ -173,7 +184,7 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
             return dataSet;
         } else if (externalDms != null)
         {
-            return new MatchingContentCopy(externalCode, path, gitCommitHash, externalDms);
+            return new MatchingContentCopy(externalCode, path, gitCommitHash, gitRepositoryId, externalDms);
         }
         return null;
     }

@@ -69,9 +69,15 @@ public class UrlContentCopy implements IContentCopy
         return null;
     }
 
+	@Override
+	public String getRespitoryId() {
+		return null;
+	}
+
     @Override
     public String getExternalCode()
     {
         return this.externalCode;
     }
+
 }

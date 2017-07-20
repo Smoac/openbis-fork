@@ -378,6 +378,8 @@ public final class ColumnNames
 
     public static final String GIT_COMMIT_HASH_COLUMN = "git_commit_hash";
 
+    public static final String GIT_REPOSITORY_ID_COLUMN = "git_repository_id";
+
     private ColumnNames()
     {
         // Can not be instantiated.

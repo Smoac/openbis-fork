@@ -73,7 +73,7 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
     void copiesInGitCreateCorrectHistoryEntry()
     {
         ExternalDmsPermId edms = create(externalDms().withType(ExternalDmsAddressType.FILE_SYSTEM));
-        ContentCopyCreationBuilder copy = copyAt(edms).withGitCommitHash(uuid());
+        ContentCopyCreationBuilder copy = copyAt(edms).withGitCommitHash(uuid()).withGitRepositoryId("repo 1");
         DataSetPermId id = create(linkDataSet().with(copy.build()));
 
         ContentCopyPermId copyId = get(id).getLinkedData().getContentCopies().get(0).getId();
@@ -125,7 +125,8 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
         return new ToStringBuilder(entry)
                 .append("external code", entry.getExternalCode())
                 .append("path", entry.getPath())
-                .append("get commit hash", entry.getGitCommitHash())
+                .append("git commit hash", entry.getGitCommitHash())
+                .append("git repository id", entry.getGitRepositoryId())
                 .append("external dms id", entry.getExternalDms().getPermId())
                 .append("valid from", entry.getValidFromDate())
                 .append("valid until", entry.getValidUntilDate())
@@ -143,7 +144,8 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
                     String description = new ToStringBuilder(copy)
                             .append("external code", copy.getExternalCode())
                             .append("path", copy.getPath())
-                            .append("get commit hash", copy.getGitCommitHash())
+                            .append("git commit hash", copy.getGitCommitHash())
+                            .append("git repository id", copy.getGitRepositoryId())
                             .append("external dms id", copy.getEdmsId().getPermId())
                             .toString();
                     desc.appendText(description);
@@ -156,6 +158,7 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
                     return Objects.equals(copy.getExternalCode(), entry.getExternalCode()) &&
                             Objects.equals(copy.getPath(), entry.getPath()) &&
                             Objects.equals(copy.getGitCommitHash(), entry.getGitCommitHash()) &&
+                            Objects.equals(copy.getGitRepositoryId(), entry.getGitRepositoryId()) &&
                             Objects.equals(copy.getEdmsId().getPermId(), entry.getExternalDms().getPermId());
                 }
             };

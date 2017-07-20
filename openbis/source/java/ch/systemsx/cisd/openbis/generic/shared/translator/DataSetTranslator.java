@@ -359,7 +359,7 @@ public class DataSetTranslator
             {
                 String[] split = address.split(":");
                 translatedCopy =
-                        new FileSystemContentCopy(edms.getCode(), edms.getLabel(), split[0], split[1], copy.getPath(), copy.getGitCommitHash());
+                        new FileSystemContentCopy(edms.getCode(), edms.getLabel(), split[0], split[1], copy.getPath(), copy.getGitCommitHash(), copy.getGitRepositoryId());
             } else
             {
                 translatedCopy = new UrlContentCopy(edms.getCode(), edms.getLabel(),

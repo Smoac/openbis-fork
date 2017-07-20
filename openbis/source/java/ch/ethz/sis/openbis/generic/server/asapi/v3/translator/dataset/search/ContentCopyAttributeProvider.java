@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalCodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.GitCommitHashSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.GitRepositoryIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.PathSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.IObjectAttributeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
@@ -42,6 +43,9 @@ public class ContentCopyAttributeProvider implements IObjectAttributeProvider
         } else if (criteria instanceof GitCommitHashSearchCriteria)
         {
             return DataSetAttributeSearchFieldKind.COMMIT_HASH;
+        } else if (criteria instanceof GitRepositoryIdSearchCriteria)
+        {
+        	return DataSetAttributeSearchFieldKind.COMMIT_REPOSITORY_ID;
         } else
         {
             throw new IllegalArgumentException("Unknown attribute criteria: " + criteria);

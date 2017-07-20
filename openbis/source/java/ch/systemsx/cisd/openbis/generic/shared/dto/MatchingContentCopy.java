@@ -15,13 +15,18 @@ public class MatchingContentCopy implements IMatchingEntity
     @SuppressWarnings("unused")
     private String gitCommitHash;
 
+    @SuppressWarnings("unused")
+    private String gitRepositoryId;
+
     private ExternalDataManagementSystemPE externalDms;
 
-    public MatchingContentCopy(String externalCode, String path, String gitCommitHash, ExternalDataManagementSystemPE externalDms)
+
+    public MatchingContentCopy(String externalCode, String path, String gitCommitHash, String gitRepositoryId, ExternalDataManagementSystemPE externalDms)
     {
         this.externalCode = externalCode;
         this.path = path;
         this.gitCommitHash = gitCommitHash;
+        this.gitRepositoryId = gitRepositoryId;
         this.externalDms = externalDms;
     }
 

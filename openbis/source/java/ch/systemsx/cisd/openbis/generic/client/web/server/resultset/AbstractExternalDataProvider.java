@@ -36,6 +36,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_COMPLETE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LINK_HASH;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LINK_REPOSITORY;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LINK_PATH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.METAPROJECTS;
@@ -240,6 +241,7 @@ public abstract class AbstractExternalDataProvider extends
                 CommaSeparatedListBuilder externalCodes = new CommaSeparatedListBuilder();
                 CommaSeparatedListBuilder paths = new CommaSeparatedListBuilder();
                 CommaSeparatedListBuilder hashes = new CommaSeparatedListBuilder();
+                CommaSeparatedListBuilder repos = new CommaSeparatedListBuilder();
 
                 for (IContentCopy copy : linkDataSet.getCopies())
                 {
@@ -249,6 +251,7 @@ public abstract class AbstractExternalDataProvider extends
                     externalCodes.append(emptyOnNull(copy.getExternalCode()));
                     paths.append(emptyOnNull(copy.getPath()));
                     hashes.append(emptyOnNull(copy.getCommitHash()));
+                    repos.append(emptyOnNull(copy.getRespitoryId()));
                 }
 
                 builder.column(EXTERNAL_DMS_CODE).addString(dmsCodes.toString());
@@ -258,6 +261,7 @@ public abstract class AbstractExternalDataProvider extends
                 builder.column(EXTERNAL_CODE).addString(externalCodes.toString());
                 builder.column(LINK_PATH).addString(paths.toString());
                 builder.column(LINK_HASH).addString(hashes.toString());
+                builder.column(LINK_REPOSITORY).addString(repos.toString());
             }
         }
     }

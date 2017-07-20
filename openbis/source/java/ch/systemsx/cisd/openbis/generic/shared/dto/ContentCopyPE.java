@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.ReportAsSingleViolation;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.search.annotations.Field;
@@ -42,6 +43,8 @@ public class ContentCopyPE extends HibernateAbstractRegistrationHolder
 
     private String gitCommitHash;
 
+    private String gitRepositoryId;
+    
     @Id
     @SequenceGenerator(name = SequenceNames.CONTENT_COPY_SEQUENCE, sequenceName = SequenceNames.CONTENT_COPY_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONTENT_COPY_SEQUENCE)
@@ -128,4 +131,17 @@ public class ContentCopyPE extends HibernateAbstractRegistrationHolder
     {
         this.gitCommitHash = gitCommitHash;
     }
+
+    @Column(name = ColumnNames.GIT_REPOSITORY_ID_COLUMN)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.GIT_REPOSITORY_ID)
+    public String getGitRepositoryId()
+    {
+        return gitRepositoryId;
+    }
+
+    public void setGitRepositoryId(String gitRepositoryId)
+    {
+        this.gitRepositoryId = gitRepositoryId;
+    }
+
 }

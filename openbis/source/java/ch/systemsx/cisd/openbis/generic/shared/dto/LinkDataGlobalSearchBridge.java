@@ -55,6 +55,7 @@ public class LinkDataGlobalSearchBridge extends GlobalSearchBridge<LinkDataPE>
         String externalCode = copy.getExternalCode();
         String path = copy.getPath();
         String hash = copy.getGitCommitHash();
+        String repo = copy.getGitRepositoryId();
 
         if (externalCode != null)
         {
@@ -67,6 +68,10 @@ public class LinkDataGlobalSearchBridge extends GlobalSearchBridge<LinkDataPE>
         if (hash != null)
         {
             put(values, "Commit hash of copy " + index, hash);
+        }
+        if (repo != null)
+        {
+        	put(values, "Repository id of copy " + index, repo);
         }
     }
 

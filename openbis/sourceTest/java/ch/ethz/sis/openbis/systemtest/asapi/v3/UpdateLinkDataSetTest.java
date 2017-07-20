@@ -126,7 +126,7 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
     }
 
     @Test(dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Invalid arguments.*")
-    void cannotLinkToExternalDmsOfWrongType(ExternalDmsAddressType dmsType, String externalCode, String path, String gitCommitHash)
+    void cannotLinkToExternalDmsOfWrongType(ExternalDmsAddressType dmsType, String externalCode, String path, String gitCommitHash, String gitRepositoryId)
     {
         ExternalDmsPermId edms = create(externalDms().withType(dmsType));
 
@@ -134,7 +134,8 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
         update(dataset(id).withNewCopies(copyAt(edms)
                 .withExternalCode(externalCode)
                 .withPath(path)
-                .withGitCommitHash(gitCommitHash)));
+                .withGitCommitHash(gitCommitHash)
+                .withGitRepositoryId(gitRepositoryId)));
     }
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*")

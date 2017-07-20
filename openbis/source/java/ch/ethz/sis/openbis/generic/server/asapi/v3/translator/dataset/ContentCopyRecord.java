@@ -9,4 +9,6 @@ public class ContentCopyRecord extends ObjectBaseRecord
     public String path;
 
     public String gitCommitHash;
+
+    public String gitRepositoryId;
 }

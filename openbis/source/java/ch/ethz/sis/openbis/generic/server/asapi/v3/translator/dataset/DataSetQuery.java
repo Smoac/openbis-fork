@@ -198,7 +198,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getContentCopyIds(LongOpenHashSet dataSetIds);
 
-    @Select(sql = "select id, external_code as externalCode, path, git_commit_hash as gitCommitHash from content_copies where id = any(?{1})", parameterBindings = {
+    @Select(sql = "select id, external_code as externalCode, path, git_commit_hash as gitCommitHash, git_repository_id as gitRepositoryId from content_copies where id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ContentCopyRecord> getContentCopies(LongOpenHashSet longOpenHashSet);
 }

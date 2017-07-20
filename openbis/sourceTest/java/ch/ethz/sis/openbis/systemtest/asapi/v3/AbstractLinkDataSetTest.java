@@ -141,6 +141,8 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
 
         private String gitCommitHash;
 
+        private String gitRepositoryId;
+
         public ExternalDmsPermId getEdmsId()
         {
             return edmsId;
@@ -164,6 +166,11 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
         public String getGitCommitHash()
         {
             return gitCommitHash;
+        }
+
+        public String getGitRepositoryId()
+        {
+            return gitRepositoryId;
         }
 
         public ContentCopyCreationBuilder(ExternalDmsPermId edmsId)
@@ -202,6 +209,12 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
             return this;
         }
 
+        public ContentCopyCreationBuilder withGitRepositoryId(String gitRepositoryId)
+        {
+            this.gitRepositoryId = gitRepositoryId;
+            return this;
+        }
+
         public ContentCopyCreation build()
         {
             ContentCopyCreation creation = new ContentCopyCreation();
@@ -209,6 +222,7 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
             creation.setExternalId(externalCode);
             creation.setPath(path);
             creation.setGitCommitHash(gitCommitHash);
+            creation.setGitRepositoryId(gitRepositoryId);
             return creation;
         }
     }
@@ -381,40 +395,40 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
 
     protected String stringify(ContentCopyCreation c)
     {
-        return c.getExternalId() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getExternalDmsId();
+        return c.getExternalId() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getGitRepositoryId() + " / " + c.getExternalDmsId();
     }
 
     protected String stringify(ContentCopy c)
     {
-        return c.getExternalCode() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getExternalDms().getCode();
+    	return c.getExternalCode() + " / " + c.getPath() + " / " + c.getGitCommitHash() + " / " + c.getGitRepositoryId() + " / " + c.getExternalDms().getCode();
     }
 
     @DataProvider(name = "InvalidLocationCombinations")
     public static Object[][] invalidLocationCombinations()
     {
         return new Object[][] {
-                { ExternalDmsAddressType.OPENBIS, null, null, null },
-                { ExternalDmsAddressType.OPENBIS, null, "/path", null },
-                { ExternalDmsAddressType.OPENBIS, null, null, "hash" },
-                { ExternalDmsAddressType.OPENBIS, null, "/path", "hash" },
-                { ExternalDmsAddressType.OPENBIS, "code", "/path", null },
-                { ExternalDmsAddressType.OPENBIS, "code", null, "hash" },
-                { ExternalDmsAddressType.OPENBIS, "code", "/path", "hash" },
+                { ExternalDmsAddressType.OPENBIS, null, null, null, null },
+                { ExternalDmsAddressType.OPENBIS, null, "/path", null, null },
+                { ExternalDmsAddressType.OPENBIS, null, null, "hash", "repoId" },
+                { ExternalDmsAddressType.OPENBIS, null, "/path", "hash", "repoId" },
+                { ExternalDmsAddressType.OPENBIS, "code", "/path", null, null },
+                { ExternalDmsAddressType.OPENBIS, "code", null, "hash", "repoId" },
+                { ExternalDmsAddressType.OPENBIS, "code", "/path", "hash", "repoId" },
 
-                { ExternalDmsAddressType.URL, null, null, null },
-                { ExternalDmsAddressType.URL, null, "/path", null },
-                { ExternalDmsAddressType.URL, null, null, "hash" },
-                { ExternalDmsAddressType.URL, null, "/path", "hash" },
-                { ExternalDmsAddressType.URL, "code", "/path", null },
-                { ExternalDmsAddressType.URL, "code", null, "hash" },
-                { ExternalDmsAddressType.URL, "code", "/path", "hash" },
+                { ExternalDmsAddressType.URL, null, null, null, null },
+                { ExternalDmsAddressType.URL, null, "/path", null, null },
+                { ExternalDmsAddressType.URL, null, null, "hash", "repoId" },
+                { ExternalDmsAddressType.URL, null, "/path", "hash", "repoId" },
+                { ExternalDmsAddressType.URL, "code", "/path", null, null },
+                { ExternalDmsAddressType.URL, "code", null, "hash", "repoId" },
+                { ExternalDmsAddressType.URL, "code", "/path", "hash", "repoId" },
 
-                { ExternalDmsAddressType.FILE_SYSTEM, null, null, null },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, null },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", null },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", "hash" },
-                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, "hash" },
-                { ExternalDmsAddressType.FILE_SYSTEM, null, null, "hash" }
+                { ExternalDmsAddressType.FILE_SYSTEM, null, null, null, null },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, null, null },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", null, null },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", "/path", "hash", "repoId" },
+                { ExternalDmsAddressType.FILE_SYSTEM, "code", null, "hash", "repoId" },
+                { ExternalDmsAddressType.FILE_SYSTEM, null, null, "hash", "repoId" }
         };
     }
 

@@ -75,6 +75,7 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
                     break;
                 case FILE_SYSTEM_GIT:
                     copy.setGitCommitHash(ccc.getGitCommitHash());
+                    copy.setGitRepositoryId(ccc.getGitRepositoryId());
                 case FILE_SYSTEM_PLAIN:
                     String path = ccc.getPath();
                     if (path.startsWith("/") == false)
@@ -101,20 +102,25 @@ public class AddContentCopiesToLinkedDataExecutor implements IAddContentCopiesTo
         String externalId = ccc.getExternalId();
         String path = ccc.getPath();
         String gitCommitHash = ccc.getGitCommitHash();
+        String gitRepositoryId = ccc.getGitRepositoryId();
 
-        if (ExternalDataManagementSystemType.OPENBIS.equals(edms.getAddressType()) && externalId != null && path == null && gitCommitHash == null)
+        if (ExternalDataManagementSystemType.OPENBIS.equals(edms.getAddressType()) && externalId != null && path == null && 
+        		gitCommitHash == null && gitRepositoryId == null)
         {
             return LocationType.OPENBIS;
         }
-        if (ExternalDataManagementSystemType.URL.equals(edms.getAddressType()) && externalId != null && path == null && gitCommitHash == null)
+        if (ExternalDataManagementSystemType.URL.equals(edms.getAddressType()) && externalId != null && path == null && 
+        		gitCommitHash == null && gitRepositoryId == null)
         {
             return LocationType.URL;
         }
-        if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(edms.getAddressType()) && externalId == null && path != null && gitCommitHash == null)
+        if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(edms.getAddressType()) && externalId == null && path != null && 
+        		gitCommitHash == null && gitRepositoryId == null)
         {
             return LocationType.FILE_SYSTEM_PLAIN;
         }
-        if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(edms.getAddressType()) && externalId == null && path != null && gitCommitHash != null)
+        if (ExternalDataManagementSystemType.FILE_SYSTEM.equals(edms.getAddressType()) && externalId == null && path != null && 
+        		gitCommitHash != null && gitRepositoryId != null)
         {
             return LocationType.FILE_SYSTEM_GIT;
         }

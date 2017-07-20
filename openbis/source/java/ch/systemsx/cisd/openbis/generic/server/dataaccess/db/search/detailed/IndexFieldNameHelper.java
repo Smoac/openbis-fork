@@ -189,6 +189,9 @@ class IndexFieldNameHelper
 
             case COMMIT_HASH:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.GIT_COMMIT_HASH;
+
+            case COMMIT_REPOSITORY_ID:
+            	return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.GIT_REPOSITORY_ID;
         }
         throw new IllegalArgumentException(attributeKind.toString());
     }

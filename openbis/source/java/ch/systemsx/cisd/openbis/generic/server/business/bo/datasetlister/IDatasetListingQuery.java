@@ -356,7 +356,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
     @Select(sql = "SELECT edms.id AS edms_id, edms.code AS edms_code, edms.label AS edms_label, edms.address AS edms_address, "
-            + " cc.external_code AS external_code, cc.path as path, cc.git_commit_hash AS hash "
+            + " cc.external_code AS external_code, cc.path as path, cc.git_commit_hash AS hash, cc.git_repository_id AS repository_id "
             + " FROM content_copies cc, external_data_management_systems edms "
             + " WHERE cc.edms_id = edms.id AND cc.data_id = ?{1}")
     public List<ContentCopyRecord> getContentCopiesOf(long id);

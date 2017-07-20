@@ -21,5 +21,7 @@ public class ContentCopyRecord extends CodeRecord
 
     public String hash;
 
+    public String repository_id;
+
     public Long edms_id;
 }

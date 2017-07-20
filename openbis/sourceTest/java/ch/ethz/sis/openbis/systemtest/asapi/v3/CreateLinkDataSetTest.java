@@ -35,6 +35,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         assertThat(copy.getExternalCode(), is(creation.getExternalId()));
         assertThat(copy.getPath(), is(creation.getPath()));
         assertThat(copy.getGitCommitHash(), is(creation.getGitCommitHash()));
+        assertThat(copy.getGitRepositoryId(), is(creation.getGitRepositoryId()));
         assertThat(copy.getExternalDms(), isSimilarTo(get(openbis)));
     }
 
@@ -52,6 +53,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         assertThat(copy.getExternalCode(), is(creation.getExternalId()));
         assertThat(copy.getPath(), is(creation.getPath()));
         assertThat(copy.getGitCommitHash(), is(creation.getGitCommitHash()));
+        assertThat(copy.getGitRepositoryId(), is(creation.getGitRepositoryId()));
         assertThat(copy.getExternalDms(), isSimilarTo(get(url)));
     }
 
@@ -69,6 +71,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         assertThat(copy.getExternalCode(), is(creation.getExternalId()));
         assertThat(copy.getPath(), is(creation.getPath()));
         assertThat(copy.getGitCommitHash(), is(creation.getGitCommitHash()));
+        assertThat(copy.getGitRepositoryId(), is(creation.getGitRepositoryId()));
         assertThat(copy.getExternalDms(), isSimilarTo(get(fs)));
     }
 
@@ -76,7 +79,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
     void copyInGit()
     {
         ExternalDmsPermId fs = create(externalDms().withType(ExternalDmsAddressType.FILE_SYSTEM));
-        ContentCopyCreation creation = copyAt(fs).withPath("/path/to/dir").withGitCommitHash("asdfasfa").build();
+        ContentCopyCreation creation = copyAt(fs).withPath("/path/to/dir").withGitCommitHash("asdfasfa").withGitRepositoryId("repo 1").build();
         DataSetPermId id = create(linkDataSet().with(creation));
         List<ContentCopy> contentCopies = get(id).getLinkedData().getContentCopies();
 
@@ -86,6 +89,7 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         assertThat(copy.getExternalCode(), is(creation.getExternalId()));
         assertThat(copy.getPath(), is(creation.getPath()));
         assertThat(copy.getGitCommitHash(), is(creation.getGitCommitHash()));
+        assertThat(copy.getGitRepositoryId(), is(creation.getGitRepositoryId()));
         assertThat(copy.getExternalDms(), isSimilarTo(get(fs)));
     }
 
@@ -122,10 +126,10 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
         ContentCopyCreation creation7 = copyAt(url2).build();
         ContentCopyCreation creation8 = copyAt(url2).build();
 
-        ContentCopyCreation creation9 = copyAt(fs1).withPath("/path/to/dir").withGitCommitHash("asdf").build();
+        ContentCopyCreation creation9 = copyAt(fs1).withPath("/path/to/dir").withGitCommitHash("asdf").withGitRepositoryId("repo 1").build();
         ContentCopyCreation creation10 = copyAt(fs1).withPath("/path/to/dir2").build();
 
-        ContentCopyCreation creation11 = copyAt(fs2).withPath("/path/to/dir").withGitCommitHash("asdf").build();
+        ContentCopyCreation creation11 = copyAt(fs2).withPath("/path/to/dir").withGitCommitHash("asdf").withGitRepositoryId("repo 1").build();
         ContentCopyCreation creation12 = copyAt(fs2).withPath("/path/to/dir2").build();
 
         DataSetPermId id = create(linkDataSet().with(creation1, creation2, creation3, creation4, creation5, creation6, creation7, creation8,
@@ -149,12 +153,13 @@ public class CreateLinkDataSetTest extends AbstractLinkDataSetTest
     }
 
     @Test(dataProvider = "InvalidLocationCombinations", expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Invalid arguments.*")
-    void cannotLinkToExternalDmsOfWrongType(ExternalDmsAddressType dmsType, String externalCode, String path, String gitCommitHash)
+    void cannotLinkToExternalDmsOfWrongType(ExternalDmsAddressType dmsType, String externalCode, String path, String gitCommitHash, String gitRepositoryId)
     {
         ExternalDmsPermId edms = create(externalDms().withType(dmsType));
         create(linkDataSet().with(copyAt(edms)
                 .withExternalCode(externalCode)
                 .withPath(path)
-                .withGitCommitHash(gitCommitHash)));
+                .withGitCommitHash(gitCommitHash)
+                .withGitRepositoryId(gitRepositoryId)));
     }
 }

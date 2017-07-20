@@ -134,4 +134,6 @@ public final class SearchFieldConstants
     public static final String PATH = "path";
 
     public static final String GIT_COMMIT_HASH = "git_commit_hash";
+
+    public static final String GIT_REPOSITORY_ID = "git_repository_id";
 }

@@ -93,7 +93,9 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     PATH("Link path"),
 
-    COMMIT_HASH("Link commit hash");
+    COMMIT_HASH("Link commit hash"),
+
+    COMMIT_REPOSITORY_ID("Link repository id");
 
     private final String description;
 

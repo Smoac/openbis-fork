@@ -49,6 +49,9 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
     @Autowired
     private IVerifyDataSetParentsExecutor verifyDataSetParentsExecutor;
 
+    @Autowired
+    private IVerifyDataSetContentCopyExecutor verifyDataSetContentCopyExecutor;
+
     @Override
     public void verify(IOperationContext context, CollectionBatch<? extends IDataSetId> dataSetIds)
     {
@@ -64,6 +67,7 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
             verifyEntityPropertyExecutor.verify(context, dataSets);
             verifyDataSetContainersExecutor.verify(context, dataSets);
             verifyDataSetParentsExecutor.verify(context, dataSets);
+            verifyDataSetContentCopyExecutor.verify(context, dataSets);
         }
     }
 

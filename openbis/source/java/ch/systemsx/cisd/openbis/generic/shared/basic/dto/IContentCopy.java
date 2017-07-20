@@ -15,6 +15,8 @@ public interface IContentCopy extends Serializable
 
     String getCommitHash();
 
+    String getRespitoryId();
+
     String getExternalCode();
 
     String getLocation();

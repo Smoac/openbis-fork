@@ -35,6 +35,8 @@ public class ExternalDataGridColumnIDs
 
     public static final String LINK_HASH = "LINK_HASH";
 
+    public static final String LINK_REPOSITORY = "LINK_REPOSITORY";
+
     public static final String DATA_SET_TYPE = "DATA_SET_TYPE";
 
     public static final String CONTAINER_DATASETS = "CONTAINER_DATASETS";

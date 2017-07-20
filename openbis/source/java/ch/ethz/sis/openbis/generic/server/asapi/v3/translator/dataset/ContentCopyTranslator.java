@@ -53,6 +53,7 @@ public class ContentCopyTranslator extends AbstractCachingTranslator<Long, Conte
         output.setExternalCode(baseRecord.externalCode);
         output.setPath(baseRecord.path);
         output.setGitCommitHash(baseRecord.gitCommitHash);
+        output.setGitRepositoryId(baseRecord.gitRepositoryId);
         output.setId(new ContentCopyPermId(baseRecord.id.toString()));
         if (fetchOptions.hasExternalDms())
         {

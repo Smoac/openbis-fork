@@ -93,6 +93,18 @@ public class SearchLinkDataSetTest extends AbstractLinkDataSetTest
     }
 
     @Test
+    void searchWithRepositoryIdOfCopy()
+    {
+        DataSetSearchCriteria dc = new DataSetSearchCriteria();
+        dc.withLinkedData().withCopy().withGitRepositoryId().thatEquals("repo1");
+
+        SearchResult<DataSet> result = searchWith(dc);
+
+        assertThat(result.getTotalCount(), is(1));
+        assertThat(result.getObjects().get(0).getCode(), is("20120628092259000-41"));
+    }
+
+    @Test
     void testFetchOptionsWithLinkedData()
     {
         DataSetSearchCriteria dc = new DataSetSearchCriteria();
