@@ -50,6 +50,11 @@ public class ContentCopySearchCriteria extends AbstractObjectSearchCriteria<IExt
         return with(new GitCommitHashSearchCriteria());
     }
 
+    public GitRepositoryIdSearchCriteria withGitRepositoryId()
+    {
+        return with(new GitRepositoryIdSearchCriteria());
+    }
+
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {

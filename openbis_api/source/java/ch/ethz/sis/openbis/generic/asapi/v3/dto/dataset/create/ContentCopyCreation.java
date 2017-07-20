@@ -33,6 +33,8 @@ public class ContentCopyCreation implements ICreation
 
     private String gitCommitHash;
 
+	private String gitRepositoryId;
+
     private IExternalDmsId externalDmsId;
 
     public String getExternalId()
@@ -64,6 +66,15 @@ public class ContentCopyCreation implements ICreation
     {
         this.gitCommitHash = gitCommitHash;
     }
+
+    public String getGitRepositoryId()
+    {
+        return gitRepositoryId;
+    }
+
+	public void setGitRepositoryId(String gitRepositoryId) {
+		this.gitRepositoryId = gitRepositoryId;
+	}
 
     public IExternalDmsId getExternalDmsId()
     {

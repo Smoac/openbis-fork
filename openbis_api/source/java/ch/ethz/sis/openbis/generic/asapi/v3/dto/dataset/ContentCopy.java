@@ -46,6 +46,9 @@ public class ContentCopy implements Serializable
     @JsonProperty
     private String gitCommitHash;
 
+    @JsonProperty
+    private String gitRepositoryId;
+
     @JsonIgnore
     public ContentCopyPermId getId()
     {
@@ -100,4 +103,14 @@ public class ContentCopy implements Serializable
     {
         this.gitCommitHash = gitCommitHash;
     }
+
+    @JsonIgnore
+	public String getGitRepositoryId() {
+		return gitRepositoryId;
+	}
+
+	public void setGitRepositoryId(String gitRepositoryId) {
+		this.gitRepositoryId = gitRepositoryId;
+	}
+
 }

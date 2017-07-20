@@ -1553,10 +1553,12 @@ ContentCopyCreation
 getContentCopies
 getExternalId
 getGitCommitHash
+getGitRepositoryId
 getSerialversionuid
 setContentCopies
 setExternalId
 setGitCommitHash
+setGitRepositoryId
 ContentCopy
 NO_COPY_EXTERNAL_CODE
 NO_COPY_EXTERNAL_DMS
@@ -1584,10 +1586,12 @@ AddressSearchCriteria
 ContentCopySearchCriteria
 ExternalDmsTypeSearchCriteria
 GitCommitHashSearchCriteria
+GitRepositoryIdSearchCriteria
 LabelSearchCriteria
 PathSearchCriteria
 withAddress
 withCopy
 withGitCommitHash
+withGitRepositoryId
 withLabel
 withPath
