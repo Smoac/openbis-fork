@@ -18,13 +18,13 @@ package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 
 import java.io.StringReader;
 
-import org.alfresco.jlan.app.XMLServerConfiguration;
 import org.alfresco.jlan.smb.server.SMBServer;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.cifs.jlan.XMLServerConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
