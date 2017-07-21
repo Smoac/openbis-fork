@@ -27,7 +27,9 @@ function ResetPasswordController(userId) {
 					_this._resetPasswordModel.password,
 					function(isRegistered) {
 						if(isRegistered) {
-							Util.showSuccess("Password has been reset on the file authentication service.");
+							Util.showSuccess("Password has been reset on the file authentication service.", function() {
+								Util.unblockUI();
+							});
 						} else {
 							Util.showError("Password can't be reset.");
 						}
