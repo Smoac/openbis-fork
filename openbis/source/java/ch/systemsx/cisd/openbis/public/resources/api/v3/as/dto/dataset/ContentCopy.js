@@ -9,6 +9,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.externalCode = null;
 		prototype.path = null;
 		prototype.gitCommitHash = null;
+		prototype.gitRepositoryId = null;
 		
 		prototype.getId = function() {
 			return this.id;
@@ -39,6 +40,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setGitCommitHash = function(gitCommitHash) {
 			this.gitCommitHash = gitCommitHash;
+		};
+		prototype.getGitRepositoryId = function() {
+			return this.gitRepositoryId;
+		};
+		prototype.setGitRepositoryId = function(gitRepositoryId) {
+			this.gitRepositoryId = gitRepositoryId;
 		};
 	}, {
 		id : "ContentCopyPermId",

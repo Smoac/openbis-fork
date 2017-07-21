@@ -365,7 +365,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var edmsId = null;
 			
 			var fCreate = function(facade) {
-				return c.createLinkDataSet(facade, "root/path", "my-hash").then(function(permId) {
+				return c.createLinkDataSet(facade, "root/path", "my-hash", "my-repository-id").then(function(permId) {
 					code = permId.getPermId();
 					return [ permId ];
 				});
@@ -380,6 +380,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					contentCopyCreation.setExternalDmsId(edmsId);
 					contentCopyCreation.setPath("my/data/path");
 					contentCopyCreation.setGitCommitHash("my-git-hash");
+					contentCopyCreation.setGitRepositoryId("my-git-repository-id");
 					contentCopyListUpdateValue.add([contentCopyCreation]);
 					contentCopyListUpdateValue.remove([contentCopy.getId()]);
 					
@@ -402,6 +403,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(contentCopies[0].getExternalCode(), null, "External code");
 				c.assertEqual(contentCopies[0].getPath(), "/my/data/path", "Path");
 				c.assertEqual(contentCopies[0].getGitCommitHash(), "my-git-hash", "Git commit hash");
+				c.assertEqual(contentCopies[0].getGitRepositoryId(), "my-git-repository-id", "Git repository id");
 			}
 			
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);

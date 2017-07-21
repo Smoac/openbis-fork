@@ -273,7 +273,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 		
-		this.createLinkDataSet = function(facade, path, gitCommitHash) {
+		this.createLinkDataSet = function(facade, path, gitCommitHash, gitRepositoryId) {
 			var c = this;
 			return c.createExperiment(facade).then(function(experimentPermId) {
 				return c.createFileExternalDms(facade).then(function(emdsPermId) {
@@ -287,6 +287,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 					cc.setExternalDmsId(emdsPermId);
 					cc.setPath(path);
 					cc.setGitCommitHash(gitCommitHash);
+					cc.setGitRepositoryId(gitRepositoryId);
 					linkedData.setContentCopies([cc]);
 					dataSet.setLinkedData(linkedData);
 					return facade.createDataSets([dataSet]).then(function(permIds) {

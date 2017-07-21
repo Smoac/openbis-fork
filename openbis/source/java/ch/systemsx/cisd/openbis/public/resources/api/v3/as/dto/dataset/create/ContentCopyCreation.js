@@ -7,6 +7,7 @@ define([ "stjs" ], function(stjs) {
     prototype.externalId = null;
     prototype.path = null;
     prototype.gitCommitHash = null;
+    prototype.gitRepositoryId = null;
     prototype.externalDmsId = null;
     
     prototype.getExternalId = function() {
@@ -26,6 +27,12 @@ define([ "stjs" ], function(stjs) {
     };
     prototype.setGitCommitHash = function(gitCommitHash) {
       this.gitCommitHash = gitCommitHash;
+    };
+    prototype.getGitRepositoryId = function() {
+      return this.gitRepositoryId;
+    };
+    prototype.setGitRepositoryId = function(gitRepositoryId) {
+      this.gitRepositoryId = gitRepositoryId;
     };
     prototype.getExternalDmsId = function() {
       return this.externalDmsId;

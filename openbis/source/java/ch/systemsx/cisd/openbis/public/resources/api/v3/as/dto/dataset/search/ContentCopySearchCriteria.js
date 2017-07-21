@@ -2,7 +2,7 @@
  * @author anttil
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/dataset/search/ExternalDmsSearchCriteria", "as/dto/dataset/search/ExternalCodeSearchCriteria", "as/dto/dataset/search/PathSearchCriteria", "as/dto/dataset/search/GitCommitHashSearchCriteria",
-		"as/dto/common/search/AbstractCompositeSearchCriteria" ], function(require, stjs, AbstractObjectSearchCriteria) {
+	"as/dto/dataset/search/GitRepositoryIdSearchCriteria", "as/dto/common/search/AbstractCompositeSearchCriteria" ], function(require, stjs, AbstractObjectSearchCriteria) {
 	var ContentCopySearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
@@ -29,7 +29,12 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			var GitCommitHashSearchCriteria = require("as/dto/dataset/search/GitCommitHashSearchCriteria");
 			return this.addCriteria(new GitCommitHashSearchCriteria());
 		};
-		
+
+		prototype.withGitRepositoryId = function() {
+			var GitRepositoryIdSearchCriteria = require("as/dto/dataset/search/GitRepositoryIdSearchCriteria");
+			return this.addCriteria(new GitRepositoryIdSearchCriteria());
+		};
+
 	}, {
 		criteria : {
 			name : "Collection",
