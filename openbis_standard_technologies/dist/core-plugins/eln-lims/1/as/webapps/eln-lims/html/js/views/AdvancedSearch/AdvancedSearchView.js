@@ -695,8 +695,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			});
 			
 			columnsLast.push({
+				label : 'Registrator',
+				property : 'registrator',
+				isExportable: true,
+				sortable : !isGlobalSearch
+			});
+			
+			columnsLast.push({
 				label : 'Registration Date',
 				property : 'registrationDate',
+				isExportable: true,
+				sortable : !isGlobalSearch
+			});
+			
+			columnsLast.push({
+				label : 'Modifier',
+				property : 'modifier',
 				isExportable: true,
 				sortable : !isGlobalSearch
 			});

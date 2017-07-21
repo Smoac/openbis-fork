@@ -199,8 +199,22 @@ var SampleDataGridUtil = new function() {
 		});
 		
 		columnsLast.push({
+			label : 'Registrator',
+			property : 'registrator',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columnsLast.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columnsLast.push({
+			label : 'Modifier',
+			property : 'modifier',
 			isExportable: false,
 			sortable : true
 		});
@@ -244,9 +258,19 @@ var SampleDataGridUtil = new function() {
 				for(var sIdx = 0; sIdx < result.objects.length; sIdx++) {
 					var sample = mainController.serverFacade.getV3SampleAsV1(result.objects[sIdx]);
 					
+					var registrator = null;
+					if(sample.registrationDetails && sample.registrationDetails.userId) {
+						registrator = sample.registrationDetails.userId;
+					}
+					
 					var registrationDate = null;
 					if(sample.registrationDetails && sample.registrationDetails.registrationDate) {
 						registrationDate = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
+					}
+					
+					var modifier = null;
+					if(sample.registrationDetails && sample.registrationDetails.modifierUserId) {
+						modifier = sample.registrationDetails.modifierUserId;
 					}
 					
 					var modificationDate = null;
@@ -262,7 +286,9 @@ var SampleDataGridUtil = new function() {
 										'default_space' : sample.spaceCode,
 										'permId' : sample.permId,
 //										'experiment' : sample.experimentIdentifierOrNull,
+										'registrator' : registrator,
 										'registrationDate' : registrationDate,
+										'modifier' : modifier,
 										'modificationDate' : modificationDate
 									};
 					
