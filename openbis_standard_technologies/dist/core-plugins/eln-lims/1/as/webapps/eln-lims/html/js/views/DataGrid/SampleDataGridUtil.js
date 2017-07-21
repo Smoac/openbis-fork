@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable) {
+	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment) {
 		
 		//Fill Columns model
 		var columnsFirst = [];
@@ -68,13 +68,15 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : false
 		});
-		
-//		columnsFirst.push({
-//			label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
-//			property : 'experiment',
-//			isExportable: true,
-//			sortable : false
-//		});
+
+		if(withExperiment) {
+			columnsFirst.push({
+				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
+				property : 'experiment',
+				isExportable: true,
+				sortable : false
+			});
+		}
 		
 		columnsFirst.push({
 			label : 'Preview',
@@ -235,7 +237,7 @@ var SampleDataGridUtil = new function() {
 		//Fill data model
 		var getDataList = null;
 		if(samplesOrCriteria.entityKind && samplesOrCriteria.rules) {
-			getDataList = SampleDataGridUtil.getDataListDynamic(samplesOrCriteria); //Load on demand model
+			getDataList = SampleDataGridUtil.getDataListDynamic(samplesOrCriteria, withExperiment); //Load on demand model
 		} else {
 			getDataList = SampleDataGridUtil.getDataList(samplesOrCriteria); //Static model
 		}
@@ -250,7 +252,7 @@ var SampleDataGridUtil = new function() {
 		return dataGridController;
 	}
 	
-	this.getDataListDynamic = function(criteria) {
+	this.getDataListDynamic = function(criteria, withExperiment) {
 		return function(callback, options) {
 			var callbackForSearch = function(result) {
 				var dataList = [];
@@ -285,7 +287,7 @@ var SampleDataGridUtil = new function() {
 										'sampleTypeCode' : sample.sampleTypeCode,
 										'default_space' : sample.spaceCode,
 										'permId' : sample.permId,
-//										'experiment' : sample.experimentIdentifierOrNull,
+										'experiment' : sample.experimentIdentifierOrNull,
 										'registrator' : registrator,
 										'registrationDate' : registrationDate,
 										'modifier' : modifier,
@@ -320,7 +322,8 @@ var SampleDataGridUtil = new function() {
 			}
 			
 			var fetchOptions = {
-					minTableInfo : true
+					minTableInfo : true,
+					withExperiment : withExperiment
 			};
 			
 			if(options) {

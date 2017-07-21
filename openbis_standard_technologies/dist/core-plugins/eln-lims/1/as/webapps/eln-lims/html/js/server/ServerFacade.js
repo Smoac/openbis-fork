@@ -806,6 +806,9 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withChildrenUsing(fetchOptions);
 					}
 				} else if(advancedFetchOptions.minTableInfo) {
+					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+					}
 					if(fetchOptions.withParents) {
 						fetchOptions.withParents();
 					}

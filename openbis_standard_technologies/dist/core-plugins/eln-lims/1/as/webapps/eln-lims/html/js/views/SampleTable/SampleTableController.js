@@ -70,7 +70,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 	
 	this._reloadTableWithAllSamples = function(advancedSampleSearchCriteria) {
 			//Create and display table
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true);
+			var withExperiment = !this._sampleTableModel.experimentIdentifier && !this._sampleTableModel.experiment;
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment);
 			
 			
 			var extraOptions = [];
