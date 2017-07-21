@@ -39,6 +39,7 @@ $.extend(DefaultProfile.prototype, {
 		this.mainMenu = {
 				showLabNotebook : true,
 				showInventory : true,
+				showStock : true,
 				showOrders : true,
 //				showDrawingBoard : false,
 				showObjectBrowser : true,
@@ -128,8 +129,8 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS", "STORAGE"]; //"STOCK_CATALOG"
-		this.inventorySpacesReadOnly = ["ELN_SETTINGS"]; //"STOCK_ORDERS"
+		this.inventorySpaces = ["MATERIALS", "METHODS", "STORAGE", "STOCK_CATALOG"];
+		this.inventorySpacesReadOnly = ["ELN_SETTINGS", "STOCK_ORDERS"];
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.sampleTypeStorageEnabled = ["ANTIBODY", "BACTERIA", "CHEMICAL", "ENZYME", "CELL_LINE", "FLY", "MEDIA", "OLIGO", "PLASMID", "YEAST", "SOLUTION_BUFFER", "RNA"];
 		this.searchSamplesUsingV3OnDropbox = false;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function InventoryView(inventoryController, inventoryView) {
-	var inventoryController = inventoryController;
-	var inventoryView = inventoryView;
+function StockView(stockController, stockView) {
+	var stockController = stockController;
+	var stockView = stockView;
 	
 	this.repaint = function(views) {
 		
@@ -25,7 +25,7 @@ function InventoryView(inventoryController, inventoryView) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("Inventory");
+		var $formTitle = $("<h2>").append("Stock");
 		
 		//
 		// Toolbar
@@ -37,15 +37,15 @@ function InventoryView(inventoryController, inventoryView) {
 			var facade = mainController.serverFacade;
 			facade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
 				var spaces = dataWithSpacesAndProjects.result;
-	            var labSpaces = [];
+	            var stockSpaces = [];
 				for (var i = 0; i < spaces.length; i++) {
 	                var space = spaces[i];
-	                if(profile.isInventorySpace(space.code) && space.code !== "STOCK_CATALOG" && space.code !== "STOCK_ORDERS" && space.code !== "ELN_SETTINGS") {
-	                	labSpaces.push({ type: "SPACE", permId : space.code, expand : true });
+	                if(space.code === "STOCK_CATALOG" || space.code === "STOCK_ORDERS") {
+	                	stockSpaces.push({ type: "SPACE", permId : space.code, expand : true });
 	                }
 	            }
 	            
-				facade.exportAll(labSpaces, true, function(error, result) {
+				facade.exportAll(stockSpaces, true, function(error, result) {
 					if(error) {
 						Util.showError(error);
 					} else {

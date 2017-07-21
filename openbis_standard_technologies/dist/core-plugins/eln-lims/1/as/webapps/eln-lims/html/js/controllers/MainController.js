@@ -319,6 +319,13 @@ function MainController(profile) {
 					document.title = "Main Menu";
 					this._showBlancPage();
 					break;
+				case "showStockPage":
+					document.title = "Stock";
+					var newView = new StockController(this);
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
+					this.currentView = newView;
+					break;
 				case "showSearchPage":
 					document.title = "Search";
 					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars

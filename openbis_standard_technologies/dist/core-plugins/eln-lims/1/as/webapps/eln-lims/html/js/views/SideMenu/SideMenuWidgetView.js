@@ -161,6 +161,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModel.push({ title : inventoryLink, entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
         }
         
+        if(profile.mainMenu.showStock) {
+        	var inventoryLink = _this.getLinkForNode("Stock", "STOCK", "showOrdersPage", null);
+        	treeModel.push({ title : inventoryLink, entityType: "STOCK", key : "STOCK", folder : true, lazy : true, view : "showStockPage", icon: "fa fa-shopping-cart" });
+        }
+        
         var treeModelUtils = [];
 
         if(profile.mainMenu.showUserProfile) {
@@ -298,11 +303,28 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                	
         	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
         	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
-        	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
-        	                    	spaceNode.icon = "fa fa-shopping-cart";
+        	                    if(space.getCode() !== "STOCK_CATALOG" && space.getCode() !== "STOCK_ORDERS") {
+        	                    	results.push(spaceNode);
         	                    }
-        	                    results.push(spaceNode);
         	                }
+    	                }
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "STOCK":
+    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
+    	    			var results = [];
+    	                var spaces = searchResult.objects;
+    	                for (var i = 0; i < spaces.length; i++) {
+    	                    var space = spaces[i];
+    	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
+    	                    	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+        	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
+        	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
+        	                    spaceNode.icon = "fa fa-shopping-cart";
+        	                    results.push(spaceNode);
+    	                    }
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -545,6 +567,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 					});
 				})
 			});
+		}
+		var stock = $tree.fancytree("getTree").getNodeByKey("STOCK");
+		if (stock) {
+			stock.setExpanded(true);
 		}
     }
 }
