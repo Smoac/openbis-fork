@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Console;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
@@ -41,6 +43,9 @@ public class CreateDataSetRmi implements Command<DataSet>
 
     @Inject("external")
     private IDssServiceRpcGeneric dssExternal;
+    
+    @Inject
+    private IServiceForDataStoreServer etlService;
 
     @Inject
     private Console console;
@@ -72,9 +77,11 @@ public class CreateDataSetRmi implements Command<DataSet>
 
         final String code =
                 dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
-        if (!external)
+        if (false == external)
         {
-            console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.DataPEs took");
+            AbstractExternalData ds = etlService.tryGetDataSet(session, code);
+            console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.DataPEs [" 
+                    + ds.getId() + "] took");
         }
         return new DataSet()
             {
