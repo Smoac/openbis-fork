@@ -53,8 +53,10 @@ public class CreateSampleRmi implements Command<Sample>
     public Sample execute()
     {
         console.startBuffering();
-        genericServer.registerSample(session, convert(sample), new ArrayList<NewAttachment>());
-        console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.SamplePEs took");
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample registerdSample 
+                = genericServer.registerSample(session, convert(sample), new ArrayList<NewAttachment>());
+        console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.SamplePEs [" 
+                + registerdSample.getId() + "] took");
         return sample;
     }
 

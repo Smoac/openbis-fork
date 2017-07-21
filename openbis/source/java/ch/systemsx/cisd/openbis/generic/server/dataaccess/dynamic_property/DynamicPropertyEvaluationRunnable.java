@@ -111,10 +111,14 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                             modifiedIds = evaluator.doEvaluateProperties(session, clazz);
                         } else
                         {
+                            List<Long> ids = new ArrayList<Long>(operation.getIds());
+                            if (ids.isEmpty() == false)
+                            {
+                                fullTextIndexUpdateScheduler.scheduleUpdate(
+                                        IndexUpdateOperation.reindex(clazz, ids));
+                            }
                             // new collection is passed because it can be modified inside
-                            modifiedIds =
-                                    evaluator.doEvaluateProperties(session, clazz, new ArrayList<Long>(
-                                            operation.getIds()));
+                            modifiedIds = evaluator.doEvaluateProperties(session, clazz, ids);
                         }
                     }
                     stopWatch.stop();

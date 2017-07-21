@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
@@ -40,6 +42,9 @@ public class CreateMaterialRmi implements Command<Material>
     @Inject
     private IGenericServer genericServer;
 
+    @Inject
+    private ICommonServer commonServer;
+    
     @Inject
     private Console console;
 
@@ -74,7 +79,11 @@ public class CreateMaterialRmi implements Command<Material>
 
         console.startBuffering();
         genericServer.registerMaterials(session, newMaterials);
-        console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPEs took");
+        MaterialIdentifier identifier = new MaterialIdentifier(material.getCode(), type.getCode());
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialInfo 
+                = commonServer.getMaterialInfo(session, identifier);
+        console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPEs [" 
+                + materialInfo.getId() + "] took");
 
         return material;
     }
