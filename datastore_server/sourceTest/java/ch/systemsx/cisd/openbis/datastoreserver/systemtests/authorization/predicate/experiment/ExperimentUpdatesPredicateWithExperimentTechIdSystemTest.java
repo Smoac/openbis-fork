@@ -36,7 +36,7 @@ public class ExperimentUpdatesPredicateWithExperimentTechIdSystemTest extends Co
 {
 
     @Override
-    protected ExperimentUpdatesDTO createNonexistentObject()
+    protected ExperimentUpdatesDTO createNonexistentObject(Object param)
     {
         ExperimentUpdatesDTO dto = new ExperimentUpdatesDTO();
         dto.setExperimentId(new TechId(-1));
@@ -44,7 +44,7 @@ public class ExperimentUpdatesPredicateWithExperimentTechIdSystemTest extends Co
     }
 
     @Override
-    protected ExperimentUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         ExperimentUpdatesDTO dto = new ExperimentUpdatesDTO();
@@ -53,25 +53,25 @@ public class ExperimentUpdatesPredicateWithExperimentTechIdSystemTest extends Co
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentUpdatesDTO> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentUpdatesDTO> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testExperimentUpdatesPredicate(session, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No experiment updates specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertUserFailureExceptionThatExperimentDoesNotExist(t);
     }

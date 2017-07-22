@@ -91,6 +91,23 @@ public interface IAuthorizationDataProvider
     public SamplePE tryGetSampleByPermId(String permId);
 
     /**
+     * Returns the sample for the given <var>space</var> and <var>sampleCode</var> or returns <code>null</code>, if it does not exist.
+     */
+    public SamplePE tryGetSampleBySpaceAndCode(SpacePE space, String sampleCode);
+
+    /**
+     * Returns the sample for the given <var>project</var> and <var>sampleCode</var> or returns <code>null</code>, if it does not exist.
+     */
+    public SamplePE tryGetSampleByProjectAndCode(ProjectPE project, String sampleCode);
+
+    /**
+     * Returns samples for the given collection of <var>techIds</var>
+     * 
+     * @return Map of found samples.
+     */
+    public Map<TechId, SamplePE> tryGetSamplesByTechIds(Collection<TechId> techIds);
+
+    /**
      * Returns the project of the experiment to which the specified data set belongs.
      * 
      * @return <code>null</code> if no data set found.
@@ -139,6 +156,11 @@ public interface IAuthorizationDataProvider
      * Returns the information necessary to determine if a user is allowed to access the samples.
      */
     public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
+
+    /**
+     * Returns the information necessary to determine if a user is allowed to access the experiments.
+     */
+    public Set<ExperimentAccessPE> getExperimentCollectionAccessData(List<TechId> experimentIds);
 
     /**
      * Returns the information necessary to determine if a user is allowed to delete/revert the data sets.
@@ -197,4 +219,5 @@ public interface IAuthorizationDataProvider
      * Fetches metaproject with given tech id.
      */
     public MetaprojectPE getMetaproject(TechId id);
+
 }

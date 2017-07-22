@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonCollectionPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -34,11 +34,17 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.Ex
 /**
  * @author pkupczyk
  */
-public class ExperimentListPredicateSystemTest extends CommonCollectionPredicateSystemTest<Experiment>
+public class ExperimentListPredicateSystemTest extends CommonPredicateSystemTest<Experiment>
 {
 
     @Override
-    protected Experiment createNonexistentObject()
+    protected boolean isCollectionPredicate()
+    {
+        return true;
+    }
+
+    @Override
+    protected Experiment createNonexistentObject(Object param)
     {
         ExperimentInitializer initializer = new Experiment.ExperimentInitializer();
         initializer.setId(-1L);
@@ -51,7 +57,7 @@ public class ExperimentListPredicateSystemTest extends CommonCollectionPredicate
     }
 
     @Override
-    protected Experiment createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected Experiment createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
 
@@ -66,19 +72,19 @@ public class ExperimentListPredicateSystemTest extends CommonCollectionPredicate
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<Experiment> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<Experiment> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testExperimentListPredicate(sessionProvider, objects);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, NullPointerException.class, null);
     }
 
     @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t)
+    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No experiment specified.");
     }

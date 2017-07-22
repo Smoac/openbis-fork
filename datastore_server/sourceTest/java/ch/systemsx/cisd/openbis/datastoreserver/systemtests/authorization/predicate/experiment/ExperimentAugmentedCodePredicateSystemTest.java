@@ -34,32 +34,32 @@ public class ExperimentAugmentedCodePredicateSystemTest extends CommonPredicateS
 {
 
     @Override
-    protected String createNonexistentObject()
+    protected String createNonexistentObject(Object param)
     {
         return "/IDONTEXIST/IDONTEXIST/IDONTEXIST";
     }
 
     @Override
-    protected String createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected String createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return experimentPE.getIdentifier();
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testExperimentAugmentedCodePredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No experiment specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

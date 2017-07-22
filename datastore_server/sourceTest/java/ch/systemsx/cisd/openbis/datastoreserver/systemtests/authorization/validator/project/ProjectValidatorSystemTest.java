@@ -31,7 +31,7 @@ public class ProjectValidatorSystemTest extends CommonValidatorSystemTest<Projec
 {
 
     @Override
-    protected Project createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected Project createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         Project project = new Project();
 
@@ -45,7 +45,7 @@ public class ProjectValidatorSystemTest extends CommonValidatorSystemTest<Projec
     }
 
     @Override
-    protected Project validateObject(IAuthSessionProvider sessionProvider, Project object)
+    protected Project validateObject(IAuthSessionProvider sessionProvider, Project object, Object param)
     {
         return getBean(ProjectValidatorTestService.class).testProjectValidator(sessionProvider, object);
     }

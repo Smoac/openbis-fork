@@ -35,32 +35,32 @@ public class ExperimentPermIdPredicateSystemTest extends CommonPredicateSystemTe
 {
 
     @Override
-    protected PermId createNonexistentObject()
+    protected PermId createNonexistentObject(Object param)
     {
         return new PermId("IDONTEXIST");
     }
 
     @Override
-    protected PermId createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected PermId createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return new PermId(experimentPE.getPermId());
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<PermId> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<PermId> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testExperimentPermIdPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No experiment perm id specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

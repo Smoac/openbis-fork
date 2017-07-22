@@ -31,21 +31,21 @@ abstract class AbstractSamplePredicate<T> extends AbstractPredicate<T>
 
     protected final SamplePermIdPredicate samplePermIdPredicate;
 
-    protected final SampleOwnerIdentifierPredicate sampleOwnerPredicate;
+    protected final SampleIdentifierPredicate sampleIdentifierPredicate;
 
     protected final SampleAugmentedCodePredicate sampleAugmentedCodePredicate;
 
-    public AbstractSamplePredicate()
+    public AbstractSamplePredicate(boolean isReadAccess)
     {
-        this.sampleTechIdPredicate = new SampleTechIdPredicate();
+        this.sampleTechIdPredicate = new SampleTechIdPredicate(isReadAccess);
         this.spacePredicate = new SpaceIdentifierPredicate();
-        this.samplePermIdPredicate = new SamplePermIdPredicate();
-        this.sampleOwnerPredicate = new SampleOwnerIdentifierPredicate();
-        this.sampleAugmentedCodePredicate = new SampleAugmentedCodePredicate(sampleOwnerPredicate);
+        this.samplePermIdPredicate = new SamplePermIdPredicate(isReadAccess);
+        this.sampleIdentifierPredicate = new SampleIdentifierPredicate(isReadAccess);
+        this.sampleAugmentedCodePredicate = new SampleAugmentedCodePredicate(sampleIdentifierPredicate);
     }
 
     @Override
-    public final void init(IAuthorizationDataProvider provider)
+    public void init(IAuthorizationDataProvider provider)
     {
         sampleTechIdPredicate.init(provider);
         spacePredicate.init(provider);

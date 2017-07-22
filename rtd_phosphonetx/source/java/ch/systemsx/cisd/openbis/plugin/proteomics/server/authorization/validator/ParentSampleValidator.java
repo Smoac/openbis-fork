@@ -17,6 +17,11 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromSample;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -28,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public class ParentSampleValidator implements IValidator<Sample>
 {
+    private IAuthorizationDataProvider provider;
+
     private IValidator<Space> validator = new SpaceValidator();
 
     @Override
@@ -39,20 +46,33 @@ public class ParentSampleValidator implements IValidator<Sample>
     public boolean isValid(PersonPE person, Sample sample, boolean parentHasToBeValid)
     {
         Sample parent = sample.getGeneratedFrom();
+
         if (parent != null)
         {
             Space space = parent.getSpace();
+
             if (parentHasToBeValid == false || space == null || validator.isValid(person, space))
             {
                 return true;
+            } else
+            {
+                IProjectAuthorization<Sample> pa = new ProjectAuthorizationBuilder<Sample>()
+                        .withData(provider)
+                        .withUser(new UserProviderFromPersonPE(person))
+                        .withRoles(new RolesProviderFromPersonPE(person))
+                        .withObjects(new ProjectProviderFromSample(parent))
+                        .build();
+
+                return pa.getObjectsWithoutAccess().isEmpty();
             }
         }
+
         return false;
     }
 
     @Override
     public void init(IAuthorizationDataProvider authorizationDataProvider)
     {
-        // do nothing
+        provider = authorizationDataProvider;
     }
 }

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE.SampleOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -50,14 +49,16 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
+
+        SampleAccessPE sampleAccess = new SampleAccessPE();
+        sampleAccess.setSpaceCode(SPACE_CODE);
+        sampleAccess.setSampleCode("TEST");
+
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
-                    SampleAccessPE sample = new SampleAccessPE();
-                    sample.setOwnerCode(SPACE_CODE);
-                    sample.setOwnerType(SampleOwnerType.SPACE);
-                    will(returnValue(new HashSet<SampleAccessPE>(Arrays.asList(sample))));
+                    will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
 
@@ -83,14 +84,15 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
+
+        SampleAccessPE sampleAccess = new SampleAccessPE();
+        sampleAccess.setSampleCode("TEST");
+
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
-                    SampleAccessPE sample = new SampleAccessPE();
-                    sample.setOwnerCode("CISD");
-                    sample.setOwnerType(SampleOwnerType.DATABASE_INSTANCE);
-                    will(returnValue(new HashSet<SampleAccessPE>(Arrays.asList(sample))));
+                    will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
 
@@ -138,13 +140,20 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         SampleUpdatesDTO sampleWithIdAndIdentifer =
                 new SampleUpdatesDTO(new TechId(44L), null, null, null, null, 0,
                         SampleIdentifierFactory.parse("/" + ANOTHER_SPACE_CODE + "/S1"), null, null);
+
         prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
+
+        SampleAccessPE sampleAccess = new SampleAccessPE();
+        sampleAccess.setSpaceCode(ANOTHER_SPACE_CODE);
+        sampleAccess.setSampleCode("S1");
+
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
+                    will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
 

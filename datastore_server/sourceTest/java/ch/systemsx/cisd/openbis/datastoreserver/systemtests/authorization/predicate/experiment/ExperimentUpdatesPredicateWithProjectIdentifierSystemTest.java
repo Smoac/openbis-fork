@@ -40,7 +40,7 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends C
 {
 
     @Override
-    protected ExperimentUpdatesDTO createNonexistentObject()
+    protected ExperimentUpdatesDTO createNonexistentObject(Object param)
     {
         // we want to test projectIdentifier only therefore here we set a correct experimentId
 
@@ -51,7 +51,7 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends C
     }
 
     @Override
-    protected ExperimentUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         // we want to test projectIdentifier only therefore here we set a chosen experimentId
 
@@ -62,7 +62,7 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends C
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentUpdatesDTO> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentUpdatesDTO> objects, Object param)
     {
         // we want to test projectIdentifier access only therefore here we add assignment to have access to experimentId
 
@@ -75,19 +75,19 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends C
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No experiment updates specified.");
     }
 
     @Override
-    protected void assertWithNoAllowedRoles(PersonPE person, Throwable t)
+    protected void assertWithNoAllowedRoles(PersonPE person, Throwable t, Object param)
     {
         assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

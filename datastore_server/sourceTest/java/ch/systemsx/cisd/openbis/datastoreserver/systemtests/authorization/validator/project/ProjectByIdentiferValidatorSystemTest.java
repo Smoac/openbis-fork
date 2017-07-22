@@ -31,7 +31,7 @@ public class ProjectByIdentiferValidatorSystemTest extends CommonValidatorSystem
 {
 
     @Override
-    protected Project createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected Project createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         Project project = new Project();
         project.setIdentifier(new ProjectIdentifier(spacePE.getCode(), projectPE.getCode()).toString());
@@ -39,7 +39,7 @@ public class ProjectByIdentiferValidatorSystemTest extends CommonValidatorSystem
     }
 
     @Override
-    protected Project validateObject(IAuthSessionProvider sessionProvider, Project object)
+    protected Project validateObject(IAuthSessionProvider sessionProvider, Project object, Object param)
     {
         return getBean(ProjectValidatorTestService.class).testProjectByIdentifierValidator(sessionProvider, object);
     }

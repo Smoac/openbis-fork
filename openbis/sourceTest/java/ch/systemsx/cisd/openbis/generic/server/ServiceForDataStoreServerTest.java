@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
@@ -232,6 +233,82 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
             try
             {
                 etlService.listDataSetsByExperimentID(session.getSessionToken(), experimentId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByExperimentIdentifierListWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments =
+                    etlService.listExperiments(session.getSessionToken(), Arrays.asList(experimentIdentifier), fetchOptions);
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                etlService.listExperiments(session.getSessionToken(), Arrays.asList(experimentIdentifier), fetchOptions);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByProjectIdentifierWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Experiment> experiments = etlService.listExperiments(session.getSessionToken(), projectIdentifier);
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                etlService.listExperiments(session.getSessionToken(), projectIdentifier);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testTryGetExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
+
+        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            Experiment experiment = etlService.tryGetExperiment(session.getSessionToken(), experimentIdentifier);
+            assertEquals(experiment.getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                etlService.tryGetExperiment(session.getSessionToken(), experimentIdentifier);
                 fail();
             } catch (AuthorizationFailureException e)
             {

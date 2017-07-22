@@ -21,11 +21,8 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link NewSamplesWithTypes}.
@@ -35,48 +32,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 public final class NewSamplesWithTypePredicate extends AbstractPredicate<NewSamplesWithTypes>
 {
 
-    private final IPredicate<SampleOwnerIdentifier> delegate;
-
-    @Override
-    public final void init(IAuthorizationDataProvider provider)
-    {
-        delegate.init(provider);
-    }
-
-    @Override
-    public final Status doEvaluation(final PersonPE person,
-            final List<RoleWithIdentifier> allowedRoles, final NewSamplesWithTypes value)
-    {
-        Status s = Status.OK;
-        for (NewSample sample : value.getNewEntities())
-        {
-            SampleOwnerIdentifier identifier =
-                    SampleIdentifierFactory.parse(sample.getIdentifier());
-            s = delegate.evaluate(person, allowedRoles, identifier);
-            if (s.equals(Status.OK) == false)
-            {
-                return s;
-            }
-        }
-        return s;
-    }
-
-    // for tests only
-    @Deprecated
-    NewSamplesWithTypePredicate(IPredicate<SampleOwnerIdentifier> delegate)
-    {
-        this.delegate = delegate;
-    }
+    private NewSampleCollectionPredicate newSampleCollectionPredicate;
 
     public NewSamplesWithTypePredicate()
     {
-        delegate = new SampleOwnerIdentifierPredicate(false);
+        newSampleCollectionPredicate = new NewSampleCollectionPredicate();
     }
 
     @Override
-    public final String getCandidateDescription()
+    public void init(IAuthorizationDataProvider provider)
     {
-        return "new sample";
+        newSampleCollectionPredicate.init(provider);
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, NewSamplesWithTypes value)
+    {
+        return newSampleCollectionPredicate.doEvaluation(person, allowedRoles, value.getNewEntities());
+    }
+
+    @Override
+    public String getCandidateDescription()
+    {
+        return "new samples with type";
     }
 
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * Predicate for a list of {@link SampleUpdatesDTO} instances. The logical is similar to {@link SampleUpdatesPredicate}.
@@ -39,26 +40,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 @ShouldFlattenCollections(value = false)
 public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<SampleUpdatesDTO>>
 {
+
+    private final ProjectIdentifierPredicate projectIdentifierPredicate;
+
     private final SampleTechIdCollectionPredicate sampleTechIdCollectionPredicate;
 
-    private final SpaceIdentifierPredicate spacePredicate;
-
-    private final SampleOwnerIdentifierCollectionPredicate sampleOwnerIdentifierCollectionPredicate;
+    private final SampleIdentifierCollectionPredicate sampleIdentifierCollectionPredicate;
 
     public SampleUpdatesCollectionPredicate()
     {
+        this.projectIdentifierPredicate = new ProjectIdentifierPredicate();
         this.sampleTechIdCollectionPredicate = new SampleTechIdCollectionPredicate(false);
-        this.spacePredicate = new SpaceIdentifierPredicate();
-        this.sampleOwnerIdentifierCollectionPredicate =
-                new SampleOwnerIdentifierCollectionPredicate(false);
+        this.sampleIdentifierCollectionPredicate = new SampleIdentifierCollectionPredicate(false);
     }
 
     @Override
     public void init(IAuthorizationDataProvider provider)
     {
+        projectIdentifierPredicate.init(provider);
         sampleTechIdCollectionPredicate.init(provider);
-        spacePredicate.init(provider);
-        sampleOwnerIdentifierCollectionPredicate.init(provider);
+        sampleIdentifierCollectionPredicate.init(provider);
     }
 
     @Override
@@ -80,17 +81,22 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
         IServiceConversationProgressListener progressListener =
                 ServiceConversationsThreadContext.getProgressListener();
         List<TechId> techIds = new ArrayList<TechId>(value.size());
-        List<SampleOwnerIdentifier> sampleIdentifiers =
-                new ArrayList<SampleOwnerIdentifier>(value.size());
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<SampleIdentifier>(value.size());
+        List<SampleIdentifier> containerIdentifiers = new ArrayList<SampleIdentifier>();
+
         int index = 0;
         for (SampleUpdatesDTO sampleUpdates : value)
         {
+            if (sampleUpdates == null)
+            {
+                throw UserFailureException.fromTemplate("No sample updates specified.");
+            }
             TechId sampleId = sampleUpdates.getSampleIdOrNull();
             if (sampleId != null)
             {
                 techIds.add(sampleId);
             }
-            Status result = SampleUpdatesPredicate.evaluateBasedOnExperimentOrProject(spacePredicate, 
+            Status result = SampleUpdatesPredicate.evaluateBasedOnExperimentOrProject(projectIdentifierPredicate,
                     person, allowedRoles, sampleUpdates);
             if (result.isOK() == false)
             {
@@ -101,15 +107,32 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
             {
                 sampleIdentifiers.add(sampleIdentifier);
             }
+
+            if (sampleUpdates.getContainerIdentifierOrNull() != null)
+            {
+                SampleIdentifier containerIdentifier = SampleIdentifierFactory.parse(sampleUpdates.getContainerIdentifierOrNull());
+                containerIdentifiers.add(containerIdentifier);
+            }
+
             progressListener.update("authorizeSampleUpdates", value.size(), ++index);
         }
+
         Status result = sampleTechIdCollectionPredicate.doEvaluation(person, allowedRoles, techIds);
         if (result.isOK() == false)
         {
             return result;
         }
-        return sampleOwnerIdentifierCollectionPredicate.doEvaluation(person, allowedRoles,
-                sampleIdentifiers);
+
+        if (false == containerIdentifiers.isEmpty())
+        {
+            result = sampleIdentifierCollectionPredicate.doEvaluation(person, allowedRoles, containerIdentifiers);
+            if (result.isOK() == false)
+            {
+                return result;
+            }
+        }
+
+        return sampleIdentifierCollectionPredicate.doEvaluation(person, allowedRoles, sampleIdentifiers);
     }
-    
+
 }

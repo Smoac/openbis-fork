@@ -386,6 +386,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         .searchForSampleIDs(userId, detailedSearchCriteria);
 
         SampleByIdentiferValidator filter = new SampleByIdentiferValidator();
+        filter.init(new AuthorizationDataProvider(getDAOFactory()));
         List<Sample> results = createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
 
         return new SampleSearchResultSorter().sort(results, detailedSearchCriteria);
@@ -403,6 +404,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         // filter by user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
         final ArrayList<Sample> samples = new ArrayList<Sample>(allSamples.size());
         for (Sample sample : allSamples)
         {
@@ -463,6 +465,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
         final ArrayList<Sample> samples = new ArrayList<Sample>(unfilteredSamples.size());
         for (Sample sample : unfilteredSamples)
         {

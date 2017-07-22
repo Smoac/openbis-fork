@@ -34,14 +34,14 @@ public class ExperimentSearchCriteriaPredicateWithExperimentTechIdSystemTest ext
 {
 
     @Override
-    protected ExperimentSearchCriteria createNonexistentObject()
+    protected ExperimentSearchCriteria createNonexistentObject(Object param)
     {
         return ExperimentSearchCriteria.createExperiment(new SingleExperimentSearchCriteria(-1L, "IDONTEXIST", "/IDONTEXIST/IDONTEXIST/IDONTEXIST"),
                 false);
     }
 
     @Override
-    protected ExperimentSearchCriteria createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentSearchCriteria createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return ExperimentSearchCriteria.createExperiment(
@@ -49,19 +49,19 @@ public class ExperimentSearchCriteriaPredicateWithExperimentTechIdSystemTest ext
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentSearchCriteria> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentSearchCriteria> objects, Object param)
     {
         getBean(ExperimentPredicateScreeningTestService.class).testExperimentSearchCriteriaPredicate(session, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertUserFailureExceptionThatExperimentDoesNotExist(t);
     }

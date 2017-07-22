@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentValidator;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -83,11 +82,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal>
         implements IProteomicsDataServiceInternal
 {
-    private static final ParentSampleValidator PARENT_SAMPLE_VALIDATOR = new ParentSampleValidator();
-
-    private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
-            new RawDataSampleValidator();
-
     private ICommonBusinessObjectFactory commonBoFactory;
 
     private IOpenBisSessionManager sessionManagerFromConstructor;
@@ -162,9 +156,13 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         Set<Long> sampleIDs = asSet(rawDataSampleIDs);
         List<String> dataSetCodes = new ArrayList<String>();
         Map<String, String> parameterBindings = new HashMap<String, String>();
+
+        RawDataSampleValidator validator = new RawDataSampleValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         for (MsInjectionSample sample : samples)
         {
-            if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample)
+            if (validator.isValid(person, sample)
                     && sampleIDs.contains(sample.getSample().getId()))
             {
                 Map<String, AbstractExternalData> latestDataSets = sample.getLatestDataSets();
@@ -213,7 +211,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID)
     {
@@ -300,11 +298,15 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                         CommonConstants.MS_DATA_SPACE);
         PersonPE person = session.tryGetPerson();
         List<Sample> validSamples = new ArrayList<Sample>();
+
+        ParentSampleValidator validator = new ParentSampleValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         for (Sample sample : samples)
         {
-            if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample, parentHasToBeValid))
+            if (validator.isValid(person, sample, parentHasToBeValid))
             {
-                if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample) == false)
+                if (validator.isValid(person, sample) == false)
                 {
                     sample.setParents(Collections.<Sample> emptySet());
                 }

@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Id;
 import javax.persistence.Entity;
 import javax.persistence.EntityResult;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
@@ -35,102 +33,128 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Piotr Buczek
  */
 @Entity
-@SqlResultSetMapping(name = "sample_access_implicit", entities = @EntityResult(entityClass = SampleAccessPE.class))
-@NamedNativeQueries(value =
-{
-        @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
-                + "FROM "
-                + TableNames.SAMPLES_VIEW
-                + " s, "
-                + TableNames.SPACES_TABLE
-                + " g "
-                + "WHERE s.id in (:ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
-        @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT 'CISD' as ownerCode, 'DATABASE_INSTANCE' as ownerType "
-                + "FROM "
-                + TableNames.SAMPLES_VIEW
-                + " s "
-                + "WHERE s.id in (:ids) and s.space_id is null", resultSetMapping = "sample_access_implicit"),
-        @NamedNativeQuery(name = "deleted_space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
-                + "FROM "
-                + TableNames.DELETED_SAMPLES_VIEW
-                + " s, "
-                + TableNames.SPACES_TABLE
-                + " g " + "WHERE s.del_id in (:del_ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
-        @NamedNativeQuery(name = "deleted_shared_sample_access", query = "SELECT DISTINCT 'CISD' as ownerCode, 'DATABASE_INSTANCE' as ownerType "
-                + "FROM "
-                + TableNames.DELETED_SAMPLES_VIEW
-                + " s "
-                + "WHERE s.del_id in (:del_ids)  and s.space_id is null", resultSetMapping = "sample_access_implicit") })
+@SqlResultSetMapping(name = SampleAccessPE.RESULT_SET_MAPPING, entities = @EntityResult(entityClass = SampleAccessPE.class))
+@NamedNativeQueries(value = {
+        @NamedNativeQuery(name = SampleAccessPE.SAMPLE_ACCESS_QUERY_NAME, query = SampleAccessPE.SAMPLE_ACCESS_QUERY, resultSetMapping = SampleAccessPE.RESULT_SET_MAPPING),
+        @NamedNativeQuery(name = SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME, query = SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY, resultSetMapping = SampleAccessPE.RESULT_SET_MAPPING) })
 public class SampleAccessPE
 {
 
-    public final static String SPACE_SAMPLE_ACCESS_QUERY_NAME = "space_sample_access";
+    public final static String SAMPLE_ACCESS_QUERY =
+            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode "
+                    + "FROM "
+                    + TableNames.SAMPLES_VIEW
+                    + " s left outer join "
+                    + TableNames.SPACES_TABLE
+                    + " g on s.space_id = g.id left outer join "
+                    + TableNames.PROJECTS_TABLE
+                    + " p on s.proj_id = p.id left outer join "
+                    + TableNames.SAMPLES_ALL_TABLE
+                    + " c on s.samp_id_part_of = c.id left outer join "
+                    + TableNames.EXPERIMENTS_ALL_TABLE
+                    + " e on s.expe_id = e.id left outer join "
+                    + TableNames.PROJECTS_TABLE
+                    + " ep on e.proj_id = ep.id "
+                    + "WHERE s.id in (:ids)";
 
-    public final static String SHARED_SAMPLE_ACCESS_QUERY_NAME = "shared_sample_access";
+    public final static String DELETED_SAMPLE_ACCESS_QUERY =
+            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode "
+                    + "FROM "
+                    + TableNames.DELETED_SAMPLES_VIEW
+                    + " s left outer join "
+                    + TableNames.SPACES_TABLE
+                    + " g on s.space_id = g.id left outer join "
+                    + TableNames.PROJECTS_TABLE
+                    + " p on s.proj_id = p.id left outer join "
+                    + TableNames.SAMPLES_ALL_TABLE
+                    + " c on s.samp_id_part_of = c.id left outer join "
+                    + TableNames.EXPERIMENTS_ALL_TABLE
+                    + " e on s.expe_id = e.id left outer join "
+                    + TableNames.PROJECTS_TABLE
+                    + " ep on e.proj_id = ep.id "
+                    + "WHERE s.del_id in (:del_ids)";
 
-    public final static String DELETED_SPACE_SAMPLE_ACCESS_QUERY_NAME =
-            "deleted_space_sample_access";
+    public final static String SAMPLE_ACCESS_QUERY_NAME = "sample_access";
 
-    public final static String DELETED_SHARED_SAMPLE_ACCESS_QUERY_NAME =
-            "deleted_shared_sample_access";
+    public final static String DELETED_SAMPLE_ACCESS_QUERY_NAME = "deleted_sample_access";
 
     public final static String SAMPLE_IDS_PARAMETER_NAME = "ids";
 
     public final static String DELETION_IDS_PARAMETER_NAME = "del_ids";
 
-    public enum SampleOwnerType
+    public final static String RESULT_SET_MAPPING = "sample_access_implicit";
+
+    private String spaceCode;
+
+    private String projectCode;
+
+    private String experimentProjectCode;
+
+    private String experimentCode;
+
+    private String sampleCode;
+
+    private String containerCode;
+
+    public String getSpaceCode()
     {
-        SPACE, DATABASE_INSTANCE
+        return spaceCode;
     }
 
-    private String ownerCode;
-
-    private SampleOwnerType ownerType;
-
-    /**
-     * A factory method that should only be used for testing.
-     */
-    public static SampleAccessPE createSpaceSampleAccessPEForTest(String dataSetId,
-            String dataSetCode, String spaceCode)
+    public void setSpaceCode(String spaceCode)
     {
-        SampleAccessPE newMe = new SampleAccessPE();
-        newMe.setOwnerType(SampleOwnerType.SPACE);
-        newMe.setOwnerCode(spaceCode);
-        return newMe;
+        this.spaceCode = spaceCode;
     }
 
-    /**
-     * A factory method that should only be used for testing.
-     */
-    public static SampleAccessPE createSharedSampleAccessPEForTest(String dataSetId,
-            String dataSetCode, String databaseInstanceCode)
+    public String getProjectCode()
     {
-        SampleAccessPE newMe = new SampleAccessPE();
-        newMe.setOwnerType(SampleOwnerType.DATABASE_INSTANCE);
-        newMe.setOwnerCode(databaseInstanceCode);
-        return newMe;
+        return projectCode;
+    }
+
+    public void setProjectCode(String projectCode)
+    {
+        this.projectCode = projectCode;
+    }
+
+    public String getExperimentProjectCode()
+    {
+        return experimentProjectCode;
+    }
+
+    public void setExperimentProjectCode(String experimentProjectCode)
+    {
+        this.experimentProjectCode = experimentProjectCode;
+    }
+
+    public String getExperimentCode()
+    {
+        return experimentCode;
+    }
+
+    public void setExperimentCode(String experimentCode)
+    {
+        this.experimentCode = experimentCode;
     }
 
     @Id
-    public String getOwnerCode()
+    public String getSampleCode()
     {
-        return ownerCode;
+        return sampleCode;
     }
 
-    public void setOwnerCode(String ownerCode)
+    public void setSampleCode(String sampleCode)
     {
-        this.ownerCode = ownerCode;
+        this.sampleCode = sampleCode;
     }
 
-    @Enumerated(EnumType.STRING)
-    public SampleOwnerType getOwnerType()
+    public String getContainerCode()
     {
-        return ownerType;
+        return containerCode;
     }
 
-    public void setOwnerType(SampleOwnerType ownerType)
+    public void setContainerCode(String containerCode)
     {
-        this.ownerType = ownerType;
+        this.containerCode = containerCode;
     }
 
     //
@@ -150,8 +174,12 @@ public class SampleAccessPE
         }
         final SampleAccessPE that = (SampleAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getOwnerType(), that.getOwnerType());
-        builder.append(getOwnerCode(), that.getOwnerCode());
+        builder.append(getSpaceCode(), that.getSpaceCode());
+        builder.append(getProjectCode(), that.getProjectCode());
+        builder.append(getExperimentProjectCode(), that.getExperimentProjectCode());
+        builder.append(getExperimentCode(), that.getExperimentCode());
+        builder.append(getSampleCode(), that.getSampleCode());
+        builder.append(getContainerCode(), that.getContainerCode());
         return builder.isEquals();
     }
 
@@ -159,8 +187,12 @@ public class SampleAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getOwnerType());
-        builder.append(getOwnerCode());
+        builder.append(getSpaceCode());
+        builder.append(getProjectCode());
+        builder.append(getExperimentProjectCode());
+        builder.append(getExperimentCode());
+        builder.append(getSampleCode());
+        builder.append(getContainerCode());
         return builder.toHashCode();
     }
 

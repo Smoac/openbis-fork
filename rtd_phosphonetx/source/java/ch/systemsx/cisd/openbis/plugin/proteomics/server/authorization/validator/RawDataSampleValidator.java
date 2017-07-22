@@ -22,6 +22,6 @@ public final class RawDataSampleValidator implements IValidator<MsInjectionSampl
     @Override
     public void init(IAuthorizationDataProvider authorizationDataProvider)
     {
-        // do nothing
+        validator.init(authorizationDataProvider);
     }
 }

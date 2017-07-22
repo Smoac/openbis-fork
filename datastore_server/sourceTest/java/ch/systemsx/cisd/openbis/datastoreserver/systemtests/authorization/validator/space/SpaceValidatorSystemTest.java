@@ -31,7 +31,7 @@ public class SpaceValidatorSystemTest extends CommonValidatorSystemTest<Space>
 {
 
     @Override
-    protected Space createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected Space createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         Space space = new Space();
         space.setCode(spacePE.getCode());
@@ -39,13 +39,13 @@ public class SpaceValidatorSystemTest extends CommonValidatorSystemTest<Space>
     }
 
     @Override
-    protected Space validateObject(IAuthSessionProvider sessionProvider, Space object)
+    protected Space validateObject(IAuthSessionProvider sessionProvider, Space object, Object param)
     {
         return getBean(SpaceValidatorTestService.class).testSpaceValidator(sessionProvider, object);
     }
 
     @Override
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Space result, Throwable t)
+    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Space result, Throwable t, Object param)
     {
         assertNull(result);
         assertNoException(t);

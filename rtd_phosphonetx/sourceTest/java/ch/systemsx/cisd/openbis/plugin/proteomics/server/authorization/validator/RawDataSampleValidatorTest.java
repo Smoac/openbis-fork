@@ -19,9 +19,16 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validato
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -38,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
  */
 public class RawDataSampleValidatorTest extends AssertJUnit
 {
+
     private static final MsInjectionSample NO_PARENT = create("no-parent", null);
 
     private static final MsInjectionSample WITH_INSTANCE_PARENT = create("with-instance-parent", "/parent");
@@ -46,7 +54,26 @@ public class RawDataSampleValidatorTest extends AssertJUnit
 
     private static final MsInjectionSample WITH_PARENT_IN_G2 = create("with-parent-in-g2", "/g2/parent");
 
-    private RawDataSampleValidator validator = new RawDataSampleValidator();
+    private Mockery context;
+
+    private RawDataSampleValidator validator;
+
+    private IDAOFactory daoFactory;
+
+    @BeforeMethod
+    protected void beforeMethod()
+    {
+        context = new Mockery();
+        daoFactory = context.mock(IDAOFactory.class);
+        validator = new RawDataSampleValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+    }
+
+    @AfterMethod
+    protected void afterMethod()
+    {
+        context.assertIsSatisfied();
+    }
 
     private static MsInjectionSample create(String sampleCode, String parentSampleIdentifierOrNull)
     {
@@ -74,6 +101,14 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     @Test
     public void testUserWithNoRights()
     {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+                }
+            });
+
         PersonPE person = createPersonWithRoles();
 
         assertEquals(false, validator.isValid(person, NO_PARENT));
@@ -85,6 +120,14 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     @Test
     public void testUserWithRightsForGroupG1()
     {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+                }
+            });
+
         PersonPE person = createPersonWithRoles(createRole("G1"));
 
         assertEquals(false, validator.isValid(person, NO_PARENT));

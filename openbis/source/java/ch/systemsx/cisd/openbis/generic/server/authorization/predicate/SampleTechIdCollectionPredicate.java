@@ -16,15 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on a list of sample {@link TechId}s.
@@ -32,43 +29,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * @author Piotr Buczek
  */
 @ShouldFlattenCollections(value = false)
-public class SampleTechIdCollectionPredicate extends
-        DelegatedPredicate<List<SampleOwnerIdentifier>, List<TechId>>
+public class SampleTechIdCollectionPredicate extends DelegatedPredicate<Collection<SampleAccessPE>, List<TechId>>
 {
-
-    public SampleTechIdCollectionPredicate(boolean isReadAccess)
-    {
-        super(new SampleOwnerIdentifierCollectionPredicate(isReadAccess));
-    }
 
     public SampleTechIdCollectionPredicate()
     {
         this(true);
     }
 
-    @Override
-    public List<SampleOwnerIdentifier> tryConvert(List<TechId> techIds)
+    public SampleTechIdCollectionPredicate(boolean isReadAccess)
     {
-        ArrayList<SampleOwnerIdentifier> ownerIds = new ArrayList<SampleOwnerIdentifier>();
+        super(new SampleAccessPECollectionPredicate(isReadAccess));
+    }
 
-        Set<SampleAccessPE> accessData =
-                authorizationDataProvider.getSampleCollectionAccessData(techIds);
-
-        for (SampleAccessPE accessDatum : accessData)
-        {
-            String ownerCode = accessDatum.getOwnerCode();
-            switch (accessDatum.getOwnerType())
-            {
-                case SPACE:
-                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(ownerCode)));
-                    break;
-                case DATABASE_INSTANCE:
-                    ownerIds.add(new SampleOwnerIdentifier());
-                    break;
-            }
-        }
-
-        return ownerIds;
+    @Override
+    public Collection<SampleAccessPE> tryConvert(List<TechId> techIds)
+    {
+        return authorizationDataProvider.getSampleCollectionAccessData(techIds);
     }
 
     @Override

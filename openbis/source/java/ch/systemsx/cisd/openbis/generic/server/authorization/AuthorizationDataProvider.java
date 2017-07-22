@@ -100,6 +100,33 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
+    public SamplePE tryGetSampleBySpaceAndCode(SpacePE space, String sampleCode)
+    {
+        return daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, space);
+    }
+
+    @Override
+    public SamplePE tryGetSampleByProjectAndCode(ProjectPE project, String sampleCode)
+    {
+        return daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, project);
+    }
+
+    @Override
+    public Map<TechId, SamplePE> tryGetSamplesByTechIds(Collection<TechId> techIds)
+    {
+        List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(TechId.asLongs(techIds));
+
+        Map<TechId, SamplePE> map = new HashMap<TechId, SamplePE>();
+
+        for (SamplePE sample : samples)
+        {
+            map.put(new TechId(sample.getId()), sample);
+        }
+
+        return map;
+    }
+
+    @Override
     public ProjectPE tryGetProjectByPermId(PermId permId)
     {
         return daoFactory.getProjectDAO().tryGetByPermID(permId.getId());
@@ -202,15 +229,11 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public Set<SampleAccessPE> getSampleCollectionAccessData(final List<TechId> sampleTechIds)
+    public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleTechIds)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query querySpaceSamples =
-                sess.getNamedQuery(SampleAccessPE.SPACE_SAMPLE_ACCESS_QUERY_NAME);
-        querySpaceSamples.setReadOnly(true);
-        final Query querySharedSamples =
-                sess.getNamedQuery(SampleAccessPE.SHARED_SAMPLE_ACCESS_QUERY_NAME);
-        querySharedSamples.setReadOnly(true);
+        final Query query = sess.getNamedQuery(SampleAccessPE.SAMPLE_ACCESS_QUERY_NAME);
+        query.setReadOnly(true);
 
         final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
 
@@ -219,14 +242,9 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                 @Override
                 public void execute(List<TechId> entities)
                 {
-                    querySpaceSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    querySharedSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    List<SampleAccessPE> spaceSamples = cast(querySpaceSamples.list());
-                    List<SampleAccessPE> sharedSamples = cast(querySharedSamples.list());
-                    fullResults.addAll(spaceSamples);
-                    fullResults.addAll(sharedSamples);
+                    query.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, TechId.asLongs(entities));
+                    List<SampleAccessPE> singleResults = cast(query.list());
+                    fullResults.addAll(singleResults);
                 }
 
                 @Override
@@ -299,15 +317,11 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(final List<TechId> deletionIds)
+    public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(List<TechId> deletionIds)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query querySpaceSamples =
-                sess.getNamedQuery(SampleAccessPE.DELETED_SPACE_SAMPLE_ACCESS_QUERY_NAME);
-        querySpaceSamples.setReadOnly(true);
-        final Query querySharedSamples =
-                sess.getNamedQuery(SampleAccessPE.DELETED_SHARED_SAMPLE_ACCESS_QUERY_NAME);
-        querySharedSamples.setReadOnly(true);
+        final Query query = sess.getNamedQuery(SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME);
+        query.setReadOnly(true);
 
         final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
 
@@ -316,14 +330,9 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                 @Override
                 public void execute(List<TechId> entities)
                 {
-                    querySpaceSamples.setParameterList(SampleAccessPE.DELETION_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    querySharedSamples.setParameterList(SampleAccessPE.DELETION_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    List<SampleAccessPE> spaceSamples = cast(querySpaceSamples.list());
-                    List<SampleAccessPE> sharedSamples = cast(querySharedSamples.list());
-                    fullResults.addAll(spaceSamples);
-                    fullResults.addAll(sharedSamples);
+                    query.setParameterList(SampleAccessPE.DELETION_IDS_PARAMETER_NAME, TechId.asLongs(entities));
+                    List<SampleAccessPE> samples = cast(query.list());
+                    fullResults.addAll(samples);
                 }
 
                 @Override
@@ -336,6 +345,49 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                 public String getEntityName()
                 {
                     return "deletion";
+                }
+
+                @Override
+                public String getOperationName()
+                {
+                    return "authorization";
+                }
+            });
+
+        return fullResults;
+    }
+
+    @Override
+    public Set<ExperimentAccessPE> getExperimentCollectionAccessData(final List<TechId> experimentIds)
+    {
+        Session sess = daoFactory.getSessionFactory().getCurrentSession();
+        final Query query =
+                sess.getNamedQuery(ExperimentAccessPE.EXPERIMENT_ACCESS_QUERY_NAME);
+        query.setReadOnly(true);
+
+        final Set<ExperimentAccessPE> fullResults = new HashSet<ExperimentAccessPE>();
+
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
+            {
+                @Override
+                public void execute(List<TechId> entities)
+                {
+                    query.setParameterList(ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME,
+                            TechId.asLongs(entities));
+                    List<ExperimentAccessPE> results = cast(query.list());
+                    fullResults.addAll(results);
+                }
+
+                @Override
+                public List<TechId> getAllEntities()
+                {
+                    return experimentIds;
+                }
+
+                @Override
+                public String getEntityName()
+                {
+                    return "experiment";
                 }
 
                 @Override

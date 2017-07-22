@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link SampleUpdatesDTO}. Checks that: 1) the user has rights to update the sample 2) if sample
@@ -33,6 +36,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class SampleUpdatesPredicate extends AbstractSamplePredicate<SampleUpdatesDTO>
 {
+
+    private ProjectIdentifierPredicate projectIdentifierPredicate;
+
+    public SampleUpdatesPredicate()
+    {
+        super(false);
+        projectIdentifierPredicate = new ProjectIdentifierPredicate();
+    }
+
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        super.init(provider);
+        projectIdentifierPredicate.init(provider);
+    }
+
     @Override
     public final String getCandidateDescription()
     {
@@ -46,34 +65,51 @@ public class SampleUpdatesPredicate extends AbstractSamplePredicate<SampleUpdate
             final SampleUpdatesDTO updates)
     {
         assert sampleTechIdPredicate.initialized : "Predicate has not been initialized";
-        assert spacePredicate.initialized : "Predicate has not been initialized";
-        assert sampleOwnerPredicate.initialized : "Predicate has not been initialized";
+        assert projectIdentifierPredicate.initialized : "Predicate has not been initialized";
+        assert sampleIdentifierPredicate.initialized : "Predicate has not been initialized";
+
         Status status;
-        status =
-                sampleTechIdPredicate.doEvaluation(person, allowedRoles,
-                        updates.getSampleIdOrNull());
-        if (status.equals(Status.OK) == false)
+
+        if (updates.getSampleIdOrNull() != null)
         {
-            return status;
+            status = sampleTechIdPredicate.doEvaluation(person, allowedRoles, updates.getSampleIdOrNull());
+            if (status.equals(Status.OK) == false)
+            {
+                return status;
+            }
         }
-        status = evaluateBasedOnExperimentOrProject(spacePredicate, person, allowedRoles, updates);
+
+        status = evaluateBasedOnExperimentOrProject(projectIdentifierPredicate, person, allowedRoles, updates);
         if (status.isOK() == false)
         {
             return status;
         }
-        status =
-                sampleOwnerPredicate.doEvaluation(person, allowedRoles,
-                        updates.getSampleIdentifier());
+
+        if (updates.getContainerIdentifierOrNull() != null)
+        {
+            SampleIdentifier containerIdentifier = SampleIdentifierFactory.parse(updates.getContainerIdentifierOrNull());
+            status = sampleIdentifierPredicate.doEvaluation(person, allowedRoles, containerIdentifier);
+            if (status.equals(Status.OK) == false)
+            {
+                return status;
+            }
+        }
+
+        if (updates.getSampleIdentifier() != null)
+        {
+            status = sampleIdentifierPredicate.doEvaluation(person, allowedRoles, updates.getSampleIdentifier());
+        }
+
         return status;
     }
-    
-    static Status evaluateBasedOnExperimentOrProject(SpaceIdentifierPredicate spacePredicate,
+
+    static Status evaluateBasedOnExperimentOrProject(ProjectIdentifierPredicate projectIdentifierPredicate,
             PersonPE person, List<RoleWithIdentifier> allowedRoles, SampleUpdatesDTO sampleUpdates)
     {
         ExperimentIdentifier expId = sampleUpdates.getExperimentIdentifierOrNull();
         if (expId != null)
         {
-            Status result = spacePredicate.doEvaluation(person, allowedRoles, expId);
+            Status result = projectIdentifierPredicate.doEvaluation(person, allowedRoles, expId);
             if (result.isOK() == false)
             {
                 return result;
@@ -82,7 +118,7 @@ public class SampleUpdatesPredicate extends AbstractSamplePredicate<SampleUpdate
         ProjectIdentifier projId = sampleUpdates.getProjectIdentifier();
         if (projId != null)
         {
-            return spacePredicate.doEvaluation(person, allowedRoles, projId);
+            return projectIdentifierPredicate.doEvaluation(person, allowedRoles, projId);
         }
         return Status.OK;
     }

@@ -1,4 +1,4 @@
-<suite name="projectAuthorization" verbose="2">
+<suite name="projectAuthorization" verbose="3">
 	<test name="unit" annotations="JDK">
 		<groups>
 			<run>
@@ -11,3 +11,4 @@
 		</packages>
 	</test>
 </suite>
+

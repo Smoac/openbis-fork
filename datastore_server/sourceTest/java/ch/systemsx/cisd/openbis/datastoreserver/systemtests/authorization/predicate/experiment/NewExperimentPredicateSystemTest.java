@@ -34,31 +34,31 @@ public class NewExperimentPredicateSystemTest extends CommonPredicateSystemTest<
 {
 
     @Override
-    protected NewExperiment createNonexistentObject()
+    protected NewExperiment createNonexistentObject(Object param)
     {
         return new NewExperiment("/IDONTEXIST/IDONTEXIST/IDONTEXIST", "idontexist");
     }
 
     @Override
-    protected NewExperiment createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected NewExperiment createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return new NewExperiment("/" + spacePE.getCode() + "/" + projectPE.getCode() + "/NEW_EXPERIMENT", "testType");
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<NewExperiment> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<NewExperiment> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testNewExperimentPredicate(session, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No new experiment specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

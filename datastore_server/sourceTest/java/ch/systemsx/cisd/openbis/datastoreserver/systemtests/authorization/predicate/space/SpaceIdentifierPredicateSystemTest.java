@@ -34,37 +34,37 @@ public class SpaceIdentifierPredicateSystemTest extends CommonPredicateSystemTes
 {
 
     @Override
-    protected SpaceIdentifier createNonexistentObject()
+    protected SpaceIdentifier createNonexistentObject(Object param)
     {
         return new SpaceIdentifier("IDONTEXIST");
     }
 
     @Override
-    protected SpaceIdentifier createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected SpaceIdentifier createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return new SpaceIdentifier(spacePE.getCode());
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<SpaceIdentifier> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<SpaceIdentifier> objects, Object param)
     {
         getBean(SpacePredicateTestService.class).testSpaceIdentifierPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No space identifier specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }
 
     @Override
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Throwable t)
+    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Throwable t, Object param)
     {
         assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
     }

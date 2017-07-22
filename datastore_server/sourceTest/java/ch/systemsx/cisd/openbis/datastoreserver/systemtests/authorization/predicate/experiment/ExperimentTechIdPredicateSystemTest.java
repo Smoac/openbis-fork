@@ -35,32 +35,32 @@ public class ExperimentTechIdPredicateSystemTest extends CommonPredicateSystemTe
 {
 
     @Override
-    protected TechId createNonexistentObject()
+    protected TechId createNonexistentObject(Object param)
     {
         return new TechId(-1);
     }
 
     @Override
-    protected TechId createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected TechId createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return new TechId(experimentPE.getId());
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testExperimentTechIdPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No technical id specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertUserFailureExceptionThatExperimentDoesNotExist(t);
     }

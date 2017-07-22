@@ -89,6 +89,10 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
             status =
                     sampleTechIdPredicate.doEvaluation(person, allowedRoles,
                             value.getChildSampleId());
+        } else if (value.getChildrenSampleIds() != null)
+        {
+            status = sampleTechIdCollectionPredicate.doEvaluation(person, allowedRoles,
+                    asTechIds(value.getChildrenSampleIds()));
         }
         if (value.isIncludeSpace() && status == Status.OK)
         {

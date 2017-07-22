@@ -33,31 +33,31 @@ public class ProjectPermIdStringPredicateSystemTest extends CommonPredicateSyste
 {
 
     @Override
-    protected String createNonexistentObject()
+    protected String createNonexistentObject(Object param)
     {
         return "IDONTEXIST";
     }
 
     @Override
-    protected String createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected String createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return projectPE.getPermId();
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects, Object param)
     {
         getBean(ProjectPredicateTestService.class).testProjectPermIdStringPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No project perm id specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

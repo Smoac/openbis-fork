@@ -23,9 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
 import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -33,10 +30,19 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectsProviderFromSampleV1Collection;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
 
 /**
  * A predicate for lists of entities of {@link Sample}s. This predicate authorizes for read-only access, i.e. it will allow access to shared samples
@@ -54,8 +60,8 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
     public static interface ISampleToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct space_id from samples where id = any(?{1}) "
-                + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings =
-        { LongArrayMapper.class, StringArrayMapper.class })
+                + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings = { LongArrayMapper.class,
+                        StringArrayMapper.class })
         public List<Long> getSampleSpaceIds(long[] sampleIds, String[] samplePermIds);
     }
 
@@ -90,14 +96,29 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<Sample> samples)
     {
+        IProjectAuthorization<Sample> pa = new ProjectAuthorizationBuilder<Sample>()
+                .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
+                .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                .withObjects(new ProjectsProviderFromSampleV1Collection(samples))
+                .build();
+
+        if (pa.getObjectsWithoutAccess().isEmpty())
+        {
+            return Status.OK;
+        }
+
         // All fields relevant for authorization are expected to be filled:
         // - technical id
         // - permanent id
         // - space code
         // - identifier
-        final List<Long> ids = new ArrayList<Long>(samples.size());
-        final List<String> permIds = new ArrayList<String>(samples.size());
-        for (Sample sample : samples)
+
+        Collection<Sample> remainingSamples = pa.getObjectsWithoutAccess();
+
+        final List<Long> ids = new ArrayList<Long>(remainingSamples.size());
+        final List<String> permIds = new ArrayList<String>(remainingSamples.size());
+        for (Sample sample : remainingSamples)
         {
             if (sample.getId() == null)
             {

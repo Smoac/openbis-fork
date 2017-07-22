@@ -31,7 +31,7 @@ public class ExperimentByIdentiferValidatorSystemTest extends CommonValidatorSys
 {
 
     @Override
-    protected Experiment createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected Experiment createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         Experiment experiment = new Experiment();
@@ -40,7 +40,7 @@ public class ExperimentByIdentiferValidatorSystemTest extends CommonValidatorSys
     }
 
     @Override
-    protected Experiment validateObject(IAuthSessionProvider sessionProvider, Experiment object)
+    protected Experiment validateObject(IAuthSessionProvider sessionProvider, Experiment object, Object param)
     {
         return getBean(ExperimentValidatorTestService.class).testExperimentByIdentifierValidator(sessionProvider, object);
     }

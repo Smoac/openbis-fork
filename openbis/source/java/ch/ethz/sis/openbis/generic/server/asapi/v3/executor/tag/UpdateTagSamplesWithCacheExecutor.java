@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
@@ -23,7 +24,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -35,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class UpdateTagSamplesWithCacheExecutor extends UpdateTagEntitiesWithCacheExecutor<ISampleId, SamplePE>
         implements IUpdateTagSamplesWithCacheExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Override
     protected String getRelationName()
@@ -63,7 +69,10 @@ public class UpdateTagSamplesWithCacheExecutor extends UpdateTagEntitiesWithCach
     @Override
     protected void check(IOperationContext context, MetaprojectPE entity, ISampleId relatedId, SamplePE related)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }

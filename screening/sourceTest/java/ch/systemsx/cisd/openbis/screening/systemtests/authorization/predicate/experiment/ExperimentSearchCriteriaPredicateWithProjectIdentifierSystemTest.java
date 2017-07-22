@@ -33,31 +33,31 @@ public class ExperimentSearchCriteriaPredicateWithProjectIdentifierSystemTest ex
 {
 
     @Override
-    protected ExperimentSearchCriteria createNonexistentObject()
+    protected ExperimentSearchCriteria createNonexistentObject(Object param)
     {
         return ExperimentSearchCriteria.createAllExperimentsForProject(new BasicProjectIdentifier("IDONTEXIST", "IDONTEXIST"));
     }
 
     @Override
-    protected ExperimentSearchCriteria createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentSearchCriteria createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return ExperimentSearchCriteria.createAllExperimentsForProject(new BasicProjectIdentifier(spacePE.getCode(), projectPE.getCode()));
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentSearchCriteria> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentSearchCriteria> objects, Object param)
     {
         getBean(ExperimentPredicateScreeningTestService.class).testExperimentSearchCriteriaPredicate(session, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

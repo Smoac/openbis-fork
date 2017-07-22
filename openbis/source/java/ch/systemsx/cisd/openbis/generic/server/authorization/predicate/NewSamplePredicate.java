@@ -16,30 +16,119 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link NewSample}.
  * 
  * @author Christian Ribeaud
  */
-public final class NewSamplePredicate extends DelegatedPredicate<SampleOwnerIdentifier, NewSample>
+public final class NewSamplePredicate extends AbstractPredicate<NewSample>
 {
+
+    private ProjectIdentifierPredicate projectIdentifierPredicate;
+
+    private SampleIdentifierPredicate sampleIdentifierPredicate;
+
+    private NewSampleIdentifierPredicate newSampleIdentifierPredicate;
+
     public NewSamplePredicate()
     {
-        super(new SampleOwnerIdentifierPredicate(false, true));
+        projectIdentifierPredicate = new ProjectIdentifierPredicate(true);
+        sampleIdentifierPredicate = new SampleIdentifierPredicate(false, true);
+        newSampleIdentifierPredicate = new NewSampleIdentifierPredicate();
     }
 
-    //
-    // DelegatedPredicate
-    //
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        projectIdentifierPredicate.init(provider);
+        sampleIdentifierPredicate.init(provider);
+        newSampleIdentifierPredicate.init(provider);
+    }
 
     @Override
-    public final SampleOwnerIdentifier tryConvert(final NewSample value)
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, NewSample value)
     {
-        return SampleIdentifierFactory.parse(value.getIdentifier());
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
+        Status status = Status.OK;
+
+        if (value.getIdentifier() != null)
+        {
+            status = newSampleIdentifierPredicate.doEvaluation(person, allowedRoles, value);
+
+            if (false == status.equals(Status.OK))
+            {
+                return status;
+            }
+        }
+
+        if (value.getProjectIdentifier() != null)
+        {
+            ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(value.getProjectIdentifier(), value.getDefaultSpaceIdentifier());
+            status = projectIdentifierPredicate.doEvaluation(person, allowedRoles, projectIdentifier);
+
+            if (false == status.equals(Status.OK))
+            {
+                return status;
+            }
+        }
+
+        if (value.getExperimentIdentifier() != null)
+        {
+            ExperimentIdentifier experimentIdentifier =
+                    ExperimentIdentifierFactory.parse(value.getExperimentIdentifier(), value.getDefaultSpaceIdentifier());
+            status = projectIdentifierPredicate.doEvaluation(person, allowedRoles, experimentIdentifier);
+
+            if (false == status.equals(Status.OK))
+            {
+                return status;
+            }
+        }
+
+        if (value.getContainerIdentifierForNewSample() != null)
+        {
+            SampleIdentifier containerIdentifier =
+                    SampleIdentifierFactory.parse(value.getContainerIdentifierForNewSample(), value.getDefaultSpaceIdentifier());
+            status = sampleIdentifierPredicate.doEvaluation(person, allowedRoles, containerIdentifier);
+
+            if (false == status.equals(Status.OK))
+            {
+                return status;
+            }
+        }
+
+        if (value.getParentsOrNull() != null && value.getParentsOrNull().length > 0)
+        {
+            for (String parent : value.getParentsOrNull())
+            {
+                SampleIdentifier parentIdentifier = SampleIdentifierFactory.parse(parent, value.getDefaultSpaceIdentifier());
+                status = sampleIdentifierPredicate.doEvaluation(person, allowedRoles, parentIdentifier);
+
+                if (false == status.equals(Status.OK))
+                {
+                    return status;
+                }
+            }
+        }
+
+        return status;
     }
 
     @Override

@@ -30,14 +30,14 @@ public class ScreeningExperimentValidatorSystemTest extends CommonValidatorScree
 {
 
     @Override
-    protected ExperimentIdentifier createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentIdentifier createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return new ExperimentIdentifier(experimentPE.getCode(), projectPE.getCode(), spacePE.getCode(), experimentPE.getPermId());
     }
 
     @Override
-    protected ExperimentIdentifier validateObject(IAuthSessionProvider sessionProvider, ExperimentIdentifier object)
+    protected ExperimentIdentifier validateObject(IAuthSessionProvider sessionProvider, ExperimentIdentifier object, Object param)
     {
         return getBean(ExperimentValidatorScreeningTestService.class).testScreeningExperimentValidator(sessionProvider, object);
     }

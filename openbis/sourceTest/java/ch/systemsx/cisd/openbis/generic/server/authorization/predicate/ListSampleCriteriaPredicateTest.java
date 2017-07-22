@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
@@ -172,11 +171,16 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createSpaces());
+
+        SampleAccessPE sampleAccess = new SampleAccessPE();
+        sampleAccess.setSpaceCode(SPACE_CODE);
+        sampleAccess.setSampleCode("TEST");
+
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(Arrays.asList(new TechId(42L)));
-                    will(returnValue(createSampleAccessSet(createSpace())));
+                    will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
         predicate.init(provider);
@@ -192,11 +196,16 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createSpaces());
+
+        SampleAccessPE containerAccess = new SampleAccessPE();
+        containerAccess.setSpaceCode(ANOTHER_SPACE_CODE);
+        containerAccess.setSampleCode("TEST");
+
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(Arrays.asList(new TechId(42L)));
-                    will(returnValue(createSampleAccessSet(createAnotherSpace())));
+                    will(returnValue(Collections.singleton(containerAccess)));
                 }
             });
         predicate.init(provider);
@@ -207,8 +216,4 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    private static HashSet<SampleAccessPE> createSampleAccessSet(SpacePE space)
-    {
-        return new HashSet<SampleAccessPE>(Arrays.asList(createSampleAccess(space)));
-    }
 }

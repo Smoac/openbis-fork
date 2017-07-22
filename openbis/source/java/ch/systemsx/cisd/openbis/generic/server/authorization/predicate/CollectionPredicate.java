@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Christian Ribeaud
  */
-public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T>>
+public class CollectionPredicate<T> extends AbstractPredicate<Collection<T>>
 {
     private final IPredicate<T> predicate;
 

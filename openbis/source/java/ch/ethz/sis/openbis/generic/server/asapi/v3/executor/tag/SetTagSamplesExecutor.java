@@ -27,7 +27,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -37,6 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class SetTagSamplesExecutor extends SetTagEntitiesExecutor<ISampleId, SamplePE>
         implements ISetTagSamplesExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -68,7 +73,10 @@ public class SetTagSamplesExecutor extends SetTagEntitiesExecutor<ISampleId, Sam
     @Override
     protected void check(IOperationContext context, ISampleId relatedId, SamplePE related)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
+
+        if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }

@@ -34,7 +34,7 @@ public class ProjectUpdatesPredicateWithPermIdSystemTest extends CommonPredicate
 {
 
     @Override
-    protected ProjectUpdatesDTO createNonexistentObject()
+    protected ProjectUpdatesDTO createNonexistentObject(Object param)
     {
         ProjectUpdatesDTO updates = new ProjectUpdatesDTO();
         updates.setPermId("IDONTEXIST");
@@ -42,7 +42,7 @@ public class ProjectUpdatesPredicateWithPermIdSystemTest extends CommonPredicate
     }
 
     @Override
-    protected ProjectUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ProjectUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ProjectUpdatesDTO updates = new ProjectUpdatesDTO();
         updates.setPermId(projectPE.getPermId());
@@ -50,19 +50,19 @@ public class ProjectUpdatesPredicateWithPermIdSystemTest extends CommonPredicate
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ProjectUpdatesDTO> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ProjectUpdatesDTO> objects, Object param)
     {
         getBean(ProjectPredicateTestService.class).testProjectUpdatesPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No project updates specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

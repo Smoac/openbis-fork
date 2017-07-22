@@ -34,31 +34,31 @@ public class ProjectPredicateSystemTest extends CommonPredicateSystemTest<Projec
 {
 
     @Override
-    protected Project createNonexistentObject()
+    protected Project createNonexistentObject(Object param)
     {
         return new Project("IDONTEXIST", "IDONTEXIST");
     }
 
     @Override
-    protected Project createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected Project createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return new Project(spacePE.getCode(), projectPE.getCode());
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<Project> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<Project> objects, Object param)
     {
         getBean(ProjectPredicateTestService.class).testProjectPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No project specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

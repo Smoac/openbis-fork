@@ -33,7 +33,7 @@ public class ExperimentPEOrNullPredicateSystemTest extends CommonPredicateSystem
 {
 
     @Override
-    protected ExperimentPE createNonexistentObject()
+    protected ExperimentPE createNonexistentObject(Object param)
     {
         SpacePE space = new SpacePE();
         space.setCode("IDONTEXIST");
@@ -50,7 +50,7 @@ public class ExperimentPEOrNullPredicateSystemTest extends CommonPredicateSystem
     }
 
     @Override
-    protected ExperimentPE createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentPE createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setProject(projectPE);
@@ -58,19 +58,19 @@ public class ExperimentPEOrNullPredicateSystemTest extends CommonPredicateSystem
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ExperimentPE> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ExperimentPE> objects, Object param)
     {
         getBean(ExperimentPredicateTestService.class).testExperimentPEOrNullPredicate(sessionProvider, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

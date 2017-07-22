@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link TechId} of a sample.
@@ -33,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<TechId>
 {
 
-    private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
+    private final SampleAccessPECollectionPredicate sampleAccessPECollectionPredicate;
 
     public SampleTechIdPredicate()
     {
@@ -42,7 +44,7 @@ public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<Tec
 
     public SampleTechIdPredicate(boolean isReadAccess)
     {
-        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(isReadAccess);
+        sampleAccessPECollectionPredicate = new SampleAccessPECollectionPredicate(isReadAccess);
     }
 
     //
@@ -53,7 +55,7 @@ public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<Tec
     public final void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        sampleOwnerIdentifierPredicate.init(provider);
+        sampleAccessPECollectionPredicate.init(provider);
     }
 
     @Override
@@ -66,9 +68,9 @@ public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<Tec
     protected final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final TechId techId)
     {
-        SamplePE sample = authorizationDataProvider.getSample(techId);
-        return sampleOwnerIdentifierPredicate.doEvaluation(person, allowedRoles, sample
-                .getSampleIdentifier());
+        Set<SampleAccessPE> samples =
+                authorizationDataProvider.getSampleCollectionAccessData(techId != null ? Arrays.asList(techId) : Arrays.asList());
+        return sampleAccessPECollectionPredicate.doEvaluation(person, allowedRoles, samples);
     }
 
 }

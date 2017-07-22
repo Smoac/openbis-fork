@@ -24,13 +24,12 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -42,8 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -276,48 +273,21 @@ public class AuthorizationServiceUtils
 
     private boolean canAccessSample(String sampleIdentifier)
     {
-        final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
-                createSampleOwnerPredicate(daoFactory);
-
+        final IPredicate<String> predicate = createSampleIdentifierPredicate(daoFactory);
         return canAccessSample(predicate, sampleIdentifier);
     }
 
-    private boolean canAccessSample(
-            final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate,
-            final String sampleIdentifier)
+    private boolean canAccessSample(final IPredicate<String> predicate, final String sampleIdentifier)
     {
-        final Status status = predicate.evaluate(user, userRoles, new IIdentifierHolder()
-            {
-                @Override
-                public String getIdentifier()
-                {
-                    return sampleIdentifier;
-                }
-            });
-
+        final Status status = predicate.evaluate(user, userRoles, sampleIdentifier);
         return Status.OK.equals(status);
     }
 
-    private static DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> createSampleOwnerPredicate(
-            IDAOFactory daoFactory)
+    private static IPredicate<String> createSampleIdentifierPredicate(IDAOFactory daoFactory)
     {
-        final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
-                new DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder>(
-                        new SampleOwnerIdentifierPredicate())
-                    {
-                        @Override
-                        public SampleOwnerIdentifier tryConvert(IIdentifierHolder value)
-                        {
-                            return SampleIdentifierFactory.parse(value.getIdentifier());
-                        }
-
-                        @Override
-                        public String getCandidateDescription()
-                        {
-                            return "sample";
-                        }
-                    };
+        IPredicate<String> predicate = new SampleAugmentedCodePredicate();
         predicate.init(new AuthorizationDataProvider(daoFactory));
         return predicate;
     }
+
 }

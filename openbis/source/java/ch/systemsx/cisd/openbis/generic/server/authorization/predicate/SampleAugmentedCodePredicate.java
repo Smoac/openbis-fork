@@ -16,28 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Predicate based on the augmented code of a sample.
  * 
  * @author Bernd Rinn
  */
-public class SampleAugmentedCodePredicate extends DelegatedPredicate<SampleOwnerIdentifier, String>
+public class SampleAugmentedCodePredicate extends DelegatedPredicate<SampleIdentifier, String>
 {
     public SampleAugmentedCodePredicate()
     {
-        this(new SampleOwnerIdentifierPredicate());
+        this(new SampleIdentifierPredicate());
     }
 
-    public SampleAugmentedCodePredicate(SampleOwnerIdentifierPredicate delegate)
+    public SampleAugmentedCodePredicate(SampleIdentifierPredicate delegate)
     {
         super(delegate);
     }
 
     @Override
-    public SampleOwnerIdentifier tryConvert(String value)
+    public SampleIdentifier tryConvert(String value)
     {
         return new SampleIdentifierFactory(value).createIdentifier();
     }

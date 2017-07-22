@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,8 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Pawel Glyzewski
@@ -38,19 +35,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 @ShouldFlattenCollections(value = false)
 public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<List<TechId>>
 {
-    private SampleOwnerIdentifierCollectionPredicate sampleOwnerIdentifierCollectionPredicate;
+
+    private ExperimentAccessPECollectionPredicate experimentAccessPECollectionPredicate;
+
+    private SampleAccessPECollectionPredicate sampleAccessPECollectionPredicate;
 
     public DeletionTechIdCollectionPredicate()
     {
-        this.sampleOwnerIdentifierCollectionPredicate =
-                new SampleOwnerIdentifierCollectionPredicate(true);
+        this.experimentAccessPECollectionPredicate = new ExperimentAccessPECollectionPredicate();
+        this.sampleAccessPECollectionPredicate = new SampleAccessPECollectionPredicate();
     }
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        sampleOwnerIdentifierCollectionPredicate.init(provider);
+        experimentAccessPECollectionPredicate.init(provider);
+        sampleAccessPECollectionPredicate.init(provider);
     }
 
     @Override
@@ -63,52 +64,28 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<TechId> value)
     {
-        Set<ExperimentAccessPE> experiments =
-                authorizationDataProvider.getDeletedExperimentCollectionAccessData(value);
+        Set<ExperimentAccessPE> experiments = authorizationDataProvider.getDeletedExperimentCollectionAccessData(value);
 
-        for (ExperimentAccessPE accessDatum : experiments)
+        Status experimentStatus = experimentAccessPECollectionPredicate.evaluate(person, allowedRoles, experiments);
+        if (experimentStatus != Status.OK)
         {
-            String spaceCode = accessDatum.getSpaceCode();
-            Status result = evaluate(allowedRoles, person, spaceCode);
-            if (result != Status.OK)
-            {
-                return result;
-            }
+            return experimentStatus;
         }
 
-        Set<SampleAccessPE> samples =
-                authorizationDataProvider.getDeletedSampleCollectionAccessData(value);
-        ArrayList<SampleOwnerIdentifier> ownerIds = new ArrayList<SampleOwnerIdentifier>();
+        Set<SampleAccessPE> samples = authorizationDataProvider.getDeletedSampleCollectionAccessData(value);
 
-        for (SampleAccessPE accessDatum : samples)
+        Status sampleStatus = sampleAccessPECollectionPredicate.evaluate(person, allowedRoles, samples);
+        if (sampleStatus != Status.OK)
         {
-            String ownerCode = accessDatum.getOwnerCode();
-            switch (accessDatum.getOwnerType())
-            {
-                case SPACE:
-                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(ownerCode)));
-                    break;
-                case DATABASE_INSTANCE:
-                    ownerIds.add(new SampleOwnerIdentifier());
-                    break;
-            }
+            return sampleStatus;
         }
 
-        Status status =
-                sampleOwnerIdentifierCollectionPredicate.evaluate(person, allowedRoles, ownerIds);
-        if (status != Status.OK)
-        {
-            return status;
-        }
-
-        Set<DataSetAccessPE> datasets =
-                authorizationDataProvider.getDeletedDatasetCollectionAccessData(value);
+        Set<DataSetAccessPE> datasets = authorizationDataProvider.getDeletedDatasetCollectionAccessData(value);
 
         for (DataSetAccessPE accessDatum : datasets)
         {
             String spaceCode = accessDatum.getSpaceCode();
-            Status result =
-                    evaluate(allowedRoles, person, spaceCode);
+            Status result = evaluate(allowedRoles, person, spaceCode);
             if (result != Status.OK)
             {
                 return result;

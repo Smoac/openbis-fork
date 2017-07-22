@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromSample;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -42,13 +47,29 @@ public final class SampleValidator extends AbstractValidator<Sample>
     public final boolean doValidation(final PersonPE person, final Sample value)
     {
         final Space space = value.getSpace();
+        boolean result;
 
         if (space != null)
         {
-            return matchesSpace(person, space);
+            result = matchesSpace(person, space);
         } else
         {
-            return person.getRoleAssignments().isEmpty() == false;
+            result = person.getRoleAssignments().isEmpty() == false;
+        }
+
+        if (result)
+        {
+            return result;
+        } else
+        {
+            IProjectAuthorization<Sample> pa = new ProjectAuthorizationBuilder<Sample>()
+                    .withData(authorizationDataProvider)
+                    .withUser(new UserProviderFromPersonPE(person))
+                    .withRoles(new RolesProviderFromPersonPE(person))
+                    .withObjects(new ProjectProviderFromSample(value))
+                    .build();
+
+            return pa.getObjectsWithoutAccess().isEmpty();
         }
     }
 

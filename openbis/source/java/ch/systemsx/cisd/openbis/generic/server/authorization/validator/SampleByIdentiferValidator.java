@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromSampleIdentifierString;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -34,6 +41,27 @@ public class SampleByIdentiferValidator extends AbstractIdentifierValidator
                 SampleIdentifierFactory.parse(identifier).createSampleOwnerIdentifier();
         SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
         return spaceLevel != null ? spaceLevel.getSpaceCode() : null;
+    }
+
+    @Override
+    public boolean doValidation(PersonPE person, IIdentifierHolder value)
+    {
+        boolean result = super.doValidation(person, value);
+
+        if (result)
+        {
+            return result;
+        } else
+        {
+            IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
+                    .withData(authorizationDataProvider)
+                    .withUser(new UserProviderFromPersonPE(person))
+                    .withRoles(new RolesProviderFromPersonPE(person))
+                    .withObjects(new ProjectProviderFromSampleIdentifierString(value.getIdentifier()))
+                    .build();
+
+            return pa.getObjectsWithoutAccess().isEmpty();
+        }
     }
 
 }

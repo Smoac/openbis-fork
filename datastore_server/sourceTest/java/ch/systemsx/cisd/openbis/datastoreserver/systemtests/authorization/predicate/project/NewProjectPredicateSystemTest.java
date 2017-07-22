@@ -34,31 +34,31 @@ public class NewProjectPredicateSystemTest extends CommonPredicateSystemTest<New
 {
 
     @Override
-    protected NewProject createNonexistentObject()
+    protected NewProject createNonexistentObject(Object param)
     {
         return new NewProject("/IDONTEXIST/IDONTEXIST", "idontexist");
     }
 
     @Override
-    protected NewProject createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected NewProject createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return new NewProject("/" + spacePE.getCode() + "/" + projectPE.getCode(), "description");
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<NewProject> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<NewProject> objects, Object param)
     {
         getBean(ProjectPredicateTestService.class).testNewProjectPredicate(session, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No new project specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

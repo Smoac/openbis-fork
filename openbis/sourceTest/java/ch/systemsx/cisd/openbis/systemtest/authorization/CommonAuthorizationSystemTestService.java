@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.authorization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -25,10 +26,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -40,10 +48,17 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class CommonAuthorizationSystemTestService
 {
 
+    private final static String USER = "test";
+
+    private final static String PASSWORD = "password";
+
     @Autowired
     private IDAOFactory daoFactory;
 
-    private List<Object> createdObjects;
+    @Autowired
+    private ICommonServer commonServer;
+
+    private List<IIdHolder> createdObjects;
 
     @Transactional
     public void createPerson(PersonPE person)
@@ -71,6 +86,13 @@ public class CommonAuthorizationSystemTestService
     {
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, null);
         createdObjects.add(experiment);
+    }
+
+    @Transactional
+    public void createSample(SamplePE sample)
+    {
+        daoFactory.getSampleDAO().createOrUpdateSample(sample, null);
+        createdObjects.add(sample);
     }
 
     @Transactional
@@ -106,9 +128,30 @@ public class CommonAuthorizationSystemTestService
         return daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, experimentCode);
     }
 
+    @Transactional
+    public SamplePE tryFindSharedSample(String sampleCode)
+    {
+        return daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(sampleCode);
+    }
+
+    @Transactional
+    public SamplePE tryFindSpaceSample(SpacePE spacePE, String sampleCode)
+    {
+        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, spacePE);
+        HibernateUtils.initialize(sample.getProject());
+        HibernateUtils.initialize(sample.getExperiment());
+        return sample;
+    }
+
+    @Transactional
+    public SamplePE tryFindProjectSample(ProjectPE projectPE, String sampleCode)
+    {
+        return daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, projectPE);
+    }
+
     public void recordCreatedObjects()
     {
-        createdObjects = new ArrayList<Object>();
+        createdObjects = new ArrayList<IIdHolder>();
     }
 
     @Transactional
@@ -118,8 +161,36 @@ public class CommonAuthorizationSystemTestService
 
         for (int i = createdObjects.size() - 1; i >= 0; i--)
         {
-            session.delete(createdObjects.get(i));
+            IIdHolder createdObject = createdObjects.get(i);
+            createdObject = (IIdHolder) session.get(createdObject.getClass(), createdObject.getId());
+            session.delete(createdObject);
         }
+    }
+
+    public Deletion trashExperiment(ExperimentPE experiment)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(USER, PASSWORD);
+        commonServer.deleteExperiments(session.getSessionToken(), Arrays.asList(new TechId(experiment.getId())), "testing", DeletionType.TRASH);
+        return getLatestDeletion(session);
+    }
+
+    public Deletion trashSample(SamplePE sample)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(USER, PASSWORD);
+        commonServer.deleteSamples(session.getSessionToken(), Arrays.asList(new TechId(sample.getId())), "testing", DeletionType.TRASH);
+        return getLatestDeletion(session);
+    }
+
+    public void untrash(Long deletionId)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(USER, PASSWORD);
+        commonServer.revertDeletions(session.getSessionToken(), Arrays.asList(new TechId(deletionId)));
+    }
+
+    private Deletion getLatestDeletion(SessionContextDTO session)
+    {
+        List<Deletion> deletions = commonServer.listDeletions(session.getSessionToken(), false);
+        return deletions.get(deletions.size() - 1);
     }
 
 }

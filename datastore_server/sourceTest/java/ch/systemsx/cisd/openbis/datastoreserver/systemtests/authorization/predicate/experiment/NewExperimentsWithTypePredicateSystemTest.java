@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonCollectionPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
@@ -30,11 +30,17 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.Ex
 /**
  * @author pkupczyk
  */
-public class NewExperimentsWithTypePredicateSystemTest extends CommonCollectionPredicateSystemTest<NewBasicExperiment>
+public class NewExperimentsWithTypePredicateSystemTest extends CommonPredicateSystemTest<NewBasicExperiment>
 {
 
     @Override
-    protected NewBasicExperiment createNonexistentObject()
+    protected boolean isCollectionPredicate()
+    {
+        return true;
+    }
+
+    @Override
+    protected NewBasicExperiment createNonexistentObject(Object param)
     {
         NewBasicExperiment experiment = new NewBasicExperiment();
         experiment.setIdentifier("/IDONTEXIST/IDONTEXIST/IDONTEXIST");
@@ -42,7 +48,7 @@ public class NewExperimentsWithTypePredicateSystemTest extends CommonCollectionP
     }
 
     @Override
-    protected NewBasicExperiment createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected NewBasicExperiment createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         NewBasicExperiment experiment = new NewBasicExperiment();
         experiment.setIdentifier("/" + spacePE.getCode() + "/" + projectPE.getCode() + "/NEW_EXPERIMENT");
@@ -50,7 +56,7 @@ public class NewExperimentsWithTypePredicateSystemTest extends CommonCollectionP
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<NewBasicExperiment> objects)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<NewBasicExperiment> objects, Object param)
     {
         NewExperimentsWithType experiments = new NewExperimentsWithType();
         experiments.setNewExperiments(objects);
@@ -58,19 +64,19 @@ public class NewExperimentsWithTypePredicateSystemTest extends CommonCollectionP
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, NullPointerException.class, null);
     }
 
     @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t)
+    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
     {
         assertException(t, NullPointerException.class, null);
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
     {
         assertNoException(t);
     }

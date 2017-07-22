@@ -16,21 +16,23 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.lemnik.eodsql.QueryTool;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -39,12 +41,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class SampleAuthorizationValidator implements ISampleAuthorizationValidator
 {
 
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Override
     public Set<Long> validate(PersonPE person, Collection<Long> sampleIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         List<SampleAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(sampleIds));
         SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        validator.init(new AuthorizationDataProvider(daoFactory));
         Set<Long> result = new HashSet<Long>();
 
         for (SampleAuthorizationRecord record : records)

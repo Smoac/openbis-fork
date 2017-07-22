@@ -36,6 +36,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class SampleIdPredicate extends AbstractSamplePredicate<ISampleId>
 {
 
+    public SampleIdPredicate()
+    {
+        super(true);
+    }
+
     @Override
     public String getCandidateDescription()
     {

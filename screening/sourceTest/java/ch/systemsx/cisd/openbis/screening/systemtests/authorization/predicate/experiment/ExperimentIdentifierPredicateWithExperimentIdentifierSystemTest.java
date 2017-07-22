@@ -34,32 +34,32 @@ public class ExperimentIdentifierPredicateWithExperimentIdentifierSystemTest ext
 {
 
     @Override
-    protected ExperimentIdentifier createNonexistentObject()
+    protected ExperimentIdentifier createNonexistentObject(Object param)
     {
         return new ExperimentIdentifier("IDONTEXIST", "IDONTEXIST", "IDONTEXIST", null);
     }
 
     @Override
-    protected ExperimentIdentifier createObject(SpacePE spacePE, ProjectPE projectPE)
+    protected ExperimentIdentifier createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return new ExperimentIdentifier(experimentPE.getCode(), projectPE.getCode(), spacePE.getCode(), null);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentIdentifier> objects)
+    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentIdentifier> objects, Object param)
     {
         getBean(ExperimentPredicateScreeningTestService.class).testExperimentIdentifierPredicate(session, objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t)
+    protected void assertWithNull(PersonPE person, Throwable t, Object param)
     {
         assertException(t, UserFailureException.class, "No experiment specified.");
     }
 
     @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t)
+    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
     {
         assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
     }

@@ -9,7 +9,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.v3tov1.DeletionIdTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 @ShouldFlattenCollections(value = false)
 public class V3DeletionIdPredicate extends AbstractPredicate<List<IDeletionId>>

@@ -26,7 +26,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -36,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public abstract class AbstractSetEntitySampleRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdentityHolder> extends
         AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, ENTITY_PE, ISampleId, SamplePE>
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -51,7 +56,10 @@ public abstract class AbstractSetEntitySampleRelationExecutor<ENTITY_CREATION ex
     {
         if (relatedId != null && related != null)
         {
-            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+            SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+            validator.init(new AuthorizationDataProvider(daoFactory));
+
+            if (false == validator.doValidation(context.getSession().tryGetPerson(), related))
             {
                 throw new UnauthorizedObjectAccessException(relatedId);
             }
