@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -57,6 +58,9 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }
@@ -91,6 +95,9 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }
@@ -117,6 +124,15 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 new SampleUpdatesDTO(new TechId(44L), null, null, null, null, 0,
                         SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S1"), null, null);
         prepareProvider(createSpaces());
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+                }
+            });
+
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
 
@@ -152,6 +168,9 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }

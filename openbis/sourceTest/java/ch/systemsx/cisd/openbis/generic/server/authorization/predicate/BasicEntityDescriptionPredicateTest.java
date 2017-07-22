@@ -87,6 +87,14 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         predicate.init(provider);
 
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+                }
+            });
+
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
 
         assertEquals("ERROR: \"User 'megapixel' does not have enough privileges.\"", status.toString());
