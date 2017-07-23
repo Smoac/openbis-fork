@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DeletionUtil;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.deletion.DeletionPredicateTestService;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.deletion.Dele
 /**
  * @author pkupczyk
  */
-public abstract class DeletionTechIdCollectionPredicateSystemTest extends CommonPredicateSystemTest<TechId>
+public abstract class V3DeletionIdPredicateSystemTest extends CommonPredicateSystemTest<IDeletionId>
 {
 
     @Override
@@ -39,26 +39,26 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
     }
 
     @Override
-    protected TechId createNonexistentObject(Object param)
+    protected IDeletionId createNonexistentObject(Object param)
     {
-        return DeletionUtil.createNonexistentObject(param);
+        return new DeletionTechId(-1L);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects, Object param)
+    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<IDeletionId> objects, Object param)
     {
         try
         {
-            getBean(DeletionPredicateTestService.class).testDeletionTechIdCollectionPredicate(sessionProvider, objects);
+            getBean(DeletionPredicateTestService.class).testV3DeletionIdPredicate(sessionProvider, objects);
         } finally
         {
             if (objects != null)
             {
-                for (TechId object : objects)
+                for (IDeletionId object : objects)
                 {
                     if (object != null)
                     {
-                        getCommonService().untrash(object.getId());
+                        getCommonService().untrash(((DeletionTechId) object).getTechId());
                     }
                 }
             }
@@ -74,7 +74,7 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
     @Override
     protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
     {
-        assertException(t, UserFailureException.class, "No deletion technical id specified.");
+        assertException(t, UserFailureException.class, "No v3 deletion id object specified.");
     }
 
     @Override

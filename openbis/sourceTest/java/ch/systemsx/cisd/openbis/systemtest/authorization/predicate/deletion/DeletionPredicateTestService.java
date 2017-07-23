@@ -21,9 +21,12 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.V3DeletionIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
@@ -39,6 +42,20 @@ public class DeletionPredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testDeletionTechIdCollectionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) List<TechId> deletionTechIds)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testRevertDeletionPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = RevertDeletionPredicate.class) List<TechId> deletionTechIds)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testV3DeletionIdPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<IDeletionId> deletionIds)
     {
     }
 

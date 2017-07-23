@@ -43,7 +43,7 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
     public DeletionTechIdCollectionPredicate()
     {
         this.experimentAccessPECollectionPredicate = new ExperimentAccessPECollectionPredicate();
-        this.sampleAccessPECollectionPredicate = new SampleAccessPECollectionPredicate();
+        this.sampleAccessPECollectionPredicate = new SampleAccessPECollectionPredicate(false);
     }
 
     @Override

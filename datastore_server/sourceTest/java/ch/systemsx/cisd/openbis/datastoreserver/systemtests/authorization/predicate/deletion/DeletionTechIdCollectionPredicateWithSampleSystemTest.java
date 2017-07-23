@@ -19,13 +19,12 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DeletionUtil;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.deletion.DeletionPredicateTestService;
 
@@ -44,40 +43,19 @@ public class DeletionTechIdCollectionPredicateWithSampleSystemTest extends Commo
     @Override
     protected SampleKind getSharedSampleKind()
     {
-        return SampleKind.SHARED_READ;
+        return SampleKind.SHARED_READ_WRITE;
     }
 
     @Override
     protected TechId createNonexistentObject(Object param)
     {
-        return new TechId(-1);
+        return DeletionUtil.createNonexistentObject(param);
     }
 
     @Override
     protected TechId createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
-        SamplePE sample;
-
-        switch ((SampleKind) param)
-        {
-            case SHARED_READ:
-                if (getSpace1().equals(spacePE))
-                {
-                    sample = getSharedSample1();
-                } else if (getSpace2().equals(spacePE))
-                {
-                    sample = getSharedSample2();
-                } else
-                {
-                    throw new RuntimeException();
-                }
-                break;
-            default:
-                sample = getSample(spacePE, projectPE, (SampleKind) param);
-        }
-
-        Deletion deletion = getCommonService().trashSample(sample);
-        return new TechId(deletion.getId());
+        return DeletionUtil.createObjectWithSample(this, spacePE, projectPE, param);
     }
 
     @Override

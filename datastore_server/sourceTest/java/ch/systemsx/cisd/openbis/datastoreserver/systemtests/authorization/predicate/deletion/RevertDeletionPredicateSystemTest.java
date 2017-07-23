@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.deletion.Dele
 /**
  * @author pkupczyk
  */
-public abstract class DeletionTechIdCollectionPredicateSystemTest extends CommonPredicateSystemTest<TechId>
+public abstract class RevertDeletionPredicateSystemTest extends CommonPredicateSystemTest<TechId>
 {
 
     @Override
@@ -49,7 +49,7 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
     {
         try
         {
-            getBean(DeletionPredicateTestService.class).testDeletionTechIdCollectionPredicate(sessionProvider, objects);
+            getBean(DeletionPredicateTestService.class).testRevertDeletionPredicate(sessionProvider, objects);
         } finally
         {
             if (objects != null)
@@ -72,9 +72,15 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
     }
 
     @Override
+    protected void assertWithNullForInstanceUser(PersonPE person, Throwable t, Object param)
+    {
+        assertNoException(t);
+    }
+
+    @Override
     protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
     {
-        assertException(t, UserFailureException.class, "No deletion technical id specified.");
+        assertException(t, UserFailureException.class, "No revert deletion technical id specified.");
     }
 
     @Override

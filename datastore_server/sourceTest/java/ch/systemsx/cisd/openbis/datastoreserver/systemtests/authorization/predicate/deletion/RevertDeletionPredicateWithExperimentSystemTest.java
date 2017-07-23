@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 /**
  * @author pkupczyk
  */
-public class DeletionTechIdCollectionPredicateWithExperimentSystemTest extends DeletionTechIdCollectionPredicateSystemTest
+public class RevertDeletionPredicateWithExperimentSystemTest extends RevertDeletionPredicateSystemTest
 {
 
     @Override

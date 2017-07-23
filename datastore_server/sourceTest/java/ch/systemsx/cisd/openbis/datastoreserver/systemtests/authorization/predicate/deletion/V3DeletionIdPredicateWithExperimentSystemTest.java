@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.deletion;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DeletionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -24,13 +26,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 /**
  * @author pkupczyk
  */
-public class DeletionTechIdCollectionPredicateWithExperimentSystemTest extends DeletionTechIdCollectionPredicateSystemTest
+public class V3DeletionIdPredicateWithExperimentSystemTest extends V3DeletionIdPredicateSystemTest
 {
 
     @Override
-    protected TechId createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
+    protected IDeletionId createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
-        return DeletionUtil.createObjectWithExperiment(this, spacePE, projectPE, param);
+        TechId techId = DeletionUtil.createObjectWithExperiment(this, spacePE, projectPE, param);
+        return new DeletionTechId(techId.getId());
     }
 
 }
