@@ -67,7 +67,8 @@ public final class PredicateExecutor
             final Class<? extends IPredicate<?>> predicateClass)
     {
         assert predicateFactory != null : "Unspecified predicate factory";
-        final IPredicate<?> predicate = predicateFactory.createPredicateForClass(predicateClass);
+        Class<? extends IPredicate<T>> predicateClassT = (Class<? extends IPredicate<T>>) predicateClass;
+        final IPredicate<?> predicate = predicateFactory.createPredicateForClass(predicateClassT);
         assert predicate != null : "Predicate factory should not return a null predicate";
         return (IPredicate<T>) predicate;
     }
