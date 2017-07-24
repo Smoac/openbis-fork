@@ -77,43 +77,33 @@ def getConfigParameterAsString(propertyKey):
 		return property;
 
 def getDirectLinkURL():
-	
 	#CIFS
 	cifsServerEnable = getConfigParameterAsString("cifs.server.enable");
 	cifsServerPort = getConfigParameterAsString("cifs.server.smb-port");
 	
 	#SFTP
+	sftpServerEnable = getConfigParameterAsString("ftp.server.enable");
 	sftpPort = getConfigParameterAsString("ftp.server.sftp-port");
 	
-	#FTPS
-	ftpServerEnable = getConfigParameterAsString("ftp.server.enable");
-	ftpServerUseSsl = getConfigParameterAsString("ftp.server.use-ssl");
-	useSsl = getConfigParameterAsString("use-ssl");
-	ftpPortLegacy = getConfigParameterAsString("ftp.server.port");
-	ftpPort = getConfigParameterAsString("ftp.server.ftp-port");
-	
-	protocol = None;
-	port = None;
-	UNCsuffix = None;
+	cifsConfig = None;
 	if (cifsServerEnable == "true") and (cifsServerPort is not None):
-		protocol = "cifs"
-		port = cifsServerPort;
-		UNCsuffix = "STORE/";
-	elif (sftpPort is not None):
-		protocol = "sftp";
-		port = sftpPort;
-	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)) and (ftpServerUseSsl == "true" or useSsl == "true"):
-		protocol = "ftps";
-		if ftpPort is not None:
-			port = ftpPort;
-		elif ftpPortLegacy is not None:
-			port = ftpPortLegacy;
+		cifsConfig = {
+					"port" : cifsServerPort,
+					"UNCsuffix" : "STORE/"
+		}
+	
+	sftpConfig = None;
+	if (sftpServerEnable == "true") and (sftpPort is not None):
+		sftpConfig = {
+					"port" : sftpPort,
+					"UNCsuffix" : ""
+		}
 
 	return getJsonForData({
-						"protocol" : protocol,
-						"port" : port,
-						"UNCsuffix" : UNCsuffix
+							"cifs" : cifsConfig,
+							"sftp" : sftpConfig
 						});
+	
 
 def isSampleTypeAvailable(sampleTypes, sampleTypeCode):
 	for sampleType in sampleTypes:

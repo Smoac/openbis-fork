@@ -74,7 +74,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	
 	this.getDirectDirectoryLink = function(datasetCode, pathInDataSet) {
 		var directLinkComponent = null;
-		if(profile.directLinkEnabled && profile.directFileServer) {
+		if(profile.directLinkEnabled && (profile.cifsFileServer || profile.sftpFileServer)) {
 			var path = null;
 			
 			if(this.isExperiment()) {

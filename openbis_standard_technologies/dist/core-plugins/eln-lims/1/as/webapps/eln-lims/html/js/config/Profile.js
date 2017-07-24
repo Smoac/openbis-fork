@@ -154,7 +154,10 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.directLinkEnabled = true;
-		this.directFileServer = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
+		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
+		this.cifsFileServer = null;
+		this.sftpFileServer = null;
+		
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
@@ -749,8 +752,9 @@ $.extend(DefaultProfile.prototype, {
 		this.initDirectLinkURL = function(callback) {
 			var _this = this;
 			this.serverFacade.getDirectLinkURL(function(error, result) {
-				if(!error && result.data.protocol) {
-					_this.directFileServer = result.data;
+				if(!error && (result.data.cifs || result.data.sftp)) {
+					_this.cifsFileServer = result.data.cifs;
+					_this.sftpFileServer = result.data.sftp;
 				}
 				callback();
 			});
