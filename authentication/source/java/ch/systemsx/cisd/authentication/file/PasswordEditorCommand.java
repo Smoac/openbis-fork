@@ -22,11 +22,10 @@ import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 
-import jline.ConsoleReader;
-
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
+import jline.ConsoleReader;
 
 /**
  * A class to create and edit password entries.
@@ -157,25 +156,7 @@ public class PasswordEditorCommand
                     System.exit(1);
                     return; // Fake: convince compiler that it is save to dereference userOrNull
                 }
-                if (params.getFirstName() != null)
-                {
-                    userOrNull.setFirstName(params.getFirstName());
-                }
-                if (params.getLastName() != null)
-                {
-                    userOrNull.setLastName(params.getLastName());
-                }
-                if (params.getEmail() != null)
-                {
-                    userOrNull.setEmail(params.getEmail());
-                }
-                if (params.tryGetPassword() != null)
-                {
-                    userOrNull.setPassword(params.tryGetPassword());
-                } else if (params.isChangePassword())
-                {
-                    userOrNull.setPassword(readPassword(ENTER_NEW_PASSWORD_MSG));
-                }
+                applyParamsToExistingUser(params, userOrNull);
                 userStore.addOrUpdateUser(userOrNull);
                 break;
             }
@@ -234,6 +215,29 @@ public class PasswordEditorCommand
             }
         }
     }
+
+	protected static void applyParamsToExistingUser(Parameters params, final UserEntry user)
+	{
+		if (params.isFirstNameSet())
+		{
+		    user.setFirstName(params.getFirstName());
+		}
+		if (params.isLastNameSet())
+		{
+		    user.setLastName(params.getLastName());
+		}
+		if (params.isEmailSet())
+		{
+		    user.setEmail(params.getEmail());
+		}
+		if (params.tryGetPassword() != null)
+		{
+		    user.setPassword(params.tryGetPassword());
+		} else if (params.isChangePassword())
+		{
+		    user.setPassword(readPassword(ENTER_NEW_PASSWORD_MSG));
+		}
+	}
 
     private static void executeCache(Parameters params)
     {
