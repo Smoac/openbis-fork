@@ -567,16 +567,16 @@ def getFLowcellData(service, configMap, flowcell, logger):
                     piDict[pi] = list(set(piDict[pi]))
                 else:
                     piDict[pi] = [lane]
-                
-                    if not sentInvoice:
-                        if invoiceDict.has_key(pi):
-                            invoiceDict[pi].append(lane)
-                            # Making the lanes unique
-                            invoiceDict[pi] = list(set(invoiceDict[pi]))
-                        else:
-                            invoiceDict[pi] = [lane]
-                
                     spaceDict[pi] = l.getSpaceCode()
+                
+                if not sentInvoice:
+                    if invoiceDict.has_key(pi):
+                        invoiceDict[pi].append(lane)
+                        # Making the lanes unique
+                        invoiceDict[pi] = list(set(invoiceDict[pi]))
+                    else:
+                        invoiceDict[pi] = [lane]
+                
     
     logger.debug(spaceDict)
     
