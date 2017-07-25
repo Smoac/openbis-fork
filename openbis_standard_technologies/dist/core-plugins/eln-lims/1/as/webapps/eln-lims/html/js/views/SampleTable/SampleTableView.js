@@ -158,7 +158,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this._getAllSampleTypesDropdown = function() {
 		var _this = this;
-		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false, ["STORAGE"]);
+		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false, ["STORAGE", "STORAGE_POSITION"]);
 		$sampleTypesSelector.change(function() {
 			var sampleTypeToShow = $(this).val();
 			
