@@ -430,16 +430,14 @@ var Util = new function() {
 		
 		var $image = $("<img>", {"src" : imageURL});
 		$image.load((function() {
-			var imageSize = this.getImageSize(containerWidth, containerHeight, $image);
+			var imageSize = this.getImageSize(containerWidth, containerHeight, $image[0].width, $image[0].height);
 			$image.attr("width", imageSize.width);
 			$image.attr("height", imageSize.height);
 			showImageB($image);
 		}).bind(this));
 	}
 
-	this.getImageSize = function(containerWidth, containerHeight, $image) {
-		var imageWidth = $image[0].width;
-		var imageHeight = $image[0].height;
+	this.getImageSize = function(containerWidth, containerHeight, imageWidth, imageHeight) {
 		
 		if(containerWidth < imageWidth) {
 			var newImageWidth = containerWidth;

@@ -58,20 +58,24 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		
 		return $link;
 	}
-	
-	this._isPreviewableImage = function(pathInDataSet) {
-		var haveExtension = pathInDataSet.lastIndexOf(".");
-		if( haveExtension !== -1 && (haveExtension + 1 < pathInDataSet.length)) {
-			var extension = pathInDataSet.substring(haveExtension + 1, pathInDataSet.length).toLowerCase();
-			
-			return 	extension === "svg" || 
-					extension === "jpg" || extension === "jpeg" ||
-					extension === "png" ||
-					extension === "gif";
-		}
-		return false;
+
+    this._isPreviewableImage = function(pathInDataSet) {
+        return this._hasExtension(pathInDataSet, ["jpg", "jpeg", "png", "gif", "svg"]);
+    }
+
+	this._isIconableImage = function(pathInDataSet) {
+        return this._hasExtension(pathInDataSet, ["jpg", "jpeg", "png", "gif"]);
+    }
+
+	this._hasExtension = function(pathInDataSet, extensions) {
+        var haveExtension = pathInDataSet.lastIndexOf(".");
+        if( haveExtension !== -1 && (haveExtension + 1 < pathInDataSet.length)) {
+            var extension = pathInDataSet.substring(haveExtension + 1, pathInDataSet.length).toLowerCase();
+            return ($.inArray(extension, extensions) !== -1);
+        }
+        return false;	    
 	}
-	
+
 	this.getDirectDirectoryLink = function(datasetCode, pathInDataSet) {
 		var directLinkComponent = null;
 		if(profile.directLinkEnabled && (profile.cifsFileServer || profile.sftpFileServer)) {
@@ -87,15 +91,14 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		}
 		return directLinkComponent;
 	}
-	
+
 	this.getPreviewLink = function(datasetCode, datasetFile) {
-		var previewLink = null;
 		if(this._isPreviewableImage(datasetFile.pathInDataSet)) {
-			var imageURLAsString = this.getImageUrl(datasetCode, datasetFile);
-			var onclick = "Util.showImage(\"" + imageURLAsString + "\");"
-			previewLink = "<span onclick='" + onclick + "' class='glyphicon glyphicon-search'></span>";
+	        var imageURLAsString = this.getImageUrl(datasetCode, datasetFile);
+	        var onclick = "Util.showImage(\"" + imageURLAsString + "\");"
+	        return "<span onclick='" + onclick + "' class='glyphicon glyphicon-search'></span>";
 		}
-		return previewLink;
+		return null;
 	}
 
 	this.getImageUrl = function(datasetCode, datasetFile) {
@@ -103,6 +106,13 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 			return profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
 		}
 		return null;
+	}
+
+	this.getImageIconUrl = function(datasetCode, datasetFile) {
+        if(this._isIconableImage(datasetFile.pathInDataSet)) {
+            return this.getImageUrl(datasetCode, datasetFile) + "&mode=thumbnail";
+        }
+        return null;
 	}
 
 }

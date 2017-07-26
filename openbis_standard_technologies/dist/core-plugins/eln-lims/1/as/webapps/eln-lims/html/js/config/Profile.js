@@ -613,7 +613,10 @@ $.extend(DefaultProfile.prototype, {
 				return this.allSampleTypes;
 			}
 		}
-		
+
+		this.datasetViewerImagePreviewIconSize = 25; // width in px
+		this.datasetViewerMaxFilesizeForImagePreview = 50000000; // filesize in bytes
+
 		this.initPropertyTypes = function(callback) {
 			var _this = this; 
 			this.serverFacade.listPropertyTypes(function(data) {
