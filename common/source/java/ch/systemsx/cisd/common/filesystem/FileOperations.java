@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.commons.io.FileCopyUtils;
@@ -171,7 +172,7 @@ public class FileOperations implements IFileOperations, Serializable
     {
         try
         {
-            Files.move(source.toPath(), destination.toPath());
+            Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE);
             return true;
         } catch (IOException e)
         {
@@ -480,7 +481,7 @@ public class FileOperations implements IFileOperations, Serializable
 
         try
         {
-            Files.move(source.toPath(), target.toPath());
+            Files.move(source.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e)
         {
             operationLog.error("Java 7 ATOMIC_MOVE failed from '" + source.toPath() + "' to '" + target.toPath() + "'", e);
