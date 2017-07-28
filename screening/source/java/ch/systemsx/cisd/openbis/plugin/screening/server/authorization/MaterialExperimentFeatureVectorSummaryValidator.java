@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 
 /**
@@ -23,13 +26,22 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimple
  * 
  * @author Tomasz Pylak
  */
-public class MaterialExperimentFeatureVectorSummaryValidator extends
-        SpaceValidator<MaterialSimpleFeatureVectorSummary>
+public class MaterialExperimentFeatureVectorSummaryValidator extends AbstractValidator<MaterialSimpleFeatureVectorSummary>
 {
+
+    private ExperimentReferenceValidator referenceValidator = new ExperimentReferenceValidator();
+
     @Override
-    protected String getSpace(MaterialSimpleFeatureVectorSummary value)
+    public void init(IAuthorizationDataProvider provider)
     {
-        return value.getExperiment().getSpaceCode();
+        super.init(provider);
+        referenceValidator.init(provider);
+    }
+
+    @Override
+    public boolean doValidation(PersonPE person, MaterialSimpleFeatureVectorSummary value)
+    {
+        return referenceValidator.doValidation(person, value.getExperiment());
     }
 
 }

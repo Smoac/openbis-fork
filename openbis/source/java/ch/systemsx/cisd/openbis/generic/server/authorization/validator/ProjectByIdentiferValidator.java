@@ -16,11 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectIIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -48,14 +44,7 @@ public class ProjectByIdentiferValidator extends AbstractIdentifierValidator
             return result;
         } else
         {
-            IProjectAuthorization<IIdentifierHolder> pa = new ProjectAuthorizationBuilder<IIdentifierHolder>()
-                    .withData(authorizationDataProvider)
-                    .withUser(new UserProviderFromPersonPE(person))
-                    .withRoles(new RolesProviderFromPersonPE(person))
-                    .withObjects(new ProjectProviderFromProjectIIdentifierHolder(value))
-                    .build();
-
-            return pa.getObjectsWithoutAccess().isEmpty();
+            return isValidPA(person, new ProjectProviderFromProjectIIdentifierHolder(value));
         }
     }
 

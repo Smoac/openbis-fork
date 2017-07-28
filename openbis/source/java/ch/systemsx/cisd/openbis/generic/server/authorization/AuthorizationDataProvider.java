@@ -229,10 +229,10 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleTechIds)
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleTechIds)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query = sess.getNamedQuery(SampleAccessPE.SAMPLE_ACCESS_QUERY_NAME);
+        final Query query = sess.getNamedQuery(SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME);
         query.setReadOnly(true);
 
         final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
@@ -251,6 +251,47 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                 public List<TechId> getAllEntities()
                 {
                     return sampleTechIds;
+                }
+
+                @Override
+                public String getEntityName()
+                {
+                    return "sample";
+                }
+
+                @Override
+                public String getOperationName()
+                {
+                    return "authorization";
+                }
+            });
+
+        return fullResults;
+    }
+
+    @Override
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByPermIds(List<PermId> samplePermIds)
+    {
+        Session sess = daoFactory.getSessionFactory().getCurrentSession();
+        final Query query = sess.getNamedQuery(SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME);
+        query.setReadOnly(true);
+
+        final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
+
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<PermId>()
+            {
+                @Override
+                public void execute(List<PermId> entities)
+                {
+                    query.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, PermId.asStrings(entities));
+                    List<SampleAccessPE> singleResults = cast(query.list());
+                    fullResults.addAll(singleResults);
+                }
+
+                @Override
+                public List<PermId> getAllEntities()
+                {
+                    return samplePermIds;
                 }
 
                 @Override

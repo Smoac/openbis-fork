@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -23,12 +26,22 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  * 
  * @author Tomasz Pylak
  */
-public class WellContentValidator extends SpaceValidator<WellContent>
+public class WellContentValidator extends AbstractValidator<WellContent>
 {
+
+    private ExperimentReferenceValidator referenceValidator = new ExperimentReferenceValidator();
+
     @Override
-    protected String getSpace(WellContent value)
+    public void init(IAuthorizationDataProvider provider)
     {
-        return value.getExperiment().getSpaceCode();
+        super.init(authorizationDataProvider);
+        referenceValidator.init(provider);
+    }
+
+    @Override
+    public boolean doValidation(PersonPE person, WellContent value)
+    {
+        return referenceValidator.doValidation(person, value.getExperiment());
     }
 
 }

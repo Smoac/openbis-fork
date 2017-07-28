@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -62,6 +64,16 @@ public class PermId implements Serializable
         {
             return new PermId(holder.getPermId());
         }
+    }
+
+    public static List<String> asStrings(List<PermId> permIds)
+    {
+        List<String> results = new ArrayList<String>();
+        for (PermId permId : permIds)
+        {
+            results.add(permId.getId());
+        }
+        return results;
     }
 
     @Override

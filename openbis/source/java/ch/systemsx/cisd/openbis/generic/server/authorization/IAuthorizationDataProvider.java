@@ -155,7 +155,12 @@ public interface IAuthorizationDataProvider
     /**
      * Returns the information necessary to determine if a user is allowed to access the samples.
      */
-    public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleIds);
+
+    /**
+     * Returns the information necessary to determine if a user is allowed to access the samples.
+     */
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByPermIds(List<PermId> samplePermIds);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access the experiments.

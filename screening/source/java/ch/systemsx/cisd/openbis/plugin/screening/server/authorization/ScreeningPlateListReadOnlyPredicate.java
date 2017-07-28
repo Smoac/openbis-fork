@@ -18,21 +18,21 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
-
-import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractSpacePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAccessPECollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
@@ -45,94 +45,79 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
  * @author Bernd Rinn
  */
 @ShouldFlattenCollections(value = false)
-public class ScreeningPlateListReadOnlyPredicate extends
-        AbstractSpacePredicate<List<? extends PlateIdentifier>>
+public class ScreeningPlateListReadOnlyPredicate extends AbstractPredicate<List<? extends PlateIdentifier>>
 {
-    private final static int ARRAY_SIZE_LIMIT = 999;
 
-    private final ISampleToSpaceQuery sampleToSpaceQuery = QueryTool
-            .getManagedQuery(ISampleToSpaceQuery.class);
+    private IAuthorizationDataProvider provider;
 
-    public interface ISampleToSpaceQuery extends BaseQuery
-    {
-        @Select(sql = "select distinct space_id from samples where perm_id = any(?{1})", parameterBindings =
-        { StringArrayMapper.class })
-        public List<Long> getSampleSpaceIds(String[] samplePermIds);
-    }
+    private SampleIdentifierCollectionPredicate identifierCollectionPredicate = new SampleIdentifierCollectionPredicate(true);
+
+    private SampleAccessPECollectionPredicate accessPECollectionPredicate = new SampleAccessPECollectionPredicate(true);
 
     @Override
-    public String getCandidateDescription()
+    public void init(IAuthorizationDataProvider dataProvider)
     {
-        return "plate";
+        provider = dataProvider;
+        identifierCollectionPredicate.init(provider);
+        accessPECollectionPredicate.init(provider);
     }
 
     @Override
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<? extends PlateIdentifier> plates)
     {
-        final List<String> permIds = new ArrayList<String>(plates.size());
+        List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
+        List<PermId> permIds = new ArrayList<PermId>();
+
         for (PlateIdentifier plate : plates)
         {
-            boolean hasPermId = false;
-            if (plate.getPermId() != null)
-            {
-                permIds.add(plate.getPermId());
-                hasPermId = true;
-            }
+            final String spaceCodeOrNull = SpaceCodeHelper.tryGetSpaceCode(person, plate.tryGetSpaceCode());
 
-            final String spaceCodeOrNull =
-                    SpaceCodeHelper.tryGetSpaceCode(person, plate.tryGetSpaceCode());
-            if (spaceCodeOrNull == null && hasPermId == false)
+            if (spaceCodeOrNull == null && plate.getPermId() == null)
             {
                 throw new UndefinedSpaceException();
             }
-            if (spaceCodeOrNull != null && plate.isSharedPlate() == false)
+
+            if (spaceCodeOrNull != null)
             {
-                final Status status =
-                        evaluate(allowedRoles, person, spaceCodeOrNull);
-                if (Status.OK.equals(status) == false)
-                {
-                    return status;
-                }
+                SampleIdentifier identifier = SampleIdentifierFactory.parse(plate.getAugmentedCode());
+                identifiers.add(identifier);
+            }
+
+            if (plate.getPermId() != null)
+            {
+                permIds.add(new PermId(plate.getPermId()));
             }
         }
-        if (permIds.isEmpty() == false)
+
+        if (false == identifiers.isEmpty())
         {
-            for (Long spaceId : getSampleSpaceIds(permIds))
+            Status status = identifierCollectionPredicate.evaluate(person, allowedRoles, identifiers);
+
+            if (status.isError())
             {
-                if (spaceId == null)
-                {
-                    continue; // Shared samples will return a spaceId of null.
-                }
-                final Status status =
-                        evaluate(person, allowedRoles, spaceId);
-                if (Status.OK.equals(status) == false)
-                {
-                    return status;
-                }
+                return status;
             }
         }
+
+        if (false == permIds.isEmpty())
+        {
+            Collection<SampleAccessPE> accessPECollection = provider.getSampleCollectionAccessDataByPermIds(permIds);
+            Status status = accessPECollectionPredicate.evaluate(person, allowedRoles, accessPECollection);
+
+            if (status.isError())
+            {
+                return status;
+            }
+        }
+
         return Status.OK;
     }
 
-    private Collection<Long> getSampleSpaceIds(final List<String> permIds)
+    @Override
+    public String getCandidateDescription()
     {
-        if (permIds.size() > ARRAY_SIZE_LIMIT)
-        {
-            final Set<Long> spaceIds = new HashSet<Long>(permIds.size());
-            for (int startIdx = 0; startIdx < permIds.size(); startIdx += ARRAY_SIZE_LIMIT)
-            {
-                final List<String> permIdSubList = permIds.subList(startIdx,
-                        Math.min(permIds.size(), startIdx + ARRAY_SIZE_LIMIT));
-                spaceIds.addAll(sampleToSpaceQuery.getSampleSpaceIds(permIdSubList.toArray(
-                        new String[permIdSubList.size()])));
-            }
-            return spaceIds;
-        } else
-        {
-            return sampleToSpaceQuery
-                    .getSampleSpaceIds(permIds.toArray(new String[permIds.size()]));
-        }
+        return "plate";
     }
 
 }

@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
-import java.util.Set;
-
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 
 /**
@@ -35,27 +32,19 @@ public class PlateWellReferenceWithDatasetsValidator extends
         AbstractValidator<PlateWellReferenceWithDatasets>
 {
 
+    private PlateValidator plateValidator = new PlateValidator();
+
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        super.init(provider);
+        plateValidator.init(provider);
+    }
+
     @Override
     public boolean doValidation(PersonPE person, PlateWellReferenceWithDatasets value)
     {
-        final String spaceCode =
-                value.getExperimentPlateIdentifier().getExperimentIdentifier().getSpaceCode();
-        final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
-        for (final RoleAssignmentPE roleAssignment : roleAssignments)
-        {
-            if (roleAssignment.getSpace() == null)
-            {
-                // All roles on the db level allow full read access.
-                // Note: Here we assume that we operate on _the only_ db instance (the home db)!
-                return true;
-            }
-            final SpacePE group = roleAssignment.getSpace();
-            if (group != null && group.getCode().equals(spaceCode))
-            {
-                return true;
-            }
-        }
-        return false;
+        return plateValidator.doValidation(person, value.getExperimentPlateIdentifier());
     }
 
 }

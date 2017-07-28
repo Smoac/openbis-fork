@@ -22,11 +22,11 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractSpacePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
 /**
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 public class PlateIdentifierPredicate extends AbstractSpacePredicate<PlateIdentifier>
 {
 
-    private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
+    private final SampleIdentifierPredicate sampleIdentifierPredicate;
 
     public PlateIdentifierPredicate()
     {
@@ -48,7 +48,7 @@ public class PlateIdentifierPredicate extends AbstractSpacePredicate<PlateIdenti
 
     public PlateIdentifierPredicate(boolean isReadAccess)
     {
-        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(isReadAccess);
+        sampleIdentifierPredicate = new SampleIdentifierPredicate(isReadAccess);
     }
 
     //
@@ -59,7 +59,7 @@ public class PlateIdentifierPredicate extends AbstractSpacePredicate<PlateIdenti
     public final void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        sampleOwnerIdentifierPredicate.init(provider);
+        sampleIdentifierPredicate.init(provider);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class PlateIdentifierPredicate extends AbstractSpacePredicate<PlateIdenti
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             PlateIdentifier value)
     {
-        final SampleOwnerIdentifier plateOwner;
+        final SampleIdentifier plateIdentifier;
 
         if (value.getPermId() != null)
         {
@@ -83,18 +83,17 @@ public class PlateIdentifierPredicate extends AbstractSpacePredicate<PlateIdenti
                 return Status.createError(String.format(
                         "User '%s' does not have enough privileges.", person.getUserId()));
             }
-            plateOwner = sample.getSampleIdentifier();
+            plateIdentifier = sample.getSampleIdentifier();
         } else
         {
-            plateOwner = SampleIdentifierFactory.parse(value.getAugmentedCode());
+            plateIdentifier = SampleIdentifierFactory.parse(value.getAugmentedCode());
         }
-        return performSampleOwnerPredicateEvaluation(person, allowedRoles, plateOwner);
+        return performSamplePredicateEvaluation(person, allowedRoles, plateIdentifier);
     }
 
-    @SuppressWarnings("deprecation")
-    private Status performSampleOwnerPredicateEvaluation(PersonPE person,
-            List<RoleWithIdentifier> allowedRoles, SampleOwnerIdentifier sampleOwner)
+    private Status performSamplePredicateEvaluation(PersonPE person,
+            List<RoleWithIdentifier> allowedRoles, SampleIdentifier sampleIdentifier)
     {
-        return sampleOwnerIdentifierPredicate.performEvaluation(person, allowedRoles, sampleOwner);
+        return sampleIdentifierPredicate.evaluate(person, allowedRoles, sampleIdentifier);
     }
 }

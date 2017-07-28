@@ -35,7 +35,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity
 @SqlResultSetMapping(name = SampleAccessPE.RESULT_SET_MAPPING, entities = @EntityResult(entityClass = SampleAccessPE.class))
 @NamedNativeQueries(value = {
-        @NamedNativeQuery(name = SampleAccessPE.SAMPLE_ACCESS_QUERY_NAME, query = SampleAccessPE.SAMPLE_ACCESS_QUERY, resultSetMapping = SampleAccessPE.RESULT_SET_MAPPING),
+        @NamedNativeQuery(name = SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME, query = SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY, resultSetMapping = SampleAccessPE.RESULT_SET_MAPPING),
+        @NamedNativeQuery(name = SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME, query = SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY, resultSetMapping = SampleAccessPE.RESULT_SET_MAPPING),
         @NamedNativeQuery(name = SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME, query = SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY, resultSetMapping = SampleAccessPE.RESULT_SET_MAPPING) })
 public class SampleAccessPE
 {
@@ -54,8 +55,11 @@ public class SampleAccessPE
                     + TableNames.EXPERIMENTS_ALL_TABLE
                     + " e on s.expe_id = e.id left outer join "
                     + TableNames.PROJECTS_TABLE
-                    + " ep on e.proj_id = ep.id "
-                    + "WHERE s.id in (:ids)";
+                    + " ep on e.proj_id = ep.id ";
+
+    public final static String SAMPLE_ACCESS_BY_TECH_IDS_QUERY = SAMPLE_ACCESS_QUERY + "WHERE s.id in (:ids)";
+
+    public final static String SAMPLE_ACCESS_BY_PERM_IDS_QUERY = SAMPLE_ACCESS_QUERY + "WHERE s.perm_id in (:ids)";
 
     public final static String DELETED_SAMPLE_ACCESS_QUERY =
             "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode "
@@ -74,7 +78,9 @@ public class SampleAccessPE
                     + " ep on e.proj_id = ep.id "
                     + "WHERE s.del_id in (:del_ids)";
 
-    public final static String SAMPLE_ACCESS_QUERY_NAME = "sample_access";
+    public final static String SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME = "sample_access_by_tech_ids";
+
+    public final static String SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME = "sample_access_by_perm_ids";
 
     public final static String DELETED_SAMPLE_ACCESS_QUERY_NAME = "deleted_sample_access";
 

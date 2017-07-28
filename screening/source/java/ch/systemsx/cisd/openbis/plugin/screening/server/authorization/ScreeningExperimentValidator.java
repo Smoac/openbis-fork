@@ -2,11 +2,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentIdentifierString;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -43,13 +39,6 @@ public final class ScreeningExperimentValidator extends AbstractValidator<Experi
             }
         }
 
-        IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
-                .withData(authorizationDataProvider)
-                .withUser(new UserProviderFromPersonPE(person))
-                .withRoles(new RolesProviderFromPersonPE(person))
-                .withObjects(new ProjectProviderFromExperimentIdentifierString(value.getAugmentedCode()))
-                .build();
-
-        return pa.getObjectsWithoutAccess().isEmpty();
+        return isValidPA(person, new ProjectProviderFromExperimentIdentifierString(value.getAugmentedCode()));
     }
 }

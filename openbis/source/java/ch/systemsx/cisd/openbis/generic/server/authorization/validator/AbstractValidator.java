@@ -17,6 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.object.IObjectsProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -47,6 +52,18 @@ public abstract class AbstractValidator<T> implements IValidator<T>
         assert person != null : "Unspecified person";
         assert value != null : "Unspecified value";
         return doValidation(person, value);
+    }
+
+    protected <O> boolean isValidPA(PersonPE person, IObjectsProvider<O> provider)
+    {
+        IProjectAuthorization<O> pa = new ProjectAuthorizationBuilder<O>()
+                .withData(authorizationDataProvider)
+                .withUser(new UserProviderFromPersonPE(person))
+                .withRoles(new RolesProviderFromPersonPE(person))
+                .withObjects(provider)
+                .build();
+
+        return pa.getObjectsWithoutAccess().isEmpty();
     }
 
     @Override

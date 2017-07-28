@@ -23,8 +23,12 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.server.authorization.MaterialExperimentFeatureVectorSummaryValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.authorization.ScreeningExperimentValidator;
+import ch.systemsx.cisd.openbis.plugin.screening.server.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * @author pkupczyk
@@ -39,6 +43,23 @@ public class ExperimentValidatorScreeningTestService
     public ExperimentIdentifier testScreeningExperimentValidator(IAuthSessionProvider sessionProvider, ExperimentIdentifier experimentIdentifier)
     {
         return experimentIdentifier;
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    @ReturnValueFilter(validatorClass = MaterialExperimentFeatureVectorSummaryValidator.class)
+    public MaterialSimpleFeatureVectorSummary testMaterialExperimentFeatureVectorSummaryValidator(IAuthSessionProvider sessionProvider,
+            MaterialSimpleFeatureVectorSummary summary)
+    {
+        return summary;
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    @ReturnValueFilter(validatorClass = WellContentValidator.class)
+    public WellContent testWellContentValidator(IAuthSessionProvider sessionProvider, WellContent wellContent)
+    {
+        return wellContent;
     }
 
 }
