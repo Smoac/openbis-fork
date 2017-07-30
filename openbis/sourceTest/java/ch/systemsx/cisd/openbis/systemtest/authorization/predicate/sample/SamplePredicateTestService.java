@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplesWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodePredicate;
@@ -36,7 +37,9 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEP
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionReadWritePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdReadWritePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -47,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -70,6 +74,13 @@ public class SamplePredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testSampleTechIdPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleTechId)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testSampleTechIdReadWritePredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId sampleTechId)
     {
     }
 
@@ -111,6 +122,13 @@ public class SamplePredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testSampleTechIdCollectionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleTechIds)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testSampleTechIdCollectionReadWritePredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = SampleTechIdCollectionReadWritePredicate.class) List<TechId> sampleTechIds)
     {
     }
 
@@ -167,6 +185,13 @@ public class SamplePredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testSampleUpdatesCollectionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class) List<SampleUpdatesDTO> sampleUpdatesDTOs)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testListSamplesByPropertyPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) ListSamplesByPropertyCriteria listSamplesByPropertyCriteria)
     {
     }
 

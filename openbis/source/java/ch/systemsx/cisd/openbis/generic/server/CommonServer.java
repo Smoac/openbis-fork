@@ -73,8 +73,9 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectId
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionReadWritePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdReadWritePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceUpdatesPredicate;
@@ -2102,7 +2103,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_SAMPLE")
     public void deleteSamples(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleIds, String reason, DeletionType deletionType)
+            @AuthorizationGuard(guardClass = SampleTechIdCollectionReadWritePredicate.class) List<TechId> sampleIds, String reason,
+            DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
         switch (deletionType)
@@ -2278,7 +2280,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_SAMPLE_ATTACHMENT")
     public void deleteSampleAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, List<String> fileNames, String reason)
+            @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId sampleId, List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -3824,7 +3826,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_SAMPLE_PROPERTIES")
     public void updateSampleProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
+            @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         Map<String, String> properties = createPropertiesMap(modifiedProperties);

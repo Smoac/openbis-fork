@@ -51,10 +51,4 @@ public class ListSampleCriteriaPredicateWithSpaceSystemTest extends ListSampleCr
         assertNoException(t);
     }
 
-    @Override
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-    }
-
 }

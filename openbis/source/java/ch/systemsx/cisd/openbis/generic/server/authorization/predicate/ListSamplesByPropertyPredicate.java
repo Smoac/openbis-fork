@@ -33,17 +33,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class ListSamplesByPropertyPredicate extends
         AbstractPredicate<ListSamplesByPropertyCriteria>
 {
-    private final SpaceIdentifierPredicate spacePredicate;
-
-    public ListSamplesByPropertyPredicate()
-    {
-        this.spacePredicate = new SpaceIdentifierPredicate();
-    }
+    private final SpaceOrProjectPredicate spaceOrProjectPredicate = new SpaceOrProjectPredicate(false);
 
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
-        spacePredicate.init(provider);
+        spaceOrProjectPredicate.init(provider);
     }
 
     @Override
@@ -56,7 +51,6 @@ public class ListSamplesByPropertyPredicate extends
     protected Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ListSamplesByPropertyCriteria criteria)
     {
-        assert spacePredicate.initialized : "Predicate has not been initialized";
-        return spacePredicate.doEvaluation(person, allowedRoles, criteria.getSpaceIdentifier());
+        return spaceOrProjectPredicate.doEvaluation(person, allowedRoles, criteria.getSpaceCode());
     }
 }

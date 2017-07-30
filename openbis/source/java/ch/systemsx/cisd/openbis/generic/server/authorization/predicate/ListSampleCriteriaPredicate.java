@@ -44,6 +44,8 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
     private final SampleTechIdCollectionPredicate sampleTechIdCollectionPredicate =
             new SampleTechIdCollectionPredicate();
 
+    private final SpaceOrProjectPredicate spaceOrProjectPredicate = new SpaceOrProjectPredicate(true);
+
     public ListSampleCriteriaPredicate()
     {
         super(true);
@@ -62,6 +64,7 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
         experimentTechIdPredicate.init(provider);
         sampleTechIdPredicate.init(provider);
         sampleTechIdCollectionPredicate.init(provider);
+        spaceOrProjectPredicate.init(provider);
     }
 
     @Override
@@ -96,7 +99,7 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
         }
         if (value.isIncludeSpace() && status == Status.OK)
         {
-            status = evaluate(allowedRoles, person, value.getSpaceCode());
+            status = spaceOrProjectPredicate.evaluate(person, allowedRoles, value.getSpaceCode());
         }
         return status;
     }
