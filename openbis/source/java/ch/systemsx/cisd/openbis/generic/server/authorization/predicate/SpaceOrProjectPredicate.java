@@ -24,38 +24,43 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author pkupczyk
  */
-public class SpaceOrProjectPredicate extends AbstractPredicate<String>
+public class SpaceOrProjectPredicate extends AbstractSpacePredicate<String>
 {
-
-    private IAuthorizationDataProvider provider;
-
-    private SpaceIdentifierPredicate spaceIdentifierPredicate;
 
     private ProjectPEPredicate projectPEPredicate;
 
     public SpaceOrProjectPredicate(boolean okForNonExistentSpaces)
     {
-        spaceIdentifierPredicate = new SpaceIdentifierPredicate(okForNonExistentSpaces);
+        super(okForNonExistentSpaces);
         projectPEPredicate = new ProjectPEPredicate();
     }
 
     @Override
     public void init(IAuthorizationDataProvider dataProvider)
     {
-        provider = dataProvider;
-        spaceIdentifierPredicate.init(provider);
-        projectPEPredicate.init(provider);
+        super.init(dataProvider);
+        projectPEPredicate.init(dataProvider);
     }
 
     @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String value)
+    protected boolean isNullValueAllowed()
     {
-        Status status = spaceIdentifierPredicate.doEvaluation(person, allowedRoles, new SpaceIdentifier(value));
+        return true;
+    }
+
+    @Override
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String valueOrNull)
+    {
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
+        Status status = evaluate(allowedRoles, person, valueOrNull);
 
         if (status.isError())
         {
@@ -63,16 +68,19 @@ public class SpaceOrProjectPredicate extends AbstractPredicate<String>
             // If so, we still want to return OK for the objects from such projects to be returned as well. Other objects, i.e. objects from
             // projects that the person does not have access to will be filtered out by a return value filter.
 
-            SpacePE space = provider.tryGetSpace(value);
-
-            if (space != null)
+            if (valueOrNull != null)
             {
-                for (ProjectPE project : space.getProjects())
+                SpacePE space = authorizationDataProvider.tryGetSpace(valueOrNull);
+
+                if (space != null)
                 {
-                    status = projectPEPredicate.evaluate(person, allowedRoles, project);
-                    if (status.isOK())
+                    for (ProjectPE project : space.getProjects())
                     {
-                        break;
+                        status = projectPEPredicate.evaluate(person, allowedRoles, project);
+                        if (status.isOK())
+                        {
+                            break;
+                        }
                     }
                 }
             }
