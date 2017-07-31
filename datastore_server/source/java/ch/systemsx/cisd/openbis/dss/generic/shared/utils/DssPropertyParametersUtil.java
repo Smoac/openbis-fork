@@ -114,6 +114,12 @@ public class DssPropertyParametersUtil
     private static final Template NON_MOVE_TEMPLATE = new Template(
             "Move operation failed from the configuration parameter '${path-a-key}' directory '${path-a}' to from the configuration parameter '${path-b-key}' directory '${path-b}'. ");
 
+    private static File dssTmp;
+
+    private static File recoveryState;
+
+    private static File logRegistrations;
+
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
     {
@@ -217,9 +223,11 @@ public class DssPropertyParametersUtil
     @Private
     static File getDssInternalTempDir(IFileOperations fileOperations, final Properties properties)
     {
-        createAndTestSpecialDirectories(fileOperations, properties);
-        return getDir(fileOperations, properties, "dss-tmp",
-                "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH);
+        if (dssTmp == null)
+        {
+            createAndTestSpecialDirectories(fileOperations, properties);
+        }
+        return dssTmp;
     }
 
     public static File getDssRegistrationLogDir(final Properties properties)
@@ -230,9 +238,11 @@ public class DssPropertyParametersUtil
     @Private
     static File getDssRegistrationLogDir(IFileOperations fileOperations, final Properties properties)
     {
-        createAndTestSpecialDirectories(fileOperations, properties);
-        return getDir(fileOperations, properties, "log-registrations",
-                "a directory for storing registration logs", DSS_REGISTRATION_LOG_DIR_PATH);
+        if (logRegistrations == null)
+        {
+            createAndTestSpecialDirectories(fileOperations, properties);
+        }
+        return logRegistrations;
     }
 
     public static File getDssRecoveryStateDir(final Properties properties)
@@ -243,9 +253,11 @@ public class DssPropertyParametersUtil
     @Private
     static File getDssRecoveryStateDir(IFileOperations fileOperations, final Properties properties)
     {
-        createAndTestSpecialDirectories(fileOperations, properties);
-        return getDir(fileOperations, properties, "recovery-state", "a directory for storing recovery state for the dss",
-                DSS_RECOVERY_STATE_DIR_PATH);
+        if (recoveryState == null)
+        {
+            createAndTestSpecialDirectories(fileOperations, properties);
+        }
+        return recoveryState;
     }
 
     private static File getDir(IFileOperations fileOperations, final Properties properties, String defaultDirName, String dirDescription,
@@ -333,54 +345,56 @@ public class DssPropertyParametersUtil
 
     private static void createAndTestSpecialDirectories(IFileOperations fileOperations, final Properties properties)
     {
-        Path dssTmp = getDir(fileOperations, properties, "dss-tmp", "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH)
-                .toPath();
-        Path recoveryState = getDir(fileOperations, properties, "recovery-state", "a directory for storing recovery state for the dss",
-                DSS_RECOVERY_STATE_DIR_PATH).toPath();
-        Path logRegistrations = getDir(fileOperations, properties, "log-registrations", "a directory for storing registration logs",
-                DSS_REGISTRATION_LOG_DIR_PATH).toPath();
+        dssTmp = getDir(fileOperations, properties, "dss-tmp", "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH);
+        Path dssTmpPath = dssTmp.toPath();
+        recoveryState = getDir(fileOperations, properties, "recovery-state", "a directory for storing recovery state for the dss",
+                DSS_RECOVERY_STATE_DIR_PATH);
+        Path recoveryStatePath = recoveryState.toPath();
+        logRegistrations = getDir(fileOperations, properties, "log-registrations", "a directory for storing registration logs",
+                DSS_REGISTRATION_LOG_DIR_PATH);
+        Path logRegistrationsPath = logRegistrations.toPath();
 
-        FileStore dssTmpStore = getVolumeInfo(dssTmp, "dss-tmp");
-        FileStore recoveryStateStore = getVolumeInfo(recoveryState, "recovery-state");
-        FileStore logRegistrationsState = getVolumeInfo(logRegistrations, "log-registrations");
+        FileStore dssTmpStore = getVolumeInfo(dssTmpPath, "dss-tmp");
+        FileStore recoveryStateStore = getVolumeInfo(recoveryStatePath, "recovery-state");
+        FileStore logRegistrationsState = getVolumeInfo(logRegistrationsPath, "log-registrations");
 
         // Volume info obtained
         if (dssTmpStore == null)
         {
-            throw createException(NON_VOLUME_TEMPLATE, "dss-tmp", dssTmp, null, null);
+            throw createException(NON_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, null, null);
         } else if (recoveryStateStore == null)
         {
-            throw createException(NON_VOLUME_TEMPLATE, "recovery-state", recoveryState, null, null);
+            throw createException(NON_VOLUME_TEMPLATE, "recovery-state", recoveryStatePath, null, null);
         } else if (logRegistrationsState == null)
         {
-            throw createException(NON_VOLUME_TEMPLATE, "log-registrations", logRegistrations, null, null);
+            throw createException(NON_VOLUME_TEMPLATE, "log-registrations", logRegistrationsPath, null, null);
         }
         // Same volume tests
         else if (!dssTmpStore.equals(recoveryStateStore))
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmp, "recovery-state", recoveryState);
+            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, "recovery-state", recoveryStatePath);
         } else if (!dssTmpStore.equals(logRegistrationsState))
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmp, "log-registrations", logRegistrations);
+            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, "log-registrations", logRegistrationsPath);
         }
         // Writable folders tests
-        else if (!isWritable(fileOperations, dssTmp))
+        else if (!isWritable(fileOperations, dssTmpPath))
         {
-            throw createException(NON_WRITABLE_TEMPLATE, "dss-tmp", dssTmp, null, null);
-        } else if (!isWritable(fileOperations, recoveryState))
+            throw createException(NON_WRITABLE_TEMPLATE, "dss-tmp", dssTmpPath, null, null);
+        } else if (!isWritable(fileOperations, recoveryStatePath))
         {
-            throw createException(NON_WRITABLE_TEMPLATE, "recovery-state", recoveryState, null, null);
-        } else if (!isWritable(fileOperations, logRegistrations))
+            throw createException(NON_WRITABLE_TEMPLATE, "recovery-state", recoveryStatePath, null, null);
+        } else if (!isWritable(fileOperations, logRegistrationsPath))
         {
-            throw createException(NON_WRITABLE_TEMPLATE, "log-registrations", logRegistrations, null, null);
+            throw createException(NON_WRITABLE_TEMPLATE, "log-registrations", logRegistrationsPath, null, null);
         }
         // Move command tests
-        else if (!isMoveFromTo(fileOperations, dssTmp, recoveryState))
+        else if (!isMoveFromTo(fileOperations, dssTmpPath, recoveryStatePath))
         {
-            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmp, "recovery-state", recoveryState);
-        } else if (!isMoveFromTo(fileOperations, dssTmp, logRegistrations))
+            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmpPath, "recovery-state", recoveryStatePath);
+        } else if (!isMoveFromTo(fileOperations, dssTmpPath, logRegistrationsPath))
         {
-            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmp, "log-registrations", logRegistrations);
+            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmpPath, "log-registrations", logRegistrationsPath);
         }
     }
 
