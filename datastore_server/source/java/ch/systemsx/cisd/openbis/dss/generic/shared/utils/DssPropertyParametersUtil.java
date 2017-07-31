@@ -339,16 +339,27 @@ public class DssPropertyParametersUtil
         FileStore recoveryStateStore = getVolumeInfo(dssTmp, "recovery-state");
         FileStore logRegistrationsState = getVolumeInfo(dssTmp, "log-registrations");
 
+        // Same volume tests
         if (!dssTmpStore.equals(recoveryStateStore))
         {
             throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, recoveryState);
         } else if (!dssTmpStore.equals(logRegistrationsState))
         {
             throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, logRegistrations);
-        } else if (!isWritable(fileOperations, dssTmp))
+        }
+        // Writable folders tests
+        else if (!isWritable(fileOperations, dssTmp))
         {
             throw createException(NON_WRITABLE_TEMPLATE, dssTmp);
-        } else if (!isMoveFromTo(fileOperations, dssTmp, recoveryState))
+        } else if (!isWritable(fileOperations, recoveryState))
+        {
+            throw createException(NON_WRITABLE_TEMPLATE, recoveryState);
+        } else if (!isWritable(fileOperations, logRegistrations))
+        {
+            throw createException(NON_WRITABLE_TEMPLATE, logRegistrations);
+        }
+        // Move command tests
+        else if (!isMoveFromTo(fileOperations, dssTmp, recoveryState))
         {
             throw createException(NON_MOVE_TEMPLATE, dssTmp, recoveryState);
         } else if (!isMoveFromTo(fileOperations, dssTmp, logRegistrations))
