@@ -101,13 +101,18 @@ public class DssPropertyParametersUtil
     private static final Template NON_EXISTING_DIR_TEMPLATE = new Template(
             "Could not create ${dir-description} at path: ${path}. " + EXPLANATION);
 
-    private static final Template NON_SAME_VOLUME_TEMPLATE = new Template("Directories '${pathA}', '${pathB}' are not on the same file system. ");
+    private static final Template NON_SAME_VOLUME_TEMPLATE =
+            new Template(
+                    "By the configuration parameter '${path-a-key}' directory '${path-a}' and by the configuration parameter'${path-b-key}' directory '${path-b}' are not on the same file system. ");
 
-    private static final Template NON_WRITABLE_TEMPLATE = new Template("Directory '${pathA}' is not writable. ");
+    private static final Template NON_WRITABLE_TEMPLATE =
+            new Template("By the configuration parameter '${path-a-key}' directory '${path-a}' is not writable. ");
 
-    private static final Template NON_VOLUME_TEMPLATE = new Template("Volume information for '${volA}' is not retrivable. ");
+    private static final Template NON_VOLUME_TEMPLATE =
+            new Template("Volume information from the configuration parameter '${path-a-key}' directory '${path-a}' is not retrivable. ");
 
-    private static final Template NON_MOVE_TEMPLATE = new Template("Move operation failed from '${pathA}' to '${pathB}'. ");
+    private static final Template NON_MOVE_TEMPLATE = new Template(
+            "Move operation failed from the configuration parameter '${path-a-key}' directory '${path-a}' to from the configuration parameter '${path-b-key}' directory '${path-b}'. ");
 
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
@@ -288,7 +293,7 @@ public class DssPropertyParametersUtil
             info = Files.getFileStore(path);
         } catch (Exception ex)
         {
-            createException(NON_VOLUME_TEMPLATE, key);
+            createException(NON_VOLUME_TEMPLATE, key, path, null, null);
         }
         return info;
     }
@@ -336,35 +341,46 @@ public class DssPropertyParametersUtil
                 DSS_REGISTRATION_LOG_DIR_PATH).toPath();
 
         FileStore dssTmpStore = getVolumeInfo(dssTmp, "dss-tmp");
-        FileStore recoveryStateStore = getVolumeInfo(dssTmp, "recovery-state");
-        FileStore logRegistrationsState = getVolumeInfo(dssTmp, "log-registrations");
+        FileStore recoveryStateStore = getVolumeInfo(recoveryState, "recovery-state");
+        FileStore logRegistrationsState = getVolumeInfo(logRegistrations, "log-registrations");
 
-        // Same volume tests
-        if (!dssTmpStore.equals(recoveryStateStore))
+        // Volume info obtained
+        if (dssTmpStore == null)
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, recoveryState);
+            throw createException(NON_VOLUME_TEMPLATE, "dss-tmp", dssTmp, null, null);
+        } else if (recoveryStateStore == null)
+        {
+            throw createException(NON_VOLUME_TEMPLATE, "recovery-state", recoveryState, null, null);
+        } else if (logRegistrationsState == null)
+        {
+            throw createException(NON_VOLUME_TEMPLATE, "log-registrations", logRegistrations, null, null);
+        }
+        // Same volume tests
+        else if (!dssTmpStore.equals(recoveryStateStore))
+        {
+            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmp, "recovery-state", recoveryState);
         } else if (!dssTmpStore.equals(logRegistrationsState))
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, logRegistrations);
+            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmp, "log-registrations", logRegistrations);
         }
         // Writable folders tests
         else if (!isWritable(fileOperations, dssTmp))
         {
-            throw createException(NON_WRITABLE_TEMPLATE, dssTmp);
+            throw createException(NON_WRITABLE_TEMPLATE, "dss-tmp", dssTmp, null, null);
         } else if (!isWritable(fileOperations, recoveryState))
         {
-            throw createException(NON_WRITABLE_TEMPLATE, recoveryState);
+            throw createException(NON_WRITABLE_TEMPLATE, "recovery-state", recoveryState, null, null);
         } else if (!isWritable(fileOperations, logRegistrations))
         {
-            throw createException(NON_WRITABLE_TEMPLATE, logRegistrations);
+            throw createException(NON_WRITABLE_TEMPLATE, "log-registrations", logRegistrations, null, null);
         }
         // Move command tests
         else if (!isMoveFromTo(fileOperations, dssTmp, recoveryState))
         {
-            throw createException(NON_MOVE_TEMPLATE, dssTmp, recoveryState);
+            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmp, "recovery-state", recoveryState);
         } else if (!isMoveFromTo(fileOperations, dssTmp, logRegistrations))
         {
-            throw createException(NON_MOVE_TEMPLATE, dssTmp, logRegistrations);
+            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmp, "log-registrations", logRegistrations);
         }
     }
 
@@ -378,24 +394,15 @@ public class DssPropertyParametersUtil
         }
     }
 
-    private static ConfigurationFailureException createException(Template template, Path pathA, Path pathB)
+    private static ConfigurationFailureException createException(Template template, String pathAKey, Path pathA, String pathBKey, Path pathB)
     {
-        template.bind("pathA", pathA.toString());
-        template.bind("pathB", pathB.toString());
-        ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
-        return e;
-    }
-
-    private static ConfigurationFailureException createException(Template template, String volumeA)
-    {
-        template.bind("volA", volumeA);
-        ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
-        return e;
-    }
-
-    private static ConfigurationFailureException createException(Template template, Path pathA)
-    {
-        template.bind("pathA", pathA.toString());
+        template.bind("path-a-key", pathAKey);
+        template.bind("path-a", pathA.toString());
+        if (pathBKey != null || pathB != null)
+        {
+            template.bind("path-b-key", pathBKey);
+            template.bind("path-b", pathB.toString());
+        }
         ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
         return e;
     }
