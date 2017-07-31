@@ -269,6 +269,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IExecuteOp
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -837,7 +838,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         GetSessionInformationOperationResult result = executeOperation(sessionToken, new GetSessionInformationOperation());
         return result.getSessionInformation();
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public boolean isSessionActive(String sessionToken)
@@ -915,6 +916,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         info.put("project-samples-enabled", Boolean.toString(isProjectSamplesEnabled(null)));
         info.put("archiving-configured", Boolean.toString(isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
+        info.put("authentication-service", configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE));
         // String disabledText = tryGetDisabledText();
         // if (disabledText != null)
         // {
