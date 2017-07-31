@@ -370,29 +370,29 @@ public class DssPropertyParametersUtil
             throw createException(NON_VOLUME_TEMPLATE, "log-registrations", logRegistrationsPath, null, null);
         }
         // Same volume tests
-        else if (!dssTmpStore.equals(recoveryStateStore))
+        else if (dssTmpStore.equals(recoveryStateStore) == false)
         {
             throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, "recovery-state", recoveryStatePath);
-        } else if (!dssTmpStore.equals(logRegistrationsState))
+        } else if (dssTmpStore.equals(logRegistrationsState) == false)
         {
             throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, "log-registrations", logRegistrationsPath);
         }
         // Writable folders tests
-        else if (!isWritable(fileOperations, dssTmpPath))
+        else if (isWritable(fileOperations, dssTmpPath) == false)
         {
             throw createException(NON_WRITABLE_TEMPLATE, "dss-tmp", dssTmpPath, null, null);
-        } else if (!isWritable(fileOperations, recoveryStatePath))
+        } else if (isWritable(fileOperations, recoveryStatePath) == false)
         {
             throw createException(NON_WRITABLE_TEMPLATE, "recovery-state", recoveryStatePath, null, null);
-        } else if (!isWritable(fileOperations, logRegistrationsPath))
+        } else if (isWritable(fileOperations, logRegistrationsPath) == false)
         {
             throw createException(NON_WRITABLE_TEMPLATE, "log-registrations", logRegistrationsPath, null, null);
         }
         // Move command tests
-        else if (!isMoveFromTo(fileOperations, dssTmpPath, recoveryStatePath))
+        else if (isMoveFromTo(fileOperations, dssTmpPath, recoveryStatePath) == false)
         {
             throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmpPath, "recovery-state", recoveryStatePath);
-        } else if (!isMoveFromTo(fileOperations, dssTmpPath, logRegistrationsPath))
+        } else if (isMoveFromTo(fileOperations, dssTmpPath, logRegistrationsPath) == false)
         {
             throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmpPath, "log-registrations", logRegistrationsPath);
         }
