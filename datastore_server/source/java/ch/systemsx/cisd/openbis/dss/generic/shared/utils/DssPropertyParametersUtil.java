@@ -101,11 +101,9 @@ public class DssPropertyParametersUtil
     private static final Template NON_EXISTING_DIR_TEMPLATE = new Template(
             "Could not create ${dir-description} at path: ${path}. " + EXPLANATION);
 
-    private static final Template NON_SAME_VOLUME_TEMPLATE = new Template(
-            "Directories '${pathA}', '${pathB}', '${pathC}' are not on the same file system. ");
+    private static final Template NON_SAME_VOLUME_TEMPLATE = new Template("Directories '${pathA}', '${pathB}' are not on the same file system. ");
 
-    private static final Template NON_WRITABLE_TEMPLATE = new Template(
-            "Directory '${pathA}' is not writable. ");
+    private static final Template NON_WRITABLE_TEMPLATE = new Template("Directory '${pathA}' is not writable. ");
 
     private static final Template NON_VOLUME_TEMPLATE = new Template("Volume information for '${volA}' is not retrivable. ");
 
@@ -341,24 +339,22 @@ public class DssPropertyParametersUtil
         FileStore recoveryStateStore = getVolumeInfo(dssTmp, "recovery-state");
         FileStore logRegistrationsState = getVolumeInfo(dssTmp, "log-registrations");
 
-        if (dssTmpStore.equals(recoveryStateStore) && recoveryStateStore.equals(logRegistrationsState)) // Check they are on the same Volume
+        if (!dssTmpStore.equals(recoveryStateStore))
         {
-            if (!isWritable(fileOperations, dssTmp))
-            {
-                throw createException(NON_WRITABLE_TEMPLATE, dssTmp);
-            } else if (!isMoveFromTo(fileOperations, dssTmp, recoveryState))
-            {
-                throw createException(NON_MOVE_TEMPLATE, dssTmp, recoveryState);
-            } else if (!isMoveFromTo(fileOperations, dssTmp, logRegistrations))
-            {
-                throw createException(NON_MOVE_TEMPLATE, dssTmp, logRegistrations);
-            }
-
-        } else
+            throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, recoveryState);
+        } else if (!dssTmpStore.equals(logRegistrationsState))
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, recoveryState, logRegistrations);
+            throw createException(NON_SAME_VOLUME_TEMPLATE, dssTmp, logRegistrations);
+        } else if (!isWritable(fileOperations, dssTmp))
+        {
+            throw createException(NON_WRITABLE_TEMPLATE, dssTmp);
+        } else if (!isMoveFromTo(fileOperations, dssTmp, recoveryState))
+        {
+            throw createException(NON_MOVE_TEMPLATE, dssTmp, recoveryState);
+        } else if (!isMoveFromTo(fileOperations, dssTmp, logRegistrations))
+        {
+            throw createException(NON_MOVE_TEMPLATE, dssTmp, logRegistrations);
         }
-
     }
 
     private static void assertDirExists(IFileOperations fileOperations, File dir,
@@ -389,16 +385,6 @@ public class DssPropertyParametersUtil
     private static ConfigurationFailureException createException(Template template, Path pathA)
     {
         template.bind("pathA", pathA.toString());
-        ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
-        return e;
-    }
-
-    private static ConfigurationFailureException createException(Template template, Path pathA,
-            Path pathB, Path pathC)
-    {
-        template.bind("pathA", pathA.toString());
-        template.bind("pathB", pathB.toString());
-        template.bind("pathB", pathC.toString());
         ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
         return e;
     }
