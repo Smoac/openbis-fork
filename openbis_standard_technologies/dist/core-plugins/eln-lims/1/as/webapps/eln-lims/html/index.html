@@ -71,13 +71,13 @@
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/lib/html4.js"></script>
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/lib/uri.js"></script>
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/sanitizer.js"></script>
-	
+
 	<!-- First party libraries -->
 	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
 	<script type="text/javascript" src="../../resources/api/v3/config.js"></script>
 	<script type="text/javascript" src="../../resources/api/v3/require.js"></script>
 	<script type="text/javascript" src="./lib/grid/js/Grid.js"></script>
-	
+
 	<!-- ELN UI -->
 	<script type="text/javascript" src="./js/controllers/LayoutManager.js"></script>
 	<script type="text/javascript" src="./js/controllers/MainController.js"></script>
@@ -252,6 +252,7 @@
 	
 	var startELNLIMS = function() {
 		mainController = new MainController(profile);
+
 		// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
 		$(document).click(function(e) {
 			var elementClasses = $(e.target).attr('class');
@@ -309,6 +310,10 @@
 			Util.blockUI();
 			mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
 		}
+		//Reset password
+		if (mainController.resetPasswordRequested()) {
+		    mainController.resetPassword();
+		}
 	}
 	
 	$(document).ready(function() {
@@ -343,8 +348,11 @@
 						<button class="btn btn-default" id="login-button" type="submit"><span class="glyphicon glyphicon-arrow-right"></span></button>
 				</fieldset>
 			</form>
-			
+
+
 			<center>
+				<div id="password-reset-container"></div>
+
 				<div style="margin-bottom: 5px;">Compatible With:</div>
 				<img src="./img/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-firefox.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-tablet.png" style="height:43px;" />
 			</center>
