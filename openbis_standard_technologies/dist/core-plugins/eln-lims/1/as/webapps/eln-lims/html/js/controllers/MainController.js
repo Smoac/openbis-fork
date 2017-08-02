@@ -37,22 +37,14 @@ function MainController(profile) {
 	
 	this.openbisV1 = new openbis();
 	this.openbisV3 = null;
-	
-	
+
+
 	this.loadV3 = function(callback) {
-		require(['openbis'], function(openbis) {
-			//Boilerplate
-			var testProtocol = window.location.protocol;
-			var testHost = window.location.hostname;
-			var testPort = window.location.port;
-			
-			var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-			var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-			
-			mainController.openbisV3 = new openbis(testApiUrl);
-			mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
-			callback();
-		});
+	    this.serverFacade.getOpenbisV3(function(openbisV3) {
+            mainController.openbisV3 = openbisV3
+            mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+            callback();
+	    });
 	};
 	
 	// Server Facade Object
@@ -100,9 +92,12 @@ function MainController(profile) {
 			$("#username").focus();
 			var callback = function() {Util.unblockUI();};
 			Util.showError('The given username or password is not correct.', callback);
+			this.serverFacade.doIfFileAuthenticationService((function() {
+	            this._enablePasswordResetLink();
+			}).bind(this));
 			return;
 		}
-		
+
 		//
 		// Back Button Logic
 		//
@@ -207,7 +202,50 @@ function MainController(profile) {
 				);
 		});
 	}
-	
+
+	this._enablePasswordResetLink = function() {
+
+        var userId = $("#username").val();
+	    var $container = $("#password-reset-container");
+	    $container.empty();
+
+	    $resetLink = $("<a>").text("reset password by email for user " + userId);
+	    $container.append($resetLink);
+	    var height = $container.height();
+	    $container.css({ "margin-top" : -height + "px" });
+
+	    $resetLink.on("click", (function() {
+	        Util.blockUI();
+    	    this.serverFacade.sendResetPasswordEmail(userId, function() {
+                Util.unblockUI();
+                Util.showInfo("An email with instructions how to reset the password has been sent to " + userId + " if this user exists.");
+    	    });
+
+	    }).bind(this));
+
+	}
+
+	this.resetPasswordRequested = function() {
+        var queryString = Util.queryString();
+        return queryString.resetPassword == "true";
+	}
+
+	this.resetPassword = function() {
+        var queryString = Util.queryString();
+        var userId = queryString.userId;
+        var token = queryString.token;
+
+        if (userId && token) {
+            Util.blockUI();
+            this.serverFacade.resetPassword(userId, token, function() {
+                Util.unblockUI();
+                Util.showInfo("A new password has been sent as an email to user " + userId + " if this user exists.");                
+            });
+        } else {
+            Util.showError("To reset the password, the parameters 'userId' and 'token' need to be set.");
+        }
+	}
+
 	//
 	// Main View Changer - Everything on the application rely on this method to alter the views, arg should be a string
 	//

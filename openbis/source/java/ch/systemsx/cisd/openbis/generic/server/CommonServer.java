@@ -528,7 +528,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
     public List<Person> listPersons(String sessionToken)
     {
         checkSession(sessionToken);

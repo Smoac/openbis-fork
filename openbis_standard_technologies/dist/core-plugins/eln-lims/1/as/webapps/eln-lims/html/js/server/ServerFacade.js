@@ -26,8 +26,26 @@
  */
 function ServerFacade(openbisServer) {
 	this.openbisServer = openbisServer;
-	
+
 	//
+	// V3 API creation
+	//
+    this.getOpenbisV3 = function(callbackFunction) {
+        require(['openbis'], function(openbis) {
+            //Boilerplate
+            var testProtocol = window.location.protocol;
+            var testHost = window.location.hostname;
+            var testPort = window.location.port;
+
+            var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+            var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+
+            var openbisV3 = new openbis(testApiUrl);
+            callbackFunction(openbisV3);
+        });
+    }
+
+    //
 	// Intercepting general errors
 	//
 	var responseInterceptor = function(response, action){
@@ -560,6 +578,66 @@ function ServerFacade(openbisServer) {
 	//
 	// ELN Custom API
  	//
+
+    this.sendResetPasswordEmail = function(userId, callbackFunction) {
+        var parameters = {
+                method : "sendResetPasswordEmail",
+                userId : userId,
+                baseUrl : location.protocol + '//' + location.host + location.pathname
+        };
+        this._callPasswordResetService(parameters, callbackFunction);
+    }
+
+    this.resetPassword = function(userId, token, callbackFunction) {
+        var parameters = {
+                method : "resetPassword",
+                userId : userId,
+                token : token
+            };
+        this._callPasswordResetService(parameters, callbackFunction);        
+    }
+
+    this.doIfFileAuthenticationService = function(callbackFunction) {
+        var _this = this;
+        this.getOpenbisV3(function(openbisV3) {
+            openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
+                openbisV3.getServerInformation().done(function(serverInformation) {
+                    var authSystem = serverInformation["authentication-service"];
+                    if (authSystem && authSystem.indexOf("file") !== -1) {
+                        callbackFunction();
+                    }
+                });
+            }).fail(function(result) {
+                console.log("Call failed to server: " + JSON.stringify(result));
+            });
+        });
+    }
+
+    this._callPasswordResetService = function(parameters, callbackFunction) {
+        var _this = this;
+        this.getOpenbisV3(function(openbisV3) {
+
+            openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
+                _this.openbisServer._internal.sessionToken = sessionToken;
+
+                _this.listDataStores(function(dataStores) {
+                    profile.allDataStores = dataStores.result;
+                    _this.customELNApi(parameters, function(error, result) {
+                        if (error) {
+                            Util.showError(error);
+                        } else {
+                            callbackFunction(result);                            
+                        }
+                    }, "password-reset-api");
+                });
+
+            }).fail(function(result) {
+                console.log("Call failed to server: " + JSON.stringify(result));
+            });
+
+        });
+    }
+
  	this.customELNApi = function(parameters, callbackFunction, service) {
  		if(!service) {
  			service = "eln-lims-api";
