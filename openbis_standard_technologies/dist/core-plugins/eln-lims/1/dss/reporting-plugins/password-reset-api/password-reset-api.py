@@ -54,7 +54,7 @@ def sendResetPasswordEmail(tr, userId, baseUrl):
     sendResetPasswordEmailInternal(tr, emailAddress, userId, token, baseUrl)
 
 def resetPassword(tr, userId, token):
-    if tokenIsValid(userId, token):
+    if tokenIsValid(tr, userId, token):
         email = getUserEmail(tr, userId)
         resetPasswordInternal(tr, email, userId)
         PersistentKeyValueStore.remove(userId + RESET_TOKEN_KEY_POSTFIX)
@@ -78,8 +78,17 @@ def getJsonForData(data):
     jsonValue = objectMapper.writeValueAsString(data);
     return jsonValue;
 
-def tokenIsValid(userId, token):
-    return PersistentKeyValueStore.get(userId + RESET_TOKEN_KEY_POSTFIX) == token
+def tokenIsValid(tr, userId, token):
+    tokenAndTimestamp = PersistentKeyValueStore.get(userId + RESET_TOKEN_KEY_POSTFIX)
+    if (tokenAndTimestamp != None and tokenAndTimestamp["token"] == token):
+        timestampNow = time.time()
+        deltaInSeconds = timestampNow - float(tokenAndTimestamp["timestamp"])
+        maxDelayInMinutes = float(getProperty(tr, "max-delay-in-minutes"))
+        if deltaInSeconds < maxDelayInMinutes * 60:
+            return True
+        else:
+            PersistentKeyValueStore.remove(userId + RESET_TOKEN_KEY_POSTFIX)
+    return False
 
 def sendResetPasswordEmailInternal(tr, email, userId, token, baseUrl):
     passwordResetLink = getPasswordResetLink(email, userId, token, baseUrl)
