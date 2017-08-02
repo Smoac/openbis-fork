@@ -43,11 +43,9 @@ def process(tr, parameters, tableBuilder):
 
 
 def sendResetPasswordEmail(tr, userId, baseUrl):
-    print("sendResetPasswordEmail")
     # generate and store token
     token = UUID.randomUUID().toString()
     timestamp = time.time()
-    print("timestamp: " + str(timestamp))
     PersistentKeyValueStore.put(userId + RESET_TOKEN_KEY_POSTFIX, { "token" : token, "timestamp" : timestamp})
     # send email
     emailAddress = getUserEmail(tr, userId)
@@ -70,8 +68,6 @@ def sendMail(tr, email, subject, body):
     fromAddress = None;
     recipient1 = EMailAddress(email);
     tr.getGlobalState().getMailClient().sendEmailMessage(subject, body, replyTo, fromAddress, recipient1);
-    # TODO don't print message - contains password
-    print "--- MAIL ---" + " Recipient: " + email + " Topic: " + subject + " Message: " + body
 
 def getJsonForData(data):
     objectMapper = GenericObjectMapper();
@@ -102,7 +98,7 @@ def sendEmailWithNewPassword(tr, email, userId, newPassword):
     sendMail(tr, email, newPasswordSubject, newPasswordBody)
 
 def getPasswordResetLink(emailAddress, userId, token, baseUrl):
-    return "%s?resetPassword=true&&userId=%s&token=%s" % (baseUrl, userId, token)
+    return "%s?resetPassword=true&userId=%s&token=%s" % (baseUrl, userId, token)
 
 def resetPasswordInternal(tr, email, userId):
     newPassword = getNewPassword()
@@ -128,7 +124,7 @@ def getNewPassword():
 
 def updateUserPassword(userId, password):
     if os.path.isfile(passwdShPath):
-        subprocess.call([path, 'change', userId, '-p', password]) #Changes the user pass, works always
+        subprocess.call([passwdShPath, 'change', userId, '-p', password]) #Changes the user pass, works always
         return True;
     else:
         return False;

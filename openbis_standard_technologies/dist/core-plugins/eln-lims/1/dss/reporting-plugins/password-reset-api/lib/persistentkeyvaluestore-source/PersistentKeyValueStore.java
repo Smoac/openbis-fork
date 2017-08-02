@@ -73,15 +73,15 @@ public class PersistentKeyValueStore {
 
 	@SuppressWarnings("unchecked")
 	private static void load() {
-		try (FileInputStream fis = new FileInputStream(KEY_STORE_FILE)) {
-			if (new File(KEY_STORE_FILE).exists()) {
+		if (new File(KEY_STORE_FILE).exists()) {
+			try (FileInputStream fis = new FileInputStream(KEY_STORE_FILE)) {
 		        ObjectInputStream ois = new ObjectInputStream(fis);
 		        keyStore = (ConcurrentMap<String, Serializable>) ois.readObject();
 		        ois.close();
+			} catch (IOException | ClassNotFoundException e)
+			{
+				e.printStackTrace();
 			}
-		} catch (IOException | ClassNotFoundException e)
-		{
-			e.printStackTrace();
 		}
 	}
 
