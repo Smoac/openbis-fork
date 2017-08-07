@@ -51,6 +51,12 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 public class DssPropertyParametersUtil
 {
 
+    private static final String LOG_REGISTRATIONS_KEY = "log-registrations";
+
+    private static final String RECOVERY_STATE_KEY = "recovery-state";
+
+    private static final String DSS_TMP_KEY = "dss-tmp";
+
     /** Prefix of system properties which may override service.properties. */
     public static final String OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX = "openbis.dss.";
 
@@ -345,56 +351,56 @@ public class DssPropertyParametersUtil
 
     private static void createAndTestSpecialDirectories(IFileOperations fileOperations, final Properties properties)
     {
-        dssTmp = getDir(fileOperations, properties, "dss-tmp", "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH);
+        dssTmp = getDir(fileOperations, properties, DSS_TMP_KEY, "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH);
         Path dssTmpPath = dssTmp.toPath();
-        recoveryState = getDir(fileOperations, properties, "recovery-state", "a directory for storing recovery state for the dss",
+        recoveryState = getDir(fileOperations, properties, RECOVERY_STATE_KEY, "a directory for storing recovery state for the dss",
                 DSS_RECOVERY_STATE_DIR_PATH);
         Path recoveryStatePath = recoveryState.toPath();
-        logRegistrations = getDir(fileOperations, properties, "log-registrations", "a directory for storing registration logs",
+        logRegistrations = getDir(fileOperations, properties, LOG_REGISTRATIONS_KEY, "a directory for storing registration logs",
                 DSS_REGISTRATION_LOG_DIR_PATH);
         Path logRegistrationsPath = logRegistrations.toPath();
 
-        FileStore dssTmpStore = getVolumeInfo(dssTmpPath, "dss-tmp");
-        FileStore recoveryStateStore = getVolumeInfo(recoveryStatePath, "recovery-state");
-        FileStore logRegistrationsState = getVolumeInfo(logRegistrationsPath, "log-registrations");
+        FileStore dssTmpStore = getVolumeInfo(dssTmpPath, DSS_TMP_KEY);
+        FileStore recoveryStateStore = getVolumeInfo(recoveryStatePath, RECOVERY_STATE_KEY);
+        FileStore logRegistrationsState = getVolumeInfo(logRegistrationsPath, LOG_REGISTRATIONS_KEY);
 
         // Volume info obtained
         if (dssTmpStore == null)
         {
-            throw createException(NON_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, null, null);
+            throw createException(NON_VOLUME_TEMPLATE, DSS_TMP_KEY, dssTmpPath, null, null);
         } else if (recoveryStateStore == null)
         {
-            throw createException(NON_VOLUME_TEMPLATE, "recovery-state", recoveryStatePath, null, null);
+            throw createException(NON_VOLUME_TEMPLATE, RECOVERY_STATE_KEY, recoveryStatePath, null, null);
         } else if (logRegistrationsState == null)
         {
-            throw createException(NON_VOLUME_TEMPLATE, "log-registrations", logRegistrationsPath, null, null);
+            throw createException(NON_VOLUME_TEMPLATE, LOG_REGISTRATIONS_KEY, logRegistrationsPath, null, null);
         }
         // Same volume tests
         else if (dssTmpStore.equals(recoveryStateStore) == false)
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, "recovery-state", recoveryStatePath);
+            throw createException(NON_SAME_VOLUME_TEMPLATE, DSS_TMP_KEY, dssTmpPath, RECOVERY_STATE_KEY, recoveryStatePath);
         } else if (dssTmpStore.equals(logRegistrationsState) == false)
         {
-            throw createException(NON_SAME_VOLUME_TEMPLATE, "dss-tmp", dssTmpPath, "log-registrations", logRegistrationsPath);
+            throw createException(NON_SAME_VOLUME_TEMPLATE, DSS_TMP_KEY, dssTmpPath, LOG_REGISTRATIONS_KEY, logRegistrationsPath);
         }
         // Writable folders tests
         else if (isWritable(fileOperations, dssTmpPath) == false)
         {
-            throw createException(NON_WRITABLE_TEMPLATE, "dss-tmp", dssTmpPath, null, null);
+            throw createException(NON_WRITABLE_TEMPLATE, DSS_TMP_KEY, dssTmpPath, null, null);
         } else if (isWritable(fileOperations, recoveryStatePath) == false)
         {
-            throw createException(NON_WRITABLE_TEMPLATE, "recovery-state", recoveryStatePath, null, null);
+            throw createException(NON_WRITABLE_TEMPLATE, RECOVERY_STATE_KEY, recoveryStatePath, null, null);
         } else if (isWritable(fileOperations, logRegistrationsPath) == false)
         {
-            throw createException(NON_WRITABLE_TEMPLATE, "log-registrations", logRegistrationsPath, null, null);
+            throw createException(NON_WRITABLE_TEMPLATE, LOG_REGISTRATIONS_KEY, logRegistrationsPath, null, null);
         }
         // Move command tests
         else if (isMoveFromTo(fileOperations, dssTmpPath, recoveryStatePath) == false)
         {
-            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmpPath, "recovery-state", recoveryStatePath);
+            throw createException(NON_MOVE_TEMPLATE, DSS_TMP_KEY, dssTmpPath, RECOVERY_STATE_KEY, recoveryStatePath);
         } else if (isMoveFromTo(fileOperations, dssTmpPath, logRegistrationsPath) == false)
         {
-            throw createException(NON_MOVE_TEMPLATE, "dss-tmp", dssTmpPath, "log-registrations", logRegistrationsPath);
+            throw createException(NON_MOVE_TEMPLATE, DSS_TMP_KEY, dssTmpPath, LOG_REGISTRATIONS_KEY, logRegistrationsPath);
         }
     }
 
@@ -412,7 +418,7 @@ public class DssPropertyParametersUtil
     {
         template.bind("path-a-key", pathAKey);
         template.bind("path-a", pathA.toString());
-        if (pathBKey != null || pathB != null)
+        if (pathBKey != null && pathB != null)
         {
             template.bind("path-b-key", pathBKey);
             template.bind("path-b", pathB.toString());
