@@ -229,6 +229,11 @@ final class Parameters
         return firstNameOrNull == null ? "" : firstNameOrNull;
     }
 
+    final Boolean isFirstNameSet()
+    {
+    	return firstNameOrNull != null;
+    }
+
     /**
      * Returns the last name of the user, or an empty string otherwise.
      */
@@ -238,6 +243,11 @@ final class Parameters
         return lastNameOrNull == null ? "" : lastNameOrNull;
     }
 
+    final Boolean isLastNameSet()
+    {
+    	return lastNameOrNull != null;
+    }
+
     /**
      * Returns the email of the user, or an empty string otherwise.
      */
@@ -245,6 +255,11 @@ final class Parameters
     {
         checkValid(emailOrNull, "email");
         return emailOrNull == null ? "" : emailOrNull;
+    }
+
+    final Boolean isEmailSet()
+    {
+    	return emailOrNull != null;
     }
 
     /**
