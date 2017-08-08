@@ -338,7 +338,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
@@ -348,7 +348,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions)
@@ -1267,7 +1267,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Attachment> listAttachmentsForSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleIdPredicate.class) ISampleId sampleId, boolean allVersions)
     {

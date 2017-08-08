@@ -483,7 +483,7 @@ public class GetProjectTest extends AbstractTest
         assertEquals(entry.getRelatedObjectId(), experimentPermIds.get(0));
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
@@ -494,7 +494,10 @@ public class GetProjectTest extends AbstractTest
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
         Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser())
+        {
+            assertEquals(map.size(), 2);
+        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             assertEquals(map.size(), 1);
             assertEquals(map.get(identifier2).getIdentifier(), identifier2);

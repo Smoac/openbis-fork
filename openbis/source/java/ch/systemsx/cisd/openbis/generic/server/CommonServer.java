@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -616,7 +617,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
@@ -628,7 +629,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Sample> listMetaprojectSamples(final String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -657,8 +658,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = SampleValidator.class)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
             final ListSampleCriteria criteria, String userId)
@@ -673,11 +673,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         final ISampleLister sampleLister =
                 businessObjectFactory.createSampleLister(session, person.getId());
-        return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        List<Sample> validSamples = new ArrayList<Sample>();
+
+        SampleValidator validator = new SampleValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
+        for (Sample sample : samples)
+        {
+            if (validator.isValid(person, sample))
+            {
+                validSamples.add(sample);
+            }
+        }
+
+        return validSamples;
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamplesByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
     {
@@ -689,7 +703,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
@@ -2100,7 +2114,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_SAMPLE")
     public void deleteSamples(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdCollectionReadWritePredicate.class) List<TechId> sampleIds, String reason,
@@ -2277,7 +2291,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_SAMPLE_ATTACHMENT")
     public void deleteSampleAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId sampleId, List<String> fileNames, String reason)
@@ -2321,7 +2335,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Attachment> listSampleAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId)
     {
@@ -2399,7 +2413,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId) throws UserFailureException
@@ -2423,7 +2437,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE")
     public SampleUpdateResult updateSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates)
@@ -2976,9 +2990,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE_ATTACHMENT")
-    public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
+    public void updateSampleAttachments(String sessionToken, @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId sampleId,
+            Attachment attachment)
     {
         Session session = getSession(sessionToken);
         ISampleBO bo = businessObjectFactory.createSampleBO(session);
@@ -2989,9 +3004,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE_ATTACHMENT")
-    public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment)
+    public void addSampleAttachments(String sessionToken, @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId sampleId,
+            NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
         ISampleBO bo = businessObjectFactory.createSampleBO(session);
@@ -3594,7 +3610,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
-    public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
+    public void updateManagedPropertyOnExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
@@ -3615,13 +3632,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
+    public void updateManagedPropertyOnSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId sampleId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.loadDataByTechId(experimentId);
+        sampleBO.loadDataByTechId(sampleId);
 
         // Evaluate the script
         sampleBO.enrichWithProperties();
@@ -3823,7 +3841,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE_PROPERTIES")
     public void updateSampleProperties(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdReadWritePredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)

@@ -495,7 +495,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getModifier().getUserId(), TEST_USER);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         AttachmentCreation attachment = new AttachmentCreation();
@@ -511,7 +511,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
             assertEquals(permIds.size(), 1);

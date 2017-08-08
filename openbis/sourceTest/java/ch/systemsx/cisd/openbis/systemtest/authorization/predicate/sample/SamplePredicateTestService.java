@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSampleIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleLis
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEOrNullPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionReadWritePredicate;
@@ -67,6 +69,13 @@ public class SamplePredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testSampleIdentifierPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class) SampleIdentifier sampleIdentifier)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExistingSampleIdentifierPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExistingSampleIdentifierPredicate.class) SampleIdentifier sampleIdentifier)
     {
     }
 
@@ -192,6 +201,13 @@ public class SamplePredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testListSamplesByPropertyPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) ListSamplesByPropertyCriteria listSamplesByPropertyCriteria)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testSamplePermIdStringPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = SamplePermIdStringPredicate.class) String samplePermIdString)
     {
     }
 

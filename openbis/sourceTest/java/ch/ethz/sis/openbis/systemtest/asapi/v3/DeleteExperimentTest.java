@@ -188,7 +188,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
             }, permId);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String testSessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -208,7 +208,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
 
         assertExperimentExists(permIds.get(0));
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             IDeletionId deletionId = v3api.deleteExperiments(sessionToken, permIds, options);
             Assert.assertNotNull(deletionId);

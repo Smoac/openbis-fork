@@ -690,7 +690,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
@@ -701,7 +701,10 @@ public class SearchExperimentTest extends AbstractExperimentTest
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
         SearchResult<Experiment> result = v3api.searchExperiments(sessionToken, criteria, experimentFetchOptionsFull());
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser())
+        {
+            assertEquals(result.getObjects().size(), 2);
+        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             assertEquals(result.getObjects().size(), 1);
             assertEquals(result.getObjects().get(0).getIdentifier(), new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));

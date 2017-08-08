@@ -1139,7 +1139,7 @@ public class GetExperimentTest extends AbstractExperimentTest
         return experiment.getHistory();
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         List<IExperimentId> ids = Arrays.asList(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"),
@@ -1148,7 +1148,10 @@ public class GetExperimentTest extends AbstractExperimentTest
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
         Map<IExperimentId, Experiment> result = v3api.getExperiments(sessionToken, ids, experimentFetchOptionsFull());
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser())
+        {
+            assertEquals(result.size(), 2);
+        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             assertEquals(result.size(), 1);
             assertEquals(result.values().iterator().next().getIdentifier(), new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));

@@ -78,8 +78,9 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AtomicOpe
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSampleIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSamplesByPropertyPredicate;
@@ -89,11 +90,15 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSample
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierExistingSpacePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
@@ -649,7 +654,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
@@ -663,7 +668,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public Sample tryGetSampleWithExperiment(final String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class)
+            @AuthorizationGuard(guardClass = ExistingSampleIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -704,7 +709,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public SampleIdentifier tryGetSampleIdentifier(String sessionToken, String samplePermID)
+    public SampleIdentifier tryGetSampleIdentifier(String sessionToken,
+            @AuthorizationGuard(guardClass = SamplePermIdStringPredicate.class) String samplePermID)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -717,7 +723,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public Map<String, SampleIdentifier> listSamplesByPermId(final String sessionToken,
-            List<String> samplePermIds)
+            @AuthorizationGuard(guardClass = SamplePermIdStringPredicate.class) List<String> samplePermIds)
     {
         List<SamplePE> samples =
                 daoFactory.getSampleDAO().listByPermID(new HashSet<String>(samplePermIds));
@@ -874,7 +880,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsBySampleID(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
@@ -935,9 +941,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IEntityProperty[] tryGetPropertiesOfTopSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -960,9 +966,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IEntityProperty[] tryGetPropertiesOfSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier sampleIdentifier) throws UserFailureException
+            @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class) SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
@@ -1336,7 +1342,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamplesByCriteria(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class)
             final ListSamplesByPropertyCriteria criteria) throws UserFailureException
@@ -1713,7 +1720,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER })
     public Project tryGetProjectByPermId(String sessionToken, @AuthorizationGuard(guardClass = ProjectPermIdPredicate.class) PermId permId)
             throws UserFailureException
     {
@@ -2874,6 +2881,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
@@ -2901,6 +2909,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
@@ -3080,14 +3089,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> filterToVisibleExperiments(String token, String user,
-            List<String> experimentIds)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) List<String> experimentIds)
     {
         return new AuthorizationServiceUtils(daoFactory, user).filterExperimentIds(experimentIds);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<String> filterToVisibleSamples(String token, String user, List<String> sampleIds)
+    public List<String> filterToVisibleSamples(String token, String user,
+            @AuthorizationGuard(guardClass = SampleAugmentedCodePredicate.class) List<String> sampleIds)
     {
         return new AuthorizationServiceUtils(daoFactory, user).filterSampleIds(sampleIds);
     }

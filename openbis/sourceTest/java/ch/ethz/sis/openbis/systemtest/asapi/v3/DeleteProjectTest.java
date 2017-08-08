@@ -127,7 +127,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
             }, permId);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String testSessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -145,7 +145,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
 
         assertProjectExists(permIds.get(0));
 
-        if (user.isTestSpaceUser())
+        if (user.isInstanceUser() || user.isTestSpaceUser())
         {
             v3api.deleteProjects(sessionToken, permIds, options);
             assertProjectDoesNotExist(permIds.get(0));

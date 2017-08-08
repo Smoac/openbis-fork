@@ -491,7 +491,7 @@ public class UpdateTagTest extends AbstractTest
             }, materialId);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         TagCreation creation = new TagCreation();

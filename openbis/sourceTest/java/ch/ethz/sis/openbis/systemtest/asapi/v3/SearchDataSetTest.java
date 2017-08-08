@@ -194,7 +194,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withCode().thatStartsWith("20120628092259000");
         criteria.withSample();
-        testSearch(TEST_USER, criteria, "20120628092259000-23");
+        testSearch(TEST_USER, criteria, "20120628092259000-23", "20120628092259000-41");
     }
 
     @Test
@@ -203,7 +203,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withCode().thatStartsWith("20120628092259000");
         criteria.withoutSample();
-        testSearch(TEST_USER, criteria, "20120628092259000-24", "20120628092259000-25", "20120628092259000-41");
+        testSearch(TEST_USER, criteria, "20120628092259000-24", "20120628092259000-25");
     }
 
     @Test
@@ -213,7 +213,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         SampleSearchCriteria sampleSearchCriteria = criteria.withSample().withOrOperator();
         sampleSearchCriteria.withProperty("BACTERIUM").thatContains("M-X");
         sampleSearchCriteria.withProperty("ORGANISM").thatContains("LY");
-        testSearch(TEST_USER, criteria, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17");
+        testSearch(TEST_USER, criteria, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17", "20120628092259000-41");
     }
 
     @Test

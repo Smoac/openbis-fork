@@ -254,7 +254,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals("no comment", dataSets.get(0).getProperties().get(0).tryGetOriginalValue());
         assertEquals(1, dataSets.get(0).getProperties().size());
-        assertEquals(2, dataSets.size());
+        assertEquals(3, dataSets.size());
     }
 
     @Test

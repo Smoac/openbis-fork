@@ -150,7 +150,7 @@ public class SearchTagTest extends AbstractTest
         testSearch(TEST_SPACE_USER, criteria);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);

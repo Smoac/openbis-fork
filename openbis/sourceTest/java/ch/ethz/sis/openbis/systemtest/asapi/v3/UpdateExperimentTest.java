@@ -715,7 +715,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
             }, permId);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         AttachmentCreation attachment = new AttachmentCreation();
@@ -729,7 +729,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             v3api.updateExperiments(sessionToken, Collections.singletonList(update));
         } else

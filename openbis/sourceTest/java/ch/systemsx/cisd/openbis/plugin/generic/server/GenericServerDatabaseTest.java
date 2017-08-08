@@ -216,7 +216,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         String fileName = "testExperiment.txt";
         Integer version = 1;
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             AttachmentWithContent attachment = server.getExperimentFileAttachment(sessionDTO.getSessionToken(), experimentId, fileName, version);
             Assert.assertNotNull(attachment);
@@ -248,7 +248,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         NewExperiment newExperiment = new NewExperiment("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST-2", "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[] { property });
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             Experiment experiment = server.registerExperiment(sessionDTO.getSessionToken(), newExperiment, Collections.emptyList());
             Assert.assertNotNull(experiment);
@@ -282,7 +282,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
 
         NewExperimentsWithType newExperiments = new NewExperimentsWithType("SIRNA_HCS", Arrays.asList(newExperiment));
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             server.registerExperiments(sessionDTO.getSessionToken(), newExperiments);
 
@@ -318,7 +318,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         updates.setProperties(Arrays.asList(new IEntityProperty[] { property }));
         updates.setAttachments(new ArrayList<NewAttachment>());
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             ExperimentUpdateResult result = server.updateExperiment(sessionDTO.getSessionToken(), updates);
             assertNotNull(result);
@@ -359,7 +359,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
 
         UpdatedExperimentsWithType updates = new UpdatedExperimentsWithType(type, Arrays.asList(update));
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             server.updateExperiments(sessionDTO.getSessionToken(), updates);
 

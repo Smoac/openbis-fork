@@ -166,7 +166,7 @@ public class CreateProjectTest extends AbstractTest
             }, projectIdentifier);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         final ProjectCreation project = new ProjectCreation();
@@ -175,7 +175,7 @@ public class CreateProjectTest extends AbstractTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isTestSpaceUser())
+        if (user.isInstanceUser() || user.isTestSpaceUser())
         {
             List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
             assertEquals(permIds.size(), 1);

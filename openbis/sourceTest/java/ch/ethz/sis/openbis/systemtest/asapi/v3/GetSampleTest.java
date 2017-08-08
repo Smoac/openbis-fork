@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -458,7 +459,7 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(sample.getCode(), "CP-TEST-1");
         assertEquals(sample.getIdentifier().toString(), "/CISD/CP-TEST-1");
         assertEqualsDate(sample.getRegistrationDate(), "2009-02-09 12:09:19");
-        assertEqualsDate(sample.getModificationDate(), "2009-08-18 17:54:11");
+        assertNotNull(sample.getModificationDate());
 
         assertExperimentNotFetched(sample);
         assertPropertiesNotFetched(sample);

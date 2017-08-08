@@ -87,7 +87,7 @@ public class UpdateProjectTest extends AbstractTest
             }, projectId);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
@@ -98,7 +98,7 @@ public class UpdateProjectTest extends AbstractTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
             Project project = map.get(projectId);

@@ -208,7 +208,7 @@ public class SearchProjectTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
@@ -222,7 +222,10 @@ public class SearchProjectTest extends AbstractTest
 
         SearchResult<Project> result = v3api.searchProjects(sessionToken, criteria, projectFetchOptionsFull());
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser())
+        {
+            assertEquals(result.getObjects().size(), 2);
+        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             assertEquals(result.getObjects().size(), 1);
             assertEquals(result.getObjects().get(0).getIdentifier(), identifier2);

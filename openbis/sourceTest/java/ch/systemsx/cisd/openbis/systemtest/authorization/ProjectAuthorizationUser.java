@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.systemtest.authorization;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.testng.annotations.DataProvider;
 
 /**
@@ -26,13 +30,19 @@ public class ProjectAuthorizationUser
 
     public static final String PROVIDER = "project-authorization-users-provider";
 
+    public static final String PROVIDER_WITH_ETL = "project-authorization-users-provider-with-etl";
+
     private String userId;
+
+    private boolean isInstanceUser;
 
     private boolean isTestGroupUser;
 
     private boolean isTestSpaceUser;
 
     private boolean isTestProjectUser;
+
+    private boolean isETLServerUser;
 
     private boolean paEnabled;
 
@@ -56,6 +66,16 @@ public class ProjectAuthorizationUser
         this.paEnabled = paEnabled;
     }
 
+    public boolean isInstanceUser()
+    {
+        return isInstanceUser;
+    }
+
+    public void setInstanceUser(boolean isInstanceUser)
+    {
+        this.isInstanceUser = isInstanceUser;
+    }
+
     public boolean isTestGroupUser()
     {
         return isTestGroupUser;
@@ -76,6 +96,16 @@ public class ProjectAuthorizationUser
         this.isTestSpaceUser = isTestSpaceUser;
     }
 
+    public boolean isETLServerUser()
+    {
+        return isETLServerUser;
+    }
+
+    public void setETLServerUser(boolean isETLServerUser)
+    {
+        this.isETLServerUser = isETLServerUser;
+    }
+
     public boolean isTestProjectUser()
     {
         return isTestProjectUser;
@@ -89,8 +119,8 @@ public class ProjectAuthorizationUser
     @DataProvider(name = PROVIDER)
     public static Object[][] providerUsers()
     {
-        ProjectAuthorizationUser admin = new ProjectAuthorizationUser("admin");
-        admin.setTestGroupUser(true);
+        ProjectAuthorizationUser instanceAdmin = new ProjectAuthorizationUser("instance_admin");
+        instanceAdmin.setInstanceUser(true);
 
         ProjectAuthorizationUser testSpacePAOff = new ProjectAuthorizationUser("test_space_pa_off");
         testSpacePAOff.setTestSpaceUser(true);
@@ -106,20 +136,48 @@ public class ProjectAuthorizationUser
         testProjectPAOn.setTestProjectUser(true);
         testProjectPAOn.setPAEnabled(true);
 
+        ProjectAuthorizationUser testGroup = new ProjectAuthorizationUser("admin");
+        testGroup.setTestGroupUser(true);
+
         return new Object[][] {
-                { admin },
+                { instanceAdmin },
                 { testSpacePAOff },
                 { testSpacePAOn },
                 { testProjectPAOff },
-                { testProjectPAOn }
+                { testProjectPAOn },
+                { testGroup }
         };
+    }
+
+    @DataProvider(name = PROVIDER_WITH_ETL)
+    public static Object[][] provideUsersWithETL()
+    {
+        ProjectAuthorizationUser instanceETLServer = new ProjectAuthorizationUser("etlserver");
+        instanceETLServer.setInstanceUser(true);
+        instanceETLServer.setETLServerUser(true);
+
+        ProjectAuthorizationUser testSpaceETLServer = new ProjectAuthorizationUser("test_space_etl_server");
+        testSpaceETLServer.setTestSpaceUser(true);
+        testSpaceETLServer.setETLServerUser(true);
+
+        ProjectAuthorizationUser testGroupETLServer = new ProjectAuthorizationUser("test_group_etl_server");
+        testGroupETLServer.setTestGroupUser(true);
+        testGroupETLServer.setETLServerUser(true);
+
+        List<Object[]> users = new ArrayList<Object[]>(Arrays.asList(providerUsers()));
+        users.add(new Object[] { instanceETLServer });
+        users.add(new Object[] { testSpaceETLServer });
+        users.add(new Object[] { testGroupETLServer });
+
+        return users.<Object[]> toArray(new Object[][] {});
     }
 
     @Override
     public String toString()
     {
-        return "userId: " + getUserId() + ", isTestSpaceUser: " + isTestSpaceUser() + ", isTestProjectUser: " + isTestProjectUser()
-                + ", hasPAEnabled: " + hasPAEnabled();
+        return "userId: " + getUserId() + ", isInstanceUser: " + isInstanceUser() + ", isTestSpaceUser: " + isTestSpaceUser()
+                + ", isTestProjectUser: " + isTestProjectUser()
+                + ", isETLServer: " + isETLServerUser() + ", hasPAEnabled: " + hasPAEnabled();
     }
 
 }

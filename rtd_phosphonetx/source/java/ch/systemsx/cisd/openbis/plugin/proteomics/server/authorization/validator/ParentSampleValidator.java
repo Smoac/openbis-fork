@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromSample;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromPersonPE;
-import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -31,16 +27,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * @author Franz-Josef Elmer
  */
-public class ParentSampleValidator implements IValidator<Sample>
+public class ParentSampleValidator extends AbstractValidator<Sample>
 {
-    private IAuthorizationDataProvider provider;
-
     private IValidator<Space> validator = new SpaceValidator();
 
     @Override
-    public boolean isValid(PersonPE person, Sample sample)
+    public boolean doValidation(PersonPE person, Sample value)
     {
-        return isValid(person, sample, true);
+        return isValid(person, value, true);
     }
 
     public boolean isValid(PersonPE person, Sample sample, boolean parentHasToBeValid)
@@ -56,23 +50,11 @@ public class ParentSampleValidator implements IValidator<Sample>
                 return true;
             } else
             {
-                IProjectAuthorization<Sample> pa = new ProjectAuthorizationBuilder<Sample>()
-                        .withData(provider)
-                        .withUser(new UserProviderFromPersonPE(person))
-                        .withRoles(new RolesProviderFromPersonPE(person))
-                        .withObjects(new ProjectProviderFromSample(parent))
-                        .build();
-
-                return pa.getObjectsWithoutAccess().isEmpty();
+                return isValidPA(person, new ProjectProviderFromSample(parent));
             }
         }
 
         return false;
     }
 
-    @Override
-    public void init(IAuthorizationDataProvider authorizationDataProvider)
-    {
-        provider = authorizationDataProvider;
-    }
 }

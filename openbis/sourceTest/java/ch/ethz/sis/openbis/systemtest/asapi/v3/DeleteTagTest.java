@@ -172,7 +172,7 @@ public class DeleteTagTest extends AbstractDeletionTest
             }, before.getPermId());
     }
 
-    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         TagCreation creation = new TagCreation();

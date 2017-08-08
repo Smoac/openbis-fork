@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.Compare
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
@@ -941,6 +942,52 @@ public class GeneralInformationServiceTest extends SystemTestCase
         }
     }
 
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListSamplesForExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        String experimentIdentifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Sample> samples = generalInformationService.listSamplesForExperiment(session, experimentIdentifier);
+            assertEntities(
+                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    samples);
+        } else
+        {
+            try
+            {
+                generalInformationService.listSamplesForExperiment(session, experimentIdentifier);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListSamplesForExperimentOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        String experimentIdentifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
+
+        List<Sample> samples = generalInformationService.listSamplesForExperimentOnBehalfOfUser(session, experimentIdentifier, user.getUserId());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            assertEntities(
+                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    samples);
+        } else
+        {
+            assertEntities("[]", samples);
+        }
+    }
+
     @Test
     public void testListDataSets()
     {
@@ -1701,7 +1748,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
         String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<Experiment> experiments = generalInformationService.listExperiments(session, Arrays.asList(identifier));
             assertEquals(1, experiments.size());
@@ -1727,7 +1774,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Project project = new Project("TEST-SPACE", "TEST-PROJECT");
         String experimentType = "SIRNA_HCS";
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<Experiment> experiments = generalInformationService.listExperiments(session, Arrays.asList(project), experimentType);
             assertEquals(1, experiments.size());
@@ -1753,7 +1800,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Project project = new Project("TEST-SPACE", "TEST-PROJECT");
         String experimentType = "SIRNA_HCS";
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<Experiment> experiments = generalInformationService.listExperimentsHavingDataSets(session, Arrays.asList(project), experimentType);
             assertEquals(1, experiments.size());
@@ -1779,7 +1826,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Project project = new Project("TEST-SPACE", "TEST-PROJECT");
         String experimentType = "SIRNA_HCS";
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<Experiment> experiments = generalInformationService.listExperimentsHavingSamples(session, Arrays.asList(project), experimentType);
             assertEquals(1, experiments.size());
@@ -1805,7 +1852,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT, "TEST-PROJECT"));
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
             assertEquals(1, experiments.size());
@@ -1818,12 +1865,112 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "CELL_PLATE"));
+
+        List<Sample> samples = generalInformationService.searchForSamples(session, criteria);
+
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+        } else
+        {
+            assertEntities("[]", samples);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForSamplesWithFetchOptionsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "CELL_PLATE"));
+
+        List<Sample> samples = generalInformationService.searchForSamples(session, criteria, EnumSet.of(SampleFetchOption.BASIC));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+        } else
+        {
+            assertEntities("[]", samples);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForSamplesOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "CELL_PLATE"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamplesOnBehalfOfUser(session, criteria, EnumSet.of(SampleFetchOption.BASIC), user.getUserId());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+        } else
+        {
+            assertEntities("[]", samples);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testFilterSamplesVisibleToUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
+
+        List<Sample> samples = generalInformationService.searchForSamples(session, criteria);
+        List<Sample> filteredSamples = generalInformationService.filterSamplesVisibleToUser(session, samples, user.getUserId());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    filteredSamples);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    filteredSamples);
+        } else
+        {
+            assertEntities("[]", filteredSamples);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListAttachmentsForExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
         String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
 
-        if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
         {
             List<Attachment> attachments =
                     generalInformationService.listAttachmentsForExperiment(session, new ExperimentIdentifierId(identifier), false);
@@ -2230,7 +2377,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         .getMaterials().toString());
         assertEntities("[/CISD/NEMO/EXP11, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
                 mas.getExperiments());
-        assertEquals("[Sample[/TEST-SPACE/EV-TEST,VALIDATE_CHILDREN,{},parents=?,children=?]]", mas
+        assertEquals("[Sample[/TEST-SPACE/EV-TEST,VALIDATE_CHILDREN,{COMMENT=test comment},parents=?,children=?]]", mas
                 .getSamples().toString());
         assertEquals("[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,"
                 + "<null>,HCS_IMAGE,{}]]", mas.getDataSets().toString());
@@ -2372,6 +2519,30 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         final Attachment a3 = attachments3.get(0);
         assertEquals(a, a3);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListAttachmentsForSampleWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        SampleTechIdId sampleId = new SampleTechIdId(1054L); // /TEST-SPACE/FV-TEST
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<Attachment> attachments = generalInformationService.listAttachmentsForSample(session, sampleId, false);
+            assertEquals(attachments.size(), 1);
+        } else
+        {
+            try
+            {
+                generalInformationService.listAttachmentsForSample(session, sampleId, false);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
     }
 
     @Test
