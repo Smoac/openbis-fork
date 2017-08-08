@@ -17,6 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +50,12 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
  */
 public class DssPropertyParametersUtil
 {
+
+    private static final String LOG_REGISTRATIONS_KEY = "log-registrations";
+
+    private static final String RECOVERY_STATE_KEY = "recovery-state";
+
+    private static final String DSS_TMP_KEY = "dss-tmp";
 
     /** Prefix of system properties which may override service.properties. */
     public static final String OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX = "openbis.dss.";
@@ -97,8 +107,24 @@ public class DssPropertyParametersUtil
     private static final Template NON_EXISTING_DIR_TEMPLATE = new Template(
             "Could not create ${dir-description} at path: ${path}. " + EXPLANATION);
 
-    private static final Template NON_LOCAL_DIR_TEMPLATE = new Template(
-            "Directory at path '${path}' is not on the local file system. " + EXPLANATION);
+    private static final Template NON_SAME_VOLUME_TEMPLATE =
+            new Template(
+                    "By the configuration parameter '${path-a-key}' directory '${path-a}' and by the configuration parameter'${path-b-key}' directory '${path-b}' are not on the same file system. ");
+
+    private static final Template NON_WRITABLE_TEMPLATE =
+            new Template("By the configuration parameter '${path-a-key}' directory '${path-a}' is not writable. ");
+
+    private static final Template NON_VOLUME_TEMPLATE =
+            new Template("Volume information from the configuration parameter '${path-a-key}' directory '${path-a}' is not retrivable. ");
+
+    private static final Template NON_MOVE_TEMPLATE = new Template(
+            "Move operation failed from the configuration parameter '${path-a-key}' directory '${path-a}' to from the configuration parameter '${path-b-key}' directory '${path-b}'. ");
+
+    private static File dssTmp;
+
+    private static File recoveryState;
+
+    private static File logRegistrations;
 
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
@@ -203,8 +229,11 @@ public class DssPropertyParametersUtil
     @Private
     static File getDssInternalTempDir(IFileOperations fileOperations, final Properties properties)
     {
-        return getDir(fileOperations, properties, "dss-tmp",
-                "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH);
+        if (dssTmp == null)
+        {
+            createAndTestSpecialDirectories(fileOperations, properties);
+        }
+        return dssTmp;
     }
 
     public static File getDssRegistrationLogDir(final Properties properties)
@@ -215,8 +244,11 @@ public class DssPropertyParametersUtil
     @Private
     static File getDssRegistrationLogDir(IFileOperations fileOperations, final Properties properties)
     {
-        return getDir(fileOperations, properties, "log-registrations",
-                "a directory for storing registration logs", DSS_REGISTRATION_LOG_DIR_PATH);
+        if (logRegistrations == null)
+        {
+            createAndTestSpecialDirectories(fileOperations, properties);
+        }
+        return logRegistrations;
     }
 
     public static File getDssRecoveryStateDir(final Properties properties)
@@ -227,12 +259,15 @@ public class DssPropertyParametersUtil
     @Private
     static File getDssRecoveryStateDir(IFileOperations fileOperations, final Properties properties)
     {
-        return getDir(fileOperations, properties, "recovery-state",
-                "a directory for storing recovery state for the dss", DSS_RECOVERY_STATE_DIR_PATH);
+        if (recoveryState == null)
+        {
+            createAndTestSpecialDirectories(fileOperations, properties);
+        }
+        return recoveryState;
     }
 
-    private static File getDir(IFileOperations fileOperations, final Properties properties,
-            String defaultDirName, String dirDescription, String pathKey)
+    private static File getDir(IFileOperations fileOperations, final Properties properties, String defaultDirName, String dirDescription,
+            String pathKey)
     {
         String defaultRegistrationLogDirPath =
                 new File(System.getProperty("user.dir"), defaultDirName).getAbsolutePath();
@@ -240,40 +275,132 @@ public class DssPropertyParametersUtil
                 PropertyUtils.getProperty(properties, pathKey, defaultRegistrationLogDirPath);
         File registrationLogDir = new File(registrationLogDirPath);
         fileOperations.mkdirs(registrationLogDir);
-        assertDirExistsAndIsLocal(fileOperations, registrationLogDir, dirDescription, pathKey);
+        assertDirExists(fileOperations, registrationLogDir, dirDescription, pathKey);
         return registrationLogDir;
     }
 
     private static AtomicInteger atomicEmptyFileIndex = new AtomicInteger();
 
-    private static void assertDirExistsAndIsLocal(IFileOperations fileOperations, File dir,
-            String dirDescription, String pathKey)
+    private static boolean isWritable(IFileOperations fileOperations, Path path)
     {
-        String threadSafeEmptyTestFileName = EMPTY_TEST_FILE_NAME + atomicEmptyFileIndex.incrementAndGet();
-        File threadSafeEmptyTestFile = null;
-        File emptyTestFileInDir = null;
-
+        boolean created = false;
+        File file = null;
         try
         {
-            assertDirExists(fileOperations, dir, dirDescription, pathKey);
-            threadSafeEmptyTestFile = new File(threadSafeEmptyTestFileName);
-            fileOperations.createNewFile(threadSafeEmptyTestFile);
-            emptyTestFileInDir = new File(dir, threadSafeEmptyTestFileName);
-            if (fileOperations.rename(threadSafeEmptyTestFile, emptyTestFileInDir) == false)
-            {
-                throw createException(NON_LOCAL_DIR_TEMPLATE.createFreshCopy(), dir,
-                        dirDescription, pathKey);
-            }
+            String threadSafeEmptyTestFileName = EMPTY_TEST_FILE_NAME + atomicEmptyFileIndex.incrementAndGet();
+            file = Paths.get(path.toString(), threadSafeEmptyTestFileName).toFile();
+            created = fileOperations.createNewFile(file);
+        } catch (Exception ex)
+        {
+            created = false;
         } finally
         {
-            if (threadSafeEmptyTestFile != null)
+            if (created && file != null)
             {
-                fileOperations.delete(threadSafeEmptyTestFile);
+                fileOperations.delete(file);
             }
-            if (emptyTestFileInDir != null)
+        }
+        return created;
+    }
+
+    private static FileStore getVolumeInfo(Path path, String key)
+    {
+        FileStore info = null;
+        try
+        {
+            info = Files.getFileStore(path);
+        } catch (Exception ex)
+        {
+            createException(NON_VOLUME_TEMPLATE, key, path, null, null);
+        }
+        return info;
+    }
+
+    private static boolean isMoveFromTo(IFileOperations fileOperations, Path pathA, Path pathB)
+    {
+        boolean created = false;
+        boolean moved = false;
+        File originalfile = null;
+        File toMove = null;
+        try
+        {
+            String threadSafeEmptyTestFileName = EMPTY_TEST_FILE_NAME + atomicEmptyFileIndex.incrementAndGet();
+            originalfile = Paths.get(pathA.toString(), threadSafeEmptyTestFileName).toFile();
+            created = fileOperations.createNewFile(originalfile);
+            if (created)
             {
-                fileOperations.delete(emptyTestFileInDir);
+                toMove = Paths.get(pathB.toString(), threadSafeEmptyTestFileName).toFile();
+                fileOperations.move(originalfile, toMove);
+                moved = true;
             }
+        } catch (Exception ex)
+        {
+            moved = false;
+        } finally
+        {
+            if (moved && toMove != null)
+            {
+                fileOperations.delete(toMove);
+            } else if (created && originalfile != null)
+            {
+                fileOperations.delete(originalfile);
+            }
+        }
+        return moved;
+    }
+
+    private static void createAndTestSpecialDirectories(IFileOperations fileOperations, final Properties properties)
+    {
+        dssTmp = getDir(fileOperations, properties, DSS_TMP_KEY, "an internal temp directory for the data store server", DSS_TEMP_DIR_PATH);
+        Path dssTmpPath = dssTmp.toPath();
+        recoveryState = getDir(fileOperations, properties, RECOVERY_STATE_KEY, "a directory for storing recovery state for the dss",
+                DSS_RECOVERY_STATE_DIR_PATH);
+        Path recoveryStatePath = recoveryState.toPath();
+        logRegistrations = getDir(fileOperations, properties, LOG_REGISTRATIONS_KEY, "a directory for storing registration logs",
+                DSS_REGISTRATION_LOG_DIR_PATH);
+        Path logRegistrationsPath = logRegistrations.toPath();
+
+        FileStore dssTmpStore = getVolumeInfo(dssTmpPath, DSS_TMP_KEY);
+        FileStore recoveryStateStore = getVolumeInfo(recoveryStatePath, RECOVERY_STATE_KEY);
+        FileStore logRegistrationsState = getVolumeInfo(logRegistrationsPath, LOG_REGISTRATIONS_KEY);
+
+        // Volume info obtained
+        if (dssTmpStore == null)
+        {
+            throw createException(NON_VOLUME_TEMPLATE, DSS_TMP_KEY, dssTmpPath, null, null);
+        } else if (recoveryStateStore == null)
+        {
+            throw createException(NON_VOLUME_TEMPLATE, RECOVERY_STATE_KEY, recoveryStatePath, null, null);
+        } else if (logRegistrationsState == null)
+        {
+            throw createException(NON_VOLUME_TEMPLATE, LOG_REGISTRATIONS_KEY, logRegistrationsPath, null, null);
+        }
+        // Same volume tests
+        else if (dssTmpStore.equals(recoveryStateStore) == false)
+        {
+            throw createException(NON_SAME_VOLUME_TEMPLATE, DSS_TMP_KEY, dssTmpPath, RECOVERY_STATE_KEY, recoveryStatePath);
+        } else if (dssTmpStore.equals(logRegistrationsState) == false)
+        {
+            throw createException(NON_SAME_VOLUME_TEMPLATE, DSS_TMP_KEY, dssTmpPath, LOG_REGISTRATIONS_KEY, logRegistrationsPath);
+        }
+        // Writable folders tests
+        else if (isWritable(fileOperations, dssTmpPath) == false)
+        {
+            throw createException(NON_WRITABLE_TEMPLATE, DSS_TMP_KEY, dssTmpPath, null, null);
+        } else if (isWritable(fileOperations, recoveryStatePath) == false)
+        {
+            throw createException(NON_WRITABLE_TEMPLATE, RECOVERY_STATE_KEY, recoveryStatePath, null, null);
+        } else if (isWritable(fileOperations, logRegistrationsPath) == false)
+        {
+            throw createException(NON_WRITABLE_TEMPLATE, LOG_REGISTRATIONS_KEY, logRegistrationsPath, null, null);
+        }
+        // Move command tests
+        else if (isMoveFromTo(fileOperations, dssTmpPath, recoveryStatePath) == false)
+        {
+            throw createException(NON_MOVE_TEMPLATE, DSS_TMP_KEY, dssTmpPath, RECOVERY_STATE_KEY, recoveryStatePath);
+        } else if (isMoveFromTo(fileOperations, dssTmpPath, logRegistrationsPath) == false)
+        {
+            throw createException(NON_MOVE_TEMPLATE, DSS_TMP_KEY, dssTmpPath, LOG_REGISTRATIONS_KEY, logRegistrationsPath);
         }
     }
 
@@ -285,6 +412,19 @@ public class DssPropertyParametersUtil
             throw createException(NON_EXISTING_DIR_TEMPLATE.createFreshCopy(), dir, dirDescription,
                     pathKey);
         }
+    }
+
+    private static ConfigurationFailureException createException(Template template, String pathAKey, Path pathA, String pathBKey, Path pathB)
+    {
+        template.bind("path-a-key", pathAKey);
+        template.bind("path-a", pathA.toString());
+        if (pathBKey != null && pathB != null)
+        {
+            template.bind("path-b-key", pathBKey);
+            template.bind("path-b", pathB.toString());
+        }
+        ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
+        return e;
     }
 
     private static ConfigurationFailureException createException(Template template, File dir,
