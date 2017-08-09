@@ -26,8 +26,26 @@
  */
 function ServerFacade(openbisServer) {
 	this.openbisServer = openbisServer;
-	
+
 	//
+	// V3 API creation
+	//
+    this.getOpenbisV3 = function(callbackFunction) {
+        require(['openbis'], function(openbis) {
+            //Boilerplate
+            var testProtocol = window.location.protocol;
+            var testHost = window.location.hostname;
+            var testPort = window.location.port;
+
+            var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+            var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+
+            var openbisV3 = new openbis(testApiUrl);
+            callbackFunction(openbisV3);
+        });
+    }
+
+    //
 	// Intercepting general errors
 	//
 	var responseInterceptor = function(response, action){
@@ -104,8 +122,11 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.ifRestoredSessionActive(callbackFunction);
 	}
 
-	this.logout = function(callbackFunction) {
-		this.openbisServer.logout(callbackFunction);
+	this.logout = function() {
+		$("#mainContainer").hide();
+		this.openbisServer.logout(function() {
+			location.reload();
+		});
 	}
 	
 	//
@@ -115,6 +136,18 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listPersons(callbackFunction);
 	};
 	
+	this.updateUserInformation = function(userId, userInformation, callbackFunction) {
+		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
+			{
+				"method" : "updateUserInformation",
+				"userId" : userId,
+				"firstName" : userInformation.firstName,
+				"lastName" : userInformation.lastName,
+				"email" : userInformation.email,
+			},
+			this._handleAggregationServiceData.bind(this, callbackFunction));
+	}
+
 	this.registerUserPassword = function(userId, userPass, callbackFunction) {
 		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
 			{
@@ -122,15 +155,18 @@ function ServerFacade(openbisServer) {
 				"userId" : userId,
 				"password" : userPass
 			},
-			function(data){
-				if(data.result.rows[0][0].value == "OK") {
-					callbackFunction(true);
-				} else {
-					callbackFunction(false);
-				}
-			});
+			this._handleAggregationServiceData.bind(this, callbackFunction));
 	}
-	
+
+	this._handleAggregationServiceData = function(callbackFunction, data) {
+		if(data.result.rows[0][0].value == "OK") {
+			callbackFunction(true);
+		} else {
+			Util.showError("Call failed to server: <pre>" + JSON.stringify(data, null, 2) + "</pre>");
+			callbackFunction(false);
+		}
+	}
+
 	this.createELNUser = function(userId, callback) {
  		var _this = this;
  		var inventorySpacesToRegister = [];
@@ -336,6 +372,7 @@ function ServerFacade(openbisServer) {
 				prefix+"*",
 				false,
 				function(results) {
+					var nextCode;
 					if(results.length == 0){
 						nextcode = prefix + "1";
 					} else{
@@ -352,7 +389,7 @@ function ServerFacade(openbisServer) {
 						    return a - b;
 						});
 						var nextid = codes[codes.length-1] + 1;
-						var nextcode = prefix + nextid;
+						nextcode = prefix + nextid;
 					}
 					action(nextcode);
 				});
@@ -541,6 +578,66 @@ function ServerFacade(openbisServer) {
 	//
 	// ELN Custom API
  	//
+
+    this.sendResetPasswordEmail = function(userId, callbackFunction) {
+        var parameters = {
+                method : "sendResetPasswordEmail",
+                userId : userId,
+                baseUrl : location.protocol + '//' + location.host + location.pathname
+        };
+        this._callPasswordResetService(parameters, callbackFunction);
+    }
+
+    this.resetPassword = function(userId, token, callbackFunction) {
+        var parameters = {
+                method : "resetPassword",
+                userId : userId,
+                token : token
+            };
+        this._callPasswordResetService(parameters, callbackFunction);        
+    }
+
+    this.doIfFileAuthenticationService = function(callbackFunction) {
+        var _this = this;
+        this.getOpenbisV3(function(openbisV3) {
+            openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
+                openbisV3.getServerInformation().done(function(serverInformation) {
+                    var authSystem = serverInformation["authentication-service"];
+                    if (authSystem && authSystem.indexOf("file") !== -1) {
+                        callbackFunction();
+                    }
+                });
+            }).fail(function(result) {
+                console.log("Call failed to server: " + JSON.stringify(result));
+            });
+        });
+    }
+
+    this._callPasswordResetService = function(parameters, callbackFunction) {
+        var _this = this;
+        this.getOpenbisV3(function(openbisV3) {
+
+            openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
+                _this.openbisServer._internal.sessionToken = sessionToken;
+
+                _this.listDataStores(function(dataStores) {
+                    profile.allDataStores = dataStores.result;
+                    _this.customELNApi(parameters, function(error, result) {
+                        if (error) {
+                            Util.showError(error);
+                        } else {
+                            callbackFunction(result);                            
+                        }
+                    }, "password-reset-api");
+                });
+
+            }).fail(function(result) {
+                console.log("Call failed to server: " + JSON.stringify(result));
+            });
+
+        });
+    }
+
  	this.customELNApi = function(parameters, callbackFunction, service) {
  		if(!service) {
  			service = "eln-lims-api";
@@ -787,6 +884,9 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withChildrenUsing(fetchOptions);
 					}
 				} else if(advancedFetchOptions.minTableInfo) {
+					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+					}
 					if(fetchOptions.withParents) {
 						fetchOptions.withParents();
 					}
@@ -837,7 +937,8 @@ function ServerFacade(openbisServer) {
 					var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
 					var fieldNameType = null;
 					var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-				
+					var fieldOperator = advancedSearchCriteria.rules[ruleKeys[idx]].operator;
+					
 					if(fieldName) {
 						var firstDotIndex = fieldName.indexOf(".");
 						fieldNameType = fieldName.substring(0, firstDotIndex);
@@ -848,11 +949,57 @@ function ServerFacade(openbisServer) {
 						fieldValue = "*";
 					}
 				
-					var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
-						criteria.withProperty(propertyName).thatContains(propertyValue);
+					var setPropertyCriteria = function(criteria, propertyName, propertyValue, comparisonOperator) {
+						if(comparisonOperator) {
+							try {
+								switch(comparisonOperator) {
+									case "thatEqualsString":
+										criteria.withProperty(propertyName).thatEquals(propertyValue);
+										break;
+									case "thatEqualsNumber":
+										criteria.withNumberProperty(propertyName).thatEquals(parseFloat(propertyValue));
+										break;
+									case "thatEqualsDate":
+										criteria.withDateProperty(propertyName).thatEquals(propertyValue);
+										break;
+									case "thatContainsString":
+										criteria.withProperty(propertyName).thatContains(propertyValue);
+										break;
+									case "thatStartsWithString":
+										criteria.withProperty(propertyName).thatStartsWith(propertyValue);
+										break;
+									case "thatEndsWithString":
+										criteria.withProperty(propertyName).thatEndsWith(propertyValue);
+										break;
+									case "thatIsLessThanNumber":
+										criteria.withNumberProperty(propertyName).thatIsLessThan(parseFloat(propertyValue));
+										break;
+									case "thatIsLessThanOrEqualToNumber":
+										criteria.withNumberProperty(propertyName).thatIsLessThanOrEqualTo(parseFloat(propertyValue));
+										break;
+									case "thatIsGreaterThanNumber":
+										criteria.withNumberProperty(propertyName).thatIsGreaterThan(parseFloat(propertyValue));
+										break;
+									case "thatIsGreaterThanOrEqualToNumber":
+										criteria.withNumberProperty(propertyName).thatIsGreaterThanOrEqualTo(parseFloat(propertyValue));
+										break;
+									case "thatIsLaterThanOrEqualToDate":
+										criteria.withDateProperty(propertyName).thatIsLaterThanOrEqualTo(propertyValue);
+										break;
+									case "thatIsEarlierThanOrEqualToDate":
+										criteria.withDateProperty(propertyName).thatIsEarlierThanOrEqualTo(propertyValue);
+										break;
+								}
+							} catch(error) {
+								Util.showError("Error parsing criteria: " + error.message);
+								return;
+							}
+						} else {
+							criteria.withProperty(propertyName).thatContains(propertyValue);
+						}
 					}
 				
-					var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
+					var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
 						switch(attributeName) {
 							//Used by all entities
 							case "CODE":
@@ -865,10 +1012,36 @@ function ServerFacade(openbisServer) {
 								criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
 								break;
 							case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
-								criteria.withRegistrationDate().thatEquals(attributeValue);
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsDate":
+											criteria.withRegistrationDate().thatEquals(attributeValue);
+										case "thatIsLaterThanOrEqualToDate":
+											criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(attributeValue);
+											break;
+										case "thatIsEarlierThanOrEqualToDate":
+											criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo(attributeValue);
+											break;
+									}
+								} else {
+									criteria.withRegistrationDate().thatEquals(attributeValue);
+								}
 								break;
 							case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
-								criteria.withModificationDate().thatEquals(attributeValue);
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsDate":
+											criteria.withModificationDate().thatEquals(attributeValue);
+										case "thatIsLaterThanOrEqualToDate":
+											criteria.withModificationDate().thatIsLaterThanOrEqualTo(attributeValue);
+											break;
+										case "thatIsEarlierThanOrEqualToDate":
+											criteria.withModificationDate().thatIsEarlierThanOrEqualTo(attributeValue);
+											break;
+									}
+								} else {
+									criteria.withModificationDate().thatEquals(attributeValue);
+								}
 								break;
 							case "SAMPLE_TYPE":
 							case "EXPERIMENT_TYPE":
@@ -899,28 +1072,28 @@ function ServerFacade(openbisServer) {
 							}
 							break;
 						case "Property":
-							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 							break;
 						case "Attribute":
-							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 							break;
 						case "Property/Attribute":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 							}
 							break;
 						case "Sample":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "NULL":
 									searchCriteria.withoutSample();
@@ -930,10 +1103,10 @@ function ServerFacade(openbisServer) {
 						case "Experiment":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "NULL":
 									searchCriteria.withoutExperiment();
@@ -943,20 +1116,20 @@ function ServerFacade(openbisServer) {
 						case "Parent":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 							}
 							break;
 						case "Children":
 							switch(fieldNameType) {
 								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue);
+									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
 									break;
 							}
 							break;
@@ -1332,6 +1505,14 @@ function ServerFacade(openbisServer) {
 		}, callbackFunction);
 	}
 	
+	this.searchByType = function(sampleType, callbackFunction)
+	{
+		this.searchSamples({
+			"sampleTypeCode" : sampleType,
+			"withProperties" : true
+		}, callbackFunction);
+	}
+	
 	this.searchByTypeWithParents = function(sampleType, callbackFunction)
 	{
 		this.searchSamples({
@@ -1363,7 +1544,7 @@ function ServerFacade(openbisServer) {
 		}, callbackFunction);
 	}
 	
-	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
+	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete, withParents)
 	{	
 		var properyKeyValueList = [];
 	
@@ -1380,6 +1561,7 @@ function ServerFacade(openbisServer) {
 			"withProperties" : true,
 			"withAncestors" : isComplete,
 			"withDescendants" : isComplete,
+			"withParents" : withParents,
 			"properyKeyValueList" : properyKeyValueList
 		}, callbackFunction);
 	}
@@ -1664,5 +1846,37 @@ function ServerFacade(openbisServer) {
 		}
 		
 		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, null, callbackFunction);
+	}
+
+	//
+	// V3 Save Functions
+	//
+
+	this.updateSample = function(sampleV1, callbackFunction) {
+		require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SamplePermId"], 
+        function(SampleUpdate, SamplePermId) {
+			var sampleUpdate = new SampleUpdate();
+            sampleUpdate.setSampleId(new SamplePermId(sampleV1.permId));
+			
+			for(var propertyCode in sampleV1.properties) {
+				sampleUpdate.setProperty(propertyCode, sampleV1.properties[propertyCode]);
+			}
+
+            mainController.openbisV3.updateSamples([ sampleUpdate ]).done(function() {
+                callbackFunction(true);
+            }).fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				callbackFunction(false);
+			});
+        });
+	}
+
+	this.getSessionInformation = function(callbackFunction) {
+		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
+                callbackFunction(sessionInfo);
+        }).fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				callbackFunction(false);
+		});
 	}
 }

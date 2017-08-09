@@ -18,19 +18,16 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 	this._spaceFormController = spaceFormController;
 	this._spaceFormModel = spaceFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
 		var _this = this;
-		$container.empty();
+		var $container = views.content;
 		
-		var $form = $("<div>", { "class" : "form-horizontal row"});
-		var $formColumn = $("<div>", { "class" : FormUtil.formColumClass });
+		var $form = $("<div>");
+		var $formColumn = $("<div>");
 			
 		$form.append($formColumn);
 		
 		var typeTitle = "Space: ";
-//		if(profile.isInventorySpace(this._spaceFormModel.space.code)) {
-//			typeTitle = "";
-//		}
 		
 		var $formTitle = $("<h2>").append(typeTitle + this._spaceFormModel.space.code);
 		
@@ -57,9 +54,9 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		toolbarModel.push({ component : $export, tooltip: "Export" });
 		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append("<br>");
+		var $header = views.header;
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		$container.append($form);
 	}

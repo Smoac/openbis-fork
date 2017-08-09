@@ -19,8 +19,8 @@ function ProjectFormController(mainController, mode, project) {
 	this._projectFormModel = new ProjectFormModel(mode, project);
 	this._projectFormView = new ProjectFormView(this, this._projectFormModel);
 	
-	this.init = function($container) {
-		this._projectFormView.repaint($container);
+	this.init = function(views) {
+		this._projectFormView.repaint(views);
 	}
 	
 	this.deleteProject = function(reason) {

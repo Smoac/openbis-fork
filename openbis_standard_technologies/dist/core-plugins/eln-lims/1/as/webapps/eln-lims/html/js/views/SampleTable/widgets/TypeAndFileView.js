@@ -22,7 +22,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 	
 	this.repaint = function() {
 		var _this = this;
-		var $window = $('<form>', { 'class' : 'form-horizontal', 'action' : 'javascript:void(0);' });
+		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		$window.submit(function() {
 			Util.unblockUI();
 			_this._typeAndFileModel.actionFunction(_this._typeAndFileModel.sampleType, _this._typeAndFileModel.file);
@@ -30,7 +30,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		
 		$window.append($('<legend>').append(this._typeAndFileModel.title));
 		
-		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown(null, true);
+		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown(null, true, ["STORAGE_POSITION"], this._typeAndFileModel.allowedSampleTypes);
 		$sampleTypeDropDown.change(function(event) {
 			_this._typeAndFileModel.sampleTypeCode = $(this).val();
 			_this.updateLink($(this).val());

@@ -15,16 +15,6 @@
  */
 
 function StorageController(configOverride) {
-	//Upgraded storage model detection
-	if(profile.storagesConfiguration["isEnabled"]) {
-		var groups = profile.getStoragePropertyGroups();
-		for(var i = 0; i < groups.length; i++) {
-			if(!groups[i].boxSizeProperty || !groups[i].positionProperty) {
-				Util.showError("Your Storage Model does not work properly with the current ELN version: Storage group '" + groups[i].groupDisplayName + "' is missing the boxSizeProperty or positionProperty.");
-				return;
-			}
-		}
-	}
 	//Pointer to himself
 	var _this = this;
 	
@@ -179,14 +169,14 @@ function StorageController(configOverride) {
 		this._storageView.hidePosField();
 	}
 	
-	this.setSelectStorageGroup = function(storageGroupName) {
+	this.setSelectStorageGroup = function() {
 		//Delete old state
 		this._deleteRackBoxContentStateInModelView();
 		this._storageView.resetSelectStorageDropdown();
 		this._gridController.getModel().reset();
 		
 		//Set new state
-		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
+		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup();
 		this._storageView.refreshGrid();
 		this.updateDragEvents();
 	}
@@ -214,86 +204,106 @@ function StorageController(configOverride) {
 		// Obtain Storage Configuration
 		//
 		this._storageModel.storageCode = selectedStorageCode;
-		var storageConfig = profile.getStorageConfiguation(selectedStorageCode);
-		
-		if(storageConfig) {
-			this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
-		} else {
-			this._gridController.getModel().reset(null, null);
-		}
-		
-		//
-		// Obtain Storage Boxes
-		//
-		var propertyTypeCodes = [_this._storageModel.storagePropertyGroup.nameProperty];
-		var propertyValues = [selectedStorageCode];
-		
-		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
-				function(samples) {
-					var boxes = [];
-					var userIds = [];
-					positionsUsed = 0;
-					samples.forEach(function(element, index, array) {
-						var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
-						var boxSize = element.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty];
-						var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
-						var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
-						var userId = element.properties[_this._storageModel.storagePropertyGroup.userProperty];
-						
-						if($.inArray(userId, userIds) === -1) {
-							userIds.push(userId);
-						}
-						
-						var boxesRow = boxes[boxRow];
-						if(!boxesRow) {
-							boxesRow = [];
-							boxes[boxRow] = boxesRow;
-						}
-						
-						var boxesCol = boxesRow[boxCol];
-						if(!boxesCol) {
-							boxesCol = [];
-							boxesRow[boxCol] = boxesCol;
-						}
-						
-						var getBoxFromCol = function(col, boxName) {
-							for(var i = 0; i < col.length; i++) {
-								box = col[i];
-								if(box.displayName === boxName) {
-									return box;
+		profile.getStorageConfiguation(selectedStorageCode, function(storageConfig) {
+			_this._storageModel.storageConfig = storageConfig;
+			if(storageConfig) {
+				_this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
+			} else {
+				_this._gridController.getModel().reset(null, null);
+			}
+			
+			//
+			// Obtain Storage Boxes
+			//
+			var propertyTypeCodes = [_this._storageModel.storagePropertyGroup.nameProperty];
+			var propertyValues = [selectedStorageCode];
+			
+			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
+					function(samples) {
+						var boxes = [];
+						var userIds = [];
+						positionsUsed = 0;
+						samples.forEach(function(element, index, array) {
+							
+							var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
+							if(!boxCode || boxCode.trim().length === 0) {
+								if(element && element.sampleTypeCode === "STORAGE_POSITION") {
+									if(element.parents && element.parents[0]) {
+										if(profile.propertyReplacingCode &&  element.parents[0].properties && element.parents[0].properties[profile.propertyReplacingCode]) {
+											boxCode = element.parents[0].properties[profile.propertyReplacingCode];
+										} else {
+											boxCode = element.parents[0].code;
+										}
+									} else {
+										boxCode = element.properties[profile.propertyReplacingCode];
+										if(!boxCode) {
+											boxCode = element.code;
+										}
+									}
 								}
 							}
-							return null;
-						}
+							
+							var boxSize = element.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty];
+							var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
+							var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
+							var userId = element.properties[_this._storageModel.storagePropertyGroup.userProperty];
+							
+							if($.inArray(userId, userIds) === -1) {
+								userIds.push(userId);
+							}
+							
+							var boxesRow = boxes[boxRow];
+							if(!boxesRow) {
+								boxesRow = [];
+								boxes[boxRow] = boxesRow;
+							}
+							
+							var boxesCol = boxesRow[boxCol];
+							if(!boxesCol) {
+								boxesCol = [];
+								boxesRow[boxCol] = boxesCol;
+							}
+							
+							var getBoxFromCol = function(col, boxName) {
+								for(var i = 0; i < col.length; i++) {
+									box = col[i];
+									if(box.displayName === boxName) {
+										return box;
+									}
+								}
+								return null;
+							}
+							
+							var boxSamples = getBoxFromCol(boxesCol, boxCode);
+							if(!boxSamples) {
+								positionsUsed++;
+								boxSamples = { displayName : boxCode, data : { size: boxSize, samples: [] } };
+							} else if(!boxSamples.data.size) { //To help instances where they are migrating data where not all boxes are set
+									boxSamples.data.size = boxSize;
+							}
+							boxSamples.data.samples.push(element);
+							
+							boxesCol.push(boxSamples);
+						}, true);
 						
-						var boxSamples = getBoxFromCol(boxesCol, boxCode);
-						if(!boxSamples) {
-							positionsUsed++;
-							boxSamples = { displayName : boxCode, data : { size: boxSize, samples: [] } };
-						} else if(!boxSamples.data.size) { //To help instances where they are migrating data where not all boxes are set
-								boxSamples.data.size = boxSize;
+						//
+						// Storage low of space alert
+						//
+						if(storageConfig) {
+							var totalPositions = storageConfig.rowNum * storageConfig.colNum * storageConfig.boxNum;
+							var used = positionsUsed / totalPositions;
+							var available = parseInt(storageConfig.lowRackSpaceWarning) / 100;
+							if(used >= available) {
+								Util.showInfo("Storage space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+							}
 						}
-						boxSamples.data.samples.push(element);
-						
-						boxesCol.push(boxSamples);
-					}, true);
-					
-					//
-					// Storage low of space alert
-					//
-					if(storageConfig) {
-						var totalPositions = storageConfig.rowNum * storageConfig.colNum * storageConfig.boxNum;
-						var used = positionsUsed / totalPositions;
-						if(used >= profile.storagesConfiguration["storageSpaceLowWarning"]) {
-							Util.showInfo("Storage space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
-						}
-					}
-					//
-					// Refresh Grid with the boxes
-					//
-					_this.setUserIds(userIds);
-					_this._gridController.getModel().labels = boxes;
-					_this._storageView.refreshGrid();
+						//
+						// Refresh Grid with the boxes
+						//
+						_this.setUserIds(userIds);
+						_this._gridController.getModel().labels = boxes;
+						_this._storageView.refreshGrid();
+			}, false, true);
 		});
 	}
 	
@@ -321,34 +331,35 @@ function StorageController(configOverride) {
 	// Validation
 	//
 	this.isValid = function(callback) {
-		var storageConfig = profile.getStorageConfiguation(this._storageModel.storageCode);
-		var validationLevel = (storageConfig)?storageConfig.validationLevel:ValidationLevel.BOX_POSITION;
 		var _this = this;
-		this._isValidState(validationLevel, function(error0) {
-			if(error0) {
-				Util.showError(error0, function() {}, true);
-				callback(false);
-			} else if(validationLevel >= ValidationLevel.BOX){
-				_this._isUserTypingExistingBox(function(error1) {
-					if(error1) {
-						Util.showError(error1, function() {}, true);
-						callback(false);
-					} else if(validationLevel >= ValidationLevel.BOX_POSITION){
-						_this._isPositionAlreadyUsed(function(error2) {
-							if(error2) {
-								Util.showError(error2, function() {}, true);
-								callback(false);
-							} else {
-								callback(true);
-							}
-						});
-					} else {
-						callback(true);
-					}
-				});
-			} else {
-				callback(true);
-			}
+		profile.getStorageConfiguation(this._storageModel.storageCode, function(storageConfig) {
+			var validationLevel = (storageConfig)?storageConfig.validationLevel:ValidationLevel.BOX_POSITION;
+			_this._isValidState(validationLevel, function(error0) {
+				if(error0) {
+					Util.showError(error0, function() {}, true);
+					callback(false);
+				} else if(validationLevel >= ValidationLevel.BOX){
+					_this._isUserTypingExistingBox(function(error1) {
+						if(error1) {
+							Util.showError(error1, function() {}, true);
+							callback(false);
+						} else if(validationLevel >= ValidationLevel.BOX_POSITION){
+							_this._isPositionAlreadyUsed(function(error2) {
+								if(error2) {
+									Util.showError(error2, function() {}, true);
+									callback(false);
+								} else {
+									callback(true);
+								}
+							});
+						} else {
+							callback(true);
+						}
+					});
+				} else {
+					callback(true);
+				}
+			});
 		});
 	}
 	
@@ -370,9 +381,6 @@ function StorageController(configOverride) {
 		} else if(!this._storageModel.boxPosition && validationLevel >= ValidationLevel.BOX_POSITION) {
 			callback("Select a box position please.");
 		} else {
-			if(!this._storageModel.boxName) {
-				this._storageModel.setDefaultBoxName();
-			}
 			callback(null);
 		}
 	}

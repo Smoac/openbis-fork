@@ -19,8 +19,8 @@ function ExportTreeController(parentController) {
 	var exportTreeModel = new ExportTreeModel();
 	var exportTreeView = new ExportTreeView(this, exportTreeModel);
 	
-	this.init = function($container) {
-		exportTreeView.repaint($container);
+	this.init = function(views) {
+		exportTreeView.repaint(views);
 	}
 	
 	this.exportSelected = function() {

@@ -18,54 +18,24 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		//
 		// Form setup
 		//
 		var _this = this;
-		$container.empty();
-		
-		var columnWith = 12;
-		if(this._sampleFormModel.mode === FormMode.VIEW) {
-			columnWith = 8;
-		}
 
-		var $form = $("<span>", { "class" : "row col-md-" + columnWith});
+		var $form = $("<span>");
 		
 		var $formColumn = $("<form>", {
-			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
-			'action' : 'javascript:void(0);',
-			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
+			'action' : 'javascript:void(0);'
 		});
 		
 		var $rightPanel = null;
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
-			$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+			$rightPanel = views.auxContent;
 		}
-		//
-		if($rightPanel) {
-			var windowScrollManager = function($form, $rightPanel) {
-				return function() {
-					if($(window).width() > 1024) { //Min Desktop resolution
-						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
-						$("#mainContainer").css("overflow-y", "hidden");
-						$formColumn.css(scrollablePanelCss);
-						$rightPanel.css(scrollablePanelCss);
-					} else {
-						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
-						$("#mainContainer").css("overflow-y", "auto");
-						$formColumn.css(normalPanelCss);
-						$rightPanel.css(normalPanelCss);
-					}
-				}
-			}
-			windowScrollManager = windowScrollManager($form, $rightPanel);
-			$(window).resize(windowScrollManager);
-			this._sampleFormController._windowHandlers.push(windowScrollManager);
-			$(window).resize();
-		}
-		//
 		
 		$form.append($formColumn);
 		
@@ -135,7 +105,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
 			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP") {
 				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
@@ -183,14 +153,25 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var warningText = null;
 			if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
 				warningText = ""
+				var childrenThatAreNotPositions = 0;
+				for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
+					var child = this._sampleFormModel.sample.children[idx];
+					if(child.sampleTypeCode !== "STORAGE_POSITION") {
+						childrenThatAreNotPositions++;
+					}
+				}
+				
 				if(this._sampleFormModel.sample.children.length > 0) {
-					warningText += "The sample has " + this._sampleFormModel.sample.children.length + " children samples, these relationships will be broken but the children will remain:\n";
-					var numChildrenToShow = this._sampleFormModel.sample.children.length;
+					warningText += "The sample has " + childrenThatAreNotPositions + " children samples, these relationships will be broken but the children will remain:\n";
+					var numChildrenToShow = childrenThatAreNotPositions;
 					if(numChildrenToShow > 10) {
 						numChildrenToShow = 10;
 					}
 					for(var cIdx = 0 ; cIdx < numChildrenToShow; cIdx++) {
-						warningText += "\n\t" + this._sampleFormModel.sample.children[cIdx].code;
+						var child = this._sampleFormModel.sample.children[cIdx];
+						if(child.sampleTypeCode !== "STORAGE_POSITION") {
+							warningText += "\n\t" + child.code;
+						}
 					}
 					if(numChildrenToShow > 10) {
 						warningText += "\n\t...";
@@ -240,6 +221,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				mainController.changeView('showCreateDataSetPageFromPermId',_this._sampleFormModel.sample.permId);
 			});
 			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
+
+			//Get dropbox folder name
+			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-circle-arrow-up", (function () {
+				var nameElements = [
+					"O",
+					_this._sampleFormModel.sample.spaceCode,
+					_this._sampleFormModel.sample.code,
+				];
+				FormUtil.showDropboxFolderNameDialog(nameElements);
+			}).bind(this));
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Name generator for dataset upload with dropbox" });
 			
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
@@ -254,32 +246,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+
+		} else { //Create and Edit
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._sampleFormController.createUpdateCopySample();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append($("<br>"));
+		var $header = views.header;
 		
-		//
-		// PREVIEW IMAGE
-		//
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
-			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
-											 'class' : 'zoomableImage',
-											 'id' : 'preview-image',
-											 'src' : './img/image_loading.gif',
-											 'style' : 'max-width:100%; display:none;'
-											});
-			$previewImage.click(function() {
-				Util.showImage($("#preview-image").attr("src"));
-			});
-			
-			if($rightPanel && $(window).width() > 1024) { //Min Desktop resolution
-				$rightPanel.append($previewImage);
-			} else {
-				$formColumn.append($previewImage);
-			}
-		}
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
 		// Identification Info on Create
@@ -291,11 +271,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from General Section
 		//
-		var isStorageAvailable = false;
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name === "General") {
-				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 			}
 		}
 		
@@ -330,12 +309,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode);
-		if( !sampleTypeDefinitionsExtension || 
-				(!sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"] ||
-				!sampleTypeDefinitionsExtension.showParents) ||
-				(sampleTypeDefinitionsExtension.showParents && sampleTypeDefinitionsExtension.showParents(this._sampleFormModel.sample))) {
-				this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
-			}
+		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"]) {
+			this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
+		}
 		
 		//
 		// LINKS TO CHILDREN
@@ -358,11 +334,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"]) {
 			childrenTitle = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"];
 		}
+		
+		var currentChildrenLinksNoStorage = [];
+		if(currentChildrenLinks != null) {
+			for(var cIdx = 0; cIdx < currentChildrenLinks.length; cIdx++) {
+				if(currentChildrenLinks[cIdx].sampleTypeCode !== "STORAGE_POSITION") {
+					currentChildrenLinksNoStorage.push(currentChildrenLinks[cIdx]);
+				}
+			}
+		}
+		
 		var childrenAnyTypeDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"];
 		this._sampleFormModel.sampleLinksChildren = new LinksController(childrenTitle,
 															requiredChildren,
 															isDisabled,
-															currentChildrenLinks,
+															currentChildrenLinksNoStorage,
 															this._sampleFormModel.mode === FormMode.CREATE,
 															childrenAnyTypeDisabled,
 															sampleTypeCode);
@@ -374,7 +360,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// GENERATE CHILDREN
 		//
 		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSample) {
-			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-left:25px;', 'id' : 'generate_children'}).text("Generate Children");
+			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-top:15px;', 'id' : 'generate_children'}).text("Generate Children");
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
 			});
@@ -388,11 +374,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from non General Section
 		//
-		var isStorageAvailable = false;
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name !== "General") {
-				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 			}
 		}
 		
@@ -411,7 +396,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Storage
 		//
-		if(isStorageAvailable) {
+		var isStorageAvailable = profile.isSampleTypeWithStorage(this._sampleFormModel.sample.sampleTypeCode);
+		if(isStorageAvailable && profile.storagesConfiguration["isEnabled"]) {
 			var $fieldsetOwner = $("<div>");
 			var $legend = $("<legend>").append("Storage");
 			var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
@@ -423,7 +409,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);	
 			storageListController.init(storageListContainer);
-			
 		}
 		
 		//
@@ -439,22 +424,24 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
-		// FORM SUBMIT
+		// PREVIEW IMAGE
 		//
-		if(this._sampleFormModel.mode !== FormMode.VIEW) {
-			var btnTitle = null;
-			switch(this._sampleFormModel.mode) {
-		    	case FormMode.CREATE:
-		    		btnTitle = "Create";
-		    		break;
-		    	case FormMode.EDIT:
-		    		btnTitle = "Update";
-		    		break;
-			}
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
+											 'class' : 'zoomableImage',
+											 'id' : 'preview-image',
+											 'src' : './img/image_loading.gif',
+											 'style' : 'max-width:100%; display:none;'
+											});
+			$previewImage.click(function() {
+				Util.showImage($("#preview-image").attr("src"));
+			});
 			
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
-			$formColumn.append($("<br>"));
-			$formColumn.append($updateBtn);
+			if($rightPanel !== null) { //Min Desktop resolution
+				$rightPanel.append($previewImage);
+			} else {
+				$formColumn.append($previewImage);
+			}
 		}
 		
 		//
@@ -475,16 +462,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$formColumn.append($inlineDataSetForm);
 			}
 			var $dataSetFormController = new DataSetFormController(this, FormMode.CREATE, this._sampleFormModel.sample, null, true);
-			$dataSetFormController.init($inlineDataSetForm);
+			var viewsForDS = {
+					content : $inlineDataSetForm
+			}
+			$dataSetFormController.init(viewsForDS);
 		}
 		
 		//
 		// INIT
 		//
 		$container.append($form);
-		if($rightPanel) {
-			$container.append($rightPanel);
-		}
 		
 		//
 		// Extra content
@@ -528,12 +515,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$legend.text("Metadata");
 		} else {
 			$legend.remove();
-		}
-			
-		var storagePropertyGroup = profile.getPropertyGroupFromStorage(propertyTypeGroup.name);
-		if(storagePropertyGroup) {
-			$legend.remove();
-			return true;
 		}
 			
 		var propertyGroupPropertiesOnForm = 0;
@@ -726,41 +707,29 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			Util.blockUINoMessage();
 			
 			var copyFunction = function(defaultCode) {
-				var component = "<div class='form-horizontal'>"
+				var component = "<div>"
 					component += "<legend>Duplicate Entity</legend>";
-					component += "<div class='form-inline'>";
-					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-					component += "<label class='control-label " + FormUtil.labelColumnClass + "'>Options </label>";
-					component += "<div class='" + FormUtil.controlColumnClass + "'>";
+					component += "<div>";
+					component += "<div class='form-group'>";
+					component += "<label class='control-label'>Options </label>";
+					component += "<div class='controls'>";
 					component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy'> Link Parents </label></span>";
-					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy'> Copy Children </label></span>";
-					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					component += "<span class='checkbox'><label><input type='checkbox' id='copyCommentsLogOnCopy'> Copy Comments Log </label></span>";
 					component += "</div>";
 					component += "</div>";
 					component += "</div>";
-					component += "<br /><br />";
-					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-					component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
-					component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+					component += "<div class='form-group'>";
+					component += "<label class='control-label'>Code&nbsp;(*):</label>";
+					component += "<div>";
 					component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
 					component += "</div>";
-					component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+					component += "<div>";
 					component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 					component += "</div>";
 					component += "</div>";
-					
-				var css = {
-						'text-align' : 'left',
-						'top' : '15%',
-						'width' : '70%',
-						'left' : '15%',
-						'right' : '20%',
-						'overflow' : 'auto'
-				};
 				
-				Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+				Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", FormUtil.getDialogCss());
 				
 				$("#newSampleCodeForCopy").on("keyup", function(event) {
 					$(this).val($(this).val().toUpperCase());
@@ -844,11 +813,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	// Children Generator
 	//
 	this._childrenAdded = function() {
-		var $childrenStorageDropdown = FormUtil.getDefaultBenchDropDown('childrenStorageSelector', true);
-		if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
-			var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
-			$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
-		}
+		FormUtil.getDefaultBenchDropDown('childrenStorageSelector', true, function($childrenStorageDropdown) {
+			if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
+				var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
+				$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
+			}
+		});
 	}
 	
 	this._generateChildren = function() {
@@ -943,7 +913,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					virtualSample.code = generatedChildrenCodes[i];
 					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
 					virtualSample.sampleTypeCode = generatedChildrenType;
-					_this._sampleFormModel.sampleLinksChildren.addSample(virtualSample);
+					_this._sampleFormModel.sampleLinksChildren.addVirtualSample(virtualSample);
 				}
 				
 				_this._childrenAdded();
@@ -1060,7 +1030,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Mounting the widget with the components
 		var $childrenGenerator = $("<div>");
 		$childrenGenerator.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton));
-		$childrenGenerator.append($("<form>", { "class" : "form-horizontal" , "style" : "margin-left:20px; margin-right:20px;"})
+		$childrenGenerator.append($("<form>")
 									.append($("<h1>").append("Children Generator"))
 									.append($parentsComponent)
 									.append($childrenComponent)

@@ -18,6 +18,7 @@ function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc
 	this._grid = null;
 	this._dataGridModel = null;
 	this._dataGridView = null;
+	this.lastSavedSettings = null;
 	var _this = this;
 	
 	if(!configKey) {
@@ -28,7 +29,11 @@ function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc
 		var webAppId = "ELN-LIMS";
 		mainController.serverFacade.getSetting(configKey, function(tableConfig) {
 			var onColumnsChange = function(tableState) {
-				mainController.serverFacade.setSetting(configKey, JSON.stringify(tableState));
+				var newSettingsToStore = JSON.stringify(tableState);
+				if(_this.lastSavedSettings !== newSettingsToStore) {
+					_this.lastSavedSettings = newSettingsToStore;
+					mainController.serverFacade.setSetting(configKey, _this.lastSavedSettings);
+				}
 			}
 			
 			if(tableConfig) {

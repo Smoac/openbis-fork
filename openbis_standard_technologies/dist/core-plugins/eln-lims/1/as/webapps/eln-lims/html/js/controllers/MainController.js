@@ -37,22 +37,14 @@ function MainController(profile) {
 	
 	this.openbisV1 = new openbis();
 	this.openbisV3 = null;
-	
-	
+
+
 	this.loadV3 = function(callback) {
-		require(['openbis'], function(openbis) {
-			//Boilerplate
-			var testProtocol = window.location.protocol;
-			var testHost = window.location.hostname;
-			var testPort = window.location.port;
-			
-			var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-			var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-			
-			mainController.openbisV3 = new openbis(testApiUrl);
-			mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
-			callback();
-		});
+	    this.serverFacade.getOpenbisV3(function(openbisV3) {
+            mainController.openbisV3 = openbisV3
+            mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+            callback();
+	    });
 	};
 	
 	// Server Facade Object
@@ -65,11 +57,18 @@ function MainController(profile) {
 	
 	// Attributes - Widgets typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
 	
-	//Views With State or always visible
+	// Controllers currently being used
 	this.sideMenu = null;
-	
-	//Others
 	this.currentView = null;
+	
+	// Views currently being displayed
+	this.views = {
+			menu : null,
+			header : null,
+			content : null,
+			auxContent : null
+	}
+	
 	//Refresh Functionality
 	this.lastViewChange = null;
 	this.lastArg = null;
@@ -93,9 +92,12 @@ function MainController(profile) {
 			$("#username").focus();
 			var callback = function() {Util.unblockUI();};
 			Util.showError('The given username or password is not correct.', callback);
+			this.serverFacade.doIfFileAuthenticationService((function() {
+	            this._enablePasswordResetLink();
+			}).bind(this));
 			return;
 		}
-		
+
 		//
 		// Back Button Logic
 		//
@@ -113,10 +115,12 @@ function MainController(profile) {
 				toPop = this.backStack.pop();
 			}
 			
-			if(toPop && toPop.view) {
-				var main = $("#mainContainer");
-				main.empty();
-				main.append(toPop.view)
+			if(toPop && toPop.view !== null) {
+				this.views.header = toPop.view.header;
+				this.views.content = toPop.view.content;
+				this.views.auxContent = toPop.view.auxContent;
+				
+				LayoutManager.reloadView(this.views);
 			} else {
 				var queryString = Util.queryString();
 				var viewName = queryString.viewName;
@@ -165,7 +169,8 @@ function MainController(profile) {
 											var startAppFunc = function() {
 												//Start App
 												localReference.sideMenu = new SideMenuWidgetController(localReference);
-												localReference.sideMenu.init($("#sideMenu"), function() {
+												localReference.views.menu = $("<div>");
+												localReference.sideMenu.init(localReference.views.menu, function() {
 													//Page reload using the URL info
 													var queryString = Util.queryString();
 													var menuUniqueId = queryString.menuUniqueId;
@@ -173,17 +178,16 @@ function MainController(profile) {
 													var viewData = queryString.viewData;
 													var hideMenu = queryString.hideMenu;
 													
+													LayoutManager.reloadView(localReference.views);
 													if(viewName && viewData) {
 														localReference.sideMenu.moveToNodeId(menuUniqueId);
 														localReference.changeView(viewName, viewData);
-														
-														if(hideMenu === "true") {
-															localReference.sideMenu.hideSideMenu();
-														}
 													} else {
 														localReference.changeView("showBlancPage", null);
 													}
+													
 													Util.unblockUI();
+													LayoutManager.resize(mainController.views, true); // Maybe fixes white screen on startup?
 												});
 											};
 											
@@ -198,7 +202,50 @@ function MainController(profile) {
 				);
 		});
 	}
-	
+
+	this._enablePasswordResetLink = function() {
+
+        var userId = $("#username").val();
+	    var $container = $("#password-reset-container");
+	    $container.empty();
+
+	    $resetLink = $("<a>").text("reset password by email for user " + userId);
+	    $container.append($resetLink);
+	    var height = $container.height();
+	    $container.css({ "margin-top" : -height + "px" });
+
+	    $resetLink.on("click", (function() {
+	        Util.blockUI();
+    	    this.serverFacade.sendResetPasswordEmail(userId, function() {
+                Util.unblockUI();
+                Util.showInfo("An email with instructions how to reset the password has been sent to " + userId + " if this user exists.");
+    	    });
+
+	    }).bind(this));
+
+	}
+
+	this.resetPasswordRequested = function() {
+        var queryString = Util.queryString();
+        return queryString.resetPassword == "true";
+	}
+
+	this.resetPassword = function() {
+        var queryString = Util.queryString();
+        var userId = queryString.userId;
+        var token = queryString.token;
+
+        if (userId && token) {
+            Util.blockUI();
+            this.serverFacade.resetPassword(userId, token, function() {
+                Util.unblockUI();
+                Util.showInfo("A new password has been sent as an email to user " + userId + " if this user exists.");                
+            });
+        } else {
+            Util.showError("To reset the password, the parameters 'userId' and 'token' need to be set.");
+        }
+	}
+
 	//
 	// Main View Changer - Everything on the application rely on this method to alter the views, arg should be a string
 	//
@@ -234,57 +281,88 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+				case "showUserProfilePage":
+					document.title = "User Profile";
+					this._showUserProfilePage(FormMode.VIEW);
+					break;
+				case "showEditUserProfilePage":
+					document.title = "Edit User Profile";
+					this._showUserProfilePage(FormMode.EDIT);
+					break;
+				case "showSettingsPage":
+					document.title = "Settings";
+					this._showSettingsPage(FormMode.VIEW);
+					break;
+				case "showEditSettingsPage":
+					document.title = "Edit Settings";
+					this._showSettingsPage(FormMode.EDIT);
+					break;
 				case "showExportTreePage":
 					document.title = "Export Builder";
 					var newView = new ExportTreeController(this);
-					newView.init($("#mainContainer"));
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
 					this.currentView = newView;
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showLabNotebookPage":
 					document.title = "Lab Notebook";
 					var newView = new LabNotebookController(this);
-					newView.init($("#mainContainer"));
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
 					this.currentView = newView;
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showInventoryPage":
 					document.title = "Inventory";
 					var newView = new InventoryController(this);
-					newView.init($("#mainContainer"));
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
 					this.currentView = newView;
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showAdvancedSearchPage":
 					document.title = "Advanced Search";
-					var freeTextForGlobalSearch = arg;
-					this._showAdvancedSearchPage(freeTextForGlobalSearch);
-					window.scrollTo(0,0);
+					var argToUse = null;
+					try {
+						var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+						argToUse = JSON.parse(cleanText);
+					} catch(err) {
+						argToUse = arg;
+					}
+					this._showAdvancedSearchPage(argToUse);
+					//window.scrollTo(0,0);
 					break;
 				case "showUserManagerPage":
 					document.title = "User Manager";
 					this._showUserManager();
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showVocabularyManagerPage":
 					document.title = "Vocabulary Browser";
 					this._showVocabularyManager();
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showTrashcanPage":
 					document.title = "Trashcan";
 					this._showTrashcan();
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showStorageManager":
 					document.title = "Storage Manager";
 					this._showStorageManager();
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showBlancPage":
 					document.title = "Main Menu";
 					this._showBlancPage();
-					window.scrollTo(0,0);
+					break;
+				case "showStockPage":
+					document.title = "Stock";
+					var newView = new StockController(this);
+					var views = this._getNewViewModel(true, true, false);
+					newView.init(views);
+					this.currentView = newView;
 					break;
 				case "showSearchPage":
 					document.title = "Search";
@@ -294,14 +372,14 @@ function MainController(profile) {
 					var searchDomain = argsMap["searchDomain"];
 					var searchDomainLabel = argsMap["searchDomainLabel"];
 					this._showSearchPage(searchText, searchDomain, searchDomainLabel);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showSpacePage":
 					var _this = this;
 					this.serverFacade.getSpaceFromCode(arg, function(space) {
 						document.title = "Space " + space.code;
 						_this._showSpacePage(space);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showProjectPageFromIdentifier":
@@ -309,7 +387,7 @@ function MainController(profile) {
 					this.serverFacade.getProjectFromIdentifier(arg, function(project) {
 						document.title = "Project " + project.code;
 						_this._showProjectPage(project);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showProjectPageFromPermId":
@@ -317,7 +395,7 @@ function MainController(profile) {
 					this.serverFacade.getProjectFromPermId(arg, function(project) {
 						document.title = "Project " + project.code;
 						_this._showProjectPage(project);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showEditProjectPageFromPermId":
@@ -325,13 +403,13 @@ function MainController(profile) {
 					this.serverFacade.getProjectFromPermId(arg, function(project) {
 						document.title = "Project " + project.code;
 						_this._showEditProjectPage(project);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showCreateProjectPage":
 					document.title = "Create Project";
 					this._showCreateProjectPage(arg);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showCreateExperimentPage":
 					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
@@ -345,14 +423,14 @@ function MainController(profile) {
 							identifier : projectIdentifier
 					}
 					this._showExperimentPage(experiment, FormMode.CREATE);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
 						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
 						_this._showExperimentPage(data.result[0], FormMode.VIEW);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showCreateDataSetPageFromExpPermId":
@@ -362,7 +440,7 @@ function MainController(profile) {
 					this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
 						document.title = "Create Data Set for " + data.objects[0].code;
 						_this._showCreateDataSetPage(data.objects[0]);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showEditExperimentPageFromIdentifier":
@@ -370,7 +448,7 @@ function MainController(profile) {
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
 						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
 						_this._showExperimentPage(data.result[0], FormMode.EDIT);
-						window.scrollTo(0,0);
+						//window.scrollTo(0,0);
 					});
 					break;
 				case "showCreateSubExperimentPage":
@@ -380,22 +458,22 @@ function MainController(profile) {
 					var experimentIdentifier = argsMap["experimentIdentifier"];
 					document.title = "Create " + ELNDictionary.Sample + " " + arg;
 					this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showSamplesPage":
 					document.title = "" + ELNDictionary.Sample + " Browser";
 					this._showSamplesPage(arg);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showSampleHierarchyPage":
 					document.title = "Hierarchy " + arg;
 					this._showSampleHierarchyPage(arg);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showSampleHierarchyTablePage":
 					document.title = "Table Hierarchy " + arg;
 					this._showSampleHierarchyTablePage(arg);
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showEditSamplePageFromPermId":
 					var _this = this;
@@ -406,7 +484,7 @@ function MainController(profile) {
 							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
 							_this._showEditSamplePage(data[0], isELNSubExperiment);
-							window.scrollTo(0,0);
+							//window.scrollTo(0,0);
 						}
 					});
 					break;
@@ -419,7 +497,7 @@ function MainController(profile) {
 							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
 							_this._showViewSamplePage(data[0], isELNSubExperiment);
-							window.scrollTo(0,0);
+							//window.scrollTo(0,0);
 						}
 					});
 					break;
@@ -431,7 +509,7 @@ function MainController(profile) {
 						} else {
 							document.title = "Create Data Set for " + data[0].code;
 							_this._showCreateDataSetPage(data[0]);
-							window.scrollTo(0,0);
+							//window.scrollTo(0,0);
 						}
 					});
 					break;
@@ -445,7 +523,7 @@ function MainController(profile) {
 								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
 									document.title = "Data Set " + dataSetData.result[0].code;
 									_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
-									window.scrollTo(0,0);
+									//window.scrollTo(0,0);
 								});
 							} else if(dataSetData.result[0].experimentIdentifier) {
 								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
@@ -454,7 +532,7 @@ function MainController(profile) {
 									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
 										document.title = "Data Set " + dataSetData.result[0].code;
 										_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0]);
-										window.scrollTo(0,0);
+										//window.scrollTo(0,0);
 									});
 								});
 							}
@@ -467,11 +545,23 @@ function MainController(profile) {
 						if(!dataSetData.result || !dataSetData.result[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
-							_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-								document.title = "Data Set " + dataSetData.result[0].code;
-								_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
-								window.scrollTo(0,0);
-							});
+							if(dataSetData.result[0].sampleIdentifierOrNull) {
+								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+									document.title = "Data Set " + dataSetData.result[0].code;
+									_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+									//window.scrollTo(0,0);
+								});
+							} else if(dataSetData.result[0].experimentIdentifier) {
+								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
+									var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
+									var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
+										document.title = "Data Set " + dataSetData.result[0].code;
+										_this._showEditDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+										//window.scrollTo(0,0);
+									});
+								});
+							}
 						}
 					});
 					break;
@@ -479,7 +569,7 @@ function MainController(profile) {
 					var _this = this;
 					document.title = "Drawing board";
 					_this._showDrawingBoard();
-					window.scrollTo(0,0);
+					//window.scrollTo(0,0);
 					break;
 				case "showAbout":
 					$.get('version.txt', function(data) {
@@ -487,7 +577,7 @@ function MainController(profile) {
 					}, 'text');
 					break;
 				default:
-					window.alert("The system tried to create a non existing view");
+					window.alert("The system tried to create a non existing view: " + newViewChange);
 					break;
 			}
 		} catch(err) {
@@ -506,8 +596,26 @@ function MainController(profile) {
 			
 			var toPush = null;
 			if(shouldStateBePushToHistory) {
-				toPush = $("#mainContainer").children();
-				toPush.detach();
+				toPush = {
+						header : null,
+						content : null,
+						auxContent : null
+				}
+				
+				if(this.views.header) {
+					toPush.header = this.views.header.children();
+					toPush.header.detach();
+				}
+				
+				if(this.views.content) {
+					toPush.content = this.views.content.children();
+					toPush.content.detach();
+				}
+				
+				if(this.views.auxContent) {
+					toPush.auxContent = this.views.auxContent.children();
+					toPush.auxContent.detach();
+				}
 			}
 			
 			this.backStack.push({
@@ -526,59 +634,152 @@ function MainController(profile) {
 	//
 	// Functions that trigger view changes, should only be called from the main controller changeView method
 	//
+	this._getBackwardsCompatibleMainContainer = function(id) {
+		var content = $("<div>");
+		content.css("padding", "10px");
+		
+		if(id) {
+			content.attr("id", id);
+		}
+		
+		this.views.header = null;
+		this.views.content = content;
+		this.views.auxContent = null;
+		LayoutManager.reloadView(this.views);
+		
+		return content;
+	}
+	
+	this._getNewViewModel = function(withHeaderOrHeaderId, withContentOrContentId, withAuxContentOrAuxContentId) {
+		var header = null;
+		var content = null;
+		var auxContent = null;
+		
+		if(withHeaderOrHeaderId) {
+			header = $("<div>");
+			header.css({ 
+				"padding" : "10px",
+				"height" : "100%",
+				"background-color" : "rgb(248, 248, 248)"
+			});
+			
+			if((typeof withHeaderOrHeaderId === 'string' || withHeaderOrHeaderId instanceof String)) {
+				header.attr("id", withHeaderOrHeaderId);
+			}
+		}
+		
+		if(withContentOrContentId) {
+			content = $("<div>");
+			content.css({ 
+				"padding" : "10px",
+				"height" : "100%"
+			});
+			if((typeof withContentOrContentId === 'string' || withContentOrContentId instanceof String)) {
+				content.attr("id", withContentOrContentId);
+			}
+		}
+		
+		if(withAuxContentOrAuxContentId) {
+			auxContent = $("<div>");
+			if((typeof withContentAuxOrContentAuxId === 'string' || withAuxContentOrAuxContentId instanceof String)) {
+				auxContent.attr("id", withAuxContentOrAuxContentId);
+			}
+		}
+		
+		this.views.header = header;
+		this.views.content = content;
+		this.views.auxContent = auxContent;
+		
+		LayoutManager.reloadView(this.views);
+		
+		var modificableViews = {
+				header : this.views.header,
+				content : this.views.content,
+				auxContent : this.views.auxContent
+		};
+		
+		return modificableViews;
+	}
+
+	this._showUserProfilePage = function(mode) {
+		var newView = new UserProfileController(this, mode);
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
+		this.currentView = newView;
+	}
+
+	this._showSettingsPage = function(mode) {
+		var _this = this;
+		this.serverFacade.searchSamples({ "sampleIdentifier" : "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", "withProperties" : true }, function(data) {
+			if(!data[0]) {
+				window.alert("Settings sample doesn't exist, settings can't be edited, this is not supposed to happen, contact your admin.");
+			} else {
+				var newView = new SettingsFormController(_this, data[0], mode);
+				var views = _this._getNewViewModel(true, true, false);
+				newView.init(views);
+				_this.currentView = newView;
+			}
+		});
+	}
+	
 	this._showStorageManager = function() {
+		var views = this._getNewViewModel(true, true, false);
+		
 		var storageManagerController = new StorageManagerController(this);
-		storageManagerController.init($("#mainContainer"));
+		storageManagerController.init(views);
 		this.currentView = storageManagerController;
 	}
 	
 	this._showVocabularyManager = function() {
+		var views = this._getNewViewModel(true, true, false);
+		
 		var vocabularyManagerController = new VocabularyManagerController(this);
-		vocabularyManagerController.init($("#mainContainer"));
+		vocabularyManagerController.init(views);
 		this.currentView = vocabularyManagerController;
 	}
 	
 	this._showBlancPage = function() {
-		//Show Hello Page
-		var mainContainer = $("#mainContainer");
-		mainContainer.empty();
-		
-		this.currentView = null;
+		var content = this._getBackwardsCompatibleMainContainer();
+		content.append("Welcome to openBIS ELN-LIMS.");
 	}
 	
 	this._showDrawingBoard = function() {
+		var views = this._getNewViewModel(true, true, false);
+		
 		var drawingBoardsController = new DrawingBoardsController(this);
-		drawingBoardsController.init($("#mainContainer"));
+		drawingBoardsController.init(views);
 		this.currentView = drawingBoardsController;
 	}
 	
 	this._showUserManager = function() {
+		var views = this._getNewViewModel(true, true, false);
+		
 		var userManagerController = new UserManagerController(this);
-		userManagerController.init($("#mainContainer"));
+		userManagerController.init(views);
 		this.currentView = userManagerController;
 	}
 	
 	this._showSamplesPage = function(experimentIdentifier) {
+		var views = this._getNewViewModel(true, true, false);
+		
 		var sampleTableController = null;
 		
 		if(experimentIdentifier === "null") { //Fix for reloads when there is text on the url
 			experimentIdentifier = null;
 		}
 		
-		
 		if(experimentIdentifier) {
 			var _this = this;
 			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
 				sampleTableController = new SampleTableController(this, "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
-				sampleTableController.init($("#mainContainer"));
+				sampleTableController.init(views);
 				_this.currentView = sampleTableController;
 			});
 		} else {
 			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null);
-			sampleTableController.init($("#mainContainer"));
+			sampleTableController.init(views);
 			this.currentView = sampleTableController;
 		}
-		
 		
 	}
 
@@ -586,7 +787,8 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, "mainContainer", localInstance.profile, data[0]);
+			var views = localInstance._getNewViewModel(true, true, false);
+			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, views, localInstance.profile, data[0]);
 			sampleHierarchy.init();
 			localInstance.currentView = sampleHierarchy;
 		});
@@ -596,8 +798,9 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
+			var views = localInstance._getNewViewModel(true, true, false);
 			var sampleHierarchyTableController = new SampleHierarchyTableController(this, data[0]);
-			sampleHierarchyTableController.init($("#mainContainer"));
+			sampleHierarchyTableController.init(views);
 			localInstance.currentView = sampleHierarchyTableController;
 		});
 	}
@@ -618,21 +821,23 @@ function MainController(profile) {
 		}
 		var sampleFormController = new SampleFormController(this, FormMode.CREATE, sample);
 		this.currentView = sampleFormController;
-		sampleFormController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		sampleFormController.init(views);
 	}
 	
 	this._showTrashcan = function() {
 		var trashcanController = new TrashManagerController(this);
 		this.trashcanController = trashcanController;
-		trashcanController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		trashcanController.init(views);
 	}
 	
 	this._showViewSamplePage = function(sample, isELNSubExperiment) {
 		//Show Form
 		var sampleFormController = new SampleFormController(this, FormMode.VIEW, sample);
 		this.currentView = sampleFormController;
-		sampleFormController.init($("#mainContainer"));
-		
+		var views = this._getNewViewModel(true, true, true);
+		sampleFormController.init(views);
 	}
 	
 	this._showEditSamplePage = function(sample, isELNSubExperiment) {
@@ -641,63 +846,72 @@ function MainController(profile) {
 		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
 			var sampleFormController = new SampleFormController(localInstance, FormMode.EDIT, data[0]);
 			localInstance.currentView = sampleFormController;
-			sampleFormController.init($("#mainContainer"));
+			var views = localInstance._getNewViewModel(true, true, false);
+			sampleFormController.init(views);
 		});
 	}
 	
 	this._showSpacePage = function(space) {
 		//Show Form
 		var spaceFormController = new SpaceFormController(this, space);
-		spaceFormController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		spaceFormController.init(views);
 		this.currentView = spaceFormController;
 	}
 	
 	this._showCreateProjectPage = function(spaceCode) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.CREATE, {spaceCode : spaceCode});
-		projectFormController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		projectFormController.init(views);
 		this.currentView = projectFormController;
 	}
 	
 	this._showProjectPage = function(project) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.VIEW, project);
-		projectFormController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		projectFormController.init(views);
 		this.currentView = projectFormController;
 	}
 	
 	this._showEditProjectPage = function(project) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.EDIT, project);
-		projectFormController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		projectFormController.init(views);
 		this.currentView = projectFormController;
 	}
 	
 	this._showExperimentPage = function(experiment, mode) {
 		//Show Form
 		var experimentFormController = new ExperimentFormController(this, mode, experiment);
-		experimentFormController.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, mode === FormMode.VIEW);
+		experimentFormController.init(views);
 		this.currentView = experimentFormController;
 	}
 	
 	this._showCreateDataSetPage = function(entity) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.CREATE, entity, null);
-		newView.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		this.currentView = newView;
 	}
 	
 	this._showViewDataSetPage = function(sample, dataset) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.VIEW, sample, dataset);
-		newView.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		this.currentView = newView;
 	}
 	
 	this._showEditDataSetPage = function(sample, dataset) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.EDIT, sample, dataset);
-		newView.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		this.currentView = newView;
 	}
 	
@@ -706,12 +920,14 @@ function MainController(profile) {
 		var newView = null;
 		
 		if(freeText) {
+			$("#search").addClass("search-query-searching");
 			newView = new AdvancedSearchController(this, freeText);
 		} else {
 			newView = new AdvancedSearchController(this);
 		}
 		
-		newView.init($("#mainContainer"));
+		var views = this._getNewViewModel(true, true, false);
+		newView.init(views);
 		if(freeText) {
 			newView.search();
 		}
@@ -797,7 +1013,8 @@ function MainController(profile) {
 								
 								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
 								localReference.currentView = dataGrid;
-								dataGrid.init($("#mainContainer"));
+								var content = localReference._getBackwardsCompatibleMainContainer();
+								dataGrid.init(content);
 								history.pushState(null, "", ""); //History Push State
 							}
 						});
@@ -923,7 +1140,8 @@ function MainController(profile) {
 									
 									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
 									localReference.currentView = dataGrid;
-									dataGrid.init($("#mainContainer"));
+									var content = localReference._getBackwardsCompatibleMainContainer();
+									dataGrid.init(content);
 									history.pushState(null, "", ""); //History Push State
 								} else {
 									//Discard old response, was triggered but a new one was started
@@ -1094,7 +1312,8 @@ function MainController(profile) {
 			
 			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS");
 			localReference.currentView = dataGrid;
-			dataGrid.init($("#mainContainer"));
+			var content = localReference._getBackwardsCompatibleMainContainer();
+			dataGrid.init(content);
 			history.pushState(null, "", ""); //History Push State
 		});
 	}

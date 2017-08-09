@@ -24,76 +24,122 @@ function StorageListView(storageListController, storageListModel) {
 		//
 		// Data Grid
 		//
-		var columns = [ {
-			label : 'Group',
-			property : 'groupDisplayName',
-			sortable : true
-		} , {
-			label : 'Name',
-			property : 'nameProperty',
-			sortable : true
-		} , {
-			label : 'Row',
-			property : 'rowProperty',
-			sortable : true
-		}, {
-			label : 'Column',
-			property : 'columnProperty',
-			sortable : true
-		}, {
-			label : 'Box',
-			property : 'boxProperty',
-			sortable : true
-		}, {
-			label : 'Box Size',
-			property : 'boxSizeProperty',
-			sortable : true
-		}, {
-			label : 'Position',
-			property : 'positionProperty',
-			sortable : true
-		}, {
-			label : 'User',
-			property : 'userProperty',
-			sortable : true
-		}];
+		var columns = [];
+		columns.push({
+			label : 'Link',
+			property : 'link',
+			isExportable: false,
+			sortable : false,
+			showByDefault: true,
+			render : function(data) {
+				var storagePropertyGroup = profile.getStoragePropertyGroup();
+				var boxProperty = data[storagePropertyGroup.boxProperty];
+				if(!boxProperty) {
+					boxProperty = "NoBox";
+				}
+				var positionProperty = data[storagePropertyGroup.positionProperty];
+				if(!positionProperty) {
+					positionProperty = "NoPos";
+				}
+				var displayName = boxProperty + " : " + positionProperty;
+				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			}
+		});
+		columns.push({
+			label : 'Identifier',
+			property : 'identifier',
+			isExportable: true,
+			sortable : false,
+			showByDefault: false,
+			hide : true,
+			render : function(data) {
+				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
+		columns.push({
+			label : 'Storage Name',
+			property : 'storageName',
+			isExportable: false,
+			sortable : true,
+			showByDefault: true
+		});
+		
+		var storagePropertyCodes = profile.getAllPropertiCodesForTypeCode("STORAGE_POSITION");
+		var storagePropertyCodesAsMap = {};
+		var propertiesToSkip = ["XMLCOMMENTS", "ANNOTATIONS_STATE"];
+		for(var pIdx = 0; pIdx < storagePropertyCodes.length; pIdx++) {
+			if($.inArray(storagePropertyCodes[pIdx], propertiesToSkip) !== -1) {
+				continue;
+			}
+			storagePropertyCodesAsMap[storagePropertyCodes[pIdx]] = true;
+		}
+		for (propertyCode in storagePropertyCodesAsMap) {
+			var propertyType = profile.getPropertyType(propertyCode);
+			columns.push({
+				label : propertyType.label,
+				property : propertyType.code,
+				sortable : true
+			});
+		}
+		
+		if(!this._storageListModel.isDisabled) {
+			columns.push(this.createOperationsColumn());
+		}
 		
 		var getDataList = function(callback) {
 			var dataList = [];
-			var sample = _this._storageListModel.sample;
-			var sampleTypeCode = sample.sampleTypeCode;
-			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+			var sampleChildren = _this._storageListModel.sample.children;
+			if(!sampleChildren) {
+				sampleChildren = [];
+				_this._storageListModel.sample.children = sampleChildren;
+			}
 			
-			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-				var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
+			var storagePropertyGroup = profile.getStoragePropertyGroup();
+			for(var i = 0; i < sampleChildren.length; i++) {
+				var sample = sampleChildren[i];
+				if(sample.sampleTypeCode !== "STORAGE_POSITION" || sample.deleteSample) {
+					continue;
+				}
 				
-				if(storagePropertyGroup) {
-					var userProperty = sample.properties[storagePropertyGroup.userProperty];
-					var nameProperty = sample.properties[storagePropertyGroup.nameProperty];
-					
-					if(	(userProperty && userProperty !== "") ||
-						(nameProperty && nameProperty !== "")) {
-						dataList.push({
-							groupDisplayName : storagePropertyGroup.groupDisplayName,
-							nameProperty : nameProperty,
-							rowProperty : sample.properties[storagePropertyGroup.rowProperty],
-							columnProperty : sample.properties[storagePropertyGroup.columnProperty],
-							boxProperty : sample.properties[storagePropertyGroup.boxProperty],
-							boxSizeProperty : sample.properties[storagePropertyGroup.boxSizeProperty],
-							positionProperty : sample.properties[storagePropertyGroup.positionProperty],
-							userProperty : userProperty
-						});
+				var object = { '$object' : sample };
+				object["identifier"] = sample.identifier;
+				for (propertyCode in storagePropertyCodesAsMap) {
+					var propertyType = profile.getPropertyType(propertyCode);
+					if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+						object[propertyCode] = FormUtil.getVocabularyLabelForTermCode(propertyType, sample.properties[propertyCode]);
+					} else {
+						object[propertyCode] = sample.properties[propertyCode];
 					}
 				}
+				
+				if(sample && sample.properties && sample.properties[profile.getStoragePropertyGroup().nameProperty]) {
+					object.storageName = _this._storageListModel.storageLabels[sample.properties[profile.getStoragePropertyGroup().nameProperty]];
+				}
+				dataList.push(object);
 			}
 			callback(dataList);
 		}
 		
 		var rowClick = null;
 		if(!this._storageListModel.isDisabled) {
-			rowClick = function(e) {
-				_this.showStorageWidget(e)
+			rowClick = function(data) {
+				var oldSample = data.data['$object'];
+				oldSample.newSample = true;
+				delete oldSample["@id"];
+				delete oldSample["@type"];
+				_this.showStorageWidget(data.data['$object'])
 			}
 		}
 		
@@ -105,77 +151,28 @@ function StorageListView(storageListController, storageListModel) {
 		
 		var $storageAddButton = $("<a>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));
 		
-		
 		$storageAddButton.on("click", function(event) {
-			var sample = _this._storageListModel.sample;
-			var sampleTypeCode = sample.sampleTypeCode;
-			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-			
-			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-				var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
-				
-				if(storagePropertyGroup) {
-					var userProperty = sample.properties[storagePropertyGroup.userProperty];
-					if(!userProperty || userProperty === "") { //Not Used
-						sample.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0]; //Mark to show
-					}
-				}
-			}
-			
-			if(_this.getUsedStorages() === _this.getMaxStorages()) {
-				$storageAddButton.attr("disabled", "");
-			}
-			
-			_this._dataGrid.refresh();
+			var uuid = Util.guid();
+			var newChildSample = {
+					newSample : true,
+					newSampleJustCreated : true,
+					code : uuid,
+					identifier : "/STORAGE/" + uuid,
+					sampleTypeCode : "STORAGE_POSITION",
+					properties : {}
+			};
+			_this._storageListModel.sample.children.push(newChildSample);
+			rowClick({ data : { '$object' : newChildSample }});
 		});
 		
-		if(this._storageListModel.isDisabled || this.getUsedStorages() === this.getMaxStorages()) {
+		if(this._storageListModel.isDisabled) {
 			$storageAddButton.attr("disabled", "");
 		}
 		
 		$container.append($storageAddButton);
-		$container.append("NOTE: Storages limited to " + this.getMaxStorages() + " for this type.");
 	}
 	
-	this.getUsedStorages = function() {
-		var count = 0;
-		var sample = this._storageListModel.sample;
-		var sampleTypeCode = sample.sampleTypeCode;
-		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
-		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-			var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
-			
-			if(storagePropertyGroup) {
-				var userProperty = sample.properties[storagePropertyGroup.userProperty];
-				if(userProperty) {
-					count++;
-				}
-			}
-		}
-		return count;
-	}
-	
-	this.getMaxStorages = function() {
-		var count = 0;
-		var sample = this._storageListModel.sample;
-		var sampleTypeCode = sample.sampleTypeCode;
-		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
-		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-			var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
-			
-			if(storagePropertyGroup) {
-				count++;
-			}
-		}
-		return count;
-	}
-	
-	this.showStorageWidget = function(e) {
+	this.showStorageWidget = function(sampleChild) {
 		var _this = this;
 		var css = {
 				'text-align' : 'left',
@@ -187,14 +184,13 @@ function StorageListView(storageListController, storageListModel) {
 				'height' : '90%'
 		};
 		
-		var container = "<div class='row col-md-12 form-horizontal' id='storage-pop-up-container'></div>";
+		var container = "<div id='storage-pop-up-container'></div>";
 		var containerButtons = "<a class='btn btn-default' id='storage-accept'>Accept</a> <a class='btn btn-default' id='storage-cancel'>Cancel</a>";
 			
 		Util.blockUI(container, css);
 		
-		
 		var storageController = new StorageController({
-			title : e.data.groupDisplayName,
+			title : "Physical Storage",
 			storagePropertyGroupSelector : "off",
 			storageSelector : "on",
 			userSelector : "off",
@@ -209,28 +205,79 @@ function StorageListView(storageListController, storageListModel) {
 			boxPositionMultiple: "on",
 			positionDragAndDropEnabled: "off"
 		});
-		var storagePropGroup = profile.getStoragePropertyGroup(e.data.groupDisplayName);
+		
+		var storagePropGroup = profile.getStoragePropertyGroup();
 		storageController.getModel().storagePropertyGroup = storagePropGroup;
-		this._storageListController._saveState(storagePropGroup);
-		storageController.bindSample(this._storageListModel.sample, this._storageListModel.isDisabled);
+		this._storageListController._saveState(sampleChild, storagePropGroup);
+		storageController.bindSample(sampleChild, this._storageListModel.isDisabled);
 		
 		var storageContainer = $("#storage-pop-up-container");
-		storageController.getView().repaint(storageContainer);
-		
-		storageContainer.append(containerButtons);
-		$("#storage-accept").on("click", function(event) {
-			storageController.isValid(function(isValid) {
-				if(isValid) {
-					Util.unblockUI();
-					_this._dataGrid.refresh();
-				}
+		storageController.getView().repaint(storageContainer, function() {
+			storageContainer.append(containerButtons);
+			
+			$("#storage-accept").on("click", function(event) {
+				storageController.isValid(function(isValid) {
+					if(isValid) {
+						delete sampleChild.newSampleJustCreated;
+						Util.unblockUI();
+						_this._dataGrid.refresh();
+					}
+				});
 			});
-		});
-		
-		$("#storage-cancel").on("click", function(event) {
-			_this._storageListController._restoreState();
-			Util.unblockUI();
-			_this._dataGrid.refresh();
+			
+			$("#storage-cancel").on("click", function(event) {
+				if(sampleChild.newSampleJustCreated) {
+					_this.removeChildFromSampleOrMarkToDelete(sampleChild);
+				} else {
+					_this._storageListController._restoreState(sampleChild);
+				}
+				Util.unblockUI();
+				_this._dataGrid.refresh();
+			});
+			
 		});
 	}
+	
+	this.createOperationsColumn = function() {
+		var _this = this;
+		return {
+			label : "",
+			property : "_Operations_",
+			isExportable: false,
+			showByDefault: true,
+			sortable : false,
+			render : function(data) {
+				var $minus = FormUtil.getButtonWithIcon("glyphicon-minus", function(event) { 
+					event.stopPropagation();
+					event.preventDefault();
+					var sample = data['$object'];
+					_this.removeChildFromSampleOrMarkToDelete(sample);
+					_this._dataGrid.refresh();
+				}, null, "Delete");
+				return $minus;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
+		}
+	}
+	
+	this.removeChildFromSampleOrMarkToDelete = function(child) {
+		if(child.newSample) {
+			//Remove
+			var allChildren = this._storageListModel.sample.children;
+			for(var i = 0; i < allChildren.length; i++) {
+				if(allChildren[i].code === child.code) {
+					allChildren.splice(i,1);
+				}
+			}
+		} else {
+			//Mark To delete
+			child.deleteSample = true;
+		}
+	}
+	
 }

@@ -30,14 +30,6 @@ function SideMenuWidgetController(mainController) {
     // External API for real time updates
     //
     
-    this.hideSideMenu = function() {
-        this._sideMenuWidgetView.hideSideMenu();
-    };
-
-    this.showSideMenu = function() {
-        this._sideMenuWidgetView.showSideMenu();
-    };
-    
     this.getCurrentNodeId = function() {
     	return (this._sideMenuWidgetModel.selectedNodeData)?this._sideMenuWidgetModel.selectedNodeData.key:null;
     };
@@ -80,14 +72,13 @@ function SideMenuWidgetController(mainController) {
 		
         var resize = function(event) {
         	var $elementHead = $("#sideMenuHeader");
-            var sideMenuHeaderHeight = $elementHead.height();
+            var sideMenuHeaderHeight = $elementHead.outerHeight();
             var $elementBody = $("#sideMenuBody");
-            var windowHeight = $(window).height();
-            $elementBody.css('max-height', (windowHeight - sideMenuHeaderHeight - 17) + "px");
+            var height = $( window ).height();
+            $elementBody.css('height', height - sideMenuHeaderHeight);
         }
         
-        $(window).resize(resize);
-        resize();
+        LayoutManager.addResizeEventHandler(resize);
         
         initCallback();
     }

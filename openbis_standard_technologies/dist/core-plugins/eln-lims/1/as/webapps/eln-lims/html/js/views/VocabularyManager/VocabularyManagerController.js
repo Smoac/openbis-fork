@@ -19,7 +19,7 @@ function VocabularyManagerController(mainController) {
 	this._vocabularyManagerModel = new VocabularyManagerModel();
 	this._vocabularyManagerView = new VocabularyManagerView(this, this._vocabularyManagerModel);
 	
-	this.init = function($container) {
-		this._vocabularyManagerView.repaint($container);
+	this.init = function(views) {
+		this._vocabularyManagerView.repaint(views);
 	}
 }

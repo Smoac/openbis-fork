@@ -22,7 +22,7 @@ function SampleFormController(mainController, mode, sample) {
 	this._plateController = null;
 	this._windowHandlers = [];
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		// Loading datasets
 		var _this = this;
 		if(mode !== FormMode.CREATE) {
@@ -32,12 +32,12 @@ function SampleFormController(mainController, mode, sample) {
 				}
 				
 				//Load view
-				_this._sampleFormView.repaint($container);
+				_this._sampleFormView.repaint(views);
 				Util.unblockUI();
 			});
 		} else {
 			//Load view
-			_this._sampleFormView.repaint($container);
+			_this._sampleFormView.repaint(views);
 			Util.unblockUI();
 		}
 		
@@ -90,7 +90,17 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.deleteSample = function(reason) {
 		var _this = this;
-		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.id], reason, function(data) {
+		
+		var samplesToDelete = [this._sampleFormModel.sample.id];
+		
+		for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
+			var child = this._sampleFormModel.sample.children[idx];
+			if(child.sampleTypeCode === "STORAGE_POSITION") {
+				samplesToDelete.push(child.id);
+			}
+		}
+		
+		mainController.serverFacade.deleteSamples(samplesToDelete, reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
@@ -111,7 +121,7 @@ function SampleFormController(mainController, mode, sample) {
 		//
 		// Parents/Children Links
 		//
-		if(!isCopyWithNewCode) {
+		if(!isCopyWithNewCode && sample.sampleTypeCode !== "REQUEST") { // REQUESTS are validated below
 			if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
 				return;
 			}
@@ -162,7 +172,25 @@ function SampleFormController(mainController, mode, sample) {
 		
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
-		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete) {
+		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete, newChangesToDo) {
+			
+			//
+			// TODO : Remove this hack without removing the New Producs Widget 
+			//
+			if(sample.sampleTypeCode === "REQUEST") {
+				var maxProducts;
+				if(profile.sampleTypeDefinitionsExtension && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"] && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"] && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]) {
+					maxProducts = profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]["MAX_COUNT"];
+				}
+				
+				if(maxProducts && (sampleParentsFinal.length + newSampleParents.length) > maxProducts) {
+					Util.showError("There is more than " + maxProducts + " product.");
+					return;
+				}
+			}
 			
 			//
 			//Identification Info
@@ -207,19 +235,46 @@ function SampleFormController(mainController, mode, sample) {
 			var samplesToCreate = [];
 			_this._sampleFormModel.sampleLinksChildren.getSamples().forEach(function(child) {
 				if(child.newSample) {
+				  child.experimentIdentifier = experimentIdentifier;
 				  child.properties = {};
+				  child.children = [];
 					if(profile.storagesConfiguration["isEnabled"]) {
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
+						var uuid = Util.guid();
+						var storagePosition = {
+								newSample : true,
+								code : uuid,
+								identifier : "/STORAGE/" + uuid,
+								sampleTypeCode : "STORAGE_POSITION",
+								properties : {}
+						};
+						
+						var storagePropertyGroup = profile.getStoragePropertyGroup();
+						storagePosition.properties[storagePropertyGroup.nameProperty] = $("#childrenStorageSelector").val();
+						storagePosition.properties[storagePropertyGroup.rowProperty] = 1;
+						storagePosition.properties[storagePropertyGroup.columnProperty] = 1;
+						storagePosition.properties[storagePropertyGroup.boxSizeProperty] = "1X1";
+						storagePosition.properties[storagePropertyGroup.boxProperty] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
+						storagePosition.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+						storagePosition.properties[storagePropertyGroup.positionProperty] = "A1";
+					
+						child.children.push(storagePosition);
 					}
 					samplesToCreate.push(child);
 				}
 			});
+			
+			if(_this._sampleFormModel.sample.children) {
+				_this._sampleFormModel.sample.children.forEach(function(child) {
+					if(child.newSample) {
+						samplesToCreate.push(child);
+					} else if(child.deleteSample) {
+						if(!samplesToDelete) {
+							samplesToDelete = [];
+						}
+						samplesToDelete.push(child.id);
+					}
+				});
+			}
 			
 			//Method
 			var method = "";
@@ -233,6 +288,8 @@ function SampleFormController(mainController, mode, sample) {
 			
 			if(_this._plateController) {
 				changesToDo = _this._plateController.getChangesToDo();
+			} else if(newChangesToDo) {
+				changesToDo = newChangesToDo;
 			}
 			
 			var parameters = {
@@ -279,38 +336,7 @@ function SampleFormController(mainController, mode, sample) {
 				if(!copyChildrenOnCopy) {
 					parameters["sampleChildren"] = [];
 				} else if(profile.storagesConfiguration["isEnabled"]) {
-					//1. All properties belonging to benches, to not to copy
-					for(var i = 0; i < profile.storagesConfiguration["STORAGE_PROPERTIES"].length; i++) {
-						var storagePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][i];
-						var listToUse = "notCopyProperties";
-						if(i === 0) {
-							listToUse = "defaultBenchPropertyList";
-						}
-						
-						parameters[listToUse].push(storagePropertyGroup["NAME_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["ROW_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["COLUMN_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["BOX_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["BOX_SIZE_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["USER_PROPERTY"]);
-						parameters[listToUse].push(storagePropertyGroup["POSITION_PROPERTY"]);
-					}
-					
-					//2. Default Bench properties
-					var defaultStoragePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][0];
-					parameters["defaultBenchProperties"] = {};
-					var defaultBench = "";
-					var $benchDropdown = FormUtil.getDefaultBenchDropDown();
-					if($benchDropdown.length > 1) {
-						defaultBench = $benchDropdown.children()[1].value;
-					}
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_SIZE_PROPERTY"]] = "1X1";
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["POSITION_PROPERTY"]] = "A1";
+					// Copying children no longer copies storage information
 				}
 				parameters["sampleChildrenNew"] = [];
 				parameters["sampleChildrenRemoved"] = [];
@@ -388,13 +414,12 @@ function SampleFormController(mainController, mode, sample) {
 			}
 			
 			if(samplesToDelete) {
-				mainController.serverFacade.deleteSamples(samplesToDelete, 
-															"Order " + _this._sampleFormModel.sample.code + " Created", 
+				mainController.serverFacade.deleteSamples(samplesToDelete,  "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier, 
 															function() {
 																Util.showSuccess(message, callbackOk);
 																_this._sampleFormModel.isFormDirty = false;
 															}, 
-															true);
+															false);
 			} else {
 				Util.showSuccess(message, callbackOk);
 				_this._sampleFormModel.isFormDirty = false;

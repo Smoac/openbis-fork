@@ -29,12 +29,16 @@
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-multiselect/css/bootstrap-multiselect.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-slider/css/bootstrap-slider.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-switch/css/toggle-switch.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-ui/js/jquery-ui.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-jnotify/css/jNotify.sis.jquery.css" />
-	<link type="text/css" rel="stylesheet" href="./lib/jquery-tooltipster/css/tooltipster.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-tooltipster/css/tooltipster.bundle.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/fuelux/css/fuelux.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-select2/css/select2.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-select2/css/select2-bootstrap.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/drawingboard/css/drawingboard.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-fancytree/js/skin-bootstrap/ui.fancytree.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/font-awesome/css/font-awesome.min.css" />
+	
 	
 	<!-- ELN UI Stylesheets -->
 	<link type="text/css" rel="stylesheet" href="./css/style.css" />
@@ -52,9 +56,10 @@
 	<script type="text/javascript" src="./lib/jquery-jnotify/js/jNotify.sis.jquery.js"></script>
 	<script type="text/javascript" src="./lib/jquery-blockui/js/jquery.blockUI.js"></script>
 	<script type="text/javascript" src="./lib/jquery-history/js/bundled/html5/jquery.history.js"></script>
-	<script type="text/javascript" src="./lib/jquery-tooltipster/js/jquery.tooltipster.min.js"></script>
+	<script type="text/javascript" src="./lib/jquery-tooltipster/js/tooltipster.bundle.min.js"></script>
 	<script type="text/javascript" src="./lib/jquery-tsv/js/jquery.tsv-0.96.min.js"></script>
 	<script type="text/javascript" src="./lib/fuelux/js/fuelux.min.js"></script>
+	<script type="text/javascript" src="./lib/jquery-select2/js/select2.full.min.js"></script>
 	<script type="text/javascript" src="./lib/d3/js/d3.min.js"></script>
 	<script type="text/javascript" src="./lib/d3-dagre/js/dagre-d3.min.js"></script>
 	<script type="text/javascript" src="./lib/naturalsort/js/naturalSort.js"></script>
@@ -66,19 +71,21 @@
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/lib/html4.js"></script>
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/lib/uri.js"></script>
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/sanitizer.js"></script>
-	
+
 	<!-- First party libraries -->
 	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
 	<script type="text/javascript" src="../../resources/api/v3/config.js"></script>
 	<script type="text/javascript" src="../../resources/api/v3/require.js"></script>
 	<script type="text/javascript" src="./lib/grid/js/Grid.js"></script>
-	
+
 	<!-- ELN UI -->
+	<script type="text/javascript" src="./js/controllers/LayoutManager.js"></script>
 	<script type="text/javascript" src="./js/controllers/MainController.js"></script>
 	
 	<script type="text/javascript" src="./js/config/ELNDictionary.js"></script>
 	<script type="text/javascript" src="./js/config/Profile.js"></script>
 	<script type="text/javascript" src="./js/config/StandardProfile.js"></script>
+	<script type="text/javascript" src="./js/config/SettingsManager.js"></script>
 	<script type="text/javascript" src="./js/server/ServerFacade.js"></script>
 	
 	<script type="text/javascript" src="./js/util/Util.js"></script>
@@ -172,6 +179,7 @@
 	<script type="text/javascript" src="./js/views/DataSetForm/widgets/DatasetViewerController.js"></script>
 	<script type="text/javascript" src="./js/views/DataSetForm/widgets/DatasetViewerModel.js"></script>
 	<script type="text/javascript" src="./js/views/DataSetForm/widgets/DatasetViewerView.js"></script>
+	<script type="text/javascript" src="./js/views/DataSetForm/widgets/ImagePreviewIconLoader.js"></script>
 	
 	<script type="text/javascript" src="./js/views/SideMenu/SideMenuWidgetController.js"></script>
 	<script type="text/javascript" src="./js/views/SideMenu/SideMenuWidgetModel.js"></script>
@@ -204,10 +212,22 @@
 	<script type="text/javascript" src="./js/views/LabNotebook/LabNotebookModel.js"></script>
 	<script type="text/javascript" src="./js/views/LabNotebook/LabNotebookView.js"></script>
 	
+	<script type="text/javascript" src="./js/views/SettingsForm/SettingsFormController.js"></script>
+	<script type="text/javascript" src="./js/views/SettingsForm/SettingsFormModel.js"></script>
+	<script type="text/javascript" src="./js/views/SettingsForm/SettingsFormView.js"></script>
+	
 	<script type="text/javascript" src="./js/views/Inventory/InventoryController.js"></script>
 	<script type="text/javascript" src="./js/views/Inventory/InventoryModel.js"></script>
 	<script type="text/javascript" src="./js/views/Inventory/InventoryView.js"></script>
 	
+	<script type="text/javascript" src="./js/views/Stock/StockController.js"></script>
+	<script type="text/javascript" src="./js/views/Stock/StockModel.js"></script>
+	<script type="text/javascript" src="./js/views/Stock/StockView.js"></script>
+
+	<script type="text/javascript" src="./js/views/UserProfile/UserProfileController.js"></script>
+	<script type="text/javascript" src="./js/views/UserProfile/UserProfileModel.js"></script>
+	<script type="text/javascript" src="./js/views/UserProfile/UserProfileView.js"></script>
+
 	<script type="text/javascript" src="./js/views/Export/ExportTreeController.js"></script>
 	<script type="text/javascript" src="./js/views/Export/ExportTreeModel.js"></script>
 	<script type="text/javascript" src="./js/views/Export/ExportTreeView.js"></script>
@@ -232,6 +252,7 @@
 	
 	var startELNLIMS = function() {
 		mainController = new MainController(profile);
+
 		// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
 		$(document).click(function(e) {
 			var elementClasses = $(e.target).attr('class');
@@ -260,9 +281,9 @@
 	
 		$('#login-form').submit(function() {
 			Util.blockUI();
+			$("#mainContainer").show();
 			var username = $('#username').val();
 			var password = $('#password').val();
-			
 			mainController.serverFacade.login(
 					$.trim($('#username').val()), 
 					$.trim($('#password').val()), 
@@ -289,31 +310,10 @@
 			Util.blockUI();
 			mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
 		}
-		
-		//Resize the menu on drag
-		var dragContainerFunc = function(e) {
-		    var menu = $('#sideMenu');
-		    var drag = $('#dragContainer');
-		    var main = $('#mainContainer');
-		    var mouseX = e.pageX;
-		    var windowWidth = window.outerWidth;
-		    var mainWidth = windowWidth - mouseX;
-		    menu.css("width", mouseX + "px");
-		    main.css("width", mainWidth + "px");
-		    main.css("left", mouseX);
-		    drag.css("left", mouseX);
-	    };
-	    
-		$("#dragContainer").draggable({
-			axis: "x",
-		    drag: dragContainerFunc
-		});
-
-		dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
-		
-		$( window ).resize(function() {
-			dragContainerFunc({ pageX : parseInt($('#dragContainer').css("left").replace("px","")) });
-		});
+		//Reset password
+		if (mainController.resetPasswordRequested()) {
+		    mainController.resetPassword();
+		}
 	}
 	
 	$(document).ready(function() {
@@ -348,23 +348,17 @@
 						<button class="btn btn-default" id="login-button" type="submit"><span class="glyphicon glyphicon-arrow-right"></span></button>
 				</fieldset>
 			</form>
-			
+
+
 			<center>
+				<div id="password-reset-container"></div>
+
 				<div style="margin-bottom: 5px;">Compatible With:</div>
 				<img src="./img/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-firefox.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-tablet.png" style="height:43px;" />
 			</center>
 	</div>
-	
-	<div id="main">
-		<div class="container">
-			<div class="row">
-				<div id ="sideMenu"  class="col-md-2" style="top:0px; left:0px; min-height:100%; padding:0px; border-color: #E7E7E7; border-style:solid; border-width:1px;"></div>
-				<div id ="dragContainer" style="z-index:10000; width:10px; height:100%; position:absolute; top:0px; cursor: col-resize;">&nbsp;</div>
-				<div id ="mainContainer" class="col-md-10" style="position:absolute;"></div>
-			</div>
-		</div>
+	<div class="container-fluid">
+		<div id='mainContainer' class="row"></div>
 	</div>
-	
-	
 </body>
 </html>

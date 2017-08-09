@@ -21,24 +21,22 @@ function SampleHierarchyTableView(controller, model) {
 	this._dataGrid;
 	this._hierarchyFilterController;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
 		var _this = this;
-		$container.empty();
-		var $containerColumn = $("<form>", { 
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+		
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""
 		});
-		$container.append($containerColumn);
-		
-		$containerColumn.append($("<h1>").append("" + ELNDictionary.Sample + " Hierarchy Table for " + this._model.sample.identifier));
-		this._hierarchyFilterController = new HierarchyFilterController(this._model.sample, function() {
-					_this._dataGrid.refresh();
-				});
-		this._hierarchyFilterController.init($containerColumn);
-		this._showHierarchy();
 		$containerColumn.append(this._container);
+		views.content.append($containerColumn);
+		
+		views.header.append($("<h1>").append("" + ELNDictionary.Sample + " Hierarchy Table for " + this._model.sample.identifier));
+		this._hierarchyFilterController = new HierarchyFilterController(this._model.sample, function() { _this._dataGrid.refresh(); });
+		this._hierarchyFilterController.init(views.header);
+		this._showHierarchy();
+		
 	}
 	
 	this._showHierarchy = function() {

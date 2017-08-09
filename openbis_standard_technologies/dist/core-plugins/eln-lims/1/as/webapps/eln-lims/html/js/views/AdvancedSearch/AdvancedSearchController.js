@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-function AdvancedSearchController(mainController, forceFreeTextSearch) {
+function AdvancedSearchController(mainController, forceSearch) {
 	this._mainController = mainController;
-	this._advancedSearchModel = new AdvancedSearchModel(forceFreeTextSearch);
+	this._advancedSearchModel = new AdvancedSearchModel(forceSearch);
 	this._advancedSearchView = new AdvancedSearchView(this, this._advancedSearchModel);
 
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
-		_this._advancedSearchView.repaint($container);
+		_this._advancedSearchView.repaint(views);
 	}
 	
 	this.search = function() {
@@ -72,8 +72,10 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 					rowData.entityType = (entity.type)?entity.type.code:"";
 					rowData.code =  entity.code;
 					rowData.permId = (entity.permId)?entity.permId.permId:"";
-					rowData.registrationDate = (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null;
-					rowData.modificationDate = (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null;
+					rowData.registrator = (entity.registrator)?entity.registrator.userId:null;
+					rowData.registrationDate = (entity.registrationDate)?Util.getFormatedDate(new Date(entity.registrationDate)):null;
+					rowData.modifier = (entity.modifier)?entity.modifier.userId:null;
+					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
 					rowData.entityObject = entity;
 					
 					if(entity.identifier) {
@@ -92,6 +94,7 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 					objects : dataList,
 					totalCount : results.totalCount
 				});
+				$("#search").removeClass("search-query-searching");
 			}
 			
 			var fetchOptions = {};

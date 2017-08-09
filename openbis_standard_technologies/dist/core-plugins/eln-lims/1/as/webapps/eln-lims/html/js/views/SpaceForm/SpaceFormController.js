@@ -19,8 +19,8 @@ function SpaceFormController(mainController, space) {
 	this._spaceFormModel = new SpaceFormModel(space);
 	this._spaceFormView = new SpaceFormView(this, this._spaceFormModel);
 	
-	this.init = function($container) {
-		this._spaceFormView.repaint($container);
+	this.init = function(views) {
+		this._spaceFormView.repaint(views);
 	}
 	
 	this.createProject = function() {

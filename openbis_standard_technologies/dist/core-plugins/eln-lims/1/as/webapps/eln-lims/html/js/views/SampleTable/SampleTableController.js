@@ -19,12 +19,12 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment);
 	this._sampleTableView = new SampleTableView(this, this._sampleTableModel);
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
 		Util.blockUI();
 		
 		var callback = function() {
-			_this._sampleTableView.repaint($container);
+			_this._sampleTableView.repaint(views);
 			Util.unblockUI();
 		};
 		
@@ -70,7 +70,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 	
 	this._reloadTableWithAllSamples = function(advancedSampleSearchCriteria) {
 			//Create and display table
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true);
+			var withExperiment = !this._sampleTableModel.experimentIdentifier && !this._sampleTableModel.experiment;
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment);
 			
 			
 			var extraOptions = [];
@@ -88,12 +89,21 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 					}
 					
 					Util.blockUI();
-					mainController.serverFacade.searchWithIdentifiers(sampleIdentifiers, function(selectedFinal) {
+					mainController.serverFacade.searchWithIdentifiers(sampleIdentifiers, function(selectedSamples) {
 						var sampleTechIds = [];
-						for(var sIdx = 0; sIdx < selectedFinal.length; sIdx++) {
-							sampleTechIds.push(selectedFinal[sIdx].id);
-							warningText += selectedFinal[sIdx].identifier + " ";
+						for(var sIdx = 0; sIdx < selectedSamples.length; sIdx++) {
+							var selectedSample = selectedSamples[sIdx];
+							sampleTechIds.push(selectedSample.id);
+							warningText += selectedSample.identifier + " ";
+							
+							for(var idx = 0; idx < selectedSample.children.length; idx++) {
+								var child = selectedSample.children[idx];
+								if(child.sampleTypeCode === "STORAGE_POSITION") {
+									sampleTechIds.push(child.id);
+								}
+							}
 						}
+						
 						var modalView = new DeleteEntityController(function(reason) {
 							mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
 								if(data.error) {

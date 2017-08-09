@@ -47,13 +47,13 @@ function TrashManagerController(mainController) {
 		});
 	}
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
 		mainController.serverFacade.listDeletions(function(data) {
 			if(data.result && data.result.length > 0) {
 				_this._trashManagerModel.deletions = data.result;
 			}
-			_this._trashManagerView.repaint($container);
+			_this._trashManagerView.repaint(views);
 		});
 	}
 }

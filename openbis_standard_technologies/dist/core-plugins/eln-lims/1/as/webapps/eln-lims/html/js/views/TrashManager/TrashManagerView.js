@@ -20,22 +20,33 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 	var deleteMessageOne = "The selected entity in the trashcan will be deleted permanently. This action cannot be undone!<br><br>Are you sure you want to continue?";
 	var deleteMessageMany = "All entities in the trashcan will be deleted permanently. This action cannot be undone!<br><br>Are you sure you want to continue?";
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
+				
+		//
+		// Title and Empty all button
+		//
+		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
+		deleteAllBtn.click(function() {
+			Util.showWarning(deleteMessageMany, function() {
+				_this._trashManagerController.emptyTrash();
+			});
+		});
+		
+		$header.append($("<h1>").append("Trashcan"));
+		$header.append(deleteAllBtn);
 		
 		//
-		// Form template and title
+		// Form template
 		//
-		var $containerColumn = $("<form>", { 
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""
 		});
-		
-		var $trashIcon = $("<span>", { 'class' : 'glyphicon glyphicon-trash'});
-		$containerColumn.append($("<h1>").append($trashIcon).append(" Trashcan"));
+		$container.append($containerColumn);
 		
 		//
 		// Table
@@ -178,18 +189,5 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE");
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
-		
-		//
-		// Empty all button
-		//
-		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
-		deleteAllBtn.click(function() {
-			Util.showWarning(deleteMessageMany, function() {
-				_this._trashManagerController.emptyTrash();
-			});
-		});
-		$containerColumn.append(deleteAllBtn);
-		//
-		$container.append($containerColumn);
 	}
 }

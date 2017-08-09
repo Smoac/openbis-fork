@@ -14,18 +14,7 @@
  * limitations under the License.
  */
 
-function StorageManagerController(mainController) {
-	//Upgraded storage model detection
-	if(profile.storagesConfiguration["isEnabled"]) {
-		var groups = profile.getStoragePropertyGroups();
-		for(var i = 0; i < groups.length; i++) {
-			if(!groups[i].boxSizeProperty || !groups[i].positionProperty) {
-				Util.showError("Your Storage Model does not work properly with the current ELN version: Storage group '" + groups[i].groupDisplayName + "' is missing the boxSizeProperty or positionProperty.");
-				return;
-			}
-		}
-	}
-	
+function StorageManagerController(mainController) {	
 	//Main View Setup
 	var _this = this;
 	this._mainController = mainController;
@@ -265,11 +254,11 @@ function StorageManagerController(mainController) {
 		}
 	});
 	
-	this.init = function($container) {
-		if(!FormUtil.getDefaultStoragesDropDown("", true)) {
+	this.init = function(views) {
+		if(!profile.storagesConfiguration["isEnabled"]) {
 			Util.showError("You need to configure the storage options to manage them. :-)");
 		} else {
-			this._storageManagerView.repaint($container);
+			this._storageManagerView.repaint(views);
 		}
 	}
 	

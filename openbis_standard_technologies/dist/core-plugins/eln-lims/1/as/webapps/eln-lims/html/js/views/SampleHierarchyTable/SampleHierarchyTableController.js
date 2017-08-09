@@ -19,8 +19,8 @@ function SampleHierarchyTableController(parentController, sample) {
 	this._model = new SampleHierarchyTableModel(sample);
 	this._view = new SampleHierarchyTableView(this, this._model);
 	
-	this.init = function($container) {
-		this._view.repaint($container);
+	this.init = function(views) {
+		this._view.repaint(views);
 	}
 
 }

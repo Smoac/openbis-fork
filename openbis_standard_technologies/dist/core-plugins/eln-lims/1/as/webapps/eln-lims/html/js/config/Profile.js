@@ -39,15 +39,18 @@ $.extend(DefaultProfile.prototype, {
 		this.mainMenu = {
 				showLabNotebook : true,
 				showInventory : true,
+				showStock : true,
 				showOrders : true,
-				showDrawingBoard : false,
-				showSampleBrowser : true,
+//				showDrawingBoard : false,
+				showObjectBrowser : true,
 				showExports : true,
 				showStorageManager : true,
 				showAdvancedSearch : true,
 				showTrashcan : true,
+				showSettings : true,
 				showVocabularyViewer : true,
-				showUserManager : true
+				showUserManager : true,
+				showUserProfile : true,
 		}
 		
 		this.orderLabInfo = {
@@ -126,15 +129,24 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS"]; //"STOCK_CATALOG"
-		this.inventorySpacesReadOnly = []; //"STOCK_ORDERS"
+		this.inventorySpaces = ["MATERIALS", "METHODS", "STORAGE", "STOCK_CATALOG"];
+		this.inventorySpacesReadOnly = ["ELN_SETTINGS", "STOCK_ORDERS"];
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
+		this.sampleTypeStorageEnabled = ["ANTIBODY", "BACTERIA", "CHEMICAL", "ENZYME", "CELL_LINE", "FLY", "MEDIA", "OLIGO", "PLASMID", "YEAST", "SOLUTION_BUFFER", "RNA"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
+		
+		this.isSampleTypeWithStorage = function(sampleTypeCode) {
+			return $.inArray(sampleTypeCode, this.sampleTypeStorageEnabled) !== -1;
+		}
 		
 		this.isELNIdentifier = function(identifier) {
 			var space = identifier.split("/")[1];
 			return !this.isInventorySpace(space);
+		}
+		
+		this.isHiddenSpace = function(spaceCode) {
+			return $.inArray(spaceCode, this.hideSpaces) !== -1;
 		}
 		
 		this.isInventorySpace = function(spaceCode) {
@@ -142,13 +154,18 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.directLinkEnabled = true;
-		this.directFileServer = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
+		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
+		this.cifsFileServer = null;
+		this.sftpFileServer = null;
+		
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : [],
+				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE"],
 				"experimentTypeCodes" : []
-		}		
+		}
+		this.hideSpaces = ["ELN_SETTINGS", "STORAGE"];
+		
 		this.propertyReplacingCode = "NAME";
 		
 		this.sampleTypeDefinitionsExtension = {
@@ -187,7 +204,7 @@ $.extend(DefaultProfile.prototype, {
 			if(sampleType && sampleType.listable) {
 				return ($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1);
 			} else {
-				return true;
+				return false;
 			}
 		}
 		
@@ -215,98 +232,61 @@ $.extend(DefaultProfile.prototype, {
 			return dataStoreURL;
 		}
 		
-		this.getStoragePropertyGroup = function(storagePropertyGroupDisplayName) {
+		this.getStoragePropertyGroup = function() {
 			if(!this.storagesConfiguration["isEnabled"]) {
 				return null;
 			}
 			
-			var storagePropertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
-			if(!storagePropertyGroups) {
-				return null;
-			}
-			
-			for(var i = 0; i < storagePropertyGroups.length; i++) {
-				if(storagePropertyGroupDisplayName === storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"]) {
-					propertyGroup = {};
-					propertyGroup.groupDisplayName = storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"];
-					propertyGroup.nameProperty = storagePropertyGroups[i]["NAME_PROPERTY"];
-					propertyGroup.rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
-					propertyGroup.columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
-					propertyGroup.boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
-					propertyGroup.boxSizeProperty = storagePropertyGroups[i]["BOX_SIZE_PROPERTY"];
-					propertyGroup.userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
-					propertyGroup.positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
-					return propertyGroup;
-				}
-			}
-			
-			return null;
+			propertyGroup = {};
+			propertyGroup.groupDisplayName = "Physical Storage";
+			propertyGroup.nameProperty = "STORAGE_CODE";
+			propertyGroup.rowProperty = "STORAGE_RACK_ROW";
+			propertyGroup.columnProperty = "STORAGE_RACK_COLUMN";
+			propertyGroup.boxProperty = "STORAGE_BOX_NAME";
+			propertyGroup.boxSizeProperty = "STORAGE_BOX_SIZE";
+			propertyGroup.positionProperty = "STORAGE_BOX_POSITION";
+			propertyGroup.userProperty = "STORAGE_USER";
+			return propertyGroup;
 		}
 		
-		this.getStoragePropertyGroups = function() {
-			if(!this.storagesConfiguration["isEnabled"]) {
-				return null;
-			}
-			
-			var storagePropertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
-			if(!storagePropertyGroups) {
-				return null;
-			}
-			
-			var propertyGroups = [];
-			for(var i = 0; i < storagePropertyGroups.length; i++) {
-				propertyGroups[i] = {};
-				propertyGroups[i].groupDisplayName = storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"];
-				propertyGroups[i].nameProperty = storagePropertyGroups[i]["NAME_PROPERTY"];
-				propertyGroups[i].rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
-				propertyGroups[i].columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
-				propertyGroups[i].boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
-				propertyGroups[i].boxSizeProperty = storagePropertyGroups[i]["BOX_SIZE_PROPERTY"];
-				propertyGroups[i].userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
-				propertyGroups[i].positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
-			}
-			return propertyGroups;
+		this.getStorageConfigFromSample = function(sample) {
+			return {
+				code : sample.code,
+				label : sample.properties[profile.propertyReplacingCode],
+				validationLevel : ValidationLevel[sample.properties["STORAGE_VALIDATION_LEVEL"]],
+				lowRackSpaceWarning : sample.properties["STORAGE_SPACE_WARNING"],
+				lowBoxSpaceWarning : sample.properties["BOX_SPACE_WARNING"],
+				rowNum : sample.properties["ROW_NUM"],
+				colNum : sample.properties["COLUMN_NUM"],
+				boxNum : sample.properties["BOX_NUM"]
+			};
 		}
 		
-		this.getStorageConfiguation = function(storageCode) {
-			if(!this.storagesConfiguration["isEnabled"]) {
-				return null;
-			}
-			
-			var configurationMap = this.storagesConfiguration["STORAGE_CONFIGS"][storageCode];
-			if(!configurationMap) {
-				return null;
-			}
-			
-			var configObj = {
-					validationLevel : configurationMap["VALIDATION_LEVEL"],
-					rowNum : configurationMap["ROW_NUM"],
-					colNum : configurationMap["COLUMN_NUM"],
-					boxNum : configurationMap["BOX_NUM"]
-			}
-			
-			if(configObj.validationLevel === null || configObj.validationLevel === undefined) {
-				configObj.validationLevel = ValidationLevel.BOX_POSITION;
-			}
-			
-			return configObj;
-		}
-		
-		this.getPropertyGroupFromStorage = function(propertyGroupName) {
-			if(!this.storagesConfiguration["isEnabled"]) { return false; }
+		this.getStoragesConfiguation = function(callbackFunction) {
 			var _this = this;
-			var propertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
-			var selectedPropertyGroup = null;
-			if(propertyGroups) {
-				propertyGroups.forEach(function(propertyGroup) {
-					if(propertyGroup["STORAGE_PROPERTY_GROUP"] === propertyGroupName) {
-						selectedPropertyGroup = propertyGroup;
-					}
-				});
+			if(!this.storagesConfiguration["isEnabled"]) {
+				callbackFunction(null);
 			}
-			return selectedPropertyGroup;
+			
+			mainController.serverFacade.searchByType("STORAGE", function(results) {
+				var configs = [];
+				for(var idx = 0; idx < results.length; idx++) {
+					configs.push(_this.getStorageConfigFromSample(results[idx]));
+				}
+				callbackFunction(configs);
+			});
 		}
 		
+		this.getStorageConfiguation = function(storageCode, callbackFunction) {
+			var _this = this;
+			if(!this.storagesConfiguration["isEnabled"]) {
+				callbackFunction(null);
+			}
+			
+			mainController.serverFacade.searchWithType("STORAGE", storageCode, null, function(results) {
+				callbackFunction(_this.getStorageConfigFromSample(results[0]));
+			});
+		}
 		
 		this.dataSetViewerConf = {
 			"DATA_SET_TYPES" : [".*"],
@@ -439,7 +419,14 @@ $.extend(DefaultProfile.prototype, {
 		/*
 		 * Used by DataSet Uploader
 		 */
+		this.dataSetTypeForFileNameMap = [];
+
 		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
+			for (var dataSetTypeForFileName of this.dataSetTypeForFileNameMap) {
+				if (fileName && fileName.endsWith(dataSetTypeForFileName.fileNameExtension)) {
+					return dataSetTypeForFileName.dataSetType;
+				}
+			}
 			return null;
 		}
 		
@@ -612,10 +599,24 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 		
-		this.getAllSampleTypes = function() {
-			return this.allSampleTypes;
+		this.getAllSampleTypes = function(skipHidden) {
+			if(skipHidden) {
+				var allNonHiddenSampleTypes = [];
+				for(var sIdx = 0; sIdx < this.allSampleTypes.length; sIdx++) {
+					var sampleType = this.allSampleTypes[sIdx];
+					if(!this.isSampleTypeHidden(sampleType.code)) {
+						allNonHiddenSampleTypes.push(sampleType);
+					}
+				}
+				return allNonHiddenSampleTypes;
+			} else {
+				return this.allSampleTypes;
+			}
 		}
-		
+
+		this.datasetViewerImagePreviewIconSize = 25; // width in px
+		this.datasetViewerMaxFilesizeForImagePreview = 50000000; // filesize in bytes
+
 		this.initPropertyTypes = function(callback) {
 			var _this = this; 
 			this.serverFacade.listPropertyTypes(function(data) {
@@ -754,8 +755,9 @@ $.extend(DefaultProfile.prototype, {
 		this.initDirectLinkURL = function(callback) {
 			var _this = this;
 			this.serverFacade.getDirectLinkURL(function(error, result) {
-				if(!error && result.data.protocol) {
-					_this.directFileServer = result.data;
+				if(!error && (result.data.cifs || result.data.sftp)) {
+					_this.cifsFileServer = result.data.cifs;
+					_this.sftpFileServer = result.data.sftp;
 				}
 				callback();
 			});
@@ -787,7 +789,14 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			});
 		}
-		
+
+		this.initSettings = function(callback) {
+			var settingsManager = new SettingsManager(this.serverFacade);
+			settingsManager.loadSettingsAndApplyToProfile((function() {
+				callback();
+			}));
+		}
+
 		//
 		// Initializes
 		//
@@ -799,7 +808,16 @@ $.extend(DefaultProfile.prototype, {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
-									callbackWhenDone();
+									_this.initSettings(function() {
+										//Check if the new storage system can be enabled
+										var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+										var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
+										_this.storagesConfiguration = { 
+												"isEnabled" : storageRack && storagePositionType
+										};
+										
+										callbackWhenDone();
+									});
 								});
 							});
 						});

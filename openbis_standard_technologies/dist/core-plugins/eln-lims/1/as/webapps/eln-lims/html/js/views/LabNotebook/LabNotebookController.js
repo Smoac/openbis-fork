@@ -19,7 +19,7 @@ function LabNotebookController(parentController) {
 	var labNotebookModel = new LabNotebookModel();
 	var labNotebookView = new LabNotebookView(this, labNotebookModel);
 	
-	this.init = function($container) {
-		labNotebookView.repaint($container);
+	this.init = function(views) {
+		labNotebookView.repaint(views);
 	}
 }

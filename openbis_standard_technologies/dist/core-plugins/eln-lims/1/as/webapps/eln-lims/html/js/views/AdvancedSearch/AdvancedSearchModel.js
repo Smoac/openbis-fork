@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-function AdvancedSearchModel(forceFreeTextSearch) {
+function AdvancedSearchModel(forceSearch) {
 	
-	this.forceFreeTextSearch = forceFreeTextSearch;
-	this.isSampleTypeForced = false;
-	
+	this.forceFreeTextSearch = null;
+	this.forceLoadCriteria = false;
 	this.criteria = {
-		entityKind : null,
-		logicalOperator : null,
-		rules : { } // { "UUIDv4" : { type : "PROPERTY", name : "GENE", value : "aa" } }
+			entityKind : null,
+			logicalOperator : null,
+			rules : { } // { "UUIDv4" : { type : "PROPERTY", name : "GENE", value : "aa" } }
 	}
 	
+	if(typeof forceSearch === 'object') {
+		this.criteria = forceSearch;
+		this.forceLoadCriteria = true;
+	} else {
+		this.forceFreeTextSearch = forceSearch;
+	}
+	
+	this.isSampleTypeForced = false;
 	this.isAllRules = function() {
 		for(ruleUUID in this.criteria.rules) {
 			var rule = this.criteria.rules[ruleUUID];

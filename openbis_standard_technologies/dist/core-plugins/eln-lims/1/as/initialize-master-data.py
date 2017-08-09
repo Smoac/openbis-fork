@@ -58,8 +58,6 @@ elnTypes.createVocabularyWithTerms(tr, elnTypes.CELL_MEDIUM);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.CELL_TYPE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.ORGANISM);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.PLASMID_RELATIONSHIP);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_NAMES);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_BOX_SIZE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.COLOR_ENCODED_ANNOTATIONS);
 
 ##
@@ -88,7 +86,8 @@ elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ANALYZED_DATA);
 ## Sample Types - Materials
 ##
 elnTypes.getCommentsScript(tr, "SAMPLE");
-elnTypes.getGeneticModificationsScript(tr, "SAMPLE")
+elnTypes.getGeneticModificationsScript(tr, "SAMPLE");
+elnTypes.getRequestsChildrenCodeScript(tr, "SAMPLE");
 
 
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.ANTIBODY);
@@ -103,21 +102,6 @@ elnTypes.createSampleTypeWithProperties(tr, elnTypes.BACTERIA);
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.YEAST);
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.CELL_LINE);
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.FLY);
-
-elnTypes.addPropertiesToSamples(tr, [
-	"ANTIBODY",
-	"BACTERIA",
-	"CHEMICAL",
-	"ENZYME",
-	"CELL_LINE",
-	"FLY",
-	"MEDIA",
-	"OLIGO",
-	"PLASMID",
-	"YEAST",
-	"SOLUTION_BUFFER",
-	"RNA"
-	], elnTypes.STORAGE_PROPERTIES);
 
 ##
 ## Sample Types - Non Materials
