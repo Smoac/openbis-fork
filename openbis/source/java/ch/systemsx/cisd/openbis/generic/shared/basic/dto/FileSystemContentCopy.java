@@ -48,11 +48,11 @@ public class FileSystemContentCopy implements IContentCopy
         String location = "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path;
         if (hash != null)
         {
-            location += "<br>Commit hash:" + hash;
+            location += "<br>Commit hash: " + hash;
         }
         if (repositoryId != null)
         {
-            location += "<br>Repository id:" + repositoryId;
+            location += "<br>Repository id: " + repositoryId;
         }
         return location;
     }
