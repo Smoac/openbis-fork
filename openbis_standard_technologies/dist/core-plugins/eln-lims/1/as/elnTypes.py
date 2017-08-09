@@ -14,6 +14,8 @@ samplesCache = {};
 commentsScriptCache = {};
 geneticModificationsScriptCache = {};
 annotationsScriptCache = {};
+requestsChildrenCodeScriptCache= {};
+
 
 ##
 ## Version Management
@@ -231,6 +233,20 @@ def getGeneticModificationsScript(tr, entityKind):
         geneticModificationsScriptCache[entityKind] = geneticModificationsScriptName;
         return geneticModificationsScriptName;
 
+def getRequestsChildrenCodeScript(tr, entityKind):
+    if entityKind in requestsChildrenCodeScriptCache:
+        return requestsChildrenCodeScriptCache[entityKind];
+    else:
+        requestsChildrenCodeScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "requests_children_code.py", 'r').read();
+        requestsChildrenCodeScriptName = "REQUESTS_CHILDREN_CODE_" + entityKind;
+        requestsChildrenCodeScript = tr.getOrCreateNewScript(requestsChildrenCodeScriptName);
+        requestsChildrenCodeScript.setName(requestsChildrenCodeScriptName);
+        requestsChildrenCodeScript.setDescription("Retrieve order code in requests");
+        requestsChildrenCodeScript.setScript(requestsChildrenCodeScriptAsString);
+        requestsChildrenCodeScript.setScriptType("DYNAMIC_PROPERTY");
+        requestsChildrenCodeScript.setEntityForScript(entityKind);
+        requestsChildrenCodeScriptCache[entityKind] = requestsChildrenCodeScriptName;
+        return requestsChildrenCodeScriptName;
 ##
 ## Vocabularies
 ##
@@ -243,6 +259,13 @@ HOST = [ FIRST_TIME_VERSIONED, "HOST", "Host organism",
                                     ["RABBIT", "rabbit", None],
                                     ["DONKEY", "donkey", None]
                                 ]];
+
+STORAGE_VALIDATION_LEVEL = [ FIRST_TIME_VERSIONED, "STORAGE_VALIDATION_LEVEL", "Validation Level",
+                                        [
+                                            ["RACK",            "Rack Validation",          None],
+                                            ["BOX",             "Box  Validation",          None],
+                                            ["BOX_POSITION",    "Box Position Validation",  None]
+                                        ]];
 
 DETECTION = [ FIRST_TIME_VERSIONED, "DETECTION", "Protein detection system",
                                         [
@@ -526,12 +549,6 @@ PLASMID_RELATIONSHIP = [FIRST_TIME_VERSIONED, "PLASMID_RELATIONSHIP", "Kind of p
                                             ["LOST", "Lost", None],
                                             ["OTHER", "Other", None]
                                         ]];
-                                        
-STORAGE_NAMES = [FIRST_TIME_VERSIONED, "STORAGE_NAMES", "Storages available on the lab",
-                                        [
-                                            ["BENCH", "Bench", None],
-                                            ["DEFAULT_STORAGE", "Default Storage", None]
-                                        ]];
 
 STORAGE_BOX_SIZE = [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE", "Boxes available on the lab",
                                         [
@@ -604,10 +621,15 @@ ATTACHMENT = [MANDATORY_ITEM_VERSION, "ATTACHMENT", "PHYSICAL", "", [
 ## Experiment Types
 ##
 MATERIALS = [MANDATORY_ITEM_VERSION, "MATERIALS", "Folder used to organize samples in the Inventory/MATERIALS", [
-        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
+        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None],
+        [MANDATORY_ITEM_VERSION, "DEFAULT_OBJECT_TYPE",  "General", "Default Object Type",      DataType.VARCHAR,             None,    "Default Object Type", None, None]
     ]];
 
 METHODS = [MANDATORY_ITEM_VERSION, "METHODS", "Folder used to organize samples in the Inventory/METHODS", [
+        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
+    ]];
+    
+COLLECTION = [MANDATORY_ITEM_VERSION, "COLLECTION", "Folder used to organize collections everywhere", [
         [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
     ]];
 
@@ -823,20 +845,6 @@ FLY = [FIRST_TIME_VERSIONED, True, "FLY", "", [
     ]];
 
 ##
-## Storage Properties used by mostly by materials
-##
-
-STORAGE_PROPERTIES = [
-        [FIRST_TIME_VERSIONED, "STORAGE_NAMES",        "Physical Storage",        "Storage Name",            DataType.CONTROLLEDVOCABULARY,        "STORAGE_NAMES",    "Storage Name", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_ROW",            "Physical Storage",        "Storage Row",            DataType.INTEGER,                    None,                "Storage Row", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_COLUMN",        "Physical Storage",        "Storage Column",        DataType.INTEGER,                    None,                "Storage Column", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",    "Physical Storage",        "Storage Box Name",        DataType.VARCHAR,                    None,                "Storage Box Name", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",    "Physical Storage",        "Storage Box Size",        DataType.CONTROLLEDVOCABULARY,        "STORAGE_BOX_SIZE",    "Storage Box Size", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_USER",        "Physical Storage",        "Storage User Id",        DataType.VARCHAR,                    None,                "Storage User Id", None, None],
-        [FIRST_TIME_VERSIONED, "STORAGE_POSITION",    "Physical Storage",        "Storage Position",        DataType.VARCHAR,                    None,                "Storage Position", None, None]
-];
-
-##
 ## Sample Types - Non Materials
 ##
 
@@ -901,6 +909,40 @@ WESTERN_BLOTTING_PROTOCOL = [FIRST_TIME_VERSIONED, True, "WESTERN_BLOTTING_PROTO
         [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", "ANNOTATIONS_WESTERN_BLOTTING_PROTOCOL", None]
     ]];
 
+##
+## Types - Configuration
+##
+GENERAL_ELN_SETTINGS = [MANDATORY_ITEM_VERSION, False, "GENERAL_ELN_SETTINGS", "Used to store the settings of the ELN application", [
+        [MANDATORY_ITEM_VERSION, "ELN_SETTINGS",   "Settings",    "ELN Settings",    DataType.VARCHAR,        None, "ELN Settings", None, None, False, False]
+]];
+
+##
+## Types - Storage
+##
+STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE", "", [
+    [FIRST_TIME_VERSIONED, "NAME",                          "General",              "Name",                                     DataType.VARCHAR,                   None,                           "Name",                                     None, None],
+    [FIRST_TIME_VERSIONED, "ROW_NUM",                       "General",              "Number of Rows",                           DataType.INTEGER,                   None,                           "Number of Rows",                           None, None],
+    [FIRST_TIME_VERSIONED, "COLUMN_NUM",                    "General",              "Number of Columns",                        DataType.INTEGER,                   None,                           "Number of Columns",                        None, None],
+    [FIRST_TIME_VERSIONED, "BOX_NUM",                       "General",              "Allowed number of Boxes in a rack",        DataType.INTEGER,                   None,                           "Allowed number of Boxes in a rack",        None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_SPACE_WARNING",         "General",              "Rack Space Warning",                       DataType.INTEGER,                   None,                           "Number between 0 and 99, represents a percentage.",    None, None],
+    [FIRST_TIME_VERSIONED, "BOX_SPACE_WARNING",             "General",              "Box Space Warning",                        DataType.INTEGER,                   None,                           "Number between 0 and 99, represents a percentage.",       None, None],
+    [FIRST_TIME_VERSIONED, "STORAGE_VALIDATION_LEVEL",      "General",              "Validation level",                         DataType.CONTROLLEDVOCABULARY,      "STORAGE_VALIDATION_LEVEL",     "Validation level", None, None],
+    [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",             "Comments List",                            DataType.XML,                       None,                           "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
+    [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",             "Annotations State",                        DataType.XML,                       None,                           "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
+]];
+
+STORAGE_POSITION = [MANDATORY_ITEM_VERSION, False, "STORAGE_POSITION", "", [
+    [FIRST_TIME_VERSIONED, "STORAGE_CODE",                  "Physical Storage",        "Storage Code",              DataType.VARCHAR,                    None,                "Storage Code",            None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_RACK_ROW",              "Physical Storage",        "Storage Rack Row",          DataType.INTEGER,                    None,                "Storage Rack Row",        None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_RACK_COLUMN",           "Physical Storage",        "Storage Rack Column",       DataType.INTEGER,                    None,                "Storage Rack Column",     None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",        None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",        None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_BOX_POSITION",          "Physical Storage",        "Storage Box Position",      DataType.VARCHAR,                    None,                "Storage Box Position",    None, None, False, False],
+    [FIRST_TIME_VERSIONED, "STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",         None, None, False, False],
+    [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",                "Comments List",             DataType.XML,                        None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
+    [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",                "Annotations State",         DataType.XML,                        None,                "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
+]];
+    
 ##
 ## Types - Orders
 ##
@@ -971,6 +1013,8 @@ PRODUCT = [MANDATORY_ITEM_VERSION, False, "PRODUCT", "", [
 
 REQUEST = [MANDATORY_ITEM_VERSION, False, "REQUEST", "", [
         [MANDATORY_ITEM_VERSION, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
+        [MANDATORY_ITEM_VERSION, "ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None, True],
+        [MANDATORY_ITEM_VERSION, "ORDER_NUMBER",                              "General",            "Order Number",                             DataType.VARCHAR,                   None,                                "Order number", None, "REQUESTS_CHILDREN_CODE_SAMPLE"],
         [MANDATORY_ITEM_VERSION, "PROJECT",                             "General",            "Project",                            DataType.VARCHAR,                   None,                       "Project",                          None,       None],
         [MANDATORY_ITEM_VERSION, "DEPARTMENT",                          "General",            "Department",                         DataType.VARCHAR,                   None,                       "Department",                       None,       None],
         [MANDATORY_ITEM_VERSION, "BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],

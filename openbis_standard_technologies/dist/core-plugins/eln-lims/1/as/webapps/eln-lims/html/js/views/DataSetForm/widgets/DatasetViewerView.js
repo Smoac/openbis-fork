@@ -18,6 +18,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	this._dataSetViewerController = dataSetViewerController;
 	this._dataSetViewerModel = dataSetViewerModel;
 	this._level = 3;
+	this._imagePreviewIconLoader = new ImagePreviewIconLoader();
 	
 	this.repaintDatasets = function() {
 		var _this = this;
@@ -153,6 +154,8 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 						var file = files.result[fIdx];
 						
 						var titleValue = null;
+						var imageUrl = null;
+						var imageIconUrl = null;
 						if (file.isDirectory) {
 							titleValue = file.pathInListing;
 							var directLink = _this._dataSetViewerModel.getDirectDirectoryLink(code, file.pathInDataSet);
@@ -163,11 +166,24 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 							var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
 							titleValue = $fileLink[0].outerHTML;
 							var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
+							imageUrl = _this._dataSetViewerModel.getImageUrl(code, file);
+							imageIconUrl = _this._dataSetViewerModel.getImageIconUrl(code, file);
 							if (previewLink) {
 								titleValue = previewLink + " " + titleValue;
 							}
 						}
-						results.push({ title : titleValue, key : file.pathInDataSet, folder : file.isDirectory, lazy : file.isDirectory, datasetCode : parentDatasetCode });
+						results.push({
+							// node properties
+							title : titleValue,
+							key : file.pathInDataSet,
+							folder : file.isDirectory,
+							lazy : file.isDirectory,
+							// custom data
+							fileSize : file.fileSize,
+							datasetCode : parentDatasetCode,
+							imageUrl : imageUrl,
+							imageIconUrl : imageIconUrl,
+						});
 					}
 					
 					dfd.resolve(results);
@@ -189,16 +205,60 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 				});
 			}
 		};
-		
+
+		var size = profile.datasetViewerSize;
+
+		/**
+		 * adds tooltip and image icon
+		 */
+		var onRenderNode = function(event, data) {
+
+	        // add tooltip for images
+			if ( ! data.node.data.tooltipLoaded && data.node.data.imageUrl != null) {
+	            var $img = $("<img>", { src : data.node.data.imageUrl });
+	            var $tooltip = $("<div>", { class : "tooltip_templates" }).append($("<span>")
+	                .append($img));
+
+	            var $span = $(data.node.span);
+	            $span.tooltipster({
+	                content : $tooltip,
+	                position : "left",
+	                functionFormat : function(instance, helper, content) {
+
+	                    var containerWidth = $(helper.origin).offset().left*0.9;
+	                    var containerHeight = $(window).height()*0.9;
+
+	                    var $img = content.find("img");
+	                    var imageSize = Util.getImageSize(containerWidth, containerHeight, $img[0].width, $img[0].height);
+
+	                    $img.css({
+	                        width : "" + imageSize.width + "px",
+	                        height : "" + imageSize.height + "px",
+	                        "background-color" : "white",
+	                    });
+
+	                    return content;
+	                }
+	            });
+
+	            data.node.data.tooltipLoaded = true;
+			}
+
+            // add preview icon
+	         if (data.node.data.imageIconUrl != null) {
+	             _this._imagePreviewIconLoader.loadImagePreviewIfNotAlreadyLoaded(data.node);	             
+	         }
+		}
+
 		$tree.fancytree({
 			extensions: ["dnd", "edit", "glyph"], //, "wide"
 			glyph: glyph_opts,
 			source: treeModel,
 			createNode: onCreateNode,
 			click: onClick,
-			lazyLoad : onLazyLoad
+			lazyLoad : onLazyLoad,
+			renderNode : onRenderNode,
 		});
-		
 	}
 	
 	this._handleFolderToStart = function(dataSetCode, path, handle) {

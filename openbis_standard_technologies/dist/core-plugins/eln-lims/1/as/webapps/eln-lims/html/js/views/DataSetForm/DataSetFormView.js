@@ -18,12 +18,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	this._dataSetFormController = dataSetFormController;
 	this._dataSetFormModel = dataSetFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
 		//Clean and prepare container
-		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
+		var $wrapper = $('<form>', { 'id' : 'mainDataSetForm', 'role' : 'form'});
 		if(this._dataSetFormModel.isMini) {
 			$wrapper.css('margin', '10px');
 			$wrapper.css('padding', '10px');
@@ -61,27 +61,20 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			.append($("<h2>").append(titleText))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		
-		if(!this._dataSetFormModel.isMini) {
-			$wrapper.append($title);
-		}
-		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
 			//Edit Button
-			if(this._dataSetFormModel.mode === FormMode.VIEW) {
-				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
-				});
-				toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
-			}
+			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+			});
+			toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
 			
 			//Delete Button
 			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
 				_this._dataSetFormController.deleteDataSet(reason);
-				mainController.sideMenu.deleteNodeByEntityPermId(_this._dataSetFormModel.dataSet.code, true);
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 			
@@ -98,10 +91,19 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+		} else if(!this._dataSetFormModel.isMini) {
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._dataSetFormController.submitDataSet();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
 		if(!this._dataSetFormModel.isMini) {
-			$wrapper.append(FormUtil.getToolbar(toolbarModel));
+			var $header = views.header;
+			$header.append($title);
+			$header.append(FormUtil.getToolbar(toolbarModel));
 		}
 		
 		//Drop Down DataSetType Field Set
@@ -123,12 +125,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				_this.isFormDirty = true;
 			});
 			
-			var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
+			var $dataSetTypeDropDown = $('<div>', { class : 'form-group' });
 			if(!this._dataSetFormModel.isMini) {
-				$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
+				$dataSetTypeDropDown.append($('<label>', {class: "control-label"}).html('Data Set Type&nbsp;(*):'));
 			}
 			
-			var $dataSetTypeDropDowContainer = $('<div>', {class: FormUtil.controlColumnClass});
+			var $dataSetTypeDropDowContainer = $('<div>');
 			if(this._dataSetFormModel.isMini) {
 				$dataSetTypeDropDowContainer.css('width', '100%');
 			}
@@ -194,21 +196,21 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		//Submit Button
 		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
-			var btnText = "";
-			if(this._dataSetFormModel.mode === FormMode.CREATE) {
-				btnText = 'Create';
-			} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-				btnText = 'Update';
-			}
-			
-			var $submitButton = $('<fieldset>')
-			.append($('<div>', { class : "form-group"}))
-			.append($('<div>', {class: FormUtil.controlColumnClass})
-						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
-			
-			
-			$wrapper.append($submitButton);
-			if(_this._dataSetFormModel.isMini){
+			if(_this._dataSetFormModel.isMini) {
+				var btnText = "";
+				if(this._dataSetFormModel.mode === FormMode.CREATE) {
+					btnText = 'Create';
+				} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
+					btnText = 'Update';
+				}
+				
+				var $submitButton = $('<fieldset>')
+				.append($('<div>', { class : "form-group"}))
+				.append($('<div>')
+							.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
+				
+				$wrapper.append($submitButton);
+				
 				var $autoUploadCheck = FormUtil._getBooleanField(null, 'Auto upload on drop');
 					$($autoUploadCheck.children()[0]).children()[0].checked = _this._dataSetFormModel.isAutoUpload;
 				
@@ -222,13 +224,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					
 				var $autoUploadGroup = $('<fieldset>')
 						.append($('<div>', { class : "form-group"}))
-						.append($('<div>', {class: FormUtil.controlColumnClass})
+						.append($('<div>')
 						.append($autoUploadCheck).append(" Auto upload on drop"));
 				
 				$wrapper.append($('<fieldset>').append($autoUploadGroup));
 			}
-			
-			
 		}
 		
 		//Attach to main form
@@ -330,8 +330,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			
 			var $folderName = $('<div>')
 			.append($('<div>', { class : "form-group"})
-					.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
-					.append($('<div>', {class: FormUtil.controlColumnClass})
+					.append($('<label>', {class : 'control-label'}).html('Folder Name&nbsp;(*):'))
+					.append($('<div>')
 						.append($textField))
 			);
 			$wrapper.append($folderName);
@@ -343,8 +343,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			if(isZipDirectoryUpload === null) {
 				var $fileFieldSetIsDirectory = $('<div>')
 				.append($('<div>', { class : "form-group"})
-							.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).text('Uncompress before import:'))
-							.append($('<div>', {class: FormUtil.controlColumnClass})
+							.append($('<label>', {class : 'control-label'}).text('Uncompress before import:'))
+							.append($('<div>')
 								.append(FormUtil._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
 				);
 				$wrapper.append($fileFieldSetIsDirectory);
@@ -359,8 +359,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						
 						var $folderName = $('<div>', { "id" : "folderNameContainer"})
 						.append($('<div>', { class : "form-group"})
-								.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
-								.append($('<div>', {class: FormUtil.controlColumnClass})
+								.append($('<label>', {class : 'control-label' }).html('Folder Name&nbsp;(*):'))
+								.append($('<div>')
 									.append($textField))
 						);
 						$("#fileOptionsContainer").append($folderName);
@@ -448,8 +448,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					} else {
 						var $controlGroup = $('<div>', {class : 'form-group'});
 						var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
-						var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
-						var $controls = $('<div>', {class : FormUtil.controlColumnClass});
+						var $controlLabel = $('<label>', {'class' : "control-label" }).html(propertyType.label + requiredStar + ":");
+						var $controls = $('<div>');
 						
 						$controlGroup.append($controlLabel);
 						$controlGroup.append($controls);

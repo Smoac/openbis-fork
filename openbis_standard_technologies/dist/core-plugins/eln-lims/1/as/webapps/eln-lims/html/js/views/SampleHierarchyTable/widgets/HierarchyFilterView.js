@@ -54,8 +54,6 @@ function HierarchyFilterView(controller, model) {
 			.append($filtersFormSliderParents)
 			.append("<span style='padding-right:15px;'></span>")
 			.append(' Show Types: ')
-			.append($filtersFormSampleTypes)
-			.append("<span style='position:absolute; left:30px; top:80px;'><svg height='100' width='100'><g id='svgControls'/></svg></span>");
-
+			.append($filtersFormSampleTypes);
 	}
 }

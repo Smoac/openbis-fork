@@ -18,51 +18,21 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 	this._experimentFormController = experimentFormController;
 	this._experimentFormModel = experimentFormModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
 		
-		var columnWith = 12;
-		if(this._experimentFormModel.mode === FormMode.VIEW) {
-			columnWith = 8;
-		}
+		var $form = $("<span>");
 		
-		var $form = $("<span>", { "class" : "row col-md-" + columnWith });
-		
-		var $formColumn = $("<form>", { 
-			"class" : "form-horizontal form-panel-one", 
+		var $formColumn = $("<form>", {
 			'role' : "form",
-			'action' : 'javascript:void(0);',
-			'onsubmit' : 'mainController.currentView.updateExperiment();'
+			'action' : 'javascript:void(0);'
 		});
 		
 		var $rightPanel = null;
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
-			$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+			$rightPanel = views.auxContent;
 		}
-		//
-		if($rightPanel) {
-			var windowScrollManager = function($form, $rightPanel) {
-				return function() {
-					if($(window).width() > 1024) { //Min Desktop resolution
-						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
-						$("#mainContainer").css("overflow-y", "hidden");
-						$formColumn.css(scrollablePanelCss);
-						$rightPanel.css(scrollablePanelCss);
-					} else {
-						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
-						$("#mainContainer").css("overflow-y", "auto");
-						$formColumn.css(normalPanelCss);
-						$rightPanel.css(normalPanelCss);
-					}
-				}
-			}
-			windowScrollManager = windowScrollManager($form, $rightPanel);
-			$(window).resize(windowScrollManager);
-			this._experimentFormController._windowHandlers.push(windowScrollManager);
-			$(window).resize();
-		}
-		//
 		
 		$form.append($formColumn);
 		
@@ -98,13 +68,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			.append($("<h2>").append(title))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		
-		$formColumn.append($formTitle);
-		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
-		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+		if(this._experimentFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
 			if(profile.getSampleTypeForSampleTypeCode("EXPERIMENTAL_STEP") && !profile.isSampleTypeHidden("EXPERIMENTAL_STEP")) {
 				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
@@ -136,7 +104,22 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				mainController.changeView('showCreateDataSetPageFromExpPermId',_this._experimentFormModel.experiment.permId);
 			});
 			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
-			
+
+			//Get dropbox folder name
+			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-circle-arrow-up", (function () {
+				var splitExperimentIdentifier = _this._experimentFormModel.experiment.identifier.split("/");
+				var space = splitExperimentIdentifier[1];
+				var project = splitExperimentIdentifier[2];
+				var nameElements = [
+					"E",
+					space,
+					project,
+					_this._experimentFormModel.experiment.code,
+				];
+				FormUtil.showDropboxFolderNameDialog(nameElements);
+			}).bind(this));
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Name generator for dataset upload with dropbox" });
+
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 				Util.blockUI();
@@ -150,31 +133,18 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+		} else { //Create and Edit
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._experimentFormController.updateExperiment();
+			}, "Save");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append($("<br>"));
-		
-		//
-		// PREVIEW IMAGE
-		//
-		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
-											 'class' : 'zoomableImage',
-											 'id' : 'preview-image',
-											 'src' : './img/image_loading.gif',
-											 'style' : 'max-width:100%; display:none;'
-											});
-			$previewImage.click(function() {
-				Util.showImage($("#preview-image").attr("src"));
-			});
-			
-			if($rightPanel && $(window).width() > 1024) { //Min Desktop resolution
-				$rightPanel.append($previewImage);
-			} else {
-				$formColumn.append($previewImage);
-			}
-		}
+		var $header = views.header;
+		$header.append($formTitle);
+		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
 		// Identification Info on Create
@@ -197,10 +167,16 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		//Sample List Container
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
 			$formColumn.append($("<legend>").append(ELNDictionary.Samples));
+			var sampleListHeader = $("<div>");
 			var sampleListContainer = $("<div>");
+			$formColumn.append(sampleListHeader);
 			$formColumn.append(sampleListContainer);
+			var views = {
+					header : sampleListHeader,
+					content : sampleListContainer
+			}
 			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier, null, null, this._experimentFormModel.experiment);
-			sampleList.init(sampleListContainer);
+			sampleList.init(views);
 		}
 		
 		//
@@ -211,8 +187,30 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		//
+		// PREVIEW IMAGE
+		//
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
+											 'class' : 'zoomableImage',
+											 'id' : 'preview-image',
+											 'src' : './img/image_loading.gif',
+											 'style' : 'max-width:100%; display:none;'
+											});
+			$previewImage.click(function() {
+				Util.showImage($("#preview-image").attr("src"));
+			});
+			
+			if($rightPanel !== null) { //Min Desktop resolution
+				$rightPanel.append($previewImage);
+			} else {
+				$formColumn.append($previewImage);
+			}
+		}
+		
+		//
 		// DATASETS
 		//
+		
 		// Viewer
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
 		// Uploader
@@ -226,45 +224,28 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append($dataSetUploaderContainer);
 		}
 		
-		//Create/Update Buttons
-		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
-			var btnTitle = "";
-			switch(this._experimentFormModel.mode) {
-		    	case FormMode.CREATE:
-		    		btnTitle = "Create";
-		    		break;
-		    	case FormMode.EDIT:
-		    		btnTitle = "Update";
-		    		break;
-			}
-			
-			
-			$formColumn.append($("<br>"));
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
-			$formColumn.append($updateBtn);
-		}
-		
 		//
 		// INIT
 		//
 		$container.append($form);
-		if($rightPanel) {
-			$container.append($rightPanel);
-		}
 		
 		Util.unblockUI();
 		
-		if(this._experimentFormModel.mode === FormMode.VIEW) {
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
 			var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : this._experimentFormModel.experiment.permId } };
 			var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
 			mainController.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
 				// Viewer
 				_this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, data.objects[0], mainController.serverFacade, profile.getDefaultDataStoreURL(), null, false, true);
 				_this._experimentFormModel.dataSetViewer.init();
-				// Uploader
-				var $dataSetFormController = new DataSetFormController(_this, FormMode.CREATE, data.objects[0], null, true);
-				$dataSetFormController.init($dataSetUploaderContainer);
-				
+				if(_this._experimentFormModel.mode === FormMode.VIEW) {
+					// Uploader
+					var $dataSetFormController = new DataSetFormController(_this, FormMode.CREATE, data.objects[0], null, true);
+					var viewsForDS = {
+							content : $dataSetUploaderContainer
+					}
+					$dataSetFormController.init(viewsForDS);
+				}
 			});
 		}
 		

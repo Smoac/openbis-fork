@@ -49,7 +49,7 @@ var Util = new function() {
 		});
 	}
 	
-	this.blockUI = function(message, extraCSS) {
+	this.blockUI = function(message, extraCSS, disabledFadeAnimation) {
 		this.unblockUI();
 		BlockScrollUtil.disable_scroll();
 		
@@ -71,11 +71,17 @@ var Util = new function() {
 		}
 		
 		$('#navbar').block({ message: '', css: { width: '0px' } });
+		var params = { css : css };
 		if(message) {
-			$.blockUI({ message: message, css: css});
+			params.message = message;
 		} else {
-			$.blockUI({ message: '<h1><img src="./img/busy.gif" /> Just a moment...</h1>', css: css });
+			params.message = '<h1><img src="./img/busy.gif" /> Just a moment...</h1>';
 		}
+		if (disabledFadeAnimation) {
+			params.fadeIn = 0;
+			params.fadeOut = 0;
+		}
+		$.blockUI(params);
 		
 		//Enable/Disable scroll when the mouse goes in/out
 		$('.blockUI.blockMsg.blockPage').hover(function() {
@@ -244,6 +250,28 @@ var Util = new function() {
 		});
 	}
 
+	this.getDirectLinkWindows = function(protocol, config, path) {
+		var hostName = window.location.hostname;
+		var suffix = config.UNCsuffix;
+		if(!suffix) {
+			suffix = ""; 
+		}
+		var port = config.port;
+	
+		return "\\\\" + hostName + "\\" + (new String(suffix + path).replace(new RegExp("/", 'g'),"\\"));
+	}
+	
+	this.getDirectLinkUnix = function(protocol, config, path) {
+		var hostName = window.location.hostname;
+		var suffix = config.UNCsuffix;
+		if(!suffix) {
+			suffix = ""; 
+		}
+		var port = config.port;
+	
+		return protocol + "://" + hostName + ":" + port + "/" + suffix + path;
+	}
+	
 	this.showDirectLink = function(path) {
 		var css = {
 				'text-align' : 'left',
@@ -254,41 +282,58 @@ var Util = new function() {
 				'overflow' : 'hidden'
 		};
 		
-		var hostName = window.location.hostname;
-		var protocol = profile.directFileServer.protocol;
-		var suffix = profile.directFileServer.UNCsuffix;
-		if(!suffix) {
-			suffix = ""; 
-		}
-		var port = profile.directFileServer.port;
-		
-		directLinkUnix = protocol + "://" + hostName + ":" + port + "/" + suffix + path;
-		directLinkWin = "\\\\" + hostName + "\\" + (new String(suffix + path).replace(new RegExp("/", 'g'),"\\"));
-		var $close = $("<div>", { style : "float:right;" })
-							.append($("<a>", { class : 'btn btn-default' }).append($("<span>", { class : 'glyphicon glyphicon-remove' }))).click(function() {
-								Util.unblockUI();
-							});
-		
 		var isWindows = window.navigator.userAgent.toLowerCase().indexOf("windows") > -1;
-		var $window = null;
+		var cifsLink = null;
+		var sftpLink = null;
+		
 		if(isWindows) {
-			var $readOnlyInput = $("<input>", { class : "form-control", id : "windowsLink", readonly : "readonly", type : "text", value :  directLinkWin, onClick : "this.setSelectionRange(0, this.value.length)" });
-			
-			$window = $("<div>").append($close).append($("<h1>").append("Direct Link"))
-					.append("Please use this link to access the folder though the network, copy it on the explorer address bar: ")
-					.append($("<br>"))
-					.append($readOnlyInput);
+			if(profile.cifsFileServer) {
+				cifsLink = this.getDirectLinkWindows("cifs", profile.cifsFileServer, path);
+			}
+			if(profile.sftpFileServer) {
+				sftpLink = this.getDirectLinkUnix("sftp", profile.sftpFileServer, path);
+			}
 		} else {
-			$window = $("<div>").append($close).append($("<h1>").append("Direct Link"))
-					.append("Please use this link to access the folder though the network, directly clicking on it will open it with the default application: ")
-					.append($("<br>"))
-					.append($("<b>Link: </b>"))
-					.append($("<a>", { "href" : directLinkUnix, "target" : "_blank"}).append(directLinkUnix));
+			if(profile.cifsFileServer) {
+				cifsLink = this.getDirectLinkUnix("cifs", profile.cifsFileServer, path);
+			}
+			if(profile.sftpFileServer) {
+				sftpLink = this.getDirectLinkUnix("sftp", profile.sftpFileServer, path);
+			}
 		}
 		
+		var $close = $("<div>", { style : "float:right;" })
+						.append($("<a>", { class : 'btn btn-default' }).append($("<span>", { class : 'glyphicon glyphicon-remove' }))).click(function() {
+							Util.unblockUI();
+		});
+		
+		var $window = $("<div>").append($close).append($("<h1>").append("Direct Links"));
+		$window.append("To access the folder though the network you have the next options:").append($("<br>"));
 		$window.css("margin-bottom", "10px");
 		$window.css("margin-left", "10px");
 		$window.css("margin-right", "10px");
+		
+		if(isWindows) {
+			if(profile.cifsFileServer) {
+				var $readOnlyInput = $("<input>", { class : "form-control", id : "windowsLink", readonly : "readonly", type : "text", value :  cifsLink, onClick : "this.setSelectionRange(0, this.value.length)" });
+				$window.append("<b>CIFS Link: </b>").append($readOnlyInput).append("NOTE: The CIFS link can be copied directly on windows explorer address bar.");
+				$window.append($("<br>")).append($("<br>"));
+			}
+			if(profile.sftpFileServer) {
+				$window.append("<b>SFTP Link: </b>").append($("<br>")).append($("<a>", { "href" : sftpLink, "target" : "_blank"}).append(sftpLink)).append($("<br>"));
+				$window.append("NOTE: The SFTP link can be opened with your favourite SFTP application, we recomend ").append($("<a>", { "href" : "https://cyberduck.io/", "target" : "_blank"}).append("Cyberduck")).append(".");
+			}
+		} else {
+			
+			if(profile.cifsFileServer) {
+				$window.append($("<b>CIFS Link: </b>")).append($("<a>", { "href" : cifsLink, "target" : "_blank"}).append(cifsLink)).append($("<br>"));
+			}
+			if(profile.sftpFileServer) {
+				$window.append($("<b>SFTP Link: </b>")).append($("<a>", { "href" : sftpLink, "target" : "_blank"}).append(sftpLink)).append($("<br>"));
+			}
+			
+			$window.append("NOTE: Directly clicking on the links will open them with the default application. ").append("For SFTP we recomend ").append($("<a>", { "href" : "https://cyberduck.io/", "target" : "_blank"}).append("Cyberduck")).append(".");
+		}
 		
 		Util.blockUI($window, css);
 	}
@@ -384,32 +429,35 @@ var Util = new function() {
 		}
 		
 		var $image = $("<img>", {"src" : imageURL});
-		$image.load(function() {
-			var imageWidth = $image[0].width;
-			var imageHeight = $image[0].height;
-			
-			if(containerWidth < imageWidth) {
-				var newImageWidth = containerWidth;
-				var newImageHeight = imageHeight * newImageWidth / imageWidth;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			if(containerHeight < imageHeight) {
-				var newImageHeight = containerHeight;
-				var newImageWidth = imageWidth * newImageHeight / imageHeight;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			$image.attr("width", imageWidth);
-			$image.attr("height", imageHeight);
+		$image.load((function() {
+			var imageSize = this.getImageSize(containerWidth, containerHeight, $image[0].width, $image[0].height);
+			$image.attr("width", imageSize.width);
+			$image.attr("height", imageSize.height);
 			showImageB($image);
-		});
+		}).bind(this));
 	}
-	
+
+	this.getImageSize = function(containerWidth, containerHeight, imageWidth, imageHeight) {
+		
+		if(containerWidth < imageWidth) {
+			var newImageWidth = containerWidth;
+			var newImageHeight = imageHeight * newImageWidth / imageWidth;
+			
+			imageWidth = newImageWidth;
+			imageHeight = newImageHeight;
+		}
+		
+		if(containerHeight < imageHeight) {
+			var newImageHeight = containerHeight;
+			var newImageWidth = imageWidth * newImageHeight / imageHeight;
+			
+			imageWidth = newImageWidth;
+			imageHeight = newImageHeight;
+		}
+
+		return {width : imageWidth, height : imageHeight};		
+	}
+
 	//
 	// Date Formating
 	//
@@ -626,6 +674,13 @@ var Util = new function() {
 		saveAs(blob, fileName);
 	}
 	
+	this.mergeObj = function(obj1, obj2) {
+        var obj3 = {};
+        for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+        for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+        return obj3;
+    };
+    
 	//
 	// Components Resize events
 	//

@@ -19,9 +19,10 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._tableContainer = $("<div>");
 	this.sampleTypeSelector = null;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $container = views.content;
 		var _this = this;
-		$container.empty();
+		
 		var $title = $("<div>");
 		if(this._sampleTableModel.title && this._sampleTableModel.experimentIdentifier) {
 			
@@ -35,7 +36,6 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		} else if(this._sampleTableModel.title) {
 			$title.append($("<h2>").append(this._sampleTableModel.title));
 		}
-		$container.append($title);
 		
 		//
 		// Toolbar
@@ -58,11 +58,22 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				sampleTypeCode = sampleTypeCodesFound[0];
 			}
 			
+			//
+			var mandatorySampleTypeCode = null;
+			if(this._sampleTableModel.experiment && 
+					this._sampleTableModel.experiment.properties &&
+					this._sampleTableModel.experiment.properties["DEFAULT_OBJECT_TYPE"]) {
+				mandatorySampleTypeCode = this._sampleTableModel.experiment.properties["DEFAULT_OBJECT_TYPE"];
+			}
+			
+			var sampleTypeCodeToUse = (mandatorySampleTypeCode)?mandatorySampleTypeCode:sampleTypeCode;
+			this._sampleTableModel.sampleTypeCodeToUse = sampleTypeCodeToUse;
+			
 			//Add Sample Type
-			if(sampleTypeCode !== null) {
+			if(sampleTypeCodeToUse !== null) {
 				var $createButton = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
-							"sampleTypeCode" : sampleTypeCode,
+							"sampleTypeCode" : sampleTypeCodeToUse,
 							"experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
 					}
 					var argsMapStr = JSON.stringify(argsMap);
@@ -70,7 +81,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
 				});
 				
-				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCode) });
+				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCodeToUse) });
 			}
 		}
 		
@@ -85,16 +96,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 		}
 		
+		var $header = views.header;
+		$header.append($title);
+		
 		if(toolbarModel.length > 0) {
-			$container.append(FormUtil.getToolbar(toolbarModel));
-		}
-		if(toolbarModel.length > 0 && tableToolbarModel.length > 0) {
-			$container.append("<br>");
+			$header.append(FormUtil.getToolbar(toolbarModel));
 		}
 		if(tableToolbarModel.length > 0) {
-			$container.append(FormUtil.getToolbar(tableToolbarModel));
+			$header.append(FormUtil.getToolbar(tableToolbarModel));
 		}
-		
 		
 		$container.append(this._tableContainer);
 	}
@@ -132,12 +142,23 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		});
 		$list.append($batchUpdateOption);
 		
+		var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
+		var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName  }).append('Search in ' + expKindName));
+		$searchCollectionOption.click(function() {
+			
+			var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : _this._sampleTableModel.experiment.permId } };
+			var rules = { entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules };
+			
+			mainController.changeView("showAdvancedSearchPage", JSON.stringify(rules));
+		});
+		$list.append($searchCollectionOption);
+		
 		return $dropDownMenu;
 	}
 	
 	this._getAllSampleTypesDropdown = function() {
 		var _this = this;
-		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false);
+		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false, ["STORAGE", "STORAGE_POSITION"]);
 		$sampleTypesSelector.change(function() {
 			var sampleTypeToShow = $(this).val();
 			
@@ -180,6 +201,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.registerSamples = function(experimentIdentifier) {
 		var _this = this;
+		var allowedSampleTypes = null;
+		var forcedSpace = null;
+		if(this._sampleTableModel.sampleTypeCodeToUse) {
+			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+			if(experimentIdentifier) {
+				forcedSpace = experimentIdentifier.split("/")[1];
+			}
+		}
 		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
 			Util.blockUI();
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
@@ -202,7 +231,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					
 					if(infoData.result.identifiersPressent) {
 						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null, finalCallback);
+					} else if(forcedSpace || typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+						if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+							forcedSpace = "STORAGE";
+						}
+						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + forcedSpace, finalCallback);
 					} else {
+						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + space, finalCallback);
+						
 						mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 							var spaces = [];
 							for(var i = 0; i < data.result.length; i++) {
@@ -233,11 +269,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				}
 			);
 			});
-		});
+		}, allowedSampleTypes);
 		typeAndFileController.init();
 	}
 	
 	this.updateSamples = function(experimentIdentifier) {
+		if(this._sampleTableModel.sampleTypeCodeToUse) {
+			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+		}
 		var typeAndFileController = new TypeAndFileController('Update ' + ELNDictionary.Samples + '', "UPDATE", function(type, file) {
 			Util.blockUI();
 			var finalCallback = function(data) {
@@ -257,7 +296,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				//Code After the upload
 				mainController.serverFacade.updateSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null,finalCallback);
 			});
-		});
+		}, allowedSampleTypes);
 		typeAndFileController.init();
 	}
 }

@@ -18,16 +18,19 @@ function DrawingBoardsView(drawingBoardsController, drawingBoardsModel) {
 	this._drawingBoardsController = drawingBoardsController;
 	this._drawingBoardsModel = drawingBoardsModel;
 	
-	this.repaint = function($container) {
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
+		
 		$container.empty();
-		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
+		var $wrapper = $('<form>', { 'id' : 'mainDataSetForm', 'role' : 'form'});
 		var $title = $('<h2>').append('Drawing Board');
-		$wrapper.append($title);
+		$header.append($title);
 		var $createNewBtn = FormUtil.getButtonWithText('New Drawing Board', function() {
 			$container.empty();
 			
-			var containerWidth = $(document).width() - $("#sideMenu").width() - 20;
-			var containerHeight = $(document).height() - 60;
+			var containerWidth = $container.width();
+			var containerHeight = $container.height() - 50;
 			
 			var $drawingboard = $("<div>", { "id" : "scratchboard", "style" : "width: " + containerWidth + "px; height: " + containerHeight + "px; padding: 10px;" });
 			$container.append($drawingboard);
@@ -47,7 +50,7 @@ function DrawingBoardsView(drawingBoardsController, drawingBoardsModel) {
 				]
 			});
 		});
-		$wrapper.append($createNewBtn);
+		$header.append($createNewBtn);
 		$container.append($wrapper);
 	}
 }

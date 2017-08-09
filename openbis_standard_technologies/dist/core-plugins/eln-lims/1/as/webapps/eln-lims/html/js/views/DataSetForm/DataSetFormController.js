@@ -19,14 +19,14 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 	this._dataSetFormModel = new DataSetFormModel(mode, entity, dataSet, isMini);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
 		mainController.serverFacade.listDataSetTypes(
 				function(data) {
 					_this._dataSetFormModel.dataSetTypes = data.result;
 					mainController.serverFacade.getSetting("DataSetFormModel.isAutoUpload", function(value) {
 						_this._dataSetFormModel.isAutoUpload = (value === "true");
-						_this._dataSetFormView.repaint($container);
+						_this._dataSetFormView.repaint(views);
 					});
 				}
 		);
@@ -58,16 +58,30 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 	
 	this.deleteDataSet = function(reason) {
 		var _this = this;
+		Util.blockUI();
 		mainController.serverFacade.deleteDataSets([this._dataSetFormModel.dataSet.code], reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
 				Util.showSuccess("Data Set Deleted");
-				if(this._dataSetFormModel.isExperiment()) {
-					mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
-				} else {
-					mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
-				}
+				
+//				setTimeout(function() { //Give some time to update the index
+					var space = null;
+					if(_this._dataSetFormModel.isExperiment()) {
+						mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
+						experimentIdentifier = _this._dataSetFormModel.entity.identifier.identifier;
+						space = experimentIdentifier.split("/")[1];
+					} else {
+						mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
+						sampleIdentifier = _this._dataSetFormModel.entity.identifier;
+						space = sampleIdentifier.split("/")[1];
+					}
+					
+					var isInventory = profile.isInventorySpace(space);
+					if(!isInventory) {
+						mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+					}
+//				}, 3000);
 			}
 		});
 	}
@@ -186,19 +200,19 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 						}
 					}
 					
-					
-					if(_this._dataSetFormModel.mode === FormMode.CREATE) {
-						Util.showSuccess("DataSet Created.", callbackOk);
-						if(!isInventory) {
-							mainController.sideMenu.refreshCurrentNode();
+					setTimeout(function() {
+						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
+							Util.showSuccess("DataSet Created.", callbackOk);
+							if(!isInventory) {
+								mainController.sideMenu.refreshCurrentNode();
+							}
+						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
+							Util.showSuccess("DataSet Updated.", callbackOk);
+							if(!isInventory) {
+								mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+							}
 						}
-						
-					} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
-						Util.showSuccess("DataSet Updated.", callbackOk);
-						if(!isInventory) {
-							mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
-						}
-					}
+					}, 3000);
 					
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});

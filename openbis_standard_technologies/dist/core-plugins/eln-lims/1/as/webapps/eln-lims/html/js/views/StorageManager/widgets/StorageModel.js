@@ -40,6 +40,7 @@ function StorageModel(configOverride) {
 	this.sample = null; //If this sample is set, his properties are binded to the view values.
 	this.isDisabled = false;
 	
+	this.storageConfig = null;
 	this.storagePropertyGroup = null; //Selected Storage Property Group
 	this.storageCode = null; //Selected Storage
 	this.userIds = null;
@@ -62,14 +63,6 @@ function StorageModel(configOverride) {
 				userId = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 			}
 			this.sample.properties[this.storagePropertyGroup.userProperty] = userId;
-		}
-	}
-	
-	this.setDefaultBoxName = function() {
-		if(this.sample) {
-			var defaultBoxName = this.sample.code;
-			this.sample.properties[this.storagePropertyGroup.boxProperty] = defaultBoxName;
-			this.boxName = defaultBoxName;
 		}
 	}
 	

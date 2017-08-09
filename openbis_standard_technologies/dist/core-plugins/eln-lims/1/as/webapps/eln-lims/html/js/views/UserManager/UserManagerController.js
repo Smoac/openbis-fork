@@ -19,13 +19,13 @@ function UserManagerController(mainController) {
 	this._userManagerModel = new UserManagerModel();
 	this._userManagerView = new UserManagerView(this, this._userManagerModel);
 	
-	this.init = function($container) {
+	this.init = function(views) {
 		var _this = this;
 		mainController.serverFacade.listPersons(function(data) {
 			if(data.result && data.result.length > 0) {
 				_this._userManagerModel.persons = data.result;
 			}
-			_this._userManagerView.repaint($container);
+			_this._userManagerView.repaint(views);
 		});
 	}
 	

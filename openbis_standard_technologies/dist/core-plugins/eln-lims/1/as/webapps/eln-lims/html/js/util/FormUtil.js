@@ -146,26 +146,28 @@ var FormUtil = new function() {
 		return $dropDownToogle;
 	}
 	
-	this.getDefaultBenchDropDown = function(id, isRequired) {
-		var $storageDropDown = this.getDefaultStoragesDropDown(id, isRequired);
-		if(!$storageDropDown) {
-			return null;
-		}
-		for(var i = $storageDropDown.children().length -1; i >= 0 ; i--){
-			var isEmpty = $storageDropDown.children()[i].value === "";
-			var isBench = $storageDropDown.children()[i].value.indexOf("BENCH") > -1;
-			if(!isEmpty && !isBench){
-				$storageDropDown.children()[i].remove();
-		    }
-		}
-		return $storageDropDown;
+	this.getDefaultBenchDropDown = function(id, isRequired, callbackFunction) {
+		this.getDefaultStoragesDropDown(id, isRequired, function($storageDropDown) {
+			if(!$storageDropDown) {
+				return null;
+			}
+			for(var i = $storageDropDown.children().length -1; i >= 0 ; i--) {
+				var isEmpty = $storageDropDown.children()[i].value === "";
+				var isBench = $storageDropDown.children()[i].value.indexOf("BENCH") > -1;
+				if(!isEmpty && !isBench){
+					$storageDropDown.children()[i].remove();
+			    }
+			}
+			callbackFunction($storageDropDown);
+		});
+		
 	}
 	
 	this.getDefaultStorageBoxSizesDropDown = function(id, isRequired) {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
 		}
-		var storageBoxesVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]);
+		var storageBoxesVocabularyProp = this.profile.getPropertyType(this.profile.getStoragePropertyGroup().boxSizeProperty);
 		if(!storageBoxesVocabularyProp) {
 			return null;
 		}
@@ -177,36 +179,31 @@ var FormUtil = new function() {
 		return $storageBoxesDropDown;
 	}
 	
-	this.getDefaultStoragesDropDown = function(id, isRequired) {
+	this.getDefaultStoragesDropDown = function(id, isRequired, callbackFunction) {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
 		}
-		var storageVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]);
-		if(!storageVocabularyProp) {
-			return null;
-		}
-		var $storageDropDown = this.getFieldForPropertyType(storageVocabularyProp);
-		$storageDropDown.attr('id', id);
-		if (isRequired) {
-			$storageDropDown.attr('required', '');
-		}
-		return $storageDropDown;
-	}
-	
-	this.getStoragePropertyGroupsDropdown = function(id, isRequired) {
-		var propertyGroups = this.profile.getStoragePropertyGroups();
 		
-		var $component = $("<select>", {"id" : id, class : 'form-control'});
-		if (isRequired) {
-			$component.attr('required', '');
-		}
-		
-		for(var i = 0; i < propertyGroups.length; i++) {
-			var propertyGroup = propertyGroups[i];
-			$component.append($("<option>").attr('value',propertyGroup.groupDisplayName).text(propertyGroup.groupDisplayName));
-		}
-		
-		return $component;
+		profile.getStoragesConfiguation(function(storageConfigurations) {
+			var $component = $("<select>", {"id" : id, class : 'form-control'});
+			if (isRequired) {
+				$component.attr('required', '');
+			}
+			
+			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an Storage"));
+			for(var idx = 0; idx < storageConfigurations.length; idx++) {
+				var storageConfiguration = storageConfigurations[idx];
+				var label = null;
+				if(storageConfiguration.label) {
+					label = storageConfiguration.label;
+				} else {
+					label = storageConfiguration.code;
+				}
+				
+				$component.append($("<option>").attr('value',storageConfiguration.code).text(label));
+			}
+			callbackFunction($component);
+		});
 	}
 	
 	this.getBoxPositionsDropdown = function(id, isRequired, code) {
@@ -239,7 +236,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this.getSampleTypeDropdown = function(id, isRequired) {
+	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
@@ -250,9 +247,19 @@ var FormUtil = new function() {
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
-			if(profile.isSampleTypeHidden(sampleType.code)) {
+			
+			if(showOnly && ($.inArray(sampleType.code, showOnly) !== -1)) {
+				//Show 
+			} else if(showOnly) {
 				continue;
 			}
+			
+			if(showEvenIfHidden && ($.inArray(sampleType.code, showEvenIfHidden) !== -1)) {
+				// Show even if hidden
+			} else if (profile.isSampleTypeHidden(sampleType.code)) {
+				continue;
+			}
+			
 			var label = Util.getDisplayNameFromCode(sampleType.code);
 			var description = Util.getEmptyIfNull(sampleType.description);
 			if(description !== "") {
@@ -479,9 +486,17 @@ var FormUtil = new function() {
 		return $btn;
 	}
 	
-	this.getShowHideButton = function($elementToHide, key) {
-		var $showHideButton = FormUtil.getButtonWithIcon('glyphicon-chevron-down', function() {
+	/**
+	 * @param {string} settingLoadedCallback Can be used to avoid flickering. Only called if dontRestoreState is not true.
+	 * @param {string} dontRestoreState Sets the state to collaped and doesn't load it from server.
+	 */
+	this.getShowHideButton = function($elementToHide, key, dontRestoreState, settingLoadedCallback) {
+
+		var glyphicon = dontRestoreState ? "glyphicon-chevron-right" : 'glyphicon-chevron-down';
+
+		var $showHideButton = FormUtil.getButtonWithIcon(glyphicon, function() {
 			$elementToHide.slideToggle();
+
 			var $thisButton = $($(this).children()[0]);
 			
 			if($thisButton.hasClass("glyphicon-chevron-right")) {
@@ -496,18 +511,25 @@ var FormUtil = new function() {
 			
 		}, null, "Show/Hide section");
 		
-		mainController.serverFacade.getSetting(key, function(value) {
-			if(value === "false") {
-				var $thisButton = $($showHideButton.children()[0]);
-				$thisButton.removeClass("glyphicon-chevron-down");
-				$thisButton.addClass("glyphicon-chevron-right");
-				$elementToHide.toggle();
-			}
-		});
+		if (dontRestoreState) {
+			$elementToHide.hide();
+		} else {
+			mainController.serverFacade.getSetting(key, function(value) {
+				if(value === "false") {
+					var $thisButton = $($showHideButton.children()[0]);
+					$thisButton.removeClass("glyphicon-chevron-down");
+					$thisButton.addClass("glyphicon-chevron-right");
+					$elementToHide.toggle();
+				}
+				if (settingLoadedCallback) {
+					settingLoadedCallback();
+				}
+			});
+		}
 		
 		$showHideButton.addClass("btn-showhide");
 		$showHideButton.css({ "border" : "none", "margin-bottom" : "4px", "margin-left" : "-11px" });
-		
+
 		return $showHideButton;
 	}
 	
@@ -541,13 +563,13 @@ var FormUtil = new function() {
 		if(!isInline) {
 			labelColumnClass = this.labelColumnClass;
 		}
-		var $controlLabel = $('<label>', { class : 'control-label ' + labelColumnClass }).html(labelText);
+		var $controlLabel = $('<label>', { class : 'control-label' }).html(labelText);
 		
 		var controlColumnClass = ""
 		if(!isInline) {
 			controlColumnClass = this.controlColumnClass;
 		}
-		var $controls = $('<div>', { class : 'controls ' + controlColumnClass });
+		var $controls = $('<div>', { class : 'controls' });
 			
 		$controlGroup.append($controlLabel);
 		
@@ -575,12 +597,13 @@ var FormUtil = new function() {
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		
-		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass});
+		var $controlLabel = $('<label>', {class : 'control-label' });
+		
 		if(label) {
 			$controlLabel.text(label + ":");
 		}
 		
-		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
+		var $controls = $('<div>', {class : 'controls' });
 		
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
@@ -811,7 +834,7 @@ var FormUtil = new function() {
 				originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
 			}
 			//Clean the contents
-//			originalValue = html.sanitize(originalValue);
+			originalValue = html.sanitize(originalValue);
 		}
 		return originalValue;
 	}
@@ -874,7 +897,7 @@ var FormUtil = new function() {
 	}
 	
 	this.getBox = function() {
-		var $box = $("<div>", { style : "background-color:#f8f8f8; margin-right:10px; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
+		var $box = $("<div>", { style : "background-color:#f8f8f8; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
 		return $box;
 	}
 	
@@ -897,5 +920,160 @@ var FormUtil = new function() {
 	this.isNumber = function(str) {
     	var n = Number(str);
     	return String(n) === str;
+	}
+
+	//
+	// errors
+	//
+
+	// errors: array of strings
+	this._getSanitizedErrorString = function(title, errors) {
+		var $container = $("<div>");
+        $container.append($("<h3>").text(title));
+		var $ul = $("<ul>");
+		for (var error of errors) {
+			$ul.append($("<li>").text(error));
+		}
+		$container.append($ul);
+		return $container.html();
+	}
+
+	//
+	// Dropbox folder name dialog
+	//
+
+	/**
+	 * @param {string[]} nameElements - First elements of the folder name.
+	 * @param {string} nodeType - "Sample" or "Experiment".
+	 */
+	this.showDropboxFolderNameDialog = function(nameElements) {
+
+		var $dialog = $("<div>");
+		$dialog
+			.append($("<div>")
+				.append($("<legend>").text("Name generator for dataset upload with dropbox")));
+
+		mainController.serverFacade.listDataSetTypes((function(data) {
+
+			var dataSetTypes = data.result;
+
+			var $formFieldContainer = $("<div>");
+			$dialog.append($formFieldContainer);
+
+			// info text
+			var infoText = "In your dropbox location, create a folder containing the data you want to upload. " + 
+							"Name this folder with the provided Dropbox Folder Name.";
+			$formFieldContainer.append(FormUtil.getInfoText(infoText));
+
+			// dataset type dropdown
+			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
+			$dataSetTypeSelector.attr("id", "dataSetTypeSelector");
+			$formFieldContainer
+				.append($("<div>", { class : "form-group" })
+					.append($("<label>", { class : "control-label" }).text("Dataset type:")))
+					.append($dataSetTypeSelector);
+
+			// name
+			var $nameInput = $("<input>", { type : "text", id : "nameInput", class : "form-control", disabled : true });
+			$formFieldContainer
+				.append($("<div>", { class : "form-group" })
+					.append($("<label>", { class : "control-label" }).text("Dataset name:")))
+					.append($nameInput);
+
+			// dropbox folder name ouput
+			var $dropboxFolderName = $("<input>", {
+				class : "form-control",
+				id : "dropboxFolderName",
+				readonly : "readonly",
+				type : "text",
+				value :  this._getDropboxFolderName(nameElements),
+				onClick : "this.setSelectionRange(0, this.value.length)"
+			});
+			// copy to clipboard button
+			var $copyToClipboardButton = FormUtil.getButtonWithIcon("glyphicon-copy");
+			$copyToClipboardButton.attr("id", "copyToClipboardButton");
+			$formFieldContainer
+				.append($("<div>", { class : "form-group" })
+					.append($("<label>", { class : "control-label" })
+						.text("Dropbox Folder Name:"))
+					.append($("<div>", { class : "input-group" })
+						.append($dropboxFolderName)
+						.append($("<span>", { class : "input-group-btn"})
+							.append($copyToClipboardButton))));
+
+			// close button
+			var $cancelButton = $("<a>", {
+				class : "btn btn-default",
+				id : "dropboxFolderNameClose"
+			}).text("Close").css("margin-top", "15px");
+			$dialog.append($cancelButton);
+			Util.blockUI($dialog.html(), this.getDialogCss());
+
+			// attach events
+			$dataSetTypeSelector = $("#dataSetTypeSelector");
+			$nameInput = $("#nameInput");
+			$dropboxFolderName = $("#dropboxFolderName");
+			$copyToClipboardButton = $("#copyToClipboardButton");
+			$("#dropboxFolderNameClose").on("click", function(event) {
+				Util.unblockUI();
+			});
+			// update folder name on type selector / name change
+			$dataSetTypeSelector.change((function() {
+				var dataSetTypeCode = $dataSetTypeSelector.val();
+				var name = null;
+				// dataset type code UNKNOWN has no name
+				if (dataSetTypeCode === "UNKNOWN") {
+					$nameInput.val("");
+					$nameInput.attr("disabled", "true");
+				} else {
+					var name = $nameInput.val();
+					$nameInput.removeAttr("disabled");					
+				}
+				var folderName = this._getDropboxFolderName(nameElements, dataSetTypeCode, name);
+				$dropboxFolderName.val(folderName);
+			}).bind(this));
+			$nameInput.on("input", (function() {
+				var dataSetTypeCode = $dataSetTypeSelector.val();
+				var name = $nameInput.val();
+				var folderName = this._getDropboxFolderName(nameElements, dataSetTypeCode, name);
+				$dropboxFolderName.val(folderName);
+			}).bind(this));
+			// copy to clipboard
+			$copyToClipboardButton.on("click", function() {
+				$dropboxFolderName.select();
+				document.execCommand("copy");
+			});
+			$copyToClipboardButton.attr("title", "copy to clipboard");
+			$copyToClipboardButton.tooltipster();
+
+		}).bind(this));
+	}
+
+	this._getDropboxFolderName = function(nameElements, dataSetTypeCode, name) {
+		var folderName = nameElements.join("+");
+		for (var optionalPart of [dataSetTypeCode, name]) {
+			if (optionalPart) {
+				folderName += "+" + optionalPart;				
+			}
+		}
+		return folderName;
+	}
+
+	this.getDialogCss = function() {
+		return {
+				'text-align' : 'left',
+				'top' : '15%',
+				'width' : '70%',
+				'left' : '15%',
+				'right' : '20%',
+				'overflow' : 'auto'
+		};
+	}
+
+	this.getInfoText = function(infoText) {
+		return $("<p>")
+			.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
+				.css("margin-right", "3px"))
+			.append($("<span>").text(infoText));
 	}
 }

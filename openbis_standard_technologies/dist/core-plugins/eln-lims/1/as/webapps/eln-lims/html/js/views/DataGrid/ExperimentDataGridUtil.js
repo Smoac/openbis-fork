@@ -107,8 +107,22 @@ var ExperimentDataGridUtil = new function() {
 		});
 		
 		columns.push({
+			label : 'Registrator',
+			property : 'registrator',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columns.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columns.push({
+			label : 'Modifier',
+			property : 'modifier',
 			isExportable: false,
 			sortable : true
 		});
@@ -127,7 +141,9 @@ var ExperimentDataGridUtil = new function() {
 				var entity = entities[sIdx];
 				var model = {		'identifier' : entity.identifier, 
 									'permId' : entity.permId,
+									'registrator' : entity.registrationDetails.userId,
 									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),
+									'modifier' : entity.registrationDetails.modifierUserId,
 									'modificationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.modificationDate))
 				};
 				

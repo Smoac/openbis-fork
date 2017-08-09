@@ -34,6 +34,7 @@ from ch.systemsx.cisd.common.exceptions import UserFailureException
 
 from ch.ethz.sis import PlasmapperConnector
 
+import json
 import time
 import subprocess
 import os.path
@@ -76,43 +77,33 @@ def getConfigParameterAsString(propertyKey):
 		return property;
 
 def getDirectLinkURL():
-	
 	#CIFS
 	cifsServerEnable = getConfigParameterAsString("cifs.server.enable");
 	cifsServerPort = getConfigParameterAsString("cifs.server.smb-port");
 	
 	#SFTP
+	sftpServerEnable = getConfigParameterAsString("ftp.server.enable");
 	sftpPort = getConfigParameterAsString("ftp.server.sftp-port");
 	
-	#FTPS
-	ftpServerEnable = getConfigParameterAsString("ftp.server.enable");
-	ftpServerUseSsl = getConfigParameterAsString("ftp.server.use-ssl");
-	useSsl = getConfigParameterAsString("use-ssl");
-	ftpPortLegacy = getConfigParameterAsString("ftp.server.port");
-	ftpPort = getConfigParameterAsString("ftp.server.ftp-port");
-	
-	protocol = None;
-	port = None;
-	UNCsuffix = None;
+	cifsConfig = None;
 	if (cifsServerEnable == "true") and (cifsServerPort is not None):
-		protocol = "cifs"
-		port = cifsServerPort;
-		UNCsuffix = "STORE/";
-	elif (sftpPort is not None):
-		protocol = "sftp";
-		port = sftpPort;
-	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)) and (ftpServerUseSsl == "true" or useSsl == "true"):
-		protocol = "ftps";
-		if ftpPort is not None:
-			port = ftpPort;
-		elif ftpPortLegacy is not None:
-			port = ftpPortLegacy;
+		cifsConfig = {
+					"port" : cifsServerPort,
+					"UNCsuffix" : "STORE/"
+		}
+	
+	sftpConfig = None;
+	if (sftpServerEnable == "true") and (sftpPort is not None):
+		sftpConfig = {
+					"port" : sftpPort,
+					"UNCsuffix" : ""
+		}
 
 	return getJsonForData({
-						"protocol" : protocol,
-						"port" : port,
-						"UNCsuffix" : UNCsuffix
+							"cifs" : cifsConfig,
+							"sftp" : sftpConfig
 						});
+	
 
 def isSampleTypeAvailable(sampleTypes, sampleTypeCode):
 	for sampleType in sampleTypes:
@@ -136,6 +127,16 @@ def getProperties(tr, parameters):
 
 rtpropertiesToIgnore = ["FREEFORM_TABLE_STATE", "NAME", "SEQUENCE"];
 
+def updatePropertiesToIgnore(tr):
+	global rtpropertiesToIgnore;
+	sample = tr.getSample("/ELN_SETTINGS/GENERAL_ELN_SETTINGS");
+	if sample != None:
+		settingsJson = sample.getPropertyValue("ELN_SETTINGS");
+		if settingsJson != None:
+			settings = json.loads(settingsJson);
+			if "forcedDisableRTF" in settings:
+				rtpropertiesToIgnore = settings["forcedDisableRTF"];
+
 def isPropertyRichText(properties, propertyCode):
 	for property in properties:
 		if property.getCode() == propertyCode and property.getCode() not in rtpropertiesToIgnore:
@@ -153,6 +154,16 @@ def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
 			return htmlSerializer.getAsString(propertytagNode);
 	return propertyValue;
 
+def getPropertyValue(propertiesInfo, metadata, key):
+	propertyValue = metadata[key];
+	if propertyValue != None:
+		propertyValue = unicode(propertyValue);
+	if propertyValue == "":
+		propertyValue = None;
+	else:
+		propertyValue = updateIfIsPropertyRichText(propertiesInfo, key, propertyValue);
+	return propertyValue;
+
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
 	code = identifier.split("/")[2];
@@ -167,7 +178,7 @@ def getSampleByIdentifierForUpdate(tr, identifier):
    	if len(found) == 1:
    		return tr.makeSampleMutable(found[0]);
    	else:
-   		raise UserFailureException(identifier + " Not found by search service.");
+   		return None;
    	
 def username(sessiontoken):
     m = re.compile('(.*)-[^-]*').match(sessiontoken)
@@ -191,6 +202,8 @@ def process(tr, parameters, tableBuilder):
 		isOk = True;
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
+	if method == "updateUserInformation":
+		isOk = updateUserInformation(tr, parameters, tableBuilder);
 	if method == "getDirectLinkURL":
 		result = getDirectLinkURL();
 		isOk = True;
@@ -207,21 +220,27 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	
 	if method == "insertExperiment":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	if method == "updateExperiment":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	
 	if method == "copySample":
 		isOk = copySample(tr, parameters, tableBuilder);
 	if method == "insertSample":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
+		updatePropertiesToIgnore(tr);
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "moveSample":
 		isOk = moveSample(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
+		updatePropertiesToIgnore(tr);
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 	if method == "updateDataSet":
+		updatePropertiesToIgnore(tr);
 		isOk = updateDataSet(tr, parameters, tableBuilder);
 	
 	if method == "listFeatureVectorDatasetsPermIds":
@@ -354,6 +373,14 @@ def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experime
 		experiment.setPropertyValue("NAME", experimentName);
 	return experiment;
 
+def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType):
+	sample = tr.getSample(sampleIdentifier);
+	if sample == None:
+		sample = tr.createNewSample(sampleIdentifier,	sampleType);
+		if experiment != None:
+			sample.setExperiment(experiment);
+	return sample;
+	
 def init(tr, parameters, tableBuilder):
 	projectsCache = {};
 	installedTypes = getSampleTypes(tr, parameters);
@@ -363,9 +390,11 @@ def init(tr, parameters, tableBuilder):
 	isNewInstallation = inventorySpace == None and methodsSpace == None and materialsSpace == None;
 			
 	## Installing Mandatory Spaces/Projects on every login if missing
+	insertSpaceIfMissing(tr, "ELN_SETTINGS");
+	insertSpaceIfMissing(tr, "STORAGE");
 	insertSpaceIfMissing(tr, "METHODS");
 	insertSpaceIfMissing(tr, "MATERIALS");
-	
+
 	if isSampleTypeAvailable(installedTypes, "SUPPLIER") and isSampleTypeAvailable(installedTypes, "PRODUCT") and isSampleTypeAvailable(installedTypes, "REQUEST") and isSampleTypeAvailable(installedTypes, "ORDER"):
 		insertSpaceIfMissing(tr, "STOCK_CATALOG");
 		insertProjectIfMissing(tr, "/STOCK_CATALOG/PRODUCTS", projectsCache);
@@ -384,6 +413,37 @@ def init(tr, parameters, tableBuilder):
 		tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
 		defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
+	
+	if isSampleTypeAvailable(installedTypes, "STORAGE"):
+			insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
+			storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
+			
+			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
+				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE");
+				bench.setPropertyValue("NAME", "Bench");
+				bench.setPropertyValue("ROW_NUM", "1");
+				bench.setPropertyValue("COLUMN_NUM", "1");
+				bench.setPropertyValue("BOX_NUM", "9999");
+				bench.setPropertyValue("STORAGE_SPACE_WARNING", "80");
+				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
+				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			except:
+				pass # Do nothing if sample existed already
+			
+			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
+				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE");
+				defaultStorage.setPropertyValue("NAME", "Default Storage");
+				defaultStorage.setPropertyValue("ROW_NUM", "4");
+				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
+				defaultStorage.setPropertyValue("BOX_NUM", "9999");
+				defaultStorage.setPropertyValue("STORAGE_SPACE_WARNING", "80");
+				defaultStorage.setPropertyValue("BOX_SPACE_WARNING", "80");
+				defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
+			except:
+				pass # Do nothing if sample existed already
+			
+	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
+			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS");
 	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:
@@ -459,6 +519,18 @@ def registerUserPassword(tr, parameters, tableBuilder):
 		return True;
 	else:
 		return False;
+
+def updateUserInformation(tr, parameters, tableBuilder):
+	userId = parameters.get("userId"); #String
+	firstName = parameters.get("firstName"); #String
+	lastName = parameters.get("lastName"); #String
+	email = parameters.get("email"); #String
+	path = '../openBIS-server/jetty/bin/passwd.sh';
+	if os.path.isfile(path):
+		subprocess.call([path, 'change', userId, '-f', firstName, '-l', lastName, '-e', email]) #Changes the user info, fails silently if the user doesnt exist
+		return True;
+	else:
+		return False;
 	
 def getThreadProperties(transaction):
   threadPropertyDict = {}
@@ -498,11 +570,7 @@ def updateDataSet(tr, parameters, tableBuilder):
 	#dataSet.setSample(dataSetSample);
 	#Assign Data Set properties
 	for key in metadata.keySet():
-		propertyValue = unicode(metadata[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		else:
-			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+		propertyValue = getPropertyValue(properties, metadata, key);
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Return from the call
@@ -531,11 +599,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 	#Assign Data Set properties
 	for key in metadata.keySet():
-		propertyValue = unicode(metadata[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		else:
-			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+		propertyValue = getPropertyValue(properties, metadata, key);
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Move All Files using a tmp directory close to the datastore
@@ -688,6 +752,7 @@ def batchOperation(tr, parameters, tableBuilder):
 	return True;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):
+	properties = getProperties(tr, parameters);
 	
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
@@ -745,9 +810,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 				parentExperiment = tr.getExperiment(newSampleParent.get("experimentIdentifierOrNull"));
 				parent.setExperiment(parentExperiment);
 			for key in newSampleParent.get("properties").keySet():
-				propertyValue = unicode(newSampleParent.get("properties").get(key));
-				if propertyValue == "":
-					propertyValue = None;
+				propertyValue = getPropertyValue(properties, newSampleParent.get("properties"), key);
 				parent.setPropertyValue(key, propertyValue);
 			
 			if newSampleParent.get("parentsIdentifiers") != None:
@@ -760,13 +823,8 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	
 	#Assign sample properties
 	if sampleProperties != None:
-		properties = getProperties(tr, parameters);
 		for key in sampleProperties.keySet():
-			propertyValue = unicode(sampleProperties[key]);
-			if propertyValue == "":
-				propertyValue = None;
-			else:
-				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+			propertyValue = getPropertyValue(properties, sampleProperties, key);
 			sample.setPropertyValue(key, propertyValue);
 	
 	#Add sample parents
@@ -777,17 +835,35 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	sampleChildrenNewIdentifiers = [];
 	if sampleChildrenNew != None:
 		for newSampleChild in sampleChildrenNew:
-			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
+			child = getSampleByIdentifierForUpdate(tr, newSampleChild["identifier"]); #Retrieve Sample
+			if child is None:
+				child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
 			sampleChildrenNewIdentifiers.append(newSampleChild["identifier"]);
 			child.setParentSampleIdentifiers([sampleIdentifier]);
-			if experiment != None:
-				child.setExperiment(experiment);
+			childExperimentIdentifier = None
+			childExperiment = None
+			if "experimentIdentifier" in newSampleChild:
+				childExperimentIdentifier = newSampleChild["experimentIdentifier"];
+				childExperiment = tr.getExperiment(childExperimentIdentifier);
+			if childExperiment != None:
+				child.setExperiment(childExperiment);
 			for key in newSampleChild["properties"].keySet():
-				propertyValue = unicode(newSampleChild["properties"][key]);
-				if propertyValue == "":
-					propertyValue = None;
-				
-				child.setPropertyValue(key,propertyValue);
+				propertyValue = getPropertyValue(properties, newSampleChild["properties"], key);
+				child.setPropertyValue(key, propertyValue);
+			if ("children" in newSampleChild) and (newSampleChild["children"] != None):
+				for childChildrenData in newSampleChild["children"]:
+					childChildren = tr.createNewSample(childChildrenData["identifier"], childChildrenData["sampleTypeCode"]); #Create Sample given his id
+					childChildren.setParentSampleIdentifiers([newSampleChild["identifier"]]);
+					childChildrenExperimentIdentifier = None
+					childChildrenExperiment = None
+					if "experimentIdentifier" in childChildrenData:
+						childChildrenExperimentIdentifier = childChildrenData["experimentIdentifier"];
+						childChildrenExperiment = tr.getExperiment(childChildrenExperimentIdentifier);
+					if childChildrenExperiment != None:
+						childChildren.setExperiment(childChildrenExperiment);
+					for key in childChildrenData["properties"].keySet():
+						propertyValue = getPropertyValue(properties, childChildrenData["properties"], key);
+						childChildren.setPropertyValue(key, propertyValue);
 	
 	#Add sample children that are not newly created
 	if sampleChildrenAdded != None:
@@ -812,9 +888,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		for change in changesToDo:
 			sampleWithChanges = getSampleByIdentifierForUpdate(tr, change["identifier"]); #Retrieve Sample
 			for key in change["properties"].keySet():
-					propertyValue = unicode(change["properties"][key]);
-					if propertyValue == "":
-						propertyValue = None;
+					propertyValue = getPropertyValue(properties, change["properties"], key);
 					sampleWithChanges.setPropertyValue(key,propertyValue);
 		
 	#Return from the call
@@ -850,11 +924,7 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 		experiment = tr.getExperimentForUpdate(experimentIdentifier); #Retrieve Experiment
 	
 	for key in experimentProperties.keySet():
-		propertyValue = unicode(experimentProperties[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		else:
-			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+		propertyValue = getPropertyValue(properties, experimentProperties, key);
 		experiment.setPropertyValue(key,propertyValue);
 	
 	return True;

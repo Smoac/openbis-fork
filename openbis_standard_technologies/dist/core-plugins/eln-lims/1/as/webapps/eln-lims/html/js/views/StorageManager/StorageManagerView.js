@@ -21,13 +21,19 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	this._storageFromView = storageFromView;
 	this._storageToView = storageToView;
 	this._changeLogContainer = $("<div>").append("None");
-	this._moveBtn = $("<a>", { "class" : "btn btn-primary"}).append("Accept Changes");
 	
-	this.repaint = function($container) {
-		$container.empty();
+	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes");
+	this._moveBtn.removeClass("btn-default");
+	this._moveBtn.addClass("btn-primary");
+	
+	this.repaint = function(views) {
+		var $header = views.header;
+		var $container = views.content;
 		
-		var $containerColumn = $("<form>", { 
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+		$header.append($("<h2>").append("Storage Manager"));
+		$header.append(this._moveBtn);
+		
+		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""
@@ -46,9 +52,6 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		
 		$containerColumn.append($twoColumnsContainer);
 		$containerColumn.append($("<div>").append($("<h2>").append("Changes")).append(this._changeLogContainer));
-		$containerColumn.append($("<br>"));
-		$containerColumn.append(this._moveBtn);
-		
 		$container.append($containerColumn);
 	}
 	

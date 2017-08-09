@@ -18,11 +18,10 @@ function InventoryView(inventoryController, inventoryView) {
 	var inventoryController = inventoryController;
 	var inventoryView = inventoryView;
 	
-	this.repaint = function($container) {
-		$container.empty();
+	this.repaint = function(views) {
 		
-		var $form = $("<div>", { "class" : "form-horizontal row"});
-		var $formColumn = $("<div>", { "class" : FormUtil.formColumClass });
+		var $form = $("<div>");
+		var $formColumn = $("<div>");
 			
 		$form.append($formColumn);
 		
@@ -41,7 +40,7 @@ function InventoryView(inventoryController, inventoryView) {
 	            var labSpaces = [];
 				for (var i = 0; i < spaces.length; i++) {
 	                var space = spaces[i];
-	                if(profile.isInventorySpace(space.code)) {
+	                if(profile.isInventorySpace(space.code) && space.code !== "STOCK_CATALOG" && space.code !== "STOCK_ORDERS" && space.code !== "ELN_SETTINGS") {
 	                	labSpaces.push({ type: "SPACE", permId : space.code, expand : true });
 	                }
 	            }
@@ -56,15 +55,10 @@ function InventoryView(inventoryController, inventoryView) {
 				
 			});
 		});
-		
 		toolbarModel.push({ component : $export, tooltip: "Export" });
 		
-		
-		
-		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getToolbar(toolbarModel));
-		$formColumn.append("<br>");
-		
-		$container.append($form);
+		views.header.append($formTitle);
+		views.header.append(FormUtil.getToolbar(toolbarModel));
+		views.content.append($formColumn);
 	}
 }

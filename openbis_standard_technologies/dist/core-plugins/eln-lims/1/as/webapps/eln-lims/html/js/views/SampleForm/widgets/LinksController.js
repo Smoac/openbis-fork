@@ -23,14 +23,12 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		
 		if(sampleTypeHints && showAnnotableTypes) {
 			for(var sIdx = 0; sIdx < sampleTypeHints.length; sIdx++) {
-				linksView.initContainerForType(sampleTypeHints[sIdx].TYPE);
+				linksView.initContainerForType(sampleTypeHints[sIdx].TYPE, undefined, sampleTypeHints[sIdx].LABEL);
 			}
 		}
 		
 		if(samplesToEdit) {
-			for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
-				this.addSample(samplesToEdit[sIdx], true);
-			}
+			this.addSamplesOnInit(samplesToEdit);
 		}
 	}
 	
@@ -120,6 +118,10 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		return true;
 	}
 	
+	this.addVirtualSample = function(sample) {
+		linksView.updateSample(sample, true, false);
+	}
+	
 	this.addSample = function(sample, isInit) {
 		Util.blockUI();
 		mainController.serverFacade.searchWithIdentifiers([sample.identifier], function(results) {
@@ -128,6 +130,28 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 				Util.unblockUI();
 			}
 		});
+	}
+	
+	
+	this.addSamplesOnInit = function(samples) {
+		Util.blockUI();
+		var samplesByType = {};
+		if(samples && samples.length > 0) {
+			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+				var sampleTypeCode = samples[sIdx].sampleTypeCode;
+				var samplesOfType = samplesByType[sampleTypeCode];
+				if(!samplesOfType) {
+					samplesOfType = [];
+					samplesByType[sampleTypeCode] = samplesOfType;
+				}
+				samplesOfType.push(samples[sIdx]);
+			}
+		}
+		
+		for(var type in samplesByType) {
+			linksView.updateSample(samplesByType[type], true, true);
+		}
+		Util.unblockUI();
 	}
 	
 	this.getSamples = function() {

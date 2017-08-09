@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable) {
+	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment) {
 		
 		//Fill Columns model
 		var columnsFirst = [];
@@ -68,13 +68,15 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : false
 		});
-		
-//		columnsFirst.push({
-//			label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
-//			property : 'experiment',
-//			isExportable: true,
-//			sortable : false
-//		});
+
+		if(withExperiment) {
+			columnsFirst.push({
+				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
+				property : 'experiment',
+				isExportable: true,
+				sortable : false
+			});
+		}
 		
 		columnsFirst.push({
 			label : 'Preview',
@@ -199,8 +201,22 @@ var SampleDataGridUtil = new function() {
 		});
 		
 		columnsLast.push({
+			label : 'Registrator',
+			property : 'registrator',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columnsLast.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columnsLast.push({
+			label : 'Modifier',
+			property : 'modifier',
 			isExportable: false,
 			sortable : true
 		});
@@ -221,7 +237,7 @@ var SampleDataGridUtil = new function() {
 		//Fill data model
 		var getDataList = null;
 		if(samplesOrCriteria.entityKind && samplesOrCriteria.rules) {
-			getDataList = SampleDataGridUtil.getDataListDynamic(samplesOrCriteria); //Load on demand model
+			getDataList = SampleDataGridUtil.getDataListDynamic(samplesOrCriteria, withExperiment); //Load on demand model
 		} else {
 			getDataList = SampleDataGridUtil.getDataList(samplesOrCriteria); //Static model
 		}
@@ -236,7 +252,7 @@ var SampleDataGridUtil = new function() {
 		return dataGridController;
 	}
 	
-	this.getDataListDynamic = function(criteria) {
+	this.getDataListDynamic = function(criteria, withExperiment) {
 		return function(callback, options) {
 			var callbackForSearch = function(result) {
 				var dataList = [];
@@ -244,9 +260,19 @@ var SampleDataGridUtil = new function() {
 				for(var sIdx = 0; sIdx < result.objects.length; sIdx++) {
 					var sample = mainController.serverFacade.getV3SampleAsV1(result.objects[sIdx]);
 					
+					var registrator = null;
+					if(sample.registrationDetails && sample.registrationDetails.userId) {
+						registrator = sample.registrationDetails.userId;
+					}
+					
 					var registrationDate = null;
 					if(sample.registrationDetails && sample.registrationDetails.registrationDate) {
 						registrationDate = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
+					}
+					
+					var modifier = null;
+					if(sample.registrationDetails && sample.registrationDetails.modifierUserId) {
+						modifier = sample.registrationDetails.modifierUserId;
 					}
 					
 					var modificationDate = null;
@@ -261,8 +287,10 @@ var SampleDataGridUtil = new function() {
 										'sampleTypeCode' : sample.sampleTypeCode,
 										'default_space' : sample.spaceCode,
 										'permId' : sample.permId,
-//										'experiment' : sample.experimentIdentifierOrNull,
+										'experiment' : sample.experimentIdentifierOrNull,
+										'registrator' : registrator,
 										'registrationDate' : registrationDate,
+										'modifier' : modifier,
 										'modificationDate' : modificationDate
 									};
 					
@@ -294,7 +322,8 @@ var SampleDataGridUtil = new function() {
 			}
 			
 			var fetchOptions = {
-					minTableInfo : true
+					minTableInfo : true,
+					withExperiment : withExperiment
 			};
 			
 			if(options) {
@@ -427,36 +456,38 @@ var SampleDataGridUtil = new function() {
 				$dropDownMenu.append($caret);
 				$dropDownMenu.append($list);
 				
-				var clickFunction = function($dropDown) {
-					return function(event) {
+				var stopEventsBuble = function(event) {
 						event.stopPropagation();
 						event.preventDefault();
 						$caret.dropdown('toggle');
-					};
-				}
+				};
 				$dropDownMenu.dropdown();
-				$dropDownMenu.click(clickFunction($dropDownMenu));
+				$dropDownMenu.click(stopEventsBuble);
 				
 				var $hierarchyGraph = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
-				$hierarchyGraph.click(function(e) {
+				$hierarchyGraph.click(function(event) {
+					stopEventsBuble(event);
 					mainController.changeView('showSampleHierarchyPage', data.permId, true);
 				});
 				$list.append($hierarchyGraph);
 				
 				var $hierarchyTable = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
-				$hierarchyTable.click(function(e) {
+				$hierarchyTable.click(function(event) {
+					stopEventsBuble(event);
 					mainController.changeView('showSampleHierarchyTablePage', data.permId, true);
 				});
 				$list.append($hierarchyTable);
 				
 				var $upload = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'File Upload'}).append("File Upload"));
-				$upload.click(function(e) {
+				$upload.click(function(event) {
+					stopEventsBuble(event);
 					mainController.changeView('showCreateDataSetPageFromPermId', data.permId, true);
 				});
 				$list.append($upload);
 				
 				var $move = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Move'}).append("Move"));
-				$move.click(function(e) {
+				$move.click(function(event) {
+					stopEventsBuble(event);
 					var moveSampleController = new MoveSampleController(data.permId, function() {
 						mainController.refreshView();
 					});

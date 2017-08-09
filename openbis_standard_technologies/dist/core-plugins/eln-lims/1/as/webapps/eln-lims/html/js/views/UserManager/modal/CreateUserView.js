@@ -42,8 +42,7 @@ function CreateUserView(createUserController, createUserModel) {
 	
 	this.repaint = function() {
 		var _this = this;
-		var $window = $('<form>', { 
-			'class' : 'form-horizontal', 
+		var $window = $('<form>', {
 			'action' : 'javascript:void(0);'
 		});
 		

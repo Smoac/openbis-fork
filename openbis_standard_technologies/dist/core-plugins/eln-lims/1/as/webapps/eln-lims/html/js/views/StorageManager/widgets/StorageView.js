@@ -20,135 +20,136 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._gridViewRack = gridViewRack;
 	this._gridViewPosition = gridViewPosition;
 	
-	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
-	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", false);
+	this._defaultStoragesDropDown = null;
 	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
 	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("", false);
 	this._positionContainer = $("<div>");
 	
-	this.repaint = function($container) {
-		//
-		// Paint View
-		//
+	this.repaint = function($container, callbackFunction) {
 		var _this = this;
-		//$container.empty(); To allow display into a pop-up
-		if( this._storageModel.config.title) { //It can be null
-			$container.append("<h2>" + this._storageModel.config.title + "</h2>");
-		}
 		
-		if(this._storageModel.config.storagePropertyGroupSelector === "on") {
-			//Paint
-			var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
-			$container.append($controlGroupStoragesGroups);
-			this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(this._storageGroupsDropDown.val());
-			//Attach Event
-			this._storageGroupsDropDown.change(function(event) {
-				_this._storageController.setSelectStorageGroup($(this).val());
-			});
-		}
-		
-		if(this._storageModel.config.storageSelector === "on") {
-			//Sample to bind
-			if(this._storageModel.sample) {
-				this._defaultStoragesDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
+		FormUtil.getDefaultStoragesDropDown("", false, function($storagesDropdownComponent) {
+			_this._defaultStoragesDropDown = $storagesDropdownComponent;
+			
+			//
+			// Paint View
+			//
+			
+			//$container.empty(); To allow display into a pop-up
+			if( _this._storageModel.config.title) { //It can be null
+				$container.append("<h2>" + _this._storageModel.config.title + "</h2>");
 			}
-			//Paint
-			var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
-			$container.append($controlGroupStorages);
-			//Attach Event
-			this._defaultStoragesDropDown.change(function(event) {
-				var storageName = $(this).val();
-				if(_this._storageModel.sample) { //Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = storageName;
-				}
-				_this._storageController.setSelectStorage(storageName);
-				
-				if(storageName === "") {
-					_this._storageModel.cleanSample(false);
-				} else {
-					_this._storageModel.cleanSample(true);
-				}
-			});
-		}
-		
-		if(this._storageModel.config.userSelector === "on" && !this._storageModel.sample) {
-			//Paint
-			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdDropdown, "User Id Filter");
-			$container.append($controlGroupUserId);
-			this._userIdDropdown.multiselect();
-			//Attach Event
-			this._userIdDropdown.change(function() {
-				var selectedUserIds = $(this).val();
-				_this._storageController.setUserIdsSelected(selectedUserIds);
-			});
-		} else if(this._storageModel.sample) { //If someone is updating a sample, his user should go with it
-			this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-		}
-		
-		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
-		if(this._storageModel.sample) {
-			this._storageController.setSelectStorage(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
-		}
-		
-		if(this._storageModel.config.boxSelector === "on" || this._storageModel.config.rackSelector === "on") {
-			//Paint
-			this._boxField.hide();
-			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxField, "Box Name");
-			$container.append($controlGroupBox);
-			//Attach Event
-			this._boxField.keyup(function() {
-				if(_this._storageModel.sample) { // Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = $(this).val();
-				}
-				_this._storageController.setBoxSelected($(this).val());
-			});
-			// Sample to bind
-			if(this._storageModel.sample && this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]) {
-				this._boxField.show();
-				this._boxField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
-				this._storageController.setBoxSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
-				this._boxField.attr("disabled", "");
+			
+			if( _this._storageModel.config.storagePropertyGroupSelector === "on") {
+				_this._storageController.setSelectStorageGroup();
 			}
-		}
-		
-		if(this._storageModel.config.boxSizeSelector === "on") {
-			//Paint
-			this._boxSizeDropDown.hide();
-			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxSizeDropDown, "Box Size");
-			$container.append($controlGroupBox);
-			//Attach Event
-			this._boxSizeDropDown.change(function() {
-				if(_this._storageModel.sample) { // Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
+			
+			if(_this._storageModel.config.storageSelector === "on") {
+				//Sample to bind
+				if(_this._storageModel.sample) {
+					_this._defaultStoragesDropDown.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty]);
 				}
-				_this._storageController.setBoxSizeSelected($(this).val(), true);
-			});
-			// Sample to bind
-			if(this._storageModel.sample && this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]) {
-				this._boxSizeDropDown.show();
-				this._boxSizeDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
-				_this._storageController.setBoxSizeSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
-				this._boxSizeDropDown.attr("disabled", "");
+				//Paint
+				var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(_this._defaultStoragesDropDown, "Storage");
+				$container.append($controlGroupStorages);
+				//Attach Event
+				_this._defaultStoragesDropDown.change(function(event) {
+					var storageName = $(this).val();
+					if(_this._storageModel.sample) { //Sample to bind
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = storageName;
+					}
+					_this._storageController.setSelectStorage(storageName);
+					
+					if(storageName === "") {
+						_this._storageModel.cleanSample(false);
+					} else {
+						_this._storageModel.cleanSample(true);
+					}
+				});
 			}
-		}
-		
-		if(this._storageModel.config.positionSelector === "on") {
-			$container.append(FormUtil.getFieldForComponentWithLabel(this._positionContainer, "Box Position"));
-		}
-		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
-			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
-		}
-		
-		if(this._storageModel.isDisabled) {
-			this._storageGroupsDropDown.attr("disabled", "");
-			this._defaultStoragesDropDown.attr("disabled", "");
-			this._userIdDropdown.attr("disabled", "");
-			this._boxField.attr("disabled", "");
-		}
-		
-		this._storageController.initFinish();
+			
+			if(_this._storageModel.config.userSelector === "on" && !_this._storageModel.sample) {
+				//Paint
+				var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(_this._userIdDropdown, "User Id Filter");
+				$container.append($controlGroupUserId);
+				_this._userIdDropdown.multiselect();
+				//Attach Event
+				_this._userIdDropdown.change(function() {
+					var selectedUserIds = $(this).val();
+					_this._storageController.setUserIdsSelected(selectedUserIds);
+				});
+			} else if(_this._storageModel.sample) { //If someone is updating a sample, his user should go with it
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+			}
+			
+			$container.append(FormUtil.getFieldForComponentWithLabel(_this._gridContainer, "Rack"));
+			if(_this._storageModel.sample) {
+				_this._storageController.setSelectStorage(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty]);
+			}
+			
+			if(_this._storageModel.config.boxSelector === "on" || _this._storageModel.config.rackSelector === "on") {
+				//Paint
+				_this._boxField.hide();
+				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxField, "Box Name");
+				$container.append($controlGroupBox);
+				//Attach Event
+				_this._boxField.keyup(function() {
+					if(_this._storageModel.sample) { // Sample to bind
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = $(this).val();
+					}
+					_this._storageController.setBoxSelected($(this).val());
+				});
+				// Sample to bind
+				if(_this._storageModel.sample && _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty]) {
+					_this._boxField.show();
+					_this._boxField.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty]);
+					_this._storageController.setBoxSelected(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty]);
+					_this._boxField.attr("disabled", "");
+				}
+			}
+			
+			if(_this._storageModel.config.boxSizeSelector === "on") {
+				//Paint
+				_this._boxSizeDropDown.hide();
+				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxSizeDropDown, "Box Size");
+				$container.append($controlGroupBox);
+				//Attach Event
+				_this._boxSizeDropDown.change(function() {
+					if(_this._storageModel.sample) { // Sample to bind
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
+					}
+					_this._storageController.setBoxSizeSelected($(this).val(), true);
+				});
+				// Sample to bind
+				if(_this._storageModel.sample && _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty]) {
+					_this._boxSizeDropDown.show();
+					_this._boxSizeDropDown.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty]);
+					_this._storageController.setBoxSizeSelected(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
+					_this._boxSizeDropDown.attr("disabled", "");
+				}
+			}
+			
+			if(_this._storageModel.config.positionSelector === "on") {
+				$container.append(FormUtil.getFieldForComponentWithLabel(_this._positionContainer, "Box Position"));
+			}
+			if(_this._storageModel.config.positionSelector === "on" && _this._storageModel.sample) {
+				_this.showPosField(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty], false);
+			}
+			
+			if(_this._storageModel.isDisabled) {
+				_this._defaultStoragesDropDown.attr("disabled", "");
+				_this._userIdDropdown.attr("disabled", "");
+				_this._boxField.attr("disabled", "");
+			}
+			
+			_this._storageController.initFinish();
+			
+			if(callbackFunction) {
+				callbackFunction();
+			}
+		});
 	}
 	
 	this.refreshUserIdContents = function() {
@@ -204,118 +205,131 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	}
 	
 	this.showPosField = function(boxSizeCode, isNew) {
-		if(this._storageModel.config.positionSelector === "on") {
-			//Pointer to himself
-			var _this = this;
-			
-			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
-			var propertyValues = [this._storageModel.boxName];
-			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
-				//Labels
-				var labels = [];
-				samples.forEach(function(element, index, array) {
-					var code = element.code;
-					var positionProp  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-					if(positionProp) {
-						var positions = positionProp.split(" ");
-						for(var pIdx = 0; pIdx < positions.length; pIdx++) {
-							var position = positions[pIdx];
-							if (position) {
-								var xyPos = Util.getXYfromLetterNumberCombination(position);
-								var x = xyPos[0];
-								var y = xyPos[1];
-								
-								var row = labels[x];
-								if(!row) {
-									row = [];
-									labels[x] = row;
-								}
-								
-								var col = row[y];
-								if(!col) {
-									col = [];
-									row[y] = col;
-								}
-								
-								if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
-									continue;
-								} else {
-									label = { displayName : code, data : element };
-									col.push(label);
+		var _this = this;
+		
+		if(!this._storageModel.storageConfig) {
+			setTimeout(function(){
+				_this.showPosField(boxSizeCode, isNew);
+			}, 100);
+		} else {
+			if(this._storageModel.config.positionSelector === "on") {
+				var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
+				var propertyValues = [this._storageModel.boxName];
+				mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
+					//Labels
+					var labels = [];
+					samples.forEach(function(element, index, array) {
+						var displayName = null;
+						var name = element.properties[profile.propertyReplacingCode];
+						if(name) {
+							displayName = element.code +"(" + name + ")";
+						} else {
+							displayName = element.code;
+						}
+						
+						var positionProp  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+						if(positionProp) {
+							var positions = positionProp.split(" ");
+							for(var pIdx = 0; pIdx < positions.length; pIdx++) {
+								var position = positions[pIdx];
+								if (position) {
+									var xyPos = Util.getXYfromLetterNumberCombination(position);
+									var x = xyPos[0];
+									var y = xyPos[1];
+									
+									var row = labels[x];
+									if(!row) {
+										row = [];
+										labels[x] = row;
+									}
+									
+									var col = row[y];
+									if(!col) {
+										col = [];
+										row[y] = col;
+									}
+									
+									if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
+										continue;
+									} else {
+										label = { displayName : displayName, data : element };
+										col.push(label);
+									}
 								}
 							}
-						}
-					} else {
-						//Not position found
-					}
-				});
-				
-				//Repaint
-				if(boxSizeCode) {
-					_this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
-					var rowsAndCols = boxSizeCode.split("X");
-					var numRows = parseInt(rowsAndCols[0]);
-					var numCols = parseInt(rowsAndCols[1]);
-					_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
-					_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY, isSelectedOrDeleted) {
-						var newPosition = Util.getLetterForNumber(posX) + posY;
-						var isMultiple = _this._storageController._gridControllerPosition.getModel().isSelectMultiple;
-						var boxPosition = _this._storageModel.boxPosition;
-						
-						if(!boxPosition || !isMultiple) {
-							boxPosition = "";
-						}
-						
-						//Add delete position, takes in count some non standard inputs that can be done in batch registration/update
-						if(isMultiple && !isSelectedOrDeleted) {
-							boxPosition = boxPosition.replace(newPosition, '');
 						} else {
-							boxPosition += " " + newPosition;
+							//Not position found
 						}
-						boxPosition = boxPosition.replace(/  +/g, ' ');
-						boxPosition = boxPosition.trim();
-						//
+					});
+					
+					//Repaint
+					if(boxSizeCode) {
+						_this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
+						var rowsAndCols = boxSizeCode.split("X");
+						var numRows = parseInt(rowsAndCols[0]);
+						var numCols = parseInt(rowsAndCols[1]);
+						_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
+						_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY, isSelectedOrDeleted) {
+							var newPosition = Util.getLetterForNumber(posX) + posY;
+							var isMultiple = _this._storageController._gridControllerPosition.getModel().isSelectMultiple;
+							var boxPosition = _this._storageModel.boxPosition;
+							
+							if(!boxPosition || !isMultiple) {
+								boxPosition = "";
+							}
+							
+							//Add delete position, takes in count some non standard inputs that can be done in batch registration/update
+							if(isMultiple && !isSelectedOrDeleted) {
+								boxPosition = boxPosition.replace(newPosition, '');
+							} else {
+								boxPosition += " " + newPosition;
+							}
+							boxPosition = boxPosition.replace(/  +/g, ' ');
+							boxPosition = boxPosition.trim();
+							//
+							
+							//Binded sample
+							if(_this._storageModel.sample) {
+								_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = boxPosition;
+							}
+							_this._storageModel.boxPosition = boxPosition;
+						}); 
 						
+						//
+						// Box low of space alert
+						//
+						var positionsUsed = samples.length;
+						var totalPositions = numRows * numCols;
+						var used = positionsUsed / totalPositions;
+						var available = parseInt(_this._storageModel.storageConfig.lowBoxSpaceWarning) / 100;
+						if(used >= available) {
+							Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+						}
+					}
+					
+					_this._storageController._gridControllerPosition.init(_this._positionContainer);
+					
+					if(isNew) {
 						//Binded sample
 						if(_this._storageModel.sample) {
-							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = boxPosition;
+							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
 						}
-						_this._storageModel.boxPosition = boxPosition;
-					}); 
-					
-					//
-					// Box low of space alert
-					//
-					var positionsUsed = samples.length;
-					var totalPositions = numRows * numCols;
-					var used = positionsUsed / totalPositions;
-					if(used >= profile.storagesConfiguration["boxSpaceLowWarning"]) {
-						Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
-					}
-				}
-				
-				_this._storageController._gridControllerPosition.init(_this._positionContainer);
-				
-				if(isNew) {
-					//Binded sample
-					if(_this._storageModel.sample) {
-						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
-					}
-					_this._storageModel.boxPosition = null;
-				} else {
-					if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
-						_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-						var positions = _this._storageModel.boxPosition.split(" ");
-						for(var pIdx = 0; pIdx < positions.length; pIdx++) {
-							var position = positions[pIdx];
-							if(position) {
-								var xyPos = Util.getXYfromLetterNumberCombination(position);
-								_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+						_this._storageModel.boxPosition = null;
+					} else {
+						if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
+							_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+							var positions = _this._storageModel.boxPosition.split(" ");
+							for(var pIdx = 0; pIdx < positions.length; pIdx++) {
+								var position = positions[pIdx];
+								if(position) {
+									var xyPos = Util.getXYfromLetterNumberCombination(position);
+									_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+								}
 							}
 						}
 					}
-				}
-			});
+				}, null, true);
+			}
 		}
 	}
 	

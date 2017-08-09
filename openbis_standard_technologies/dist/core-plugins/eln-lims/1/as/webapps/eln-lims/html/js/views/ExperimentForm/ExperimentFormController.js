@@ -20,8 +20,8 @@ function ExperimentFormController(mainController, mode, experiment) {
 	this._experimentFormView = new ExperimentFormView(this, this._experimentFormModel);
 	this._windowHandlers = [];
 	
-	this.init = function($container) {
-		this._experimentFormView.repaint($container);
+	this.init = function(views) {
+		this._experimentFormView.repaint(views);
 	}
 	
 	this.finalize = function() {

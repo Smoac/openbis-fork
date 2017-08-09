@@ -21,7 +21,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 	
 	this.repaint = function() {
 		var _this = this;
-		var $window = $('<form>', { 'class' : 'form-horizontal', 'action' : 'javascript:void(0);' });
+		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		$window.submit(function() {
 			Util.unblockUI();
 			_this._moveSampleController.move();
@@ -40,7 +40,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 				_this._moveSampleModel.isNewExperiment = true;
 				_this.repaintNewExperiment();
 			}
-		}), ""));
+		}), "Choose existing or create a new " + ELNDictionary.getExperimentDualName() +"?"));
 		
 		$window.append($experimentSection);
 		this.repaintExistingExperiment();

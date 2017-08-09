@@ -17,22 +17,6 @@
 /* 
  * General Overrides
  */
-.form-panel-one,
-.form-panel-two {
-	overflow-y : auto;
-	overflow-x : hidden;
-}
-
-.table {
-  table-layout:fixed;
-}
-
-.table td {
-/*   white-space: nowrap;
-   	overflow: hidden;
-	text-overflow: ellipsis; */
-  word-wrap: break-word;
-}
 
 .form-group {
     margin-bottom: 5px;
@@ -41,10 +25,6 @@
 a:hover {
     text-decoration: none;
     cursor: pointer;
-}
-
-#mainContainer.col-md-12 {
-	padding-top: 30px;
 }
 
 .container  {
@@ -63,6 +43,19 @@ h1, h2, legend {
 
 .control-label {
 	word-wrap: break-word;
+	margin-bottom: 0px;
+	margin-top: 5px;
+}
+
+.checkbox {
+	margin-top: 0px;
+	margin-bottom: 0px;	
+}
+
+.form-control-static {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-height: 0px;
 }
 
 #preview-image {
@@ -93,11 +86,6 @@ body,
 #sideMenu > div > #sideMenuBody > #tree,
 #mainContainer {
 	height: 100%;, max-height: 100%; 
-}
-
-#mainContainer {
-	overflow-y: scroll;
-	overflow-x: auto;
 }
 
 #sideMenu > div > #sideMenuBody > #tree > ul.fancytree-container {
@@ -245,18 +233,19 @@ body,
 	padding-left: 5px;
 }
 
-.navbar-form .search-query {
+.search-query {
     padding-left: 30px;
     background-image: url(../img/search-icon.png);
     background-repeat: no-repeat;
-    background-position: 12px 9px;
+   	background-position: 12px 50% !important;
 	border-radius: 15px 15px 15px 15px;
 	width: 80%;
 }
 
 .search-query-searching {
     background-image: url(../img/search-spinner.gif) !important;
-    background-position: 12px 5px !important;
+    background-position: 12px 50% !important;
+    background-repeat: no-repeat;
 }
 
 .ui-fancytree,
@@ -722,4 +711,15 @@ table.downloads {
  legend {
     margin-top: 0;
     margin-bottom: 5px;
+}
+
+/*
+ * Settgins
+ */
+.borderless td, .borderless th {
+    border: none !important;
+}
+
+#settings-slider-low-storage, #settings-slider-low-box {
+	width : 100% !important;
 }

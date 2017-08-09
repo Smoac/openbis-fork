@@ -1,9 +1,9 @@
-function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
-	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable);
+function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight) {
+	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight);
 }
 
 $.extend(Grid.prototype, {
-	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
+	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight) {
 		this.columnsFirst = columnsFirst;
 		this.columnsDynamicFunc = columnsDynamicFunc;
 		this.columnsDynamic = [];
@@ -31,6 +31,7 @@ $.extend(Grid.prototype, {
 			this.addMultiSelect(columnsFirst);
 		}
 		this.lastUsedColumns = [];
+		this.staticHeight;
 	},
 	addMultiSelect : function(columns) {
 		var _this = this;
@@ -125,6 +126,7 @@ $.extend(Grid.prototype, {
 						thisGrid.list(options, callback);
 					}
 				},
+				staticHeight : thisGrid.staticHeight, //$( window ).height() - LayoutManager.secondColumnHeader.outerHeight() - 30,
 				list_selectable : false,
 				list_noItemsHTML : 'No items found',
 				list_rowRendered : function(helpers, callback) {
@@ -159,7 +161,7 @@ $.extend(Grid.prototype, {
 		var currentColumns = this.getAllColumns();
 		
 		columnsForDropdown.forEach(function(column, columnIndex) {
-			if(!column.showByDefault) {
+			if(!column.showByDefault && !column.hide) {
 				var checkbox = $("<input>")
 				.attr("type", "checkbox")
 				.attr("value", column.property)
@@ -418,16 +420,28 @@ $.extend(Grid.prototype, {
 		var columns = [];
 
 		var columnsModel = {};
+		var maxColumns = 50;
+		var enabledColumns = 0;
 		
 		_this.getAllColumns().forEach(function(column) {
 			var checkBoxForColumn = _this.panel.find(".columnDropdown").find("[value='" + column.property + "']");
 			var isChecked = (checkBoxForColumn.length === 1 && checkBoxForColumn[0] && checkBoxForColumn[0].checked)?true:false;
-			if(column.showByDefault || isChecked) {
-				columns.push(column);
-				columnsModel[column.property] = true;
+			if(column.showByDefault || isChecked && !column.hide) {
+				if(enabledColumns > maxColumns) {
+					// Ignore
+				} else {
+					columns.push(column);
+					columnsModel[column.property] = true;
+					enabledColumns++;
+				}
 			}
+			
 		});
 
+		if(enabledColumns > maxColumns) {
+			Util.showError("Only the first " + maxColumns + " selected columns will be shown.", function(){}, true);
+		}
+		
 		if(this.onChangeState) {
 			if(this.tableSettings.columns) {
 				for(key in columnsModel) {
@@ -633,7 +647,7 @@ $.extend(Grid.prototype, {
 			} else {
 				var newColumns = thisGrid.getVisibleColumns();
 				if(newColumns.length === thisGrid.lastUsedColumns.length) { //No changes
-					
+					result.columns = thisGrid.lastUsedColumns;
 				} else if(newColumns.length > thisGrid.lastUsedColumns.length) { //We added one column, first not matching column, we add to last used
 					var newLastUsedColumns = [];
 					for(var cIdx = 0; cIdx < thisGrid.lastUsedColumns.length; cIdx++) {
@@ -687,18 +701,19 @@ $.extend(Grid.prototype, {
 					}
 				}
 				
-				//HACK:	Legacy Hacks no longer needed
+				LayoutManager.isLoadingView = true; // Disable views reload by resize events
 				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
+				LayoutManager.isLoadingView = false; // Enable views reload by resize events
+				
 				if(thisGrid.firstLoad) {
 					Util.unblockUI();
 					$(thisGrid.panel).show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
 					thisGrid.firstLoad = false;
 				}
 				
-				
-				// HACK: Fix that only works if there is only one table at a time (dont works Safari)
-//				var newWidth = $(".repeater-list-wrapper > .table").width();
-//				$(".repeater").width(newWidth);
+				// Fix table width since fuelux 3.1.0
+				var newWidth = $(thisGrid.panel).find(".repeater-list-wrapper > .table").width();
+				$(thisGrid.panel).find(".repeater").width(newWidth);
 				
 				var optionsDropdowns = $(".dropdown.table-options-dropdown");
 				for(var i = 0; i < optionsDropdowns.length; i++) {

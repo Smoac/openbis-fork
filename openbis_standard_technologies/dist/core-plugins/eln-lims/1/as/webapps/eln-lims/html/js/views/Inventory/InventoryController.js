@@ -19,7 +19,7 @@ function InventoryController(parentController) {
 	var inventoryModel = new InventoryModel();
 	var inventoryView = new InventoryView(this, inventoryModel);
 	
-	this.init = function($container) {
-		inventoryView.repaint($container);
+	this.init = function(views) {
+		inventoryView.repaint(views);
 	}
 }

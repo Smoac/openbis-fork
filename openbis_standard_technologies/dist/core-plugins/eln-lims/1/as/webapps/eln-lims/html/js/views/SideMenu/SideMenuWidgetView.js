@@ -29,25 +29,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     var DISPLAY_NAME_LENGTH_LONG = 300;
     var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
     
-    this.hideSideMenu = function() {
-        this._sideMenuWidgetModel.$container.hide();
-        
-        Util.dragContainerFunc({ pageX : 0 });
-
-        var $toggleButtonShow = $("<a>", {"class": "btn btn-default", "id": "toggleButtonShow", "href": "javascript:mainController.sideMenu.showSideMenu();", "style": "position: fixed; top:0px; left:0px;"})
-                .append($("<span>", {"class": "glyphicon glyphicon-resize-small"}));
-
-        $("#main").append($toggleButtonShow);
-        this._sideMenuWidgetModel.isHidden = true;
-    };
-
-    this.showSideMenu = function() {
-        this._sideMenuWidgetModel.$container.show();
-        $("#toggleButtonShow").remove();
-        Util.dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
-        this._sideMenuWidgetModel.isHidden = false;
-    };
-    
     this.repaint = function($container) {
         var _this = this;
         var $widget = $("<div>");
@@ -55,23 +36,20 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         // Fix Header
         //
         var $header = $("<div>", {"id": "sideMenuHeader"});
-        var $headerItemList = $("<ul>", {"class": "nav navbar-nav"});
-        $header.append($("<nav>", {"class": "navbar navbar-default", "role": "navigation", "style": "margin:0px; border-left-width:0px; border-right-width:0px;"})
-                        .append($headerItemList).append($("<br>"))
-                       );
-
-        var $toggleButton = $("<li>")
-                .append($("<a>", {"href": "javascript:mainController.sideMenu.hideSideMenu();"})
-                        .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
-                        );
-        
+        	$header.css("background-color", "rgb(248, 248, 248)");
+        	$header.css("padding", "10px");
         var searchDomains = profile.getSearchDomains();
 
         var searchFunction = function() {
             var searchText = $("#search").val();
-            var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
-            var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
-            if (!searchDomain) {
+            var domainIndex = $("#search").attr("domain-index");
+            var searchDomain = null;
+            var searchDomainLabel = null;
+            
+            if(domainIndex) {
+                searchDomain = profile.getSearchDomains()[domainIndex].name;
+                searchDomainLabel = profile.getSearchDomains()[domainIndex].label;
+            } else {
                 searchDomain = profile.getSearchDomains()[0].name;
                 searchDomainLabel = profile.getSearchDomains()[0].label;
             }
@@ -88,26 +66,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         
         var dropDownSearch = null;
         if (searchDomains.length > 0) {
-            //Default Selected for the prefix
-            var defaultSelected = "";
-            if (searchDomains[0].label.length > 3) {
-                defaultSelected = searchDomains[0].label.substring(0, 2) + ".";
-            } else {
-                defaultSelected = searchDomains[0].label.label;
-            }
-
             //Prefix function
-            var selectedFunction = function(selectedSearchDomain) {
+            var selectedFunction = function(selectedSearchDomain, domainIndex) {
                 return function() {
-                    var $component = $("#prefix-selected-search-domain");
-                    $component.empty();
-                    if (selectedSearchDomain.label.length > 3) {
-                        $component.append(selectedSearchDomain.label.substring(0, 2) + ".");
-                    } else {
-                        $component.append(selectedSearchDomain.label);
-                    }
-                    $component.attr('selected-name', selectedSearchDomain.name);
-                    $component.attr('selected-label', selectedSearchDomain.label);
+                    var $search = $("#search");
+                    $search.attr("placeholder", selectedSearchDomain.label + " Search");
+                    $search.attr("domain-index", domainIndex);
                 };
             };
 
@@ -115,20 +79,18 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             var dropDownComponents = [];
             for (var i = 0; i < searchDomains.length; i++) {
                 dropDownComponents.push({
-                    href: selectedFunction(searchDomains[i]),
+                    href: selectedFunction(searchDomains[i], i),
                     title: searchDomains[i].label,
                     id: searchDomains[i].name
                 });
             }
 
-            dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback(
-                    $('<span>', {id: 'prefix-selected-search-domain', class: 'btn btn-default disabled', 'selected-name': searchDomains[0].name}
-                    ).append(defaultSelected), dropDownComponents, true, searchFunction);
+            dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback(null, dropDownComponents, true, searchFunction);
             dropDownSearch.change();
         }
 
 
-        var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Search"});
+        var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Global Search"});
         searchElement.keypress(function (e) {
         	 var key = e.which;
         	 if(key == 13)  // the enter key code
@@ -137,35 +99,29 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	    return false;  
         	  }
         });
-        searchElement.css({"width" : "68%"});
-        searchElement.css({"padding-right" : "0px"});
+        searchElement.css({"display" : "inline", "width" : "50%"});
+        searchElement.css({"padding-top" : "2px"});
+        searchElement.css({"margin-left" : "2px"});
         searchElement.css({"margin-right" : "2px"});
         
-        var $searchForm = $("<li>")
-                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;" })
-                        .append(searchElement)
-                        .append(dropDownSearch)
-                        );
-        $searchForm.css({"width" : "100%"});
-        
-        var logoutButton = $("<a>", {"id": "logout-button", "href": ""}).append($("<span>", {"class": "glyphicon glyphicon-off"}));
-        logoutButton.click(function() {
-            $('body').addClass('bodyLogin');
-            mainController.serverFacade.logout(function(data) {
-                $("#login-form-div").show();
-                $("#main").hide();
-            });
+        var logoutButton = FormUtil.getButtonWithIcon("glyphicon-off", function() {
+        	$('body').addClass('bodyLogin');
+            mainController.serverFacade.logout();
         });
-        var $logoutButton = $("<li>").append(logoutButton);
-
-        $headerItemList.append($logoutButton);
-        $headerItemList.append($toggleButton);
-        $headerItemList.append($searchForm);
+        
+        var $searchForm = $("<form>", { "onsubmit": "return false;" })
+        					.append(logoutButton)
+        					.append(searchElement)
+        					.append(dropDownSearch);
+        $searchForm.css("width", "100%");
+        
+        $header.append($searchForm);
         
         var $body = $("<div>", {"id": "sideMenuBody"});
-        $widget
-                .append($header)
-                .append($body);
+        $body.css("overflow-y", "auto");
+        
+        $widget.append($header)
+               .append($body);
 
         $container.empty();
         $container.append($widget);
@@ -205,14 +161,24 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModel.push({ title : inventoryLink, entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
         }
         
-        var treeModelUtils = [];
+        if(profile.mainMenu.showStock) {
+        	var inventoryLink = _this.getLinkForNode("Stock", "STOCK", "showOrdersPage", null);
+        	treeModel.push({ title : inventoryLink, entityType: "STOCK", key : "STOCK", folder : true, lazy : true, view : "showStockPage", icon: "fa fa-shopping-cart" });
+        }
         
+        var treeModelUtils = [];
+
+        if(profile.mainMenu.showUserProfile) {
+        	var settingsLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null);
+        	treeModelUtils.push({ title : settingsLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
+        }
+
         if(profile.mainMenu.showDrawingBoard) {
         	var drawingBoardLink = _this.getLinkForNode("Drawing Board", "DRAWING_BOARD", "showDrawingBoard", null);
         	treeModelUtils.push({ title : drawingBoardLink, entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
         }
         
-        if(profile.mainMenu.showSampleBrowser) {
+        if(profile.mainMenu.showObjectBrowser) {
         	var sampleBrowserLink = _this.getLinkForNode("" + ELNDictionary.Sample + " Browser", "SAMPLE_BROWSER", "showSamplesPage", null);
         	treeModelUtils.push({ title : sampleBrowserLink, entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
         }
@@ -247,6 +213,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModelUtils.push({ title : trashCanLink, entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
         }
         
+        if(profile.isAdmin && profile.mainMenu.showSettings) {
+        	var settingsLink = _this.getLinkForNode("Settings", "SETTINGS", "showSettingsPage", null);
+        	treeModelUtils.push({ title : settingsLink, entityType: "SETTINGS", key : "SETTINGS", folder : false, lazy : false, view : "showSettingsPage", icon : "glyphicon glyphicon-cog" });
+        }
+
         treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, expanded : true, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
         treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         
@@ -277,6 +248,47 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    
     	    switch(type) {
     	    	case "LAB_NOTEBOOK":
+    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
+    	    			var USERID = mainController.serverFacade.getUserId().toUpperCase();
+    	    			var results = [];
+    	    			var spaces = searchResult.objects;
+    	                for (var i = 0; i < spaces.length; i++) {
+    	                    var space = spaces[i];
+    	                    var isInventorySpace = profile.isInventorySpace(space.code);
+    	                    var isHiddenSpace = profile.isHiddenSpace(space.code);
+        	                if(!isInventorySpace && (space.code === USERID) && !isHiddenSpace) {
+        	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+        	                	var spaceLink = _this.getLinkForNode("My Space (" + normalizedSpaceTitle + ")", space.getCode(), "showSpacePage", space.getCode());
+        	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
+        	                    results.push(spaceNode);
+        	                }
+    	                }
+    	                
+	                    results.push({ title : "Others", entityType: "LAB_NOTEBOOK_OTHERS", key : "LAB_NOTEBOOK_OTHERS", folder : true, lazy : true, view : "showLabNotebookPage" });
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "LAB_NOTEBOOK_OTHERS":
+    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
+    	    			var USERID = mainController.serverFacade.getUserId().toUpperCase();
+    	    			var results = [];
+    	    			var spaces = searchResult.objects;
+    	                for (var i = 0; i < spaces.length; i++) {
+    	                    var space = spaces[i];
+    	                    var isInventorySpace = profile.isInventorySpace(space.code);
+    	                    var isHiddenSpace = profile.isHiddenSpace(space.code);
+        	                if(!isInventorySpace && (space.code !== USERID) && !isHiddenSpace) {
+        	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+        	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
+        	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
+        	                    results.push(spaceNode);
+        	                }
+    	                }
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
     	    	case "INVENTORY":
     	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
     	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
@@ -285,16 +297,34 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                for (var i = 0; i < spaces.length; i++) {
     	                    var space = spaces[i];
     	                    var isInventorySpace = profile.isInventorySpace(space.code);
-        	                if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
+    	                    var isHiddenSpace = profile.isHiddenSpace(space.code);
+        	                if(((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) && !isHiddenSpace) {
         	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
         	                	
         	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
         	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
-        	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
-        	                    	spaceNode.icon = "fa fa-shopping-cart";
+        	                    if(space.getCode() !== "STOCK_CATALOG" && space.getCode() !== "STOCK_ORDERS") {
+        	                    	results.push(spaceNode);
         	                    }
-        	                    results.push(spaceNode);
         	                }
+    	                }
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "STOCK":
+    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
+    	    			var results = [];
+    	                var spaces = searchResult.objects;
+    	                for (var i = 0; i < spaces.length; i++) {
+    	                    var space = spaces[i];
+    	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
+    	                    	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+        	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
+        	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
+        	                    spaceNode.icon = "fa fa-shopping-cart";
+        	                    results.push(spaceNode);
+    	                    }
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -522,16 +552,25 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         this._sideMenuWidgetModel.menuDOMBody.append($tree);
         this._sideMenuWidgetModel.tree = $tree;
         
-        $tree.fancytree("getTree").getNodeByKey("LAB_NOTEBOOK").setExpanded(true);
+		var labNotebook = $tree.fancytree("getTree").getNodeByKey("LAB_NOTEBOOK");
+		if (labNotebook) {
+	        labNotebook.setExpanded(true);
+		}
         var inventoryNode = $tree.fancytree("getTree").getNodeByKey("INVENTORY");
-        inventoryNode.setExpanded(true).done(function(){
-            inventoryNode.visit(function(node){
-                node.setExpanded(true).done(function(){
-                    node.visit(function(node2){
-                        node2.setExpanded(true);
-                    })
-                });
-            })
-        });
+		if (inventoryNode) {
+			inventoryNode.setExpanded(true).done(function(){
+				inventoryNode.visit(function(node){
+					node.setExpanded(true).done(function(){
+						node.visit(function(node2){
+							node2.setExpanded(true);
+						})
+					});
+				})
+			});
+		}
+		var stock = $tree.fancytree("getTree").getNodeByKey("STOCK");
+		if (stock) {
+			stock.setExpanded(true);
+		}
     }
 }

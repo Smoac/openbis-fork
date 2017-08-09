@@ -27,15 +27,20 @@ function LinksView(linksController, linksModel) {
 	//
 	// External API
 	//
-	linksView.initContainerForType = function(sampleTypeCode) {
+	linksView.initContainerForType = function(sampleTypeCode, samples, sampleTypeLabel) {
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
 		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		
-		//Create Model
+		//Create Model if missing
 		if(!samplesOnGrid) {
 			samplesOnGrid = [];
-			linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
 		}
+		 //This should happen only during the initalization
+		if(samples) {
+			samplesOnGrid = samplesOnGrid.concat(samples);
+		}
+		
+		linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
 		
 		//Create Layout
 		if(!$dataGridContainer) { //Create if is not there yet
@@ -44,7 +49,8 @@ function LinksView(linksController, linksModel) {
 			var $samplePickerContainer = $("<div>");
 			
 			if(sampleTypeCode) {
-				$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":")
+				var sampleTableContainerLabel = (sampleTypeLabel)?sampleTypeLabel:sampleTypeCode;
+				$sampleTableContainer.append($("<div>").append(sampleTableContainerLabel + ":")
 						.append("&nbsp;")
 						.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode))
 						.css("margin","5px"));
@@ -61,32 +67,44 @@ function LinksView(linksController, linksModel) {
 	}
 	
 	this.updateSample = function(sample, isAdd, isInit) {
-		var sampleTypeCode = sample.sampleTypeCode;
+		var sampleTypeCode = null;
+		
+		if(isInit) {
+			sampleTypeCode = sample[0].sampleTypeCode;
+		} else {
+			sampleTypeCode = sample.sampleTypeCode;
+		}
+		
 		
 		var containerCode = null;
 		if(!linksModel.isDisabled) {
 			containerCode = sampleTypeCode;
 		}
 		
-		linksView.initContainerForType(containerCode);
+		linksView.initContainerForType(containerCode, (isInit)?sample:null);
+		
 		var $dataGridContainer = sampleGridContainerByType[containerCode];
 		
 		var samplesOnGrid = linksModel.samplesByType[containerCode];
 		
 		//Check if the sample is already added
 		var foundAtIndex = -1;
-		for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
-			if(samplesOnGrid[sIdx].permId === sample.permId) {
-				foundAtIndex = sIdx;
-				if(isAdd) {
-					Util.showError("Sample " + sample.code + " already present, it will not be added again.");
-					return;
-				} else {
-					linksModel.samplesRemoved.push(sample.identifier);
-					break;
+		if(!isInit) {
+			for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
+				if(samplesOnGrid[sIdx].permId === sample.permId) {
+					foundAtIndex = sIdx;
+					if(isAdd) {
+						Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+						return;
+					} else {
+						linksModel.samplesRemoved.push(sample.identifier);
+						break;
+					}
 				}
 			}
 		}
+		
+		
 		
 		if(isAdd && !isInit) {
 			linksModel.samplesAdded.push(sample.identifier);
@@ -95,10 +113,12 @@ function LinksView(linksController, linksModel) {
 		//Render Grid
 		$dataGridContainer.empty();
 		
-		if(isAdd) {
-			samplesOnGrid.push(sample);
-		} else {
-			samplesOnGrid.splice(foundAtIndex, 1);
+		if(!isInit) {
+			if(isAdd) {
+				samplesOnGrid.push(sample);
+			} else {
+				samplesOnGrid.splice(foundAtIndex, 1);
+			}
 		}
 		
 		var customAnnotationColumnsByType = {};
@@ -170,14 +190,14 @@ function LinksView(linksController, linksModel) {
 	
 	linksView.showCopyProtocolPopUp = function(callback) {
 		Util.blockUINoMessage();
-		var component = "<div class='form-horizontal'>"
+		var component = "<div>"
 			component += "<legend>Copy Protocol</legend>";
-			component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-			component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
-			component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+			component += "<div class='form-group'>";
+			component += "<label class='control-label'>Code&nbsp;(*):</label>";
+			component += "<div>";
 			component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
 			component += "</div>";
-			component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+			component += "<div>";
 			component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 			component += "</div>";
 			component += "</div>";
@@ -191,7 +211,7 @@ function LinksView(linksController, linksModel) {
 				'overflow' : 'auto'
 		};
 		
-		Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+		Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
 		
 		$("#newSampleCodeForCopy").on("keyup", function(event) {
 			$(this).val($(this).val().toUpperCase());
@@ -284,20 +304,18 @@ function LinksView(linksController, linksModel) {
 				$dropDownMenu.append($caret);
 				$dropDownMenu.append($list);
 				
-				var clickFunction = function($dropDown) {
-					return function(event) {
+				var stopEventsBuble = function(event) {
 						event.stopPropagation();
 						event.preventDefault();
 						$caret.dropdown('toggle');
-					};
-				}
+				};
 				$dropDownMenu.dropdown();
-				$dropDownMenu.click(clickFunction($dropDownMenu));
+				$dropDownMenu.click(stopEventsBuble);
 				
 				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
 					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Use as template'}).append("Use as template"));
 					$copyAndLink.click(function(e) {
-						
+						stopEventsBuble(e);
 						var copyAndLink = function(code) {
 							var newSampleIdentifier = "/" + mainController.currentView._sampleFormModel.sample.spaceCode + "/" + code;
 							Util.blockUI();
@@ -337,6 +355,7 @@ function LinksView(linksController, linksModel) {
 				
 				var getDeleteFunc = function(sample) {
 					return function(e) {
+						stopEventsBuble(e);
 						linksView.updateSample(sample, false);
 					};
 				}
@@ -388,6 +407,10 @@ function LinksView(linksController, linksModel) {
 				entityKind : "SAMPLE",
 				logicalOperator : "AND",
 				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode } }
+		}
+		
+		if(sampleTypeCode === "REQUEST") {
+			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "ORDER_STATUS", value : "NOT_YET_ORDERED" };
 		}
 		
 		var rowClick = function(e) {
