@@ -139,25 +139,25 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER })
     @Capability("ADD_PARENT_TO_SAMPLE")
     public void addParentToSample(IAuthSession session,
             @AuthorizationGuard(name = "SAMPLE", guardClass = SamplePEPredicate.class) SamplePE sample,
             @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class,
-                    rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_USER }) SamplePE parent);
+                    rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER }) SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("REMOVE_PARENT_FROM_SAMPLE")
     public void removeParentFromSample(IAuthSession session,
             @AuthorizationGuard(name = "SAMPLE", guardClass = SamplePEPredicate.class) SamplePE sample,
             @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class,
-                    rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_USER }) SamplePE parent);
+                    rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER }) SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("ADD_CONTAINER_TO_SAMPLE")
     public void assignSampleToContainer(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
@@ -165,7 +165,7 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
     @Capability("REMOVE_CONTAINER_FROM_SAMPLE")
     public void removeSampleFromContainer(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample);

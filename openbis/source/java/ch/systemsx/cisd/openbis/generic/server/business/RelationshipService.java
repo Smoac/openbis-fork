@@ -123,17 +123,18 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         Date timeStamp = getTransactionTimeStamp();
         ExperimentPE currentExperiment = sample.getExperiment();
         ProjectPE currentProject = sample.getProject();
-        if (currentExperiment != null)
+
+        if (currentExperiment != null && false == currentExperiment.equals(experiment))
         {
             service.checkCanUnassignSampleFromExperiment(session, sample);
             currentProject = currentExperiment.getProject();
-            RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(currentExperiment, 
+            RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(currentExperiment,
                     currentProject, session, timeStamp);
         }
 
         sample.setExperiment(experiment);
         RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
-        RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experiment, currentProject, 
+        RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experiment, currentProject,
                 session, timeStamp);
     }
 

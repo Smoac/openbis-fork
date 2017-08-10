@@ -42,7 +42,16 @@ public abstract class AbstractMapObjectByIdExecutor<ID extends IObjectId, OBJECT
     @Override
     public Map<ID, OBJECT> map(IOperationContext context, Collection<? extends ID> ids)
     {
-        checkAccess(context);
+        return map(context, ids, true);
+    }
+
+    @Override
+    public Map<ID, OBJECT> map(IOperationContext context, Collection<? extends ID> ids, boolean checkAccess)
+    {
+        if (checkAccess)
+        {
+            checkAccess(context);
+        }
 
         if (ids == null)
         {

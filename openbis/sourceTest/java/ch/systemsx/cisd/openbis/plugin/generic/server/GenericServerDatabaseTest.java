@@ -51,7 +51,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
@@ -59,8 +64,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -379,6 +386,199 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         }
     }
 
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetSampleInfoWithTechIdWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            SampleParentWithDerived sample = server.getSampleInfo(sessionDTO.getSessionToken(), sampleId);
+            assertEquals(sample.getParent().getCode(), "FV-TEST");
+        } else
+        {
+            try
+            {
+                server.getSampleInfo(sessionDTO.getSessionToken(), sampleId);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRegisterSampleWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            Sample sample = server.registerSample(sessionDTO.getSessionToken(), newSample, Collections.emptyList());
+            assertEquals(sample.getIdentifier(), newSample.getIdentifier());
+        } else
+        {
+            try
+            {
+                server.registerSample(sessionDTO.getSessionToken(), newSample, Collections.emptyList());
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRegisterOrUpdateSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            server.registerOrUpdateSamples(sessionDTO.getSessionToken(), Arrays.asList(newSamples));
+        } else
+        {
+            try
+            {
+                server.registerOrUpdateSamples(sessionDTO.getSessionToken(), Arrays.asList(newSamples));
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRegisterSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            server.registerSamples(sessionDTO.getSessionToken(), Arrays.asList(newSamples));
+        } else
+        {
+            try
+            {
+                server.registerSamples(sessionDTO.getSessionToken(), Arrays.asList(newSamples));
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateSampleWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        SampleUpdatesDTO updates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            server.updateSample(sessionDTO.getSessionToken(), updates);
+        } else
+        {
+            try
+            {
+                server.updateSample(sessionDTO.getSessionToken(), updates);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRegisterOrUpdateSamplesAndMaterialsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        NewSample newSample = createNewSample("/TEST-SPACE/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
+
+        if (user.isInstanceUser())
+        {
+            server.registerOrUpdateSamplesAndMaterials(sessionDTO.getSessionToken(), Arrays.asList(newSamples), Collections.emptyList());
+        } else
+        {
+            try
+            {
+                server.registerOrUpdateSamplesAndMaterials(sessionDTO.getSessionToken(), Arrays.asList(newSamples), Collections.emptyList());
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        NewSample newSample = createNewSample("/TEST-SPACE/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            server.updateSamples(sessionDTO.getSessionToken(), Arrays.asList(newSamples));
+        } else
+        {
+            try
+            {
+                server.updateSamples(sessionDTO.getSessionToken(), Arrays.asList(newSamples));
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetSamplesFileAttachmentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId sampleId = new TechId(1054L);
+        String fileName = "testSample.txt";
+        Integer version = 1;
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            AttachmentWithContent attachment = server.getSampleFileAttachment(sessionDTO.getSessionToken(), sampleId, fileName, version);
+            assertEquals(attachment.getDescription(), "Test sample description");
+        } else
+        {
+            try
+            {
+                server.getSampleFileAttachment(sessionDTO.getSessionToken(), sampleId, fileName, version);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
     private void update(DataPE data, NewDataSet newDataset, DataSetBatchUpdateDetails updateDetails)
     {
         List<NewDataSet> newDatasets = new ArrayList<NewDataSet>();
@@ -390,6 +590,37 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
 
         server.updateDataSets(session.getSessionToken(), newDatasetsWithType);
         sessionFactory.getCurrentSession().update(data);
+    }
+
+    private NewSample createNewSample(String sampleIdentifier, String experimentIdentifier)
+    {
+        SampleType type = new SampleType();
+        type.setCode("CELL_PLATE");
+
+        NewSample newSample = new NewSample();
+        newSample.setSampleType(type);
+        newSample.setIdentifier(sampleIdentifier);
+        newSample.setExperimentIdentifier(experimentIdentifier);
+        return newSample;
+    }
+
+    private SampleUpdatesDTO createSampleUpdates(long sampleId, String sampleIdentifier, String propertyCode, String propertyValue)
+    {
+        SampleUpdatesDTO updates =
+                new SampleUpdatesDTO(new TechId(sampleId), null, null, null, Collections.emptyList(), 0,
+                        SampleIdentifierFactory.parse(sampleIdentifier), null, null);
+        updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
+        return updates;
+    }
+
+    private IEntityProperty createEntityProperty(String propertyCode, String propertyValue)
+    {
+        IEntityProperty property = new EntityProperty();
+        property.setValue(propertyValue);
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(propertyCode);
+        property.setPropertyType(propertyType);
+        return property;
     }
 
 }

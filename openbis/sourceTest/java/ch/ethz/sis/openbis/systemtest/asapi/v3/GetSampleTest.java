@@ -18,8 +18,8 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +67,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 import junit.framework.Assert;
 
@@ -1590,6 +1591,25 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(attachment.getFileName(), "sampleHistory.txt");
 
         v3api.logout(sessionToken);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        ISampleId id = new SampleIdentifier("/TEST-SPACE/EV-TEST");
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+
+        Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            assertEquals(samples.size(), 1);
+        } else
+        {
+            assertEquals(samples.size(), 0);
+        }
     }
 
 }

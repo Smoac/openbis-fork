@@ -85,6 +85,10 @@ public class SetSampleProjectExecutor extends AbstractSetEntityToOneRelationExec
     {
         if (related != null)
         {
+            // Set project first. Without it the predicate at the relationship service method won't let us in
+            // if the user does not have access to the space but only to the project.
+            entity.setProject(related);
+
             relationshipService.assignSampleToProject(context.getSession(), entity, related);
         }
     }

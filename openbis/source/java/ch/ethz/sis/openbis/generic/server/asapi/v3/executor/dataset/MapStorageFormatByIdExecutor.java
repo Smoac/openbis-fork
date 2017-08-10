@@ -49,7 +49,16 @@ public class MapStorageFormatByIdExecutor implements IMapStorageFormatByIdExecut
     @Override
     public Map<IStorageFormatId, VocabularyTermPE> map(IOperationContext context, Collection<? extends IStorageFormatId> ids)
     {
-        authorizationExecutor.canGet(context);
+        return map(context, ids, true);
+    }
+
+    @Override
+    public Map<IStorageFormatId, VocabularyTermPE> map(IOperationContext context, Collection<? extends IStorageFormatId> ids, boolean checkAccess)
+    {
+        if (checkAccess)
+        {
+            authorizationExecutor.canGet(context);
+        }
 
         Map<IVocabularyTermId, IStorageFormatId> idsMap = new HashMap<IVocabularyTermId, IStorageFormatId>();
 

@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +42,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -57,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
@@ -645,7 +654,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleUpdatesDTO updates = createSampleUpdates(1055, "COMMENT", "updated comment"); // /TEST-SPACE/EV-TEST
+        SampleUpdatesDTO updates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
@@ -724,7 +733,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleUpdatesDTO sampleUpdates = createSampleUpdates(1055, "COMMENT", "updated comment"); // /TEST-SPACE/EV-TEST
+        SampleUpdatesDTO sampleUpdates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
         NewExternalData newExternalData = createNewExternalData("TEST-DATASET");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
@@ -882,18 +891,198 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         }
     }
 
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithNewProjectWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        NewProject newProject = new NewProject("/TEST-SPACE/PA_TEST", null);
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Arrays.asList(newProject), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyMap(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getProjectsCreatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithProjectUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        ProjectUpdatesDTO projectUpdate = new ProjectUpdatesDTO();
+        projectUpdate.setTechId(new TechId(5L)); // /TEST-SPACE/TEST-PROJECT
+        projectUpdate.setAttachments(Collections.<NewAttachment> emptyList());
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(),
+                        Arrays.asList(projectUpdate), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getProjectsUpdatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithNewExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        NewExperiment newExperiment = new NewExperiment("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST-2", "SIRNA_HCS");
+        newExperiment.setProperties(new IEntityProperty[] { createEntityProperty("DESCRIPTION", "test description") });
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Arrays.asList(newExperiment), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getExperimentsCreatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithExperimentUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setExperimentId(new TechId(23L)); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+        updates.setProperties(Arrays.asList(new IEntityProperty[] { createEntityProperty("DESCRIPTION", "test description") }));
+        updates.setAttachments(new ArrayList<NewAttachment>());
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Arrays.asList(updates), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getExperimentsUpdatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithNewSampleWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(newSample),
+                        Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getSamplesCreatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithSampleUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        SampleUpdatesDTO sampleUpdate = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Arrays.asList(sampleUpdate), Collections.emptyList(),
+                        Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getSamplesUpdatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
     private NewExperiment createNewExperiment(String experimentIdentifier)
     {
-        IEntityProperty property = new EntityProperty();
-        property.setValue("test description");
-        PropertyType propertyType = new PropertyType();
-        propertyType.setCode("DESCRIPTION");
-        property.setPropertyType(propertyType);
-
         NewExperiment newExperiment = new NewExperiment();
         newExperiment.setExperimentTypeCode("SIRNA_HCS");
         newExperiment.setIdentifier(experimentIdentifier);
-        newExperiment.setProperties(new IEntityProperty[] { property });
+        newExperiment.setProperties(new IEntityProperty[] { createEntityProperty("DESCRIPTION", "test description") });
 
         return newExperiment;
     }
@@ -910,16 +1099,11 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         return newSample;
     }
 
-    private SampleUpdatesDTO createSampleUpdates(long sampleId, String propertyCode, String propertyValue)
+    private SampleUpdatesDTO createSampleUpdates(long sampleId, String sampleIdentifier, String propertyCode, String propertyValue)
     {
-        IEntityProperty property = new EntityProperty();
-        property.setValue(propertyValue);
-        PropertyType propertyType = new PropertyType();
-        propertyType.setCode(propertyCode);
-        property.setPropertyType(propertyType);
-
-        SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(sampleId), null, null, null, null, 0, null, null, null);
-        updates.setProperties(Arrays.asList(property));
+        SampleUpdatesDTO updates =
+                new SampleUpdatesDTO(new TechId(sampleId), null, null, null, null, 0, SampleIdentifierFactory.parse(sampleIdentifier), null, null);
+        updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
         return updates;
     }
 
@@ -937,6 +1121,16 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         newData.setStorageFormat(StorageFormat.PROPRIETARY);
         newData.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
         return newData;
+    }
+
+    private IEntityProperty createEntityProperty(String propertyCode, String propertyValue)
+    {
+        IEntityProperty property = new EntityProperty();
+        property.setValue(propertyValue);
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(propertyCode);
+        property.setPropertyType(propertyType);
+        return property;
     }
 
 }

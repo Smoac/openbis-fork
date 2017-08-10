@@ -60,7 +60,16 @@ public class MapTagByIdExecutor implements IMapTagByIdExecutor
     @Override
     public Map<ITagId, MetaprojectPE> map(IOperationContext context, Collection<? extends ITagId> tagIds)
     {
-        authorizationExecutor.canGet(context);
+        return map(context, tagIds, true);
+    }
+
+    @Override
+    public Map<ITagId, MetaprojectPE> map(IOperationContext context, Collection<? extends ITagId> tagIds, boolean checkAccess)
+    {
+        if (checkAccess)
+        {
+            authorizationExecutor.canGet(context);
+        }
 
         Map<ITagId, MetaprojectPE> map = new LinkedHashMap<ITagId, MetaprojectPE>();
 

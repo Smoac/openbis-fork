@@ -50,6 +50,10 @@ public class SetSampleExperimentExecutor extends AbstractSetEntityExperimentRela
     {
         if (related != null)
         {
+            // Set experiment first. Without it the predicate at the relationship service method won't let us in
+            // if the user does not have access to the space but only to the experiment's project.
+            entity.setExperiment(related);
+
             relationshipService.assignSampleToExperiment(context.getSession(), entity, related);
         }
     }

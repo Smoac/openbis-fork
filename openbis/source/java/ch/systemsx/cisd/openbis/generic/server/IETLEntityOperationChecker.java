@@ -98,7 +98,7 @@ public interface IETLEntityOperationChecker
             @AuthorizationGuard(guardClass = NewSamplePredicate.class) List<NewSample> instanceSamples);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SPACE_SAMPLES_VIA_DSS")
     public void assertSpaceSampleCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class) List<NewSample> spaceSamples);
@@ -109,7 +109,7 @@ public interface IETLEntityOperationChecker
             @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class) List<SampleUpdatesDTO> instanceSamples);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE_SAMPLES_VIA_DSS")
     public void assertSpaceSampleUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class) List<SampleUpdatesDTO> spaceSamples);

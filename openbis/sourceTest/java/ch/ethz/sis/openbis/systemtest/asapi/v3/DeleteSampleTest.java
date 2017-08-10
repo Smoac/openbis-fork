@@ -32,10 +32,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDele
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
 import junit.framework.Assert;
 
 /**
@@ -56,24 +60,24 @@ public class DeleteSampleTest extends AbstractDeletionTest
         Assert.assertNull(deletionId);
     }
 
-    @Test 
+    @Test
     public void testDeleteSharedSampleWithHomelessPowerUser()
     {
         final SamplePermId permId = new SamplePermId("200811050947161-653");
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
 
-                SampleDeletionOptions options = new SampleDeletionOptions();
-                options.setReason("It is just a test");
+                    SampleDeletionOptions options = new SampleDeletionOptions();
+                    options.setReason("It is just a test");
 
-                v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
-            }
-        }, permId);
+                    v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
+                }
+            }, permId);
     }
 
     @Test
@@ -216,6 +220,32 @@ public class DeleteSampleTest extends AbstractDeletionTest
                     v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
                 }
             }, permId);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        ISampleId sampleId = new SampleIdentifier("/TEST-SPACE/EV-TEST");
+
+        SampleDeletionOptions options = new SampleDeletionOptions();
+        options.setReason("It is just a test");
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), options);
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), options);
+                    }
+                }, sampleId);
+        }
     }
 
 }

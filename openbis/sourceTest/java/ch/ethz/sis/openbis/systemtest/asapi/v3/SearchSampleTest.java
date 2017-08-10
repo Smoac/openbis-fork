@@ -41,6 +41,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -112,14 +113,14 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withSpace().withCode();
         testSearch(TEST_USER, criteria, 379);
     }
-    
+
     @Test
     public void testSearchForAllSharedSamples()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria().withoutSpace();
         testSearch(TEST_USER, criteria, 322);
     }
-    
+
     @Test
     public void testSearchWithSpaceWithIdSetToPermId()
     {
@@ -127,7 +128,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
         testSearch(TEST_USER, criteria, 8);
     }
-    
+
     @Test
     public void testSearchWithSpaceWithCode()
     {
@@ -1080,6 +1081,21 @@ public class SearchSampleTest extends AbstractSampleTest
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
         assertEquals(identifiers.toString(), "[/CISD/CL1:A01, /CISD/CL1:A03]");
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/EV-TEST"));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            testSearch(user.getUserId(), criteria, "/TEST-SPACE/EV-TEST");
+        } else
+        {
+            testSearch(user.getUserId(), criteria);
+        }
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)

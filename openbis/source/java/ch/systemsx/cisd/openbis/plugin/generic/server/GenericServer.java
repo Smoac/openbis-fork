@@ -226,7 +226,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId) throws UserFailureException
@@ -235,7 +235,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public Sample registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             final NewSample newSample, final Collection<NewAttachment> attachments)
@@ -313,7 +313,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE")
     public void registerOrUpdateSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
@@ -461,7 +461,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE")
     public void registerSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
@@ -476,7 +476,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE")
     public void updateSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
@@ -752,7 +752,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AttachmentWithContent getSampleFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, String fileName, Integer versionOrNull)
     {
@@ -813,7 +813,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public SampleUpdateResult updateSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates)
     {

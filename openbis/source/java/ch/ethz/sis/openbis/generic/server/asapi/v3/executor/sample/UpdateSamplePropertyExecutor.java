@@ -39,7 +39,7 @@ public class UpdateSamplePropertyExecutor implements IUpdateSamplePropertyExecut
     private IUpdateEntityPropertyExecutor executor;
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SAMPLE_PROPERTY")
     public void update(IOperationContext context,
             MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)

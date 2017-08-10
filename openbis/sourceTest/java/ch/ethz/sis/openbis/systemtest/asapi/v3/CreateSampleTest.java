@@ -53,6 +53,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
 import junit.framework.Assert;
 
 /**
@@ -69,14 +71,14 @@ public class CreateSampleTest extends AbstractSampleTest
                 public void execute()
                 {
                     String sessionToken = v3api.login(TEST_USER, PASSWORD);
-                    
+
                     SampleCreation creation = new SampleCreation();
                     creation.setCode("TEST_SAMPLE_42");
                     creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
                     CreationId creationId = new CreationId("not-a-space-id");
                     creation.setCreationId(creationId);
                     creation.setSpaceId(creationId);
-                    
+
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
             }, "Object with CreationId = [not-a-space-id] has not been found");
@@ -88,7 +90,7 @@ public class CreateSampleTest extends AbstractSampleTest
     {
         final String code = "TEST_TO_FAIL";
         SampleIdentifier identifier = new SampleIdentifier("/" + code);
-        
+
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
@@ -111,24 +113,24 @@ public class CreateSampleTest extends AbstractSampleTest
     {
         final String code = "TEST_TO_FAIL";
         SampleIdentifier identifier = new SampleIdentifier("/" + code);
-        
+
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
-                
-                SampleCreation creation = new SampleCreation();
-                creation.setCode(code);
-                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-                creation.setCreationId(new CreationId("creation " + code));
-                
-                v3api.createSamples(sessionToken, Collections.singletonList(creation));
-            }
-        }, identifier);
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+
+                    SampleCreation creation = new SampleCreation();
+                    creation.setCode(code);
+                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                    creation.setCreationId(new CreationId("creation " + code));
+
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, identifier);
     }
-    
+
     @Test
     public void testCreateWithIndexCheck()
     {
@@ -190,7 +192,7 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testCreateSampleWithAdminUserInAnotherSpace()
+    public void testCreateWithAdminUserInAnotherSpace()
     {
         final String code = "TEST_TO_FAIL";
         final SampleIdentifier identifier = new SampleIdentifier("/TEST-SPACE/" + code);
@@ -455,8 +457,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, spaceId,
-                patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/UNAUTHORIZED_SPACE'")));
+            }, new SampleIdentifier("/CISD/UNAUTHORIZED_SPACE"),
+                patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/CISD/UNAUTHORIZED_SPACE'")));
     }
 
     @Test
@@ -1189,6 +1191,34 @@ public class CreateSampleTest extends AbstractSampleTest
         Assert.assertTrue(incorrectSampleIndex > Batch.DEFAULT_BATCH_SIZE);
 
         testWithExceptionContext(sampleCount, incorrectSampleIndex);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("PA_TEST");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            assertEquals(permIds.size(), 1);
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                    }
+                }, creation.getExperimentId());
+        }
     }
 
     private void testWithExceptionContext(int sampleCount, int incorrectSampleIndex)

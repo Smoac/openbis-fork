@@ -38,7 +38,7 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SAMPLE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
@@ -46,7 +46,7 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SAMPLE")
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void canUpdate(IOperationContext context, ISampleId id,
@@ -56,7 +56,7 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_SAMPLE")
     public void canDelete(IOperationContext context, ISampleId id,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample)
@@ -64,14 +64,14 @@ public class SampleAuthorizationExecutor implements ISampleAuthorizationExecutor
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_SAMPLE")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_SAMPLE")
     public void canSearch(IOperationContext context)
     {

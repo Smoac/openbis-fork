@@ -24,11 +24,9 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IMapSpaceByIdExecutor;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -58,19 +56,17 @@ public class SetSampleSpaceExecutor extends AbstractSetEntityToOneRelationExecut
     @Override
     protected Map<ISpaceId, SpacePE> map(IOperationContext context, List<ISpaceId> relatedIds)
     {
-        return mapSpaceByIdExecutor.map(context, relatedIds);
+        // See the comment below why we do not check access here.
+        return mapSpaceByIdExecutor.map(context, relatedIds, false);
     }
 
     @Override
     protected void check(IOperationContext context, SamplePE entity, ISpaceId relatedId, SpacePE related)
     {
-        if (relatedId != null && related != null)
-        {
-            if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), related))
-            {
-                throw new UnauthorizedObjectAccessException(relatedId);
-            }
-        }
+        // We do not check space access here. With project authorization enabled we might have a situation where we don't have an access to a space
+        // itself but we do have an access to some of the projects in that space. In such case, we still want to be able to create a sample in that
+        // space as long as this sample is connected with our project or with an experiment in our project. This validation is performed in
+        // ISampleAuthorizationExecutor later on.
     }
 
     @Override

@@ -30,4 +30,6 @@ public interface IMapObjectByIdExecutor<ID extends IObjectId, OBJECT>
 
     public Map<ID, OBJECT> map(IOperationContext context, Collection<? extends ID> ids);
 
+    public Map<ID, OBJECT> map(IOperationContext context, Collection<? extends ID> ids, boolean checkAccess);
+
 }

@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.id.AttachmentFileName
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
@@ -53,6 +54,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
 import junit.framework.Assert;
 
 /**
@@ -66,17 +69,17 @@ public class UpdateSampleTest extends AbstractSampleTest
         final SamplePermId permId = new SamplePermId("200811050947161-653");
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
 
-                final SampleUpdate update = new SampleUpdate();
-                update.setSampleId(permId);
-                v3api.updateSamples(sessionToken, Collections.singletonList(update));
-            }
-        }, permId);
+                    final SampleUpdate update = new SampleUpdate();
+                    update.setSampleId(permId);
+                    v3api.updateSamples(sessionToken, Collections.singletonList(update));
+                }
+            }, permId);
     }
 
     @Test
@@ -1424,6 +1427,32 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         Material updatedBacterium = materialProperties.get("ANY_MATERIAL");
         assertEquals(updatedBacterium.getPermId(), new MaterialPermId("BACTERIUM-X", "BACTERIUM"));
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/TEST-SPACE/EV-TEST"));
+        update.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        update.setProperty("COMMENT", "test comment");
+
+        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.updateSamples(sessionToken, Arrays.asList(update));
+                    }
+                }, update.getSampleId());
+        }
     }
 
 }
