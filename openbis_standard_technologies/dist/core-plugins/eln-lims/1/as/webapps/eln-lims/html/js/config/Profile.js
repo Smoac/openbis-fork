@@ -116,7 +116,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
-		
+		this.jupyterEndpoint = null;
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
 		

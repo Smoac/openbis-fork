@@ -168,6 +168,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         
         var treeModelUtils = [];
 
+        
+        if(profile.jupyterEndpoint) {
+        	var settingsLink = _this.getLinkForNode("Jupyter", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null);
+        	treeModelUtils.push({ title : settingsLink, entityType: "JUPYTER_WORKSPACE", key : "JUPYTER_WORKSPACE", folder : false, lazy : false, view : "showJupyterWorkspace", icon : "glyphicon glyphicon-log-in" });
+        }
+        
         if(profile.mainMenu.showUserProfile) {
         	var settingsLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null);
         	treeModelUtils.push({ title : settingsLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
