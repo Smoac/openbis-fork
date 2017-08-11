@@ -116,7 +116,12 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
-		this.jupyterEndpoint = null;
+
+//		Jupyter integration config
+//		this.jupyterOpenbisEndpoint = "https://openbis-for-jupyter.com/";
+//		this.jupyterIntegrationServerEndpoint = "https://jupyter-integration-notebook.com/";
+//		this.jupyterEndpoint = "https://jupyter-notebook.com/";
+		
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
 		

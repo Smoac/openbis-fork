@@ -17,7 +17,67 @@
 var JupyterUtil = new function() {
 	
 	this.createJupyterNotebookAndOpen = function(dataSetIds) {
-		alert(JSON.stringify(dataSetIds));
+		var folder = "myFolder";
+		var fileName = "myFileName";
+		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=[" + mainController.serverFacade.openbisServer.getSession()+ "]&folder=" + folder + "&filename=" + fileName + ".ipynb";
+		alert(JSON.stringify(this.createJupyterNotebookContent(dataSetIds)));
+	}
+	
+	this.createJupyterNotebookContent = function(dataSetIds) {
+		var content = [];
+		var initializeOpenbisConnection = {
+			      "cell_type": "code",
+			      "execution_count": null,
+			      "metadata": {
+			        "collapsed": false
+			      },
+			      "outputs": [],
+			      "source": [
+			        "Initialize Openbis API\n",
+			        "o = Openbis(url='" + profile.jupyterOpenbisEndpoint + "', verify_certificates=False)"
+			      ]
+		};
+		content.push(initializeOpenbisConnection);
+		
+		for(var cIdx = 0; cIdx < dataSetIds.length; cIdx++) {
+			var loadDataset = {
+				      "cell_type": "code",
+				      "execution_count": null,
+				      "metadata": {
+				        "collapsed": true
+				      },
+				      "outputs": [],
+				      "source": [
+				        "ds = o.get_dataset('" + dataSetIds[cIdx]+ "')"
+				      ]
+			};
+			content.push(loadDataset);
+		}
+		
+		return {
+			  "cells": content,
+					  "metadata": {
+					    "kernelspec": {
+					      "display_name": "Python 3",
+					      "language": "python",
+					      "name": "python3"
+					    },
+					    "language_info": {
+					      "codemirror_mode": {
+					        "name": "ipython",
+					        "version": 3
+					      },
+					      "file_extension": ".py",
+					      "mimetype": "text/x-python",
+					      "name": "python",
+					      "nbconvert_exporter": "python",
+					      "pygments_lexer": "ipython3",
+					      "version": "3.5.2"
+					    }
+					  },
+					  "nbformat": 4,
+					  "nbformat_minor": 2
+		};
 	}
 
 }

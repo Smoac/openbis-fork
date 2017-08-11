@@ -97,7 +97,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
 					JupyterUtil.createJupyterNotebookAndOpen([_this._dataSetFormModel.dataSet.code]);
 				});
-				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook and open it" });
+				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
 			}
 		} else if(!this._dataSetFormModel.isMini) {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
