@@ -125,7 +125,20 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                    var sample = samples[i];
     	                    results.push({ title : Util.getDisplayNameForEntity(sample), entityType: "SAMPLE", key : sample.permId, folder : true, lazy : true });
     	                }
-    	                dfd.resolve(results);
+    	                
+    	                var datasetRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
+        	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+        	                var datasets = searchResult.objects;
+        	                for (var i = 0; i < datasets.length; i++) {
+        	                    var dataset = datasets[i];
+        	                    if(!dataset.sample) {
+        	                    	results.push({ title : Util.getDisplayNameForEntity(dataset), entityType: "DATASET", key : dataset.permId, folder : false, lazy : false, icon : "fa fa-database" });
+        	                    }
+        	                }
+        	                dfd.resolve(results);
+        	    		});
+    	                
+    	                
     	    		});
     	    		break;
     	    	case "SAMPLE":
@@ -135,7 +148,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                var datasets = searchResult.objects;
     	                for (var i = 0; i < datasets.length; i++) {
     	                    var dataset = datasets[i];
-    	                    results.push({ title : Util.getDisplayNameForEntity(dataset), entityType: "DATASET", key : dataset.permId, folder : false, lazy : false });
+    	                    results.push({ title : Util.getDisplayNameForEntity(dataset), entityType: "DATASET", key : dataset.permId, folder : false, lazy : false, icon : "fa fa-database" });
     	                }
     	                dfd.resolve(results);
     	    		});
