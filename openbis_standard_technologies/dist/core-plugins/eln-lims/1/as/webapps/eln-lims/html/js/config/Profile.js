@@ -288,11 +288,6 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
-		this.dataSetViewerConf = {
-			"DATA_SET_TYPES" : [".*"],
-			"FILE_NAMES" : [".*"]
-		}
-		
 		this.getColorForInspectors = function(sampleTypeCode) {
 			//Default Color
 			var defaultColor = "#ffffc0"
@@ -321,13 +316,6 @@ $.extend(DefaultProfile.prototype, {
 		//False: Will do nothing to the file before attaching
 		this.isZipDirectoryUpload = function(dataSetType) {
 			return null;
-		}
-		
-		/*
-		 * Used by Main Menu
-		 */
-		this.mainMenuContentExtra = function() {
-			return "";
 		}
 
 		/*
