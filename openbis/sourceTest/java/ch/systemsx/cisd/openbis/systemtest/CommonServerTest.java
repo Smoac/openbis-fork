@@ -250,7 +250,7 @@ public class CommonServerTest extends SystemTestCase
 
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(23L)); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Sample> samples = commonServer.listSamples(session.getSessionToken(), criteria);
             assertEntities(
@@ -308,7 +308,7 @@ public class CommonServerTest extends SystemTestCase
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(23L)); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
         List<Sample> samples = commonServer.listSamplesOnBehalfOfUser(session.getSessionToken(), criteria, user.getUserId());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             assertEntities(
                     "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
@@ -397,7 +397,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId sampleId = new TechId(1055L); // /TEST-SPACE/EV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.deleteSamples(session.getSessionToken(), Arrays.asList(sampleId), "test reason", DeletionType.TRASH);
             try
@@ -428,7 +428,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = commonServer.listSampleAttachments(session.getSessionToken(), sampleId);
             assertEquals(attachments.size(), 1);
@@ -457,7 +457,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = commonServer.listSampleAttachments(session.getSessionToken(), sampleId);
             assertEquals(attachments.size(), 1);
@@ -486,7 +486,7 @@ public class CommonServerTest extends SystemTestCase
         attachment.setVersion(1);
         attachment.setDescription("Updated sample description");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = commonServer.listSampleAttachments(session.getSessionToken(), sampleId);
             assertEquals(attachments.get(0).getDescription(), "Test sample description");
@@ -519,7 +519,7 @@ public class CommonServerTest extends SystemTestCase
         attachment.setFilePath("testSample2.txt");
         attachment.setContent("testContent2".getBytes());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = commonServer.listSampleAttachments(session.getSessionToken(), sampleId);
             assertEquals(attachments.size(), 1);
@@ -548,7 +548,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Project project = commonServer.getProjectInfo(session.getSessionToken(), projectId);
             assertNotNull(project);
@@ -573,7 +573,7 @@ public class CommonServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Project project = commonServer.getProjectInfo(session.getSessionToken(), projectIdentifier);
             assertNotNull(project);
@@ -598,7 +598,7 @@ public class CommonServerTest extends SystemTestCase
 
         String projectPermId = "20120814110011738-105"; // /TEST-SPACE/TEST-PROJECT
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             IIdHolder project = commonServer.getProjectIdHolder(session.getSessionToken(), projectPermId);
             assertNotNull(project);
@@ -626,7 +626,7 @@ public class CommonServerTest extends SystemTestCase
         updates.setAttachments(Collections.<NewAttachment> emptyList());
         updates.setDescription(String.valueOf(System.currentTimeMillis()));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.updateProject(session.getSessionToken(), updates);
             Project info = commonServer.getProjectInfo(session.getSessionToken(), new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT"));
@@ -656,7 +656,7 @@ public class CommonServerTest extends SystemTestCase
         attachment.setTitle("new title");
         attachment.setVersion(1);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.updateProjectAttachments(session.getSessionToken(), projectId, attachment);
 
@@ -691,7 +691,7 @@ public class CommonServerTest extends SystemTestCase
 
         assertNotNull(before);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.deleteProjectAttachments(session.getSessionToken(), projectId, Arrays.asList(fileName), reason);
 
@@ -727,7 +727,7 @@ public class CommonServerTest extends SystemTestCase
         Project info = commonServer.getProjectInfo(testSession.getSessionToken(), projectId);
         assertNotNull(info);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.deleteProjects(session.getSessionToken(), Arrays.asList(projectId), "testReason");
 
@@ -785,7 +785,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId projectId = new TechId(5L); // /TEST-SPACE/TEST-PROJECT
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = commonServer.listProjectAttachments(session.getSessionToken(), projectId);
             assertEquals(attachments.size(), 1);
@@ -842,7 +842,7 @@ public class CommonServerTest extends SystemTestCase
         attachment.setFilePath("testProject2.txt");
         attachment.setContent("testContent2".getBytes());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.addProjectAttachments(session.getSessionToken(), projectId, attachment);
 
@@ -886,7 +886,7 @@ public class CommonServerTest extends SystemTestCase
 
         assertNotNull(before);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.deleteExperiments(session.getSessionToken(), Arrays.asList(new TechId(experiment.getId())), "testReason",
                     DeletionType.TRASH);
@@ -929,7 +929,7 @@ public class CommonServerTest extends SystemTestCase
 
         assertNotNull(before);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.deleteExperimentAttachments(session.getSessionToken(), experimentId, Arrays.asList(fileName), reason);
 
@@ -965,7 +965,7 @@ public class CommonServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), experimentType, projectIdentifier);
             assertEquals(experiments.size(), 1);
@@ -993,7 +993,7 @@ public class CommonServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
             assertEquals(experiments.size(), 1);
@@ -1021,7 +1021,7 @@ public class CommonServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments =
                     commonServer.listExperimentsHavingSamples(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
@@ -1050,7 +1050,7 @@ public class CommonServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments =
                     commonServer.listExperimentsHavingDataSets(session.getSessionToken(), experimentType, Arrays.asList(projectIdentifier));
@@ -1083,7 +1083,7 @@ public class CommonServerTest extends SystemTestCase
 
         commonServer.addToMetaproject(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()), assignments);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments =
                     commonServer.listMetaprojectExperiments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
@@ -1117,7 +1117,7 @@ public class CommonServerTest extends SystemTestCase
         List<Sample> samples =
                 commonServer.listMetaprojectSamples(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             assertEquals(samples.size(), 1);
             assertEquals(samples.get(0).isStub(), false);
@@ -1175,7 +1175,7 @@ public class CommonServerTest extends SystemTestCase
         criteria.setCriteria(Arrays.asList(criterion));
         criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments =
                     commonServer.searchForExperiments(session.getSessionToken(), criteria);
@@ -1200,7 +1200,7 @@ public class CommonServerTest extends SystemTestCase
         attachment.setTitle("new title");
         attachment.setVersion(1);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.updateExperimentAttachments(session.getSessionToken(), experimentId, attachment);
 
@@ -1259,7 +1259,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = commonServer.listExperimentAttachments(session.getSessionToken(), experimentId);
             assertEquals(attachments.size(), 1);
@@ -1284,7 +1284,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Experiment experiment = commonServer.getExperimentInfo(session.getSessionToken(), experimentId);
             assertNotNull(experiment);
@@ -1309,7 +1309,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             SampleParentWithDerived sample = commonServer.getSampleInfo(session.getSessionToken(), sampleId);
             assertNotNull(sample);
@@ -1334,7 +1334,7 @@ public class CommonServerTest extends SystemTestCase
 
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Experiment experiment = commonServer.getExperimentInfo(session.getSessionToken(), experimentIdentifier);
             assertNotNull(experiment);
@@ -1368,7 +1368,7 @@ public class CommonServerTest extends SystemTestCase
         updates.setProperties(Arrays.asList(new IEntityProperty[] { property }));
         updates.setAttachments(new ArrayList<NewAttachment>());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             ExperimentUpdateResult result = commonServer.updateExperiment(session.getSessionToken(), updates);
             assertNotNull(result);
@@ -1402,7 +1402,7 @@ public class CommonServerTest extends SystemTestCase
         SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }), null, null,
                 new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/EV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             SampleUpdateResult result = commonServer.updateSample(session.getSessionToken(), updates);
             assertNotNull(result);
@@ -1433,7 +1433,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             commonServer.updateExperimentProperties(session.getSessionToken(), experimentId, Arrays.asList(property));
 
@@ -1463,7 +1463,7 @@ public class CommonServerTest extends SystemTestCase
 
         TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             SampleParentWithDerived sample = commonServer.getSampleInfo(session.getSessionToken(), sampleId);
             assertEquals(sample.getParent().getProperties().size(), 1);

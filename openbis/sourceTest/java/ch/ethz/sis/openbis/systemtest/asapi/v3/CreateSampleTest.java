@@ -1204,7 +1204,7 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setSpaceId(new SpacePermId("TEST-SPACE"));
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
             assertEquals(permIds.size(), 1);

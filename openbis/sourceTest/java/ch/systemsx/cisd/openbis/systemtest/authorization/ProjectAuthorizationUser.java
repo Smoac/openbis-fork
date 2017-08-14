@@ -115,6 +115,11 @@ public class ProjectAuthorizationUser
     {
         this.isTestProjectUser = isTestProjectUser;
     }
+    
+    public boolean isInstanceUserOrSpaceUserOrEnabledProjectUser()
+    {
+        return isInstanceUser() || isTestSpaceUser() || (isTestProjectUser() && hasPAEnabled());
+    }
 
     @DataProvider(name = PROVIDER)
     public static Object[][] providerUsers()

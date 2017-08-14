@@ -949,7 +949,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         String experimentIdentifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Sample> samples = generalInformationService.listSamplesForExperiment(session, experimentIdentifier);
             assertEntities(
@@ -977,7 +977,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples = generalInformationService.listSamplesForExperimentOnBehalfOfUser(session, experimentIdentifier, user.getUserId());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             assertEntities(
                     "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
@@ -1748,7 +1748,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
         String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = generalInformationService.listExperiments(session, Arrays.asList(identifier));
             assertEquals(1, experiments.size());
@@ -1774,7 +1774,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Project project = new Project("TEST-SPACE", "TEST-PROJECT");
         String experimentType = "SIRNA_HCS";
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = generalInformationService.listExperiments(session, Arrays.asList(project), experimentType);
             assertEquals(1, experiments.size());
@@ -1800,7 +1800,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Project project = new Project("TEST-SPACE", "TEST-PROJECT");
         String experimentType = "SIRNA_HCS";
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = generalInformationService.listExperimentsHavingDataSets(session, Arrays.asList(project), experimentType);
             assertEquals(1, experiments.size());
@@ -1826,7 +1826,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Project project = new Project("TEST-SPACE", "TEST-PROJECT");
         String experimentType = "SIRNA_HCS";
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = generalInformationService.listExperimentsHavingSamples(session, Arrays.asList(project), experimentType);
             assertEquals(1, experiments.size());
@@ -1852,7 +1852,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT, "TEST-PROJECT"));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
             assertEquals(1, experiments.size());
@@ -1970,7 +1970,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
         String identifier = "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST";
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments =
                     generalInformationService.listAttachmentsForExperiment(session, new ExperimentIdentifierId(identifier), false);
@@ -2528,7 +2528,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         SampleTechIdId sampleId = new SampleTechIdId(1054L); // /TEST-SPACE/FV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Attachment> attachments = generalInformationService.listAttachmentsForSample(session, sampleId, false);
             assertEquals(attachments.size(), 1);

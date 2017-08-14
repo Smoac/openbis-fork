@@ -1603,7 +1603,7 @@ public class GetSampleTest extends AbstractSampleTest
 
         Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             assertEquals(samples.size(), 1);
         } else

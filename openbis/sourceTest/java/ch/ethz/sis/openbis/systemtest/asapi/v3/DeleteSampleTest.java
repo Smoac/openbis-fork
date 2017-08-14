@@ -232,7 +232,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), options);
         } else

@@ -134,7 +134,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments =
                     etlService.listExperimentsForProjects(session.getSessionToken(), Arrays.asList(projectIdentifier), fetchOptions);
@@ -187,7 +187,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Project project = etlService.tryGetProject(session.getSessionToken(), projectIdentifier);
             assertEquals(project.getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
@@ -235,7 +235,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         PermId experimentPermId = new PermId("201206190940555-1032"); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Experiment experiment = etlService.tryGetExperimentByPermId(session.getSessionToken(), experimentPermId);
             assertEquals(experiment.getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
@@ -259,7 +259,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<AbstractExternalData> dataSets = etlService.listDataSetsByExperimentID(session.getSessionToken(), experimentId);
             assertEquals(dataSets.size(), 9);
@@ -284,7 +284,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments =
                     etlService.listExperiments(session.getSessionToken(), Arrays.asList(experimentIdentifier), fetchOptions);
@@ -310,7 +310,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Experiment> experiments = etlService.listExperiments(session.getSessionToken(), projectIdentifier);
             assertEquals(experiments.size(), 1);
@@ -335,7 +335,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             Experiment experiment = etlService.tryGetExperiment(session.getSessionToken(), experimentIdentifier);
             assertEquals(experiment.getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
@@ -359,7 +359,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(23L)); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Sample> samples = etlService.listSamples(session.getSessionToken(), criteria);
             assertEntities(
@@ -385,7 +385,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         ListSamplesByPropertyCriteria criteria = new ListSamplesByPropertyCriteria("COMMENT", "test comment", "TEST-SPACE", null);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<Sample> samples = etlService.listSamplesByCriteria(session.getSessionToken(), criteria);
             assertEntities("[/TEST-SPACE/EV-TEST]", samples);
@@ -505,7 +505,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         TechId sampleTechId = new TechId(1054L); // /TEST-SPACE/FV-TEST
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<AbstractExternalData> dataSets = etlService.listDataSetsBySampleID(session.getSessionToken(), sampleTechId, true);
             assertEntities("[20120628092259000-41]", dataSets);
@@ -529,7 +529,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         SampleIdentifier sampleIdentifier = new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "FV-TEST");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             IEntityProperty[] properties = etlService.tryGetPropertiesOfTopSample(session.getSessionToken(), sampleIdentifier);
             assertEquals(properties[0].getMaterial().getCode(), "BACTERIUM-X");
@@ -553,7 +553,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         SampleIdentifier sampleIdentifier = new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "FV-TEST");
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             IEntityProperty[] properties = etlService.tryGetPropertiesOfSample(session.getSessionToken(), sampleIdentifier);
             assertEquals(properties[0].getMaterial().getCode(), "BACTERIUM-X");
@@ -844,7 +844,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         List<String> experiments = etlService.filterToVisibleExperiments(session.getSessionToken(), user.getUserId(),
                 Arrays.asList("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             assertEquals("[/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]", experiments.toString());
         } else
@@ -882,7 +882,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         List<String> samples = etlService.filterToVisibleSamples(session.getSessionToken(), user.getUserId(), Arrays.asList("/TEST-SPACE/FV-TEST"));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             assertEquals("[/TEST-SPACE/FV-TEST]", samples.toString());
         } else
@@ -936,7 +936,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
                         Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
             assertEquals(result.getProjectsUpdatedCount(), 1);
@@ -967,7 +967,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
                         Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
             assertEquals(result.getExperimentsCreatedCount(), 1);
@@ -1000,7 +1000,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
                         Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
             assertEquals(result.getExperimentsUpdatedCount(), 1);
@@ -1030,7 +1030,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
                         Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
             assertEquals(result.getSamplesCreatedCount(), 1);
@@ -1060,7 +1060,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
                         Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList());
 
-        if (user.isInstanceUser() || user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
             assertEquals(result.getSamplesUpdatedCount(), 1);
