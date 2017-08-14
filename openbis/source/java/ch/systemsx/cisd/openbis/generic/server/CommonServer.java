@@ -3433,6 +3433,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("LOCK_DATA_SETS")
     public int lockDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
@@ -3444,6 +3445,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("UNLOCK_DATA_SETS")
     public int unlockDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
