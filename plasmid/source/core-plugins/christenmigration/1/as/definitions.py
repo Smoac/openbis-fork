@@ -44,15 +44,11 @@ seqFileDefinition = [
 
 strainDefinition = [
     ["NAME",                             "General",                  "plasmid name",                     DataType.VARCHAR,                  None,  "", None, None, False],      
-    ["ACCESS_GENE_BANK_NUM",             "General",                  "Access Nr gene bank",              DataType.INTEGER,                  None,  "", None, None, False],    
     ["BOX_LOCATION",                     "General",                  "box location",                     DataType.INTEGER,                  None,  "", boxLocationScriptName, None, False],    
     ["CONSTRUCTION_METHOD",              "General",                  "constructionMethod",               DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],
     ["CREATION_DATE",                    "General",                  "CreationDate",                     DataType.TIMESTAMP,                None,  "", None, None, False],       
     ["INVESTIGATOR",                     "General",                  "investigator",                     DataType.CONTROLLEDVOCABULARY,     "LAB_MEMBERS",  "", None, None, False],
-    ["-MAX_PLASMID_MAP_ID",               "General",                  "MaxplasmidMap_ID",                 DataType.INTEGER,                  None,  "", maxPlasmidMapIDScriptName, None, False],    
-    ["-MAX_PLASMID_ID",                   "General",                  "Maxplasmid_ID",                    DataType.INTEGER,                  None,  "", maxPlasmidIDScriptName, None, False],    
     ["MODIFICATION_DATE",                "General",                  "ModificationDate",                 DataType.TIMESTAMP,                None,  "", None, None, False],    
-    ["-PLASMID_MAP_ID",                   "General",                  "plasmidMap_ID",                    DataType.INTEGER,                  None,  "", PlasmidMapIDScriptName, None, False],    
     ["PLASMID_ID",                       "General",                  "plasmid_ID",                       DataType.INTEGER,                  None,  "", None, None, False],    
     ["BC_STRAIN_RESISTANCE",             "General",                  "resistance",                       DataType.CONTROLLEDVOCABULARY,     "BC_STRAIN_RESISTANCE",  "", None, None, False],
     ["SEQUENCE",                         "General",                  "sequence",                         DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],
@@ -69,8 +65,8 @@ strainDefinition = [
 oligoDefinition = [
     ["NAME",                             "General",                  "Primer_name",                      DataType.VARCHAR,                  None,  "", None, None, False],      
     ["SEQUENCE",                         "General",                  "Primer_Sequence",                  DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],    
-    ["TARGET",                           "General",                  "Target",                           DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],       
-    ["PRIMER_NUMBER",                    "General",                  "Primer_number",                    DataType.INTEGER,                None,  "", None, None, False],    
+    ["OLIGO_TARGET",                     "General",                  "Target",                           DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],       
+    [-"PRIMER_NUMBER",                    "General",                  "Primer_number",                    DataType.INTEGER,                None,  "", None, None, False],    
     ["+ANNOTATIONS_STATE",               "Comments",                 "Annotations State",                DataType.XML,                      None,"Annotations State", annotationsScriptName, None, False]
 ];
 
@@ -80,15 +76,9 @@ DNADefinition = [
     ["CONSTRUCTION_METHOD",              "General",                  "constructionMethod",               DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],
     ["CREATION_DATE",                    "General",                  "CreationDate",                     DataType.TIMESTAMP,                None,  "", None, None, False],       
     ["INVESTIGATOR",                     "General",                  "investigator",                     DataType.CONTROLLEDVOCABULARY,     "LAB_MEMBERS",  "", None, None, False],
-    ["-MAX_PLASMID_MAP_ID",               "General",                  "MaxplasmidMap_ID",                 DataType.INTEGER,                  None,  "", maxPlasmidMapIDScriptName, None, False],    
-    ["-MAX_PLASMID_ID",                   "General",                  "Maxplasmid_ID",                    DataType.INTEGER,                  None,  "", maxPlasmidIDScriptName, None, False],    
     ["MODIFICATION_DATE",                "General",                  "ModificationDate",                 DataType.TIMESTAMP,                None,  "", None, None, False],    
-    ["-PLASMID_MAP_ID",                   "General",                  "plasmidMap_ID",                    DataType.INTEGER,                  None,  "", PlasmidMapIDScriptName, None, False],    
     ["PLASMID_ID",                       "General",                  "plasmid_ID",                       DataType.INTEGER,                  None,  "", None, None, False],    
-    ["SIZE",                             "General",                  "size",                             DataType.REAL,                  None,  "", None, None, False],    
-    ["PRIMERS_A",                        "General",                  "Primers A",                        DataType.INTEGER,                  None,  "", None, None, False],    
-    ["PRIMERS_B",                        "General",                  "Primers B",                        DataType.INTEGER,                  None,  "", None, None, False],    
-    ["ANNEALING_TEMP",                   "General",                  "Annealing temp",                   DataType.REAL,                     None,  "", None, None, False],    
+    ["DNA_SIZE",                         "General",                  "size",                             DataType.REAL,                  None,  "", None, None, False],    
     ["RESTRICTION_ENZYME",               "General",                  "Restriction enzymes",              DataType.VARCHAR,                  None,  "", None, None, False],    
     ["PURITY",                           "General",                  "purity",                           DataType.CONTROLLEDVOCABULARY,     "PURITY",  "", None, None, False],    
     ["PCR_POLYMERASE",                   "General",                  "PCR polymerase",                   DataType.CONTROLLEDVOCABULARY,     "PCR_POLYMERASE",  "", None, None, False],    
