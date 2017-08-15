@@ -1965,6 +1965,119 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testFilterExperimentVisibleToUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
+        
+        List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
+        List<Experiment> filteredExperiments = generalInformationService.filterExperimentsVisibleToUser(session, experiments, user.getUserId());
+        
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/NOE/EXP-TEST-2, /TEST-SPACE/NOE/EXPERIMENT-TO-DELETE, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
+                    filteredExperiments);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities("[/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]", filteredExperiments);
+        } else
+        {
+            assertEntities("[]", filteredExperiments);
+        }
+    }
+    
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListProjectsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+        
+        List<Project> projects = generalInformationService.listProjects(session);
+        
+        if (user.isInstanceUser())
+        {
+            assertEntities(
+                    "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                    projects);
+        } else if (user.isTestSpaceUser())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
+                    projects);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
+                    projects);
+        } else if (user.isTestGroupUser())
+        {
+            assertEntities("[/TESTGROUP/TESTPROJ]", projects);
+        } else
+        {
+            assertEntities("[]", projects);
+        }
+    }
+    
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListProjectsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        
+        List<Project> projects = generalInformationService.listProjectsOnBehalfOfUser(session, user.getUserId());
+        
+        if (user.isInstanceUser())
+        {
+            assertEntities(
+                    "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                    projects);
+        } else if (user.isTestSpaceUser())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
+                    projects);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEntities(
+                    "[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
+                    projects);
+        } else if (user.isTestGroupUser())
+        {
+            assertEntities("[/TESTGROUP/TESTPROJ]", projects);
+        } else
+        {
+            assertEntities("[]", projects);
+        }
+    }
+    
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListAttachmentForProjectWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+        
+        ProjectIdentifierId projectId = new ProjectIdentifierId("/TEST-SPACE/TEST-PROJECT");
+        
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        {
+            List<Attachment> attachments =
+                    generalInformationService.listAttachmentsForProject(session, projectId, false);
+            assertEquals(1, attachments.size());
+            assertEquals("testProject.txt", attachments.get(0).getFileName());
+        } else
+        {
+            try
+            {
+                generalInformationService.listAttachmentsForProject(session, projectId, false);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+    
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListAttachmentsForExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);

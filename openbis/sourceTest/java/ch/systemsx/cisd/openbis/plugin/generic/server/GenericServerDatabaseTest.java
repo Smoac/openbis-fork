@@ -242,6 +242,33 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListProjectAttachmentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+        
+        TechId projectId = new TechId(5); // /TEST_SPACE/TEST_PROJECT
+        String fileName = "testProject.txt";
+        Integer version = 1;
+        
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        {
+            AttachmentWithContent attachment = server.getProjectFileAttachment(sessionDTO.getSessionToken(), projectId, fileName, version);
+            Assert.assertNotNull(attachment);
+            Assert.assertEquals(fileName, attachment.getFileName());
+        } else
+        {
+            try
+            {
+                server.getProjectFileAttachment(sessionDTO.getSessionToken(), projectId, fileName, version);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+    
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testRegisterExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);

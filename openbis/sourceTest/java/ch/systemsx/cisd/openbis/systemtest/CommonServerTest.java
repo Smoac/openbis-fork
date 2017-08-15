@@ -1012,6 +1012,31 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByExperimentIdentifiersWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+        
+        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
+        
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        {
+            List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), Arrays.asList(experimentIdentifier));
+            assertEquals(experiments.size(), 1);
+            assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.listExperiments(session.getSessionToken(), Arrays.asList(experimentIdentifier));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+    
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListExperimentsHavingSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
