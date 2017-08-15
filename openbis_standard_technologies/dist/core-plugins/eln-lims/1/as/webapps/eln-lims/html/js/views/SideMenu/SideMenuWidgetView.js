@@ -162,12 +162,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showStock) {
-        	var inventoryLink = _this.getLinkForNode("Stock", "STOCK", "showOrdersPage", null);
+        	var inventoryLink = _this.getLinkForNode("Stock", "STOCK", "showStockPage", null);
         	treeModel.push({ title : inventoryLink, entityType: "STOCK", key : "STOCK", folder : true, lazy : true, view : "showStockPage", icon: "fa fa-shopping-cart" });
         }
         
         var treeModelUtils = [];
-
         
         if(profile.jupyterEndpoint) {
         	var settingsLink = _this.getLinkForNode("Jupyter", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null);
