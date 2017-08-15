@@ -93,7 +93,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			toolbarModel.push({ component : $export, tooltip: "Export" });
 			
 			//Jupyter Button
-			if(profile.jupyterEndpoint) {
+			if(profile.jupyterIntegrationServerEndpoint) {
 				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
 					JupyterUtil.createJupyterNotebookAndOpen([_this._dataSetFormModel.dataSet.code]);
 				});

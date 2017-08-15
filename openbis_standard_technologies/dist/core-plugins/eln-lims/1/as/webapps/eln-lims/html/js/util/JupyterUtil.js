@@ -17,10 +17,26 @@
 var JupyterUtil = new function() {
 	
 	this.createJupyterNotebookAndOpen = function(dataSetIds) {
-		var folder = "myFolder";
-		var fileName = "myFileName";
-		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=[" + mainController.serverFacade.openbisServer.getSession()+ "]&folder=" + folder + "&filename=" + fileName + ".ipynb";
-		alert(JSON.stringify(this.createJupyterNotebookContent(dataSetIds)));
+		var folder = "openbis";
+		var fileName = dataSetIds[0];
+		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName + ".ipynb";
+		var newJupyterNotebook = this.createJupyterNotebookContent(dataSetIds);
+		
+		$.ajax({
+            url : jupyterURL,
+            type : 'POST',
+            crossDomain: true,
+//            processData : false,
+//            dataType: 'json',
+//            contentType: 'application/json',
+            data : JSON.stringify(newJupyterNotebook),
+            success : function(result) {
+            	alert("success:" + JSON.stringify(result));
+            },
+            error : function(result) {
+            	alert("error: " + JSON.stringify(result));
+            }
+		});
 	}
 	
 	this.createJupyterNotebookContent = function(dataSetIds) {
