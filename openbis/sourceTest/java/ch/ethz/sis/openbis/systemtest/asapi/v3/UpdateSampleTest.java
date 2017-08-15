@@ -1439,7 +1439,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         update.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         update.setProperty("COMMENT", "test comment");
 
-        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             v3api.updateSamples(sessionToken, Arrays.asList(update));
         } else

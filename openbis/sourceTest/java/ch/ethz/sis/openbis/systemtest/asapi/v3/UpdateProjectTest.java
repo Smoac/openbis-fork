@@ -98,7 +98,7 @@ public class UpdateProjectTest extends AbstractTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), new ProjectFetchOptions());
             Project project = map.get(projectId);

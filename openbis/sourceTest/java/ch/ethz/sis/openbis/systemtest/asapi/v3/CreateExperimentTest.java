@@ -511,7 +511,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
             assertEquals(permIds.size(), 1);

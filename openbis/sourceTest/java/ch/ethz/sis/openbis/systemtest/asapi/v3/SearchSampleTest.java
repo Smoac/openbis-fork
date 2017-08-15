@@ -1089,7 +1089,7 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/EV-TEST"));
 
-        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             testSearch(user.getUserId(), criteria, "/TEST-SPACE/EV-TEST");
         } else

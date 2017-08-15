@@ -116,7 +116,7 @@ public class ProjectAuthorizationUser
         this.isTestProjectUser = isTestProjectUser;
     }
     
-    public boolean isInstanceUserOrSpaceUserOrEnabledProjectUser()
+    public boolean isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser()
     {
         return isInstanceUser() || isTestSpaceUser() || (isTestProjectUser() && hasPAEnabled());
     }
