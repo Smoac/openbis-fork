@@ -47,7 +47,9 @@ def printNotMigratedEntities():
 
 def process(tr):
     print "START!"
-    createDataHierarchy(tr)
+    #createDataHierarchy(tr)
+    #tr.createNewProject("/MATERIALS/STRAINS")
+    #tr.createNewProject("/MATERIALS/DNA")
     for adaptor in adaptors:
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] START"
         
@@ -457,9 +459,11 @@ class OligoOpenBISDTO(FMOpenBISDTO):
         return code
 
 
+#filemaker on DBIOL servers
+fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 
-fmConnString = "jdbc:filemaker://127.0.0.1/"
-#fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
+#localhost
+#fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser= "admin"
 fmPass = "filegod64+"
 
@@ -475,10 +479,10 @@ adaptors = [
 
 
 
-def createDataHierarchy(tr):
-    DNAExperiment = tr.getExperiment("/MATERIALS/DNA/DNA_COLLECTION_1")
-    if DNAExperiment == None:
-        tr.createNewProject("/MATERIALS/STRAINS")
-        tr.createNewProject("/MATERIALS/DNA")
-        tr.createNewExperiment("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", "MATERIALS")
-        tr.createNewExperiment("/MATERIALS/DNA/DNA_COLLECTION_1", "MATERIALS")
+# def createDataHierarchy(tr):
+#     DNAProject = tr.getProject("/MATERIALS/DNA")
+#     if DNAProject == None:
+#         tr.createNewProject("/MATERIALS/STRAINS")
+#         tr.createNewProject("/MATERIALS/DNA")
+#     else:
+#         pass

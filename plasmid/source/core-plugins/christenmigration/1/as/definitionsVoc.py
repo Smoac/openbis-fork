@@ -68,10 +68,9 @@ vocabularyDefinitions = {
                                             ["Aaron_Abraham", "Aaron Abraham"],
                                             ["Martha_Gerber", "Martha Gerber"],
                                             ["Flora_Mauch", "Flora Mauch"],
-                                            ["Mike_Fero", "Mike Fero"],
- 
-
+                                            ["Mike_Fero", "Mike Fero"]
                                         ],
+
                          "BC_STRAIN_RESISTANCE":   [
                                                 ["km", "km"],
                                                 ["tet", "tet"],
@@ -84,11 +83,9 @@ vocabularyDefinitions = {
                                                 ["gent", "gent"],                                                
                                                 ["nal", "nal"],
                                                 ["rif", "rif"],                                                
-                                                ["apr", "apr"],                                                                                                
-                                                
+                                                ["apr", "apr"]                                                                                                
                                             ],
-                         
-                         
+                 
                         "KEYWORDS": [
                                                 ["Tn5", "Tn5"],
                                                 ["Tn10", "Tn10"],
@@ -104,22 +101,20 @@ vocabularyDefinitions = {
                                                 ["gus", "gus"],
                                                 ["neo", "neo"],
                                                 ["sacB", "sacB"],
-                                                ["His_tag", "His tag"],
-                                               
-                                        ],
+                                                ["His_tag", "His tag"]
+                                         ],
                                                   
                          "BC_STRAIN_SOURCE":   [
                                                 ["SGSC", "SGSC"],
-                                                ["Kelly Hughes", "Kelly Hughes"]
+                                                ["Kelly_Hughes", "Kelly Hughes"],
                                                 ["Patrick_Viollier", "Patrick Viollier"],
                                                 ["Matthias", "Matthias"],
-                                                ["Andreas_Gassmann", "Andreas Gassmann"],
-
+                                                ["Andreas_Gassmann", "Andreas Gassmann"]
                                             ],
                          
                          "BC_STRAIN_ORGANISM":   [
                                                 ["DH10B", "DH10B"],
-                                                ["SM10", "SM10"]
+                                                ["SM10", "SM10"],
                                                 ["D5a", "D5a"],
                                                 ["BL21", "BL21"],
                                                 ["S17", "S17"],
@@ -130,23 +125,21 @@ vocabularyDefinitions = {
                                                 ["other_Eco", "other Eco"],
                                                 ["Sme", "Sme"],
                                                 ["phage", "phage"],
-                                                ["other", "other"],
-
+                                                ["other", "other"]
                                             ],
                          
                          "PURITY": [
                                                 ["columne", "columne"],
-                                                ["gel", "gel"]
+                                                ["gel", "gel"],
                                                 ["EtOH", "EtOH"],
  
                                             ],
                          
-                         
                          "PCR_POLYMERASE": [
                                                 ["Taq", "Taq"],
-                                                ["Pfu", "Pfu"]
+                                                ["Pfu", "Pfu"],
                                                 ["Pwo", "Pwo"],
-                                                ["high_fidelity", "high fidelity"],
+                                                ["high_fidelity", "high fidelity"]
 
                                             ],
                          
@@ -159,25 +152,25 @@ vocabularyDefinitions = {
                                                 ["hyg", "hyg"],                                                
                                                 ["strep", "strep"],                                                
                                                 ["spec", "spec"],                                                
-                                                ["gent", "gent"],                                                
+                                                ["gent", "gent"]                                                
 
                                             ],
                          
 
                          "DNA_TYP": [
                                                 ["gen_DNA", "gen DNA"],
-                                                ["PCR", "PCR"]
+                                                ["PCR", "PCR"],
                                                 ["plasmid", "plasmid"],
                                                 ["insert", "insert"],
-                                                ["cosmid", "cosmid"],
+                                                ["cosmid", "cosmid"]
 
                                             ],
 
-                         
+                       
                          "DNA_MODIFICATIONS": [
                                                 ["Methylated", "Methylated"],
-                                                ["digested", "digested"]
-                                                ["SAPed", "SAPed"],
+                                                ["digested", "digested"],
+                                                ["SAPed", "SAPed"]
  
                                             ]
 
