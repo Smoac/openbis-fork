@@ -415,10 +415,10 @@ def init(tr, parameters, tableBuilder):
 		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
 	
 	if isSampleTypeAvailable(installedTypes, "STORAGE"):
-			insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
-			storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
-			
-			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
+			isFirstTimeInstallingStorage = tr.getProject("/ELN_SETTINGS/STORAGES") == None;
+			if isFirstTimeInstallingStorage:
+				insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
+				storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
 				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE");
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
@@ -427,10 +427,7 @@ def init(tr, parameters, tableBuilder):
 				bench.setPropertyValue("STORAGE_SPACE_WARNING", "80");
 				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
 				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
-			except:
-				pass # Do nothing if sample existed already
-			
-			try: # If the sample exists, the API will return an Immutable Sample, when using the setters, an exception will be thrown
+					
 				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE");
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
@@ -439,8 +436,6 @@ def init(tr, parameters, tableBuilder):
 				defaultStorage.setPropertyValue("STORAGE_SPACE_WARNING", "80");
 				defaultStorage.setPropertyValue("BOX_SPACE_WARNING", "80");
 				defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
-			except:
-				pass # Do nothing if sample existed already
 			
 	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
 			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS");
