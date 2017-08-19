@@ -112,14 +112,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
         dataSetType.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.PHYSICAL.name());
         getCommonService().createType(dataSetType, EntityKind.DATA_SET);
 
-        DataStorePE dataStore = new DataStorePE();
-        dataStore.setCode("AUTH-DATASTORE");
-        dataStore.setDatabaseInstanceUUID(UUID.randomUUID().toString());
-        dataStore.setDownloadUrl("downloadUrl");
-        dataStore.setRemoteUrl("remoteUrl");
-        dataStore.setSessionToken("sessionToken");
-        getCommonService().createDataStore(dataStore);
-
+        DataStorePE dataStore = getCommonService().tryFindDataStore();
         VocabularyTermPE storageFormat = getCommonService().tryFindStorageFormat("PROPRIETARY");
         FileFormatTypePE fileFormatType = getCommonService().tryFileFormatType("PROPRIETARY");
         LocatorTypePE locatorType = getCommonService().tryFindLocatorType("RELATIVE_LOCATION");
@@ -162,6 +155,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                     spaceSampleDataSet.setStorageFormatVocabularyTerm(storageFormat);
                     spaceSampleDataSet.setFileFormatType(fileFormatType);
                     spaceSampleDataSet.setLocatorType(locatorType);
+                    spaceSampleDataSet.setStorageConfirmation(true);
                     spaceSampleDataSet.setRegistrator(personOther);
                     getCommonService().createDataSet(spaceSampleDataSet);
                 }
@@ -209,6 +203,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                             projectSampleDataSet.setStorageFormatVocabularyTerm(storageFormat);
                             projectSampleDataSet.setFileFormatType(fileFormatType);
                             projectSampleDataSet.setLocatorType(locatorType);
+                            projectSampleDataSet.setStorageConfirmation(true);
                             projectSampleDataSet.setRegistrator(personOther);
                             getCommonService().createDataSet(projectSampleDataSet);
                         }
@@ -244,6 +239,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                         experimentDataSet.setStorageFormatVocabularyTerm(storageFormat);
                         experimentDataSet.setFileFormatType(fileFormatType);
                         experimentDataSet.setLocatorType(locatorType);
+                        experimentDataSet.setStorageConfirmation(true);
                         experimentDataSet.setRegistrator(personOther);
                         getCommonService().createDataSet(experimentDataSet);
                     }
@@ -270,6 +266,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                             experimentSampleDataSet.setStorageFormatVocabularyTerm(storageFormat);
                             experimentSampleDataSet.setFileFormatType(fileFormatType);
                             experimentSampleDataSet.setLocatorType(locatorType);
+                            experimentSampleDataSet.setStorageConfirmation(true);
                             experimentSampleDataSet.setRegistrator(personOther);
                             getCommonService().createDataSet(experimentSampleDataSet);
                         }

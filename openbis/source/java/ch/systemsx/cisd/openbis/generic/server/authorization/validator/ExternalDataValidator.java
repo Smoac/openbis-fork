@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -29,13 +31,26 @@ public final class ExternalDataValidator extends AbstractValidator<AbstractExter
 {
     private final IValidator<Space> spaceValidator;
 
+    private final IValidator<Project> projectValidator;
+
     private final IValidator<AbstractExternalData> storageConfirmedValidator;
 
     public ExternalDataValidator()
     {
         spaceValidator = new SpaceValidator();
 
+        projectValidator = new ProjectValidator();
+
         storageConfirmedValidator = new StorageConfirmedForAdminValidator();
+    }
+
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        super.init(provider);
+        spaceValidator.init(provider);
+        projectValidator.init(provider);
+        storageConfirmedValidator.init(provider);
     }
 
     //
@@ -45,8 +60,17 @@ public final class ExternalDataValidator extends AbstractValidator<AbstractExter
     @Override
     public final boolean doValidation(final PersonPE person, final AbstractExternalData dataSet)
     {
-        final Space space = dataSet.getSpace();
-        return spaceValidator.isValid(person, space)
-                && storageConfirmedValidator.isValid(person, dataSet);
+        return (isSpaceValid(person, dataSet) || isProjectValid(person, dataSet)) && storageConfirmedValidator.isValid(person, dataSet);
     }
+
+    private boolean isSpaceValid(final PersonPE person, final AbstractExternalData dataSet)
+    {
+        return spaceValidator.isValid(person, dataSet.getSpace());
+    }
+
+    private boolean isProjectValid(final PersonPE person, final AbstractExternalData dataSet)
+    {
+        return dataSet.getProject() != null && projectValidator.isValid(person, dataSet.getProject());
+    }
+
 }

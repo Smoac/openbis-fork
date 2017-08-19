@@ -505,6 +505,21 @@ public abstract class AbstractExternalData extends
         return sample == null ? null : sample.getSpace();
     }
 
+    public Project getProject()
+    {
+        if (experiment != null)
+        {
+            return experiment.getProject();
+        }
+
+        if (sample != null)
+        {
+            return sample.getExperiment() != null ? sample.getExperiment().getProject() : sample.getProject();
+        }
+
+        return null;
+    }
+
     /**
      * {@link Comparator} for data sets contained in a (virtual) container which uses ascending order in container.
      */

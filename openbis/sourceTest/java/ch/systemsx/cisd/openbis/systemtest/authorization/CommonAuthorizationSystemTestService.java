@@ -119,13 +119,6 @@ public class CommonAuthorizationSystemTestService
     }
 
     @Transactional
-    public void createDataStore(DataStorePE dataStore)
-    {
-        daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
-        createdObjects.add(dataStore);
-    }
-
-    @Transactional
     public PersonPE tryFindPerson(String userId)
     {
         return daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
@@ -187,6 +180,12 @@ public class CommonAuthorizationSystemTestService
             HibernateUtils.initialize(dataSet.tryGetSample().getExperiment());
         }
         return dataSet;
+    }
+
+    @Transactional
+    public DataStorePE tryFindDataStore()
+    {
+        return daoFactory.getDataStoreDAO().listDataStores().iterator().next();
     }
 
     @Transactional
