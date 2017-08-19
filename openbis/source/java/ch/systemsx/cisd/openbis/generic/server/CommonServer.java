@@ -1678,6 +1678,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 searchHelper.searchForDataSets(userId, person.getId(), criteria);
 
         final ExternalDataValidator validator = new ExternalDataValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+        
         final ArrayList<AbstractExternalData> datasets =
                 new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
 
