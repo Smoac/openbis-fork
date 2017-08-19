@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -47,12 +47,18 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
+
+        DataSetAccessPE dataSet = new DataSetAccessPE();
+        dataSet.setExperimentSpaceCode(SPACE_CODE);
+
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET,
-                            TechId.createList(42L));
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    will(returnValue(new HashSet<DataSetAccessPE>(Arrays.asList(dataSet))));
                 }
             });
 
@@ -73,12 +79,18 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         prepareProvider(createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
+        
+        DataSetAccessPE dataSet = new DataSetAccessPE();
+        dataSet.setExperimentSpaceCode(ANOTHER_SPACE_CODE);
+
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET,
-                            TechId.createList(42L));
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherSpace()))));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    will(returnValue(new HashSet<DataSetAccessPE>(Arrays.asList(dataSet))));
                 }
             });
 
@@ -101,6 +113,14 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
 
+        context.checking(new Expectations()
+        {
+            {
+                allowing(provider).getAuthorizationConfig();
+                will(returnValue(new TestAuthorizationConfig(false, false)));
+            }
+        });
+        
         Status result = predicate.evaluate(createPerson(), createRoles(false), Arrays.asList(ds1));
 
         assertEquals("ERROR: \"User 'megapixel' does not have enough privileges.\"",
@@ -117,15 +137,23 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory
                 .parse("/" + ANOTHER_SPACE_CODE + "/S"));
+        
         prepareProvider(createSpaces());
+
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
+        
+        DataSetAccessPE dataSet = new DataSetAccessPE();
+        dataSet.setExperimentSpaceCode(SPACE_CODE);
+        
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET,
-                            TechId.createList(42L));
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    will(returnValue(new HashSet<DataSetAccessPE>(Arrays.asList(dataSet))));
                 }
             });
 

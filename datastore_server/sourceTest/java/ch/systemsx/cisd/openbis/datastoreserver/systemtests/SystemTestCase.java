@@ -394,13 +394,13 @@ public abstract class SystemTestCase extends AssertJUnit
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T> T getBean(String beanName)
+    public static <T> T getBean(String beanName)
     {
         return (T) applicationContext.getBean(beanName);
     }
 
     @SuppressWarnings({ "cast" })
-    protected static <T> T getBean(Class<T> clazz)
+    public static <T> T getBean(Class<T> clazz)
     {
         return (T) applicationContext.getBean(clazz);
     }

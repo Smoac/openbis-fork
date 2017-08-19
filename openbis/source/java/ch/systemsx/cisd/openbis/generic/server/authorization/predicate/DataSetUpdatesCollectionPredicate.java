@@ -19,19 +19,17 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.DataSetTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Predicate for lists of {@link DataSetUpdatesDTO} instances. Checks that the user has update rights for all data sets. In addition for all data sets
@@ -45,15 +43,15 @@ public class DataSetUpdatesCollectionPredicate extends
 {
     private final DataSetTechIdCollectionPredicate dataSetTechIdCollectionPredicate;
 
-    private final SpaceIdentifierPredicate spacePredicate;
+    private final ExperimentAugmentedCodePredicate experimentIdentifierPredicate;
 
-    private final SampleOwnerIdentifierCollectionPredicate sampleCollectionPredicate;
+    private final SampleIdentifierCollectionPredicate sampleCollectionPredicate;
 
     public DataSetUpdatesCollectionPredicate()
     {
         dataSetTechIdCollectionPredicate = new DataSetTechIdCollectionPredicate();
-        sampleCollectionPredicate = new SampleOwnerIdentifierCollectionPredicate();
-        spacePredicate = new SpaceIdentifierPredicate();
+        sampleCollectionPredicate = new SampleIdentifierCollectionPredicate(false);
+        experimentIdentifierPredicate = new ExperimentAugmentedCodePredicate();
     }
 
     @Override
@@ -61,7 +59,7 @@ public class DataSetUpdatesCollectionPredicate extends
     {
         dataSetTechIdCollectionPredicate.init(provider);
         sampleCollectionPredicate.init(provider);
-        spacePredicate.init(provider);
+        experimentIdentifierPredicate.init(provider);
     }
 
     @Override
@@ -82,36 +80,47 @@ public class DataSetUpdatesCollectionPredicate extends
 
         IServiceConversationProgressListener progressListener =
                 ServiceConversationsThreadContext.getProgressListener();
+
         List<TechId> techIds = new ArrayList<TechId>();
-        List<SampleOwnerIdentifier> sampleIdentifiers = new ArrayList<SampleOwnerIdentifier>();
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<SampleIdentifier>();
         int index = 0;
+
         for (DataSetUpdatesDTO dataSetUpdates : value)
         {
-            techIds.add(dataSetUpdates.getDatasetId());
+            if (dataSetUpdates.getDatasetId() != null)
+            {
+                techIds.add(dataSetUpdates.getDatasetId());
+            }
+
             ExperimentIdentifier experimentIdentifier =
                     dataSetUpdates.getExperimentIdentifierOrNull();
             if (experimentIdentifier != null)
             {
                 Status result =
-                        spacePredicate.doEvaluation(person, allowedRoles, experimentIdentifier);
+                        experimentIdentifierPredicate.doEvaluation(person, allowedRoles, experimentIdentifier.toString());
                 if (result.isOK() == false)
                 {
                     return result;
                 }
             }
+
             SampleIdentifier sampleIdentifier = dataSetUpdates.getSampleIdentifierOrNull();
             if (sampleIdentifier != null)
             {
                 sampleIdentifiers.add(sampleIdentifier);
             }
+
             progressListener.update("authorizeDatasetUpdates", value.size(), ++index);
         }
+
         Status result =
                 dataSetTechIdCollectionPredicate.doEvaluation(person, allowedRoles, techIds);
         if (result.isOK() == false)
         {
             return result;
         }
+
         return sampleCollectionPredicate.doEvaluation(person, allowedRoles, sampleIdentifiers);
     }
+
 }

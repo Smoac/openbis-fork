@@ -49,8 +49,6 @@ public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<Tec
     {
         switch (entityKind)
         {
-            case DATASET:
-                return new DataSetTechIdPredicate();
             case EXPERIMENT:
                 return new ExperimentTechIdPredicate();
             case PROJECT:
@@ -59,14 +57,6 @@ public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<Tec
                 return new SpaceTechIdPredicate();
         }
         return null;
-    }
-
-    public static class DataSetTechIdPredicate extends AbstractTechIdPredicate
-    {
-        public DataSetTechIdPredicate()
-        {
-            super(SpaceOwnerKind.DATASET);
-        }
     }
 
     public static class ExperimentTechIdPredicate extends AbstractTechIdPredicate

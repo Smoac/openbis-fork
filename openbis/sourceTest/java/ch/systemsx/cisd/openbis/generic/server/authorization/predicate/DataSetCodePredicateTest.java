@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 
 /**
@@ -37,8 +41,11 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryGetDatasetAccessData("d1");
-                    will(returnValue(accessData));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByCodes(Arrays.asList("d1"));
+                    will(returnValue(Collections.singleton(accessData)));
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();
@@ -59,8 +66,11 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryGetDatasetAccessData("d1");
-                    will(returnValue(accessData));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByCodes(Arrays.asList("d1"));
+                    will(returnValue(Collections.singleton(accessData)));
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();

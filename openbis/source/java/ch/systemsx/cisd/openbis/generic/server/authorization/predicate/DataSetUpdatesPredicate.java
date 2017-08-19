@@ -21,9 +21,9 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -36,12 +36,15 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
 {
     private final DataSetTechIdPredicate dataSetTechIdPredicate;
 
-    private final SampleOwnerIdentifierPredicate samplePredicate;
+    private final SampleIdentifierPredicate samplePredicate;
+
+    private final ExperimentAugmentedCodePredicate experimentPredicate;
 
     public DataSetUpdatesPredicate()
     {
         this.dataSetTechIdPredicate = new DataSetTechIdPredicate();
-        this.samplePredicate = new SampleOwnerIdentifierPredicate();
+        this.samplePredicate = new SampleIdentifierPredicate(false);
+        this.experimentPredicate = new ExperimentAugmentedCodePredicate();
     }
 
     @Override
@@ -49,6 +52,7 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
     {
         dataSetTechIdPredicate.init(provider);
         samplePredicate.init(provider);
+        experimentPredicate.init(provider);
     }
 
     @Override
@@ -61,18 +65,34 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
     protected Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DataSetUpdatesDTO updates)
     {
-        assert dataSetTechIdPredicate.initialized : "Predicate has not been initialized";
         Status status;
+
         status = dataSetTechIdPredicate.doEvaluation(person, allowedRoles, updates.getDatasetId());
         if (status.equals(Status.OK) == false)
         {
             return status;
         }
+
         SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         if (sampleIdentifierOrNull != null)
         {
             status = samplePredicate.doEvaluation(person, allowedRoles, sampleIdentifierOrNull);
+            if (status.equals(Status.OK) == false)
+            {
+                return status;
+            }
         }
+
+        ExperimentIdentifier experimentIdentifierOrNull = updates.getExperimentIdentifierOrNull();
+        if (experimentIdentifierOrNull != null)
+        {
+            status = experimentPredicate.doEvaluation(person, allowedRoles, experimentIdentifierOrNull.toString());
+            if (status.equals(Status.OK) == false)
+            {
+                return status;
+            }
+        }
+
         return status;
 
     }

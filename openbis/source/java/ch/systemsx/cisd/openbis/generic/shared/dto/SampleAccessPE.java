@@ -41,42 +41,29 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class SampleAccessPE
 {
 
-    public final static String SAMPLE_ACCESS_QUERY =
-            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode "
-                    + "FROM "
-                    + TableNames.SAMPLES_VIEW
-                    + " s left outer join "
-                    + TableNames.SPACES_TABLE
-                    + " g on s.space_id = g.id left outer join "
-                    + TableNames.PROJECTS_TABLE
-                    + " p on s.proj_id = p.id left outer join "
-                    + TableNames.SAMPLES_ALL_TABLE
-                    + " c on s.samp_id_part_of = c.id left outer join "
-                    + TableNames.EXPERIMENTS_ALL_TABLE
-                    + " e on s.expe_id = e.id left outer join "
-                    + TableNames.PROJECTS_TABLE
-                    + " ep on e.proj_id = ep.id ";
+    private final static String SAMPLE_ACCESS_QUERY_PART_1 =
+            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode FROM ";
 
-    public final static String SAMPLE_ACCESS_BY_TECH_IDS_QUERY = SAMPLE_ACCESS_QUERY + "WHERE s.id in (:ids)";
+    private final static String SAMPLE_ACCESS_QUERY_PART_2 = " s left outer join "
+            + TableNames.SPACES_TABLE
+            + " g on s.space_id = g.id left outer join "
+            + TableNames.PROJECTS_TABLE
+            + " p on s.proj_id = p.id left outer join "
+            + TableNames.SAMPLES_ALL_TABLE
+            + " c on s.samp_id_part_of = c.id left outer join "
+            + TableNames.EXPERIMENTS_ALL_TABLE
+            + " e on s.expe_id = e.id left outer join "
+            + TableNames.PROJECTS_TABLE
+            + " ep on e.proj_id = ep.id ";
 
-    public final static String SAMPLE_ACCESS_BY_PERM_IDS_QUERY = SAMPLE_ACCESS_QUERY + "WHERE s.perm_id in (:ids)";
+    public final static String SAMPLE_ACCESS_BY_TECH_IDS_QUERY =
+            SAMPLE_ACCESS_QUERY_PART_1 + TableNames.SAMPLES_VIEW + SAMPLE_ACCESS_QUERY_PART_2 + "WHERE s.id in (:ids)";
+
+    public final static String SAMPLE_ACCESS_BY_PERM_IDS_QUERY =
+            SAMPLE_ACCESS_QUERY_PART_1 + TableNames.SAMPLES_VIEW + SAMPLE_ACCESS_QUERY_PART_2 + "WHERE s.perm_id in (:ids)";
 
     public final static String DELETED_SAMPLE_ACCESS_QUERY =
-            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode "
-                    + "FROM "
-                    + TableNames.DELETED_SAMPLES_VIEW
-                    + " s left outer join "
-                    + TableNames.SPACES_TABLE
-                    + " g on s.space_id = g.id left outer join "
-                    + TableNames.PROJECTS_TABLE
-                    + " p on s.proj_id = p.id left outer join "
-                    + TableNames.SAMPLES_ALL_TABLE
-                    + " c on s.samp_id_part_of = c.id left outer join "
-                    + TableNames.EXPERIMENTS_ALL_TABLE
-                    + " e on s.expe_id = e.id left outer join "
-                    + TableNames.PROJECTS_TABLE
-                    + " ep on e.proj_id = ep.id "
-                    + "WHERE s.del_id in (:del_ids)";
+            SAMPLE_ACCESS_QUERY_PART_1 + TableNames.DELETED_SAMPLES_VIEW + SAMPLE_ACCESS_QUERY_PART_2 + "WHERE s.del_id in (:del_ids)";
 
     public final static String SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME = "sample_access_by_tech_ids";
 

@@ -24,6 +24,7 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
@@ -108,6 +109,13 @@ public interface IAuthorizationDataProvider
     public Map<TechId, SamplePE> tryGetSamplesByTechIds(Collection<TechId> techIds);
 
     /**
+     * Returns data sets for the given collection of <var>techIds</var>
+     * 
+     * @return Map of found data sets.
+     */
+    public Map<TechId, DataPE> tryGetDataSetsByTechIds(Collection<TechId> techIds);
+
+    /**
      * Returns the project of the experiment to which the specified data set belongs.
      * 
      * @return <code>null</code> if no data set found.
@@ -143,14 +151,14 @@ public interface IAuthorizationDataProvider
     public ProjectPE tryGetProjectByIdentifier(ProjectIdentifier identifier);
 
     /**
-     * Returns the information necessary to determine if a user is allowed to access this data set.
+     * Returns the information necessary to determine if a user is allowed to access the data sets.
      */
-    public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode);
+    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(List<TechId> dataSetIds);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access the data sets.
      */
-    public Set<DataSetAccessPE> getDatasetCollectionAccessData(List<String> dataSetCodes);
+    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByCodes(List<String> dataSetCodes);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access the samples.

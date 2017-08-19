@@ -16,39 +16,40 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * A {@link IPredicate} based on a list of data set codes.
  * 
  * @author Franz-Josef Elmer
  */
-public class DataSetCodePredicate extends AbstractSpacePredicate<String>
+public class DataSetCodePredicate extends DelegatedPredicate<Collection<DataSetAccessPE>, String>
 {
+
+    public DataSetCodePredicate()
+    {
+        super(new DataSetAccessPECollectionPredicate());
+    }
+
+    @Override
+    public Collection<DataSetAccessPE> tryConvert(String dataSetCode)
+    {
+        if (dataSetCode == null)
+        {
+            return Arrays.asList();
+        } else
+        {
+            return authorizationDataProvider.getDatasetCollectionAccessDataByCodes(Arrays.asList(dataSetCode));
+        }
+    }
+
     @Override
     public String getCandidateDescription()
     {
         return "data set code";
     }
 
-    @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            String dataSetCode)
-    {
-        assert initialized : "Predicate has not been initialized";
-
-        DataSetAccessPE accessData = authorizationDataProvider.tryGetDatasetAccessData(dataSetCode);
-
-        if (accessData != null)
-        {
-            String spaceCode = accessData.getSpaceCode();
-            return evaluate(allowedRoles, person, spaceCode);
-        }
-        return Status.OK;
-    }
 }

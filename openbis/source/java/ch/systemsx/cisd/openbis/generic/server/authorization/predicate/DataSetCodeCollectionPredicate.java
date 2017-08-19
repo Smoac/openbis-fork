@@ -16,14 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * A {@link IPredicate} based on a list of data set codes.
@@ -31,33 +28,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author Chandrasekhar Ramakrishnan
  */
 @ShouldFlattenCollections(value = false)
-public class DataSetCodeCollectionPredicate extends AbstractSpacePredicate<List<String>>
+public class DataSetCodeCollectionPredicate extends DelegatedPredicate<Collection<DataSetAccessPE>, List<String>>
 {
-    @Override
-    public String getCandidateDescription()
+
+    public DataSetCodeCollectionPredicate()
     {
-        return "data set code";
+        super(new DataSetAccessPECollectionPredicate());
     }
 
     @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            List<String> dataSetCodes)
+    public Collection<DataSetAccessPE> tryConvert(List<String> codes)
     {
-        assert initialized : "Predicate has not been initialized";
-
-        Set<DataSetAccessPE> accessData =
-                authorizationDataProvider.getDatasetCollectionAccessData(dataSetCodes);
-
-        for (DataSetAccessPE accessDatum : accessData)
-        {
-            String spaceCode = accessDatum.getSpaceCode();
-            Status result = evaluate(allowedRoles, person, spaceCode);
-            if (result != Status.OK)
-            {
-                return result;
-            }
-        }
-
-        return Status.OK;
+        return authorizationDataProvider.getDatasetCollectionAccessDataByCodes(codes);
     }
+
+    @Override
+    public final String getCandidateDescription()
+    {
+        return "data set codes";
+    }
+
 }

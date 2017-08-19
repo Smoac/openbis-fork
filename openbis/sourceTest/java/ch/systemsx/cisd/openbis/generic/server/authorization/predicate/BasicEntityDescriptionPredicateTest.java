@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
@@ -109,8 +112,11 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryGetDatasetAccessData("D1");
-                    will(returnValue(accessData));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByCodes(Arrays.asList("D1"));
+                    will(returnValue(Collections.singleton(accessData)));
                 }
             });
 
@@ -133,8 +139,11 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryGetDatasetAccessData("D1");
-                    will(returnValue(accessData));
+                    allowing(provider).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+
+                    one(provider).getDatasetCollectionAccessDataByCodes(Arrays.asList("D1"));
+                    will(returnValue(Collections.singleton(accessData)));
                 }
             });
 

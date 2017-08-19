@@ -26,5 +26,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public enum SpaceOwnerKind
 {
-    DATASET, EXPERIMENT, SPACE, PROJECT;
+    EXPERIMENT, SPACE, PROJECT;
 }

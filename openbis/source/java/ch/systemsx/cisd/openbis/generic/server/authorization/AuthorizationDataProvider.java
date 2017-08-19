@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +10,7 @@ import java.util.Set;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import ch.systemsx.cisd.common.action.IMapper;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
@@ -127,6 +127,21 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
+    public Map<TechId, DataPE> tryGetDataSetsByTechIds(Collection<TechId> techIds)
+    {
+        List<DataPE> dataSets = daoFactory.getDataDAO().listByIDs(TechId.asLongs(techIds));
+
+        Map<TechId, DataPE> map = new HashMap<TechId, DataPE>();
+
+        for (DataPE dataSet : dataSets)
+        {
+            map.put(new TechId(dataSet.getId()), dataSet);
+        }
+
+        return map;
+    }
+
+    @Override
     public ProjectPE tryGetProjectByPermId(PermId permId)
     {
         return daoFactory.getProjectDAO().tryGetByPermID(permId.getId());
@@ -174,310 +189,148 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode)
+    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(final List<TechId> dataSetTechIds)
     {
-        Set<DataSetAccessPE> results = getDatasetCollectionAccessData(Arrays.asList(dataSetCode));
-        if (results.size() < 1)
-            return null;
-        return results.iterator().next();
+        return getEntityCollectionAccessData("dataset", DataSetAccessPE.DATASET_ACCESS_BY_TECH_IDS_QUERY_NAME,
+                DataSetAccessPE.DATA_SET_IDS_PARAMETER_NAME, dataSetTechIds, new IMapper<List<TechId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<TechId> techIds)
+                        {
+                            return TechId.asLongs(techIds);
+                        }
+                    });
     }
 
     @Override
-    public Set<DataSetAccessPE> getDatasetCollectionAccessData(final List<String> dataSetCodes)
+    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByCodes(final List<String> dataSetCodes)
     {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
-        query.setReadOnly(true);
-
-        // WORKAROUND Problem in Hibernate when the number of data set codes > 1000
-        // Though this query runs quickly within the pgadmin tool, even for large numbers of
-        // data set codes, Hibernate becomes *very* slow when the size of the data set codes
-        // exceeds 1000. For that reason, break down the query into smaller sections and
-        // reassemble the results.
-        final Set<DataSetAccessPE> fullResults = new HashSet<DataSetAccessPE>();
-
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<String>()
-            {
-                @Override
-                public void execute(List<String> entities)
-                {
-                    query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, entities);
-                    List<DataSetAccessPE> results = cast(query.list());
-                    fullResults.addAll(results);
-                }
-
-                @Override
-                public List<String> getAllEntities()
-                {
-                    return dataSetCodes;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "dataset";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
-    }
-
-    @Override
-    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleTechIds)
-    {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query = sess.getNamedQuery(SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME);
-        query.setReadOnly(true);
-
-        final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
-
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
-            {
-                @Override
-                public void execute(List<TechId> entities)
-                {
-                    query.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, TechId.asLongs(entities));
-                    List<SampleAccessPE> singleResults = cast(query.list());
-                    fullResults.addAll(singleResults);
-                }
-
-                @Override
-                public List<TechId> getAllEntities()
-                {
-                    return sampleTechIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "sample";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
-    }
-
-    @Override
-    public Set<SampleAccessPE> getSampleCollectionAccessDataByPermIds(List<PermId> samplePermIds)
-    {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query = sess.getNamedQuery(SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME);
-        query.setReadOnly(true);
-
-        final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
-
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<PermId>()
-            {
-                @Override
-                public void execute(List<PermId> entities)
-                {
-                    query.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, PermId.asStrings(entities));
-                    List<SampleAccessPE> singleResults = cast(query.list());
-                    fullResults.addAll(singleResults);
-                }
-
-                @Override
-                public List<PermId> getAllEntities()
-                {
-                    return samplePermIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "sample";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
+        return getEntityCollectionAccessData("dataset", DataSetAccessPE.DATASET_ACCESS_BY_CODES_QUERY_NAME,
+                DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, dataSetCodes, null);
     }
 
     @Override
     public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(final List<TechId> deletionIds)
     {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query = sess.getNamedQuery(DataSetAccessPE.DELETED_DATASET_ACCESS_QUERY_NAME);
-        query.setReadOnly(true);
+        return getEntityCollectionAccessData("deletion", DataSetAccessPE.DELETED_DATASET_ACCESS_QUERY_NAME,
+                DataSetAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new IMapper<List<TechId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<TechId> techIds)
+                        {
+                            return TechId.asLongs(techIds);
+                        }
+                    });
+    }
 
-        // WORKAROUND Problem in Hibernate when the number of data set codes > 1000
-        // Though this query runs quickly within the pgadmin tool, even for large numbers of
-        // data set codes, Hibernate becomes *very* slow when the size of the data set codes
-        // exceeds 1000. For that reason, break down the query into smaller sections and
-        // reassemble the results.
-        final Set<DataSetAccessPE> fullResults = new HashSet<DataSetAccessPE>();
+    @Override
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleTechIds)
+    {
+        return getEntityCollectionAccessData("sample", SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME,
+                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, sampleTechIds, new IMapper<List<TechId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<TechId> techIds)
+                        {
+                            return TechId.asLongs(techIds);
+                        }
+                    });
+    }
 
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
-            {
-                @Override
-                public void execute(List<TechId> entities)
-                {
-                    query.setParameterList(DataSetAccessPE.DELETION_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    List<DataSetAccessPE> results = cast(query.list());
-                    fullResults.addAll(results);
-                }
-
-                @Override
-                public List<TechId> getAllEntities()
-                {
-                    return deletionIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "deletion";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
+    @Override
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByPermIds(List<PermId> samplePermIds)
+    {
+        return getEntityCollectionAccessData("sample", SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME,
+                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, samplePermIds, new IMapper<List<PermId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<PermId> permIds)
+                        {
+                            return PermId.asStrings(permIds);
+                        }
+                    });
     }
 
     @Override
     public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(List<TechId> deletionIds)
     {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query = sess.getNamedQuery(SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME);
-        query.setReadOnly(true);
-
-        final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
-
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
-            {
-                @Override
-                public void execute(List<TechId> entities)
-                {
-                    query.setParameterList(SampleAccessPE.DELETION_IDS_PARAMETER_NAME, TechId.asLongs(entities));
-                    List<SampleAccessPE> samples = cast(query.list());
-                    fullResults.addAll(samples);
-                }
-
-                @Override
-                public List<TechId> getAllEntities()
-                {
-                    return deletionIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "deletion";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
+        return getEntityCollectionAccessData("deletion", SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME,
+                SampleAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new IMapper<List<TechId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<TechId> techIds)
+                        {
+                            return TechId.asLongs(techIds);
+                        }
+                    });
     }
 
     @Override
     public Set<ExperimentAccessPE> getExperimentCollectionAccessData(final List<TechId> experimentIds)
     {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query =
-                sess.getNamedQuery(ExperimentAccessPE.EXPERIMENT_ACCESS_QUERY_NAME);
-        query.setReadOnly(true);
-
-        final Set<ExperimentAccessPE> fullResults = new HashSet<ExperimentAccessPE>();
-
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
-            {
-                @Override
-                public void execute(List<TechId> entities)
-                {
-                    query.setParameterList(ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    List<ExperimentAccessPE> results = cast(query.list());
-                    fullResults.addAll(results);
-                }
-
-                @Override
-                public List<TechId> getAllEntities()
-                {
-                    return experimentIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "experiment";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "authorization";
-                }
-            });
-
-        return fullResults;
+        return getEntityCollectionAccessData("experiment", ExperimentAccessPE.EXPERIMENT_ACCESS_QUERY_NAME,
+                ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME, experimentIds, new IMapper<List<TechId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<TechId> techIds)
+                        {
+                            return TechId.asLongs(techIds);
+                        }
+                    });
     }
 
     @Override
     public Set<ExperimentAccessPE> getDeletedExperimentCollectionAccessData(
             final List<TechId> deletionIds)
     {
-        Session sess = daoFactory.getSessionFactory().getCurrentSession();
-        final Query query =
-                sess.getNamedQuery(ExperimentAccessPE.DELETED_EXPERIMENT_ACCESS_QUERY_NAME);
+        return getEntityCollectionAccessData("deletion", ExperimentAccessPE.DELETED_EXPERIMENT_ACCESS_QUERY_NAME,
+                ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new IMapper<List<TechId>, List<?>>()
+                    {
+                        @Override
+                        public List<?> map(List<TechId> techIds)
+                        {
+                            return TechId.asLongs(techIds);
+                        }
+                    });
+    }
+
+    private <V, R> Set<R> getEntityCollectionAccessData(String entityName, String queryName, String parameterName, List<V> values,
+            IMapper<List<V>, List<?>> valuesMapperOrNull)
+    {
+        Session session = daoFactory.getSessionFactory().getCurrentSession();
+        final Query query = session.getNamedQuery(queryName);
         query.setReadOnly(true);
+
+        final Set<R> fullResults = new HashSet<R>();
 
         // WORKAROUND Problem in Hibernate when the number of data set codes > 1000
         // Though this query runs quickly within the pgadmin tool, even for large numbers of
         // data set codes, Hibernate becomes *very* slow when the size of the data set codes
         // exceeds 1000. For that reason, break down the query into smaller sections and
         // reassemble the results.
-        final Set<ExperimentAccessPE> fullResults = new HashSet<ExperimentAccessPE>();
 
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<V>()
             {
                 @Override
-                public void execute(List<TechId> entities)
+                public void execute(List<V> entities)
                 {
-                    query.setParameterList(ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME,
-                            TechId.asLongs(entities));
-                    List<ExperimentAccessPE> results = cast(query.list());
-                    fullResults.addAll(results);
+                    List<?> mappedValues = valuesMapperOrNull != null ? valuesMapperOrNull.map(entities) : entities;
+                    query.setParameterList(parameterName, mappedValues);
+
+                    List<R> singleResults = cast(query.list());
+                    fullResults.addAll(singleResults);
                 }
 
                 @Override
-                public List<TechId> getAllEntities()
+                public List<V> getAllEntities()
                 {
-                    return deletionIds;
+                    return values;
                 }
 
                 @Override
                 public String getEntityName()
                 {
-                    return "deletion";
+                    return entityName;
                 }
 
                 @Override
@@ -495,9 +348,6 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     {
         switch (kind)
         {
-            case DATASET:
-                DataPE dataset = daoFactory.getDataDAO().getByTechId(techId);
-                return dataset.getSpace();
             case EXPERIMENT:
                 ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
                 return experiment.getProject().getSpace();
@@ -518,9 +368,6 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         List<Long> ids = TechId.asLongs(techIds);
         switch (kind)
         {
-            case DATASET:
-                spaces.addAll(daoFactory.getDataDAO().listSpacesByDataSetIds(ids));
-                break;
             case EXPERIMENT:
                 spaces.addAll(daoFactory.getExperimentDAO().listSpacesByExperimentIds(ids));
                 break;

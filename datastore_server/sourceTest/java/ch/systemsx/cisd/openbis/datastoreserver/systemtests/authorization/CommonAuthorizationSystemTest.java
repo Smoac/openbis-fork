@@ -34,9 +34,15 @@ import ch.systemsx.cisd.openbis.datastoreserver.systemtests.SystemTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.TestAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -44,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.systemtest.authorization.CommonAuthorizationSystemTestService;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
@@ -100,6 +107,23 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
         sampleType.setShowParentMetadata(false);
         getCommonService().createType(sampleType, EntityKind.SAMPLE);
 
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode("AUTH-DATASET-TYPE");
+        dataSetType.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.PHYSICAL.name());
+        getCommonService().createType(dataSetType, EntityKind.DATA_SET);
+
+        DataStorePE dataStore = new DataStorePE();
+        dataStore.setCode("AUTH-DATASTORE");
+        dataStore.setDatabaseInstanceUUID(UUID.randomUUID().toString());
+        dataStore.setDownloadUrl("downloadUrl");
+        dataStore.setRemoteUrl("remoteUrl");
+        dataStore.setSessionToken("sessionToken");
+        getCommonService().createDataStore(dataStore);
+
+        VocabularyTermPE storageFormat = getCommonService().tryFindStorageFormat("PROPRIETARY");
+        FileFormatTypePE fileFormatType = getCommonService().tryFileFormatType("PROPRIETARY");
+        LocatorTypePE locatorType = getCommonService().tryFindLocatorType("RELATIVE_LOCATION");
+
         for (int sa = 1; sa <= 2; sa++)
         {
             SamplePE sharedSample = new SamplePE();
@@ -126,6 +150,21 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                 spaceSample.setSpace(space);
                 spaceSample.setRegistrator(personOther);
                 getCommonService().createSample(spaceSample);
+
+                for (int d = 1; d <= 2; d++)
+                {
+                    ExternalDataPE spaceSampleDataSet = new ExternalDataPE();
+                    spaceSampleDataSet.setDataSetType(dataSetType);
+                    spaceSampleDataSet.setCode(getSpaceSampleDataSetCode(spaceSample, d));
+                    spaceSampleDataSet.setSample(spaceSample);
+                    spaceSampleDataSet.setDataStore(dataStore);
+                    spaceSampleDataSet.setLocation(spaceSampleDataSet.getCode());
+                    spaceSampleDataSet.setStorageFormatVocabularyTerm(storageFormat);
+                    spaceSampleDataSet.setFileFormatType(fileFormatType);
+                    spaceSampleDataSet.setLocatorType(locatorType);
+                    spaceSampleDataSet.setRegistrator(personOther);
+                    getCommonService().createDataSet(spaceSampleDataSet);
+                }
 
                 SamplePE spaceContainedSample = new SamplePE();
                 spaceContainedSample.setSampleType(sampleType);
@@ -158,6 +197,21 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                         projectSample.setProject(project);
                         projectSample.setRegistrator(personOther);
                         getCommonService().createSample(projectSample);
+
+                        for (int d = 1; d <= 2; d++)
+                        {
+                            ExternalDataPE projectSampleDataSet = new ExternalDataPE();
+                            projectSampleDataSet.setDataSetType(dataSetType);
+                            projectSampleDataSet.setCode(getProjectSampleDataSetCode(projectSample, d));
+                            projectSampleDataSet.setSample(projectSample);
+                            projectSampleDataSet.setDataStore(dataStore);
+                            projectSampleDataSet.setLocation(projectSampleDataSet.getCode());
+                            projectSampleDataSet.setStorageFormatVocabularyTerm(storageFormat);
+                            projectSampleDataSet.setFileFormatType(fileFormatType);
+                            projectSampleDataSet.setLocatorType(locatorType);
+                            projectSampleDataSet.setRegistrator(personOther);
+                            getCommonService().createDataSet(projectSampleDataSet);
+                        }
                     }
                 }
 
@@ -179,6 +233,21 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                     experiment.setRegistrator(personOther);
                     getCommonService().createExperiment(experiment);
 
+                    for (int d = 1; d <= 2; d++)
+                    {
+                        ExternalDataPE experimentDataSet = new ExternalDataPE();
+                        experimentDataSet.setDataSetType(dataSetType);
+                        experimentDataSet.setCode(getExperimentDataSetCode(experiment, d));
+                        experimentDataSet.setExperiment(experiment);
+                        experimentDataSet.setDataStore(dataStore);
+                        experimentDataSet.setLocation(experimentDataSet.getCode());
+                        experimentDataSet.setStorageFormatVocabularyTerm(storageFormat);
+                        experimentDataSet.setFileFormatType(fileFormatType);
+                        experimentDataSet.setLocatorType(locatorType);
+                        experimentDataSet.setRegistrator(personOther);
+                        getCommonService().createDataSet(experimentDataSet);
+                    }
+
                     for (int sa = 1; sa <= 2; sa++)
                     {
                         SamplePE experimentSample = new SamplePE();
@@ -189,6 +258,21 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
                         experimentSample.setExperiment(experiment);
                         experimentSample.setRegistrator(personOther);
                         getCommonService().createSample(experimentSample);
+
+                        for (int d = 1; d <= 2; d++)
+                        {
+                            ExternalDataPE experimentSampleDataSet = new ExternalDataPE();
+                            experimentSampleDataSet.setDataSetType(dataSetType);
+                            experimentSampleDataSet.setCode(getExperimentSampleDataSetCode(experimentSample, d));
+                            experimentSampleDataSet.setSample(experimentSample);
+                            experimentSampleDataSet.setDataStore(dataStore);
+                            experimentSampleDataSet.setLocation(experimentSampleDataSet.getCode());
+                            experimentSampleDataSet.setStorageFormatVocabularyTerm(storageFormat);
+                            experimentSampleDataSet.setFileFormatType(fileFormatType);
+                            experimentSampleDataSet.setLocatorType(locatorType);
+                            experimentSampleDataSet.setRegistrator(personOther);
+                            getCommonService().createDataSet(experimentSampleDataSet);
+                        }
                     }
                 }
             }
@@ -268,6 +352,17 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
             }
 
             return new Object[] { sharedSampleKind, SampleKind.SPACE, SampleKind.SPACE_CONTAINED, SampleKind.EXPERIMENT };
+        }
+    }
+
+    public Object[] provideDataSetKinds()
+    {
+        if (SamplePE.projectSamplesEnabled)
+        {
+            return new Object[] { DataSetKind.PROJECT_SAMPLE };
+        } else
+        {
+            return new Object[] { DataSetKind.EXPERIMENT, DataSetKind.SPACE_SAMPLE, DataSetKind.EXPERIMENT_SAMPLE };
         }
     }
 
@@ -371,6 +466,23 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
         }
     }
 
+    public DataPE getDataSet(SpacePE spacePE, ProjectPE projectPE, DataSetKind dataSetKind)
+    {
+        switch (dataSetKind)
+        {
+            case EXPERIMENT:
+                return getExperimentDataSet(spacePE, projectPE);
+            case SPACE_SAMPLE:
+                return getSpaceSampleDataSet(spacePE);
+            case EXPERIMENT_SAMPLE:
+                return getExperimentSampleDataSet(spacePE, projectPE);
+            case PROJECT_SAMPLE:
+                return getProjectSampleDataSet(projectPE);
+            default:
+                throw new RuntimeException();
+        }
+    }
+
     private String getSharedSampleCode(int index)
     {
         return "AUTH-SAMPLE-" + index;
@@ -434,6 +546,51 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
         }
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return getCommonService().tryFindSpaceSample(spacePE, getExperimentSampleCode(experimentPE, 1));
+    }
+
+    private String getExperimentDataSetCode(ExperimentPE experimentPE, int index)
+    {
+        return experimentPE.getProject().getSpace().getCode() + "-" + experimentPE.getProject().getCode() + "-" + experimentPE.getCode() + "-DS-"
+                + index;
+    }
+
+    public DataPE getExperimentDataSet(SpacePE spacePE, ProjectPE projectPE)
+    {
+        ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
+        return getCommonService().tryFindDataSet(getExperimentDataSetCode(experimentPE, 1));
+    }
+
+    private String getSpaceSampleDataSetCode(SamplePE samplePE, int index)
+    {
+        return samplePE.getCode() + "-DS-" + index;
+    }
+
+    public DataPE getSpaceSampleDataSet(SpacePE spacePE)
+    {
+        SamplePE samplePE = getSpaceSample(spacePE);
+        return getCommonService().tryFindDataSet(getSpaceSampleDataSetCode(samplePE, 1));
+    }
+
+    private String getExperimentSampleDataSetCode(SamplePE samplePE, int index)
+    {
+        return samplePE.getCode() + "-DS-" + index;
+    }
+
+    public DataPE getExperimentSampleDataSet(SpacePE spacePE, ProjectPE projectPE)
+    {
+        SamplePE samplePE = getExperimentSample(spacePE, projectPE);
+        return getCommonService().tryFindDataSet(getExperimentSampleDataSetCode(samplePE, 1));
+    }
+
+    private String getProjectSampleDataSetCode(SamplePE samplePE, int index)
+    {
+        return samplePE.getCode() + "-DS-" + index;
+    }
+
+    public DataPE getProjectSampleDataSet(ProjectPE projectPE)
+    {
+        SamplePE samplePE = getProjectSample(projectPE);
+        return getCommonService().tryFindDataSet(getProjectSampleDataSetCode(samplePE, 1));
     }
 
     public static void assertAuthorizationFailureExceptionThatNotEnoughPrivileges(Throwable t)
@@ -503,6 +660,11 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
 
         SHARED_READ, SHARED_READ_WRITE, SPACE, SPACE_CONTAINED, PROJECT, EXPERIMENT
 
+    }
+
+    public enum DataSetKind
+    {
+        EXPERIMENT, SPACE_SAMPLE, EXPERIMENT_SAMPLE, PROJECT_SAMPLE
     }
 
 }

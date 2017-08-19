@@ -22,9 +22,13 @@ import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A PE for retrieving only the information necessary to determine if a user/person can access a data set.
@@ -32,35 +36,80 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * @author Chandrasekhar Ramakrishnan
  */
 @Entity
-@SqlResultSetMapping(name = "dataset_access_implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
-@NamedNativeQueries(
-{
-        @NamedNativeQuery(name = "dataset_access",
-                query = DataSetAccessPE.QUERY_PART1 + TableNames.DATA_VIEW
-                        + DataSetAccessPE.QUERY_PART2 + "d.code in (:codes)",
-                resultSetMapping = "dataset_access_implicit"),
-        @NamedNativeQuery(name = "deleted_dataset_access",
-                query = DataSetAccessPE.QUERY_PART1 + TableNames.DELETED_DATA_VIEW
-                        + DataSetAccessPE.QUERY_PART2 + "d.del_id in (:del_ids)",
-                resultSetMapping = "dataset_access_implicit") })
+@SqlResultSetMapping(name = DataSetAccessPE.RESULT_SET_MAPPING, entities = @EntityResult(entityClass = DataSetAccessPE.class))
+@NamedNativeQueries({
+        @NamedNativeQuery(name = DataSetAccessPE.DATASET_ACCESS_BY_TECH_IDS_QUERY_NAME, query = DataSetAccessPE.DATASET_ACCESS_BY_TECH_IDS_QUERY, resultSetMapping = DataSetAccessPE.RESULT_SET_MAPPING),
+        @NamedNativeQuery(name = DataSetAccessPE.DATASET_ACCESS_BY_CODES_QUERY_NAME, query = DataSetAccessPE.DATASET_ACCESS_BY_CODES_QUERY, resultSetMapping = DataSetAccessPE.RESULT_SET_MAPPING),
+        @NamedNativeQuery(name = DataSetAccessPE.DELETED_DATASET_ACCESS_QUERY_NAME, query = DataSetAccessPE.DELETED_DATASET_ACCESS_QUERY, resultSetMapping = DataSetAccessPE.RESULT_SET_MAPPING) })
 public class DataSetAccessPE
 {
-    static final String QUERY_PART1 = "select d.code,coalesce(es.code,ss.code) as spaceCode from ";
 
-    static final String QUERY_PART2 = " d left join samples_all s on d.samp_id=s.id "
-            + "left join spaces ss on s.space_id=ss.id "
-            + "left join experiments_all e on d.expe_id=e.id left join projects p on e.proj_id=p.id "
-            + "left join spaces es on p.space_id=es.id where ";
+    private final static String DATASET_ACCESS_QUERY_PART_1 =
+            "SELECT d.code as dataSetCode, ep.code as experimentProjectCode, es.code as experimentSpaceCode, ss.code as sampleSpaceCode, "
+                    + "sep.code as sampleExperimentProjectCode, ses.code as sampleExperimentSpaceCode, "
+                    + "sp.code as sampleProjectCode, sps.code as sampleProjectSpaceCode "
+                    + "FROM ";
 
-    private String spaceCode;
+    private final static String DATASET_ACCESS_QUERY_PART_2 = " d left outer join "
+            + TableNames.EXPERIMENTS_ALL_TABLE
+            + " e on d.expe_id = e.id left outer join "
+            + TableNames.PROJECTS_TABLE
+            + " ep on e.proj_id = ep.id left outer join "
+            + TableNames.SPACES_TABLE
+            + " es on ep.space_id = es.id left outer join "
+            + TableNames.SAMPLES_ALL_TABLE
+            + " s on d.samp_id = s.id left outer join "
+            + TableNames.SPACES_TABLE
+            + " ss on s.space_id = ss.id left outer join "
+            + TableNames.EXPERIMENTS_ALL_TABLE
+            + " se on s.expe_id = se.id left outer join "
+            + TableNames.PROJECTS_TABLE
+            + " sep on se.proj_id = sep.id left outer join "
+            + TableNames.SPACES_TABLE
+            + " ses on sep.space_id = ses.id left outer join "
+            + TableNames.PROJECTS_TABLE
+            + " sp on s.proj_id = sp.id left outer join "
+            + TableNames.SPACES_TABLE
+            + " sps on sp.space_id = sps.id ";
 
-    public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
+    public final static String DATASET_ACCESS_BY_TECH_IDS_QUERY =
+            DATASET_ACCESS_QUERY_PART_1 + TableNames.DATA_VIEW + DATASET_ACCESS_QUERY_PART_2 + "WHERE d.id in (:ids)";
+
+    public final static String DATASET_ACCESS_BY_CODES_QUERY =
+            DATASET_ACCESS_QUERY_PART_1 + TableNames.DATA_VIEW + DATASET_ACCESS_QUERY_PART_2 + "WHERE d.code in (:codes)";
+
+    public final static String DELETED_DATASET_ACCESS_QUERY =
+            DATASET_ACCESS_QUERY_PART_1 + TableNames.DELETED_DATA_VIEW + DATASET_ACCESS_QUERY_PART_2 + "WHERE d.del_id in (:del_ids)";
+
+    public final static String DATASET_ACCESS_BY_TECH_IDS_QUERY_NAME = "dataset_access_by_tech_ids";
+
+    public final static String DATASET_ACCESS_BY_CODES_QUERY_NAME = "dataset_access_by_codes";
 
     public final static String DELETED_DATASET_ACCESS_QUERY_NAME = "deleted_dataset_access";
+
+    public final static String DATA_SET_IDS_PARAMETER_NAME = "ids";
 
     public final static String DATA_SET_CODES_PARAMETER_NAME = "codes";
 
     public final static String DELETION_IDS_PARAMETER_NAME = "del_ids";
+
+    public final static String RESULT_SET_MAPPING = "dataset_access_implicit";
+
+    private String dataSetCode;
+
+    private String experimentProjectCode;
+
+    private String experimentSpaceCode;
+
+    private String sampleSpaceCode;
+
+    private String sampleExperimentProjectCode;
+
+    private String sampleExperimentSpaceCode;
+
+    private String sampleProjectCode;
+
+    private String sampleProjectSpaceCode;
 
     /**
      * A factory method that should only be used for testing.
@@ -69,19 +118,128 @@ public class DataSetAccessPE
             String dataSetCode, String groupCode)
     {
         DataSetAccessPE newMe = new DataSetAccessPE();
-        newMe.setSpaceCode(groupCode);
+        newMe.setExperimentSpaceCode(groupCode);
         return newMe;
     }
 
-    void setSpaceCode(String spaceCode)
+    @Transient
+    public SpaceIdentifier getSpaceIdentifier()
     {
-        this.spaceCode = spaceCode;
+        if (getExperimentSpaceCode() != null)
+        {
+            return new SpaceIdentifier(getExperimentSpaceCode());
+        } else if (getSampleSpaceCode() != null)
+        {
+            return new SpaceIdentifier(getSampleSpaceCode());
+        } else if (getSampleProjectSpaceCode() != null)
+        {
+            return new SpaceIdentifier(getSampleProjectSpaceCode());
+        } else if (getSampleExperimentSpaceCode() != null)
+        {
+            return new SpaceIdentifier(getSampleExperimentSpaceCode());
+        } else
+        {
+            return null;
+        }
+    }
+
+    @Transient
+    public ProjectIdentifier getProjectIdentifier()
+    {
+        if (getExperimentSpaceCode() != null && getExperimentProjectCode() != null)
+        {
+            return new ProjectIdentifier(getExperimentSpaceCode(), getExperimentProjectCode());
+        } else if (getSampleExperimentSpaceCode() != null && getSampleExperimentProjectCode() != null)
+        {
+            return new ProjectIdentifier(getSampleExperimentSpaceCode(), getSampleExperimentProjectCode());
+        } else if (getSampleProjectSpaceCode() != null && getSampleProjectCode() != null)
+        {
+            return new ProjectIdentifier(getSampleProjectSpaceCode(), getSampleProjectCode());
+        } else
+        {
+            return null;
+        }
     }
 
     @Id
-    public String getSpaceCode()
+    public String getDataSetCode()
     {
-        return spaceCode;
+        return dataSetCode;
+    }
+
+    public void setDataSetCode(String dataSetCode)
+    {
+        this.dataSetCode = dataSetCode;
+    }
+
+    public String getExperimentProjectCode()
+    {
+        return experimentProjectCode;
+    }
+
+    public void setExperimentProjectCode(String experimentProjectCode)
+    {
+        this.experimentProjectCode = experimentProjectCode;
+    }
+
+    public String getExperimentSpaceCode()
+    {
+        return experimentSpaceCode;
+    }
+
+    public void setExperimentSpaceCode(String experimentSpaceCode)
+    {
+        this.experimentSpaceCode = experimentSpaceCode;
+    }
+
+    public String getSampleSpaceCode()
+    {
+        return sampleSpaceCode;
+    }
+
+    public void setSampleSpaceCode(String sampleSpaceCode)
+    {
+        this.sampleSpaceCode = sampleSpaceCode;
+    }
+
+    public String getSampleExperimentProjectCode()
+    {
+        return sampleExperimentProjectCode;
+    }
+
+    public void setSampleExperimentProjectCode(String sampleExperimentProjectCode)
+    {
+        this.sampleExperimentProjectCode = sampleExperimentProjectCode;
+    }
+
+    public String getSampleExperimentSpaceCode()
+    {
+        return sampleExperimentSpaceCode;
+    }
+
+    public void setSampleExperimentSpaceCode(String sampleExperimentSpaceCode)
+    {
+        this.sampleExperimentSpaceCode = sampleExperimentSpaceCode;
+    }
+
+    public String getSampleProjectCode()
+    {
+        return sampleProjectCode;
+    }
+
+    public void setSampleProjectCode(String sampleProjectCode)
+    {
+        this.sampleProjectCode = sampleProjectCode;
+    }
+
+    public String getSampleProjectSpaceCode()
+    {
+        return sampleProjectSpaceCode;
+    }
+
+    public void setSampleProjectSpaceCode(String sampleProjectSpaceCode)
+    {
+        this.sampleProjectSpaceCode = sampleProjectSpaceCode;
     }
 
     //
@@ -101,7 +259,14 @@ public class DataSetAccessPE
         }
         final DataSetAccessPE that = (DataSetAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getSpaceCode(), that.getSpaceCode());
+        builder.append(getDataSetCode(), that.getDataSetCode());
+        builder.append(getExperimentProjectCode(), that.getExperimentProjectCode());
+        builder.append(getExperimentSpaceCode(), that.getExperimentSpaceCode());
+        builder.append(getSampleSpaceCode(), that.getSampleSpaceCode());
+        builder.append(getSampleExperimentProjectCode(), that.getSampleExperimentProjectCode());
+        builder.append(getSampleExperimentSpaceCode(), that.getSampleExperimentSpaceCode());
+        builder.append(getSampleProjectCode(), that.getSampleProjectCode());
+        builder.append(getSampleProjectSpaceCode(), that.getSampleProjectSpaceCode());
         return builder.isEquals();
     }
 
@@ -109,7 +274,14 @@ public class DataSetAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getSpaceCode());
+        builder.append(getDataSetCode());
+        builder.append(getExperimentProjectCode());
+        builder.append(getExperimentSpaceCode());
+        builder.append(getSampleSpaceCode());
+        builder.append(getSampleExperimentProjectCode());
+        builder.append(getSampleExperimentSpaceCode());
+        builder.append(getSampleProjectCode());
+        builder.append(getSampleProjectSpaceCode());
         return builder.toHashCode();
     }
 }

@@ -41,7 +41,7 @@ abstract class AbstractSamplePredicate<T> extends AbstractPredicate<T>
         this.spacePredicate = new SpaceIdentifierPredicate();
         this.samplePermIdPredicate = new SamplePermIdPredicate(isReadAccess);
         this.sampleIdentifierPredicate = new SampleIdentifierPredicate(isReadAccess);
-        this.sampleAugmentedCodePredicate = new SampleAugmentedCodePredicate(sampleIdentifierPredicate);
+        this.sampleAugmentedCodePredicate = new SampleAugmentedCodePredicate(isReadAccess);
     }
 
     @Override
@@ -50,6 +50,7 @@ abstract class AbstractSamplePredicate<T> extends AbstractPredicate<T>
         sampleTechIdPredicate.init(provider);
         spacePredicate.init(provider);
         samplePermIdPredicate.init(provider);
+        sampleIdentifierPredicate.init(provider);
         sampleAugmentedCodePredicate.init(provider);
     }
 }

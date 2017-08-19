@@ -28,12 +28,12 @@ public class SampleAugmentedCodePredicate extends DelegatedPredicate<SampleIdent
 {
     public SampleAugmentedCodePredicate()
     {
-        this(new SampleIdentifierPredicate());
+        this(true);
     }
 
-    public SampleAugmentedCodePredicate(SampleIdentifierPredicate delegate)
+    public SampleAugmentedCodePredicate(boolean isReadAccess)
     {
-        super(delegate);
+        super(new SampleIdentifierPredicate(isReadAccess));
     }
 
     @Override

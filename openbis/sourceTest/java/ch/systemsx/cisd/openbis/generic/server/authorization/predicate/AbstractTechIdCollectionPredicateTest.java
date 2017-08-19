@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.DataSetTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ExperimentTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ProjectTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.SpaceTechIdCollectionPredicate;
@@ -45,7 +44,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
         ProjectTechIdCollectionPredicate predicate = new ProjectTechIdCollectionPredicate();
         prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
-        
+
         expectAuthorizationConfig(new TestAuthorizationConfig(false, false));
         context.checking(new Expectations()
             {
@@ -125,27 +124,6 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
 
         assertEquals("ERROR: \"User 'megapixel' does not have enough privileges.\"",
                 result.toString());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testDataSetTechIdCollectionPredicateIsSuccessful()
-    {
-        DataSetTechIdCollectionPredicate predicate = new DataSetTechIdCollectionPredicate();
-        prepareProvider(createSpaces());
-        final List<TechId> techIds = TechId.createList(1L, 2L);
-        context.checking(new Expectations()
-            {
-                {
-                    one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET, techIds);
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
-                }
-            });
-        predicate.init(provider);
-
-        Status result = predicate.evaluate(createPerson(), createRoles(false), techIds);
-
-        assertEquals("OK", result.toString());
         context.assertIsSatisfied();
     }
 

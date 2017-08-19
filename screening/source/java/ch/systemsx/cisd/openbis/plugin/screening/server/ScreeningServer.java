@@ -27,9 +27,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
-
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
@@ -50,10 +47,10 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -170,6 +167,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolutionLoader;
+
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -317,7 +317,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
@@ -450,7 +450,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listExperimentMaterials(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, MaterialType materialType)
     {
@@ -468,7 +468,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             AnalysisProcedureCriteria analysisProcedureCriteria)
@@ -652,7 +652,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
@@ -705,7 +705,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Plate> listPlates(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experiment) throws IllegalArgumentException
     {
@@ -736,7 +736,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria)
     {
@@ -822,7 +822,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer)
     {

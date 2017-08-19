@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Predicate for {@link NewExternalData} instances.
@@ -32,21 +31,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class NewExternalDataPredicate extends AbstractPredicate<NewExternalData>
 {
-    private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
+    private final SampleIdentifierPredicate sampleIdentifierPredicate;
 
-    private final ExistingSpaceIdentifierPredicate experimentOwnerIdentifierPredicate;
+    private final SamplePermIdStringPredicate samplePermIdPredicate;
+
+    private final ExperimentAugmentedCodePredicate experimentIdentifierPredicate;
+
+    private final DataSetCodeCollectionPredicate dataSetCodeCollectionPredicate;
 
     public NewExternalDataPredicate()
     {
-        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
-        experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
+        sampleIdentifierPredicate = new SampleIdentifierPredicate(false, true);
+        samplePermIdPredicate = new SamplePermIdStringPredicate(false);
+        experimentIdentifierPredicate = new ExperimentAugmentedCodePredicate(true);
+        dataSetCodeCollectionPredicate = new DataSetCodeCollectionPredicate();
     }
 
     @Override
     public void init(IAuthorizationDataProvider provider)
     {
-        sampleOwnerIdentifierPredicate.init(provider);
-        experimentOwnerIdentifierPredicate.init(provider);
+        sampleIdentifierPredicate.init(provider);
+        samplePermIdPredicate.init(provider);
+        experimentIdentifierPredicate.init(provider);
+        dataSetCodeCollectionPredicate.init(provider);
     }
 
     @Override
@@ -65,13 +72,43 @@ public class NewExternalDataPredicate extends AbstractPredicate<NewExternalData>
             return Status.OK;
         }
 
-        SampleIdentifier sampleIdentifier = value.getSampleIdentifierOrNull();
-        if (sampleIdentifier != null)
+        if (value.getSampleIdentifierOrNull() != null)
         {
-            return sampleOwnerIdentifierPredicate.evaluate(person, allowedRoles, sampleIdentifier);
+            Status status = sampleIdentifierPredicate.evaluate(person, allowedRoles, value.getSampleIdentifierOrNull());
+            if (status.isError())
+            {
+                return status;
+            }
         }
-        return experimentOwnerIdentifierPredicate.evaluate(person, allowedRoles,
-                value.getExperimentIdentifierOrNull());
+
+        if (value.getSamplePermIdOrNull() != null)
+        {
+            Status status = samplePermIdPredicate.evaluate(person, allowedRoles, value.getSamplePermIdOrNull());
+            if (status.isError())
+            {
+                return status;
+            }
+        }
+
+        if (value.getExperimentIdentifierOrNull() != null)
+        {
+            Status status = experimentIdentifierPredicate.evaluate(person, allowedRoles, value.getExperimentIdentifierOrNull().toString());
+            if (status.isError())
+            {
+                return status;
+            }
+        }
+
+        if (value.getParentDataSetCodes() != null)
+        {
+            Status status = dataSetCodeCollectionPredicate.evaluate(person, allowedRoles, value.getParentDataSetCodes());
+            if (status.isError())
+            {
+                return status;
+            }
+        }
+
+        return Status.OK;
     }
 
 }

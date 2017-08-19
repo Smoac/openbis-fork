@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest.authorization;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -31,13 +32,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -96,10 +103,26 @@ public class CommonAuthorizationSystemTestService
     }
 
     @Transactional
+    public void createDataSet(DataPE dataSet)
+    {
+        dataSet.setRegistrationDate(new Date());
+        dataSet.setModificationDate(new Date());
+        daoFactory.getDataDAO().createDataSet(dataSet, null);
+        createdObjects.add(dataSet);
+    }
+
+    @Transactional
     public void createType(EntityTypePE entityType, EntityKind entityKind)
     {
         daoFactory.getEntityTypeDAO(entityKind).createOrUpdateEntityType(entityType);
         createdObjects.add(entityType);
+    }
+
+    @Transactional
+    public void createDataStore(DataStorePE dataStore)
+    {
+        daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
+        createdObjects.add(dataStore);
     }
 
     @Transactional
@@ -146,7 +169,51 @@ public class CommonAuthorizationSystemTestService
     @Transactional
     public SamplePE tryFindProjectSample(ProjectPE projectPE, String sampleCode)
     {
-        return daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, projectPE);
+        SamplePE sample = daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, projectPE);
+        HibernateUtils.initialize(sample.getProject());
+        HibernateUtils.initialize(sample.getExperiment());
+        return sample;
+    }
+
+    @Transactional
+    public DataPE tryFindDataSet(String dataSetCode)
+    {
+        DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
+        HibernateUtils.initialize(dataSet.getExperiment());
+        HibernateUtils.initialize(dataSet.tryGetSample());
+        if (dataSet.tryGetSample() != null)
+        {
+            HibernateUtils.initialize(dataSet.tryGetSample().getProject());
+            HibernateUtils.initialize(dataSet.tryGetSample().getExperiment());
+        }
+        return dataSet;
+    }
+
+    @Transactional
+    public VocabularyTermPE tryFindStorageFormat(String code)
+    {
+        VocabularyPE storageFormatVocabulary = daoFactory.getVocabularyDAO().tryFindVocabularyByCode("$STORAGE_FORMAT");
+
+        for (VocabularyTermPE storageFormatTerm : storageFormatVocabulary.getTerms())
+        {
+            if (storageFormatTerm.getCode().equals(code))
+            {
+                return storageFormatTerm;
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public FileFormatTypePE tryFileFormatType(String code)
+    {
+        return daoFactory.getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(code);
+    }
+
+    @Transactional
+    public LocatorTypePE tryFindLocatorType(String code)
+    {
+        return daoFactory.getLocatorTypeDAO().tryToFindLocatorTypeByCode(code);
     }
 
     public void recordCreatedObjects()
@@ -178,6 +245,13 @@ public class CommonAuthorizationSystemTestService
     {
         SessionContextDTO session = commonServer.tryAuthenticate(USER, PASSWORD);
         commonServer.deleteSamples(session.getSessionToken(), Arrays.asList(new TechId(sample.getId())), "testing", DeletionType.TRASH);
+        return getLatestDeletion(session);
+    }
+
+    public Deletion trashDataSet(DataPE dataSet)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(USER, PASSWORD);
+        commonServer.deleteDataSets(session.getSessionToken(), Arrays.asList(dataSet.getCode()), "testing", DeletionType.TRASH, true);
         return getLatestDeletion(session);
     }
 

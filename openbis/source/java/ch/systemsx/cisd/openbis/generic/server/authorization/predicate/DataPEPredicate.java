@@ -16,7 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectPE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -26,9 +38,42 @@ public class DataPEPredicate extends PersistentEntityPredicate<DataPE>
 {
 
     @Override
+    public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, DataPE value) throws UserFailureException
+    {
+        Status result = super.evaluate(person, allowedRoles, value);
+
+        if (result.isOK())
+        {
+            return Status.OK;
+        }
+
+        if (value != null)
+        {
+            ProjectPE project = value.getProject();
+
+            if (project != null)
+            {
+                IProjectAuthorization<ProjectPE> pa = new ProjectAuthorizationBuilder<ProjectPE>()
+                        .withData(provider)
+                        .withUser(new UserProviderFromPersonPE(person))
+                        .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                        .withObjects(new ProjectProviderFromProjectPE(project))
+                        .build();
+
+                if (pa.getObjectsWithoutAccess().isEmpty())
+                {
+                    return Status.OK;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public SpacePE getSpace(DataPE dataSet)
     {
-        return dataSet.getSpace();
+        return dataSet != null ? dataSet.getSpace() : null;
     }
 
 }

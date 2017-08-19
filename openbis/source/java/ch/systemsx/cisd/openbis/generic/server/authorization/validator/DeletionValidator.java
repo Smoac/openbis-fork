@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A {@link IValidator} implementation for a {@link Deletion}.
@@ -108,11 +110,27 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
                 authorizationDataProvider.getDeletedDatasetCollectionAccessData(singletonList);
         for (DataSetAccessPE datasetAccessDatum : datasets)
         {
-            if (verifySpace(person, datasetAccessDatum.getSpaceCode()))
+            SpaceIdentifier spaceIdentifier = datasetAccessDatum.getSpaceIdentifier();
+
+            if (spaceIdentifier != null)
             {
-                return true;
+                if (verifySpace(person, spaceIdentifier.getSpaceCode()))
+                {
+                    return true;
+                }
+            }
+
+            ProjectIdentifier projectIdentifier = datasetAccessDatum.getProjectIdentifier();
+
+            if (projectIdentifier != null)
+            {
+                if (verifyProject(person, projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode()))
+                {
+                    return true;
+                }
             }
         }
+
         return false;
     }
 

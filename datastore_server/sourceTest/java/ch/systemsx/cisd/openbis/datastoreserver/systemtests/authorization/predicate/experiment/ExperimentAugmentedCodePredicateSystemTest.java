@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.ExperimentIdentifierUtil;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -36,14 +36,13 @@ public class ExperimentAugmentedCodePredicateSystemTest extends CommonPredicateS
     @Override
     protected String createNonexistentObject(Object param)
     {
-        return "/IDONTEXIST/IDONTEXIST/IDONTEXIST";
+        return ExperimentIdentifierUtil.createNonexistentObject(param).toString();
     }
 
     @Override
     protected String createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
-        ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
-        return experimentPE.getIdentifier();
+        return ExperimentIdentifierUtil.createObject(this, spacePE, projectPE, param).toString();
     }
 
     @Override

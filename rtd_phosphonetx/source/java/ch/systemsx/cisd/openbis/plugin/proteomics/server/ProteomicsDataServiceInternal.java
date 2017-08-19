@@ -211,7 +211,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID)
     {

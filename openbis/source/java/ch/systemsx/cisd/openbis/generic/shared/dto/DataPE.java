@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN) )
+@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
 @Inheritance(strategy = InheritanceType.JOINED)
 @Indexed(index = "DataPE")
 @ClassBridge(impl = DataGlobalSearchBridge.class)
@@ -836,6 +836,23 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
             return experiment.getProject().getSpace();
         }
         return sample == null ? null : sample.getSpace();
+    }
+
+    // convenience method useful when checking authorization rules
+    @Transient
+    public ProjectPE getProject()
+    {
+        if (experiment != null)
+        {
+            return experiment.getProject();
+        }
+
+        if (sample != null)
+        {
+            return sample.getExperiment() != null ? sample.getExperiment().getProject() : sample.getProject();
+        }
+
+        return null;
     }
 
     // used only by Hibernate Search

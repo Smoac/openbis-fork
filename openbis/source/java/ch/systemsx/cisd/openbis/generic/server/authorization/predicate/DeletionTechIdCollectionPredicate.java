@@ -40,10 +40,13 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
 
     private SampleAccessPECollectionPredicate sampleAccessPECollectionPredicate;
 
+    private DataSetAccessPECollectionPredicate dataSetAccessPECollectionPredicate;
+
     public DeletionTechIdCollectionPredicate()
     {
         this.experimentAccessPECollectionPredicate = new ExperimentAccessPECollectionPredicate();
         this.sampleAccessPECollectionPredicate = new SampleAccessPECollectionPredicate(false);
+        this.dataSetAccessPECollectionPredicate = new DataSetAccessPECollectionPredicate();
     }
 
     @Override
@@ -52,6 +55,7 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
         super.init(provider);
         experimentAccessPECollectionPredicate.init(provider);
         sampleAccessPECollectionPredicate.init(provider);
+        dataSetAccessPECollectionPredicate.init(provider);
     }
 
     @Override
@@ -80,16 +84,12 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
             return sampleStatus;
         }
 
-        Set<DataSetAccessPE> datasets = authorizationDataProvider.getDeletedDatasetCollectionAccessData(value);
+        Set<DataSetAccessPE> dataSets = authorizationDataProvider.getDeletedDatasetCollectionAccessData(value);
 
-        for (DataSetAccessPE accessDatum : datasets)
+        Status dataSetStatus = dataSetAccessPECollectionPredicate.evaluate(person, allowedRoles, dataSets);
+        if (dataSetStatus != Status.OK)
         {
-            String spaceCode = accessDatum.getSpaceCode();
-            Status result = evaluate(allowedRoles, person, spaceCode);
-            if (result != Status.OK)
-            {
-                return result;
-            }
+            return dataSetStatus;
         }
 
         return Status.OK;

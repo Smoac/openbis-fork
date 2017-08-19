@@ -33,7 +33,7 @@ public final class DatasetReferencePredicate extends DelegatedPredicate<String, 
     @Override
     public final String getCandidateDescription()
     {
-        return "dataset reference";
+        return "data set reference";
     }
 
     @Override

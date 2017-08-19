@@ -38,7 +38,12 @@ public class ExperimentAugmentedCodePredicate extends DelegatedPredicate<SpaceId
 {
     public ExperimentAugmentedCodePredicate()
     {
-        super(new SpaceIdentifierPredicate(false));
+        this(false);
+    }
+
+    public ExperimentAugmentedCodePredicate(boolean okForNonExistentSpaces)
+    {
+        super(new SpaceIdentifierPredicate(okForNonExistentSpaces));
     }
 
     @Override

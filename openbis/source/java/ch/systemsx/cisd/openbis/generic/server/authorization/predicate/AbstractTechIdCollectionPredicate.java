@@ -49,14 +49,6 @@ public class AbstractTechIdCollectionPredicate extends AbstractSpacePredicate<Li
         this.entityKind = entityKind;
     }
 
-    public static class DataSetTechIdCollectionPredicate extends AbstractTechIdCollectionPredicate
-    {
-        public DataSetTechIdCollectionPredicate()
-        {
-            super(SpaceOwnerKind.DATASET);
-        }
-    }
-
     public static class ExperimentTechIdCollectionPredicate extends
             AbstractTechIdCollectionPredicate
     {

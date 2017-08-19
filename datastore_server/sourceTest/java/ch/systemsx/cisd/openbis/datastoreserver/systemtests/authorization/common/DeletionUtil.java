@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common;
 
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest.DataSetKind;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest.SampleKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -67,6 +69,13 @@ public class DeletionUtil
         }
 
         Deletion deletion = test.getCommonService().trashSample(sample);
+        return new TechId(deletion.getId());
+    }
+
+    public static TechId createObjectWithDataSet(CommonAuthorizationSystemTest test, SpacePE spacePE, ProjectPE projectPE, Object param)
+    {
+        DataPE dataSet = test.getDataSet(spacePE, projectPE, (DataSetKind) param);
+        Deletion deletion = test.getCommonService().trashDataSet(dataSet);
         return new TechId(deletion.getId());
     }
 
