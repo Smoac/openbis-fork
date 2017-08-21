@@ -72,6 +72,10 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
 
     private Map<String, Integer> orderInContainers = new HashMap<String, Integer>();
 
+    private boolean isH5Folders;
+
+    private boolean isH5ArFolders;
+
     public void setDataStoreCode(String dataStoreCode)
     {
         this.dataStoreCode = dataStoreCode;
@@ -271,5 +275,25 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setStorageConfirmed(boolean isStorageConfirmed)
     {
         this.isStorageConfirmed = isStorageConfirmed;
+    }
+
+    public boolean isH5Folders()
+    {
+        return isH5Folders;
+    }
+
+    public void setH5Folders(boolean isH5Folders)
+    {
+        this.isH5Folders = isH5Folders;
+    }
+
+    public boolean isH5ArFolders()
+    {
+        return isH5ArFolders;
+    }
+
+    public void setH5arFolders(boolean isH5ArFolders)
+    {
+        this.isH5ArFolders = isH5ArFolders;
     }
 }

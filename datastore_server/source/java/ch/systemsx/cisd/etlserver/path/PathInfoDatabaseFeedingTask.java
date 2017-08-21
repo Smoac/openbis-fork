@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 import net.lemnik.eodsql.QueryTool;
@@ -122,7 +123,6 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
         this.service = service;
         this.directoryProvider = directoryProvider;
         this.dao = dao;
-        this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.timeProvider = timeProvider;
         this.computeChecksum = computeChecksum;
         this.checksumType = checksumType;
@@ -144,7 +144,6 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
         directoryProvider = getDirectoryProvider();
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
         dao = createDAO();
-        hierarchicalContentFactory = createContentFactory();
         computeChecksum = getComputeChecksumFlag(properties);
         checksumType = getAndCheckChecksumType(properties);
         chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
@@ -186,7 +185,7 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
             Date maxRegistrationTimestamp = null;
             for (SimpleDataSetInformationDTO dataSet : dataSets)
             {
-                feedPathInfoDatabase(dataSet);
+                feedPathInfoDatabase(dataSet, dataSet.isH5Folders(), dataSet.isH5ArFolders());
                 processedDataSets.add(dataSet.getDataSetCode());
                 Date registrationTimestamp = dataSet.getRegistrationTimestamp();
                 if (maxRegistrationTimestamp == null || maxRegistrationTimestamp.getTime() < registrationTimestamp.getTime())
@@ -340,8 +339,18 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
                     }
                     if (false == dataSet.isContainer())
                     {
+                        boolean h5Folders = false;
+                        boolean h5arFolders = false;
+
+                        if (dataSet instanceof PhysicalDataSet)
+                        {
+                            PhysicalDataSet d = (PhysicalDataSet) dataSet;
+                            h5Folders = d.isH5Folders();
+                            h5arFolders = d.isH5arFolders();
+                        }
+
                         IDatasetLocation dataSetLocation = dataSet.tryGetAsDataSet();
-                        feedPathInfoDatabase(dataSetLocation);
+                        feedPathInfoDatabase(dataSetLocation, h5Folders, h5arFolders);
                     }
                 }
             };

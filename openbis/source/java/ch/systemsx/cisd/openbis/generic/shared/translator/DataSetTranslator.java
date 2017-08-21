@@ -359,7 +359,8 @@ public class DataSetTranslator
             {
                 String[] split = address.split(":");
                 translatedCopy =
-                        new FileSystemContentCopy(edms.getCode(), edms.getLabel(), split[0], split[1], copy.getPath(), copy.getGitCommitHash(), copy.getGitRepositoryId());
+                        new FileSystemContentCopy(edms.getCode(), edms.getLabel(), split[0], split[1], copy.getPath(), copy.getGitCommitHash(),
+                                copy.getGitRepositoryId());
             } else
             {
                 translatedCopy = new UrlContentCopy(edms.getCode(), edms.getLabel(),
@@ -387,6 +388,8 @@ public class DataSetTranslator
         dataSet.setAccessTimestamp(externalDataPE.getAccessDate());
         dataSet.setShareId(externalDataPE.getShareId());
         dataSet.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
+        dataSet.setH5Folders(externalDataPE.isH5Folders());
+        dataSet.setH5arFolders(externalDataPE.isH5arFolders());
         return dataSet;
     }
 
@@ -396,7 +399,7 @@ public class DataSetTranslator
         if (HibernateUtils.isInitialized(dataPE.getProperties()))
         {
             externalData.setDataSetProperties(EntityPropertyTranslator.translate(
-                    dataPE.getProperties(), new HashMap<MaterialTypePE, MaterialType>(), 
+                    dataPE.getProperties(), new HashMap<MaterialTypePE, MaterialType>(),
                     new HashMap<PropertyTypePE, PropertyType>(),
                     managedPropertyEvaluatorFactory));
         } else
@@ -423,7 +426,7 @@ public class DataSetTranslator
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                    new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(), 
+                    new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(),
                     managedPropertyEvaluatorFactory));
         }
         return sample;

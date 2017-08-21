@@ -57,6 +57,10 @@ public class PhysicalDataCreation implements ICreation
     @JsonProperty
     private Integer speedHint;
 
+    private boolean h5Folders = true;
+
+    private boolean h5arFolders = true;
+
     public String getShareId()
     {
         return shareId;
@@ -137,4 +141,23 @@ public class PhysicalDataCreation implements ICreation
         this.speedHint = speedHint;
     }
 
+    public boolean isH5Folders()
+    {
+        return h5Folders;
+    }
+
+    public void setH5Folders(boolean h5Folders)
+    {
+        this.h5Folders = h5Folders;
+    }
+
+    public boolean isH5arFolders()
+    {
+        return h5arFolders;
+    }
+
+    public void setH5arFolders(boolean h5arFolders)
+    {
+        this.h5arFolders = h5arFolders;
+    }
 }

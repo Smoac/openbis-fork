@@ -1595,3 +1595,7 @@ withGitCommitHash
 withGitRepositoryId
 withLabel
 withPath
+isH5Folders
+isH5arFolders
+setH5arFolders
+setH5Folders

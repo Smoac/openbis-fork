@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.LOCATION_COLUMN,
-        ColumnNames.LOCATOR_TYPE_COLUMN }) )
+        ColumnNames.LOCATOR_TYPE_COLUMN }))
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
 @Indexed(index = "DataPE")
 @ClassBridge(impl = ExternalDataGlobalSearchBridge.class)
@@ -89,6 +89,10 @@ public final class ExternalDataPE extends DataPE
     // At the moment however the logic is not yet implemented, and we want all objects in database
     // to have true initialy.
     private boolean storageConfirmation = false;
+
+    private boolean h5Folders = true;
+
+    private boolean h5arFolders = true;
 
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
@@ -262,6 +266,28 @@ public final class ExternalDataPE extends DataPE
     public void setSpeedHint(int speedHint)
     {
         this.speedHint = speedHint;
+    }
+
+    @Column(name = ColumnNames.H5_FOLDERS)
+    public boolean isH5Folders()
+    {
+        return this.h5Folders;
+    }
+
+    public void setH5Folders(boolean h5Folders)
+    {
+        this.h5Folders = h5Folders;
+    }
+
+    @Column(name = ColumnNames.H5AR_FOLDERS)
+    public boolean isH5arFolders()
+    {
+        return this.h5arFolders;
+    }
+
+    public void setH5arFolders(boolean h5arFolders)
+    {
+        this.h5arFolders = h5arFolders;
     }
 
     /**

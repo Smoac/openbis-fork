@@ -91,6 +91,8 @@ public class SimpleDataSetHelper
             String containerDataSetCode = containerDataSet.getCode();
             result.addOrderInContainer(containerDataSetCode, data.getOrderInContainer(containerDataSetCode));
         }
+        result.setH5Folders(data.isH5Folders());
+        result.setH5arFolders(data.isH5arFolders());
         return result;
     }
 

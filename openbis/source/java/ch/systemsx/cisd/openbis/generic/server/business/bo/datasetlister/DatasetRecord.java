@@ -67,4 +67,8 @@ public class DatasetRecord extends CodeRecord
     public Boolean storage_confirmation;
 
     public Boolean is_post_registered;
+
+    public Boolean h5_folders;
+
+    public Boolean h5ar_folders;
 }

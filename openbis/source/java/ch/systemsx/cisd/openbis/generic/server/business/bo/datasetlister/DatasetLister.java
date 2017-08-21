@@ -1169,6 +1169,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setSize(record.size);
         dataSet.setLocatorType(record.loty_id == null ? null : locatorTypes.get(record.loty_id));
         dataSet.setPostRegistered(record.is_post_registered);
+        dataSet.setH5Folders(record.h5_folders);
+        dataSet.setH5arFolders(record.h5ar_folders);
         return dataSet;
     }
 

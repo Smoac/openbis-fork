@@ -24,20 +24,18 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.Hdf5AwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractPathInfoDatabaseFeedingTask
 {
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
-    
+
     static final String CHECKSUM_TYPE_KEY = "checksum-type";
 
     static String getAndCheckChecksumType(Properties properties)
@@ -61,14 +59,13 @@ abstract class AbstractPathInfoDatabaseFeedingTask
 
     protected IPathsInfoDAO dao;
 
-    protected IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
-
     protected boolean computeChecksum;
-    
+
     protected String checksumType;
 
-    protected void feedPathInfoDatabase(IDatasetLocation dataSet)
+    protected void feedPathInfoDatabase(IDatasetLocation dataSet, boolean h5Folders, boolean h5arFolders)
     {
+
         IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
         String dataSetCode = dataSet.getDataSetCode();
         shareIdManager.lock(dataSetCode);
@@ -84,8 +81,8 @@ abstract class AbstractPathInfoDatabaseFeedingTask
                 return;
             }
             DatabaseBasedDataSetPathsInfoFeeder feeder =
-                    new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory,
-                            computeChecksum, checksumType);
+                    new DatabaseBasedDataSetPathsInfoFeeder(dao, new Hdf5AwareHierarchicalContentFactory(h5Folders, h5arFolders), computeChecksum,
+                            checksumType);
             Long id = dao.tryGetDataSetId(dataSetCode);
             if (id == null)
             {

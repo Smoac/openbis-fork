@@ -98,11 +98,15 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         List<VocabularyUpdatesDTO> vocabularyUpdates = details.getVocabularyUpdates();
         List<SpaceRoleAssignment> spaceRoleAssignments = details.getSpaceRoleAssignments();
         List<SpaceRoleAssignment> spaceRoleRevocations = details.getSpaceRoleRevocations();
+        boolean h5Folders = registrator.getGlobalState().getThreadParameters().hasH5AsFolders();
+        boolean h5arFolders = registrator.getGlobalState().getThreadParameters().hasH5ArAsFolders();
 
         List<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
         for (DataSetRegistrationInformation<?> dsRegistration : details.getDataSetRegistrations())
         {
             NewExternalData newExternalData = dsRegistration.getExternalData();
+            newExternalData.setH5Folders(h5Folders);
+            newExternalData.setH5arFolders(h5arFolders);
             dataSetRegistrations.add(newExternalData);
         }
 

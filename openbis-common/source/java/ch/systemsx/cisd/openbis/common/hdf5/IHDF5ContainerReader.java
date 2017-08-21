@@ -61,4 +61,6 @@ public interface IHDF5ContainerReader
      */
     public boolean exists(final String objectPath);
 
+    public boolean isFileAbstraction(ArchiveEntry entry);
+
 }

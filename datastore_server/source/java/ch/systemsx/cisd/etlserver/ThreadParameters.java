@@ -125,6 +125,10 @@ public final class ThreadParameters
 
     public static final String RECOVERY_DEVELOPMENT_MODE = "development-mode";
 
+    private static final String H5_FOLDERS = "h5-folders";
+
+    private static final String H5AR_FOLDERS = "h5ar-folders";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side. The directory where data to be processed by the ETL
      * server become available.
@@ -171,12 +175,18 @@ public final class ThreadParameters
 
     private final Integer incomingShareId;
 
+    private final boolean h5Folders;
+
+    private final boolean h5arFolders;
+
     /**
      * @param threadProperties parameters for one processing thread together with general parameters.
      */
     public ThreadParameters(final Properties threadProperties, final String threadName)
     {
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties, threadName);
+        this.h5Folders = PropertyUtils.getBoolean(threadProperties, H5_FOLDERS, true);
+        this.h5arFolders = PropertyUtils.getBoolean(threadProperties, H5AR_FOLDERS, true);
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, true);
         this.threadProperties = threadProperties;
@@ -535,5 +545,15 @@ public final class ThreadParameters
     public int getMinimumRecoveryPeriod()
     {
         return minimumRecoveryPeriod;
+    }
+
+    public boolean hasH5AsFolders()
+    {
+        return h5Folders;
+    }
+
+    public boolean hasH5ArAsFolders()
+    {
+        return h5arFolders;
     }
 }

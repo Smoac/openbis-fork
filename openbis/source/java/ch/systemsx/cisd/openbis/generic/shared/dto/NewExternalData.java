@@ -80,6 +80,10 @@ public class NewExternalData implements Serializable
 
     private String samplePermIdOrNull;
 
+    private boolean h5Folders = true;
+
+    private boolean h5arFolders = true;
+
     public ExperimentIdentifier getExperimentIdentifierOrNull()
     {
         return experimentIdentifierOrNull;
@@ -343,6 +347,26 @@ public class NewExternalData implements Serializable
     public void setExtractableData(ExtractableData extractableData)
     {
         this.extractableData = extractableData;
+    }
+
+    public boolean isH5Folders()
+    {
+        return h5Folders;
+    }
+
+    public void setH5Folders(boolean h5Folders)
+    {
+        this.h5Folders = h5Folders;
+    }
+
+    public boolean isH5arFolders()
+    {
+        return h5arFolders;
+    }
+
+    public void setH5arFolders(boolean h5arFolders)
+    {
+        this.h5arFolders = h5arFolders;
     }
 
     //

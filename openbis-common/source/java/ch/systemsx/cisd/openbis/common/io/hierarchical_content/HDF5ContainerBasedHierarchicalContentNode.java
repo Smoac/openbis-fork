@@ -88,6 +88,35 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         }
     }
 
+    /** @return is file abstraction valid for whole hdf archive */
+    public boolean isFileAbstractionOk()
+    {
+        IHDF5ContainerReader reader = createReader();
+        try
+        {
+            return isFileAbstractionOk(reader, "/");
+        } finally
+        {
+            reader.close();
+        }
+    }
+
+    private boolean isFileAbstractionOk(IHDF5ContainerReader reader, String groupPath)
+    {
+        final List<ArchiveEntry> entries = reader.getGroupMembers(groupPath);
+        for (ArchiveEntry entry : entries)
+        {
+            if (entry.isRegularFile() && false == reader.isFileAbstraction(entry))
+            {
+                return false;
+            } else if (entry.isDirectory())
+            {
+                return isFileAbstractionOk(reader, entry.getPath());
+            }
+        }
+        return true;
+    }
+
     /** @return child node with given path relative to this container */
     private IHierarchicalContentNode getChildNode(ArchiveEntry entry)
     {

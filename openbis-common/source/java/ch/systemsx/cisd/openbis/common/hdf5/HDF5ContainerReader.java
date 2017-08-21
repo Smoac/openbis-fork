@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.common.hdf5;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,12 @@ import java.util.TimerTask;
 
 import org.apache.commons.collections4.map.ReferenceMap;
 
+import ch.systemsx.cisd.hdf5.HDF5DataClass;
+import ch.systemsx.cisd.hdf5.HDF5DataSetInformation;
+import ch.systemsx.cisd.hdf5.HDF5DataTypeInformation;
+import ch.systemsx.cisd.hdf5.HDF5DataTypeInformation.DataTypeInfoOptions;
+import ch.systemsx.cisd.hdf5.HDF5Factory;
+import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
 import ch.systemsx.cisd.hdf5.h5ar.HDF5ArchiverFactory;
 import ch.systemsx.cisd.hdf5.h5ar.IHDF5ArchiveReader;
@@ -47,6 +54,8 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
     {
         private final static long RETENTION_TIME_MILLIS = 5 * 60 * 1000L; // 5 minutes
 
+        private final IHDF5Reader hdf5Reader;
+
         private final IHDF5ArchiveReader archiveReader;
 
         private final File archiveFile;
@@ -55,10 +64,11 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
 
         private int referenceCount;
 
-        Reader(File archiveFile, IHDF5ArchiveReader archiveReader)
+        Reader(File archiveFile)
         {
             this.archiveFile = archiveFile;
-            this.archiveReader = archiveReader;
+            this.hdf5Reader = HDF5Factory.openForReading(archiveFile);
+            this.archiveReader = HDF5ArchiverFactory.openForReading(hdf5Reader);
             this.lastAccessed = System.currentTimeMillis();
             this.referenceCount = 1;
         }
@@ -67,6 +77,12 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
         {
             this.lastAccessed = System.currentTimeMillis();
             return archiveReader;
+        }
+
+        IHDF5Reader getHDF5Reader()
+        {
+            this.lastAccessed = System.currentTimeMillis();
+            return hdf5Reader;
         }
 
         File getArchiveFile()
@@ -150,7 +166,7 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
             if (entryOrNull == null)
             {
                 entryOrNull =
-                        new Reader(hdf5Container, HDF5ArchiverFactory.openForReading(hdf5Container));
+                        new Reader(hdf5Container);
                 fileToReaderMap.put(hdf5Container, entryOrNull);
             } else
             {
@@ -176,6 +192,7 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
             synchronized (fileToReaderMap)
             {
                 reader.getArchiveReader().close();
+                reader.getHDF5Reader().close();
                 fileToReaderMap.remove(reader.getArchiveFile());
             }
         }
@@ -204,5 +221,15 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
     public void readFromHDF5Container(String objectPath, OutputStream ostream)
     {
         reader.getArchiveReader().extractFile(objectPath, ostream);
+    }
+
+    @Override
+    public boolean isFileAbstraction(ArchiveEntry entry)
+    {
+        final HDF5DataSetInformation info = reader.getHDF5Reader().object().getDataSetInformation(entry.getPath(), DataTypeInfoOptions.MINIMAL);
+        final HDF5DataTypeInformation tInfo = info.getTypeInformation();
+        return (EnumSet.of(HDF5DataClass.INTEGER, HDF5DataClass.OPAQUE).contains(tInfo.getDataClass())
+                && tInfo.getElementSize() == 1
+                && info.getRank() == 1);
     }
 }

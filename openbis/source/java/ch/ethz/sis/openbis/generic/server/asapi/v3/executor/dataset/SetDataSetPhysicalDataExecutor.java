@@ -111,6 +111,8 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
             complete = BooleanOrUnknown.F;
         }
         dataSet.setComplete(complete);
+        dataSet.setH5Folders(physicalCreation.isH5Folders());
+        dataSet.setH5arFolders(physicalCreation.isH5arFolders());
     }
 
 }

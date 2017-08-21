@@ -121,7 +121,7 @@ public final class ColumnNames
     public static final String GENERATED_FROM_SAMPLE_COLUMN = "samp_id_generated_from";
 
     public static final String SPACE_COLUMN = "space_id";
-    
+
     public static final String PROJECT_ID_COLUMN = "project_id";
 
     public static final String ID_COLUMN = "id";
@@ -379,6 +379,10 @@ public final class ColumnNames
     public static final String GIT_COMMIT_HASH_COLUMN = "git_commit_hash";
 
     public static final String GIT_REPOSITORY_ID_COLUMN = "git_repository_id";
+
+    public static final String H5_FOLDERS = "h5_folders";
+
+    public static final String H5AR_FOLDERS = "h5ar_folders";
 
     private ColumnNames()
     {

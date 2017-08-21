@@ -2603,6 +2603,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 physicalCreation.setShareId(newData.getShareId());
                 physicalCreation.setSize(newData.getSize());
                 physicalCreation.setSpeedHint(newData.getSpeedHint());
+                physicalCreation.setH5Folders(newData.isH5Folders());
+                physicalCreation.setH5arFolders(newData.isH5arFolders());
 
                 // complete
                 if (newData.getComplete() != null)

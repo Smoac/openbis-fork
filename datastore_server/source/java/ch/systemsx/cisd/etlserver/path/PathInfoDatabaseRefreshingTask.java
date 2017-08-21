@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchO
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -68,7 +67,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
     static final String CHUNK_SIZE_KEY = "chunk-size";
 
     static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    
+
     private static final int DEFAULT_CHUNK_SIZE = 100;
 
     private static final Comparator<AbstractExternalData> REVERSE_REGISTRATION_DATE_COMPARATOR = new Comparator<AbstractExternalData>()
@@ -108,7 +107,6 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
     {
         this.service = service;
         this.dao = dao;
-        this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.directoryProvider = directoryProvider;
     }
 
@@ -119,7 +117,6 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         {
             service = ServiceProvider.getOpenBISService();
             dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
-            hierarchicalContentFactory = new DefaultFileBasedHierarchicalContentFactory();
             directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
         File defaultStateFile = new File(directoryProvider.getStoreRoot(),
@@ -133,7 +130,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         timeStampAndCodeOfYoungestDataSet = tryGetTimeStampAndCodeOfYoungestDataSet(properties);
         if (stateFile.exists() == false && timeStampAndCodeOfYoungestDataSet == null)
         {
-            throw new ConfigurationFailureException("Either property '" + TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY 
+            throw new ConfigurationFailureException("Either property '" + TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY
                     + "' is defined or '" + stateFile.getAbsolutePath() + "' exists.");
         }
         chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
@@ -141,7 +138,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         checksumType = getAndCheckChecksumType(properties);
         dataSetType = properties.getProperty(DATA_SET_TYPE_KEY);
     }
-    
+
     private String tryGetTimeStampAndCodeOfYoungestDataSet(Properties properties)
     {
         String ts = properties.getProperty(TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY);
@@ -191,7 +188,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         {
             String dataSetCode = dataSet.getCode();
             dao.deleteDataSet(dataSetCode);
-            feedPathInfoDatabase(dataSet);
+            feedPathInfoDatabase(dataSet, dataSet.isH5Folders(), dataSet.isH5arFolders());
             updateTimeStampFile(dataSet);
         }
         operationLog.info("Path info for " + dataSets.size() + " physical data sets refreshed in "
@@ -261,14 +258,14 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         FileUtilities.writeToFile(newFile, renderTimeStampAndCode(dataSet));
         newFile.renameTo(stateFile);
     }
-    
+
     private String renderTimeStampAndCode(PhysicalDataSet dataSet)
     {
         String code = dataSet.getDataSetCode();
         String renderedTimeStamp = renderTimeStamp(dataSet.getRegistrationDate());
         return code == null ? renderedTimeStamp : renderedTimeStamp + " [" + code + "]";
     }
-    
+
     private String extractTimeStamp(String timeStampAndCode)
     {
         return timeStampAndCode.split("\\[")[0].trim();
