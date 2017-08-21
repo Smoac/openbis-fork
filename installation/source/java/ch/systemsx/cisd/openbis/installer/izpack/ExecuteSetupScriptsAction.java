@@ -98,9 +98,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
                 data.getVariable(GlobalInstallationContext.KEY_STORE_PASSWORD_VARNAME);
         String certificatePassword =
                 data.getVariable(GlobalInstallationContext.KEY_PASSWORD_VARNAME);
-        String pathinfoDBEnabled =
-                data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED);
-        enablePathinfoDB("false".equalsIgnoreCase(pathinfoDBEnabled) == false, installDir);
+        enablePathinfoDB(installDir);
         installKeyStore(keyStoreFileName, installDir);
         String previousJettyVersion = getJettyVersion(installDir);
         if (previousJettyVersion.equals(JETTY_BEFORE_9_2))
@@ -209,35 +207,27 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
         }
     }
 
-    void enablePathinfoDB(boolean enableFlag, File installDir)
+    void enablePathinfoDB(File installDir)
     {
         File dssServicePropertiesFile =
                 new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-        if (enableFlag)
+        for (int i = 0; i < KEYS.length; i++)
         {
-            for (int i = 0; i < KEYS.length; i++)
+            String key = KEYS[i];
+            String newTerm = TERMS[i];
+            Utils.removeTermFromPropertyList(dssServicePropertiesFile, key, newTerm);
+            String classProperty = newTerm + "." + CLASS_POSTFIX[i];
+            int indexOfDot = key.indexOf('.');
+            if (indexOfDot >= 0)
             {
-                String key = KEYS[i];
-                String newTerm = TERMS[i];
-                String classProperty = newTerm + "." + CLASS_POSTFIX[i];
-                int indexOfDot = key.indexOf('.');
-                if (indexOfDot >= 0)
-                {
-                    classProperty = key.substring(0, indexOfDot) + "." + classProperty;
-                }
-                String className =
-                        Utils.tryToGetProperties(dssServicePropertiesFile).getProperty(
-                                classProperty);
-                if (className != null)
-                {
-                    Utils.addTermToPropertyList(dssServicePropertiesFile, key, newTerm);
-                }
+                classProperty = key.substring(0, indexOfDot) + "." + classProperty;
             }
-        } else
-        {
-            for (int i = 0; i < KEYS.length; i++)
+            String className =
+                    Utils.tryToGetProperties(dssServicePropertiesFile).getProperty(
+                            classProperty);
+            if (className != null)
             {
-                Utils.removeTermFromPropertyList(dssServicePropertiesFile, KEYS[i], TERMS[i]);
+                Utils.addTermToPropertyList(dssServicePropertiesFile, key, newTerm);
             }
         }
     }

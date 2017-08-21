@@ -145,7 +145,6 @@
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES">
       <actions>
         <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction" />
-        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetPathinfoDBCheckBoxAction" />
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction" />
       </actions>
     </panel>

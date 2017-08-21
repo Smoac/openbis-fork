@@ -71,13 +71,6 @@
     <field type="check" variable="FLOW">
       <spec txt="Flow Cytometry" true="true" false="false"/>
     </field>
-    
-    <field type="space"/>
-    <field type="staticText" align="left"
-      txt="Fast data set file browsing improves the performance of browsing of data sets with a large number of files. We recommend leaving it on for all instances, and especially screening instances." />
-    <field type="check" variable="PATHINFO_DB_ENABLED">
-      <spec txt="Fast data set file browsing" true="true" false="false"/>
-    </field>
   </panel>
   
   <panel id="UserInputPanel.ELN_MASTER_DATA">

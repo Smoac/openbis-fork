@@ -58,8 +58,6 @@ public class GlobalInstallationContext
 
     public static final String TECHNOLOGY_SHARED_MICROSCOPY_FLOW_CYTOMETRY = "SHARED";
 
-    public static final String PATHINFO_DB_ENABLED = "PATHINFO_DB_ENABLED";
-
     public static final String[] TECHNOLOGIES =
             { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS, TECHNOLOGY_ELN_LIMS, TECHNOLOGY_MICROSCOPY,
                     TECHNOLOGY_FLOW_CYTOMETRY };
