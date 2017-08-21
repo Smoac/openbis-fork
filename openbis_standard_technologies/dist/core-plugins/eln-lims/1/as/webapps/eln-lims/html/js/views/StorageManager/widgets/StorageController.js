@@ -391,29 +391,46 @@ function StorageController(configOverride) {
 		var _this = this;
 		// Check user don't selects a position already selected by a sample that is not the binded one
 		// ERROR: You selected a position already used by <SAMPLE_CODE>, please choose another.
-		var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty, this._storageModel.storagePropertyGroup.positionProperty];
-		var propertyValues = [this._storageModel.boxName,this._storageModel.boxPosition];
-		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
-			var sampleCodes = [];
-			var isBinded = false;
-			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
-				sampleCodes.push(samples[sIdx].code);
-				if(_this._storageModel.sample) {
-					isBinded = isBinded || (samples[sIdx].code === _this._storageModel.sample.code);
-				}
-			}
-			if(samples.length > 1) { //More than one sample in that position
-				callback("There is more than one sample in that position, exactly " + sampleCodes + ", weird?, contact your administrator.");
-			} else if(samples.length > 0 && !_this._storageModel.sample) { //Sample in that position
-				callback("You selected a position already used by " + sampleCodes + ", please choose another.");
-			} else if(samples.length === 1 && _this._storageModel.sample && !isBinded) {
-				callback("You selected a position already used by " + sampleCodes + ", please choose another.");
-			} else if(samples.length === 1 && _this._storageModel.sample && isBinded) {
+		var boxPositions = this._storageModel.boxPosition.split(" ");
+		var boxPositionsCalls = [];
+		for(var bpIdx = 0; bpIdx < boxPositions.length; bpIdx++) {
+			boxPositionsCalls.push({
+				propertyTypeCodes : [this._storageModel.storagePropertyGroup.boxProperty, this._storageModel.storagePropertyGroup.positionProperty],
+				propertyValues : [this._storageModel.boxName,boxPositions[bpIdx]]
+			});
+		}
+		
+		var validationFunc = null;
+		validationFunc = function() {
+			if(boxPositionsCalls.length > 0) {
+				var validationParams = boxPositionsCalls.shift();
+				mainController.serverFacade.searchWithProperties(validationParams.propertyTypeCodes, validationParams.propertyValues, function(samples) {
+					var sampleCodes = [];
+					var isBinded = false;
+					for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+						sampleCodes.push(samples[sIdx].code);
+						if(_this._storageModel.sample) {
+							isBinded = isBinded || (samples[sIdx].code === _this._storageModel.sample.code);
+						}
+					}
+					if(samples.length > 1) { //More than one sample in that position
+						callback("There is more than one sample in that position, exactly " + sampleCodes + ", weird?, contact your administrator.");
+					} else if(samples.length > 0 && !_this._storageModel.sample) { //Sample in that position
+						callback("You selected a position already used by " + sampleCodes + ", please choose another.");
+					} else if(samples.length === 1 && _this._storageModel.sample && !isBinded) {
+						callback("You selected a position already used by " + sampleCodes + ", please choose another.");
+					} else if(samples.length === 1 && _this._storageModel.sample && isBinded) {
+						validationFunc();
+					} else if(samples.length === 0) {
+						validationFunc();
+					}
+				});
+			} else {
 				callback(null);
-			} else if(samples.length === 0) {
-				callback(null);
 			}
-		});
+		}
+		
+		validationFunc();
 	}
 	
 	this._isUserTypingExistingBox = function(callback) {
