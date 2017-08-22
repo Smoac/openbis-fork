@@ -42,7 +42,8 @@ function StorageController(configOverride) {
 			
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, label, data.size, null, null);
-			if(data.samples.length === 1 && data.samples[0].properties[_this._storageModel.storagePropertyGroup.boxProperty]) {
+			if(data.samples.length > 1 || 
+					data.samples.length === 1 && data.samples[0].properties[_this._storageModel.storagePropertyGroup.boxProperty]) {
 				_this._storageView.showBoxName();
 				_this._storageView.showBoxSize();
 			}
