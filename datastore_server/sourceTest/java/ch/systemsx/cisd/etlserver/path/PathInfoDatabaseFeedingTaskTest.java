@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import static ch.systemsx.cisd.common.action.IDelegatedAction.DO_NOTHING;
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import org.jmock.Expectations;
@@ -35,13 +32,10 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -52,6 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Friend(toClasses = PathInfoDatabaseFeedingTask.class)
 public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 {
+    private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
+            + PathInfoDatabaseFeedingTaskTest.class.getSimpleName());
+
     private static final String DATA_SET_CODE = "ds1";
 
     private Mockery context;
@@ -64,15 +61,11 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
     private IPathsInfoDAO dao;
 
-    private IHierarchicalContentFactory contentFactory;
-
-    private IHierarchicalContentNode node;
-
-    private IHierarchicalContent content;
-
     private PathInfoDatabaseFeedingTask task;
 
     private File dataSetFolder;
+
+    private MockPathsInfoDAO mockPathsInfoDAO;
 
     @BeforeMethod
     public void beforeMethod()
@@ -80,24 +73,30 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         LogInitializer.init();
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
-        directoryProvider = context.mock(IDataSetDirectoryProvider.class);
         shareIdManager = context.mock(IShareIdManager.class);
         context.checking(new Expectations()
             {
                 {
-                    allowing(directoryProvider).getShareIdManager();
-                    will(returnValue(shareIdManager));
+                    allowing(shareIdManager).lock(with(any(String.class)));
+                    allowing(shareIdManager).getShareId(with(any(String.class)));
+                    will(returnValue("1"));
+                    allowing(shareIdManager).releaseLocks();
                 }
             });
+        directoryProvider = new DataSetDirectoryProvider(STORE_ROOT, shareIdManager);
         dao = context.mock(IPathsInfoDAO.class);
-        contentFactory = context.mock(IHierarchicalContentFactory.class);
-        content = context.mock(IHierarchicalContent.class);
-        node = context.mock(IHierarchicalContentNode.class);
-        task = createTask(0, 0, 0);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dao).tryGetDataSetId(with(any(String.class)));
+                }
+            });
+        mockPathsInfoDAO = new MockPathsInfoDAO();
+        task = createTask(mockPathsInfoDAO, 0, 0, 0);
         dataSetFolder = new File(workingDirectory, "ds1");
         dataSetFolder.mkdirs();
     }
-
+    
     @AfterMethod
     public void tearDown(Method method)
     {
@@ -112,33 +111,203 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testChecksumTypeSHA1()
+    {
+        final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
+        ds1.setDataSetCode("ds1");
+        ds1.setDataSetLocation("2");
+        ds1.setRegistrationTimestamp(new Date(78000));
+        ds1.setStorageConfirmed(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listOldestPhysicalDataSets(12);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                }
+            });
+
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, "SHA1", 12, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=2)\n"
+                + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a, checksum=SHA1:55ca6286e3e4f4fba5d0448333fa99fc5a404a73)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
+    }
+    
+    @Test
+    public void testH5AndH5arFolderDisabled()
+    {
+        final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
+        ds1.setDataSetCode("ds1");
+        ds1.setDataSetLocation("1");
+        ds1.setRegistrationTimestamp(new Date(78000));
+        ds1.setStorageConfirmed(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listOldestPhysicalDataSets(12);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                }
+            });
+
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 12, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=1)\n"
+                + "createDataSetFile(0, parent=null, 1 (, 1025784, d))\n"
+                + "createDataSetFile(0, parent=1, test-data (test-data, 1025774, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d)\n"
+                + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef)\n"
+                + "  0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 508567, f, checksumCRC32=9fb9b84a)\n"
+                + "  0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 508567, f, checksumCRC32=9fb9b84a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
+    }
+    
+    @Test
+    public void testH5FolderEnabled()
+    {
+        final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
+        ds1.setDataSetCode("ds1");
+        ds1.setDataSetLocation("1");
+        ds1.setRegistrationTimestamp(new Date(78000));
+        ds1.setStorageConfirmed(true);
+        ds1.setH5Folders(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listOldestPhysicalDataSets(12);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                }
+            });
+
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 12, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=1)\n"
+                + "createDataSetFile(0, parent=null, 1 (, 1007978, d))\n"
+                + "createDataSetFile(0, parent=1, test-data (test-data, 1007968, d))\n"
+                + "createDataSetFile(0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 490761, d))\n"  
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d)\n"
+                + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef)\n"
+                + "  0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 508567, f, checksumCRC32=9fb9b84a)\n"
+                + "  0, parent=3, wA1_d1-1_cCy3.png (test-data/thumbnails2.h5/wA1_d1-1_cCy3.png, 24242, f, checksumCRC32=3361fd20)\n"
+                + "  0, parent=3, wA1_d1-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d1-1_cDAPI.png, 29353, f, checksumCRC32=609f3183)\n"
+                + "  0, parent=3, wA1_d1-1_cGFP.png (test-data/thumbnails2.h5/wA1_d1-1_cGFP.png, 27211, f, checksumCRC32=b68f97cf)\n"
+                + "  0, parent=3, wA1_d1-2_cCy3.png (test-data/thumbnails2.h5/wA1_d1-2_cCy3.png, 28279, f, checksumCRC32=e2c7c34f)\n"
+                + "  0, parent=3, wA1_d1-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d1-2_cDAPI.png, 22246, f, checksumCRC32=1bf73b61)\n"
+                + "  0, parent=3, wA1_d1-2_cGFP.png (test-data/thumbnails2.h5/wA1_d1-2_cGFP.png, 22227, f, checksumCRC32=58e14da9)\n"
+                + "  0, parent=3, wA1_d2-1_cCy3.png (test-data/thumbnails2.h5/wA1_d2-1_cCy3.png, 31570, f, checksumCRC32=b312b087)\n"
+                + "  0, parent=3, wA1_d2-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d2-1_cDAPI.png, 28267, f, checksumCRC32=e7082b23)\n"
+                + "  0, parent=3, wA1_d2-1_cGFP.png (test-data/thumbnails2.h5/wA1_d2-1_cGFP.png, 26972, f, checksumCRC32=fb7f320e)\n"
+                + "  0, parent=3, wA1_d2-2_cCy3.png (test-data/thumbnails2.h5/wA1_d2-2_cCy3.png, 34420, f, checksumCRC32=d367dd9d)\n"
+                + "  0, parent=3, wA1_d2-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d2-2_cDAPI.png, 28070, f, checksumCRC32=15e1f3b0)\n"
+                + "  0, parent=3, wA1_d2-2_cGFP.png (test-data/thumbnails2.h5/wA1_d2-2_cGFP.png, 27185, f, checksumCRC32=34bcde32)\n"
+                + "  0, parent=3, wA1_d3-1_cCy3.png (test-data/thumbnails2.h5/wA1_d3-1_cCy3.png, 28916, f, checksumCRC32=a97cff4e)\n"
+                + "  0, parent=3, wA1_d3-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d3-1_cDAPI.png, 30079, f, checksumCRC32=6f0abf6f)\n"
+                + "  0, parent=3, wA1_d3-1_cGFP.png (test-data/thumbnails2.h5/wA1_d3-1_cGFP.png, 28072, f, checksumCRC32=5ba6ae39)\n"
+                + "  0, parent=3, wA1_d3-2_cCy3.png (test-data/thumbnails2.h5/wA1_d3-2_cCy3.png, 26367, f, checksumCRC32=f8d4cfc7)\n"
+                + "  0, parent=3, wA1_d3-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d3-2_cDAPI.png, 25086, f, checksumCRC32=aeb12b1a)\n"
+                + "  0, parent=3, wA1_d3-2_cGFP.png (test-data/thumbnails2.h5/wA1_d3-2_cGFP.png, 22199, f, checksumCRC32=ced4332a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
+    }
+    
+    @Test
+    public void testH5arFolderEnabled()
+    {
+        final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
+        ds1.setDataSetCode("ds1");
+        ds1.setDataSetLocation("1");
+        ds1.setRegistrationTimestamp(new Date(78000));
+        ds1.setStorageConfirmed(true);
+        ds1.setH5arFolders(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listOldestPhysicalDataSets(12);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                }
+            });
+
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 12, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=1)\n"
+                + "createDataSetFile(0, parent=null, 1 (, 1007978, d))\n"
+                + "createDataSetFile(0, parent=1, test-data (test-data, 1007968, d))\n"
+                + "createDataSetFile(0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 490761, d))\n"  
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d)\n"
+                + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef)\n"
+                + "  0, parent=3, wA1_d1-1_cCy3.png (test-data/thumbnails.h5ar/wA1_d1-1_cCy3.png, 24242, f, checksumCRC32=3361fd20)\n"
+                + "  0, parent=3, wA1_d1-1_cDAPI.png (test-data/thumbnails.h5ar/wA1_d1-1_cDAPI.png, 29353, f, checksumCRC32=609f3183)\n"
+                + "  0, parent=3, wA1_d1-1_cGFP.png (test-data/thumbnails.h5ar/wA1_d1-1_cGFP.png, 27211, f, checksumCRC32=b68f97cf)\n"
+                + "  0, parent=3, wA1_d1-2_cCy3.png (test-data/thumbnails.h5ar/wA1_d1-2_cCy3.png, 28279, f, checksumCRC32=e2c7c34f)\n"
+                + "  0, parent=3, wA1_d1-2_cDAPI.png (test-data/thumbnails.h5ar/wA1_d1-2_cDAPI.png, 22246, f, checksumCRC32=1bf73b61)\n"
+                + "  0, parent=3, wA1_d1-2_cGFP.png (test-data/thumbnails.h5ar/wA1_d1-2_cGFP.png, 22227, f, checksumCRC32=58e14da9)\n"
+                + "  0, parent=3, wA1_d2-1_cCy3.png (test-data/thumbnails.h5ar/wA1_d2-1_cCy3.png, 31570, f, checksumCRC32=b312b087)\n"
+                + "  0, parent=3, wA1_d2-1_cDAPI.png (test-data/thumbnails.h5ar/wA1_d2-1_cDAPI.png, 28267, f, checksumCRC32=e7082b23)\n"
+                + "  0, parent=3, wA1_d2-1_cGFP.png (test-data/thumbnails.h5ar/wA1_d2-1_cGFP.png, 26972, f, checksumCRC32=fb7f320e)\n"
+                + "  0, parent=3, wA1_d2-2_cCy3.png (test-data/thumbnails.h5ar/wA1_d2-2_cCy3.png, 34420, f, checksumCRC32=d367dd9d)\n"
+                + "  0, parent=3, wA1_d2-2_cDAPI.png (test-data/thumbnails.h5ar/wA1_d2-2_cDAPI.png, 28070, f, checksumCRC32=15e1f3b0)\n"
+                + "  0, parent=3, wA1_d2-2_cGFP.png (test-data/thumbnails.h5ar/wA1_d2-2_cGFP.png, 27185, f, checksumCRC32=34bcde32)\n"
+                + "  0, parent=3, wA1_d3-1_cCy3.png (test-data/thumbnails.h5ar/wA1_d3-1_cCy3.png, 28916, f, checksumCRC32=a97cff4e)\n"
+                + "  0, parent=3, wA1_d3-1_cDAPI.png (test-data/thumbnails.h5ar/wA1_d3-1_cDAPI.png, 30079, f, checksumCRC32=6f0abf6f)\n"
+                + "  0, parent=3, wA1_d3-1_cGFP.png (test-data/thumbnails.h5ar/wA1_d3-1_cGFP.png, 28072, f, checksumCRC32=5ba6ae39)\n"
+                + "  0, parent=3, wA1_d3-2_cCy3.png (test-data/thumbnails.h5ar/wA1_d3-2_cCy3.png, 26367, f, checksumCRC32=f8d4cfc7)\n"
+                + "  0, parent=3, wA1_d3-2_cDAPI.png (test-data/thumbnails.h5ar/wA1_d3-2_cDAPI.png, 25086, f, checksumCRC32=aeb12b1a)\n"
+                + "  0, parent=3, wA1_d3-2_cGFP.png (test-data/thumbnails.h5ar/wA1_d3-2_cGFP.png, 22199, f, checksumCRC32=ced4332a)\n"
+                + "  0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 508567, f, checksumCRC32=9fb9b84a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
+    }
+    
+    @Test
     public void testAsMaintenanceTask()
     {
         final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
         ds1.setDataSetCode("ds1");
-        ds1.setDataSetLocation("abc1");
+        ds1.setDataSetLocation("2");
         ds1.setRegistrationTimestamp(new Date(78000));
         ds1.setStorageConfirmed(true);
-        final SimpleDataSetInformationDTO ds2 = new SimpleDataSetInformationDTO();
-        ds2.setDataSetCode("ds2");
-        ds2.setDataSetLocation("abc2");
-        ds2.setRegistrationTimestamp(new Date(79000));
-        ds2.setStorageConfirmed(true);
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-
                     one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    will(returnValue(Arrays.asList(ds1)));
+
                 }
             });
-        prepareHappyCase(ds1);
-        prepareFailing(ds2);
-        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
 
-        createTask(12, 3, 0).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 12, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=2)\n"
+                + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
@@ -146,22 +315,19 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     {
         final SimpleDataSetInformationDTO ds1NonConfirmed = new SimpleDataSetInformationDTO();
         ds1NonConfirmed.setDataSetCode("ds1");
-        ds1NonConfirmed.setDataSetLocation("abc1");
+        ds1NonConfirmed.setDataSetLocation("2");
         ds1NonConfirmed.setRegistrationTimestamp(new Date(78000));
         ds1NonConfirmed.setStorageConfirmed(false);
 
         final SimpleDataSetInformationDTO ds1Confirmed = new SimpleDataSetInformationDTO();
         ds1Confirmed.setDataSetCode("ds1");
-        ds1Confirmed.setDataSetLocation("abc1");
-        ds1Confirmed.setRegistrationTimestamp(new Date(78000));
+        ds1Confirmed.setDataSetLocation("2");
+        ds1Confirmed.setRegistrationTimestamp(new Date(79000));
         ds1Confirmed.setStorageConfirmed(true);
 
         context.checking(new Expectations()
             {
                 {
-                    allowing(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-
                     one(service).listOldestPhysicalDataSets(12);
                     will(returnValue(Arrays.asList(ds1NonConfirmed)));
 
@@ -171,10 +337,17 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 }
             });
 
-        prepareHappyCase(ds1Confirmed);
-        prepareCreateLastFeedingEvent(ds1Confirmed.getRegistrationTimestamp());
-
-        createTask(12, 3, 0).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 12, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=2)\n"
+                + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:01:19 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
@@ -190,40 +363,62 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-                    inSequence(chunkReadingSequence);
-
                     one(service).listOldestPhysicalDataSets(2);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                     inSequence(chunkReadingSequence);
 
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    Date timeStamp = new Date(2000);
-                    will(returnValue(timeStamp));
-                    inSequence(chunkReadingSequence);
-
-                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
                     will(returnValue(Arrays.asList(ds3, ds4)));
                     inSequence(chunkReadingSequence);
 
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    Date timeStamp2 = new Date(4000);
-                    will(returnValue(timeStamp2));
-                    inSequence(chunkReadingSequence);
-
-                    one(service).listOldestPhysicalDataSets(timeStamp2, 2);
+                    one(service).listOldestPhysicalDataSets(new Date(4000), 2);
                     will(returnValue(Arrays.asList(ds5, ds6)));
                     inSequence(chunkReadingSequence);
                 }
             });
-        prepareHappyCase(ds1, ds4, ds5);
-        prepareFailing(ds2, ds3, ds6);
-        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
-        prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
-        prepareCreateLastFeedingEvent(ds6.getRegistrationTimestamp());
 
-        createTask(2, 3, 0).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 2, 3, 0).execute();
+        
+        assertEquals("createDataSet(code=DS-1000, location=3)\n"
+                + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-2000, location=2)\n"
+                + "createDataSetFile(2, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  2, parent=3, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:02 CET 1970)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-3000, location=3)\n"
+                + "createDataSetFile(4, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  4, parent=5, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-4000, location=2)\n"
+                + "createDataSetFile(6, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  6, parent=7, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:04 CET 1970)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-5000, location=3)\n"
+                + "createDataSetFile(8, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  8, parent=9, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-6000, location=2)\n"
+                + "createDataSetFile(10, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  10, parent=11, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:06 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
@@ -237,68 +432,92 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-                    inSequence(chunkReadingSequence);
-
                     one(service).listOldestPhysicalDataSets(2);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                     inSequence(chunkReadingSequence);
 
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    Date timeStamp = new Date(2000);
-                    will(returnValue(timeStamp));
-                    inSequence(chunkReadingSequence);
-
-                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
                     will(returnValue(Arrays.asList(ds3, ds4)));
                     inSequence(chunkReadingSequence);
 
                 }
             });
-        prepareHappyCase(ds1, ds4);
-        prepareFailing(ds2, ds3);
-        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
-        prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
 
-        createTask(2, 0, 1500).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 2, 0, 1500).execute();
+        
+        assertEquals("createDataSet(code=DS-1000, location=3)\n"
+                + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-2000, location=2)\n"
+                + "createDataSetFile(2, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  2, parent=3, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:02 CET 1970)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-3000, location=3)\n"
+                + "createDataSetFile(4, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  4, parent=5, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=DS-4000, location=2)\n"
+                + "createDataSetFile(6, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  6, parent=7, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:04 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
     public void testAsMaintenanceTaskUnlimited()
     {
-        final SimpleDataSetInformationDTO ds1 = dataSet(1000);
-        final SimpleDataSetInformationDTO ds2 = dataSet(2000);
-        final SimpleDataSetInformationDTO ds3 = dataSet(3000);
+        final SimpleDataSetInformationDTO ds1 = dataSet("ds1", 1000, "3");
+        final SimpleDataSetInformationDTO ds2 = dataSet("ds2", 2000, "2");
+        final SimpleDataSetInformationDTO ds3 = dataSet("ds3", 3000, "3");
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-                    inSequence(chunkReadingSequence);
-
                     one(service).listOldestPhysicalDataSets(2);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                     inSequence(chunkReadingSequence);
 
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    Date timeStamp = new Date(2000);
-                    will(returnValue(timeStamp));
-                    inSequence(chunkReadingSequence);
-
-                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
                     will(returnValue(Arrays.asList(ds3)));
                     inSequence(chunkReadingSequence);
-
                 }
             });
-        prepareHappyCase(ds1, ds3);
-        prepareFailing(ds2);
-        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
-        prepareCreateLastFeedingEvent(ds3.getRegistrationTimestamp());
 
-        createTask(2, 0, 0).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 2, 0, 0).execute();
+
+        assertEquals("createDataSet(code=ds1, location=3)\n"
+                + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds2, location=2)\n"
+                + "createDataSetFile(2, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  2, parent=3, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:02 CET 1970)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds3, location=3)\n"
+                + "createDataSetFile(4, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  4, parent=5, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:03 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
@@ -312,10 +531,6 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-                    inSequence(chunkReadingSequence);
-
                     one(service).listOldestPhysicalDataSets(2);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                     inSequence(chunkReadingSequence);
@@ -324,25 +539,38 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                     inSequence(chunkReadingSequence);
 
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    Date timeStamp = new Date(1000);
-                    will(returnValue(timeStamp));
-                    inSequence(chunkReadingSequence);
-
-                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    one(service).listOldestPhysicalDataSets(new Date(1000), 2);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                     inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(timeStamp, 4);
+                    one(service).listOldestPhysicalDataSets(new Date(1000), 4);
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                     inSequence(chunkReadingSequence);
 
                 }
             });
-        prepareHappyCase(ds1, ds2, ds3);
-        prepareCreateLastFeedingEvent(ds3.getRegistrationTimestamp());
 
-        createTask(2, 0, 0).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 2, 0, 0).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=3)\n"
+                + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds2, location=3)\n"
+                + "createDataSetFile(2, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  2, parent=3, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds3, location=3)\n"
+                + "createDataSetFile(4, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  4, parent=5, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:01 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
@@ -357,10 +585,6 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    will(returnValue(null));
-                    inSequence(chunkReadingSequence);
-
                     one(service).listOldestPhysicalDataSets(2);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                     inSequence(chunkReadingSequence);
@@ -369,28 +593,46 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
                     inSequence(chunkReadingSequence);
 
-                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
-                    Date timeStamp = new Date(2000);
-                    will(returnValue(timeStamp));
-                    inSequence(chunkReadingSequence);
-
-                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
                     will(returnValue(Arrays.asList()));
                     inSequence(chunkReadingSequence);
 
                 }
             });
-        prepareHappyCase(ds1, ds2, ds3, ds4);
-        prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
 
-        createTask(2, 0, 0).execute();
+        MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
+        createTask(pathsInfoDAO, 2, 0, 0).execute();
+
+        assertEquals("createDataSet(code=ds1, location=3)\n"
+                + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds2, location=3)\n"
+                + "createDataSetFile(2, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  2, parent=3, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds3, location=3)\n"
+                + "createDataSetFile(4, parent=null, 3 (, 16, d))\n"
+                + "createDataSetFiles:\n"
+                + "  4, parent=5, readme.txt (readme.txt, 16, f, checksumCRC32=379d0103)\n"
+                + "commit()\n"
+                + "createDataSet(code=ds4, location=2)\n"
+                + "createDataSetFile(6, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  6, parent=7, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n"
+                + "deleteLastFeedingEvent()\n"
+                + "createLastFeedingEvent(Thu Jan 01 01:00:02 CET 1970)\n"
+                + "commit()\n", pathsInfoDAO.getLog());
     }
 
     @Test
     public void testPostRegistrationHappyCase()
     {
         final PhysicalDataSet dataSet =
-                new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+                new DataSetBuilder().code(DATA_SET_CODE).location("2").getDataSet();
         context.checking(new Expectations()
             {
                 {
@@ -399,16 +641,21 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                 }
             });
-        prepareHappyCase(dataSet);
 
         task.createExecutor(DATA_SET_CODE, false).execute();
+        
+        assertEquals("createDataSet(code=ds1, location=2)\n"
+                + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "  0, parent=1, hi.txt (hi.txt, 3, f, checksumCRC32=ed6f7a7a)\n"
+                + "commit()\n", mockPathsInfoDAO.getLog());
     }
 
     @Test
     public void testPostRegistrationFailingCase()
     {
         final PhysicalDataSet dataSet =
-                new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+                new DataSetBuilder().code(DATA_SET_CODE).location("2").getDataSet();
         context.checking(new Expectations()
             {
                 {
@@ -416,9 +663,15 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     will(returnValue(dataSet));
                 }
             });
-        prepareFailing(dataSet);
 
+        mockPathsInfoDAO.addException(1L, new RuntimeException("Oops!"));
         task.createExecutor(DATA_SET_CODE, false).execute();
+
+        assertEquals("createDataSet(code=ds1, location=2)\n"
+                + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
+                + "createDataSetFiles:\n"
+                + "ERROR:java.lang.RuntimeException: Oops!\n"
+                + "rollback()\n", mockPathsInfoDAO.getLog());
     }
 
     @Test
@@ -431,21 +684,16 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     PhysicalDataSet dataSet =
                             new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
                     will(returnValue(dataSet));
-
-                    one(shareIdManager).lock(DATA_SET_CODE);
-
-                    one(directoryProvider).getDataSetDirectory(dataSet);
-                    will(returnValue(new File(workingDirectory, "blabla")));
-
-                    exactly(2).of(shareIdManager).releaseLocks();
                 }
             });
 
         task.createExecutor(DATA_SET_CODE, false).execute();
+        
+        assertEquals("", mockPathsInfoDAO.getLog());
     }
 
     @Test
-    public void testAlreadyExistingDataSetInDatabaser()
+    public void testAlreadyExistingDataSetInDatabase()
     {
         context.checking(new Expectations()
             {
@@ -455,113 +703,13 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                             new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
                     will(returnValue(dataSet));
 
-                    one(shareIdManager).lock(DATA_SET_CODE);
-
-                    one(directoryProvider).getDataSetDirectory(dataSet);
-                    will(returnValue(dataSetFolder));
-
-                    one(dao).tryGetDataSetId(dataSet.getDataSetCode());
-                    will(returnValue(42L));
-
-                    one(shareIdManager).releaseLocks();
                 }
             });
 
+        mockPathsInfoDAO.setDataSetId(42);
         task.createExecutor(DATA_SET_CODE, false).execute();
-    }
-
-    private void prepareHappyCase(final IDatasetLocation... dataSets)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    for (IDatasetLocation dataSet : dataSets)
-                    {
-                        one(shareIdManager).lock(dataSet.getDataSetCode());
-
-                        one(directoryProvider).getDataSetDirectory(dataSet);
-                        will(returnValue(dataSetFolder));
-
-                        one(dao).tryGetDataSetId(dataSet.getDataSetCode());
-                        will(returnValue(null));
-
-                        one(dao).createDataSet(dataSet.getDataSetCode(),
-                                dataSet.getDataSetLocation());
-                        will(returnValue(101L));
-
-                        one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
-                        will(returnValue(content));
-
-                        one(contentFactory).asHierarchicalContentNode(content, dataSetFolder);
-                        will(returnValue(node));
-
-                        one(node).exists();
-                        will(returnValue(true));
-
-                        one(node).getName();
-                        will(returnValue("ds1-root"));
-
-                        one(node).getFileLength();
-                        will(returnValue(12345L));
-
-                        one(node).getChecksumCRC32();
-                        will(returnValue(789));
-
-                        one(node).isDirectory();
-                        will(returnValue(false));
-
-                        one(node).getLastModified();
-                        will(returnValue(42L));
-
-                        one(dao).createDataSetFiles(
-                                with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
-                                        "", "ds1-root", 12345L, 789, null, false, new Date(42))))));
-
-                        one(dao).commit();
-                        one(shareIdManager).releaseLocks();
-                    }
-                }
-            });
-    }
-
-    private void prepareFailing(final IDatasetLocation... dataSets)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    for (IDatasetLocation dataSet : dataSets)
-                    {
-                        one(shareIdManager).lock(dataSet.getDataSetCode());
-
-                        one(directoryProvider).getDataSetDirectory(dataSet);
-                        will(returnValue(dataSetFolder));
-
-                        one(dao).tryGetDataSetId(dataSet.getDataSetCode());
-                        will(returnValue(null));
-
-                        one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
-                        will(returnValue(101L));
-
-                        one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
-                        will(throwException(new RuntimeException("Oophs!")));
-
-                        one(dao).rollback();
-                        one(shareIdManager).releaseLocks();
-                    }
-                }
-            });
-    }
-
-    private void prepareCreateLastFeedingEvent(final Date timestamp)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(dao).deleteLastFeedingEvent();
-                    one(dao).createLastFeedingEvent(timestamp);
-                    one(dao).commit();
-                }
-            });
+        
+        assertEquals("", mockPathsInfoDAO.getLog());
     }
 
     private SimpleDataSetInformationDTO dataSet(long timeStamp)
@@ -571,19 +719,30 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
     private SimpleDataSetInformationDTO dataSet(String dataSetCode, long timeStamp)
     {
+        return dataSet(dataSetCode, timeStamp, (timeStamp / 1000) % 2 == 0 ? "2" : "3");
+    }
+
+    private SimpleDataSetInformationDTO dataSet(String dataSetCode, long timeStamp, String location)
+    {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
         dataSet.setDataSetCode(dataSetCode);
         dataSet.setRegistrationTimestamp(new Date(timeStamp));
-        dataSet.setDataSetLocation("abc " + dataSetCode);
+        dataSet.setDataSetLocation(location);
         dataSet.setStorageConfirmed(true);
         return dataSet;
     }
 
-    private PathInfoDatabaseFeedingTask createTask(int chunkSize, int maxNumberOfChunks,
-            long timeLimite)
+    private PathInfoDatabaseFeedingTask createTask(IPathsInfoDAO pathsInfoDAO, 
+            int chunkSize, int maxNumberOfChunks, long timeLimite)
     {
-        return new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory,
-                new MockTimeProvider(0, 1000), true, null, chunkSize, maxNumberOfChunks, timeLimite);
+        return createTask(pathsInfoDAO, null, chunkSize, maxNumberOfChunks, timeLimite);
+    }
+
+    private PathInfoDatabaseFeedingTask createTask(IPathsInfoDAO pathsInfoDAO, String checksumType, 
+            int chunkSize, int maxNumberOfChunks, long timeLimite)
+    {
+        return new PathInfoDatabaseFeedingTask(service, directoryProvider, pathsInfoDAO, 
+                new MockTimeProvider(0, 1000), true, checksumType, chunkSize, maxNumberOfChunks, timeLimite);
     }
 
 }

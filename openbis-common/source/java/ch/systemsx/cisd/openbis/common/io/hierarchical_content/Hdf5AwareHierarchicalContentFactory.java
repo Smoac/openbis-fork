@@ -59,7 +59,7 @@ public class Hdf5AwareHierarchicalContentFactory implements IHierarchicalContent
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file)
     {
-        if (FileUtilities.isHDF5ContainerFile(file) && handleHdf5AsFolder(file.getName(), h5Folders, h5arFolders))
+        if (FileUtilities.isHDF5ContainerFile(file) && handleHdf5AsFolder(file.getName()))
         {
             try
             {
@@ -76,7 +76,7 @@ public class Hdf5AwareHierarchicalContentFactory implements IHierarchicalContent
         return new DefaultFileBasedHierarchicalContentNode(this, rootContent, file);
     }
 
-    private boolean handleHdf5AsFolder(String name, boolean h5Folders, boolean h5arFolders)
+    private boolean handleHdf5AsFolder(String name)
     {
         return (name.toLowerCase().endsWith("h5") && h5Folders) || (name.toLowerCase().endsWith("h5ar") && h5arFolders);
     }

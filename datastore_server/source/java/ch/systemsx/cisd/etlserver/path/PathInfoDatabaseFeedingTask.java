@@ -37,8 +37,6 @@ import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
 import ch.systemsx.cisd.etlserver.postregistration.NoCleanupTask;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -87,11 +85,6 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
         return ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
     }
 
-    private static IHierarchicalContentFactory createContentFactory()
-    {
-        return new DefaultFileBasedHierarchicalContentFactory();
-    }
-
     private IEncapsulatedOpenBISService service;
 
     private ITimeProvider timeProvider;
@@ -108,16 +101,14 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
 
     public PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
-        this(service, getDirectoryProvider(), createDAO(), createContentFactory(),
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER, getComputeChecksumFlag(properties), 
-                getAndCheckChecksumType(properties), 0, 0, 0);
+        this(service, getDirectoryProvider(), createDAO(), SystemTimeProvider.SYSTEM_TIME_PROVIDER, 
+                getComputeChecksumFlag(properties), getAndCheckChecksumType(properties), 0, 0, 0);
     }
 
     @Private
     PathInfoDatabaseFeedingTask(IEncapsulatedOpenBISService service,
             IDataSetDirectoryProvider directoryProvider, IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory, ITimeProvider timeProvider, 
-            boolean computeChecksum, String checksumType,
+            ITimeProvider timeProvider, boolean computeChecksum, String checksumType,
             int chunkSize, int maxNumberOfChunks, long timeLimit)
     {
         this.service = service;
