@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -30,6 +31,7 @@ import java.util.zip.CRC32;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
@@ -51,6 +53,7 @@ final class PathInfo
         pathInfo.fileName = node.getName();
         pathInfo.lastModifiedDate = new Date(node.getLastModified());
         pathInfo.directory = node.isDirectory();
+        pathInfo.file = node.tryGetFile();
         if (pathInfo.directory)
         {
             pathInfo.children = createPathInfos(node, computeChecksum, checksumType);
@@ -81,14 +84,29 @@ final class PathInfo
             pathInfo.checksumCRC32 = node.getChecksumCRC32();
             return;
         } 
-        MessageDigest messageDigest = getMessageDigest(checksumType);
-        CRC32 crc = new CRC32();
-        feedChecksumCalculators(node, messageDigest, crc);
-        pathInfo.checksumCRC32 = (int) crc.getValue();
-        pathInfo.checksum = renderChecksum(checksumType, messageDigest);
+        setChecksum(pathInfo, node.getInputStream(), computeChecksum, checksumType);
+    }
+    
+    static void setChecksum(PathInfo pathInfo, InputStream inputStream, boolean computeChecksum, String checksumType)
+    {
+        if (computeChecksum)
+        {
+            if (checksumType == null)
+            {
+                pathInfo.checksumCRC32 = IOUtilities.getChecksumCRC32(inputStream);
+            } else
+            {
+                MessageDigest messageDigest = PathInfo.getMessageDigest(checksumType);
+                CRC32 crc = new CRC32();
+                PathInfo.feedChecksumCalculators(inputStream, messageDigest, crc);
+                pathInfo.checksumCRC32 = (int) crc.getValue();
+                pathInfo.checksum = renderChecksum(checksumType, messageDigest);
+            }
+        }
+
     }
 
-    static String renderChecksum(String checksumType, MessageDigest messageDigest)
+    private static String renderChecksum(String checksumType, MessageDigest messageDigest)
     {
         StringBuilder builder = new StringBuilder(checksumType).append(':');
         for (byte b : messageDigest.digest())
@@ -99,12 +117,10 @@ final class PathInfo
         return builder.toString();
     }
 
-    static void feedChecksumCalculators(IHierarchicalContentNode node, MessageDigest messageDigest, CRC32 crc)
+    private static void feedChecksumCalculators(InputStream inputStream, MessageDigest messageDigest, CRC32 crc)
     {
-        InputStream inputStream = null;
         try
         {
-            inputStream = node.getInputStream();
             byte[] buffer = new byte[4096];
             int n = 0;
             while ((n = inputStream.read(buffer)) > 0) 
@@ -155,6 +171,8 @@ final class PathInfo
             });
         return childInfos;
     }
+    
+    private File file;
 
     private String fileName;
 
@@ -171,6 +189,11 @@ final class PathInfo
     private List<PathInfo> children;
 
     private Date lastModifiedDate;
+
+    public File getFile()
+    {
+        return file;
+    }
 
     public String getFileName()
     {

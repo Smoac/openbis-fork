@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,20 +104,10 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
                     for (PathEntryDTO pathEntry : pathEntries)
                     {
                         IHierarchicalContentNode node = content.getNode(pathEntry.getRelativePath());
-                        String checksum = null;
-                        int checksumCRC32;
-                        if (checksumType == null)
-                        {
-                            checksumCRC32 = IOUtilities.getChecksumCRC32(node.getInputStream());
-                        } else
-                        {
-                            MessageDigest messageDigest = PathInfo.getMessageDigest(checksumType);
-                            CRC32 crc = new CRC32();
-                            PathInfo.feedChecksumCalculators(node, messageDigest, crc);
-                            checksumCRC32 = (int) crc.getValue();
-                            checksum = PathInfo.renderChecksum(checksumType, messageDigest);
-                        }
-                        dao.updateChecksum(pathEntry.getId(), checksumCRC32, checksum);
+                        InputStream inputStream = node.getInputStream();
+                        PathInfo pathInfo = new PathInfo();
+                        PathInfo.setChecksum(pathInfo, inputStream, true, checksumType);
+                        dao.updateChecksum(pathEntry.getId(), pathInfo.getChecksumCRC32(), pathInfo.getChecksum());
                         fileCounter++;
                     }
                     dao.commit();

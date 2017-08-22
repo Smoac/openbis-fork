@@ -17,10 +17,14 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -74,9 +78,21 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         String relativePath = (parentId == null) ? "" : pathPrefix + fileName;
         if (directory)
         {
+            File file = pathInfo.getFile();
+            if (file != null && FileUtilities.isHDF5ContainerFile(file))
+            {
+                try
+                {
+                    PathInfo.setChecksum(pathInfo, new FileInputStream(file), computeChecksum, checksumType);
+                } catch (FileNotFoundException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
             final long directoryId =
                     dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
-                            pathInfo.getSizeInBytes(), directory, null, null, pathInfo.getLastModifiedDate());
+                            pathInfo.getSizeInBytes(), directory, pathInfo.getChecksumCRC32(), 
+                            pathInfo.getChecksum(), pathInfo.getLastModifiedDate());
             if (relativePath.length() > 0)
             {
                 relativePath += '/';

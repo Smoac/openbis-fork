@@ -175,7 +175,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testH5FolderEnabled()
+    public void testH5FolderEnabledWithSHA1()
     {
         final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
         ds1.setDataSetCode("ds1");
@@ -193,40 +193,40 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
-        createTask(pathsInfoDAO, 12, 3, 0).execute();
+        createTask(pathsInfoDAO, "SHA1", 12, 3, 0).execute();
         
         assertEquals("createDataSet(code=ds1, location=1)\n"
                 + "createDataSetFile(0, parent=null, 1 (, 1007978, d))\n"
                 + "createDataSetFile(0, parent=1, test-data (test-data, 1007968, d))\n"
-                + "createDataSetFile(0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 490761, d))\n"  
+                + "createDataSetFile(0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 490761, d, checksumCRC32=9fb9b84a, checksum=SHA1:cfb5c11ae566a094c3d950ac0fd89057e3eecf56))\n"  
                 + "createDataSetFiles:\n"
-                + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d)\n"
-                + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef)\n"
-                + "  0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 508567, f, checksumCRC32=9fb9b84a)\n"
-                + "  0, parent=3, wA1_d1-1_cCy3.png (test-data/thumbnails2.h5/wA1_d1-1_cCy3.png, 24242, f, checksumCRC32=3361fd20)\n"
-                + "  0, parent=3, wA1_d1-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d1-1_cDAPI.png, 29353, f, checksumCRC32=609f3183)\n"
-                + "  0, parent=3, wA1_d1-1_cGFP.png (test-data/thumbnails2.h5/wA1_d1-1_cGFP.png, 27211, f, checksumCRC32=b68f97cf)\n"
-                + "  0, parent=3, wA1_d1-2_cCy3.png (test-data/thumbnails2.h5/wA1_d1-2_cCy3.png, 28279, f, checksumCRC32=e2c7c34f)\n"
-                + "  0, parent=3, wA1_d1-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d1-2_cDAPI.png, 22246, f, checksumCRC32=1bf73b61)\n"
-                + "  0, parent=3, wA1_d1-2_cGFP.png (test-data/thumbnails2.h5/wA1_d1-2_cGFP.png, 22227, f, checksumCRC32=58e14da9)\n"
-                + "  0, parent=3, wA1_d2-1_cCy3.png (test-data/thumbnails2.h5/wA1_d2-1_cCy3.png, 31570, f, checksumCRC32=b312b087)\n"
-                + "  0, parent=3, wA1_d2-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d2-1_cDAPI.png, 28267, f, checksumCRC32=e7082b23)\n"
-                + "  0, parent=3, wA1_d2-1_cGFP.png (test-data/thumbnails2.h5/wA1_d2-1_cGFP.png, 26972, f, checksumCRC32=fb7f320e)\n"
-                + "  0, parent=3, wA1_d2-2_cCy3.png (test-data/thumbnails2.h5/wA1_d2-2_cCy3.png, 34420, f, checksumCRC32=d367dd9d)\n"
-                + "  0, parent=3, wA1_d2-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d2-2_cDAPI.png, 28070, f, checksumCRC32=15e1f3b0)\n"
-                + "  0, parent=3, wA1_d2-2_cGFP.png (test-data/thumbnails2.h5/wA1_d2-2_cGFP.png, 27185, f, checksumCRC32=34bcde32)\n"
-                + "  0, parent=3, wA1_d3-1_cCy3.png (test-data/thumbnails2.h5/wA1_d3-1_cCy3.png, 28916, f, checksumCRC32=a97cff4e)\n"
-                + "  0, parent=3, wA1_d3-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d3-1_cDAPI.png, 30079, f, checksumCRC32=6f0abf6f)\n"
-                + "  0, parent=3, wA1_d3-1_cGFP.png (test-data/thumbnails2.h5/wA1_d3-1_cGFP.png, 28072, f, checksumCRC32=5ba6ae39)\n"
-                + "  0, parent=3, wA1_d3-2_cCy3.png (test-data/thumbnails2.h5/wA1_d3-2_cCy3.png, 26367, f, checksumCRC32=f8d4cfc7)\n"
-                + "  0, parent=3, wA1_d3-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d3-2_cDAPI.png, 25086, f, checksumCRC32=aeb12b1a)\n"
-                + "  0, parent=3, wA1_d3-2_cGFP.png (test-data/thumbnails2.h5/wA1_d3-2_cGFP.png, 22199, f, checksumCRC32=ced4332a)\n"
+                + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d, checksum=SHA1:a5105d3fcba551031e7abdb25f9bbdb2ad3a9ffa)\n"
+                + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef, checksum=SHA1:8f463b0c828b993efd441f602a0907d1bccb0234)\n"
+                + "  0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 508567, f, checksumCRC32=9fb9b84a, checksum=SHA1:cfb5c11ae566a094c3d950ac0fd89057e3eecf56)\n"
+                + "  0, parent=3, wA1_d1-1_cCy3.png (test-data/thumbnails2.h5/wA1_d1-1_cCy3.png, 24242, f, checksumCRC32=3361fd20, checksum=SHA1:fc6eb645dc3a2934442358b4198042b1e2c8a3d4)\n"
+                + "  0, parent=3, wA1_d1-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d1-1_cDAPI.png, 29353, f, checksumCRC32=609f3183, checksum=SHA1:0707a40ffc2620ef0dc132fce642068e0fa8db9f)\n"
+                + "  0, parent=3, wA1_d1-1_cGFP.png (test-data/thumbnails2.h5/wA1_d1-1_cGFP.png, 27211, f, checksumCRC32=b68f97cf, checksum=SHA1:1b63ea85ec0b020605dfdb9e52c66b81da628598)\n"
+                + "  0, parent=3, wA1_d1-2_cCy3.png (test-data/thumbnails2.h5/wA1_d1-2_cCy3.png, 28279, f, checksumCRC32=e2c7c34f, checksum=SHA1:b9618a2404e2f80e72334c26dabed1b54d57797e)\n"
+                + "  0, parent=3, wA1_d1-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d1-2_cDAPI.png, 22246, f, checksumCRC32=1bf73b61, checksum=SHA1:dcd254b6a549e4a435a15e6d5e6b132882bb74f9)\n"
+                + "  0, parent=3, wA1_d1-2_cGFP.png (test-data/thumbnails2.h5/wA1_d1-2_cGFP.png, 22227, f, checksumCRC32=58e14da9, checksum=SHA1:68ac59f992acbd413952063ea2a43ec3362f78df)\n"
+                + "  0, parent=3, wA1_d2-1_cCy3.png (test-data/thumbnails2.h5/wA1_d2-1_cCy3.png, 31570, f, checksumCRC32=b312b087, checksum=SHA1:f3d3f624cb4e931e712f1a429dbb8e58782429e3)\n"
+                + "  0, parent=3, wA1_d2-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d2-1_cDAPI.png, 28267, f, checksumCRC32=e7082b23, checksum=SHA1:8e2bbc9ca305cdb8c5e22deb57d4aed95d17ede7)\n"
+                + "  0, parent=3, wA1_d2-1_cGFP.png (test-data/thumbnails2.h5/wA1_d2-1_cGFP.png, 26972, f, checksumCRC32=fb7f320e, checksum=SHA1:f07f5c3886bc13bfc4a57376143aa48ce5896289)\n"
+                + "  0, parent=3, wA1_d2-2_cCy3.png (test-data/thumbnails2.h5/wA1_d2-2_cCy3.png, 34420, f, checksumCRC32=d367dd9d, checksum=SHA1:9882f8963d344337ccab9e0dd961c723def7ab6f)\n"
+                + "  0, parent=3, wA1_d2-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d2-2_cDAPI.png, 28070, f, checksumCRC32=15e1f3b0, checksum=SHA1:05c8a28ddcb89738649440783696ea99343e08a4)\n"
+                + "  0, parent=3, wA1_d2-2_cGFP.png (test-data/thumbnails2.h5/wA1_d2-2_cGFP.png, 27185, f, checksumCRC32=34bcde32, checksum=SHA1:91653d6e94a15414951c1b4d5de6753d97832b14)\n"
+                + "  0, parent=3, wA1_d3-1_cCy3.png (test-data/thumbnails2.h5/wA1_d3-1_cCy3.png, 28916, f, checksumCRC32=a97cff4e, checksum=SHA1:b704d9d19ea811715185622db88496513ca0215f)\n"
+                + "  0, parent=3, wA1_d3-1_cDAPI.png (test-data/thumbnails2.h5/wA1_d3-1_cDAPI.png, 30079, f, checksumCRC32=6f0abf6f, checksum=SHA1:8200d0ade2f8062031ce9805a37da5623995932b)\n"
+                + "  0, parent=3, wA1_d3-1_cGFP.png (test-data/thumbnails2.h5/wA1_d3-1_cGFP.png, 28072, f, checksumCRC32=5ba6ae39, checksum=SHA1:7892abc5001e61e2e2133be11b7fd79a611c558d)\n"
+                + "  0, parent=3, wA1_d3-2_cCy3.png (test-data/thumbnails2.h5/wA1_d3-2_cCy3.png, 26367, f, checksumCRC32=f8d4cfc7, checksum=SHA1:448f695916bd8275fd35082b6bd84997b420d190)\n"
+                + "  0, parent=3, wA1_d3-2_cDAPI.png (test-data/thumbnails2.h5/wA1_d3-2_cDAPI.png, 25086, f, checksumCRC32=aeb12b1a, checksum=SHA1:07faef2f0d836b848b60d1459f73cac0ec08a555)\n"
+                + "  0, parent=3, wA1_d3-2_cGFP.png (test-data/thumbnails2.h5/wA1_d3-2_cGFP.png, 22199, f, checksumCRC32=ced4332a, checksum=SHA1:e16f03d67e86d952cfec4a9a39065e7ec78beb99)\n"
                 + "commit()\n"
                 + "deleteLastFeedingEvent()\n"
                 + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
                 + "commit()\n", pathsInfoDAO.getLog());
     }
-    
+
     @Test
     public void testH5arFolderEnabled()
     {
@@ -251,7 +251,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         assertEquals("createDataSet(code=ds1, location=1)\n"
                 + "createDataSetFile(0, parent=null, 1 (, 1007978, d))\n"
                 + "createDataSetFile(0, parent=1, test-data (test-data, 1007968, d))\n"
-                + "createDataSetFile(0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 490761, d))\n"  
+                + "createDataSetFile(0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 490761, d, checksumCRC32=9fb9b84a))\n"  
                 + "createDataSetFiles:\n"
                 + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d)\n"
                 + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef)\n"
