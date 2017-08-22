@@ -378,12 +378,11 @@ function ServerFacade(openbisServer) {
 					} else{
 						var codes = [];
 						for(var idx=0; idx<results.length; idx++){
-							numeric_code = results[idx].code.substring(prefix.length);							
-							numeric_code = numeric_code.replace("_","");
+							numeric_code = results[idx].code.substring(prefix.length);
 							numeric_code = parseInt(numeric_code);
-							if(isNaN(numeric_code))
-								numeric_code = 1;
-							codes[idx] = numeric_code; 
+							if(!isNaN(numeric_code)) {
+								codes.push(numeric_code); 
+							}
 						}
 						codes = codes.sort(function (a, b) { 
 						    return a - b;
