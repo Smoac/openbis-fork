@@ -10,10 +10,12 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.KeyboardEvents;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Dialo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -291,9 +294,55 @@ public class DetailedSearchWindow extends Dialog
 
     private void onSearch()
     {
+        final List<PropertyType> availablePropertyTypes = criteriaWidget.getAvailablePropertyTypes();
+        final DetailedSearchCriteria criteria = tryGetCriteria();
+        boolean tooGeneric = isSearchTooGeneric(criteria);
+        if (tooGeneric)
+        {
+            MessageBox.confirm("Warning", "This search query uses '*' "
+                    + "which might lead to too many search results."
+                    + "This can take quite a while before the first search results appear.<br><br>"
+                    + "Do you want to submit the query anyway?", new Listener<MessageBoxEvent>()
+                {
+                    @Override
+                    public void handleEvent(MessageBoxEvent messageEvent)
+                    {
+                        if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
+                        {
+                            updateSearch(criteria, availablePropertyTypes);
+                        }
+                    }
+                }).getDialog().setResizable(true);
+        } else
+        {
+            updateSearch(criteria, availablePropertyTypes);
+        }
+    }
+    
+    private boolean isSearchTooGeneric(DetailedSearchCriteria criteria)
+    {
+        for (DetailedSearchCriterion criterion : criteria.getCriteria())
+        {
+            String value = criterion.getValue();
+            if ("*".equals(value))
+            {
+                return true;
+            }
+        }
+        List<DetailedSearchSubCriteria> subCriterias = criteria.getSubCriterias();
+        for (DetailedSearchSubCriteria subCriteria : subCriterias)
+        {
+            if (isSearchTooGeneric(subCriteria.getCriteria()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateSearch(DetailedSearchCriteria criteria, List<PropertyType> availablePropertyTypes)
+    {
         hide();
-        List<PropertyType> availablePropertyTypes = criteriaWidget.getAvailablePropertyTypes();
-        DetailedSearchCriteria criteria = tryGetCriteria();
         String criteriaDescription = getCriteriaDescription();
         updateListener.updateSearchResults(criteria, criteriaDescription, availablePropertyTypes);
     }
