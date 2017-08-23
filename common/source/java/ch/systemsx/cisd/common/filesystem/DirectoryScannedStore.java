@@ -113,7 +113,7 @@ public final class DirectoryScannedStore implements IScannedStore
                                 + "filter '%s' threw exception %s (message: \"%s\") on item '%s'",
                         StringUtils.defaultIfEmpty(filter.getClass().getSimpleName(), "UNKNOWN"),
                         ex.getClass().getSimpleName(), StringUtils.defaultIfEmpty(ex.getMessage(),
-                                "-"), currentItem));
+                                "-"), currentItem), ex);
             }
             return null;
         }

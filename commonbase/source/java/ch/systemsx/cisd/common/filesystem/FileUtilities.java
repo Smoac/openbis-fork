@@ -1104,7 +1104,12 @@ public final class FileUtilities
             {
                 return;
             }
-            for (final File entry : getEntries(path))
+            File[] entries = getEntries(path);
+            if (entries == null)
+            {
+                return;
+            }
+            for (final File entry : entries)
             {
                 updateLastChanged(entry);
                 if (terminated)
