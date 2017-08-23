@@ -108,12 +108,14 @@ public final class DirectoryScannedStore implements IScannedStore
         {
             if (loggerOrNull != null)
             {
-                loggerOrNull.log(LogLevel.ERROR, String.format(
+                String message = String.format(
                         "Failed to filter store items for processing: "
                                 + "filter '%s' threw exception %s (message: \"%s\") on item '%s'",
                         StringUtils.defaultIfEmpty(filter.getClass().getSimpleName(), "UNKNOWN"),
                         ex.getClass().getSimpleName(), StringUtils.defaultIfEmpty(ex.getMessage(),
-                                "-"), currentItem), ex);
+                                "-"), currentItem);
+                loggerOrNull.log(LogLevel.ERROR, message); // this will send a notification
+                loggerOrNull.log(LogLevel.ERROR, message, ex); // this will log stack trace
             }
             return null;
         }
