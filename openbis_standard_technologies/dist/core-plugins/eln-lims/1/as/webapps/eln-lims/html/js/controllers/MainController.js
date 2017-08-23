@@ -281,6 +281,16 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+				case "showJupyterWorkspace":
+					document.title = "Jupyter Workspace";
+					var views = this._getNewViewModel(false, true, false);
+					var userId = this.serverFacade.getUserId();
+					var url = profile.jupyterEndpoint + "/user/" + userId + "/";
+					views.content.append("Opening new tab/window with your Jupyter Workspace, please allow pop ups: " + url);
+					var win = window.open(url, '_blank');
+					win.focus(); 
+					this.currentView = null;
+					break;
 				case "showUserProfilePage":
 					document.title = "User Profile";
 					this._showUserProfilePage(FormMode.VIEW);
