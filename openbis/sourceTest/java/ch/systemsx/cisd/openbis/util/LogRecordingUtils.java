@@ -51,6 +51,7 @@ public class LogRecordingUtils
     {
         logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
         logRecorder.addRegexForLoggingEventsToBeDropped("MACHINE.MonitoringPoolingDataSource.*");
+        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.DynamicPropertyEvaluationRunnable.*");
         return logRecorder;
     }
 }
