@@ -91,6 +91,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+			
+			//Jupyter Button
+			if(profile.jupyterIntegrationServerEndpoint) {
+				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
+					JupyterUtil.createJupyterNotebookAndOpen([_this._dataSetFormModel.dataSet.code]);
+				});
+				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
+			}
 		} else if(!this._dataSetFormModel.isMini) {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._dataSetFormController.submitDataSet();

@@ -40,7 +40,6 @@ $.extend(DefaultProfile.prototype, {
 				showLabNotebook : true,
 				showInventory : true,
 				showStock : true,
-				showOrders : true,
 //				showDrawingBoard : false,
 				showObjectBrowser : true,
 				showExports : true,
@@ -116,6 +115,13 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
+
+//		Jupyter integration config
+//		this.jupyterOpenbisEndpoint = "http://10.0.2.2:8888/";
+// 		Fix server to support CORS https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
+//		https://127.0.0.1:8123?token=admin-170815142923676x523BF649D42CE3BDB8B52F7275874C89&folder=myFolder&filename=myFile.ipynb
+//		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8123";
+//		this.jupyterEndpoint = "http://127.0.0.1:8000/";
 		
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
@@ -288,11 +294,6 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
-		this.dataSetViewerConf = {
-			"DATA_SET_TYPES" : [".*"],
-			"FILE_NAMES" : [".*"]
-		}
-		
 		this.getColorForInspectors = function(sampleTypeCode) {
 			//Default Color
 			var defaultColor = "#ffffc0"
@@ -321,13 +322,6 @@ $.extend(DefaultProfile.prototype, {
 		//False: Will do nothing to the file before attaching
 		this.isZipDirectoryUpload = function(dataSetType) {
 			return null;
-		}
-		
-		/*
-		 * Used by Main Menu
-		 */
-		this.mainMenuContentExtra = function() {
-			return "";
 		}
 
 		/*

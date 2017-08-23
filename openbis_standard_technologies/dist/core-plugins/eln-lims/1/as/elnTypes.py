@@ -157,6 +157,8 @@ def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, voca
     property.setLabel(propertyLabel);
     property.setDescription(propertyDescription);
     if dataType == DataType.CONTROLLEDVOCABULARY:
+        if vocabularyCode not in vocabulariesCache:
+            vocabulariesCache[vocabularyCode] = tr.getOrCreateNewVocabulary(vocabularyCode);
         property.setVocabulary(vocabulariesCache[vocabularyCode]);
         
     propertyAssignment = tr.assignPropertyType(entity, property); #If the assignment already exists, returns the existing one
@@ -260,7 +262,7 @@ HOST = [ FIRST_TIME_VERSIONED, "HOST", "Host organism",
                                     ["DONKEY", "donkey", None]
                                 ]];
 
-STORAGE_VALIDATION_LEVEL = [ FIRST_TIME_VERSIONED, "STORAGE_VALIDATION_LEVEL", "Validation Level",
+STORAGE_VALIDATION_LEVEL = [ MANDATORY_ITEM_VERSION, "STORAGE_VALIDATION_LEVEL", "Validation Level",
                                         [
                                             ["RACK",            "Rack Validation",          None],
                                             ["BOX",             "Box  Validation",          None],
@@ -920,27 +922,27 @@ GENERAL_ELN_SETTINGS = [MANDATORY_ITEM_VERSION, False, "GENERAL_ELN_SETTINGS", "
 ## Types - Storage
 ##
 STORAGE_RACK = [MANDATORY_ITEM_VERSION, False, "STORAGE", "", [
-    [FIRST_TIME_VERSIONED, "NAME",                          "General",              "Name",                                     DataType.VARCHAR,                   None,                           "Name",                                     None, None],
-    [FIRST_TIME_VERSIONED, "ROW_NUM",                       "General",              "Number of Rows",                           DataType.INTEGER,                   None,                           "Number of Rows",                           None, None],
-    [FIRST_TIME_VERSIONED, "COLUMN_NUM",                    "General",              "Number of Columns",                        DataType.INTEGER,                   None,                           "Number of Columns",                        None, None],
-    [FIRST_TIME_VERSIONED, "BOX_NUM",                       "General",              "Allowed number of Boxes in a rack",        DataType.INTEGER,                   None,                           "Allowed number of Boxes in a rack",        None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_SPACE_WARNING",         "General",              "Rack Space Warning",                       DataType.INTEGER,                   None,                           "Number between 0 and 99, represents a percentage.",    None, None],
-    [FIRST_TIME_VERSIONED, "BOX_SPACE_WARNING",             "General",              "Box Space Warning",                        DataType.INTEGER,                   None,                           "Number between 0 and 99, represents a percentage.",       None, None],
-    [FIRST_TIME_VERSIONED, "STORAGE_VALIDATION_LEVEL",      "General",              "Validation level",                         DataType.CONTROLLEDVOCABULARY,      "STORAGE_VALIDATION_LEVEL",     "Validation level", None, None],
-    [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",             "Comments List",                            DataType.XML,                       None,                           "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
-    [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",             "Annotations State",                        DataType.XML,                       None,                           "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
+    [MANDATORY_ITEM_VERSION, "NAME",                          "General",              "Name",                                     DataType.VARCHAR,                   None,                           "Name",                                     None, None],
+    [MANDATORY_ITEM_VERSION, "ROW_NUM",                       "General",              "Number of Rows",                           DataType.INTEGER,                   None,                           "Number of Rows",                           None, None],
+    [MANDATORY_ITEM_VERSION, "COLUMN_NUM",                    "General",              "Number of Columns",                        DataType.INTEGER,                   None,                           "Number of Columns",                        None, None],
+    [MANDATORY_ITEM_VERSION, "BOX_NUM",                       "General",              "Allowed number of Boxes in a rack",        DataType.INTEGER,                   None,                           "Allowed number of Boxes in a rack",        None, None],
+    [MANDATORY_ITEM_VERSION, "STORAGE_SPACE_WARNING",         "General",              "Rack Space Warning",                       DataType.INTEGER,                   None,                           "Number between 0 and 99, represents a percentage.",    None, None],
+    [MANDATORY_ITEM_VERSION, "BOX_SPACE_WARNING",             "General",              "Box Space Warning",                        DataType.INTEGER,                   None,                           "Number between 0 and 99, represents a percentage.",       None, None],
+    [MANDATORY_ITEM_VERSION, "STORAGE_VALIDATION_LEVEL",      "General",              "Validation level",                         DataType.CONTROLLEDVOCABULARY,      "STORAGE_VALIDATION_LEVEL",     "Validation level", None, None],
+    [MANDATORY_ITEM_VERSION, "XMLCOMMENTS",                   "Comments",             "Comments List",                            DataType.XML,                       None,                           "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
+    [MANDATORY_ITEM_VERSION, "ANNOTATIONS_STATE",             "Comments",             "Annotations State",                        DataType.XML,                       None,                           "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
 ]];
 
 STORAGE_POSITION = [MANDATORY_ITEM_VERSION, False, "STORAGE_POSITION", "", [
-    [FIRST_TIME_VERSIONED, "STORAGE_CODE",                  "Physical Storage",        "Storage Code",              DataType.VARCHAR,                    None,                "Storage Code",            None, None, False, False],
-    [FIRST_TIME_VERSIONED, "STORAGE_RACK_ROW",              "Physical Storage",        "Storage Rack Row",          DataType.INTEGER,                    None,                "Storage Rack Row",        None, None, False, False],
-    [FIRST_TIME_VERSIONED, "STORAGE_RACK_COLUMN",           "Physical Storage",        "Storage Rack Column",       DataType.INTEGER,                    None,                "Storage Rack Column",     None, None, False, False],
-    [FIRST_TIME_VERSIONED, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",        None, None, False, False],
-    [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",        None, None, False, False],
-    [FIRST_TIME_VERSIONED, "STORAGE_BOX_POSITION",          "Physical Storage",        "Storage Box Position",      DataType.VARCHAR,                    None,                "Storage Box Position",    None, None, False, False],
-    [FIRST_TIME_VERSIONED, "STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",         None, None, False, False],
-    [FIRST_TIME_VERSIONED, "XMLCOMMENTS",                   "Comments",                "Comments List",             DataType.XML,                        None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
-    [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",             "Comments",                "Annotations State",         DataType.XML,                        None,                "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
+    [MANDATORY_ITEM_VERSION, "STORAGE_CODE",                  "Physical Storage",        "Storage Code",              DataType.VARCHAR,                    None,                "Storage Code",            None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "STORAGE_RACK_ROW",              "Physical Storage",        "Storage Rack Row",          DataType.INTEGER,                    None,                "Storage Rack Row",        None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "STORAGE_RACK_COLUMN",           "Physical Storage",        "Storage Rack Column",       DataType.INTEGER,                    None,                "Storage Rack Column",     None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "STORAGE_BOX_NAME",              "Physical Storage",        "Storage Box Name",          DataType.VARCHAR,                    None,                "Storage Box Name",        None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "STORAGE_BOX_SIZE",              "Physical Storage",        "Storage Box Size",          DataType.CONTROLLEDVOCABULARY,       "STORAGE_BOX_SIZE",  "Storage Box Size",        None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "STORAGE_BOX_POSITION",          "Physical Storage",        "Storage Box Position",      DataType.VARCHAR,                    None,                "Storage Box Position",    None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "STORAGE_USER",                  "Physical Storage",        "Storage User Id",           DataType.VARCHAR,                    None,                "Storage User Id",         None, None, False, False],
+    [MANDATORY_ITEM_VERSION, "XMLCOMMENTS",                   "Comments",                "Comments List",             DataType.XML,                        None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
+    [MANDATORY_ITEM_VERSION, "ANNOTATIONS_STATE",             "Comments",                "Annotations State",         DataType.XML,                        None,                "Annotations State", "ANNOTATIONS_STORAGE_POSITION", None]                                                                        
 ]];
     
 ##
