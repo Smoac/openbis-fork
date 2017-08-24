@@ -15,9 +15,13 @@
  */
 
 var TreeUtil = new function() {
+	
 	this.getCompleteTree = function($treeContainer) {
 		var treeModel = [{ title : "/", entityType: "ROOT", key : "/", folder : true, lazy : true }];
-		
+		return this.getTreeFromModel($treeContainer, treeModel);
+	}
+	
+	this.getTreeFromModel = function($treeContainer, treeModel) {
 		var glyph_opts = {
         	    map: {
         	      doc: "glyphicon glyphicon-file",

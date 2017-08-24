@@ -16,9 +16,8 @@
 
 var JupyterUtil = new function() {
 	
-	this.createJupyterNotebookAndOpen = function(dataSetIds) {
-		var folder = "openbis";
-		var fileName = dataSetIds[0] + ".ipynb";
+	this.createJupyterNotebookAndOpen = function(folder, fileName, dataSetIds) {
+		fileName = fileName + ".ipynb";
 		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
 		var newJupyterNotebook = this.createJupyterNotebookContent(dataSetIds);
 		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
@@ -53,6 +52,7 @@ var JupyterUtil = new function() {
 			      "outputs": [],
 			      "source": [
 			        "#Initialize Openbis API\n",
+			        "from pybis import Openbis\n",
 			        "o = Openbis(url='" + profile.jupyterOpenbisEndpoint + "', verify_certificates=False)"
 			      ]
 		};
