@@ -299,9 +299,8 @@ public class DetailedSearchWindow extends Dialog
         boolean tooGeneric = isSearchTooGeneric(criteria);
         if (tooGeneric)
         {
-            MessageBox.confirm("Warning", "This search query uses '*' "
-                    + "which might lead to too many search results."
-                    + "This can take quite a while before the first search results appear.<br><br>"
+            MessageBox.confirm("Warning", "This search query is too broad. "
+                    + "This might take a long time and might lead to a very large number of search results.<br><br>"
                     + "Do you want to submit the query anyway?", new Listener<MessageBoxEvent>()
                 {
                     @Override
