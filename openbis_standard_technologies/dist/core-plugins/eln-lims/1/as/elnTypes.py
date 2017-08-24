@@ -22,7 +22,7 @@ requestsChildrenCodeScriptCache= {};
 ##
 FIRST_TIME_VERSIONED = 225;
 MANDATORY_ITEM_VERSION = 99999; # Will always be installed
-CURRENT_MASTER_DATA_VERSION = "S236"; #The version as stored on the vocabulary corresponds to the sprint, its kept like that for backwards compatibility
+CURRENT_MASTER_DATA_VERSION = "S259"; #The version as stored on the vocabulary corresponds to the sprint, its kept like that for backwards compatibility
 INSTALLED_MASTER_DATA_VERSION = None;
  
 def isItemToInstall(tr, item):
@@ -185,6 +185,8 @@ def createProperty(tr, propertyCode, dataType, propertyLabel, propertyDescriptio
         property.setDescription(propertyDescription);
     if vocabularyCode is not None:
         if dataType == DataType.CONTROLLEDVOCABULARY:
+            if vocabularyCode not in vocabulariesCache:
+                vocabulariesCache[vocabularyCode] = tr.getOrCreateNewVocabulary(vocabularyCode);
             property.setVocabulary(vocabulariesCache[vocabularyCode]);
     
     return property;
@@ -552,7 +554,7 @@ PLASMID_RELATIONSHIP = [FIRST_TIME_VERSIONED, "PLASMID_RELATIONSHIP", "Kind of p
                                             ["OTHER", "Other", None]
                                         ]];
 
-STORAGE_BOX_SIZE = [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE", "Boxes available on the lab",
+STORAGE_BOX_SIZE = [MANDATORY_ITEM_VERSION, "STORAGE_BOX_SIZE", "Boxes available on the lab",
                                         [
                                             ["1X1", "1 x 1 box", None],
                                             ["4X4", "4 x 4 box", None],
@@ -659,8 +661,8 @@ ANTIBODY = [FIRST_TIME_VERSIONED, True, "ANTIBODY", "", [
         [FIRST_TIME_VERSIONED, "EPITOPE",             "General",                 "Epitope",                DataType.MULTILINE_VARCHAR,        None,         "Epitope of the antibody", None, None],
         [FIRST_TIME_VERSIONED, "CLONALITY",             "General",                 "Clonality",            DataType.CONTROLLEDVOCABULARY,    "CLONALITY","Clonality of the antibody", None, None],
         [FIRST_TIME_VERSIONED, "ISOTYPE",             "General",                 "Isotype",                 DataType.MULTILINE_VARCHAR,        None,         "Isotype of the antibody", None, None],
-        [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage", "Supplier",                DataType.MULTILINE_VARCHAR,        None,         "Supplier of the product", None, None],
-        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage", "Art. Number",             DataType.MULTILINE_VARCHAR,        None,         "Article number of the product", None, None],
+        [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage", "Supplier",                DataType.VARCHAR,        None,         "Supplier of the product", None, None],
+        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage", "Art. Number",             DataType.VARCHAR,        None,         "Article number of the product", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",             "Supplier and storage", "Storage",                 DataType.CONTROLLEDVOCABULARY,    "STORAGE",     "Storage conditions of the product", None, None],
         [FIRST_TIME_VERSIONED, "STOCK_CONCENTRATION", "Supplier and storage", "Stock concentration",     DataType.VARCHAR,                None,         "Stock concentration of the solution where the product is kept in the lab", None, None],
         [FIRST_TIME_VERSIONED, "PUBLICATION",         "Comments",             "Publication",             DataType.MULTILINE_VARCHAR,        None,         "Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
@@ -672,8 +674,8 @@ ANTIBODY = [FIRST_TIME_VERSIONED, True, "ANTIBODY", "", [
 CHEMICAL = [FIRST_TIME_VERSIONED, True, "CHEMICAL", "", [
         [FIRST_TIME_VERSIONED, "NAME",                 "General",                 "Name",                 DataType.VARCHAR,        None,        "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
-        [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage", "Supplier",             DataType.MULTILINE_VARCHAR,        None,        "Supplier of the product", None, None],
-        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage", "Art. Number",            DataType.MULTILINE_VARCHAR,        None,        "Article number of the product", None, None],
+        [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage", "Supplier",             DataType.VARCHAR,        None,        "Supplier of the product", None, None],
+        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage", "Art. Number",            DataType.VARCHAR,        None,        "Article number of the product", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",             "Supplier and storage", "Storage",                 DataType.CONTROLLEDVOCABULARY,    "STORAGE",    "Storage conditions of the product", None, None],
         [FIRST_TIME_VERSIONED, "XMLCOMMENTS",         "Comments",             "Comments List",         DataType.XML,                    None,        "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
         [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",    "Comments",                "Annotations State",    DataType.XML,                    None,        "Annotations State", "ANNOTATIONS_CHEMICAL", None]
@@ -682,8 +684,8 @@ CHEMICAL = [FIRST_TIME_VERSIONED, True, "CHEMICAL", "", [
 ENZYME = [FIRST_TIME_VERSIONED, True, "ENZYME", "", [
         [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Name",                    DataType.VARCHAR,        None,        "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
-        [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage",    "Supplier",                DataType.MULTILINE_VARCHAR,        None,        "Supplier of the product", None, None],
-        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage",    "Art. Number",            DataType.MULTILINE_VARCHAR,        None,        "Article number of the product", None, None],
+        [FIRST_TIME_VERSIONED, "SUPPLIER",             "Supplier and storage",    "Supplier",                DataType.VARCHAR,        None,        "Supplier of the product", None, None],
+        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",         "Supplier and storage",    "Art. Number",            DataType.VARCHAR,        None,        "Article number of the product", None, None],
         [FIRST_TIME_VERSIONED, "KIT",                 "Supplier and storage",    "Kit including",        DataType.MULTILINE_VARCHAR,        None,        "What the company includes with the enzyme", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",                "Supplier and storage",    "Storage",                DataType.CONTROLLEDVOCABULARY,    "STORAGE",    "Storage conditions of the product", None, None],
         [FIRST_TIME_VERSIONED, "XMLCOMMENTS",            "Comments",                "Comments List",        DataType.XML,                    None,        "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
@@ -738,8 +740,8 @@ RNA = [FIRST_TIME_VERSIONED, True, "RNA", "", [
         [FIRST_TIME_VERSIONED, "BACKBONE_TYPE",             "Details",                "Backbone type",        DataType.CONTROLLEDVOCABULARY,    "RNA_BACKBONE",        "Type of backbone, modifications in the backbone", None, None],
         [FIRST_TIME_VERSIONED, "MODIFICATIONS",             "Details",                "Modifications",        DataType.VARCHAR,                None,                "Modifications of the ordered oligonucleotide", None, None],
         [FIRST_TIME_VERSIONED, "SEQUENCE",                 "Details",                "Sequence",                DataType.MULTILINE_VARCHAR,        None,                "Sequence of the oligonucleotide", None, None],
-        [FIRST_TIME_VERSIONED, "SUPPLIER",                 "Supplier and storage",    "Supplier",                DataType.MULTILINE_VARCHAR,        None,                "Supplier of the product", None, None],
-        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",             "Supplier and storage",    "Art. Number",            DataType.MULTILINE_VARCHAR,        None,                "Article number of the product", None, None],
+        [FIRST_TIME_VERSIONED, "SUPPLIER",                 "Supplier and storage",    "Supplier",                DataType.VARCHAR,        None,                "Supplier of the product", None, None],
+        [FIRST_TIME_VERSIONED, "ARTICLE_NUMBER",             "Supplier and storage",    "Art. Number",            DataType.VARCHAR,        None,                "Article number of the product", None, None],
         [FIRST_TIME_VERSIONED, "STORAGE",                 "Supplier and storage",    "Storage",                DataType.CONTROLLEDVOCABULARY,    "STORAGE",            "Storage conditions of the product", None, None],
         [FIRST_TIME_VERSIONED, "PUBLICATION",             "Comments",                "Publication",            DataType.MULTILINE_VARCHAR,        None,                "Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
         [FIRST_TIME_VERSIONED, "XMLCOMMENTS",             "Comments",                "Comments List",        DataType.XML,                    None,                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
@@ -768,7 +770,7 @@ BACTERIA = [FIRST_TIME_VERSIONED, True, "BACTERIA", "", [
         [FIRST_TIME_VERSIONED, "NAME",             "General",                "Bacteria strain name",                DataType.VARCHAR,                None,                                "Bacterial strain name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "OWNER",                             "General",                "Owner",                            DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
-        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                        DataType.MULTILINE_VARCHAR,        None,                                "Owner number", None, None],
+        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                        DataType.VARCHAR,        None,                                "Owner number", None, None],
         [FIRST_TIME_VERSIONED, "GENETIC_MODIFICATION",             "Genotype",                "Genetic modifications",            DataType.MULTILINE_VARCHAR,        None,                                "Genetic modifications composed by the Plasmid ancestors", None, "GENETIC_MODIFICATIONS_SAMPLE"],
         [FIRST_TIME_VERSIONED, "BACTERIA_GENOTYPE",                 "Genotype",                "Bacteria genotype",                DataType.MULTILINE_VARCHAR,        None,                                "Bacterial genotype", None, None],
         [FIRST_TIME_VERSIONED, "MARKERS",                         "Genotype",                "Markers",                            DataType.MULTILINE_VARCHAR,        None,                                "Markers available in the strain for further genetic modifications", None, None],
@@ -785,7 +787,7 @@ YEAST = [FIRST_TIME_VERSIONED, True, "YEAST", "", [
         [FIRST_TIME_VERSIONED, "NAME",                             "General",                "Yeast strain name",                    DataType.VARCHAR,        None,                                "Yeast strain name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
-        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.MULTILINE_VARCHAR,        None,                                "Owner number", None, None],
+        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.VARCHAR,        None,                                "Owner number", None, None],
         [FIRST_TIME_VERSIONED, "GENETIC_MODIFICATION",             "Genotype",                "Genetic modifications",                DataType.MULTILINE_VARCHAR,        None,                                "Genetic modifications composed by the Plasmid ancestors", None, "GENETIC_MODIFICATIONS_SAMPLE"],
         [FIRST_TIME_VERSIONED, "GENETIC_BACKGROUND",                 "Genotype",                "Genetic Background",                    DataType.CONTROLLEDVOCABULARY,    "GENETIC_BACKGROUND",                "Genetic background of the yeast strain", None, None],
         [FIRST_TIME_VERSIONED, "MATING_TYPE",                     "Genotype",                "Mating Type",                            DataType.CONTROLLEDVOCABULARY,    "MATING_TYPE",                        "Mating type or ploidy of the yeast strain", None, None],
@@ -805,7 +807,7 @@ CELL_LINE = [FIRST_TIME_VERSIONED, True, "CELL_LINE", "", [
         [FIRST_TIME_VERSIONED, "NAME",                     "General",                "Cell line name",                        DataType.VARCHAR,                None,                                "Name of the cell line", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
-        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.MULTILINE_VARCHAR,        None,                                "Owner number", None, None],
+        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.VARCHAR,        None,                                "Owner number", None, None],
         [FIRST_TIME_VERSIONED, "GENETIC_MODIFICATION",             "Genotype",                "Genetic modifications",                DataType.MULTILINE_VARCHAR,        None,                                "Genetic modifications composed by the Plasmid ancestors", None, "GENETIC_MODIFICATIONS_SAMPLE"],
         [FIRST_TIME_VERSIONED, "SPECIES",                         "Genotype",                "Species",                                DataType.CONTROLLEDVOCABULARY,    "SPECIES",                            "Species to which the cell line belongs", None, None],
         [FIRST_TIME_VERSIONED, "CELL_TYPE",                         "Genotype",                "Cell type",                            DataType.CONTROLLEDVOCABULARY,    "CELL_TYPE",                        "Cell type of the cell line", None, None],
@@ -831,7 +833,7 @@ FLY = [FIRST_TIME_VERSIONED, True, "FLY", "", [
         [FIRST_TIME_VERSIONED, "NAME",                 "General",                "Fly strain name",                        DataType.VARCHAR,                None,                                "Fly strain name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
-        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.MULTILINE_VARCHAR,        None,                                "Owner number", None, None],
+        [FIRST_TIME_VERSIONED, "OWNER_NUMBER",                     "General",                "Owner number",                            DataType.VARCHAR,        None,                                "Owner number", None, None],
         [FIRST_TIME_VERSIONED, "GENETIC_MODIFICATION",             "Genotype",                "Genetic modifications",                DataType.MULTILINE_VARCHAR,        None,                                "Genetic modifications composed by the Plasmid ancestors", None, "GENETIC_MODIFICATIONS_SAMPLE"],
         [FIRST_TIME_VERSIONED, "FLY_GENOTYPE",                     "Genotype",                "Genotype",                                DataType.VARCHAR,                None,                                "Genotype of the fly", None, None],
         [FIRST_TIME_VERSIONED, "ASSOCIATED_GENE",                 "Genotype",                "Associated gene",                        DataType.VARCHAR,                None,                                "The transgene may contain regulatory or coding sequences from an endogenous gene", None, None],
