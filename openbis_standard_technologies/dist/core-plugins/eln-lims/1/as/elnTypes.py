@@ -22,7 +22,7 @@ requestsChildrenCodeScriptCache= {};
 ##
 FIRST_TIME_VERSIONED = 225;
 MANDATORY_ITEM_VERSION = 99999; # Will always be installed
-CURRENT_MASTER_DATA_VERSION = "S236"; #The version as stored on the vocabulary corresponds to the sprint, its kept like that for backwards compatibility
+CURRENT_MASTER_DATA_VERSION = "S259"; #The version as stored on the vocabulary corresponds to the sprint, its kept like that for backwards compatibility
 INSTALLED_MASTER_DATA_VERSION = None;
  
 def isItemToInstall(tr, item):
@@ -185,6 +185,8 @@ def createProperty(tr, propertyCode, dataType, propertyLabel, propertyDescriptio
         property.setDescription(propertyDescription);
     if vocabularyCode is not None:
         if dataType == DataType.CONTROLLEDVOCABULARY:
+            if vocabularyCode not in vocabulariesCache:
+                vocabulariesCache[vocabularyCode] = tr.getOrCreateNewVocabulary(vocabularyCode);
             property.setVocabulary(vocabulariesCache[vocabularyCode]);
     
     return property;
@@ -552,7 +554,7 @@ PLASMID_RELATIONSHIP = [FIRST_TIME_VERSIONED, "PLASMID_RELATIONSHIP", "Kind of p
                                             ["OTHER", "Other", None]
                                         ]];
 
-STORAGE_BOX_SIZE = [FIRST_TIME_VERSIONED, "STORAGE_BOX_SIZE", "Boxes available on the lab",
+STORAGE_BOX_SIZE = [MANDATORY_ITEM_VERSION, "STORAGE_BOX_SIZE", "Boxes available on the lab",
                                         [
                                             ["1X1", "1 x 1 box", None],
                                             ["4X4", "4 x 4 box", None],
