@@ -26,8 +26,8 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $treeContainer = $('<div>');
 		$window.append(FormUtil.getFieldForLabelWithText("Included Datasets (*) ", ""));
 		$window.append($treeContainer);
-		var treeEntityModel = { title : Util.getDisplayNameForEntity(this._jupyterNotebookModel.entity), entityType: "DATASET", key : this._jupyterNotebookModel.entity.code, folder : false, lazy : false, icon : "fa fa-database" };
-		var tree = TreeUtil.getTreeFromModel($treeContainer, [treeEntityModel]);
+		
+		var tree = TreeUtil.getTreeForEntity($treeContainer, this._jupyterNotebookModel.entity);
 		
 		
 		var $workspace = FormUtil._getInputField('text', null, 'workspace Name', null, true);

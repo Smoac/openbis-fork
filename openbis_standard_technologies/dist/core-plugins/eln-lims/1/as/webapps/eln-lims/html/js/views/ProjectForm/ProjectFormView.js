@@ -120,6 +120,15 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
 			
+			//Jupyter Button
+			if(profile.jupyterIntegrationServerEndpoint) {
+				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
+					var jupyterNotebook = new JupyterNotebookController(_this._projectFormModel.project);
+					jupyterNotebook.init();
+				});
+				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
+			}
+			
 			//Operations
 			var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode), event: function() {
 				showSelectExperimentType();

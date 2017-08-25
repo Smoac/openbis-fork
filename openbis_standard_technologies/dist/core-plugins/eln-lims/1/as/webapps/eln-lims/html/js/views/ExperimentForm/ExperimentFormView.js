@@ -133,6 +133,16 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				});
 			});
 			toolbarModel.push({ component : $export, tooltip: "Export" });
+			
+			//Jupyter Button
+			if(profile.jupyterIntegrationServerEndpoint) {
+				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
+					var jupyterNotebook = new JupyterNotebookController(_this._experimentFormModel.experiment);
+					jupyterNotebook.init();
+				});
+				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
+			}
+			
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._experimentFormController.updateExperiment();

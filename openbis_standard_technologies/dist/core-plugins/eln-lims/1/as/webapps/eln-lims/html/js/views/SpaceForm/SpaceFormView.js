@@ -38,6 +38,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 			_this._spaceFormController.createProject();
 		});
+		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		
 		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 			Util.blockUI();
@@ -50,9 +51,17 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 				}
 			});
 		});
-		
-		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		toolbarModel.push({ component : $export, tooltip: "Export" });
+		
+		
+		//Jupyter Button
+		if(profile.jupyterIntegrationServerEndpoint) {
+			var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
+				var jupyterNotebook = new JupyterNotebookController(_this._spaceFormModel.space);
+				jupyterNotebook.init();
+			});
+			toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
+		}
 		
 		var $header = views.header;
 		$header.append($formTitle);

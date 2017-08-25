@@ -21,6 +21,30 @@ var TreeUtil = new function() {
 		return this.getTreeFromModel($treeContainer, treeModel);
 	}
 	
+	this.getTreeForEntity = function($treeContainer, entity) {
+		var treeModel;
+		debugger;
+		switch(entity["@type"]) {
+			case "SpaceWithProjectsAndRoleAssignments":
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SPACE", key : entity.code, folder : true, lazy : true };
+				break;
+			case "Project":
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "PROJECT", key : entity.permId, folder : true, lazy : true };
+				break;
+			case "Experiment":
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "EXPERIMENT", key : entity.permId, folder : true, lazy : true };
+				break;
+			case "Sample":
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SAMPLE", key : entity.permId, folder : true, lazy : true };
+				break;
+			case "DataSet":
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "DATASET", key : entity.code, folder : false, lazy : false, icon : "fa fa-database" };
+				break;
+		}
+		
+		return this.getTreeFromModel($treeContainer, [treeModel]);
+	}
+	
 	this.getTreeFromModel = function($treeContainer, treeModel) {
 		var glyph_opts = {
         	    map: {
