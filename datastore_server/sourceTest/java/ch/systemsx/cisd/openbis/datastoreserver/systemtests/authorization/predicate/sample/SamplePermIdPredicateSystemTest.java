@@ -18,12 +18,14 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SamplePermIdUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
@@ -31,13 +33,13 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.Sample
 /**
  * @author pkupczyk
  */
-public class SamplePermIdPredicateSystemTest extends CommonSamplePredicateSystemTest<PermId>
+public class SamplePermIdPredicateSystemTest extends CommonPredicateSystemTest<PermId>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -53,33 +55,28 @@ public class SamplePermIdPredicateSystemTest extends CommonSamplePredicateSystem
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<PermId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<PermId> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSamplePermIdPredicate(sessionProvider, objects.get(0));
+        getBean(SamplePredicateTestService.class).testSamplePermIdPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<PermId> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No sample perm id specified.");
-    }
+        return new CommonPredicateSystemTestSampleAssertions<PermId>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No sample perm id specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        SamplePermIdUtil.assertWithNonexistentObjectForInstanceUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        SamplePermIdUtil.assertWithNonexistentObjectForProjectUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        SamplePermIdUtil.assertWithNonexistentObjectForSpaceUser(person, t, param);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id 'IDONTEXIST'.*");
+                }
+            };
     }
 
 }

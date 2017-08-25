@@ -16,25 +16,24 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.deletion;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonSampleValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.validator.deleteion.DeletionValidatorTestService;
 
 /**
  * @author pkupczyk
  */
-public class DeletionValidatorWithSampleSystemTest extends CommonSampleValidatorSystemTest<Deletion>
+public class DeletionValidatorWithSampleSystemTest extends DeletionValidatorSystemTest
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -45,24 +44,51 @@ public class DeletionValidatorWithSampleSystemTest extends CommonSampleValidator
     }
 
     @Override
-    protected Deletion validateObject(IAuthSessionProvider sessionProvider, Deletion object, Object param)
+    protected CommonValidatorSystemTestAssertions<Deletion> getAssertions()
     {
-        try
-        {
-            return getBean(DeletionValidatorTestService.class).testDeletionValidator(sessionProvider, object);
-        } finally
-        {
-            if (object != null)
+        return new CommonValidatorSystemTestSampleAssertions<Deletion>(super.getAssertions())
             {
-                getCommonService().untrash(object.getId());
-            }
-        }
-    }
+                @Override
+                public void assertWithProject11Object(ProjectAuthorizationUser user, Deletion result, Throwable t, Object param)
+                {
+                    if (SampleKind.SHARED_READ.equals(param))
+                    {
+                        assertNoException(t);
 
-    @Override
-    protected void assertWithInstanceObserverUser(PersonPE person, Deletion result, Throwable t, Object param)
-    {
-        assertNull(result);
+                        if (user.isInstanceUser())
+                        {
+                            assertNotNull(result);
+                        } else
+                        {
+                            assertNull(result);
+                        }
+                    } else
+                    {
+                        super.assertWithProject11Object(user, result, t, param);
+                    }
+                }
+
+                @Override
+                public void assertWithProject21Object(ProjectAuthorizationUser user, Deletion result, Throwable t, Object param)
+                {
+                    if (SampleKind.SHARED_READ.equals(param))
+                    {
+                        assertNoException(t);
+
+                        if (user.isInstanceUser())
+                        {
+                            assertNotNull(result);
+                        } else
+                        {
+                            assertNull(result);
+                        }
+                    } else
+                    {
+                        super.assertWithProject21Object(user, result, t, param);
+                    }
+                }
+
+            };
     }
 
 }

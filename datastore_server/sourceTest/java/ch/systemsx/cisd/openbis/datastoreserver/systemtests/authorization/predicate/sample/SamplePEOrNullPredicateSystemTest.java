@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
@@ -30,21 +31,41 @@ public class SamplePEOrNullPredicateSystemTest extends SamplePEPredicateSystemTe
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<SamplePE> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<SamplePE> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSamplePEOrNullPredicate(sessionProvider, objects.get(0));
+        getBean(SamplePredicateTestService.class).testSamplePEOrNullPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<SamplePE> getAssertions()
     {
-        assertNoException(t);
+        return new CommonPredicateSystemTestAssertionsDelegate<SamplePE>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+
+            };
     }
 
 }

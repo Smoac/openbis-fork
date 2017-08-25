@@ -16,54 +16,53 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.dataset;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetTechIdUtil;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataSetPredicateTestService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class DataSetUpdatesCollectionPredicateWithDataSetTechIdSystemTest extends DataSetUpdatesPredicateWithDataSetTechIdSystemTest
+public class DataSetUpdatesCollectionPredicateWithDataSetTechIdSystemTest extends DataSetUpdatesCollectionPredicateSystemTest
 {
 
     @Override
-    protected boolean isCollectionPredicate()
+    public Object[] getParams()
     {
-        return true;
+        return getDataSetKinds();
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<DataSetUpdatesDTO> objects, Object param)
+    protected DataSetUpdatesDTO createNonexistentObject(Object param)
     {
-        getBean(DataSetPredicateTestService.class).testDataSetUpdatesCollectionPredicate(sessionProvider, objects);
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setDatasetId(DataSetTechIdUtil.createNonexistentObject(param));
+        return updates;
     }
 
     @Override
-    protected void assertWithNullForInstanceUser(PersonPE person, Throwable t, Object param)
+    protected DataSetUpdatesDTO createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
-        assertNoException(t);
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setDatasetId(DataSetTechIdUtil.createObject(this, spacePE, projectPE, param));
+        return updates;
     }
 
     @Override
-    protected void assertWithNullForSpaceUser(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<DataSetUpdatesDTO> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
-    }
-
-    @Override
-    protected void assertWithNullForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, NullPointerException.class, null);
-    }
-
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No data set updates collection specified.");
+        return new CommonPredicateSystemTestDataSetAssertions<DataSetUpdatesDTO>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

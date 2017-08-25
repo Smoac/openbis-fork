@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleV1Util;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
@@ -31,13 +32,13 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.Sample
 /**
  * @author pkupczyk
  */
-public class SamplePredicateSystemTest extends CommonSamplePredicateSystemTest<Sample>
+public class SamplePredicateSystemTest extends CommonPredicateSystemTest<Sample>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -53,27 +54,34 @@ public class SamplePredicateSystemTest extends CommonSamplePredicateSystemTest<S
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<Sample> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<Sample> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSamplePredicate(sessionProvider, objects.get(0));
+        getBean(SamplePredicateTestService.class).testSamplePredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<Sample> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No sample specified.");
-    }
+        return new CommonPredicateSystemTestSampleAssertions<Sample>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No sample specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        if (SampleKind.SHARED_READ.equals(param))
-        {
-            assertNoException(t);
-        } else
-        {
-            assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-        }
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (SampleKind.SHARED_READ.equals(param))
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

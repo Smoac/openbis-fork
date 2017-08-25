@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.space;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSpaceAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.space.SpaceValidatorTestService;
@@ -39,16 +40,15 @@ public class SimpleSpaceValidatorSystemTest extends CommonValidatorSystemTest<Sp
     }
 
     @Override
-    protected Space validateObject(IAuthSessionProvider sessionProvider, Space object, Object param)
+    protected Space validateObject(ProjectAuthorizationUser user, Space object, Object param)
     {
-        return getBean(SpaceValidatorTestService.class).testSimpleSpaceValidator(sessionProvider, object);
+        return getBean(SpaceValidatorTestService.class).testSimpleSpaceValidator(user.getSessionProvider(), object);
     }
 
     @Override
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Space result, Throwable t, Object param)
+    protected CommonValidatorSystemTestAssertions<Space> getAssertions()
     {
-        assertNull(result);
-        assertNoException(t);
+        return new CommonValidatorSystemTestSpaceAssertions<Space>(super.getAssertions());
     }
 
 }

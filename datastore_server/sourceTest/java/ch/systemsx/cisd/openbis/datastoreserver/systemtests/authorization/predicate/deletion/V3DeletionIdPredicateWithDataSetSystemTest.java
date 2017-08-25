@@ -16,36 +16,25 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.deletion;
 
-import java.util.List;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DeletionUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonDataSetPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.deletion.DeletionPredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public class V3DeletionIdPredicateWithDataSetSystemTest extends CommonDataSetPredicateSystemTest<IDeletionId>
+public class V3DeletionIdPredicateWithDataSetSystemTest extends V3DeletionIdPredicateSystemTest
 {
 
     @Override
-    protected boolean isCollectionPredicate()
+    public Object[] getParams()
     {
-        return true;
-    }
-
-    @Override
-    protected IDeletionId createNonexistentObject(Object param)
-    {
-        return new DeletionTechId(-1L);
+        return getDataSetKinds();
     }
 
     @Override
@@ -56,42 +45,9 @@ public class V3DeletionIdPredicateWithDataSetSystemTest extends CommonDataSetPre
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<IDeletionId> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<IDeletionId> getAssertions()
     {
-        try
-        {
-            getBean(DeletionPredicateTestService.class).testV3DeletionIdPredicate(sessionProvider, objects);
-        } finally
-        {
-            if (objects != null)
-            {
-                for (IDeletionId object : objects)
-                {
-                    if (object != null)
-                    {
-                        getCommonService().untrash(((DeletionTechId) object).getTechId());
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, NullPointerException.class, null);
-    }
-
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No v3 deletion id object specified.");
-    }
-
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestDataSetAssertions<IDeletionId>(super.getAssertions());
     }
 
 }

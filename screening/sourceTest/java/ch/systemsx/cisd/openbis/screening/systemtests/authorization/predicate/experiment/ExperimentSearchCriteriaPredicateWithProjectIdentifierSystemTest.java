@@ -16,20 +16,18 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.experiment;
 
-import java.util.List;
-
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonPredicateScreeningSystemTest;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentSearchCriteriaPredicateWithProjectIdentifierSystemTest extends CommonPredicateScreeningSystemTest<ExperimentSearchCriteria>
+public class ExperimentSearchCriteriaPredicateWithProjectIdentifierSystemTest extends ExperimentSearchCriteriaPredicateSystemTest
 {
 
     @Override
@@ -45,21 +43,22 @@ public class ExperimentSearchCriteriaPredicateWithProjectIdentifierSystemTest ex
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentSearchCriteria> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<ExperimentSearchCriteria> getAssertions()
     {
-        getBean(ExperimentPredicateScreeningTestService.class).testExperimentSearchCriteriaPredicate(session, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestAssertionsDelegate<ExperimentSearchCriteria>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

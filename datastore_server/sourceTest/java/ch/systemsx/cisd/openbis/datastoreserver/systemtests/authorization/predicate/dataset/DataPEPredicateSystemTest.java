@@ -18,11 +18,12 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonDataSetPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -31,8 +32,14 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataS
 /**
  * @author pkupczyk
  */
-public class DataPEPredicateSystemTest extends CommonDataSetPredicateSystemTest<DataPE>
+public class DataPEPredicateSystemTest extends CommonPredicateSystemTest<DataPE>
 {
+
+    @Override
+    public Object[] getParams()
+    {
+        return getDataSetKinds();
+    }
 
     @Override
     protected DataPE createNonexistentObject(Object param)
@@ -83,27 +90,40 @@ public class DataPEPredicateSystemTest extends CommonDataSetPredicateSystemTest<
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<DataPE> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<DataPE> objects, Object param)
     {
-        getBean(DataSetPredicateTestService.class).testDataPEPredicate(sessionProvider, objects.get(0));
+        getBean(DataSetPredicateTestService.class).testDataPEPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<DataPE> getAssertions()
     {
-        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-    }
+        return new CommonPredicateSystemTestDataSetAssertions<DataPE>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
 
-    @Override
-    protected void assertWithNullForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

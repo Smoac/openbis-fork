@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleTechIdUtil;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -44,21 +46,16 @@ public class SampleUpdatesPredicateWithSampleTechIdSystemTest extends SampleUpda
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<SampleUpdatesDTO> getAssertions()
     {
-        SampleTechIdUtil.assertWithNonexistentObjectForInstanceUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        SampleTechIdUtil.assertWithNonexistentObjectForProjectUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        SampleTechIdUtil.assertWithNonexistentObjectForSpaceUser(person, t, param);
+        return new CommonPredicateSystemTestAssertionsDelegate<SampleUpdatesDTO>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

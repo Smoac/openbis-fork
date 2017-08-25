@@ -19,10 +19,11 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.ExperimentPredicateTestService;
@@ -46,21 +47,28 @@ public class NewExperimentPredicateSystemTest extends CommonPredicateSystemTest<
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<NewExperiment> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<NewExperiment> objects, Object param)
     {
-        getBean(ExperimentPredicateTestService.class).testNewExperimentPredicate(session, objects.get(0));
+        getBean(ExperimentPredicateTestService.class).testNewExperimentPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<NewExperiment> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No new experiment specified.");
-    }
+        return new CommonPredicateSystemTestAssertionsDelegate<NewExperiment>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No new experiment specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

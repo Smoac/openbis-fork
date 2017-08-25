@@ -18,26 +18,27 @@ package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.s
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SamplePermIdUtil;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
-import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonSamplePredicateScreeningSystemTest;
+import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonPredicateScreeningSystemTest;
 
 /**
  * @author pkupczyk
  */
-public class WellIdentifierPredicateSystemTest extends CommonSamplePredicateScreeningSystemTest<WellIdentifier>
+public class WellIdentifierPredicateSystemTest extends CommonPredicateScreeningSystemTest<WellIdentifier>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
@@ -54,33 +55,28 @@ public class WellIdentifierPredicateSystemTest extends CommonSamplePredicateScre
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<WellIdentifier> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<WellIdentifier> objects, Object param)
     {
-        getBean(SamplePredicateScreeningTestService.class).testWellIdentifierPredicate(session, objects.get(0));
+        getBean(SamplePredicateScreeningTestService.class).testWellIdentifierPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<WellIdentifier> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No well identifier specified.");
-    }
+        return new CommonPredicateSystemTestSampleAssertions<WellIdentifier>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No well identifier specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        SamplePermIdUtil.assertWithNonexistentObjectForInstanceUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        SamplePermIdUtil.assertWithNonexistentObjectForProjectUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        SamplePermIdUtil.assertWithNonexistentObjectForSpaceUser(person, t, param);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id 'IDONTEXIST'.*");
+                }
+            };
     }
 
 }

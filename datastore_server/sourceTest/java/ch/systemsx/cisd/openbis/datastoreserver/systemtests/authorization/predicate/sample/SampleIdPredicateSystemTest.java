@@ -19,34 +19,43 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public abstract class SampleIdPredicateSystemTest extends CommonSamplePredicateSystemTest<ISampleId>
+public abstract class SampleIdPredicateSystemTest extends CommonPredicateSystemTest<ISampleId>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ISampleId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<ISampleId> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSampleIdPredicate(sessionProvider, objects.get(0));
+        getBean(SamplePredicateTestService.class).testSampleIdPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<ISampleId> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No sample id specified.");
+        return new CommonPredicateSystemTestSampleAssertions<ISampleId>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No sample id specified.");
+                }
+
+            };
     }
 
 }

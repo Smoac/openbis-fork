@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.ExperimentPredicateTestService;
@@ -48,21 +49,28 @@ public class ExperimentTechIdPredicateSystemTest extends CommonPredicateSystemTe
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<TechId> objects, Object param)
     {
-        getBean(ExperimentPredicateTestService.class).testExperimentTechIdPredicate(sessionProvider, objects.get(0));
+        getBean(ExperimentPredicateTestService.class).testExperimentTechIdPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<TechId> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No technical id specified.");
-    }
+        return new CommonPredicateSystemTestAssertionsDelegate<TechId>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No technical id specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertUserFailureExceptionThatExperimentDoesNotExist(t);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertUserFailureExceptionThatExperimentDoesNotExist(t);
+                }
+            };
     }
 
 }

@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -39,9 +39,9 @@ public class ScreeningPlateValidatorSystemTest extends CommonValidatorScreeningS
     }
 
     @Override
-    protected Plate validateObject(IAuthSessionProvider sessionProvider, Plate object, Object param)
+    protected Plate validateObject(ProjectAuthorizationUser user, Plate object, Object param)
     {
-        return getBean(SampleValidatorScreeningTestService.class).testScreeningPlateValidator(sessionProvider, object);
+        return getBean(SampleValidatorScreeningTestService.class).testScreeningPlateValidator(user.getSessionProvider(), object);
     }
 
 }

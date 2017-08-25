@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.dataset;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.ExternalDataUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonDataSetValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.dataset.DataSetValidatorTestService;
@@ -27,8 +29,14 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.validator.dataset.DataS
 /**
  * @author pkupczyk
  */
-public class ExternalDataValidatorSystemTest extends CommonDataSetValidatorSystemTest<AbstractExternalData>
+public class ExternalDataValidatorSystemTest extends CommonValidatorSystemTest<AbstractExternalData>
 {
+
+    @Override
+    public Object[] getParams()
+    {
+        return getDataSetKinds();
+    }
 
     @Override
     protected AbstractExternalData createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
@@ -37,9 +45,15 @@ public class ExternalDataValidatorSystemTest extends CommonDataSetValidatorSyste
     }
 
     @Override
-    protected AbstractExternalData validateObject(IAuthSessionProvider sessionProvider, AbstractExternalData object, Object param)
+    protected AbstractExternalData validateObject(ProjectAuthorizationUser user, AbstractExternalData object, Object param)
     {
-        return getBean(DataSetValidatorTestService.class).testExternalDataValidator(sessionProvider, object);
+        return getBean(DataSetValidatorTestService.class).testExternalDataValidator(user.getSessionProvider(), object);
+    }
+
+    @Override
+    protected CommonValidatorSystemTestAssertions<AbstractExternalData> getAssertions()
+    {
+        return new CommonValidatorSystemTestDataSetAssertions<AbstractExternalData>(super.getAssertions());
     }
 
 }

@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
 /**
@@ -29,15 +29,15 @@ public class SampleTechIdReadWritePredicateSystemTest extends SampleTechIdPredic
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<TechId> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSampleTechIdReadWritePredicate(sessionProvider, objects.get(0));
+        getBean(SamplePredicateTestService.class).testSampleTechIdReadWritePredicate(user.getSessionProvider(), objects.get(0));
     }
 
 }

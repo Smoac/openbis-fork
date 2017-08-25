@@ -19,10 +19,11 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
@@ -32,18 +33,6 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.Sample
  */
 public class ListSamplesByPropertyPredicateSystemTest extends CommonPredicateSystemTest<ListSamplesByPropertyCriteria>
 {
-
-    @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ListSamplesByPropertyCriteria> objects, Object param)
-    {
-        getBean(SamplePredicateTestService.class).testListSamplesByPropertyPredicate(sessionProvider, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No list samples by property specified.");
-    }
 
     @Override
     protected ListSamplesByPropertyCriteria createNonexistentObject(Object param)
@@ -58,9 +47,34 @@ public class ListSamplesByPropertyPredicateSystemTest extends CommonPredicateSys
     }
 
     @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<ListSamplesByPropertyCriteria> objects, Object param)
     {
-        assertNoException(t);
+        getBean(SamplePredicateTestService.class).testListSamplesByPropertyPredicate(user.getSessionProvider(), objects.get(0));
+    }
+
+    @Override
+    protected CommonPredicateSystemTestAssertions<ListSamplesByPropertyCriteria> getAssertions()
+    {
+        return new CommonPredicateSystemTestAssertionsDelegate<ListSamplesByPropertyCriteria>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No list samples by property specified.");
+                }
+
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

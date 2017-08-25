@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.m
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.experiment.ExperimentTechIdPredicateSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
@@ -30,10 +30,10 @@ public class MaterialFeaturesOneExpPredicateSystemTest extends ExperimentTechIdP
 {
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<TechId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<TechId> objects, Object param)
     {
         MaterialFeaturesOneExpCriteria criteria = new MaterialFeaturesOneExpCriteria(null, null, objects.get(0));
-        getBean(MaterialPredicateScreeningTestService.class).testMaterialFeaturesOneExpPredicate(session, criteria);
+        getBean(MaterialPredicateScreeningTestService.class).testMaterialFeaturesOneExpPredicate(user.getSessionProvider(), criteria);
     }
 
 }

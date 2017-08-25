@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.project;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.project.ProjectValidatorTestService;
@@ -45,9 +45,9 @@ public class ProjectValidatorSystemTest extends CommonValidatorSystemTest<Projec
     }
 
     @Override
-    protected Project validateObject(IAuthSessionProvider sessionProvider, Project object, Object param)
+    protected Project validateObject(ProjectAuthorizationUser user, Project object, Object param)
     {
-        return getBean(ProjectValidatorTestService.class).testProjectValidator(sessionProvider, object);
+        return getBean(ProjectValidatorTestService.class).testProjectValidator(user.getSessionProvider(), object);
     }
 
 }

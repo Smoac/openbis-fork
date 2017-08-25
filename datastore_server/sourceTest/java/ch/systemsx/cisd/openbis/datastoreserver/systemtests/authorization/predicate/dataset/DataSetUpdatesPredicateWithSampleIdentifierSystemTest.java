@@ -16,28 +16,24 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.dataset;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleIdentifierUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataSetPredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public class DataSetUpdatesPredicateWithSampleIdentifierSystemTest extends CommonSamplePredicateSystemTest<DataSetUpdatesDTO>
+public class DataSetUpdatesPredicateWithSampleIdentifierSystemTest extends DataSetUpdatesPredicateSystemTest
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
@@ -57,21 +53,22 @@ public class DataSetUpdatesPredicateWithSampleIdentifierSystemTest extends Commo
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<DataSetUpdatesDTO> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<DataSetUpdatesDTO> getAssertions()
     {
-        getBean(DataSetPredicateTestService.class).testDataSetUpdatesPredicate(sessionProvider, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No data set updates specified.");
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestSampleAssertions<DataSetUpdatesDTO>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

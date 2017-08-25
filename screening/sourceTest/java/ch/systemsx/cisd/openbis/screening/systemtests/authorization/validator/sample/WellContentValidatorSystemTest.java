@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.sample;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.CommonValidatorScreeningSystemTest;
 import ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.experiment.ExperimentValidatorScreeningTestService;
@@ -28,9 +28,9 @@ public abstract class WellContentValidatorSystemTest extends CommonValidatorScre
 {
 
     @Override
-    protected WellContent validateObject(IAuthSessionProvider sessionProvider, WellContent object, Object param)
+    protected WellContent validateObject(ProjectAuthorizationUser user, WellContent object, Object param)
     {
-        return getBean(ExperimentValidatorScreeningTestService.class).testWellContentValidator(sessionProvider, object);
+        return getBean(ExperimentValidatorScreeningTestService.class).testWellContentValidator(user.getSessionProvider(), object);
     }
 
 }

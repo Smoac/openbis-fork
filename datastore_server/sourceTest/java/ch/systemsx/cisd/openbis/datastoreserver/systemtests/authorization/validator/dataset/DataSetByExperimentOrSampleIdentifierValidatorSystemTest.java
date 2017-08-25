@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.dataset;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonDataSetValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.dataset.DataSetValidatorTestService;
@@ -27,8 +29,14 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.validator.dataset.DataS
 /**
  * @author pkupczyk
  */
-public class DataSetByExperimentOrSampleIdentifierValidatorSystemTest extends CommonDataSetValidatorSystemTest<DataSet>
+public class DataSetByExperimentOrSampleIdentifierValidatorSystemTest extends CommonValidatorSystemTest<DataSet>
 {
+
+    @Override
+    public Object[] getParams()
+    {
+        return getDataSetKinds();
+    }
 
     @Override
     protected DataSet createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
@@ -37,9 +45,15 @@ public class DataSetByExperimentOrSampleIdentifierValidatorSystemTest extends Co
     }
 
     @Override
-    protected DataSet validateObject(IAuthSessionProvider sessionProvider, DataSet object, Object param)
+    protected DataSet validateObject(ProjectAuthorizationUser user, DataSet object, Object param)
     {
-        return getBean(DataSetValidatorTestService.class).testDataSetByExperimentOrSampleIdentifierValidator(sessionProvider, object);
+        return getBean(DataSetValidatorTestService.class).testDataSetByExperimentOrSampleIdentifierValidator(user.getSessionProvider(), object);
+    }
+
+    @Override
+    protected CommonValidatorSystemTestAssertions<DataSet> getAssertions()
+    {
+        return new CommonValidatorSystemTestDataSetAssertions<DataSet>(super.getAssertions());
     }
 
 }

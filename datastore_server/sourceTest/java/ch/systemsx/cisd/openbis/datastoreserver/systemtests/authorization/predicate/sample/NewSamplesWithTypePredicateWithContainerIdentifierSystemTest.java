@@ -18,10 +18,11 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
 /**
@@ -37,17 +38,24 @@ public class NewSamplesWithTypePredicateWithContainerIdentifierSystemTest extend
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<NewSample> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<NewSample> objects, Object param)
     {
         NewSamplesWithTypes newSamples = new NewSamplesWithTypes();
         newSamples.setNewEntities(objects);
-        getBean(SamplePredicateTestService.class).testNewSamplesWithTypePredicate(sessionProvider, newSamples);
+        getBean(SamplePredicateTestService.class).testNewSamplesWithTypePredicate(user.getSessionProvider(), newSamples);
     }
 
     @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<NewSample> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
+        return new CommonPredicateSystemTestAssertionsDelegate<NewSample>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, NullPointerException.class, null);
+                }
+            };
     }
 
 }

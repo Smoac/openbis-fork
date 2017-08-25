@@ -16,23 +16,25 @@
 
 package ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleUtil;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator.CommonSampleValidatorProteomicsSystemTest;
+import ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator.CommonValidatorProteomicsSystemTest;
 
 /**
  * @author pkupczyk
  */
-public class ParentSampleValidatorSystemTest extends CommonSampleValidatorProteomicsSystemTest<Sample>
+public class ParentSampleValidatorSystemTest extends CommonValidatorProteomicsSystemTest<Sample>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -45,9 +47,15 @@ public class ParentSampleValidatorSystemTest extends CommonSampleValidatorProteo
     }
 
     @Override
-    protected Sample validateObject(IAuthSessionProvider sessionProvider, Sample object, Object param)
+    protected Sample validateObject(ProjectAuthorizationUser user, Sample object, Object param)
     {
-        return getBean(SampleValidatorProteomicsTestService.class).testParentSampleValidator(sessionProvider, object);
+        return getBean(SampleValidatorProteomicsTestService.class).testParentSampleValidator(user.getSessionProvider(), object);
+    }
+
+    @Override
+    protected CommonValidatorSystemTestAssertions<Sample> getAssertions()
+    {
+        return new CommonValidatorSystemTestSampleAssertions<>(super.getAssertions());
     }
 
 }

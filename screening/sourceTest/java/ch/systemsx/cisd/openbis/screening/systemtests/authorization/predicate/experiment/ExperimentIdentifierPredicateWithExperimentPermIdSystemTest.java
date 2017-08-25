@@ -16,21 +16,15 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.experiment;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonPredicateScreeningSystemTest;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentIdentifierPredicateWithExperimentPermIdSystemTest extends CommonPredicateScreeningSystemTest<ExperimentIdentifier>
+public class ExperimentIdentifierPredicateWithExperimentPermIdSystemTest extends ExperimentIdentifierPredicateSystemTest
 {
 
     @Override
@@ -44,24 +38,6 @@ public class ExperimentIdentifierPredicateWithExperimentPermIdSystemTest extends
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return new ExperimentIdentifier(null, null, null, experimentPE.getPermId());
-    }
-
-    @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentIdentifier> objects, Object param)
-    {
-        getBean(ExperimentPredicateScreeningTestService.class).testExperimentIdentifierPredicate(session, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No experiment specified.");
-    }
-
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
     }
 
 }

@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.experiment;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.experiment.ExperimentValidatorTestService;
@@ -40,9 +40,9 @@ public class ExperimentByIdentiferValidatorSystemTest extends CommonValidatorSys
     }
 
     @Override
-    protected Experiment validateObject(IAuthSessionProvider sessionProvider, Experiment object, Object param)
+    protected Experiment validateObject(ProjectAuthorizationUser user, Experiment object, Object param)
     {
-        return getBean(ExperimentValidatorTestService.class).testExperimentByIdentifierValidator(sessionProvider, object);
+        return getBean(ExperimentValidatorTestService.class).testExperimentByIdentifierValidator(user.getSessionProvider(), object);
     }
 
 }

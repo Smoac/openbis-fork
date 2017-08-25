@@ -18,31 +18,24 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleIdentifierUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.dataset.NewDataSetsWithTypePredicateUtil.NewDataSetField;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class NewDataSetsWithTypePredicateWithSampleIdentifierSystemTest extends CommonSamplePredicateSystemTest<String>
+public class NewDataSetsWithTypePredicateWithSampleIdentifierSystemTest extends NewDataSetsWithTypePredicateSystemTest<String>
 {
 
     @Override
-    protected boolean isCollectionPredicate()
+    public Object[] getParams()
     {
-        return true;
-    }
-
-    @Override
-    protected SampleKind getSharedSampleKind()
-    {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
@@ -58,9 +51,9 @@ public class NewDataSetsWithTypePredicateWithSampleIdentifierSystemTest extends 
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<String> objects, Object param)
     {
-        NewDataSetsWithTypePredicateUtil.evaluateObjects(sessionProvider, objects, new NewDataSetField<String>()
+        evaluateObjects(user, objects, param, new NewDataSetField<String>()
             {
                 @Override
                 public void set(NewDataSet dataSet, String sampleIdentifier)
@@ -71,15 +64,22 @@ public class NewDataSetsWithTypePredicateWithSampleIdentifierSystemTest extends 
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<String> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
-    }
-
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestSampleAssertions<String>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

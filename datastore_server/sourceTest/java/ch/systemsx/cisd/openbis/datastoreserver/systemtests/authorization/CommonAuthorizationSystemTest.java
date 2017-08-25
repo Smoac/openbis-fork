@@ -61,15 +61,23 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 public class CommonAuthorizationSystemTest extends SystemTestCase
 {
 
-    protected static final String PERSON_OTHER = "test_user_other";
+    public static final String AUTH_SPACE_1 = "AUTH-SPACE-1";
 
-    protected static final String PERSON_WITH_PA_OFF = "test_user_pa_off";
+    public static final String AUTH_SPACE_2 = "AUTH-SPACE-2";
 
-    protected static final String PERSON_WITH_PA_ON = "test_user_pa_on";
+    public static final String AUTH_PROJECT_1 = "AUTH-PROJECT-1";
 
-    protected static final String PERSON_AND_PARAM_PROVIDER = "personAndParamProvider";
+    public static final String AUTH_PROJECT_2 = "AUTH-PROJECT-2";
 
-    protected static final String GROUP_PA_TESTS = "paTestsGroup";
+    public static final String PERSON_OTHER = "test_user_other";
+
+    public static final String PERSON_WITH_PA_OFF = "test_user_pa_off";
+
+    public static final String PERSON_WITH_PA_ON = "test_user_pa_on";
+
+    public static final String PERSON_AND_PARAM_PROVIDER = "personAndParamProvider";
+
+    public static final String GROUP_PA_TESTS = "paTestsGroup";
 
     private BufferedAppender logRecorder;
 
@@ -301,13 +309,13 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
     @DataProvider(name = PERSON_AND_PARAM_PROVIDER)
     public Object[][] providePersonsAndParams()
     {
-        PersonPE[] persons = providePersons();
-        Object[] params = provideParams();
+        ProjectAuthorizationUser[] persons = ProjectAuthorizationUser.providerUsers();
+        Object[] params = getParams();
 
         Object[][] personsAndParams = new Object[persons.length * params.length][2];
         int index = 0;
 
-        for (PersonPE person : persons)
+        for (ProjectAuthorizationUser person : persons)
         {
             for (Object param : params)
             {
@@ -320,23 +328,12 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
         return personsAndParams;
     }
 
-    public PersonPE[] providePersons()
-    {
-        PersonPE userWithPAOff = new PersonPE();
-        userWithPAOff.setUserId(PERSON_WITH_PA_OFF);
-
-        PersonPE userWithPAOn = new PersonPE();
-        userWithPAOn.setUserId(PERSON_WITH_PA_ON);
-
-        return new PersonPE[] { userWithPAOff, userWithPAOn };
-    }
-
-    public Object[] provideParams()
+    public Object[] getParams()
     {
         return new Object[] { null };
     }
 
-    public Object[] provideSampleKinds(SampleKind sharedSampleKind)
+    public Object[] getSampleKinds(SampleKind sharedSampleKind)
     {
         if (SamplePE.projectSamplesEnabled)
         {
@@ -352,7 +349,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
         }
     }
 
-    public Object[] provideDataSetKinds()
+    public Object[] getDataSetKinds()
     {
         if (SamplePE.projectSamplesEnabled)
         {
@@ -405,32 +402,32 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
 
     public SpacePE getSpace1()
     {
-        return getCommonService().tryFindSpace("AUTH-SPACE-1");
+        return getCommonService().tryFindSpace(AUTH_SPACE_1);
     }
 
     public SpacePE getSpace2()
     {
-        return getCommonService().tryFindSpace("AUTH-SPACE-2");
+        return getCommonService().tryFindSpace(AUTH_SPACE_2);
     }
 
     public ProjectPE getProject11()
     {
-        return getCommonService().tryFindProject(getSpace1().getCode(), "AUTH-PROJECT-1");
+        return getCommonService().tryFindProject(getSpace1().getCode(), AUTH_PROJECT_1);
     }
 
     public ProjectPE getProject12()
     {
-        return getCommonService().tryFindProject(getSpace1().getCode(), "AUTH-PROJECT-2");
+        return getCommonService().tryFindProject(getSpace1().getCode(), AUTH_PROJECT_2);
     }
 
     public ProjectPE getProject21()
     {
-        return getCommonService().tryFindProject(getSpace2().getCode(), "AUTH-PROJECT-1");
+        return getCommonService().tryFindProject(getSpace2().getCode(), AUTH_PROJECT_1);
     }
 
     public ProjectPE getProject22()
     {
-        return getCommonService().tryFindProject(getSpace2().getCode(), "AUTH-PROJECT-2");
+        return getCommonService().tryFindProject(getSpace2().getCode(), AUTH_PROJECT_2);
     }
 
     public ExperimentPE getExperiment(SpacePE spacePE, ProjectPE projectPE)

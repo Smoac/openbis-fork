@@ -16,37 +16,40 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public abstract class NewSamplePredicateWithSampleSystemTest extends CommonSamplePredicateSystemTest<NewSample>
+public abstract class NewSamplePredicateWithSampleSystemTest extends NewSamplePredicateSystemTest
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<NewSample> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<NewSample> getAssertions()
     {
-        getBean(SamplePredicateTestService.class).testNewSamplePredicate(sessionProvider, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No new sample specified.");
+        return new CommonPredicateSystemTestSampleAssertions<NewSample>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (SampleKind.SHARED_READ_WRITE.equals(param) && false == user.isInstanceUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    } else
+                    {
+                        assertNoException(t);
+                    }
+                }
+            };
     }
 
 }

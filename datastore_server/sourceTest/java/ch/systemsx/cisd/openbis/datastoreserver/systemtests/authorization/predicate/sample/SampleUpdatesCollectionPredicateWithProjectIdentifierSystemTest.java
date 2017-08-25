@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
@@ -37,21 +38,34 @@ public class SampleUpdatesCollectionPredicateWithProjectIdentifierSystemTest ext
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<SampleUpdatesDTO> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<SampleUpdatesDTO> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSampleUpdatesCollectionPredicate(sessionProvider, objects);
+        getBean(SamplePredicateTestService.class).testSampleUpdatesCollectionPredicate(user.getSessionProvider(), objects);
     }
 
     @Override
-    protected void assertWithNullForInstanceUser(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<SampleUpdatesDTO> getAssertions()
     {
-        assertNoException(t);
-    }
+        return new CommonPredicateSystemTestAssertionsDelegate<SampleUpdatesDTO>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No sample updates specified.");
+                    }
+                }
 
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No sample updates collection specified.");
+                @Override
+                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No sample updates collection specified.");
+                }
+            };
     }
 
 }

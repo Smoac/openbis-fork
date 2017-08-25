@@ -18,12 +18,13 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.ExperimentPredicateTestService;
@@ -58,29 +59,42 @@ public class UpdatedExperimentsWithTypePredicateSystemTest extends CommonPredica
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<UpdatedBasicExperiment> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<UpdatedBasicExperiment> objects, Object param)
     {
         UpdatedExperimentsWithType experiments = new UpdatedExperimentsWithType();
         experiments.setUpdatedExperiments(objects);
-        getBean(ExperimentPredicateTestService.class).testUpdatedExperimentsWithTypePredicate(sessionProvider, experiments);
+        getBean(ExperimentPredicateTestService.class).testUpdatedExperimentsWithTypePredicate(user.getSessionProvider(), experiments);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<UpdatedBasicExperiment> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
-    }
+        return new CommonPredicateSystemTestAssertionsDelegate<UpdatedBasicExperiment>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, NullPointerException.class, null);
+                }
 
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, NullPointerException.class, null);
-    }
+                @Override
+                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, NullPointerException.class, null);
+                }
 
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

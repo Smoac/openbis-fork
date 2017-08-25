@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -36,6 +39,25 @@ public class ScreeningPlateListReadOnlyPredicateWithPlateCodeAndSpaceCodeSystemT
     protected PlateIdentifier createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         return PlateIdentifierUtil.createObjectWithPlateCodeAndSpaceCode(this, spacePE, projectPE, param);
+    }
+
+    @Override
+    protected CommonPredicateSystemTestAssertions<PlateIdentifier> getAssertions()
+    {
+        return new CommonPredicateSystemTestAssertionsDelegate<PlateIdentifier>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

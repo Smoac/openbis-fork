@@ -18,25 +18,24 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetCodeUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonDataSetPredicateSystemTest;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.dataset.NewDataSetsWithTypePredicateUtil.NewDataSetField;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class NewDataSetsWithTypePredicateWithParentIdentifiersSystemTest extends CommonDataSetPredicateSystemTest<String>
+public class NewDataSetsWithTypePredicateWithParentIdentifiersSystemTest extends NewDataSetsWithTypePredicateSystemTest<String>
 {
 
     @Override
-    protected boolean isCollectionPredicate()
+    public Object[] getParams()
     {
-        return true;
+        return getDataSetKinds();
     }
 
     @Override
@@ -52,9 +51,9 @@ public class NewDataSetsWithTypePredicateWithParentIdentifiersSystemTest extends
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<String> objects, Object param)
     {
-        NewDataSetsWithTypePredicateUtil.evaluateObjects(sessionProvider, objects, new NewDataSetField<String>()
+        evaluateObjects(user, objects, param, new NewDataSetField<String>()
             {
                 @Override
                 public void set(NewDataSet dataSet, String parentCode)
@@ -65,21 +64,9 @@ public class NewDataSetsWithTypePredicateWithParentIdentifiersSystemTest extends
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<String> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
-    }
-
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestDataSetAssertions<>(super.getAssertions());
     }
 
 }

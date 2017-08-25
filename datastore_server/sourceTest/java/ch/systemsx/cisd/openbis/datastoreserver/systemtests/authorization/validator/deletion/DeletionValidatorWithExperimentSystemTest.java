@@ -16,19 +16,15 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.deletion;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.validator.deleteion.DeletionValidatorTestService;
 
 /**
  * @author pkupczyk
  */
-public class DeletionValidatorWithExperimentSystemTest extends CommonValidatorSystemTest<Deletion>
+public class DeletionValidatorWithExperimentSystemTest extends DeletionValidatorSystemTest
 {
 
     @Override
@@ -36,27 +32,6 @@ public class DeletionValidatorWithExperimentSystemTest extends CommonValidatorSy
     {
         ExperimentPE experiment = getExperimentEmpty(spacePE, projectPE);
         return getCommonService().trashExperiment(experiment);
-    }
-
-    @Override
-    protected Deletion validateObject(IAuthSessionProvider sessionProvider, Deletion object, Object param)
-    {
-        try
-        {
-            return getBean(DeletionValidatorTestService.class).testDeletionValidator(sessionProvider, object);
-        } finally
-        {
-            if (object != null)
-            {
-                getCommonService().untrash(object.getId());
-            }
-        }
-    }
-
-    @Override
-    protected void assertWithInstanceObserverUser(PersonPE person, Deletion result, Throwable t, Object param)
-    {
-        assertNull(result);
     }
 
 }

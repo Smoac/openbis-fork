@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleIdentifierUtil;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -41,6 +44,25 @@ public class SampleIdPredicateWithSampleIdentifierSystemTest extends SampleIdPre
     {
         SampleIdentifier identifier = SampleIdentifierUtil.createObject(this, spacePE, projectPE, param);
         return new SampleIdentifierId(identifier.toString());
+    }
+
+    @Override
+    protected CommonPredicateSystemTestAssertions<ISampleId> getAssertions()
+    {
+        return new CommonPredicateSystemTestAssertionsDelegate<ISampleId>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

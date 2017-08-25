@@ -19,19 +19,26 @@ package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.d
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetCodeUtil;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonDataSetPredicateScreeningSystemTest;
+import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonPredicateScreeningSystemTest;
 
 /**
  * @author pkupczyk
  */
-public class DataSetReferencePredicateSystemTest extends CommonDataSetPredicateScreeningSystemTest<DatasetReference>
+public class DataSetReferencePredicateSystemTest extends CommonPredicateScreeningSystemTest<DatasetReference>
 {
+
+    @Override
+    public Object[] getParams()
+    {
+        return getDataSetKinds();
+    }
 
     @Override
     protected DatasetReference createNonexistentObject(Object param)
@@ -48,21 +55,28 @@ public class DataSetReferencePredicateSystemTest extends CommonDataSetPredicateS
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<DatasetReference> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<DatasetReference> objects, Object param)
     {
-        getBean(DataSetPredicateScreeningTestService.class).testDataSetReferencePredicate(sessionProvider, objects.get(0));
+        getBean(DataSetPredicateScreeningTestService.class).testDataSetReferencePredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<DatasetReference> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No data set reference specified.");
-    }
+        return new CommonPredicateSystemTestDataSetAssertions<DatasetReference>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No data set reference specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

@@ -16,24 +16,26 @@
 
 package ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleUtil;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
-import ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator.CommonSampleValidatorProteomicsSystemTest;
+import ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator.CommonValidatorProteomicsSystemTest;
 
 /**
  * @author pkupczyk
  */
-public class RawDataSampleValidatorSystemTest extends CommonSampleValidatorProteomicsSystemTest<MsInjectionSample>
+public class RawDataSampleValidatorSystemTest extends CommonValidatorProteomicsSystemTest<MsInjectionSample>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -46,9 +48,15 @@ public class RawDataSampleValidatorSystemTest extends CommonSampleValidatorProte
     }
 
     @Override
-    protected MsInjectionSample validateObject(IAuthSessionProvider sessionProvider, MsInjectionSample object, Object param)
+    protected MsInjectionSample validateObject(ProjectAuthorizationUser user, MsInjectionSample object, Object param)
     {
-        return getBean(SampleValidatorProteomicsTestService.class).testRawDataSampleValidator(sessionProvider, object);
+        return getBean(SampleValidatorProteomicsTestService.class).testRawDataSampleValidator(user.getSessionProvider(), object);
+    }
+
+    @Override
+    protected CommonValidatorSystemTestAssertions<MsInjectionSample> getAssertions()
+    {
+        return new CommonValidatorSystemTestSampleAssertions<>(super.getAssertions());
     }
 
 }

@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleTechIdUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.Sample
 /**
  * @author pkupczyk
  */
-public class SampleTechIdCollectionPredicateSystemTest extends CommonSamplePredicateSystemTest<TechId>
+public class SampleTechIdCollectionPredicateSystemTest extends CommonPredicateSystemTest<TechId>
 {
 
     @Override
@@ -41,9 +42,9 @@ public class SampleTechIdCollectionPredicateSystemTest extends CommonSamplePredi
     }
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -59,39 +60,34 @@ public class SampleTechIdCollectionPredicateSystemTest extends CommonSamplePredi
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<TechId> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testSampleTechIdCollectionPredicate(sessionProvider, objects);
+        getBean(SamplePredicateTestService.class).testSampleTechIdCollectionPredicate(user.getSessionProvider(), objects);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<TechId> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
-    }
+        return new CommonPredicateSystemTestSampleAssertions<TechId>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, NullPointerException.class, null);
+                }
 
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No sample technical ids specified.");
-    }
+                @Override
+                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No sample technical ids specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        SampleTechIdUtil.assertWithNonexistentObjectForInstanceUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        SampleTechIdUtil.assertWithNonexistentObjectForProjectUser(person, t, param);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        SampleTechIdUtil.assertWithNonexistentObjectForSpaceUser(person, t, param);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

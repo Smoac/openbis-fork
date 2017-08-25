@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.proteomics.systemtests.authorization.validator;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonSampleValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
 
 /**
  * @author pkupczyk
  */
-public abstract class CommonSampleValidatorProteomicsSystemTest<O> extends CommonSampleValidatorSystemTest<O>
+public abstract class CommonValidatorProteomicsSystemTest<O> extends CommonValidatorSystemTest<O>
 {
 
     @Override

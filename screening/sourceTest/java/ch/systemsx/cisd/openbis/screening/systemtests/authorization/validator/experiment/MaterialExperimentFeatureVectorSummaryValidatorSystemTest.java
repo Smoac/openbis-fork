@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.experiment;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.CommonValidatorScreeningSystemTest;
 
@@ -28,10 +28,11 @@ public abstract class MaterialExperimentFeatureVectorSummaryValidatorSystemTest
 {
 
     @Override
-    protected MaterialSimpleFeatureVectorSummary validateObject(IAuthSessionProvider sessionProvider, MaterialSimpleFeatureVectorSummary object,
+    protected MaterialSimpleFeatureVectorSummary validateObject(ProjectAuthorizationUser user, MaterialSimpleFeatureVectorSummary object,
             Object param)
     {
-        return getBean(ExperimentValidatorScreeningTestService.class).testMaterialExperimentFeatureVectorSummaryValidator(sessionProvider, object);
+        return getBean(ExperimentValidatorScreeningTestService.class).testMaterialExperimentFeatureVectorSummaryValidator(user.getSessionProvider(),
+                object);
     }
 
 }

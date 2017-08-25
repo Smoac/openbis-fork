@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.experiment;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSpaceAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
@@ -37,11 +38,9 @@ public class MaterialExperimentFeatureVectorSummaryValidatorWithSpaceCodeSystemT
     }
 
     @Override
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, MaterialSimpleFeatureVectorSummary result, Throwable t,
-            Object param)
+    protected CommonValidatorSystemTestAssertions<MaterialSimpleFeatureVectorSummary> getAssertions()
     {
-        // given only a space code the project authorization does not work
-        assertNull(result);
+        return new CommonValidatorSystemTestSpaceAssertions<MaterialSimpleFeatureVectorSummary>(super.getAssertions());
     }
 
 }

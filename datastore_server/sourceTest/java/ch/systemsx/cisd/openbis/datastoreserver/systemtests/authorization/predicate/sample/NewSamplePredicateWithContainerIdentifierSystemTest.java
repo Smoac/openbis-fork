@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleIdentifierUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -46,30 +44,6 @@ public class NewSamplePredicateWithContainerIdentifierSystemTest extends NewSamp
         NewSample newSample = new NewSample();
         newSample.setContainerIdentifier(identifier.toString());
         return newSample;
-    }
-
-    @Override
-    public void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        if (SampleKind.SHARED_READ_WRITE.equals(param))
-        {
-            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-        } else
-        {
-            CommonAuthorizationSystemTest.assertNoException(t);
-        }
-    }
-
-    @Override
-    public void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        if (SampleKind.SHARED_READ_WRITE.equals(param))
-        {
-            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-        } else
-        {
-            CommonAuthorizationSystemTest.assertNoException(t);
-        }
     }
 
 }

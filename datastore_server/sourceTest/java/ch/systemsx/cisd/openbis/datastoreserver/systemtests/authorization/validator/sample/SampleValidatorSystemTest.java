@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonSampleValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.validator.sample.SampleValidatorTestService;
@@ -27,13 +29,13 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.validator.sample.Sample
 /**
  * @author pkupczyk
  */
-public class SampleValidatorSystemTest extends CommonSampleValidatorSystemTest<Sample>
+public class SampleValidatorSystemTest extends CommonValidatorSystemTest<Sample>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     @Override
@@ -43,9 +45,15 @@ public class SampleValidatorSystemTest extends CommonSampleValidatorSystemTest<S
     }
 
     @Override
-    protected Sample validateObject(IAuthSessionProvider sessionProvider, Sample object, Object param)
+    protected Sample validateObject(ProjectAuthorizationUser user, Sample object, Object param)
     {
-        return getBean(SampleValidatorTestService.class).testSampleValidator(sessionProvider, object);
+        return getBean(SampleValidatorTestService.class).testSampleValidator(user.getSessionProvider(), object);
+    }
+
+    @Override
+    protected CommonValidatorSystemTestAssertions<Sample> getAssertions()
+    {
+        return new CommonValidatorSystemTestSampleAssertions<Sample>(super.getAssertions());
     }
 
 }

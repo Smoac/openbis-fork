@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator.sample;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -42,10 +42,10 @@ public class PlateWellReferenceWithDatasetsValidatorSystemTest
     }
 
     @Override
-    protected PlateWellReferenceWithDatasets validateObject(IAuthSessionProvider sessionProvider, PlateWellReferenceWithDatasets object,
+    protected PlateWellReferenceWithDatasets validateObject(ProjectAuthorizationUser user, PlateWellReferenceWithDatasets object,
             Object param)
     {
-        return getBean(SampleValidatorScreeningTestService.class).testPlateWellReferenceWithDatasetsValidator(sessionProvider, object);
+        return getBean(SampleValidatorScreeningTestService.class).testPlateWellReferenceWithDatasetsValidator(user.getSessionProvider(), object);
     }
 
 }

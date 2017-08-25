@@ -1,5 +1,4 @@
 /*
-
  * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,30 +16,18 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
  */
-public abstract class CommonDataSetValidatorSystemTest<O> extends CommonValidatorSystemTest<O>
+public abstract class CommonValidatorSystemTestAssertions<O>
 {
 
-    @Override
-    public Object[] provideParams()
-    {
-        return provideDataSetKinds();
-    }
+    public abstract void assertWithNullObject(ProjectAuthorizationUser user, O result, Throwable error, Object param);
 
-    @Override
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        if (DataSetKind.SPACE_SAMPLE.equals(param))
-        {
-            assertNull(result);
-        } else
-        {
-            super.assertWithNonMatchingSpaceAndMatchingProjectUser(person, result, t, param);
-        }
-    }
+    public abstract void assertWithProject11Object(ProjectAuthorizationUser user, O result, Throwable t, Object param);
+
+    public abstract void assertWithProject21Object(ProjectAuthorizationUser user, O result, Throwable t, Object param);
 
 }

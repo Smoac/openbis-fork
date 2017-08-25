@@ -18,12 +18,11 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.ExperimentIdentifierUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -32,7 +31,7 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataS
 /**
  * @author pkupczyk
  */
-public class NewExternalDataPredicateWithExperimentIdentifierSystemTest extends CommonPredicateSystemTest<ExperimentIdentifier>
+public class NewExternalDataPredicateWithExperimentIdentifierSystemTest extends NewExternalDataPredicateSystemTest<ExperimentIdentifier>
 {
 
     @Override
@@ -48,7 +47,7 @@ public class NewExternalDataPredicateWithExperimentIdentifierSystemTest extends 
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ExperimentIdentifier> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<ExperimentIdentifier> objects, Object param)
     {
         NewExternalData data = null;
 
@@ -58,31 +57,13 @@ public class NewExternalDataPredicateWithExperimentIdentifierSystemTest extends 
             data.setExperimentIdentifierOrNull(objects.get(0));
         }
 
-        getBean(DataSetPredicateTestService.class).testNewExternalDataPredicate(sessionProvider, data);
+        getBean(DataSetPredicateTestService.class).testNewExternalDataPredicate(user.getSessionProvider(), data);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<ExperimentIdentifier> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No new data set specified.");
-    }
-
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        if (SampleKind.SHARED_READ_WRITE.equals(param))
-        {
-            assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-        } else
-        {
-            assertNoException(t);
-        }
+        return new CommonPredicateSystemTestAssertionsDelegate<ExperimentIdentifier>(super.getAssertions());
     }
 
 }

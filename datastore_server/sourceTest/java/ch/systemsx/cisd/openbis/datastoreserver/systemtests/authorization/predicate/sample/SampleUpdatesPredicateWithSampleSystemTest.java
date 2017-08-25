@@ -16,37 +16,26 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public abstract class SampleUpdatesPredicateWithSampleSystemTest extends CommonSamplePredicateSystemTest<SampleUpdatesDTO>
+public abstract class SampleUpdatesPredicateWithSampleSystemTest extends SampleUpdatesPredicateSystemTest
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<SampleUpdatesDTO> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<SampleUpdatesDTO> getAssertions()
     {
-        getBean(SamplePredicateTestService.class).testSampleUpdatesPredicate(sessionProvider, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No sample updates specified.");
+        return new CommonPredicateSystemTestSampleAssertions<SampleUpdatesDTO>(super.getAssertions());
     }
 
 }

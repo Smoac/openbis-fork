@@ -19,15 +19,16 @@ package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.s
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
-import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonSamplePredicateScreeningSystemTest;
+import ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate.CommonPredicateScreeningSystemTest;
 
 /**
  * @author pkupczyk
  */
-public abstract class ScreeningPlateListReadOnlyPredicateSystemTest extends CommonSamplePredicateScreeningSystemTest<PlateIdentifier>
+public abstract class ScreeningPlateListReadOnlyPredicateSystemTest extends CommonPredicateScreeningSystemTest<PlateIdentifier>
 {
 
     @Override
@@ -37,33 +38,34 @@ public abstract class ScreeningPlateListReadOnlyPredicateSystemTest extends Comm
     }
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return PlateIdentifierUtil.provideParams(SampleKind.SHARED_READ);
     }
 
     @Override
-    public Object[] provideParams()
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<PlateIdentifier> objects, Object param)
     {
-        return PlateIdentifierUtil.provideParams(getSharedSampleKind());
+        getBean(SamplePredicateScreeningTestService.class).testScreeningPlateListReadOnlyPredicate(user.getSessionProvider(), objects);
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<PlateIdentifier> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<PlateIdentifier> getAssertions()
     {
-        getBean(SamplePredicateScreeningTestService.class).testScreeningPlateListReadOnlyPredicate(session, objects);
-    }
+        return new CommonPredicateSystemTestSampleAssertions<PlateIdentifier>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, NullPointerException.class, null);
+                }
 
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No plate specified.");
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, NullPointerException.class, null);
+                @Override
+                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No plate specified.");
+                }
+            };
     }
 
 }

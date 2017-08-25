@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetTechIdUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonDataSetPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataSetPredicateTestService;
@@ -31,13 +32,19 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataS
 /**
  * @author pkupczyk
  */
-public class DataSetTechIdCollectionPredicateSystemTest extends CommonDataSetPredicateSystemTest<TechId>
+public class DataSetTechIdCollectionPredicateSystemTest extends CommonPredicateSystemTest<TechId>
 {
 
     @Override
     protected boolean isCollectionPredicate()
     {
         return true;
+    }
+
+    @Override
+    public Object[] getParams()
+    {
+        return getDataSetKinds();
     }
 
     @Override
@@ -53,27 +60,34 @@ public class DataSetTechIdCollectionPredicateSystemTest extends CommonDataSetPre
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<TechId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<TechId> objects, Object param)
     {
-        getBean(DataSetPredicateTestService.class).testDataSetTechIdCollectionPredicate(sessionProvider, objects);
+        getBean(DataSetPredicateTestService.class).testDataSetTechIdCollectionPredicate(user.getSessionProvider(), objects);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<TechId> getAssertions()
     {
-        assertException(t, NullPointerException.class, null);
-    }
+        return new CommonPredicateSystemTestDataSetAssertions<TechId>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, NullPointerException.class, null);
+                }
 
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No data set technical ids specified.");
-    }
+                @Override
+                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertException(t, UserFailureException.class, "No data set technical ids specified.");
+                }
 
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

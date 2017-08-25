@@ -19,12 +19,11 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SamplePermIdUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataSetPredicateTestService;
@@ -32,13 +31,13 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.dataset.DataS
 /**
  * @author pkupczyk
  */
-public class NewExternalDataPredicateWithSamplePermIdSystemTest extends CommonSamplePredicateSystemTest<String>
+public class NewExternalDataPredicateWithSamplePermIdSystemTest extends NewExternalDataPredicateSystemTest<String>
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ_WRITE;
+        return getSampleKinds(SampleKind.SHARED_READ_WRITE);
     }
 
     @Override
@@ -54,7 +53,7 @@ public class NewExternalDataPredicateWithSamplePermIdSystemTest extends CommonSa
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<String> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<String> objects, Object param)
     {
         NewExternalData data = null;
 
@@ -64,31 +63,26 @@ public class NewExternalDataPredicateWithSamplePermIdSystemTest extends CommonSa
             data.setSamplePermIdOrNull(objects.get(0));
         }
 
-        getBean(DataSetPredicateTestService.class).testNewExternalDataPredicate(sessionProvider, data);
+        getBean(DataSetPredicateTestService.class).testNewExternalDataPredicate(user.getSessionProvider(), data);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<String> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No new data set specified.");
-    }
-
-    @Override
-    protected void assertWithNullCollection(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id.*");
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id.*");
+        return new CommonPredicateSystemTestSampleAssertions<String>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id.*");
+                    }
+                }
+            };
     }
 
 }

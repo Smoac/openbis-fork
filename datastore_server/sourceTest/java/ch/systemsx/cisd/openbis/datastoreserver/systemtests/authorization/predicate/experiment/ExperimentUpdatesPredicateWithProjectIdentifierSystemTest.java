@@ -20,23 +20,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.ExperimentPredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends CommonPredicateSystemTest<ExperimentUpdatesDTO>
+public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends ExperimentUpdatesPredicateSystemTest
 {
 
     @Override
@@ -62,34 +60,35 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends C
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentUpdatesDTO> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<ExperimentUpdatesDTO> objects, Object param)
     {
         // we want to test projectIdentifier access only therefore here we add assignment to have access to experimentId
 
         Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
-        roleAssignments.addAll(session.getSession().tryGetPerson().getRoleAssignments());
+        roleAssignments.addAll(user.getSessionProvider().getSession().tryGetPerson().getRoleAssignments());
         roleAssignments.add(createSpaceRole(RoleCode.ADMIN, getCommonService().tryFindSpace("TEST-SPACE")));
-        session.getSession().tryGetPerson().setRoleAssignments(roleAssignments);
+        user.getSessionProvider().getSession().tryGetPerson().setRoleAssignments(roleAssignments);
 
-        getBean(ExperimentPredicateTestService.class).testExperimentUpdatesPredicate(session, objects.get(0));
+        super.evaluateObjects(user, objects, param);
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<ExperimentUpdatesDTO> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No experiment updates specified.");
-    }
-
-    @Override
-    protected void assertWithNoAllowedRoles(PersonPE person, Throwable t, Object param)
-    {
-        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestAssertionsDelegate<ExperimentUpdatesDTO>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            };
     }
 
 }

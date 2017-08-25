@@ -16,18 +16,11 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -38,167 +31,45 @@ public abstract class CommonValidatorSystemTest<O> extends CommonAuthorizationSy
 
     protected abstract O createObject(SpacePE spacePE, ProjectPE projectPE, Object param);
 
-    protected abstract O validateObject(IAuthSessionProvider sessionProvider, O object, Object param);
+    protected abstract O validateObject(ProjectAuthorizationUser user, O object, Object param);
 
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithNull(PersonPE person, Object param)
+    protected CommonValidatorSystemTestAssertions<O> getAssertions()
     {
-        person.setRoleAssignments(Collections.singleton(createInstanceRole(RoleCode.ADMIN)));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), null, param);
-
-        assertWithNull(person, result.getResult(), result.getError(), param);
+        return new CommonValidatorSystemTestAssertionsDefault<O>();
     }
 
-    protected void assertWithNull(PersonPE person, O result, Throwable t, Object param)
+    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
+    public void testWithNull(ProjectAuthorizationUser user, Object param)
+    {
+        ValidationResult result = tryValidateObject(user, null, param);
+        getAssertions().assertWithNullObject(user, result.getResult(), result.getError(), param);
+    }
+
+    protected void assertWithNull(ProjectAuthorizationUser user, O result, Throwable t, Object param)
     {
         assertNull(result);
         assertNoException(t);
     }
 
     @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithNoAllowedRoles(PersonPE person, Object param)
+    public void testWithProject11Object(ProjectAuthorizationUser user, Object param)
     {
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithNoAllowedRoles(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithNoAllowedRoles(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNull(result);
-        assertAuthorizationFailureExceptionThatNoRoles(t);
+        ValidationResult result = tryValidateObject(user, createObject(getSpace1(), getProject11(), param), param);
+        getAssertions().assertWithProject11Object(user, result.getResult(), result.getError(), param);
     }
 
     @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithInstanceAdminUser(PersonPE person, Object param)
+    public void testWithProject21Object(ProjectAuthorizationUser user, Object param)
     {
-        person.setRoleAssignments(Collections.singleton(createInstanceRole(RoleCode.ADMIN)));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithInstanceAdminUser(person, result.getResult(), result.getError(), param);
+        ValidationResult result = tryValidateObject(user, createObject(getSpace2(), getProject21(), param), param);
+        getAssertions().assertWithProject21Object(user, result.getResult(), result.getError(), param);
     }
 
-    protected void assertWithInstanceAdminUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNotNull(result);
-        assertNoException(t);
-    }
-
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithInstanceObserverUser(PersonPE person, Object param)
-    {
-        person.setRoleAssignments(Collections.singleton(createInstanceRole(RoleCode.OBSERVER)));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithInstanceObserverUser(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithInstanceObserverUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNotNull(result);
-        assertNoException(t);
-    }
-
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithMatchingSpaceAndNonMatchingSpaceUser(PersonPE person, Object param)
-    {
-        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(
-                createSpaceRole(RoleCode.ADMIN, getSpace2()), createSpaceRole(RoleCode.ADMIN, getSpace1()))));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithMatchingSpaceAndNonMatchingSpaceUser(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithMatchingSpaceAndNonMatchingSpaceUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNotNull(result);
-        assertNoException(t);
-    }
-
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithMatchingSpaceAndMatchingProjectUser(PersonPE person, Object param)
-    {
-        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(
-                createSpaceRole(RoleCode.ADMIN, getSpace1()), createProjectRole(RoleCode.ADMIN, getProject11()))));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithMatchingSpaceAndMatchingProjectUser(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithMatchingSpaceAndMatchingProjectUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNotNull(result);
-        assertNoException(t);
-    }
-
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithMatchingSpaceAndNonMatchingProjectUser(PersonPE person, Object param)
-    {
-        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(
-                createSpaceRole(RoleCode.ADMIN, getSpace1()), createProjectRole(RoleCode.ADMIN, getProject21()))));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithMatchingSpaceAndNonMatchingProjectUser(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithMatchingSpaceAndNonMatchingProjectUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNotNull(result);
-        assertNoException(t);
-    }
-
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, Object param)
-    {
-        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(
-                createSpaceRole(RoleCode.ADMIN, getSpace2()), createProjectRole(RoleCode.ADMIN, getProject11()))));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithNonMatchingSpaceAndMatchingProjectUser(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithNonMatchingSpaceAndMatchingProjectUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        if (getAuthorizationConfig().isProjectLevelEnabled() && getAuthorizationConfig().isProjectLevelUser(person.getUserId()))
-        {
-            assertNotNull(result);
-        } else
-        {
-            assertNull(result);
-        }
-
-        assertNoException(t);
-    }
-
-    @Test(dataProvider = PERSON_AND_PARAM_PROVIDER, groups = GROUP_PA_TESTS)
-    public void testWithNonMatchingSpaceAndNonMatchingProjectUser(PersonPE person, Object param)
-    {
-        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(
-                createSpaceRole(RoleCode.ADMIN, getSpace2()), createProjectRole(RoleCode.ADMIN, getProject21()))));
-
-        ValidationResult result = tryValidateObject(createSessionProvider(person), createObject(getSpace1(), getProject11(), param), param);
-
-        assertWithNonMatchingSpaceAndNonMatchingProjectUser(person, result.getResult(), result.getError(), param);
-    }
-
-    protected void assertWithNonMatchingSpaceAndNonMatchingProjectUser(PersonPE person, O result, Throwable t, Object param)
-    {
-        assertNull(result);
-        assertNoException(t);
-    }
-
-    protected ValidationResult tryValidateObject(IAuthSessionProvider session, O object, Object param)
+    protected ValidationResult tryValidateObject(ProjectAuthorizationUser user, O object, Object param)
     {
         try
         {
-            O result = validateObject(session, object, param);
+            O result = validateObject(user, object, param);
             return new ValidationResult(result);
         } catch (Throwable t)
         {

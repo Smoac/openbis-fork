@@ -59,10 +59,10 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
 
     public static interface ISampleToSpaceQuery extends BaseQuery
     {
-        @Select(sql = "select distinct space_id from samples where id = any(?{1}) "
-                + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings = { LongArrayMapper.class,
+        @Select(sql = "select distinct sp.code from samples sa inner join spaces sp on sa.space_id = sp.id where sa.id = any(?{1}) "
+                + "union select distinct sp.code from samples sa inner join spaces sp on sa.space_id = sp.id where sa.perm_id = any(?{2})", parameterBindings = { LongArrayMapper.class,
                         StringArrayMapper.class })
-        public List<Long> getSampleSpaceIds(long[] sampleIds, String[] samplePermIds);
+        public List<String> getSampleSpaceCodes(long[] sampleIds, String[] samplePermIds);
     }
 
     private final SampleOwnerIdentifierPredicate idOwnerPredicate;
@@ -149,14 +149,14 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
                 return status;
             }
         }
-        for (Long spaceId : getSampleSpaceIds(ids, permIds))
+        for (String spaceCode : getSampleSpaceCodes(ids, permIds))
         {
-            if (spaceId == null)
+            if (spaceCode == null)
             {
-                continue; // Shared samples will return a spaceId of null.
+                continue; // Shared samples will return a spaceCode of null.
             }
             final Status status =
-                    evaluate(person, allowedRoles, spaceId);
+                    evaluate(allowedRoles, person, spaceCode);
             if (Status.OK.equals(status) == false)
             {
                 return status;
@@ -165,7 +165,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
         return Status.OK;
     }
 
-    private Collection<Long> getSampleSpaceIds(final List<Long> ids, final List<String> permIds)
+    private Collection<String> getSampleSpaceCodes(final List<Long> ids, final List<String> permIds)
     {
         if (ids.size() != permIds.size())
         {
@@ -178,20 +178,20 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
         }
         if (size > ARRAY_SIZE_LIMIT)
         {
-            final Set<Long> spaceIds = new HashSet<Long>(size);
+            final Set<String> spaceCodes = new HashSet<String>(size);
             for (int startIdx = 0; startIdx < size; startIdx += ARRAY_SIZE_LIMIT)
             {
                 final List<Long> idSubList = ids.subList(startIdx,
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
                 final List<String> permIdSubList = permIds.subList(startIdx,
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
-                spaceIds.addAll(sampleToSpaceQuery.getSampleSpaceIds(toArray(idSubList),
+                spaceCodes.addAll(sampleToSpaceQuery.getSampleSpaceCodes(toArray(idSubList),
                         permIdSubList.toArray(new String[permIdSubList.size()])));
             }
-            return spaceIds;
+            return spaceCodes;
         } else
         {
-            return sampleToSpaceQuery.getSampleSpaceIds(toArray(ids),
+            return sampleToSpaceQuery.getSampleSpaceCodes(toArray(ids),
                     permIds.toArray(new String[size]));
         }
     }

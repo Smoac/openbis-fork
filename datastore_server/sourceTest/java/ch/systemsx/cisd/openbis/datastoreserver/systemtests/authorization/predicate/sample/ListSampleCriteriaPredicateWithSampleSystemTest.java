@@ -18,12 +18,11 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonSamplePredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -32,13 +31,13 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.Sample
 /**
  * @author pkupczyk
  */
-public abstract class ListSampleCriteriaPredicateWithSampleSystemTest extends CommonSamplePredicateSystemTest<ListSampleCriteria>
+public abstract class ListSampleCriteriaPredicateWithSampleSystemTest extends ListSampleCriteriaPredicateSystemTest
 {
 
     @Override
-    protected SampleKind getSharedSampleKind()
+    public Object[] getParams()
     {
-        return SampleKind.SHARED_READ;
+        return getSampleKinds(SampleKind.SHARED_READ);
     }
 
     protected abstract ListSampleCriteria createListSampleCriteria(TechId id);
@@ -57,33 +56,22 @@ public abstract class ListSampleCriteriaPredicateWithSampleSystemTest extends Co
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<ListSampleCriteria> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<ListSampleCriteria> objects, Object param)
     {
-        getBean(SamplePredicateTestService.class).testListSampleCriteriaPredicate(sessionProvider, objects.get(0));
+        getBean(SamplePredicateTestService.class).testListSampleCriteriaPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
+    protected CommonPredicateSystemTestAssertions<ListSampleCriteria> getAssertions()
     {
-        assertException(t, UserFailureException.class, "No sample listing criteria specified.");
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForProjectUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForSpaceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
+        return new CommonPredicateSystemTestSampleAssertions<ListSampleCriteria>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    assertNoException(t);
+                }
+            };
     }
 
 }

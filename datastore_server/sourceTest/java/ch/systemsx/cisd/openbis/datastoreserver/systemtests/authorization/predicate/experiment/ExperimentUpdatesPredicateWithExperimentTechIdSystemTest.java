@@ -16,23 +16,19 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.experiment;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.ExperimentPredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentUpdatesPredicateWithExperimentTechIdSystemTest extends CommonPredicateSystemTest<ExperimentUpdatesDTO>
+public class ExperimentUpdatesPredicateWithExperimentTechIdSystemTest extends ExperimentUpdatesPredicateSystemTest
 {
 
     @Override
@@ -53,27 +49,22 @@ public class ExperimentUpdatesPredicateWithExperimentTechIdSystemTest extends Co
     }
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider session, List<ExperimentUpdatesDTO> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<ExperimentUpdatesDTO> getAssertions()
     {
-        getBean(ExperimentPredicateTestService.class).testExperimentUpdatesPredicate(session, objects.get(0));
-    }
-
-    @Override
-    protected void assertWithNull(PersonPE person, Throwable t, Object param)
-    {
-        assertException(t, UserFailureException.class, "No experiment updates specified.");
-    }
-
-    @Override
-    protected void assertWithNonexistentObjectForInstanceUser(PersonPE person, Throwable t, Object param)
-    {
-        assertNoException(t);
-    }
-
-    @Override
-    protected void assertWithNonexistentObject(PersonPE person, Throwable t, Object param)
-    {
-        assertUserFailureExceptionThatExperimentDoesNotExist(t);
+        return new CommonPredicateSystemTestAssertionsDelegate<ExperimentUpdatesDTO>(super.getAssertions())
+            {
+                @Override
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                {
+                    if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
+                    } else
+                    {
+                        assertUserFailureExceptionThatExperimentDoesNotExist(t);
+                    }
+                }
+            };
     }
 
 }

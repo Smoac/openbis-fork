@@ -56,11 +56,11 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
 {
     public static interface IExperimentToSpaceQuery extends BaseQuery
     {
-        @Select(sql = "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
+        @Select(sql = "select distinct s.code from spaces s left join projects p on p.space_id = s.id left join experiments e on e.proj_id = p.id "
                 + "where e.id = any(?{1}) union "
-                + "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
+                + "select distinct s.code from spaces s left join projects p on p.space_id = s.id left join experiments e on e.proj_id = p.id "
                 + "where e.perm_id = any(?{2})", parameterBindings = { LongArrayMapper.class, StringArrayMapper.class })
-        public List<Long> getExperimentSpaceIds(long[] experimentIds, String[] experimentPermIds);
+        public List<String> getExperimentSpaceCodes(long[] experimentIds, String[] experimentPermIds);
     }
 
     private final static int ARRAY_SIZE_LIMIT = 999;
@@ -98,9 +98,9 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
         // - technical id
         // - permanent id
         // - identifier
-        
+
         Collection<Experiment> remainingExperiments = pa.getObjectsWithoutAccess();
-        
+
         final List<Long> ids = new ArrayList<Long>(remainingExperiments.size());
         final List<String> permIds = new ArrayList<String>(remainingExperiments.size());
         for (Experiment experiment : remainingExperiments)
@@ -126,9 +126,9 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
                 return status;
             }
         }
-        for (Long spaceId : getExperimentSpaceIds(ids, permIds))
+        for (String spaceCode : getExperimentSpaceCodes(ids, permIds))
         {
-            final Status status = evaluate(person, allowedRoles, spaceId);
+            final Status status = evaluate(allowedRoles, person, spaceCode);
             if (Status.OK.equals(status) == false)
             {
                 return status;
@@ -137,7 +137,7 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
         return Status.OK;
     }
 
-    private Collection<Long> getExperimentSpaceIds(final List<Long> ids, final List<String> permIds)
+    private Collection<String> getExperimentSpaceCodes(final List<Long> ids, final List<String> permIds)
     {
         if (ids.size() != permIds.size())
         {
@@ -150,20 +150,20 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
         }
         if (size > ARRAY_SIZE_LIMIT)
         {
-            final Set<Long> spaceIds = new HashSet<Long>(size);
+            final Set<String> spaceCodes = new HashSet<String>(size);
             for (int startIdx = 0; startIdx < size; startIdx += ARRAY_SIZE_LIMIT)
             {
                 final List<Long> idSubList = ids.subList(startIdx,
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
                 final List<String> permIdSubList = permIds.subList(startIdx,
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
-                spaceIds.addAll(experimentToSpaceQuery.getExperimentSpaceIds(toArray(idSubList),
+                spaceCodes.addAll(experimentToSpaceQuery.getExperimentSpaceCodes(toArray(idSubList),
                         permIdSubList.toArray(new String[permIdSubList.size()])));
             }
-            return spaceIds;
+            return spaceCodes;
         } else
         {
-            return experimentToSpaceQuery.getExperimentSpaceIds(toArray(ids),
+            return experimentToSpaceQuery.getExperimentSpaceCodes(toArray(ids),
                     permIds.toArray(new String[size]));
         }
     }

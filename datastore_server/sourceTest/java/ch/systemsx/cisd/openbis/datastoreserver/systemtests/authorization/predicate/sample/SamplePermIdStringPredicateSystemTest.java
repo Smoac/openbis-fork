@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predi
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
@@ -29,10 +29,10 @@ public class SamplePermIdStringPredicateSystemTest extends SamplePermIdPredicate
 {
 
     @Override
-    protected void evaluateObjects(IAuthSessionProvider sessionProvider, List<PermId> objects, Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<PermId> objects, Object param)
     {
         String permIdString = objects.get(0) != null ? objects.get(0).getId() : null;
-        getBean(SamplePredicateTestService.class).testSamplePermIdStringPredicate(sessionProvider, permIdString);
+        getBean(SamplePredicateTestService.class).testSamplePermIdStringPredicate(user.getSessionProvider(), permIdString);
     }
 
 }
