@@ -148,7 +148,6 @@ function SettingsManager(serverFacade) {
 							if (hint.ANNOTATION_PROPERTIES) {
 								var propertyTypeOptions = this.getAnnotationPropertyTypeOptions();
 								for (var annotationProperty of hint.ANNOTATION_PROPERTIES) {
-									// debugger;
 									if (sampleTypeExists && (annotationProperty.TYPE == null || propertyTypeOptions.indexOf(annotationProperty.TYPE) === -1)) {
 										errors.push(errorPrefix + "Annotation properties must have an existing property type but is: " +
 													annotationProperty.TYPE);

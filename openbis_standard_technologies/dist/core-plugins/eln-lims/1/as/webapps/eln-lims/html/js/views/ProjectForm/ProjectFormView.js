@@ -178,9 +178,8 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formColumn.append($("<legend>").append(ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode, true)))
 			$formColumn.append($experimentsContainer);
 			
-			var experimentTableController = new ExperimentTableController(this._projectFormController, null, this._projectFormModel.project, true);
+			var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
 			experimentTableController.init($experimentsContainer);
-			
 			
 			$formColumn.append($("<legend>").append("" + ELNDictionary.Samples + ""))
 			var $samplesContainerHeader = $("<div>");

@@ -23,7 +23,6 @@ var TreeUtil = new function() {
 	
 	this.getTreeForEntity = function($treeContainer, entity) {
 		var treeModel;
-		debugger;
 		switch(entity["@type"]) {
 			case "SpaceWithProjectsAndRoleAssignments":
 				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SPACE", key : entity.code, folder : true, lazy : true, hideCheckbox: true };
