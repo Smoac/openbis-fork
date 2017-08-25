@@ -18,7 +18,7 @@ var TreeUtil = new function() {
 	
 	this.getCompleteTree = function($treeContainer) {
 		var treeModel = [{ title : "/", entityType: "ROOT", key : "/", folder : true, lazy : true }];
-		return this.getTreeFromModel($treeContainer, treeModel);
+		return this.getTreeFromModel($treeContainer, treeModel, false);
 	}
 	
 	this.getTreeForEntity = function($treeContainer, entity) {
@@ -26,26 +26,26 @@ var TreeUtil = new function() {
 		debugger;
 		switch(entity["@type"]) {
 			case "SpaceWithProjectsAndRoleAssignments":
-				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SPACE", key : entity.code, folder : true, lazy : true };
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SPACE", key : entity.code, folder : true, lazy : true, hideCheckbox: true };
 				break;
 			case "Project":
-				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "PROJECT", key : entity.permId, folder : true, lazy : true };
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "PROJECT", key : entity.permId, folder : true, lazy : true, hideCheckbox: true };
 				break;
 			case "Experiment":
-				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "EXPERIMENT", key : entity.permId, folder : true, lazy : true };
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "EXPERIMENT", key : entity.permId, folder : true, lazy : true, hideCheckbox: true };
 				break;
 			case "Sample":
-				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SAMPLE", key : entity.permId, folder : true, lazy : true };
+				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "SAMPLE", key : entity.permId, folder : true, lazy : true, hideCheckbox: true };
 				break;
 			case "DataSet":
 				treeModel = { title : Util.getDisplayNameForEntity(entity), entityType: "DATASET", key : entity.code, folder : false, lazy : false, icon : "fa fa-database" };
 				break;
 		}
 		
-		return this.getTreeFromModel($treeContainer, [treeModel]);
+		return this.getTreeFromModel($treeContainer, [treeModel], true);
 	}
 	
-	this.getTreeFromModel = function($treeContainer, treeModel) {
+	this.getTreeFromModel = function($treeContainer, treeModel, hideCheckboxForFolders) {
 		var glyph_opts = {
         	    map: {
         	      doc: "glyphicon glyphicon-file",
@@ -79,7 +79,7 @@ var TreeUtil = new function() {
     	                var spaces = searchResult.objects;
     	                for (var i = 0; i < spaces.length; i++) {
     	                    var space = spaces[i];
-    	                    results.push({ title : Util.getDisplayNameForEntity(space), entityType: "SPACE", key : space.code, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(space), entityType: "SPACE", key : space.code, folder : true, lazy : true, hideCheckbox: hideCheckboxForFolders });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -91,7 +91,7 @@ var TreeUtil = new function() {
     	                var projects = searchResult.objects;
     	                for (var i = 0; i < projects.length; i++) {
     	                    var project = projects[i];
-    	                    results.push({ title : Util.getDisplayNameForEntity(project), entityType: "PROJECT", key : project.permId, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(project), entityType: "PROJECT", key : project.permId, folder : true, lazy : true, hideCheckbox: hideCheckboxForFolders });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -103,7 +103,7 @@ var TreeUtil = new function() {
     	                var experiments = searchResult.objects;
     	                for (var i = 0; i < experiments.length; i++) {
     	                    var experiment = experiments[i];
-    	                    results.push({ title : Util.getDisplayNameForEntity(experiment), entityType: "EXPERIMENT", key : experiment.permId, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(experiment), entityType: "EXPERIMENT", key : experiment.permId, folder : true, lazy : true, hideCheckbox: hideCheckboxForFolders });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -115,7 +115,7 @@ var TreeUtil = new function() {
     	                var samples = searchResult.objects;
     	                for (var i = 0; i < samples.length; i++) {
     	                    var sample = samples[i];
-    	                    results.push({ title : Util.getDisplayNameForEntity(sample), entityType: "SAMPLE", key : sample.permId, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(sample), entityType: "SAMPLE", key : sample.permId, folder : true, lazy : true, hideCheckbox: hideCheckboxForFolders });
     	                }
     	                
     	                var datasetRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };

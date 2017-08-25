@@ -23,12 +23,11 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		
 		$window.append($('<legend>').append("Create Jupyter Notebook"));
-		var $treeContainer = $('<div>');
+		var $treeContainer = $('<div>', { style : "height: 200px; overflow:auto;" });
 		$window.append(FormUtil.getFieldForLabelWithText("Included Datasets (*) ", ""));
 		$window.append($treeContainer);
 		
 		var tree = TreeUtil.getTreeForEntity($treeContainer, this._jupyterNotebookModel.entity);
-		
 		
 		var $workspace = FormUtil._getInputField('text', null, 'workspace Name', null, true);
 		var $notebookName = FormUtil._getInputField('text', null, 'notebook Name', null, true);
