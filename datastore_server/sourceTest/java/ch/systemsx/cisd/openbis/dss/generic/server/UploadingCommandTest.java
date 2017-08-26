@@ -52,6 +52,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -428,7 +429,8 @@ public class UploadingCommandTest extends AssertJUnit
 
                     one(uploader).upload(
                             Collections.singletonList(new FileWithOverrideName(new File(TMP,
-                                    ZIP_FILENAME + ".zip"), null)), "id:user", null);
+                                    ZIP_FILENAME + ".zip"), null)),
+                            "id:user", null);
                     will(new CustomAction("report 'finish' to listener")
                         {
                             @Override
@@ -459,7 +461,7 @@ public class UploadingCommandTest extends AssertJUnit
         }
         assertEquals(1, TMP.listFiles().length);
         checkZipFileContent(TMP.listFiles()[0]);
-        assertEquals(INFO_UPLOAD_PREFIX
+        AssertionUtil.assertContainsLines(INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> with 2 data sets has been successfully created."
                 + OSUtilities.LINE_SEPARATOR + INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> has been successfully uploaded.", getNormalizedLogContent());
@@ -498,7 +500,8 @@ public class UploadingCommandTest extends AssertJUnit
 
                     one(uploader).upload(
                             Collections.singletonList(new FileWithOverrideName(new File(TMP,
-                                    ZIP_FILENAME + ".zip"), null)), "id:user", null);
+                                    ZIP_FILENAME + ".zip"), null)),
+                            "id:user", null);
                     will(new CustomAction("report 'finish' to listener")
                         {
                             @Override
@@ -517,7 +520,7 @@ public class UploadingCommandTest extends AssertJUnit
         assertEquals("no emails expected", false, EMAILS.exists());
         assertEquals(1, TMP.listFiles().length);
         checkZipFileContent(TMP.listFiles()[0]);
-        assertEquals(INFO_UPLOAD_PREFIX
+        AssertionUtil.assertContainsLines(INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> with 2 data sets has been successfully created."
                 + OSUtilities.LINE_SEPARATOR + INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> has been successfully uploaded.", getNormalizedLogContent());
@@ -559,7 +562,7 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(null, directoryProvider);
 
         checkEmail("Couldn't create zip file");
-        assertEquals("WARN  OPERATION.DataSetExistenceChecker - Data set '2' no longer exists." + OSUtilities.LINE_SEPARATOR
+        AssertionUtil.assertContainsLines("WARN  OPERATION.DataSetExistenceChecker - Data set '2' no longer exists." + OSUtilities.LINE_SEPARATOR
                 + "ERROR NOTIFY.UploadingCommand - Data set '2' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "java.lang.RuntimeException: Data set '2' does not exist." + OSUtilities.LINE_SEPARATOR
                 + INFO_MAIL_PREFIX + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
@@ -597,7 +600,8 @@ public class UploadingCommandTest extends AssertJUnit
 
                     one(uploader).upload(
                             Collections.singletonList(new FileWithOverrideName(new File(TMP,
-                                    ZIP_FILENAME + ".zip"), null)), "id:user", null);
+                                    ZIP_FILENAME + ".zip"), null)),
+                            "id:user", null);
                     will(new CustomAction("report 'abort' to listener")
                         {
                             @Override
@@ -613,7 +617,7 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(null, directoryProvider);
 
         checkEmail("Uploading of zip file");
-        assertEquals(INFO_UPLOAD_PREFIX
+        AssertionUtil.assertContainsLines(INFO_UPLOAD_PREFIX
                 + "Zip file <zipfile> with 2 data sets has been successfully created."
                 + OSUtilities.LINE_SEPARATOR + WARN_UPLOAD_PREFIX
                 + "Uploading of zip file <zipfile> has been aborted or failed."

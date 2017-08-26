@@ -40,6 +40,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
@@ -174,7 +175,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
-        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
@@ -198,7 +199,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
-        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
@@ -223,7 +224,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
-        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
@@ -276,7 +277,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
         ProcessingStatus status = finalizer.process(Arrays.asList(ds1, ds2), processingContext);
 
-        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
@@ -326,7 +327,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1, ds2), processingContext);
 
-        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
