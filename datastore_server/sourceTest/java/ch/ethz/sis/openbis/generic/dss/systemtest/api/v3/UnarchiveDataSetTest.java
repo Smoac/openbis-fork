@@ -67,10 +67,8 @@ public class UnarchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
 
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
         v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), archiveOptions);
-        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVE_PENDING);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVED);
         v3.unarchiveDataSets(sessionToken, Arrays.asList(dataSetId), unarchiveOptions);
-        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.UNARCHIVE_PENDING);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
     }
 

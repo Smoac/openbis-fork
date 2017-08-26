@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
@@ -200,7 +201,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
                 + "ATTRIBUTE,REGISTRATION_DATE," + T4 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
-        assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-5 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
@@ -235,7 +236,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "ATTRIBUTE,REGISTRATION_DATE," + T3 + ",LESS_THAN_OR_EQUAL], "
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,A,EQUALS]],[]]", 
                 criteriaMatcher.recordedObject().toString());
-        assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-1 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
@@ -265,7 +266,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
                 + "ATTRIBUTE,REGISTRATION_DATE," + T4 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
-        assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
@@ -296,7 +297,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
                 + "ATTRIBUTE,REGISTRATION_DATE," + T4 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
-        assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
@@ -312,7 +313,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
                 + "ATTRIBUTE,REGISTRATION_DATE," + T2 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
-        assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.\n" +
@@ -329,7 +330,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
                 + "ATTRIBUTE,REGISTRATION_DATE," + T1 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
-        assertEquals(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.\n" +

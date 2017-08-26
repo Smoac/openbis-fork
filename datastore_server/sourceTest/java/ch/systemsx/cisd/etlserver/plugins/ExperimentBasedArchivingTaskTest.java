@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -421,7 +422,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             operationLogBuilder.append("Archiving summary:").append(
                     notifyMessageBuilder.toString().replaceAll("Starting archiving ", "Archived "));
         }
-        assertEquals(operationLogBuilder.toString(), logRecorder.getLogContent());
+        AssertionUtil.assertContainsLines(operationLogBuilder.toString(), logRecorder.getLogContent());
     }
 
     private String logEntry(Experiment experiment, PhysicalDataSet... dataSets)
