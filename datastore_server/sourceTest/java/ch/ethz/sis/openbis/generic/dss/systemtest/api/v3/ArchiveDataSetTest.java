@@ -65,7 +65,6 @@ public class ArchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
 
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
         v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
-        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVE_PENDING);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVED);
     }
 
@@ -82,7 +81,6 @@ public class ArchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
 
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
         v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
-        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.BACKUP_PENDING);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
     }
 
