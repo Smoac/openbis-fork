@@ -16,3 +16,4 @@
 sourceTest/java/ch/systemsx/cisd/etlserver/plugins/LastSeenDataSetFileContentTestResources/writeLastSeenFile
 .classpath
 .project
+/build/
