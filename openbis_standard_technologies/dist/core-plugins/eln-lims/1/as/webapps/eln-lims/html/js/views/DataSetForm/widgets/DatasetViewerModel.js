@@ -66,6 +66,10 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	this._isIconableImage = function(pathInDataSet) {
         return this._hasExtension(pathInDataSet, ["jpg", "jpeg", "png", "gif"]);
     }
+	
+	this._isJupyterNotebook = function(pathInDataSet) {
+        return this._hasExtension(pathInDataSet, ["ipynb"]);
+    }
 
 	this._hasExtension = function(pathInDataSet, extensions) {
         var haveExtension = pathInDataSet.lastIndexOf(".");
@@ -92,6 +96,15 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		return directLinkComponent;
 	}
 
+	this.getJupyterNotebookLink = function(datasetCode, datasetFile) {
+		if(this._isJupyterNotebook(datasetFile.pathInDataSet)) {
+	        var notebookURL = profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+	        var onclick = "JupyterUtil.copyNotebook(\"" + datasetCode + "\",\"" + notebookURL + "\");"
+	        return "<span onclick='" + onclick + "' class='glyphicon glyphicon-log-in'></span>";
+		}
+		return null;
+	}
+	
 	this.getPreviewLink = function(datasetCode, datasetFile) {
 		if(this._isPreviewableImage(datasetFile.pathInDataSet)) {
 	        var imageURLAsString = this.getImageUrl(datasetCode, datasetFile);

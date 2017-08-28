@@ -16,6 +16,31 @@
 
 var JupyterUtil = new function() {
 	
+	this.copyNotebook = function(datasetCode, notebookURL) {
+		var jupyterNotebook = new JupyterCopyNotebookController(datasetCode, notebookURL);
+		jupyterNotebook.init();
+	}
+	
+	this.openJupyterNotebookFromTemplate = function(folder, fileName, template) {
+		fileName = fileName + ".ipynb";
+		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
+		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
+		
+		$.ajax({
+            url : jupyterURL,
+            type : 'POST',
+            crossDomain: true,
+            data : template,
+            success : function(result) {
+            	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
+				win.focus(); 
+            },
+            error : function(result) {
+            	alert("error: " + JSON.stringify(result));
+            }
+		});
+	}
+	
 	this.createJupyterNotebookAndOpen = function(folder, fileName, dataSetIds) {
 		fileName = fileName + ".ipynb";
 		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
@@ -26,12 +51,8 @@ var JupyterUtil = new function() {
             url : jupyterURL,
             type : 'POST',
             crossDomain: true,
-//            processData : false,
-//            dataType: 'json',
-//            contentType: 'application/json',
             data : JSON.stringify(newJupyterNotebook),
             success : function(result) {
-            	//alert("success:" + JSON.stringify(result));
             	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
 				win.focus(); 
             },
