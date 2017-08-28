@@ -25,7 +25,30 @@ function AdvancedSearchController(mainController, forceSearch) {
 	}
 	
 	this.search = function() {
-		this._advancedSearchView.renderResults(this._advancedSearchModel.criteria);
+		var criteria = this._advancedSearchModel.criteria;
+		var numberOfGeneralRules = 0;
+		var numberOfRules = 0;
+		
+		for(ruleKey in criteria.rules) {
+			var rule = criteria.rules[ruleKey];
+			numberOfRules++;
+			if(!rule.value || rule.value.trim() === "*") {
+				numberOfGeneralRules++;
+			}
+		}
+		
+		
+		var _this = this;
+		var trueSearch = function() {
+			_this._advancedSearchView.renderResults(criteria);
+		}
+		
+		if(numberOfRules === numberOfGeneralRules) {
+			var warning = "This search query is too broad. This might take a long time and might lead to a very large number of search results. \n Do you want to submit the query anyway?";
+			Util.showWarning(warning, trueSearch);
+		} else {
+			trueSearch();
+		}
 	}
 	
 	this.searchWithPagination = function(criteria, isGlobalSearch) {
