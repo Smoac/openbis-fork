@@ -6,3 +6,4 @@ targets
 dss-root
 log-registrations
 /bin
+/build/
