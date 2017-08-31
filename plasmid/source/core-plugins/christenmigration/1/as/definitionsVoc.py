@@ -128,7 +128,7 @@ vocabularyDefinitions = {
                                                 ["other", "other"]
                                             ],
                          
-                         "PURITY": [
+                         "DNA_PURITY": [
                                                 ["columne", "columne"],
                                                 ["gel", "gel"],
                                                 ["EtOH", "EtOH"],
