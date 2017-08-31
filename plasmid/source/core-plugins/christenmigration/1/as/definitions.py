@@ -66,7 +66,7 @@ oligoDefinition = [
     ["NAME",                             "General",                  "Primer_name",                      DataType.VARCHAR,                  None,  "", None, None, False],      
     ["SEQUENCE",                         "General",                  "Primer_Sequence",                  DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],    
     ["OLIGO_TARGET",                     "General",                  "Target",                           DataType.MULTILINE_VARCHAR,        None,  "", None, None, False],       
-    [-"PRIMER_NUMBER",                    "General",                  "Primer_number",                    DataType.INTEGER,                None,  "", None, None, False],    
+    ["-PRIMER_NUMBER",                   "General",                  "Primer_number",                    DataType.INTEGER,                None,  "", None, None, False],    
     ["+ANNOTATIONS_STATE",               "Comments",                 "Annotations State",                DataType.XML,                      None,"Annotations State", annotationsScriptName, None, False]
 ];
 
