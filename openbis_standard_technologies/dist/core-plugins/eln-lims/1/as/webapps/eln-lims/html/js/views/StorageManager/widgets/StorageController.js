@@ -46,8 +46,13 @@ function StorageController(configOverride) {
 					data.samples.length === 1 && data.samples[0].properties[_this._storageModel.storagePropertyGroup.boxProperty]) {
 				_this._storageView.showBoxName();
 				_this._storageView.showBoxSize();
+				_this._storageView.showPosField(data.size, true);
+			} else {
+				_this._storageView.hideBoxField();
+				_this._storageView.hideBoxSizeField();
+				_this._storageView.hidePosField();
 			}
-			_this._storageView.showPosField(data.size, true);
+			
 		}); 
 	}
 	
