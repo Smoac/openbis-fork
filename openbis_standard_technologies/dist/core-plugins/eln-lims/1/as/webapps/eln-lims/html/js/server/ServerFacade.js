@@ -1135,9 +1135,53 @@ function ServerFacade(openbisServer) {
 					}
 				}
 			
+				//
+				// Fix For broken equals PART 1
+				// Currently the back-end matches whole words instead doing a standard EQUALS
+				// This fixes some most used cases for the storage system, but other use cases that use subcriterias can fail
+				//
+				var hackFixForBrokenEquals = [];
+				if(searchCriteria.criteria) {
+					for(var cIdx = 0; cIdx < searchCriteria.criteria.length; cIdx++) {
+						if(searchCriteria.criteria[cIdx].fieldType === "PROPERTY" && 
+								searchCriteria.criteria[cIdx].fieldValue.__proto__["@type"] === "as.dto.common.search.StringEqualToValue") {
+							hackFixForBrokenEquals.push({
+								propertyCode : searchCriteria.criteria[cIdx].fieldName,
+								value : searchCriteria.criteria[cIdx].fieldValue.value
+							});
+						}
+					}
+				}
+				//
+				// Fix For broken equals PART 1 - END
+				//
+				
 				mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
-				.done(function(result) {
-					callback(result);
+				.done(function(apiResults) {
+					//
+					// Fix For broken equals PART 2
+					//
+					var results = apiResults.objects;
+					var filteredResults = [];
+					if(hackFixForBrokenEquals.length > 0 && results) {
+						for(var rIdx = 0; rIdx < results.length; rIdx++) {
+							var result = results[rIdx];
+							for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
+								if(	result && 
+									result.properties && 
+									result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
+									filteredResults.push(result);
+								}
+							}
+						}
+					} else {
+						filteredResults = results;
+					}
+					//
+					// Fix For broken equals PART 2 - END
+					//
+					apiResults.objects = filteredResults;
+					callback(apiResults);
 				})
 				.fail(function(result) {
 					Util.showError("Call failed to server: " + JSON.stringify(result));
