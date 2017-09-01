@@ -44,6 +44,7 @@ import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -713,6 +714,31 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         result = v3api.getDataSets(sessionToken, Arrays.asList(dataSet), fe);
         AssertionUtil.assertCollectionContainsOnly(tagCodes(result.get(dataSet).getTags()), newTag1.getCode(), newTag2.getCode());
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId("20120619092259000-22"));
+        update.setProperty("COMMENT", "updated comment");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+                    }
+                }, update.getDataSetId());
+        }
     }
 
     private Collection<String> dataSetCodes(Collection<? extends DataSet> list)

@@ -23,8 +23,11 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -70,6 +73,34 @@ public class UnarchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVED);
         v3.unarchiveDataSets(sessionToken, Arrays.asList(dataSetId), unarchiveOptions);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testUnarchiveWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String adminSessionToken = v3.login(TEST_USER, PASSWORD);
+        String sessionToken = v3.login(user.getUserId(), PASSWORD);
+
+        IDataSetId dataSetId = new DataSetPermId("20120628092259000-41");
+        DataSetArchiveOptions archiveOptions = new DataSetArchiveOptions();
+        DataSetUnarchiveOptions unarchiveOptions = new DataSetUnarchiveOptions();
+
+        v3.archiveDataSets(adminSessionToken, Arrays.asList(dataSetId), archiveOptions);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            v3.unarchiveDataSets(sessionToken, Arrays.asList(dataSetId), unarchiveOptions);
+        } else
+        {
+            try
+            {
+                v3.unarchiveDataSets(sessionToken, Arrays.asList(dataSetId), unarchiveOptions);
+                fail();
+            } catch (Exception e)
+            {
+                assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
+            }
+        }
     }
 
 }

@@ -24,10 +24,14 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.IProjectAuthorization;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.ProjectAuthorizationBuilder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromExperimentIdentifierString;
+import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.project.ProjectProviderFromProjectPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.role.RolesProviderFromRolesWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -70,18 +74,47 @@ public class NewSampleIdentifierPredicate extends AbstractPredicate<NewSample>
 
     private Status doEvaluationOfExperimentProject(PersonPE person, List<RoleWithIdentifier> allowedRoles, NewSample value)
     {
-        if (value.getExperimentIdentifier() != null)
-        {
-            IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
-                    .withData(dataProvider)
-                    .withUser(new UserProviderFromPersonPE(person))
-                    .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
-                    .withObjects(new ProjectProviderFromExperimentIdentifierString(value.getExperimentIdentifier()))
-                    .build();
+        SampleIdentifier identifier = SampleIdentifierFactory.parse(value.getIdentifier(), value.getDefaultSpaceIdentifier());
 
-            if (pa.getObjectsWithoutAccess().isEmpty())
+        // This predicate is used in create, update and createOrUpdate methods, therefore we need to cover cases where a sample already exists or not.
+
+        SpacePE space = dataProvider.tryGetSpace(identifier.getSpaceLevel().getSpaceCode());
+
+        if (space != null)
+        {
+            SamplePE sample = dataProvider.tryGetSampleBySpaceAndCode(space, identifier.getSampleCode());
+
+            if (sample == null)
             {
-                return Status.OK;
+                if (value.getExperimentIdentifier() != null)
+                {
+                    IProjectAuthorization<String> pa = new ProjectAuthorizationBuilder<String>()
+                            .withData(dataProvider)
+                            .withUser(new UserProviderFromPersonPE(person))
+                            .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                            .withObjects(new ProjectProviderFromExperimentIdentifierString(value.getExperimentIdentifier()))
+                            .build();
+
+                    if (pa.getObjectsWithoutAccess().isEmpty())
+                    {
+                        return Status.OK;
+                    }
+                }
+            } else
+            {
+                ProjectPE project = sample.getExperiment() != null ? sample.getExperiment().getProject() : null;
+
+                IProjectAuthorization<ProjectPE> pa = new ProjectAuthorizationBuilder<ProjectPE>()
+                        .withData(dataProvider)
+                        .withUser(new UserProviderFromPersonPE(person))
+                        .withRoles(new RolesProviderFromRolesWithIdentifier(allowedRoles))
+                        .withObjects(new ProjectProviderFromProjectPE(project))
+                        .build();
+
+                if (pa.getObjectsWithoutAccess().isEmpty())
+                {
+                    return Status.OK;
+                }
             }
         }
 

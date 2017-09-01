@@ -560,7 +560,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<SampleType> listSampleTypes(String sessionToken)
     {
         checkSession(sessionToken);
@@ -714,7 +714,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listSampleExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
@@ -744,7 +744,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<AbstractExternalData> listMetaprojectExternalData(final String sessionToken,
             final IMetaprojectId metaprojectId)
     {
@@ -773,7 +773,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     // 'fast' implementation
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listDataSetRelationships(final String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
@@ -1011,10 +1011,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Experiment> listExperiments(final String sessionToken,
-            ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    public List<Experiment> listExperiments(final String sessionToken, ExperimentType experimentType, SpaceIdentifier spaceIdentifier)
     {
         return listExperiments(sessionToken, experimentType, spaceIdentifier, null, false, false);
     }
@@ -1648,7 +1647,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> searchForDataSets(String sessionToken,
             DetailedSearchCriteria criteria)
@@ -1679,7 +1678,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         final ExternalDataValidator validator = new ExternalDataValidator();
         validator.init(new AuthorizationDataProvider(getDAOFactory()));
-        
+
         final ArrayList<AbstractExternalData> datasets =
                 new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
 
@@ -1694,7 +1693,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AbstractExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
@@ -1715,7 +1714,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_DATASET")
     public DataSetUpdateResult updateDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates)
@@ -1734,7 +1733,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities, boolean withDetails)
@@ -1767,7 +1766,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
-    @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
             DataSetRelatedEntities relatedEntities, boolean withDetails, String userId)
     {
@@ -1791,14 +1789,24 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> translation =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignments);
 
+        ExternalDataValidator validator = new ExternalDataValidator();
+        validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
         final List<AbstractExternalData> list =
                 new ArrayList<AbstractExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
-            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails,
-                    translation.get(hit.getId()), managedPropertyEvaluatorFactory));
+
+            AbstractExternalData dataSet = DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails,
+                    translation.get(hit.getId()), managedPropertyEvaluatorFactory);
+
+            if (validator.isValid(person, dataSet))
+            {
+                list.add(dataSet);
+            }
         }
+
         return list;
     }
 
@@ -2054,7 +2062,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_DATASET")
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes, String reason, DeletionType type,
@@ -2366,8 +2374,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    public String uploadDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
         Session session = getSession(sessionToken);
@@ -3058,7 +3067,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
@@ -3070,7 +3079,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
@@ -3091,7 +3100,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
@@ -3103,7 +3112,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("ARCHIVE_DATASET")
     public int archiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes, boolean removeFromDataStore)
@@ -3112,7 +3121,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("UNARCHIVE_DATASET")
     public int unarchiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
@@ -3434,7 +3443,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("LOCK_DATA_SETS")
     public int lockDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
@@ -3446,7 +3455,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("UNLOCK_DATA_SETS")
     public int unlockDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
@@ -3458,7 +3467,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public LinkModel retrieveLinkFromDataSet(String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
@@ -3659,13 +3668,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
+    public void updateManagedPropertyOnDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId dataSetId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
-        dataSetBO.loadDataByTechId(experimentId);
+        dataSetBO.loadDataByTechId(dataSetId);
 
         // Evaluate the script
         dataSetBO.enrichWithProperties();
@@ -3682,12 +3692,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
+    public void updateManagedPropertyOnMaterial(String sessionToken, TechId materialId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.loadDataByTechId(experimentId);
+        materialBO.loadDataByTechId(materialId);
 
         // Evaluate the script
         materialBO.enrichWithProperties();
@@ -3782,7 +3792,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_DATASET_PROPERTIES")
     public void updateDataSetProperties(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
@@ -3909,7 +3919,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("RESTORE")
     public void revertDeletions(final String sessionToken,
             @AuthorizationGuard(guardClass = RevertDeletionPredicate.class)
@@ -3963,7 +3973,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
@@ -4304,7 +4314,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove)
     {

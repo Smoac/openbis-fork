@@ -292,7 +292,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AbstractExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
@@ -491,7 +491,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_DATASET")
     public void updateDataSets(final String sessionToken,
             @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class)
@@ -821,7 +821,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_DATASET")
     public DataSetUpdateResult updateDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates)
@@ -1014,7 +1014,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_SAMPLE")
     public void updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
     {

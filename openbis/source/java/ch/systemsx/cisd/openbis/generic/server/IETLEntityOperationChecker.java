@@ -115,13 +115,13 @@ public interface IETLEntityOperationChecker
             @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class) List<SampleUpdatesDTO> spaceSamples);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATA_SETS_VIA_DSS")
     public void assertDataSetCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExternalDataPredicate.class) List<? extends NewExternalData> dataSets);
 
     @RolesAllowed(
-    { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATA_SETS_VIA_DSS")
     public void assertDataSetUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = DataSetUpdatesCollectionPredicate.class) List<DataSetBatchUpdatesDTO> dataSets);

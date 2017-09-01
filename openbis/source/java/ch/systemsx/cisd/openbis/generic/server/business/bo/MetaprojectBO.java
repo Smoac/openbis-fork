@@ -26,7 +26,9 @@ import java.util.Map;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
@@ -315,7 +317,6 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     private <T extends IObjectId> void addEntities(Collection<T> entityIds)
     {
-
         for (T entityId : entityIds)
         {
             IEntityWithMetaprojects entityPE = findById(entityId);
@@ -323,6 +324,13 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             {
                 throw new IllegalArgumentException("Entity for id: " + entityId + " doesn't exist.");
             }
+
+            boolean canAccess = canAccessEntity(entityPE);
+            if (false == canAccess)
+            {
+                throw new AuthorizationFailureException("Cannot access entity with id " + entityId);
+            }
+
             entitiesWithMetaproject.add(entityPE);
             addToChangedEntities(entityPE.getClass(), entityPE.getId());
         }
@@ -360,6 +368,28 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         } else
         {
             throw new IllegalArgumentException("Unsupported entity type " + entityId.getClass());
+        }
+    }
+
+    private boolean canAccessEntity(IEntityWithMetaprojects entity)
+    {
+        AuthorizationServiceUtils authorizationUtils = new AuthorizationServiceUtils(getDaoFactory(), findPerson());
+
+        if (entity instanceof MaterialPE)
+        {
+            return true;
+        } else if (entity instanceof ExperimentPE)
+        {
+            return authorizationUtils.canAccessExperiment((ExperimentPE) entity);
+        } else if (entity instanceof SamplePE)
+        {
+            return authorizationUtils.canAccessSample((SamplePE) entity);
+        } else if (entity instanceof DataPE)
+        {
+            return authorizationUtils.canAccessDataSet((DataPE) entity);
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity kind " + entity.getClass());
         }
     }
 

@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -715,6 +716,32 @@ public class SearchDataSetTest extends AbstractDataSetTest
         fo.sortBy().code().desc();
         List<DataSet> dataSets2 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
         assertDataSetCodes(dataSets2, "COMPONENT_2A", "COMPONENT_1A", "ROOT_CONTAINER");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new DataSetPermId("20120619092259000-22"));
+        criteria.withId().thatEquals(new DataSetPermId("20081105092159188-3"));
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+        SearchResult<DataSet> result = v3api.searchDataSets(sessionToken, criteria, new DataSetFetchOptions());
+
+        if (user.isInstanceUser())
+        {
+            assertEquals(result.getObjects().size(), 2);
+        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            assertEquals(result.getObjects().size(), 1);
+            assertEquals(result.getObjects().get(0).getCode(), "20120619092259000-22");
+        } else
+        {
+            assertEquals(result.getObjects().size(), 0);
+        }
 
         v3api.logout(sessionToken);
     }

@@ -110,14 +110,14 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_VOCABULARY_TERM")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_VOCABULARY_TERM")
     public void canSearch(IOperationContext context)
     {

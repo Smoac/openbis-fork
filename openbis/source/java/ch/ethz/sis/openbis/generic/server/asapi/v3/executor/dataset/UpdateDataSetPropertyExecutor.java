@@ -39,7 +39,7 @@ public class UpdateDataSetPropertyExecutor implements IUpdateDataSetPropertyExec
     private IUpdateEntityPropertyExecutor executor;
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATASET_PROPERTY")
     public void update(IOperationContext context,
             MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)

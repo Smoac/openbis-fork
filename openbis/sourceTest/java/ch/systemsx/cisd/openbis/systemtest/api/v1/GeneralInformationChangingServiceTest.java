@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -27,15 +28,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
@@ -62,11 +64,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.systemtest.PropertyHistory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
+
+import junit.framework.Assert;
 
 /**
  * @author Franz-Josef Elmer
@@ -121,7 +128,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         assertProperties("[ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
                 + "COMMENT: extremely simple stuff, DESCRIPTION: hello example, GENDER: FEMALE, "
                 + "ORGANISM: DOG, SIZE: 42]", localCommonServer.getSampleInfo(sessionToken, id)
-                .getParent());
+                        .getParent());
 
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
         assertEquals(
@@ -207,8 +214,8 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         newETPTAssignment.setShowRawValue(true);
         localCommonServer.assignPropertyType(sessionToken,
                 newETPTAssignment);
-        //we clear the hibernateSession because assignPropertyType
-        //method executes sqls outside hibernate session
+        // we clear the hibernateSession because assignPropertyType
+        // method executes sqls outside hibernate session
         Session hibernateSession = getHibernateSession();
         hibernateSession.clear();
 
@@ -667,6 +674,315 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     public void testDeleteDataSetTrash()
     {
         testDeleteTrash(new DataSetDeleteAction(), new DataSetListDeletedAction());
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String adminSession = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        String reason = "test reason";
+
+        List<DataSet> dataSets = generalInformationService.getDataSetMetaData(adminSession, Arrays.asList(dataSetCode));
+        assertEquals(1, dataSets.size());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.deleteDataSets(session, Arrays.asList(dataSetCode), reason, DeletionType.TRASH);
+
+            dataSets = generalInformationService.getDataSetMetaData(adminSession, Arrays.asList(dataSetCode));
+            assertEquals(0, dataSets.size());
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.deleteDataSets(session, Arrays.asList(dataSetCode), reason, DeletionType.TRASH);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateSamplePropertiesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        long sampleId = 1054L; // /TEST-SPACE/FV-TEST
+        String propertyCode = "COMMENT";
+        String propertyValue = "test comment";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            SampleParentWithDerived sample = commonServer.getSampleInfo(session, new TechId(sampleId));
+            assertEquals(sample.getParent().getProperties().size(), 1);
+
+            generalInformationChangingService.updateSampleProperties(session, sampleId, Collections.singletonMap(propertyCode, propertyValue));
+
+            sample = commonServer.getSampleInfo(session, new TechId(sampleId));
+            assertEquals(sample.getParent().getProperties().size(), 2);
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.updateSampleProperties(session, sampleId, Collections.singletonMap(propertyCode, propertyValue));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testAddToMetaprojectWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Metaproject metaproject = new Metaproject();
+        metaproject.setName("TEST_ADD_TO_METAPROJECT");
+        metaproject = commonServer.registerMetaproject(session, metaproject);
+
+        IMetaprojectId metaprojectId = new MetaprojectTechIdId(metaproject.getId());
+
+        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
+        assignments.addExperiment(new ExperimentIdentifierId("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.addToMetaproject(session, metaprojectId, assignments);
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.addToMetaproject(session, metaprojectId, assignments);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRemoveFromMetaprojectWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Metaproject metaproject = new Metaproject();
+        metaproject.setName("TEST_REMOVE_FROM_METAPROJECT");
+        metaproject = commonServer.registerMetaproject(session, metaproject);
+
+        IMetaprojectId metaprojectId = new MetaprojectTechIdId(metaproject.getId());
+
+        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
+        assignments.addMaterial(new MaterialCodeAndTypeCodeId("VIRUS1", "VIRUS"));
+
+        generalInformationChangingService.addToMetaproject(session, metaprojectId, assignments);
+        generalInformationChangingService.removeFromMetaproject(session, metaprojectId, assignments);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRegisterSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContext session = commonClientService.tryToLogin(user.getUserId(), PASSWORD);
+
+        String sampleType = "CELL_PLATE";
+
+        uploadFile("testRegisterSamplesWithProjectAuthorization.txt",
+                "identifier\texperiment\tCOMMENT\n"
+                        + "/TEST-SPACE/PA_UPLOAD\t/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST\ttest comment\n");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.registerSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.registerSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
+                fail();
+            } catch (UserFailureException e)
+            {
+                AssertionUtil.assertMatches(".*does not have enough privileges.*", e.getMessage());
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContext session = commonClientService.tryToLogin(user.getUserId(), PASSWORD);
+
+        String sampleType = "CELL_PLATE";
+
+        uploadFile("testUpdateSamplesWithProjectAuthorization.txt",
+                "identifier\tCOMMENT\n"
+                        + "/TEST-SPACE/FV-TEST\tupdated comment\n");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.updateSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.updateSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
+                fail();
+            } catch (UserFailureException e)
+            {
+                AssertionUtil.assertMatches(".*does not have enough privileges.*", e.getMessage());
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUploadedSamplesInfoWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContext session = commonClientService.tryToLogin(user.getUserId(), PASSWORD);
+
+        String sampleType = "CELL_PLATE";
+
+        uploadFile("testUploadedSamplesInfoWithProjectAuthorization.txt",
+                "identifier\texperiment\tCOMMENT\n"
+                        + "/TEST-SPACE/PA_UPLOAD\t/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST\ttest comment\n");
+
+        // there are no checks on what has been uploaded before the uploaded data is actually used in the registration or update
+        generalInformationChangingService.uploadedSamplesInfo(session.getSessionID(), sampleType, SESSION_KEY);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteProjectsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Long projectId = 7L; // /TEST-SPACE/PROJECT-TO-DELETE
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.deleteProjects(session, Arrays.asList(projectId), "test reason");
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.deleteProjects(session, Arrays.asList(projectId), "test reason");
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteExperimentsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String adminSession = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setExperimentTypeCode("DELETION_TEST");
+        newExperiment.setIdentifier("/TEST-SPACE/TEST-PROJECT/EXPERIMENT-TO-DELETE");
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                genericServer.registerExperiment(adminSession, newExperiment, Arrays.asList());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.deleteExperiments(session, Arrays.asList(experiment.getId()), "test reason", DeletionType.TRASH);
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.deleteExperiments(session, Arrays.asList(experiment.getId()), "test reason", DeletionType.TRASH);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Long sampleId = 1061L; // /TEST-SPACE/SAMPLE-TO-DELETE
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.deleteSamples(session, Arrays.asList(sampleId), "test reason", DeletionType.TRASH);
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.deleteSamples(session, Arrays.asList(sampleId), "test reason", DeletionType.TRASH);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRevertDeletionsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String adminSession = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Long sampleId = 1061L; // /TEST-SPACE/SAMPLE-TO-DELETE
+
+        generalInformationChangingService.deleteSamples(adminSession, Arrays.asList(sampleId), "test reason", DeletionType.TRASH);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = commonServer.listDeletions(adminSession, true);
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion = deletions.get(deletions.size() - 1);
+        assertEquals("SAMPLE-TO-DELETE", deletion.getDeletedEntities().get(0).getCode());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.revertDeletions(session, Arrays.asList(deletion.getId()));
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.revertDeletions(session, Arrays.asList(deletion.getId()));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeletePermanentlyWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String adminSession = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        Long sampleId = 1061L; // /TEST-SPACE/SAMPLE-TO-DELETE
+
+        generalInformationChangingService.deleteSamples(adminSession, Arrays.asList(sampleId), "test reason", DeletionType.TRASH);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = commonServer.listDeletions(adminSession, true);
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion = deletions.get(deletions.size() - 1);
+        assertEquals("SAMPLE-TO-DELETE", deletion.getDeletedEntities().get(0).getCode());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            generalInformationChangingService.deletePermanently(session, Arrays.asList(deletion.getId()));
+        } else
+        {
+            try
+            {
+                generalInformationChangingService.deletePermanently(session, Arrays.asList(deletion.getId()));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+            }
+        }
     }
 
     private class ProjectDeleteAction implements DeleteAction<Project>

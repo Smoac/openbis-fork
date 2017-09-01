@@ -23,7 +23,10 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -82,6 +85,30 @@ public class ArchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
         v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testArchiveWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3.login(user.getUserId(), PASSWORD);
+
+        IDataSetId dataSetId = new DataSetPermId("20120628092259000-41");
+        DataSetArchiveOptions options = new DataSetArchiveOptions();
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
+        } else
+        {
+            try
+            {
+                v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
+                fail();
+            } catch (Exception e)
+            {
+                assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
+            }
+        }
     }
 
 }

@@ -34,11 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -53,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -523,6 +526,30 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testListDataSetsByCodeWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<AbstractExternalData> dataSets = etlService.listDataSetsByCode(session.getSessionToken(), Arrays.asList(dataSetCode));
+            assertEntities("[20120628092259000-41]", dataSets);
+        } else
+        {
+            try
+            {
+                etlService.listDataSetsByCode(session.getSessionToken(), Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testTryGetPropertiesOfTopSampleWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
@@ -680,7 +707,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        NewExternalData newData = createNewExternalData("TEST-DATASET");
+        NewExternalData newData = createNewDataSet("TEST-DATASET");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
@@ -707,7 +734,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
         NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
-        NewExternalData newExternalData = createNewExternalData("TEST-DATASET");
+        NewExternalData newExternalData = createNewDataSet("TEST-DATASET");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
@@ -734,7 +761,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
         SampleUpdatesDTO sampleUpdates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
-        NewExternalData newExternalData = createNewExternalData("TEST-DATASET");
+        NewExternalData newExternalData = createNewDataSet("TEST-DATASET");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
@@ -1077,6 +1104,211 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         }
     }
 
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithNewDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        NewExternalData newDataSet = createNewDataSet("PA_PERFORM_ENTITY_OPERATIONS_DATA_SET");
+        newDataSet.setExperimentIdentifierOrNull(new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST"));
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyMap(), Collections.emptyList(), Arrays.asList(newDataSet), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getDataSetsCreatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testPerformEntityOperationsWithDataSetUpdateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
+
+        DataSetBatchUpdatesDTO dataSetUpdate = createDataSetUpdates(22, "20120619092259000-22", "COMMENT", "updated comment");
+
+        AtomicEntityOperationDetails operation =
+                new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(dataSetUpdate),
+                        Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AtomicEntityOperationResult result = etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+            assertEquals(result.getDataSetsUpdatedCount(), 1);
+        } else
+        {
+            try
+            {
+                etlService.performEntityOperations(adminSession.getSessionToken(), operation);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testTryGetDataSetLocationWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120619092259000-22";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            IDatasetLocationNode location = etlService.tryGetDataSetLocation(session.getSessionToken(), dataSetCode);
+            assertEquals(location.getLocation().getDataSetCode(), dataSetCode);
+        } else
+        {
+            try
+            {
+                etlService.tryGetDataSetLocation(session.getSessionToken(), dataSetCode);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testTryGetLocalDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120619092259000-22";
+        String dataStore = "STANDARD";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AbstractExternalData dataSet = etlService.tryGetLocalDataSet(session.getSessionToken(), dataSetCode, dataStore);
+            assertEquals(dataSet.getCode(), dataSetCode);
+        } else
+        {
+            try
+            {
+                etlService.tryGetLocalDataSet(session.getSessionToken(), dataSetCode, dataStore);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testTryGetDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120619092259000-22";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AbstractExternalData dataSet = etlService.tryGetDataSet(session.getSessionToken(), dataSetCode);
+            assertEquals(dataSet.getCode(), dataSetCode);
+        } else
+        {
+            try
+            {
+                etlService.tryGetDataSet(session.getSessionToken(), dataSetCode);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testTryGetThinDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120619092259000-22";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AbstractExternalData dataSet = etlService.tryGetThinDataSet(session.getSessionToken(), dataSetCode);
+            assertEquals(dataSet.getCode(), dataSetCode);
+        } else
+        {
+            try
+            {
+                etlService.tryGetThinDataSet(session.getSessionToken(), dataSetCode);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testCheckDataSetAccessWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120619092259000-22";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            etlService.checkDataSetAccess(session.getSessionToken(), dataSetCode);
+        } else
+        {
+            try
+            {
+                etlService.checkDataSetAccess(session.getSessionToken(), dataSetCode);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testCheckDataSetCollectionAccessWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120619092259000-22";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            etlService.checkDataSetCollectionAccess(session.getSessionToken(), Arrays.asList(dataSetCode));
+        } else
+        {
+            try
+            {
+                etlService.checkDataSetCollectionAccess(session.getSessionToken(), Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
     private NewExperiment createNewExperiment(String experimentIdentifier)
     {
         NewExperiment newExperiment = new NewExperiment();
@@ -1107,7 +1339,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         return updates;
     }
 
-    private NewExternalData createNewExternalData(String dataSetCode)
+    private NewExternalData createNewDataSet(String dataSetCode)
     {
         DataSetType type = new DataSetType();
         type.setCode("UNKNOWN");
@@ -1121,6 +1353,16 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         newData.setStorageFormat(StorageFormat.PROPRIETARY);
         newData.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
         return newData;
+    }
+
+    private DataSetBatchUpdatesDTO createDataSetUpdates(long dataSetId, String dataSetCode, String propertyCode, String propertyValue)
+    {
+        DataSetBatchUpdatesDTO updates = new DataSetBatchUpdatesDTO();
+        updates.setDatasetId(new TechId(dataSetId));
+        updates.setDatasetCode(dataSetCode);
+        updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
+        updates.setDetails(new DataSetBatchUpdateDetails());
+        return updates;
     }
 
     private IEntityProperty createEntityProperty(String propertyCode, String propertyValue)

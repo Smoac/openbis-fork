@@ -72,6 +72,7 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -85,7 +86,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         String code = UUID.randomUUID().toString();
         LinkedDataCreation linkedData = new LinkedDataCreation();
         linkedData.setExternalDmsId(new ExternalDmsPermId("DMS_1"));
-        linkedData.setExternalCode("test-"+System.currentTimeMillis());
+        linkedData.setExternalCode("test-" + System.currentTimeMillis());
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
         creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
@@ -99,7 +100,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSets.get(0).getPermId(), code.toUpperCase());
         assertEquals(dataSets.size(), 1);
     }
-    
+
     @Test
     public void testCreateContainerDataSetWithSpaceUser()
     {
@@ -111,75 +112,75 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/NOE/EXP-TEST-2"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setCreationId(new CreationId(code));
-        
+
         List<DataSetPermId> dataSets = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-        
+
         assertEquals(dataSets.get(0).getPermId(), code.toUpperCase());
         assertEquals(dataSets.size(), 1);
     }
-    
+
     @Test
     public void testCreateDSWithAdminUserInBehalfOfASpaceObserver()
     {
         final DataSetPermId permId = new DataSetPermId("NO_SHALL_CREATE");
-        
+
         assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
-                
-                PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-                physicalCreation.setLocation("test/location/" + permId.getPermId());
-                physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-                physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-                physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
-                
-                DataSetCreation creation = new DataSetCreation();
-                creation.setCode(permId.getPermId());
-                creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-                creation.setDataStoreId(new DataStorePermId("STANDARD"));
-                creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
-                creation.setPhysicalData(physicalCreation);
-                creation.setCreationId(new CreationId(permId.getPermId()));
-                
-                v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-            }
-        }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
+
+                    PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+                    physicalCreation.setLocation("test/location/" + permId.getPermId());
+                    physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+                    physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+                    physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+
+                    DataSetCreation creation = new DataSetCreation();
+                    creation.setCode(permId.getPermId());
+                    creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+                    creation.setDataStoreId(new DataStorePermId("STANDARD"));
+                    creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+                    creation.setPhysicalData(physicalCreation);
+                    creation.setCreationId(new CreationId(permId.getPermId()));
+
+                    v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+                }
+            }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
     }
-    
+
     @Test
     public void testCreateDSForSampleWithAdminUserInBehalfOfASpaceObserver()
     {
         final DataSetPermId permId = new DataSetPermId("NO_SHALL_CREATE");
-        
+
         assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
-                
-                PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-                physicalCreation.setLocation("test/location/" + permId.getPermId());
-                physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-                physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-                physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
-                
-                DataSetCreation creation = new DataSetCreation();
-                creation.setCode(permId.getPermId());
-                creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-                creation.setSampleId(new SampleIdentifier("/CISD/C1"));
-                creation.setDataStoreId(new DataStorePermId("STANDARD"));
-                creation.setPhysicalData(physicalCreation);
-                creation.setCreationId(new CreationId(permId.getPermId()));
-                
-                v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-            }
-        }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
+
+                    PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+                    physicalCreation.setLocation("test/location/" + permId.getPermId());
+                    physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+                    physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+                    physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+
+                    DataSetCreation creation = new DataSetCreation();
+                    creation.setCode(permId.getPermId());
+                    creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+                    creation.setSampleId(new SampleIdentifier("/CISD/C1"));
+                    creation.setDataStoreId(new DataStorePermId("STANDARD"));
+                    creation.setPhysicalData(physicalCreation);
+                    creation.setCreationId(new CreationId(permId.getPermId()));
+
+                    v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+                }
+            }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
     }
-    
+
     @Test
     public void testArchiveWithAdminUserInAnotherSpace()
     {
@@ -1788,6 +1789,31 @@ public class CreateDataSetTest extends AbstractDataSetTest
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
             }, "External data management system id cannot be null for a link data set.");
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testCreateWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, user.getUserId());
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+            assertEquals(permIds.size(), 1);
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+                    }
+                }, creation.getExperimentId());
+        }
     }
 
     private DataSetCreation physicalDataSetCreation()

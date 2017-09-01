@@ -1968,13 +1968,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
     public void testFilterExperimentVisibleToUserWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
-        
+
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
-        
+
         List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
         List<Experiment> filteredExperiments = generalInformationService.filterExperimentsVisibleToUser(session, experiments, user.getUserId());
-        
+
         if (user.isInstanceUser() || user.isTestSpaceUser())
         {
             assertEntities(
@@ -1988,14 +1988,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
             assertEntities("[]", filteredExperiments);
         }
     }
-    
+
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListProjectsWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
-        
+
         List<Project> projects = generalInformationService.listProjects(session);
-        
+
         if (user.isInstanceUser())
         {
             assertEntities(
@@ -2019,14 +2019,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
             assertEntities("[]", projects);
         }
     }
-    
+
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListProjectsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
-        
+
         List<Project> projects = generalInformationService.listProjectsOnBehalfOfUser(session, user.getUserId());
-        
+
         if (user.isInstanceUser())
         {
             assertEntities(
@@ -2050,14 +2050,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
             assertEntities("[]", projects);
         }
     }
-    
+
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListAttachmentForProjectWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
-        
+
         ProjectIdentifierId projectId = new ProjectIdentifierId("/TEST-SPACE/TEST-PROJECT");
-        
+
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<Attachment> attachments =
@@ -2076,7 +2076,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
             }
         }
     }
-    
+
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListAttachmentsForExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
     {
@@ -2740,6 +2740,249 @@ public class GeneralInformationServiceTest extends SystemTestCase
         generalInformationService.logout(spaceUserSessionToken);
     }
 
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetsWithSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSet> dataSets = generalInformationService.listDataSets(session, Arrays.asList(createFvTestSample()));
+            assertEquals(1, dataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            try
+            {
+                generalInformationService.listDataSets(session, Arrays.asList(createFvTestSample()));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetsWithSamplesAndConnectionsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSet> dataSets = generalInformationService.listDataSets(session, Arrays.asList(createFvTestSample()), null);
+            assertEquals(1, dataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            try
+            {
+                generalInformationService.listDataSets(session, Arrays.asList(createFvTestSample()), null);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetsForSampleWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSet> dataSets = generalInformationService.listDataSetsForSample(session, createFvTestSample(), true);
+            assertEquals(1, dataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            try
+            {
+                generalInformationService.listDataSetsForSample(session, createFvTestSample(), true);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        List<DataSet> dataSets =
+                generalInformationService.listDataSetsOnBehalfOfUser(session, Arrays.asList(createFvTestSample()), null, user.getUserId());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(1, dataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            assertEquals(0, dataSets.size());
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetsForExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSet> dataSets =
+                    generalInformationService.listDataSetsForExperiments(session, Arrays.asList(createExpSpaceTestExperiment()), null);
+            assertEquals(9, dataSets.size());
+        } else
+        {
+            try
+            {
+                generalInformationService.listDataSetsForExperiments(session, Arrays.asList(createExpSpaceTestExperiment()), null);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetsForExperimentsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        List<DataSet> dataSets =
+                generalInformationService.listDataSetsForExperimentsOnBehalfOfUser(session, Arrays.asList(createExpSpaceTestExperiment()), null,
+                        user.getUserId());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(9, dataSets.size());
+        } else
+        {
+            assertEquals(0, dataSets.size());
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetDataSetMetaDataWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSet> dataSets = generalInformationService.getDataSetMetaData(session, Arrays.asList(dataSetCode));
+            assertEquals(1, dataSets.size());
+            assertEquals(dataSetCode, dataSets.get(0).getCode());
+        } else
+        {
+            try
+            {
+                generalInformationService.getDataSetMetaData(session, Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetDataSetMetaDataWithFetchOptionsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        EnumSet<DataSetFetchOption> fetchOptions = EnumSet.noneOf(DataSetFetchOption.class);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<DataSet> dataSets = generalInformationService.getDataSetMetaData(session, Arrays.asList(dataSetCode), fetchOptions);
+            assertEquals(1, dataSets.size());
+            assertEquals(dataSetCode, dataSets.get(0).getCode());
+        } else
+        {
+            try
+            {
+                generalInformationService.getDataSetMetaData(session, Arrays.asList(dataSetCode), fetchOptions);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20120628092259000-41"));
+
+        List<DataSet> dataSets = generalInformationService.searchForDataSets(session, criteria);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(1, dataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            assertEquals(0, dataSets.size());
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForDataSetsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20120628092259000-41"));
+
+        List<DataSet> dataSets = generalInformationService.searchForDataSetsOnBehalfOfUser(session, criteria, user.getUserId());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(1, dataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            assertEquals(0, dataSets.size());
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testFilterDataSetsVisibleToUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String session = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20120628092259000-41"));
+
+        List<DataSet> dataSets = generalInformationService.searchForDataSets(session, criteria);
+
+        assertEquals(1, dataSets.size());
+
+        List<DataSet> filteredDataSets = generalInformationService.filterDataSetsVisibleToUser(session, dataSets, user.getUserId());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(1, filteredDataSets.size());
+            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+        } else
+        {
+            assertEquals(0, filteredDataSets.size());
+        }
+    }
+
     private void sortDataSets(List<DataSet> dataSets)
     {
         Collections.sort(dataSets, new Comparator<DataSet>()
@@ -2768,6 +3011,31 @@ public class GeneralInformationServiceTest extends SystemTestCase
         {
             return t.getCode();
         }
+    }
+
+    private static Sample createFvTestSample()
+    {
+        SampleInitializer initializer = new SampleInitializer();
+        initializer.setId(1054L);
+        initializer.setPermId("201206191219327-1054");
+        initializer.setCode("FV-TEST");
+        initializer.setIdentifier("/TEST-SPACE/FV-TEST");
+        initializer.setSampleTypeId(3L);
+        initializer.setSampleTypeCode("CELL_PLATE");
+        initializer.setRegistrationDetails(new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer()));
+        return new Sample(initializer);
+    }
+
+    private static Experiment createExpSpaceTestExperiment()
+    {
+        ExperimentInitializer initializer = new ExperimentInitializer();
+        initializer.setId(23L);
+        initializer.setPermId("201206190940555-1032");
+        initializer.setCode("EXP-SPACE-TEST");
+        initializer.setIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        initializer.setExperimentTypeCode("SIRNA_HCS");
+        initializer.setRegistrationDetails(new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer()));
+        return new Experiment(initializer);
     }
 
 }

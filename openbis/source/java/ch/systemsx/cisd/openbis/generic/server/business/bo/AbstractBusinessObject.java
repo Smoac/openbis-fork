@@ -371,6 +371,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getTransactionTimestamp();
     }
 
+    public IDAOFactory getDaoFactory()
+    {
+        return daoFactory;
+    }
+    
     @Override
     public final ISpaceDAO getSpaceDAO()
     {

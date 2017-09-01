@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
@@ -479,7 +480,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = SampleListPredicate.class) List<Sample> samples)
@@ -616,7 +617,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSetsForSample(String sessionToken,
             @AuthorizationGuard(guardClass = SamplePredicate.class) Sample sample, boolean areOnlyDirectlyConnectedIncluded)
@@ -762,7 +763,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = SampleListPredicate.class) List<Sample> samples, EnumSet<Connections> connections)
@@ -883,9 +884,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
-    public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
+    public List<DataSet> getDataSetMetaData(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
     {
         return getDataSetMetaData(getSession(sessionToken), dataSetCodes, true);
     }
@@ -923,9 +925,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
-    public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
+    public List<DataSet> getDataSetMetaData(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes,
             EnumSet<DataSetFetchOption> fetchOptions)
     {
         if (sessionToken == null)
@@ -1001,7 +1004,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {

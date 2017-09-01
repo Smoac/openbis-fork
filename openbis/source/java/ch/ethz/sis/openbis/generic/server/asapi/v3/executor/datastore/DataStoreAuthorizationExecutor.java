@@ -31,14 +31,14 @@ public class DataStoreAuthorizationExecutor implements IDataStoreAuthorizationEx
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_DATASTORE")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_DATASTORE")
     public void canSearch(IOperationContext context)
     {

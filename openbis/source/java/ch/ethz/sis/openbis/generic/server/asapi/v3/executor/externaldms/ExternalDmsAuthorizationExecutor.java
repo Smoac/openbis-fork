@@ -31,7 +31,7 @@ public class ExternalDmsAuthorizationExecutor implements IExternalDmsAuthorizati
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_EXTERNAL_DMS")
     public void canGet(IOperationContext context)
     {
@@ -50,7 +50,7 @@ public class ExternalDmsAuthorizationExecutor implements IExternalDmsAuthorizati
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void canSearch(IOperationContext context)
     {
     }

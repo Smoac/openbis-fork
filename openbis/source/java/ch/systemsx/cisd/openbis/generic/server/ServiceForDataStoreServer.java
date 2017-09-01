@@ -895,7 +895,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsByCode(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes) throws UserFailureException
     {
@@ -1225,7 +1225,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IDatasetLocationNode tryGetDataSetLocation(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode) throws UserFailureException
     {
@@ -1238,8 +1238,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public AbstractExternalData tryGetLocalDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
             String dataStore) throws UserFailureException
     {
         AbstractExternalData dataSet = tryGetDataSet(sessionToken, dataSetCode);
@@ -1251,7 +1252,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public AbstractExternalData tryGetDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode) throws UserFailureException
     {
@@ -1279,8 +1280,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public AbstractExternalData tryGetThinDataSet(String sessionToken, String dataSetCode) throws UserFailureException
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public AbstractExternalData tryGetThinDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert dataSetCode != null : "Unspecified data set code.";
@@ -1315,7 +1317,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void checkDataSetAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode) throws UserFailureException
     {
@@ -1324,7 +1326,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void checkDataSetCollectionAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
     {

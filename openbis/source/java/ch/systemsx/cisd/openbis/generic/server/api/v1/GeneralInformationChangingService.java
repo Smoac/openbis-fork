@@ -96,7 +96,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties)
     {
@@ -195,7 +195,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd)
     {
@@ -204,7 +204,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove)
     {
@@ -239,7 +239,7 @@ public class GeneralInformationChangingService extends
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public final String registerSamples(
             final String sessionToken,
             final String sampleTypeCode,
@@ -256,7 +256,7 @@ public class GeneralInformationChangingService extends
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public final String updateSamples(
             final String sessionToken,
             final String sampleTypeCode,
@@ -272,7 +272,7 @@ public class GeneralInformationChangingService extends
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public final Map<String, Object> uploadedSamplesInfo(
             final String sessionToken,
             final String sampleTypeCode,

@@ -62,7 +62,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATASET")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
@@ -102,7 +102,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATASET")
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void canUpdate(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
@@ -128,7 +128,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_DATASET")
     public void canDelete(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
@@ -136,28 +136,28 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_DATASET")
     public void canGet(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_DATASET")
     public void canSearch(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("ARCHIVE_DATASET")
     public void canArchive(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UNARCHIVE_DATASET")
     public void canUnarchive(IOperationContext context, IDataSetId id, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {

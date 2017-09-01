@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,9 +37,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentBatchUpdateDetails;
@@ -61,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -245,11 +249,11 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     public void testListProjectAttachmentWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
-        
+
         TechId projectId = new TechId(5); // /TEST_SPACE/TEST_PROJECT
         String fileName = "testProject.txt";
         Integer version = 1;
-        
+
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             AttachmentWithContent attachment = server.getProjectFileAttachment(sessionDTO.getSessionToken(), projectId, fileName, version);
@@ -267,7 +271,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
             }
         }
     }
-    
+
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testRegisterExperimentWithProjectAuthorization(ProjectAuthorizationUser user)
     {
@@ -599,6 +603,105 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
             {
                 server.getSampleFileAttachment(sessionDTO.getSessionToken(), sampleId, fileName, version);
                 Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetDataSetInfoWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId dataSetId = new TechId(41L); // 20120628092259000-41
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AbstractExternalData dataSet = server.getDataSetInfo(sessionDTO.getSessionToken(), dataSetId);
+            assertEquals(dataSet.getCode(), "20120628092259000-41");
+        } else
+        {
+            try
+            {
+                server.getDataSetInfo(sessionDTO.getSessionToken(), dataSetId);
+                Assert.fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        IEntityProperty property = new EntityProperty();
+        property.setValue("test comment");
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode("COMMENT");
+        property.setPropertyType(propertyType);
+
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setDatasetId(new TechId(22L)); // 20120619092259000-22
+        updates.setProperties(Arrays.asList(new IEntityProperty[] { property }));
+        updates.setFileFormatTypeCode("XML");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            DataSetUpdateResult result = server.updateDataSet(sessionDTO.getSessionToken(), updates);
+            assertNotNull(result);
+
+            AbstractExternalData dataSet = server.getDataSetInfo(sessionDTO.getSessionToken(), updates.getDatasetId());
+            assertEquals(dataSet.getProperties().get(0).getValue(), property.getValue());
+        } else
+        {
+            try
+            {
+                server.updateDataSet(sessionDTO.getSessionToken(), updates);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        IEntityProperty property = new EntityProperty();
+        property.setValue("test comment");
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode("COMMENT");
+        property.setPropertyType(propertyType);
+
+        NewDataSet newDataSet = new NewDataSet();
+        newDataSet.setCode("20120619092259000-22");
+        newDataSet.setProperties(new IEntityProperty[] { property });
+
+        TechId dataSetId = new TechId(22L);
+        DataSetType dataSetType = new DataSetType("UNKNOWN");
+
+        NewDataSetsWithTypes newDataSets = new NewDataSetsWithTypes(dataSetType, Arrays.asList(newDataSet));
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            server.updateDataSets(sessionDTO.getSessionToken(), newDataSets);
+
+            AbstractExternalData dataSet = server.getDataSetInfo(sessionDTO.getSessionToken(), dataSetId);
+            assertEquals(dataSet.getProperties().get(0).getValue(), property.getValue());
+        } else
+        {
+            try
+            {
+                server.updateDataSets(sessionDTO.getSessionToken(), newDataSets);
+                fail();
             } catch (AuthorizationFailureException e)
             {
                 // expected

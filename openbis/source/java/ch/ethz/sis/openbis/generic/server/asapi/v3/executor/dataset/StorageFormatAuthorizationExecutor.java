@@ -31,7 +31,7 @@ public class StorageFormatAuthorizationExecutor implements IStorageFormatAuthori
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_STORAGE_FORMAT")
     public void canGet(IOperationContext context)
     {

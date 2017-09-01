@@ -58,6 +58,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -1010,6 +1011,30 @@ public class GetDataSetTest extends AbstractDataSetTest
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
         assertEquals(entry.getRelationType(), DataSetRelationType.CHILD);
         assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        List<IDataSetId> ids = Arrays.asList(new DataSetPermId("20120619092259000-22"),
+                new DataSetPermId("20081105092159188-3"));
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+        Map<IDataSetId, DataSet> result = v3api.getDataSets(sessionToken, ids, new DataSetFetchOptions());
+
+        if (user.isInstanceUser())
+        {
+            assertEquals(result.size(), 2);
+        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
+        {
+            assertEquals(result.size(), 1);
+            assertEquals(result.values().iterator().next().getCode(), "20120619092259000-22");
+        } else
+        {
+            assertEquals(result.size(), 0);
+        }
+
+        v3api.logout(sessionToken);
     }
 
     private List<HistoryEntry> testGetWithHistory(DataSetUpdate... updates)

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -51,7 +52,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
@@ -82,15 +87,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 import junit.framework.Assert;
@@ -956,6 +965,31 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentsByExperimentTypeAndSpaceIdentifierWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), experimentType, new SpaceIdentifier("TEST-SPACE"));
+
+        if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            assertEquals(experiments.size(), 3);
+            assertEntities("[/TEST-SPACE/NOE/EXP-TEST-2, /TEST-SPACE/NOE/EXPERIMENT-TO-DELETE, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
+                    experiments);
+        } else if (user.isTestProjectUser() && user.hasPAEnabled())
+        {
+            assertEquals(experiments.size(), 1);
+            assertEntities("[/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]", experiments);
+        } else
+        {
+            assertEquals(experiments.size(), 0);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListExperimentsByExperimentTypeAndProjectIdentifierWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
@@ -1015,9 +1049,9 @@ public class CommonServerTest extends SystemTestCase
     public void testListExperimentsByExperimentIdentifiersWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
-        
+
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST");
-        
+
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<Experiment> experiments = commonServer.listExperiments(session.getSessionToken(), Arrays.asList(experimentIdentifier));
@@ -1035,7 +1069,7 @@ public class CommonServerTest extends SystemTestCase
             }
         }
     }
-    
+
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testListExperimentsHavingSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
     {
@@ -1155,6 +1189,35 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListMetaprojectExternalDataWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        Metaproject metaproject = new Metaproject();
+        metaproject.setName("TEST_LIST_METAPROJECT_DATASETS");
+        metaproject = commonServer.registerMetaproject(session.getSessionToken(), metaproject);
+
+        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
+        assignments.addDataSet(new DataSetCodeId("20120628092259000-41"));
+
+        commonServer.addToMetaproject(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()), assignments);
+
+        List<AbstractExternalData> dataSets =
+                commonServer.listMetaprojectExternalData(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(dataSets.size(), 1);
+            assertEquals(dataSets.get(0).isStub(), false);
+            assertEquals(dataSets.get(0).getCode(), "20120628092259000-41");
+        } else
+        {
+            assertEquals(dataSets.size(), 1);
+            assertEquals(dataSets.get(0).isStub(), true);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testSearchForSamplesWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
@@ -1200,16 +1263,68 @@ public class CommonServerTest extends SystemTestCase
         criteria.setCriteria(Arrays.asList(criterion));
         criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
 
+        List<Experiment> experiments =
+                commonServer.searchForExperiments(session.getSessionToken(), criteria);
+
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            List<Experiment> experiments =
-                    commonServer.searchForExperiments(session.getSessionToken(), criteria);
             assertEquals(experiments.size(), 1);
             assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         } else
         {
-            List<Experiment> experiments = commonServer.searchForExperiments(session.getSessionToken(), criteria);
             assertEquals(experiments.size(), 0);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        DetailedSearchCriterion criterion = new DetailedSearchCriterion();
+        criterion.setField(DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.CODE));
+        criterion.setValue("20120628092259000-41");
+
+        DetailedSearchCriteria criteria = new DetailedSearchCriteria();
+        criteria.setCriteria(Arrays.asList(criterion));
+        criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
+
+        List<AbstractExternalData> dataSets =
+                commonServer.searchForDataSets(session.getSessionToken(), criteria);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(dataSets.size(), 1);
+            assertEquals(dataSets.get(0).getCode(), "20120628092259000-41");
+        } else
+        {
+            assertEquals(dataSets.size(), 0);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testSearchForDataSetsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
+
+        DetailedSearchCriterion criterion = new DetailedSearchCriterion();
+        criterion.setField(DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.CODE));
+        criterion.setValue("20120628092259000-41");
+
+        DetailedSearchCriteria criteria = new DetailedSearchCriteria();
+        criteria.setCriteria(Arrays.asList(criterion));
+        criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
+
+        List<AbstractExternalData> dataSets =
+                commonServer.searchForDataSetsOnBehalfOfUser(session.getSessionToken(), criteria, user.getUserId());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(dataSets.size(), 1);
+            assertEquals(dataSets.get(0).getCode(), "20120628092259000-41");
+        } else
+        {
+            assertEquals(dataSets.size(), 0);
         }
     }
 
@@ -1448,6 +1563,42 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        IEntityProperty property = new EntityProperty();
+        property.setValue("test comment");
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode("COMMENT");
+        property.setPropertyType(propertyType);
+
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setDatasetId(new TechId(22L)); // 20120619092259000-22
+        updates.setProperties(Arrays.asList(new IEntityProperty[] { property }));
+        updates.setFileFormatTypeCode("XML");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            DataSetUpdateResult result = commonServer.updateDataSet(session.getSessionToken(), updates);
+            assertNotNull(result);
+
+            AbstractExternalData dataSet = commonServer.getDataSetInfo(session.getSessionToken(), updates.getDatasetId());
+            assertEquals(dataSet.getProperties().get(0).getValue(), property.getValue());
+        } else
+        {
+            try
+            {
+                commonServer.updateDataSet(session.getSessionToken(), updates);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
     public void testUpdateExperimentPropertiesWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
@@ -1502,6 +1653,442 @@ public class CommonServerTest extends SystemTestCase
             try
             {
                 commonServer.updateSampleProperties(session.getSessionToken(), sampleId, Arrays.asList(property));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUpdateDataSetPropertiesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        PropertyUpdates property = new PropertyUpdates();
+        property.setPropertyCode("COMMENT");
+        property.setValue("test comment");
+
+        TechId dataSetId = new TechId(22L); // 20120619092259000-22
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.updateDataSetProperties(session.getSessionToken(), dataSetId, Arrays.asList(property));
+
+            AbstractExternalData dataSet = commonServer.getDataSetInfo(session.getSessionToken(), dataSetId);
+            assertEquals(dataSet.getProperties().get(0).getValue(), property.getValue());
+        } else
+        {
+            try
+            {
+                commonServer.updateDataSetProperties(session.getSessionToken(), dataSetId, Arrays.asList(property));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListSampleExternalDataWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<AbstractExternalData> dataSets = commonServer.listSampleExternalData(session.getSessionToken(), sampleId, true);
+            assertEntities("[20120628092259000-41]", dataSets);
+        } else
+        {
+            try
+            {
+                commonServer.listSampleExternalData(session.getSessionToken(), sampleId, true);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListExperimentExternalDataWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId experimentId = new TechId(23L); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<AbstractExternalData> dataSets = commonServer.listExperimentExternalData(session.getSessionToken(), experimentId, true);
+            assertEquals(dataSets.size(), 9);
+        } else
+        {
+            try
+            {
+                commonServer.listExperimentExternalData(session.getSessionToken(), experimentId, true);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListDataSetRelationshipsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId parentId = new TechId(28L); // VALIDATIONS_PARENT-28
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            List<AbstractExternalData> children =
+                    commonServer.listDataSetRelationships(session.getSessionToken(), parentId, DataSetRelationshipRole.PARENT);
+            assertEntities("[VALIDATIONS_IMPOS-27]", children);
+        } else
+        {
+            try
+            {
+                commonServer.listDataSetRelationships(session.getSessionToken(), parentId, DataSetRelationshipRole.PARENT);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetDataSetInfoWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        TechId dataSetId = new TechId(41L); // 20120628092259000-41
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            AbstractExternalData dataSet = commonServer.getDataSetInfo(session.getSessionToken(), dataSetId);
+            assertNotNull(dataSet);
+            assertEquals(dataSet.getCode(), "20120628092259000-41");
+        } else
+        {
+            try
+            {
+                commonServer.getDataSetInfo(session.getSessionToken(), dataSetId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListRelatedDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        BasicEntityInformationHolder experiment = new BasicEntityInformationHolder(EntityKind.EXPERIMENT, null, null, 23L, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+        DataSetRelatedEntities related = new DataSetRelatedEntities(Arrays.asList(experiment));
+
+        List<AbstractExternalData> dataSets = commonServer.listRelatedDataSets(session.getSessionToken(), related, false);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(dataSets.size(), 9);
+        } else
+        {
+            assertEquals(dataSets.size(), 0);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListRelatedDataSetsOnBehalfOfUserWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
+
+        BasicEntityInformationHolder experiment = new BasicEntityInformationHolder(EntityKind.EXPERIMENT, null, null, 23L, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+        DataSetRelatedEntities related = new DataSetRelatedEntities(Arrays.asList(experiment));
+
+        List<AbstractExternalData> dataSets =
+                commonServer.listRelatedDataSetsOnBehalfOfUser(session.getSessionToken(), related, false, user.getUserId());
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            assertEquals(dataSets.size(), 9);
+        } else
+        {
+            assertEquals(dataSets.size(), 0);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testDeleteDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        TechId dataSetId = new TechId(41L);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.deleteDataSets(session.getSessionToken(), Arrays.asList(dataSetCode), "test reason", DeletionType.TRASH, true);
+            try
+            {
+                commonServer.getDataSetInfo(session.getSessionToken(), dataSetId);
+                fail();
+            } catch (UserFailureException e)
+            {
+                assertEquals(e.getMessage(), "Data set with ID '41' does not exist.");
+            }
+        } else
+        {
+            try
+            {
+                commonServer.deleteDataSets(session.getSessionToken(), Arrays.asList(dataSetCode), "test reason", DeletionType.TRASH, true);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUploadDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        DataSetUploadContext uploadContext = new DataSetUploadContext();
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.uploadDataSets(session.getSessionToken(), Arrays.asList(dataSetCode), uploadContext);
+        } else
+        {
+            try
+            {
+                commonServer.uploadDataSets(session.getSessionToken(), Arrays.asList(dataSetCode), uploadContext);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testCreateReportFromDatasetsWithServiceKeyWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        String serviceKey = "I-DONT-EXIST";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            try
+            {
+                commonServer.createReportFromDatasets(session.getSessionToken(), serviceKey, Arrays.asList(dataSetCode));
+            } catch (Exception e)
+            {
+                assertEquals(e.getMessage(), "Data store 'STANDARD' does not have '" + serviceKey + "' report configured.");
+            }
+        } else
+        {
+            try
+            {
+                commonServer.createReportFromDatasets(session.getSessionToken(), serviceKey, Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testCreateReportFromDatasetsWithServiceDescriptionWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        DatastoreServiceDescription serviceDescription = DatastoreServiceDescription.reporting(null, null, new String[] {}, "I-DONT-EXIST", null);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            try
+            {
+                commonServer.createReportFromDatasets(session.getSessionToken(), serviceDescription, Arrays.asList(dataSetCode));
+            } catch (Exception e)
+            {
+                assertEquals(e.getMessage(), "Cannot find the data store " + serviceDescription.getDatastoreCode());
+            }
+        } else
+        {
+            try
+            {
+                commonServer.createReportFromDatasets(session.getSessionToken(), serviceDescription, Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testProcessDatasetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        DatastoreServiceDescription serviceDescription = DatastoreServiceDescription.processing("I-DONT-EXIST", null, new String[] {}, "STANDARD");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            try
+            {
+                commonServer.processDatasets(session.getSessionToken(), serviceDescription, Arrays.asList(dataSetCode));
+            } catch (Exception e)
+            {
+                assertEquals(e.getMessage(),
+                        "Data store 'STANDARD' does not have '" + serviceDescription.getKey() + "' processing plugin configured.");
+            }
+        } else
+        {
+            try
+            {
+                commonServer.processDatasets(session.getSessionToken(), serviceDescription, Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testArchiveDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.archiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode), false);
+        } else
+        {
+            try
+            {
+                commonServer.archiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode), false);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUnarchiveDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.unarchiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode));
+        } else
+        {
+            try
+            {
+                commonServer.unarchiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testLockDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.lockDatasets(session.getSessionToken(), Arrays.asList(dataSetCode));
+        } else
+        {
+            try
+            {
+                commonServer.lockDatasets(session.getSessionToken(), Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testUnlockDataSetsWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            commonServer.unlockDatasets(session.getSessionToken(), Arrays.asList(dataSetCode));
+        } else
+        {
+            try
+            {
+                commonServer.unlockDatasets(session.getSessionToken(), Arrays.asList(dataSetCode));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testRetrieveLinkFromDataSetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        String dataSetCode = "20120628092259000-41";
+        DatastoreServiceDescription serviceDescription = DatastoreServiceDescription.reporting(null, null, new String[] {}, "I-DONT-EXIST", null);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            try
+            {
+                commonServer.retrieveLinkFromDataSet(session.getSessionToken(), serviceDescription, dataSetCode);
+            } catch (Exception e)
+            {
+                assertEquals(e.getMessage(), "Cannot find the data store " + serviceDescription.getDatastoreCode());
+            }
+        } else
+        {
+            try
+            {
+                commonServer.retrieveLinkFromDataSet(session.getSessionToken(), serviceDescription, dataSetCode);
                 fail();
             } catch (AuthorizationFailureException e)
             {

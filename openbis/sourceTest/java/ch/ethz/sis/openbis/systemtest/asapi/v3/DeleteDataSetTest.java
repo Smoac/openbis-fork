@@ -17,14 +17,18 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+
 import junit.framework.Assert;
 
 /**
@@ -130,13 +134,34 @@ public class DeleteDataSetTest extends AbstractDeletionTest
                 {
                     String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
-                    DataSetDeletionOptions options = new DataSetDeletionOptions();
-                    options.setReason("It is just a test");
-
-                    v3api.deleteDataSets(sessionToken, Collections.singletonList(permId), options);
+                    v3api.deleteDataSets(sessionToken, Collections.singletonList(permId), getOptions());
                 }
             }, permId);
     }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testDeleteWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        IDataSetId dataSetId = new DataSetPermId("20120628092259000-41");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            v3api.deleteDataSets(sessionToken, Arrays.asList(dataSetId), getOptions());
+        } else
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteDataSets(sessionToken, Arrays.asList(dataSetId), getOptions());
+                    }
+                }, dataSetId);
+        }
+    }
+
     // waiting for better times
     // @Test
     // public void testDeleteContainerInDifferentExperiment()
