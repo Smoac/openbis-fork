@@ -1368,7 +1368,7 @@ function ServerFacade(openbisServer) {
 							{	
 								"@type":"PropertyMatchClause",
 								fieldType : "PROPERTY",
-								fieldCode : properyTypeCode,
+								//fieldCode : properyTypeCode,
 								propertyCode : properyTypeCode,
 								desiredValue : "\"" + properyKeyValue[properyTypeCode] + "\"",
 								compareMode : "EQUALS"
@@ -1470,8 +1470,53 @@ function ServerFacade(openbisServer) {
 		}
 		
 		var localReference = this;
+		
+		//
+		// Fix For broken equals PART 1
+		// Currently the back-end matches whole words instead doing a standard EQUALS
+		// This fixes some most used cases for the storage system, but other use cases that use subcriterias can fail
+		//
+		var hackFixForBrokenEquals = [];
+		if(sampleCriteria.matchClauses) {
+			for(var cIdx = 0; cIdx < sampleCriteria.matchClauses.length; cIdx++) {
+				if(sampleCriteria.matchClauses[cIdx]["@type"] === "PropertyMatchClause" && 
+						sampleCriteria.matchClauses[cIdx]["compareMode"] === "EQUALS") {
+					hackFixForBrokenEquals.push({
+						propertyCode : sampleCriteria.matchClauses[cIdx].propertyCode,
+						value : sampleCriteria.matchClauses[cIdx].desiredValue.substring(1,sampleCriteria.matchClauses[cIdx].desiredValue.length-1)
+					});
+				}
+			}
+		}
+		//
+		// Fix For broken equals PART 1 - END
+		//
+		
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
+			var results = localReference.getInitializedSamples(data.result);
+			//
+			// Fix For broken equals PART 2
+			//
+			var filteredResults = [];
+			if(hackFixForBrokenEquals.length > 0 && results) {
+				for(var rIdx = 0; rIdx < results.length; rIdx++) {
+					var result = results[rIdx];
+					for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
+						if(	result && 
+							result.properties && 
+							result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
+							filteredResults.push(result);
+						}
+					}
+				}
+			} else {
+				filteredResults = results;
+			}
+			//
+			// Fix For broken equals PART 2 - END
+			//
+			
+			callbackFunction(filteredResults);
 		});
 	}
 	
