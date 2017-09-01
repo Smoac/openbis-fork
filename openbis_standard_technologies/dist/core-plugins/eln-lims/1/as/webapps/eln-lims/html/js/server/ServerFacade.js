@@ -355,43 +355,10 @@ function ServerFacade(openbisServer) {
 	}
 	
 
-	//
-	//OLD METHOD
-	/*this.generateCode = function(sampleType, action) {
-		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
-			if(response.result || response.result === 0) {
-				action(sampleType.codePrefix + (parseInt(response.result) + 1));
-			}
-		});
-	}*/
-	
 	this.generateCode = function(sampleType, action) {
-		var prefix = sampleType.codePrefix;
-		this.searchWithType(
-				sampleType.code,
-				prefix+"*",
-				false,
-				function(results) {
-					var nextCode;
-					if(results.length == 0){
-						nextcode = prefix + "1";
-					} else{
-						var codes = [];
-						for(var idx=0; idx<results.length; idx++){
-							numeric_code = results[idx].code.substring(prefix.length);
-							numeric_code = parseInt(numeric_code);
-							if(!isNaN(numeric_code)) {
-								codes.push(numeric_code); 
-							}
-						}
-						codes = codes.sort(function (a, b) { 
-						    return a - b;
-						});
-						var nextid = codes[codes.length-1] + 1;
-						nextcode = prefix + nextid;
-					}
-					action(nextcode);
-				});
+		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
+			action(sampleType.codePrefix + (parseInt(response.result) + 1));
+		});
 	}
 		
 	this.deleteDataSets = function(datasetIds, reason, callback) {
