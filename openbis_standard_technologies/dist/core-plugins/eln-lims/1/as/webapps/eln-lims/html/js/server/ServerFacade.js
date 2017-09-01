@@ -1177,10 +1177,10 @@ function ServerFacade(openbisServer) {
 					} else {
 						filteredResults = results;
 					}
+					apiResults.objects = filteredResults;
 					//
 					// Fix For broken equals PART 2 - END
 					//
-					apiResults.objects = filteredResults;
 					callback(apiResults);
 				})
 				.fail(function(result) {
