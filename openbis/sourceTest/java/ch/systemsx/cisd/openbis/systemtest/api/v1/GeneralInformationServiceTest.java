@@ -1256,11 +1256,17 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("[]", dataSets.get(1).getContainedDataSets().toString());
 
         loginAsObserver();
-        dataSets =
-                generalInformationService.getDataSetMetaData(sessionToken,
-                        Arrays.asList("20081105092159222-2"));
 
-        assertEquals("[]", dataSets.toString());
+        try
+        {
+            dataSets =
+                    generalInformationService.getDataSetMetaData(sessionToken,
+                            Arrays.asList("20081105092159222-2"));
+            fail();
+        } catch (AuthorizationFailureException e)
+        {
+            // expected
+        }
     }
 
     @Test
