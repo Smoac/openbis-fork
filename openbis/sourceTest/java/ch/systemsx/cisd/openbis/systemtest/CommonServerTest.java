@@ -34,6 +34,7 @@ import javax.sql.DataSource;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -73,8 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -87,14 +87,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetCodeId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -109,6 +111,9 @@ import junit.framework.Assert;
  */
 public class CommonServerTest extends SystemTestCase
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
@@ -1133,27 +1138,26 @@ public class CommonServerTest extends SystemTestCase
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        Metaproject metaproject = new Metaproject();
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user.getUserId());
+        MetaprojectPE metaproject = new MetaprojectPE();
         metaproject.setName("TEST_LIST_METAPROJECT_EXPERIMENTS");
-        metaproject = commonServer.registerMetaproject(session.getSessionToken(), metaproject);
+        metaproject.setOwner(person);
 
-        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
-        assignments.addExperiment(new ExperimentIdentifierId("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        ExperimentPE experiment = daoFactory.getExperimentDAO().tryGetByTechId(new TechId(23L));
+        experiment.addMetaproject(metaproject);
 
-        commonServer.addToMetaproject(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()), assignments);
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(metaproject, person);
+
+        List<Experiment> experiments =
+                commonServer.listMetaprojectExperiments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            List<Experiment> experiments =
-                    commonServer.listMetaprojectExperiments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
-
             assertEquals(experiments.size(), 1);
             assertEquals(experiments.get(0).isStub(), false);
             assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         } else
         {
-            List<Experiment> experiments =
-                    commonServer.listMetaprojectExperiments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
             assertEquals(experiments.size(), 1);
             assertEquals(experiments.get(0).isStub(), true);
         }
@@ -1164,14 +1168,15 @@ public class CommonServerTest extends SystemTestCase
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        Metaproject metaproject = new Metaproject();
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user.getUserId());
+        MetaprojectPE metaproject = new MetaprojectPE();
         metaproject.setName("TEST_LIST_METAPROJECT_SAMPLES");
-        metaproject = commonServer.registerMetaproject(session.getSessionToken(), metaproject);
+        metaproject.setOwner(person);
 
-        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
-        assignments.addSample(new SampleIdentifierId("/TEST-SPACE/EV-TEST"));
+        SamplePE sample = daoFactory.getSampleDAO().tryGetByTechId(new TechId(1055L)); // /TEST-SPACE/EV-TEST
+        sample.addMetaproject(metaproject);
 
-        commonServer.addToMetaproject(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()), assignments);
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(metaproject, person);
 
         List<Sample> samples =
                 commonServer.listMetaprojectSamples(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
@@ -1193,14 +1198,15 @@ public class CommonServerTest extends SystemTestCase
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        Metaproject metaproject = new Metaproject();
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user.getUserId());
+        MetaprojectPE metaproject = new MetaprojectPE();
         metaproject.setName("TEST_LIST_METAPROJECT_DATASETS");
-        metaproject = commonServer.registerMetaproject(session.getSessionToken(), metaproject);
+        metaproject.setOwner(person);
 
-        MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
-        assignments.addDataSet(new DataSetCodeId("20120628092259000-41"));
+        DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode("20120628092259000-41");
+        dataSet.addMetaproject(metaproject);
 
-        commonServer.addToMetaproject(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()), assignments);
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(metaproject, person);
 
         List<AbstractExternalData> dataSets =
                 commonServer.listMetaprojectExternalData(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));

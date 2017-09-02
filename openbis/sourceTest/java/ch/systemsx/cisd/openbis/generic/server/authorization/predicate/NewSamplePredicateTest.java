@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -106,6 +107,20 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         List<SpacePE> groups = Arrays.asList(createSpace(groupIdentifier));
         prepareProvider(groups);
         predicate.init(provider);
+
+        SpacePE space = new SpacePE();
+        space.setCode(ANOTHER_SPACE_CODE);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(provider).tryGetSpace(ANOTHER_SPACE_CODE);
+                    will(returnValue(space));
+
+                    one(provider).tryGetSampleBySpaceAndCode(space, "S1");
+                    will(returnValue(null));
+                }
+            });
 
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
 

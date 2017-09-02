@@ -34,9 +34,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
@@ -692,8 +692,13 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         {
             generalInformationChangingService.deleteDataSets(session, Arrays.asList(dataSetCode), reason, DeletionType.TRASH);
 
-            dataSets = generalInformationService.getDataSetMetaData(adminSession, Arrays.asList(dataSetCode));
-            assertEquals(0, dataSets.size());
+            try
+            {
+                dataSets = generalInformationService.getDataSetMetaData(adminSession, Arrays.asList(dataSetCode));
+            } catch (UserFailureException e)
+            {
+                assertEquals("Unknown data set " + dataSetCode, e.getMessage());
+            }
         } else
         {
             try
@@ -806,7 +811,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
             {
                 generalInformationChangingService.registerSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
                 fail();
-            } catch (UserFailureException e)
+            } catch (ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException e)
             {
                 AssertionUtil.assertMatches(".*does not have enough privileges.*", e.getMessage());
             }
@@ -833,7 +838,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
             {
                 generalInformationChangingService.updateSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
                 fail();
-            } catch (UserFailureException e)
+            } catch (ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException e)
             {
                 AssertionUtil.assertMatches(".*does not have enough privileges.*", e.getMessage());
             }
