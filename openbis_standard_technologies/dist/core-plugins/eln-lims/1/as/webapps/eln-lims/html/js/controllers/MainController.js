@@ -41,8 +41,13 @@ function MainController(profile) {
 
 	this.loadV3 = function(callback) {
 	    this.serverFacade.getOpenbisV3(function(openbisV3) {
-            mainController.openbisV3 = openbisV3
-            mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+            openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+            if(openbisV3._private.log) {
+            	openbisV3._private.log = function() {
+                	// Disables v3 logging
+                };
+            }
+            mainController.openbisV3 = openbisV3;
             callback();
 	    });
 	};
