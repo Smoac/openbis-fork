@@ -681,9 +681,13 @@ function MainController(profile) {
 		if(withContentOrContentId) {
 			content = $("<div>");
 			content.css({ 
-				"padding" : "10px",
-				"height" : "100%"
+				"padding" : "10px"
 			});
+			if(!withAuxContentOrAuxContentId) {  // Setting 100% height breaks views with 3 columns on tablet mode, better to explicitly set to 100% when the third column is not used
+				content.css({
+					"height" : "100%"
+				});
+			}
 			if((typeof withContentOrContentId === 'string' || withContentOrContentId instanceof String)) {
 				content.attr("id", withContentOrContentId);
 			}
