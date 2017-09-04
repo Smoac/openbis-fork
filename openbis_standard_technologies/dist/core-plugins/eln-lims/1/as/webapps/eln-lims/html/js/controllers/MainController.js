@@ -618,17 +618,17 @@ function MainController(profile) {
 				}
 				
 				if(this.views.header) {
-					toPush.header = this.views.header.children();
+					toPush.header = this.views.header;
 					toPush.header.detach();
 				}
 				
 				if(this.views.content) {
-					toPush.content = this.views.content.children();
+					toPush.content = this.views.content;
 					toPush.content.detach();
 				}
 				
 				if(this.views.auxContent) {
-					toPush.auxContent = this.views.auxContent.children();
+					toPush.auxContent = this.views.auxContent;
 					toPush.auxContent.detach();
 				}
 			}
