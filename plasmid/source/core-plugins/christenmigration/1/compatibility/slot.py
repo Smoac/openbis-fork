@@ -9,8 +9,8 @@ def calculate_slot():
 
 	
 	if (location > 1.1):
-		new_location=(location-1)*81
-		slot = plasmid_ID-new_location
+		new_location=(round_location-1)*81
+		slot = int(plasmid_ID-new_location)
 	else:
 		slot = int(plasmid_ID)
 
