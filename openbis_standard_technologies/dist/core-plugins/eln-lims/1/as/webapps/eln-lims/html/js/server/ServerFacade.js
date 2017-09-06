@@ -356,8 +356,12 @@ function ServerFacade(openbisServer) {
 	
 
 	this.generateCode = function(sampleType, action) {
-		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
-			action(sampleType.codePrefix + (parseInt(response.result) + 1));
+		var parameters = {
+			"method" : "getNextSequenceForType",
+			"sampleTypeCode" : sampleType.code
+		}
+		this.customELNASAPI(parameters, function(nextInSequence) {
+			action(sampleType.codePrefix + nextInSequence);
 		});
 	}
 		
@@ -634,6 +638,26 @@ function ServerFacade(openbisServer) {
  			callbackFunction(error, result);
  		});
 	}
+ 	
+ 	this.customELNASAPI = function(parameters, callackFunction) {
+ 		require([ "as/dto/service/id/CustomASServiceCode", "as/dto/service/CustomASServiceExecutionOptions" ],
+    	        function(CustomASServiceCode, CustomASServiceExecutionOptions) {
+    	            var id = new CustomASServiceCode("as-eln-lims-api");
+    	            var options = new CustomASServiceExecutionOptions();
+    	            
+    	            if(parameters) {
+    	            	for(key in parameters) {
+        	            	options.withParameter(key, parameters[key]);
+        	            }
+    	            }
+    	            
+    	            mainController.openbisV3.executeCustomASService(id, options).done(function(result) {
+    	                callackFunction(result);
+    	            }).fail(function(result) {
+    	            	alert("Call failed to server: " + JSON.stringify(result));
+    	            });
+    	 });
+ 	}
  	
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction, service) {
  		if(!service) {
