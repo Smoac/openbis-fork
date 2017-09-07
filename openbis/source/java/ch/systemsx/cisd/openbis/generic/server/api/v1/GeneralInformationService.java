@@ -1391,14 +1391,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         querySampleTypeId.setParameter("sampleTypeCode", sampleTypeCode);
         int sampleTypeId = ((Number) querySampleTypeId.uniqueResult()).intValue();
 
-        SQLQuery querySampleTypePrefix = currentSession.createSQLQuery("SELECT generated_code_prefix from sample_types WHERE code = :sampleTypeCode");
-        querySampleTypePrefix.setParameter("sampleTypeCode", sampleTypeCode);
-        String sampleTypePrefix = ((String) querySampleTypePrefix.uniqueResult());
-
-        SQLQuery querySampleCount =
-                currentSession.createSQLQuery("SELECT COUNT(*) FROM samples_all WHERE saty_id = :sampleTypeId AND code ~ :codePattern");
+        SQLQuery querySampleCount = currentSession.createSQLQuery("SELECT COUNT(*) FROM samples_all WHERE saty_id = :sampleTypeId");
         querySampleCount.setParameter("sampleTypeId", sampleTypeId);
-        querySampleCount.setParameter("codePattern", "^" + sampleTypePrefix + "[0-9]+$");
         long sampleCount = ((Number) querySampleCount.uniqueResult()).longValue();
 
         return sampleCount;
