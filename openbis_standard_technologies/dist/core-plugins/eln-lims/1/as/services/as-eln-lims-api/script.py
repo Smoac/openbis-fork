@@ -22,7 +22,7 @@ def getNextSequenceForType(context, parameters):
     querySampleTypePrefix.setParameter("sampleTypeCode", sampleTypeCode);
     sampleTypePrefix = querySampleTypePrefix.uniqueResult();
     sampleTypePrefixLengthPlusOneAsString = str((len(sampleTypePrefix) + 1));
-    querySampleCount = currentSession.createSQLQuery("SELECT MAX(CAST(substring(code, " + sampleTypePrefixLengthPlusOneAsString + ") as int)) FROM samples_all WHERE saty_id = :sampleTypeId AND code ~ :codePattern");
+    querySampleCount = currentSession.createSQLQuery("SELECT COALESCE(MAX(CAST(substring(code, " + sampleTypePrefixLengthPlusOneAsString + ") as int)), 0) FROM samples_all WHERE saty_id = :sampleTypeId AND code ~ :codePattern");
     querySampleCount.setParameter("sampleTypeId", sampleTypeId);
     querySampleCount.setParameter("codePattern", "^" + sampleTypePrefix + "[0-9]+$");
     sampleCount = querySampleCount.uniqueResult();
