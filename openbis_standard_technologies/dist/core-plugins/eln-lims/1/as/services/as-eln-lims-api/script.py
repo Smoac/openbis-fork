@@ -26,4 +26,5 @@ def getNextSequenceForType(context, parameters):
     querySampleCount.setParameter("sampleTypeId", sampleTypeId);
     querySampleCount.setParameter("codePattern", "^" + sampleTypePrefix + "[0-9]+$");
     sampleCount = querySampleCount.uniqueResult();
+    
     return (sampleCount + 1)
