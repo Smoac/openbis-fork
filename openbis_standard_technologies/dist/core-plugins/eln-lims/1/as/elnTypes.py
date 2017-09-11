@@ -630,11 +630,13 @@ MATERIALS = [MANDATORY_ITEM_VERSION, "MATERIALS", "Folder used to organize sampl
     ]];
 
 METHODS = [MANDATORY_ITEM_VERSION, "METHODS", "Folder used to organize samples in the Inventory/METHODS", [
-        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
+        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None],
+        [MANDATORY_ITEM_VERSION, "DEFAULT_OBJECT_TYPE",  "General", "Default Object Type",      DataType.VARCHAR,             None,    "Default Object Type", None, None]
     ]];
     
 COLLECTION = [MANDATORY_ITEM_VERSION, "COLLECTION", "Folder used to organize collections everywhere", [
-        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
+        [MANDATORY_ITEM_VERSION, "NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None],
+        [MANDATORY_ITEM_VERSION, "DEFAULT_OBJECT_TYPE",  "General", "Default Object Type",      DataType.VARCHAR,             None,    "Default Object Type", None, None]
     ]];
 
 DEFAULT_EXPERIMENT = [MANDATORY_ITEM_VERSION, "DEFAULT_EXPERIMENT", "Default Experiment", [
