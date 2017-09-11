@@ -20,14 +20,35 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 	
 	this.repaint = function() {
 		var _this = this;
+		var entity = this._jupyterNotebookModel.entity;
+		
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		
 		$window.append($('<legend>').append("Create Jupyter Notebook"));
-		var $treeContainer = $('<div>', { style : "height: 200px; overflow:auto;" });
-		$window.append(FormUtil.getFieldForLabelWithText("Included Datasets (*) ", ""));
-		$window.append($treeContainer);
+		var tree = null;
 		
-		var tree = TreeUtil.getTreeForEntity($treeContainer, this._jupyterNotebookModel.entity);
+		switch(entity["@type"]) {
+			case "DataSet":
+				$window.append(FormUtil.getFieldForLabelWithText("Dataset", entity.code));
+				break;
+			default:
+				var $treeContainer = $('<div>', { style : "height: 200px; overflow:auto;" });
+				$window.append(FormUtil.getFieldForLabelWithText("Included Datasets (*) ", ""));
+				$window.append($treeContainer);
+				tree = TreeUtil.getTreeForEntity($treeContainer, entity);
+				
+				var expandDeep = null;
+					expandDeep = function(node) {
+					var _this = this;
+					node.setExpanded(true).done(function() {
+						node.visit(function(n) { expandDeep(n);});
+					})
+				}
+				
+				expandDeep($(tree).fancytree('getTree').getRootNode());
+					
+				break;
+		}
 		
 		var $workspace = FormUtil._getInputField('text', null, 'workspace Name', null, true);
 		var $notebookName = FormUtil._getInputField('text', null, 'notebook Name', null, true);
@@ -36,14 +57,20 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		$window.submit(function() {
-			var selectedNodes = $(tree).fancytree('getTree').getSelectedNodes();
+			
 			var notebookDatasets = [];
-			for(var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
-				var node = selectedNodes[eIdx];
-				if(node.data.entityType === "DATASET") {
-					notebookDatasets.push(node.key);
+			if(tree) {
+				var selectedNodes = $(tree).fancytree('getTree').getSelectedNodes();
+				for(var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
+					var node = selectedNodes[eIdx];
+					if(node.data.entityType === "DATASET") {
+						notebookDatasets.push(node.key);
+					}
 				}
+			} else {
+				notebookDatasets.push(entity.code);
 			}
+			
 			if(notebookDatasets.length > 0) {
 				_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets);
 			} else {
