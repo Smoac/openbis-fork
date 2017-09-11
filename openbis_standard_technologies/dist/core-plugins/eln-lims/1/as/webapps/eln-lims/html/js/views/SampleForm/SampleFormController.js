@@ -401,11 +401,11 @@ function SampleFormController(mainController, mode, sample) {
 				var searchUntilFound = null;
 				    searchUntilFound = function() {
 					mainController.serverFacade.searchWithIdentifiers([sampleIdentifierToOpen], function(data) {
-						if(data && data.length === 1) {
+						if(data && data.length > 0) {
 							mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
 							Util.unblockUI();
-						} else { //Recursive call
-							searchUntilFound();
+						} else { // Recursive call, only if not found yet due to reindexing
+							setTimeout(searchUntilFound, 100);
 						}
 					});
 				}
