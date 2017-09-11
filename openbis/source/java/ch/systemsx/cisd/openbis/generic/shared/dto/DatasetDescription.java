@@ -38,6 +38,10 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private String fileFormatType;
 
+    private boolean h5Folders;
+
+    private boolean h5arFolders;
+
     private String datasetCode;
 
     private String dataSetLocation;
@@ -275,6 +279,26 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setFileFormatType(String fileFormatType)
     {
         this.fileFormatType = fileFormatType;
+    }
+
+    public boolean isH5Folders()
+    {
+        return h5Folders;
+    }
+
+    public void setH5Folders(boolean h5Folders)
+    {
+        this.h5Folders = h5Folders;
+    }
+
+    public boolean isH5arFolders()
+    {
+        return h5arFolders;
+    }
+
+    public void setH5arFolders(boolean h5arFolders)
+    {
+        this.h5arFolders = h5arFolders;
     }
 
     @Override
