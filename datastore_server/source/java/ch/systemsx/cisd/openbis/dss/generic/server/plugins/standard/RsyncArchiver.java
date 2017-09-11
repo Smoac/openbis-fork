@@ -29,7 +29,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.Hdf5AwareHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
@@ -213,7 +214,6 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context, boolean removeFromDataStore) throws UserFailureException
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        DefaultFileBasedHierarchicalContentFactory contentFactory = new DefaultFileBasedHierarchicalContentFactory();
         for (DatasetDescription dataset : datasets)
         {
             File originalData = getDatasetDirectory(context, dataset);
@@ -236,6 +236,8 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     if (getFileOperationsManager().isHosted())
                     {
                         getFileOperationsManager().retrieveFromDestination(temp, dataset);
+                        IHierarchicalContentFactory contentFactory =  new Hdf5AwareHierarchicalContentFactory(
+                                dataset.isH5Folders(), dataset.isH5arFolders());
                         archivedContent = contentFactory.asHierarchicalContent(temp, null);
                     } else
                     {

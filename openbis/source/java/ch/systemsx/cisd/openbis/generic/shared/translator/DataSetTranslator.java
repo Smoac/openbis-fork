@@ -98,6 +98,8 @@ public class DataSetTranslator
             description.setDataSetLocation(dataSet.getLocation());
             description.setSpeedHint(dataSet.getSpeedHint());
             description.setFileFormatType(dataSet.getFileFormatType().getCode());
+            description.setH5Folders(dataSet.isH5Folders());
+            description.setH5arFolders(dataSet.isH5arFolders());
         }
         description.setDataSetSize(data.getSize());
         DataSetType dataSetType = data.getDataSetType();
@@ -515,6 +517,8 @@ public class DataSetTranslator
             description.setSpeedHint(externalData.getSpeedHint());
             description.setFileFormatType(externalData.getFileFormatType().getCode());
             description.setStorageConfirmed(externalData.isStorageConfirmation());
+            description.setH5Folders(externalData.isH5Folders());
+            description.setH5arFolders(externalData.isH5arFolders());
         }
         SamplePE sample = dataSet.tryGetSample();
         if (sample != null)

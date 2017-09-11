@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.Hdf5AwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.AbstractDataSetFileOperationsManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.ArchiveDestination;
@@ -279,7 +279,7 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     @Override
     public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset)
     {
-        return new DefaultFileBasedHierarchicalContentFactory()
+        return new Hdf5AwareHierarchicalContentFactory(dataset.isH5Folders(), dataset.isH5arFolders())
                 .asHierarchicalContent(new File(archiveDestination.getDestination(), dataset.getDataSetLocation()), null);
     }
 
