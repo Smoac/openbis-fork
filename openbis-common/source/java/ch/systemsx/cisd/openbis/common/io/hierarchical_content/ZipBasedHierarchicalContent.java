@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -361,9 +360,18 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
 
         private final IHierarchicalContent hierarchicalContent;
 
-        public NodeManager(IHierarchicalContent hierarchicalContent)
+        private boolean h5Folders;
+
+        private boolean h5arFolders;
+
+        public NodeManager(IHierarchicalContent hierarchicalContent, List<H5FolderFlags> h5FolderFlags)
         {
             this.hierarchicalContent = hierarchicalContent;
+            if (h5FolderFlags != null && h5FolderFlags.isEmpty() == false)
+            {
+                h5Folders = h5FolderFlags.get(0).isH5Folders();
+                h5arFolders = h5FolderFlags.get(0).isH5arFolders();
+            }
         }
 
         void handle(final BasicZipFile zipFile, final ZipEntry zipEntry)
@@ -378,23 +386,26 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
                 }
                 IHierarchicalContentNode contentNode = new ZipContainerNode(name);
                 linkNode(contentNode, relativePath);
-            } else if (FilenameUtils.isExtension(zipEntry.getName().toLowerCase(), FileUtilities.HDF5_FILE_TYPES))
-            {
-                try
-                {
-                    File tempFile = File.createTempFile(TEMP_FILE_PREFIX, extractName(relativePath), TEMP_FOLDER);
-                    unzippedFiles.add(tempFile);
-                    IHierarchicalContentNode contentNode =
-                            new HDF5ContainerNode(hierarchicalContent, tempFile, zipFile, relativePath, zipEntry);
-                    linkNode(contentNode, relativePath);
-                } catch (Exception ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                }
             } else
             {
-                IHierarchicalContentNode contentNode = new ZipContentNode(zipFile, zipEntry);
-                linkNode(contentNode, relativePath);
+                if (HierarchicalContentUtils.handleHdf5AsFolder(relativePath, h5Folders, h5arFolders))
+                {
+                    try
+                    {
+                        File tempFile = File.createTempFile(TEMP_FILE_PREFIX, extractName(relativePath), TEMP_FOLDER);
+                        unzippedFiles.add(tempFile);
+                        IHierarchicalContentNode contentNode =
+                                new HDF5ContainerNode(hierarchicalContent, tempFile, zipFile, relativePath, zipEntry);
+                        linkNode(contentNode, relativePath);
+                    } catch (Exception ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                } else
+                {
+                    IHierarchicalContentNode contentNode = new ZipContentNode(zipFile, zipEntry);
+                    linkNode(contentNode, relativePath);
+                }
             }
         }
 
@@ -430,11 +441,11 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
 
     private final List<File> unzippedFiles;
 
-    public ZipBasedHierarchicalContent(File file)
+    public ZipBasedHierarchicalContent(File file, List<H5FolderFlags> h5FolderFlags)
     {
         try
         {
-            NodeManager nodeManager = new NodeManager(this);
+            NodeManager nodeManager = new NodeManager(this, h5FolderFlags);
             zipFile = new BasicZipFile(new SimpleReadOnlyFile(file), "UTF-8", true, false);
             @SuppressWarnings("unchecked")
             Enumeration<? extends ZipEntry> entries = zipFile.entries();

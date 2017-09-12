@@ -114,17 +114,13 @@ public class Hdf5AwareHierarchicalContentFactory implements IHierarchicalContent
                         H5FolderFlags flags = h5FolderFlagsByTreeRoot.get(treeRoot);
                         if (flags != null)
                         {
-                            return handleHdf5AsFolder(filename, flags.isH5Folders(), flags.isH5arFolders());
+                            return HierarchicalContentUtils.handleHdf5AsFolder(filename, 
+                                    flags.isH5Folders(), flags.isH5arFolders());
                         }
                     }
                 }
             }
         }
-        return handleHdf5AsFolder(filename, h5FoldersDefault, h5arFoldersDefault);
-    }
-
-    private boolean handleHdf5AsFolder(String filename, boolean h5Folders, boolean h5arFolders)
-    {
-        return (filename.toLowerCase().endsWith("h5") && h5Folders) || (filename.toLowerCase().endsWith("h5ar") && h5arFolders);
+        return HierarchicalContentUtils.handleHdf5AsFolder(filename, h5FoldersDefault, h5arFoldersDefault);
     }
 }

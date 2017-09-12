@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -140,16 +139,6 @@ public class TarPackageManager extends AbstractPackageManager
                 });
         }
         return new TarBasedHierarchicalContent(packageFile, h5FolderFlags, tempFolder, bufferSize, logger);
-    }
-    
-    private List<H5FolderFlags> extractH5FolderFlags(List<DatasetDescription> dataSets)
-    {
-        List<H5FolderFlags> result = new ArrayList<>();
-        for (DatasetDescription dataSet : dataSets)
-        {
-            result.add(new H5FolderFlags(dataSet.getDataSetCode(), dataSet.isH5Folders(), dataSet.isH5arFolders()));
-        }
-        return result;
     }
 
 }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
@@ -142,7 +143,8 @@ public class ZipPackageManager extends AbstractPackageManager
     @Override
     public IHierarchicalContent asHierarchialContent(File packageFile, List<DatasetDescription> dataSets, boolean onlyMetaData)
     {
-        return new ZipBasedHierarchicalContent(packageFile);
+        List<H5FolderFlags> h5FolderFlags = extractH5FolderFlags(dataSets);
+        return new ZipBasedHierarchicalContent(packageFile, h5FolderFlags);
     }
 
 }

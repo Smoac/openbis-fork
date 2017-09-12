@@ -17,17 +17,20 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -91,5 +94,15 @@ abstract class AbstractPackageManager implements IPackageManager
             directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
         return directoryProvider;
+    }
+
+    protected List<H5FolderFlags> extractH5FolderFlags(List<DatasetDescription> dataSets)
+    {
+        List<H5FolderFlags> result = new ArrayList<>();
+        for (DatasetDescription dataSet : dataSets)
+        {
+            result.add(new H5FolderFlags(dataSet.getDataSetCode(), dataSet.isH5Folders(), dataSet.isH5arFolders()));
+        }
+        return result;
     }
 }

@@ -101,4 +101,13 @@ public class HierarchicalContentUtils
         return new HierarchicalContentClosingInputStream(node.getInputStream(), content);
     }
 
+    /**
+     * Returns <code>true</code> if the file type (in lower case) is <code>h5</code> and <code>h5Folders == true</code> 
+     * or the file type is <code>h5ar</code> and <code>h5arFolders == true</code>. 
+     */
+    static boolean handleHdf5AsFolder(String filename, boolean h5Folders, boolean h5arFolders)
+    {
+        return (filename.toLowerCase().endsWith("h5") && h5Folders) || (filename.toLowerCase().endsWith("h5ar") && h5arFolders);
+    }
+
 }

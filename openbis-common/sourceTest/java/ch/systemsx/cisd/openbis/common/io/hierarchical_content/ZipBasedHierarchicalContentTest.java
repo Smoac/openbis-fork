@@ -50,7 +50,7 @@ public class ZipBasedHierarchicalContentTest extends AbstractPackageBasedHierarc
     protected IHierarchicalContent createPackage(File packageFile, File dataDir)
     {
         zip(packageFile, dataDir);
-        return new ZipBasedHierarchicalContent(packageFile);
+        return new ZipBasedHierarchicalContent(packageFile, null);
     }
 
     @Override
