@@ -67,6 +67,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -1439,7 +1440,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         IHierarchicalContent content;
         if (file.getName().endsWith("tar"))
         {
-            content = new TarBasedHierarchicalContent(file, staging, 4096, null);
+            List<H5FolderFlags> h5FolderFlags = Arrays.asList(new H5FolderFlags("", true, true));
+            content = new TarBasedHierarchicalContent(file, h5FolderFlags, staging, 4096, null);
         } else
         {
             content = new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(file, null);

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.common.io.hierarchical_content;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.tar.Tar;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -35,7 +37,8 @@ public class TarBasedHierarchicalContentTest extends AbstractPackageBasedHierarc
         {
             tar = new Tar(packageFile);
             tar.add(dataDir, dataDir.getPath().length());
-            return new TarBasedHierarchicalContent(packageFile, null, 4096, null);
+            List<H5FolderFlags> h5FolderFlags = Arrays.asList(new H5FolderFlags("", true, true));
+            return new TarBasedHierarchicalContent(packageFile, h5FolderFlags, null, 4096, null);
         } finally
         {
             if (tar != null)

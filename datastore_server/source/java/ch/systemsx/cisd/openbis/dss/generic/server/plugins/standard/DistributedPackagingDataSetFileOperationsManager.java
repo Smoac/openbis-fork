@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -321,7 +322,8 @@ public class DistributedPackagingDataSetFileOperationsManager extends AbstractDa
     @Override
     public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset)
     {
-        IHierarchicalContent content = packageManager.asHierarchialContent(getArchiveFile(dataset), false);
+        IHierarchicalContent content = packageManager.asHierarchialContent(getArchiveFile(dataset), 
+                Arrays.asList(dataset), false);
         return new FilteredHierarchicalContent(content, FILTER);
     }
 

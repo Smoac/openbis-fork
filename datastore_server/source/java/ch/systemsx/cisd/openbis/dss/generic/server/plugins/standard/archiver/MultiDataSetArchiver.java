@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SimpleFileContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -318,7 +319,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 throw new Exception("Couldn't create archive file " + containerPath
                         + ". Reason: " + status.tryGetErrorMessage());
             }
-            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath);
+            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
 
             checkArchivedDataSets(archivedContent, dataSets, context, statuses);
             scheduleFinalizer(containerPath, dataSets, context, removeFromDataStore, statuses);
@@ -568,7 +569,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 return result;
             }
         }
-
+        
         IHierarchicalContentProvider contentProvider = context.getHierarchicalContentProvider();
         for (String dataSetCode : dataSetCodes)
         {
@@ -600,7 +601,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             throw createException(dataSetCode, node, null);
         }
-        if (node.isDirectory())
+        if (node.isDirectory() && FileUtilities.isHDF5ContainerFile(file) == false)
         {
             for (IHierarchicalContentNode child : node.getChildNodes())
             {

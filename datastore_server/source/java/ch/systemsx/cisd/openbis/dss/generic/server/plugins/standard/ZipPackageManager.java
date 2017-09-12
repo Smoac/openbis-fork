@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.dss.archiveverifier.verifier.ZipFileIntegrityVer
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 import de.schlichtherle.io.rof.SimpleReadOnlyFile;
 import de.schlichtherle.util.zip.BasicZipFile;
@@ -139,7 +140,7 @@ public class ZipPackageManager extends AbstractPackageManager
     }
 
     @Override
-    public IHierarchicalContent asHierarchialContent(File packageFile, boolean onlyMetaData)
+    public IHierarchicalContent asHierarchialContent(File packageFile, List<DatasetDescription> dataSets, boolean onlyMetaData)
     {
         return new ZipBasedHierarchicalContent(packageFile);
     }

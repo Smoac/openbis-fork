@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -31,6 +32,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.hdf5.hdf5lib.H5F;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
@@ -39,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoProviderBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author pkupczyk
@@ -121,8 +125,9 @@ public class TarPackageManager extends AbstractPackageManager
     }
 
     @Override
-    public IHierarchicalContent asHierarchialContent(File packageFile, boolean onlyMetaData)
+    public IHierarchicalContent asHierarchialContent(File packageFile, List<DatasetDescription> dataSets, boolean onlyMetaData)
     {
+        List<H5FolderFlags> h5FolderFlags = extractH5FolderFlags(dataSets);
         if (onlyMetaData)
         {
             final ISingleDataSetPathInfoProvider pathInfoProvider = new TarBasedPathInfoProvider(packageFile, bufferSize, logger);
@@ -134,7 +139,17 @@ public class TarPackageManager extends AbstractPackageManager
                     }
                 });
         }
-        return new TarBasedHierarchicalContent(packageFile, tempFolder, bufferSize, logger);
+        return new TarBasedHierarchicalContent(packageFile, h5FolderFlags, tempFolder, bufferSize, logger);
+    }
+    
+    private List<H5FolderFlags> extractH5FolderFlags(List<DatasetDescription> dataSets)
+    {
+        List<H5FolderFlags> result = new ArrayList<>();
+        for (DatasetDescription dataSet : dataSets)
+        {
+            result.add(new H5FolderFlags(dataSet.getDataSetCode(), dataSet.isH5Folders(), dataSet.isH5arFolders()));
+        }
+        return result;
     }
 
 }

@@ -486,13 +486,13 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         };
 
     @Override
-    public IHierarchicalContent getContainerAsHierarchicalContent(String containerPath)
+    public IHierarchicalContent getContainerAsHierarchicalContent(String containerPath, List<DatasetDescription> dataSets)
     {
         ArchiveDestination archiveDestination = getFinalArchive();
         String destinationRoot = archiveDestination.getDestination();
         File containerInDestination = new File(destinationRoot, containerPath);
 
-        IHierarchicalContent containerMetaData = packageManager.asHierarchialContent(containerInDestination, hdf5FilesInDataSet == false);
+        IHierarchicalContent containerMetaData = packageManager.asHierarchialContent(containerInDestination, dataSets, hdf5FilesInDataSet == false);
         return new FilteredHierarchicalContent(containerMetaData, METADATA_IN_CONTAINER_FILTER);
     }
 

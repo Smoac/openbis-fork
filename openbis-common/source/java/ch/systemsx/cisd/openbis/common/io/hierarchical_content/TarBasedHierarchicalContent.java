@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.common.io.hierarchical_content;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -45,9 +46,13 @@ public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
 
     private final int bufferSize;
 
-    public TarBasedHierarchicalContent(File packageFile, File tempFolder, int bufferSize, ISimpleLogger ioSpeedLoggerOrNull)
+    private final List<H5FolderFlags> h5FolderFlags;
+
+    public TarBasedHierarchicalContent(File packageFile, List<H5FolderFlags> h5FolderFlags, 
+            File tempFolder, int bufferSize, ISimpleLogger ioSpeedLoggerOrNull)
     {
         this.packageFile = packageFile;
+        this.h5FolderFlags = h5FolderFlags;
         this.tempFolder = tempFolder;
         this.bufferSize = bufferSize;
         this.ioSpeedLoggerOrNull = ioSpeedLoggerOrNull;
@@ -147,7 +152,7 @@ public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
 
     private IHierarchicalContent getFileBasedHierarchicalContent()
     {
-        return new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(extractTo, null);
+        return new Hdf5AwareHierarchicalContentFactory(h5FolderFlags).asHierarchicalContent(extractTo, null);
     }
 
 }

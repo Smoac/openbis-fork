@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author pkupczyk
@@ -39,6 +40,6 @@ public interface IPackageManager
 
     Status extract(File packageFile, File toDirectory);
 
-    IHierarchicalContent asHierarchialContent(File packageFile, boolean onlyMetaData);
+    IHierarchicalContent asHierarchialContent(File packageFile, List<DatasetDescription> dataSets, boolean onlyMetaData);
 
 }
