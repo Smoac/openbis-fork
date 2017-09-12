@@ -23,6 +23,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
@@ -50,7 +51,8 @@ public class ZipBasedHierarchicalContentTest extends AbstractPackageBasedHierarc
     protected IHierarchicalContent createPackage(File packageFile, File dataDir)
     {
         zip(packageFile, dataDir);
-        return new ZipBasedHierarchicalContent(packageFile, null);
+        List<H5FolderFlags> h5FolderFlags = Arrays.asList(new H5FolderFlags("", true, true));
+        return new ZipBasedHierarchicalContent(packageFile, h5FolderFlags);
     }
 
     @Override
