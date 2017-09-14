@@ -93,7 +93,7 @@ public class FileClientLoginForm extends javax.swing.JFrame {
         serverURLLabel.setText("CIFEX Server URL:    ");
 
         serverURLField.setFont(serverURLField.getFont());
-        serverURLField.setText("http://localhost:8888");
+        serverURLField.setText("https://cifex.ethz.ch/");
 
         userNameLabel.setFont(userNameLabel.getFont());
         userNameLabel.setText("User Name:");
