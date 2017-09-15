@@ -144,7 +144,7 @@ $.extend(DefaultProfile.prototype, {
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.sampleTypeStorageEnabled = ["ANTIBODY", "BACTERIA", "CHEMICAL", "ENZYME", "CELL_LINE", "FLY", "MEDIA", "OLIGO", "PLASMID", "YEAST", "SOLUTION_BUFFER", "RNA", 
 		                                 //Extension for ETHZ Costumers until this is configurable on the Settings
-		                                 "EBBACTERIA", "TBBACTERIA", "CELL", "STRAIN"];
+		                                 "EBBACTERIA", "TBBACTERIA", "CELL", "STRAIN", "SYNTHETIC_PEPTIDE"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 		
