@@ -31,32 +31,38 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, true, "Select as many datasets as you need", false, false, true);
 		datasetsSearchDropdown.init($datasetsContainer);
 		
-		switch(entity["@type"]) {
-			case "DataSet":
-				datasetsSearchDropdown.addSelectedDataSet(entity.code);
-				break;
+		if(entity) {
+			switch(entity["@type"]) {
+				case "DataSet":
+					datasetsSearchDropdown.addSelectedDataSet(entity.code);
+					break;
+			}
 		}
+		
 		
 		var $ownerContainer = $("<div>", { style : "width: 100%;" });
 		$window.append(FormUtil.getFieldForComponentWithLabel($ownerContainer, "Owner (*)"));
 		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, true, "Select one owner " + ELNDictionary.sample, true, true, false);
 		ownerSearchDropdown.init($ownerContainer);
 		
-		switch(entity["@type"]) {
-			case "DataSet":
-				if(entity.sampleIdentifierOrNull) {
-					ownerSearchDropdown.addSelectedSample(entity.sampleIdentifierOrNull);
-				} else if(entity.experimentIdentifier) {
-					ownerSearchDropdown.addSelectedExperiment(entity.experimentIdentifier);
-				}
-				break;
-			case "Sample":
-				ownerSearchDropdown.addSelectedSample(entity.identifier);
-				break;
-			case "Experiment":
-				ownerSearchDropdown.addSelectedExperiment(entity.identifier);
-				break;
+		if(entity) {
+			switch(entity["@type"]) {
+				case "DataSet":
+					if(entity.sampleIdentifierOrNull) {
+						ownerSearchDropdown.addSelectedSample(entity.sampleIdentifierOrNull);
+					} else if(entity.experimentIdentifier) {
+						ownerSearchDropdown.addSelectedExperiment(entity.experimentIdentifier);
+					}
+					break;
+				case "Sample":
+					ownerSearchDropdown.addSelectedSample(entity.identifier);
+					break;
+				case "Experiment":
+					ownerSearchDropdown.addSelectedExperiment(entity.identifier);
+					break;
+			}
 		}
+		
 		
 		var $workspace = FormUtil._getInputField('text', null, 'workspace Name', null, true);
 		var $notebookName = FormUtil._getInputField('text', null, 'notebook Name', null, true);
