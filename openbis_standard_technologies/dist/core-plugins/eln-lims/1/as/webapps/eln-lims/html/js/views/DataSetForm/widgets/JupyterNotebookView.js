@@ -79,7 +79,7 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 				
 			var selectedOwner = ownerSearchDropdown.getSelected();
 			var notebookOwner = selectedOwner[0];
-			_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets);
+			_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets, notebookOwner);
 		});
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
