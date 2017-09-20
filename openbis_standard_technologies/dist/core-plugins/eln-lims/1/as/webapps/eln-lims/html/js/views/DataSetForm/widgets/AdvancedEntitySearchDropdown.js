@@ -31,22 +31,62 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 	// External API
 	//
 	
-	this.addSelected = function(entity) {
-		var text = getDisplayName(entity);
+	this.addSelectedExperiment = function(experimentIdentifier) {
+		var _this = this;
+		require([ 'as/dto/experiment/id/ExperimentIdentifier', "as/dto/experiment/fetchoptions/ExperimentFetchOptions" ],
+				function(ExperimentIdentifier, ExperimentFetchOptions) {
+		            var id1 = new ExperimentIdentifier(experimentIdentifier);
+		            var fetchOptions = new ExperimentFetchOptions();
+		            mainController.openbisV3.getExperiments([ id1 ], fetchOptions).done(function(map) {
+		            	_this.addSelected(map[experimentIdentifier]);
+		            });
+		});
+	}
+	
+	this.addSelectedSample = function(sampleIdentifier) {
+		var _this = this;
+		require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+				function(SampleIdentifier, SampleFetchOptions) {
+		            var id1 = new SampleIdentifier(sampleIdentifier);
+		            var fetchOptions = new SampleFetchOptions();
+		            mainController.openbisV3.getSamples([ id1 ], fetchOptions).done(function(map) {
+		            	_this.addSelected(map[sampleIdentifier]);
+		            });
+		});
+	}
+	
+	this.addSelectedDataSet = function(datasetPermId) {
+		var _this = this;
+		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
+				function(DataSetPermId, DataSetFetchOptions) {
+		            var id1 = new DataSetPermId(datasetPermId);
+		            var fetchOptions = new DataSetFetchOptions();
+		            mainController.openbisV3.getDataSets([ id1 ], fetchOptions).done(function(map) {
+		            	_this.addSelected(map[datasetPermId]);
+		            });
+		});
+	}
+	
+	this.addSelected = function(v3entity) {
+		var text = getDisplayName(v3entity);
 		var id = null;
 		
-		if(entity.permId && entity.permId.permId) { //If is a v3 object
-			id = entity.permId.permId;
-		} else if(entity.permId) { //If is a v1 object
-			id = entity.permId;
+		if(v3entity.permId && v3entity.permId.permId) { //Only v3 objects supported
+			id = v3entity.permId.permId;
 		} else {
-			id = entity.code; // If is a v1 dataset
+			throw {
+			    name: "NonV3ObjectException",
+			    message: "Object without v3 permId",
+			    toString: function() {
+			      return this.name + ": " + this.message;
+			    }
+			}
 		}
 		
 		var data = {
 				id : id,
 				text : text,
-				data : entity
+				data : v3entity
 		};
 		
 		var newOption = new Option(text, id, true, true);

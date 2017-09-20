@@ -33,7 +33,7 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		
 		switch(entity["@type"]) {
 			case "DataSet":
-				datasetsSearchDropdown.addSelected(entity);
+				datasetsSearchDropdown.addSelectedDataSet(entity.code);
 				break;
 		}
 		
@@ -45,16 +45,16 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		switch(entity["@type"]) {
 			case "DataSet":
 				if(entity.sampleIdentifierOrNull) {
-					
+					ownerSearchDropdown.addSelectedSample(entity.sampleIdentifierOrNull);
 				} else if(entity.experimentIdentifier) {
-					
+					ownerSearchDropdown.addSelectedExperiment(entity.experimentIdentifier);
 				}
 				break;
 			case "Sample":
-				//ownerSearchDropdown.addSelected(entity);
+				ownerSearchDropdown.addSelectedSample(entity.identifier);
 				break;
 			case "Experiment":
-				//ownerSearchDropdown.addSelected(entity);
+				ownerSearchDropdown.addSelectedExperiment(entity.identifier);
 				break;
 		}
 		
