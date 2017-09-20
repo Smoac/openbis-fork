@@ -25,28 +25,36 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		
 		$window.append($('<legend>').append("Create Jupyter Notebook"));
-		var tree = null;
+		
+		var $datasetsContainer = $("<div>", { style : "width: 100%;" });
+		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets"));
+		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, "Select as many datasets as you need", false, false, true);
+		datasetsSearchDropdown.init($datasetsContainer);
 		
 		switch(entity["@type"]) {
 			case "DataSet":
-				$window.append(FormUtil.getFieldForLabelWithText("Dataset", entity.code));
+				datasetsSearchDropdown.addSelected(entity);
 				break;
-			default:
-				var $treeContainer = $('<div>', { style : "height: 200px; overflow:auto;" });
-				$window.append(FormUtil.getFieldForLabelWithText("Included Datasets (*) ", ""));
-				$window.append($treeContainer);
-				tree = TreeUtil.getTreeForEntity($treeContainer, entity);
-				
-				var expandDeep = null;
-					expandDeep = function(node) {
-					var _this = this;
-					node.setExpanded(true).done(function() {
-						node.visit(function(n) { expandDeep(n);});
-					})
-				}
-				
-				expandDeep($(tree).fancytree('getTree').getRootNode());
+		}
+		
+		var $ownerContainer = $("<div>", { style : "width: 100%;" });
+		$window.append(FormUtil.getFieldForComponentWithLabel($ownerContainer, "Owner"));
+		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, "Select one owner " + ELNDictionary.sample, true, true, false);
+		ownerSearchDropdown.init($ownerContainer);
+		
+		switch(entity["@type"]) {
+			case "DataSet":
+				if(entity.sampleIdentifierOrNull) {
 					
+				} else if(entity.experimentIdentifier) {
+					
+				}
+				break;
+			case "Sample":
+				//ownerSearchDropdown.addSelected(entity);
+				break;
+			case "Experiment":
+				//ownerSearchDropdown.addSelected(entity);
 				break;
 		}
 		
@@ -58,18 +66,14 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		$window.submit(function() {
 			
+			var selectedDatasets = datasetsSearchDropdown.getSelected();
 			var notebookDatasets = [];
-			if(tree) {
-				var selectedNodes = $(tree).fancytree('getTree').getSelectedNodes();
-				for(var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
-					var node = selectedNodes[eIdx];
-					if(node.data.entityType === "DATASET") {
-						notebookDatasets.push(node.key);
-					}
-				}
-			} else {
-				notebookDatasets.push(entity.code);
+			for(var dIdx = 0; dIdx < selectedDatasets.length; dIdx++) {
+				notebookDatasets.push(selectedDatasets.code);
 			}
+				
+			var selectedOwner = ownerSearchDropdown.getSelected();
+			var notebookOwner = [];
 			
 			if(notebookDatasets.length > 0) {
 				_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets);
