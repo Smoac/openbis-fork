@@ -296,6 +296,10 @@ function MainController(profile) {
 					win.focus(); 
 					this.currentView = null;
 					break;
+				case "showNewJupyterNotebookCreator":
+					var jupyterNotebook = new JupyterNotebookController();
+					jupyterNotebook.init();
+					break;
 				case "showUserProfilePage":
 					document.title = "User Profile";
 					this._showUserProfilePage(FormMode.VIEW);
