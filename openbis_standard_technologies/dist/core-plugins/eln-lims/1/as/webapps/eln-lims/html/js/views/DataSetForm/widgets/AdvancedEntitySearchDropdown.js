@@ -15,11 +15,13 @@
  */
 
 function AdvancedEntitySearchDropdown(	isMultiple,
+										isRequired,
 										placeholder,
 										selectsExperiments,
 										selectsSamples,
 										selectsDatasets) {
 	var isMultiple = isMultiple;
+	var isRequired = isRequired;
 	var placeholder = placeholder;
 	var selectsExperiments = selectsExperiments;
 	var selectsSamples = selectsSamples;
@@ -37,6 +39,7 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 				function(ExperimentIdentifier, ExperimentFetchOptions) {
 		            var id1 = new ExperimentIdentifier(experimentIdentifier);
 		            var fetchOptions = new ExperimentFetchOptions();
+		            fetchOptions.withProperties();
 		            mainController.openbisV3.getExperiments([ id1 ], fetchOptions).done(function(map) {
 		            	_this.addSelected(map[experimentIdentifier]);
 		            });
@@ -49,6 +52,7 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 				function(SampleIdentifier, SampleFetchOptions) {
 		            var id1 = new SampleIdentifier(sampleIdentifier);
 		            var fetchOptions = new SampleFetchOptions();
+		            fetchOptions.withProperties();
 		            mainController.openbisV3.getSamples([ id1 ], fetchOptions).done(function(map) {
 		            	_this.addSelected(map[sampleIdentifier]);
 		            });
@@ -61,6 +65,7 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 				function(DataSetPermId, DataSetFetchOptions) {
 		            var id1 = new DataSetPermId(datasetPermId);
 		            var fetchOptions = new DataSetFetchOptions();
+		            fetchOptions.withProperties();
 		            mainController.openbisV3.getDataSets([ id1 ], fetchOptions).done(function(map) {
 		            	_this.addSelected(map[datasetPermId]);
 		            });
@@ -154,6 +159,9 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 	this.init = function($container) {
 		$select.attr("multiple", "multiple");
 		
+		if(isRequired) {
+			$select.attr("required", "required");
+		}
 		if(isMultiple) {
 			maximumSelectionLength = 9999;
 		} else {

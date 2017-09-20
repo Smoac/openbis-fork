@@ -27,8 +27,8 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		$window.append($('<legend>').append("Create Jupyter Notebook"));
 		
 		var $datasetsContainer = $("<div>", { style : "width: 100%;" });
-		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets"));
-		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, "Select as many datasets as you need", false, false, true);
+		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets (*)"));
+		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, true, "Select as many datasets as you need", false, false, true);
 		datasetsSearchDropdown.init($datasetsContainer);
 		
 		switch(entity["@type"]) {
@@ -38,8 +38,8 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		}
 		
 		var $ownerContainer = $("<div>", { style : "width: 100%;" });
-		$window.append(FormUtil.getFieldForComponentWithLabel($ownerContainer, "Owner"));
-		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, "Select one owner " + ELNDictionary.sample, true, true, false);
+		$window.append(FormUtil.getFieldForComponentWithLabel($ownerContainer, "Owner (*)"));
+		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, true, "Select one owner " + ELNDictionary.sample, true, true, false);
 		ownerSearchDropdown.init($ownerContainer);
 		
 		switch(entity["@type"]) {
@@ -65,22 +65,15 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		$window.submit(function() {
-			
 			var selectedDatasets = datasetsSearchDropdown.getSelected();
 			var notebookDatasets = [];
 			for(var dIdx = 0; dIdx < selectedDatasets.length; dIdx++) {
-				notebookDatasets.push(selectedDatasets.code);
+				notebookDatasets.push(selectedDatasets[dIdx].permId.permId);
 			}
 				
 			var selectedOwner = ownerSearchDropdown.getSelected();
-			var notebookOwner = [];
-			
-			if(notebookDatasets.length > 0) {
-				_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets);
-			} else {
-				Util.showError("Select at least one dataset.", function() {}, true);
-			}
-			
+			var notebookOwner = selectedOwner[0];
+			_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets);
 		});
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
