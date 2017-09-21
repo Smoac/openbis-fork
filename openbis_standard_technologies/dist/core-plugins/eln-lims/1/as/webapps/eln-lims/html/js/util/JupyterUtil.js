@@ -135,7 +135,6 @@ var JupyterUtil = new function() {
 				      },
 				      "outputs": [],
 				      "source": [
-				        "ds" + cIdx + ".data['dataStore']['downloadUrl'] = '" + profile.jupyterDSSEndpoint + "'\n",
 				        "ds" + cIdx + ".download(files=ds" + cIdx + ".file_list, destination='./', wait_until_finished=True)",
 				      ]
 			};
@@ -161,32 +160,59 @@ var JupyterUtil = new function() {
 		};
 		content.push(notebookProcess);
 		
-		var saveHTMLTitle = {
+		var saveTitle = {
 				   "cell_type": "markdown",
 				   "metadata": {},
 				   "source": [
-				    "### Save Notebook as HTML (save it first!)"
+				    "### Create Result Dataset with current notebook and HTML version with the output (save the notebook first!)"
 				   ]
 		}
-		content.push(saveHTMLTitle);
-		var saveHTML = {
+		content.push(saveTitle);
+		var createHTML = [
+					        "from nbconvert import HTMLExporter\n",
+					        "import codecs\n",
+					        "import nbformat\n",
+					        "exporter = HTMLExporter()\n",
+					        "output_notebook = nbformat.read('" + fileName + "', as_version=4)\n",
+					        "output, resources = exporter.from_notebook_node(output_notebook)\n",
+					        "codecs.open('" + fileName + ".html', 'w', encoding='utf-8').write(output)\n",
+					        "\n"
+		];
+		
+		
+		var ownerSettings = ""
+		switch(ownerEntity["@type"]) {
+			case "as.dto.experiment.Experiment":
+				ownerSettings = "experiment= o.get_experiment('"+ ownerEntity.identifier.identifier +"'),\n";
+				break;
+			case "as.dto.sample.Sample":
+				ownerSettings = "sample= o.get_sample('"+ ownerEntity.identifier.identifier +"'),\n";
+				break;
+		}
+		
+		var parents = JSON.stringify(dataSetIds);
+		
+		var createDataset = [
+		                     "ds_new = o.new_dataset(\n",
+		                     "type='ANALYZED_DATA',\n",
+		                     ownerSettings,
+		                     "parents=" + parents + ",\n",
+		                     "files = ['" + fileName + "', '" + fileName + ".html'],\n",
+		                     "props={'name': 'Name your dataset!', 'notes': 'Write some notes or delete this property!'}\n",
+		                     ")\n",
+		                     "ds_new.save()"
+		];
+		
+		var save = {
 			      "cell_type": "code",
 			      "execution_count": null,
 			      "metadata": {
 			        "collapsed": true
 			      },
 			      "outputs": [],
-			      "source": [
-			        "from nbconvert import HTMLExporter\n",
-			        "import codecs\n",
-			        "import nbformat\n",
-			        "exporter = HTMLExporter()\n",
-			        "output_notebook = nbformat.read('" + fileName + "', as_version=4)\n",
-			        "output, resources = exporter.from_notebook_node(output_notebook)\n",
-			        "codecs.open('" + fileName + ".html', 'w', encoding='utf-8').write(output)\n",
-			      ]
+			      "source": createHTML.concat(createDataset)
 		};
-		content.push(saveHTML);
+		content.push(save);
 		
 		return {
 			  "cells": content,
