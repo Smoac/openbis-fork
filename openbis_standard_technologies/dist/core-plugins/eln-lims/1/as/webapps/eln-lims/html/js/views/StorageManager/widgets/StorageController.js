@@ -45,9 +45,24 @@ function StorageController(configOverride) {
 			if(data.samples.length > 1 || 
 					data.samples.length === 1 && data.samples[0].properties[_this._storageModel.storagePropertyGroup.boxProperty]) {
 				_this._storageView.showBoxName();
-				_this._storageView.showBoxSize();
+			} else {
+				_this._storageView.hideBoxField();
 			}
-			_this._storageView.showPosField(data.size, true);
+			
+			if(data.samples.length > 1 || 
+					data.samples.length === 1 && data.samples[0].properties[_this._storageModel.storagePropertyGroup.boxSizeProperty]) {
+				_this._storageView.showBoxSize();
+			} else {
+				_this._storageView.hideBoxSizeField();
+			}
+			
+			if(data.samples.length > 1 || 
+					data.samples.length === 1 && data.samples[0].properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
+				_this._storageView.showPosField(data.size, true);
+			} else {
+				_this._storageView.hidePosField();
+			}
+			
 		}); 
 	}
 	

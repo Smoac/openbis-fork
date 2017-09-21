@@ -135,22 +135,31 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	
 	this.addSamplesOnInit = function(samples) {
 		Util.blockUI();
-		var samplesByType = {};
-		if(samples && samples.length > 0) {
-			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
-				var sampleTypeCode = samples[sIdx].sampleTypeCode;
-				var samplesOfType = samplesByType[sampleTypeCode];
-				if(!samplesOfType) {
-					samplesOfType = [];
-					samplesByType[sampleTypeCode] = samplesOfType;
+		
+		if(!linksModel.isDisabled) {
+			var samplesByType = {};
+			if(samples && samples.length > 0) {
+				for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+					var sampleTypeCode = samples[sIdx].sampleTypeCode;
+					var samplesOfType = samplesByType[sampleTypeCode];
+					if(!samplesOfType) {
+						samplesOfType = [];
+						samplesByType[sampleTypeCode] = samplesOfType;
+					}
+					samplesOfType.push(samples[sIdx]);
 				}
-				samplesOfType.push(samples[sIdx]);
 			}
+			
+			for(var type in samplesByType) {
+				linksView.updateSample(samplesByType[type], true, true);
+			}
+		} else {
+			// Only add once on view mode, there can be a race condition happening on this case
+			// Each time we add, the fuelux repeater html needs to load if is not cached by the browser, typically done the first time you use it during the day, but can vary due to caching policies.
+			// If the last load, don't finish last, all samples will not be displayed, this can only happen on view mode since all sample types share the same container and this corner case don't requires to load by type anyway.
+			linksView.updateSample(samples, true, true);  
 		}
 		
-		for(var type in samplesByType) {
-			linksView.updateSample(samplesByType[type], true, true);
-		}
 		Util.unblockUI();
 	}
 	

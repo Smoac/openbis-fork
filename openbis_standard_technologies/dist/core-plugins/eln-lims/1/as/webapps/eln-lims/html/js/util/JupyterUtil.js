@@ -16,22 +16,45 @@
 
 var JupyterUtil = new function() {
 	
-	this.createJupyterNotebookAndOpen = function(dataSetIds) {
-		var folder = "openbis";
-		var fileName = dataSetIds[0];
-		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName + ".ipynb";
-		var newJupyterNotebook = this.createJupyterNotebookContent(dataSetIds);
+	this.copyNotebook = function(datasetCode, notebookURL) {
+		var jupyterNotebook = new JupyterCopyNotebookController(datasetCode, notebookURL);
+		jupyterNotebook.init();
+	}
+	
+	this.openJupyterNotebookFromTemplate = function(folder, fileName, template) {
+		fileName = fileName + ".ipynb";
+		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
+		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
 		
 		$.ajax({
             url : jupyterURL,
             type : 'POST',
             crossDomain: true,
-//            processData : false,
-//            dataType: 'json',
-//            contentType: 'application/json',
+            data : template,
+            success : function(result) {
+            	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
+				win.focus(); 
+            },
+            error : function(result) {
+            	alert("error: " + JSON.stringify(result));
+            }
+		});
+	}
+	
+	this.createJupyterNotebookAndOpen = function(folder, fileName, dataSetIds) {
+		fileName = fileName + ".ipynb";
+		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
+		var newJupyterNotebook = this.createJupyterNotebookContent(dataSetIds);
+		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
+		
+		$.ajax({
+            url : jupyterURL,
+            type : 'POST',
+            crossDomain: true,
             data : JSON.stringify(newJupyterNotebook),
             success : function(result) {
-            	alert("success:" + JSON.stringify(result));
+            	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
+				win.focus(); 
             },
             error : function(result) {
             	alert("error: " + JSON.stringify(result));
@@ -49,7 +72,8 @@ var JupyterUtil = new function() {
 			      },
 			      "outputs": [],
 			      "source": [
-			        "Initialize Openbis API\n",
+			        "#Initialize Openbis API\n",
+			        "from pybis import Openbis\n",
 			        "o = Openbis(url='" + profile.jupyterOpenbisEndpoint + "', verify_certificates=False)"
 			      ]
 		};

@@ -171,6 +171,10 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 							if (previewLink) {
 								titleValue = previewLink + " " + titleValue;
 							}
+							var notebookLink = _this._dataSetViewerModel.getJupyterNotebookLink(code, file);
+							if (profile.jupyterOpenbisEndpoint && notebookLink) {
+								titleValue = notebookLink + " " + titleValue;
+							}
 						}
 						results.push({
 							// node properties

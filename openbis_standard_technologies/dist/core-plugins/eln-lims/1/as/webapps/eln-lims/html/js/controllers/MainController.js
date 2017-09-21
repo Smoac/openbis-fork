@@ -41,8 +41,13 @@ function MainController(profile) {
 
 	this.loadV3 = function(callback) {
 	    this.serverFacade.getOpenbisV3(function(openbisV3) {
-            mainController.openbisV3 = openbisV3
-            mainController.openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+            openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+            if(openbisV3._private.log) {
+            	openbisV3._private.log = function() {
+                	// Disables v3 logging
+                };
+            }
+            mainController.openbisV3 = openbisV3;
             callback();
 	    });
 	};
@@ -613,17 +618,17 @@ function MainController(profile) {
 				}
 				
 				if(this.views.header) {
-					toPush.header = this.views.header.children();
+					toPush.header = this.views.header;
 					toPush.header.detach();
 				}
 				
 				if(this.views.content) {
-					toPush.content = this.views.content.children();
+					toPush.content = this.views.content;
 					toPush.content.detach();
 				}
 				
 				if(this.views.auxContent) {
-					toPush.auxContent = this.views.auxContent.children();
+					toPush.auxContent = this.views.auxContent;
 					toPush.auxContent.detach();
 				}
 			}
@@ -681,9 +686,13 @@ function MainController(profile) {
 		if(withContentOrContentId) {
 			content = $("<div>");
 			content.css({ 
-				"padding" : "10px",
-				"height" : "100%"
+				"padding" : "10px"
 			});
+			if(!withAuxContentOrAuxContentId) {  // Setting 100% height breaks views with 3 columns on tablet mode, better to explicitly set to 100% when the third column is not used
+				content.css({
+					"height" : "100%"
+				});
+			}
 			if((typeof withContentOrContentId === 'string' || withContentOrContentId instanceof String)) {
 				content.attr("id", withContentOrContentId);
 			}

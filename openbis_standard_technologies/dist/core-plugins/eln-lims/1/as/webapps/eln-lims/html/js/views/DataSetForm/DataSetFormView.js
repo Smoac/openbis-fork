@@ -95,7 +95,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
 				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
-					JupyterUtil.createJupyterNotebookAndOpen([_this._dataSetFormModel.dataSet.code]);
+					var jupyterNotebook = new JupyterNotebookController(_this._dataSetFormModel.dataSet);
+					jupyterNotebook.init();
 				});
 				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
 			}

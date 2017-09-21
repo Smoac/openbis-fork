@@ -397,9 +397,19 @@ var SampleDataGridUtil = new function() {
 			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 				var sample = samples[sIdx];
 				
+				var registrator = null;
+				if(sample.registrationDetails && sample.registrationDetails.userId) {
+					registrator = sample.registrationDetails.userId;
+				}
+				
 				var registrationDate = null;
 				if(sample.registrationDetails && sample.registrationDetails.registrationDate) {
 					registrationDate = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
+				}
+				
+				var modifier = null;
+				if(sample.registrationDetails && sample.registrationDetails.modifierUserId) {
+					modifier = sample.registrationDetails.modifierUserId;
 				}
 				
 				var modificationDate = null;
@@ -414,7 +424,9 @@ var SampleDataGridUtil = new function() {
 									'default_space' : sample.spaceCode,
 									'permId' : sample.permId,
 									'experiment' : sample.experimentIdentifierOrNull,
+									'registrator' : registrator,
 									'registrationDate' : registrationDate,
+									'modifier' : modifier,
 									'modificationDate' : modificationDate
 								};
 				

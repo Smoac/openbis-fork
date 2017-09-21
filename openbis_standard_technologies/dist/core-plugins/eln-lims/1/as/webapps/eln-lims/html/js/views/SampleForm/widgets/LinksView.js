@@ -67,17 +67,15 @@ function LinksView(linksController, linksModel) {
 	}
 	
 	this.updateSample = function(sample, isAdd, isInit) {
-		var sampleTypeCode = null;
-		
-		if(isInit) {
-			sampleTypeCode = sample[0].sampleTypeCode;
-		} else {
-			sampleTypeCode = sample.sampleTypeCode;
-		}
-		
-		
 		var containerCode = null;
+		
 		if(!linksModel.isDisabled) {
+			var sampleTypeCode = null;
+			if(isInit) {
+				sampleTypeCode = sample[0].sampleTypeCode;
+			} else {
+				sampleTypeCode = sample.sampleTypeCode;
+			}
 			containerCode = sampleTypeCode;
 		}
 		
@@ -103,8 +101,6 @@ function LinksView(linksController, linksModel) {
 				}
 			}
 		}
-		
-		
 		
 		if(isAdd && !isInit) {
 			linksModel.samplesAdded.push(sample.identifier);

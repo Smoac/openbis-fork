@@ -355,43 +355,14 @@ function ServerFacade(openbisServer) {
 	}
 	
 
-	//
-	//OLD METHOD
-	/*this.generateCode = function(sampleType, action) {
-		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
-			if(response.result || response.result === 0) {
-				action(sampleType.codePrefix + (parseInt(response.result) + 1));
-			}
-		});
-	}*/
-	
 	this.generateCode = function(sampleType, action) {
-		var prefix = sampleType.codePrefix;
-		this.searchWithType(
-				sampleType.code,
-				prefix+"*",
-				false,
-				function(results) {
-					var nextCode;
-					if(results.length == 0){
-						nextcode = prefix + "1";
-					} else{
-						var codes = [];
-						for(var idx=0; idx<results.length; idx++){
-							numeric_code = results[idx].code.substring(prefix.length);
-							numeric_code = parseInt(numeric_code);
-							if(!isNaN(numeric_code)) {
-								codes.push(numeric_code); 
-							}
-						}
-						codes = codes.sort(function (a, b) { 
-						    return a - b;
-						});
-						var nextid = codes[codes.length-1] + 1;
-						nextcode = prefix + nextid;
-					}
-					action(nextcode);
-				});
+		var parameters = {
+			"method" : "getNextSequenceForType",
+			"sampleTypeCode" : sampleType.code
+		}
+		this.customELNASAPI(parameters, function(nextInSequence) {
+			action(sampleType.codePrefix + nextInSequence);
+		});
 	}
 		
 	this.deleteDataSets = function(datasetIds, reason, callback) {
@@ -667,6 +638,26 @@ function ServerFacade(openbisServer) {
  			callbackFunction(error, result);
  		});
 	}
+ 	
+ 	this.customELNASAPI = function(parameters, callackFunction) {
+ 		require([ "as/dto/service/id/CustomASServiceCode", "as/dto/service/CustomASServiceExecutionOptions" ],
+    	        function(CustomASServiceCode, CustomASServiceExecutionOptions) {
+    	            var id = new CustomASServiceCode("as-eln-lims-api");
+    	            var options = new CustomASServiceExecutionOptions();
+    	            
+    	            if(parameters) {
+    	            	for(key in parameters) {
+        	            	options.withParameter(key, parameters[key]);
+        	            }
+    	            }
+    	            
+    	            mainController.openbisV3.executeCustomASService(id, options).done(function(result) {
+    	                callackFunction(result);
+    	            }).fail(function(result) {
+    	            	alert("Call failed to server: " + JSON.stringify(result));
+    	            });
+    	 });
+ 	}
  	
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction, service) {
  		if(!service) {
@@ -1135,9 +1126,53 @@ function ServerFacade(openbisServer) {
 					}
 				}
 			
+				//
+				// Fix For broken equals PART 1
+				// Currently the back-end matches whole words instead doing a standard EQUALS
+				// This fixes some most used cases for the storage system, but other use cases that use subcriterias can fail
+				//
+				var hackFixForBrokenEquals = [];
+				if(searchCriteria.criteria) {
+					for(var cIdx = 0; cIdx < searchCriteria.criteria.length; cIdx++) {
+						if(searchCriteria.criteria[cIdx].fieldType === "PROPERTY" && 
+								searchCriteria.criteria[cIdx].fieldValue.__proto__["@type"] === "as.dto.common.search.StringEqualToValue") {
+							hackFixForBrokenEquals.push({
+								propertyCode : searchCriteria.criteria[cIdx].fieldName,
+								value : searchCriteria.criteria[cIdx].fieldValue.value
+							});
+						}
+					}
+				}
+				//
+				// Fix For broken equals PART 1 - END
+				//
+				
 				mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
-				.done(function(result) {
-					callback(result);
+				.done(function(apiResults) {
+					//
+					// Fix For broken equals PART 2
+					//
+					var results = apiResults.objects;
+					var filteredResults = [];
+					if(hackFixForBrokenEquals.length > 0 && results) {
+						for(var rIdx = 0; rIdx < results.length; rIdx++) {
+							var result = results[rIdx];
+							for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
+								if(	result && 
+									result.properties && 
+									result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
+									filteredResults.push(result);
+								}
+							}
+						}
+					} else {
+						filteredResults = results;
+					}
+					apiResults.objects = filteredResults;
+					//
+					// Fix For broken equals PART 2 - END
+					//
+					callback(apiResults);
 				})
 				.fail(function(result) {
 					Util.showError("Call failed to server: " + JSON.stringify(result));
@@ -1368,7 +1403,7 @@ function ServerFacade(openbisServer) {
 							{	
 								"@type":"PropertyMatchClause",
 								fieldType : "PROPERTY",
-								fieldCode : properyTypeCode,
+								//fieldCode : properyTypeCode,
 								propertyCode : properyTypeCode,
 								desiredValue : "\"" + properyKeyValue[properyTypeCode] + "\"",
 								compareMode : "EQUALS"
@@ -1470,8 +1505,53 @@ function ServerFacade(openbisServer) {
 		}
 		
 		var localReference = this;
+		
+		//
+		// Fix For broken equals PART 1
+		// Currently the back-end matches whole words instead doing a standard EQUALS
+		// This fixes some most used cases for the storage system, but other use cases that use subcriterias can fail
+		//
+		var hackFixForBrokenEquals = [];
+		if(sampleCriteria.matchClauses) {
+			for(var cIdx = 0; cIdx < sampleCriteria.matchClauses.length; cIdx++) {
+				if(sampleCriteria.matchClauses[cIdx]["@type"] === "PropertyMatchClause" && 
+						sampleCriteria.matchClauses[cIdx]["compareMode"] === "EQUALS") {
+					hackFixForBrokenEquals.push({
+						propertyCode : sampleCriteria.matchClauses[cIdx].propertyCode,
+						value : sampleCriteria.matchClauses[cIdx].desiredValue.substring(1,sampleCriteria.matchClauses[cIdx].desiredValue.length-1)
+					});
+				}
+			}
+		}
+		//
+		// Fix For broken equals PART 1 - END
+		//
+		
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
+			var results = localReference.getInitializedSamples(data.result);
+			//
+			// Fix For broken equals PART 2
+			//
+			var filteredResults = [];
+			if(hackFixForBrokenEquals.length > 0 && results) {
+				for(var rIdx = 0; rIdx < results.length; rIdx++) {
+					var result = results[rIdx];
+					for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
+						if(	result && 
+							result.properties && 
+							result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
+							filteredResults.push(result);
+						}
+					}
+				}
+			} else {
+				filteredResults = results;
+			}
+			//
+			// Fix For broken equals PART 2 - END
+			//
+			
+			callbackFunction(filteredResults);
 		});
 	}
 	

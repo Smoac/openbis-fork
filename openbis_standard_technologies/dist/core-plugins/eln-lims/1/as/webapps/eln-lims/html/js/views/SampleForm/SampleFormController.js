@@ -391,21 +391,21 @@ function SampleFormController(mainController, mode, sample) {
 					}
 				}
 				
-				var sampleCodeToOpen = null;
+				var sampleIdentifierToOpen = null;
 				if(isCopyWithNewCode) {
-					sampleCodeToOpen = isCopyWithNewCode;
+					sampleIdentifierToOpen = "/" + _this._sampleFormModel.sample.spaceCode + "/" + isCopyWithNewCode;
 				} else {
-					sampleCodeToOpen = _this._sampleFormModel.sample.code;
+					sampleIdentifierToOpen = "/" + _this._sampleFormModel.sample.spaceCode + "/" + _this._sampleFormModel.sample.code;
 				}
 				
 				var searchUntilFound = null;
 				    searchUntilFound = function() {
-					mainController.serverFacade.searchWithType(_this._sampleFormModel.sample.sampleTypeCode, sampleCodeToOpen, false, function(data) {
-						if(data && data.length === 1) {
+					mainController.serverFacade.searchWithIdentifiers([sampleIdentifierToOpen], function(data) {
+						if(data && data.length > 0) {
 							mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
 							Util.unblockUI();
-						} else { //Recursive call
-							searchUntilFound();
+						} else { // Recursive call, only if not found yet due to reindexing
+							setTimeout(searchUntilFound, 100);
 						}
 					});
 				}
