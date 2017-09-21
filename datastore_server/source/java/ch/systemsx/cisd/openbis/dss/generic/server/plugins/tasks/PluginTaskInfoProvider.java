@@ -21,7 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -43,6 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PluginTaskInfoProvider.class);
 
     /** name of archiver properties section */
     @Private
@@ -145,6 +152,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
         reportingPlugins.check(false);
         sequenceDatabasePlugins.check(false);
         archiverTaskFactory.check(storeRoot);
+        operationLog.info("Session workspace root directory: " + sessionWorkspaceRootDir);
     }
 
     @Override
