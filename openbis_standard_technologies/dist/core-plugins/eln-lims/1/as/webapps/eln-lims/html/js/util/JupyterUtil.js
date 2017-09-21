@@ -42,19 +42,33 @@ var JupyterUtil = new function() {
 	}
 	
 	this.createJupyterNotebookAndOpen = function(folder, fileName, dataSetIds, ownerEntity) {
+		var _this = this;
 		fileName = fileName + ".ipynb";
 		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
-		var newJupyterNotebook = this.createJupyterNotebookContent(dataSetIds, ownerEntity, fileName);
-		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
 		
 		$.ajax({
-            url : jupyterURL,
+            url : jupyterURL + "&test=True",
             type : 'POST',
             crossDomain: true,
-            data : JSON.stringify(newJupyterNotebook),
+            data : "TEST",
             success : function(result) {
-            	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
-				win.focus(); 
+            	var fileName = result.fileName
+            	var newJupyterNotebook = _this.createJupyterNotebookContent(dataSetIds, ownerEntity, fileName);
+        		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
+        		
+        		$.ajax({
+                    url : jupyterURL + "&test=False",
+                    type : 'POST',
+                    crossDomain: true,
+                    data : JSON.stringify(newJupyterNotebook),
+                    success : function(result) {
+                    	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
+        				win.focus(); 
+                    },
+                    error : function(result) {
+                    	alert("error: " + JSON.stringify(result));
+                    }
+        		});
             },
             error : function(result) {
             	alert("error: " + JSON.stringify(result));
