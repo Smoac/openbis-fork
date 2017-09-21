@@ -32,7 +32,7 @@ function JupyterCopyNotebookView(jupyterNotebookController, jupyterNotebookModel
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		$window.submit(function() {
 			$.get(_this._jupyterNotebookModel.existingNotebookURL, function( data ) {
-				_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), data);
+				_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), data, _this._jupyterNotebookModel.datasetCode);
 			});
 		});
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
