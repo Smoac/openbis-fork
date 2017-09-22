@@ -152,7 +152,17 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetTypeLabel);
 			var $dataSetCodeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
-			var $dataSetParentsCodeLabel = FormUtil.getFieldForLabelWithText('Parents', JSON.stringify(this._dataSetFormModel.dataSet.parentCodes), null);
+			
+			var datasetParents = "N/A";
+			for(var pIdx = 0; pIdx < this._dataSetFormModel.dataSet.parentCodes.length; pIdx++) {
+				if(pIdx === 0) {
+					datasetParents = this._dataSetFormModel.dataSet.parentCodes[pIdx];
+				} else {
+					datasetParents += ", " + this._dataSetFormModel.dataSet.parentCodes[pIdx];
+				}
+			}
+			
+			var $dataSetParentsCodeLabel = FormUtil.getFieldForLabelWithText('Parents', datasetParents, null);
 			$dataSetTypeFieldSet.append($dataSetParentsCodeLabel);
 		}
 		
