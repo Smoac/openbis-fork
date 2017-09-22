@@ -534,54 +534,84 @@ function MainController(profile) {
 					break;
 				case "showViewDataSetPageFromPermId":
 					var _this = this;
-					this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
-						if(!dataSetData.result || !dataSetData.result[0]) {
-							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-						} else {
-							if(dataSetData.result[0].sampleIdentifierOrNull) {
-								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-									document.title = "Data Set " + dataSetData.result[0].code;
-									_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
-									//window.scrollTo(0,0);
-								});
-							} else if(dataSetData.result[0].experimentIdentifier) {
-								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
-									var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
-									var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
-									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
-										document.title = "Data Set " + dataSetData.result[0].code;
-										_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0]);
-										//window.scrollTo(0,0);
-									});
-								});
+					var dsCriteria = { 	
+							entityKind : "DATASET", 
+							logicalOperator : "AND", 
+							rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } }
+					};
+					
+					this.serverFacade.searchForDataSetsAdvanced(dsCriteria, null, function(results) {
+						var datasetParentCodes = [];
+						if(results.objects[0]) {
+							for(var pIdx = 0; pIdx < results.objects[0].parents.length; pIdx++) {
+								datasetParentCodes.push(results.objects[0].parents[pIdx].code);
 							}
 						}
+						_this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
+							if(!dataSetData.result || !dataSetData.result[0]) {
+								window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+							} else {
+								dataSetData.result[0].parentCodes = datasetParentCodes;
+								if(dataSetData.result[0].sampleIdentifierOrNull) {
+									_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+										document.title = "Data Set " + dataSetData.result[0].code;
+										_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+										//window.scrollTo(0,0);
+									});
+								} else if(dataSetData.result[0].experimentIdentifier) {
+									_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
+										var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
+										var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+										_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
+											document.title = "Data Set " + dataSetData.result[0].code;
+											_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+											//window.scrollTo(0,0);
+										});
+									});
+								}
+							}
+						});
 					});
 					break;
 				case "showEditDataSetPageFromPermId":
 					var _this = this;
-					this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
-						if(!dataSetData.result || !dataSetData.result[0]) {
-							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-						} else {
-							if(dataSetData.result[0].sampleIdentifierOrNull) {
-								_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-									document.title = "Data Set " + dataSetData.result[0].code;
-									_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
-									//window.scrollTo(0,0);
-								});
-							} else if(dataSetData.result[0].experimentIdentifier) {
-								_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
-									var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
-									var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
-									_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
-										document.title = "Data Set " + dataSetData.result[0].code;
-										_this._showEditDataSetPage(experimentData.objects[0], dataSetData.result[0]);
-										//window.scrollTo(0,0);
-									});
-								});
+					var dsCriteria = { 	
+							entityKind : "DATASET", 
+							logicalOperator : "AND", 
+							rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } }
+					};
+					
+					this.serverFacade.searchForDataSetsAdvanced(dsCriteria, null, function(results) {
+						var datasetParentCodes = [];
+						if(results.objects[0]) {
+							for(var pIdx = 0; pIdx < results.objects[0].parents.length; pIdx++) {
+								datasetParentCodes.push(results.objects[0].parents[pIdx].code);
 							}
 						}
+						_this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
+							if(!dataSetData.result || !dataSetData.result[0]) {
+								window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+							} else {
+								dataSetData.result[0].parentCodes = datasetParentCodes;
+								if(dataSetData.result[0].sampleIdentifierOrNull) {
+									_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+										document.title = "Data Set " + dataSetData.result[0].code;
+										_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+										//window.scrollTo(0,0);
+									});
+								} else if(dataSetData.result[0].experimentIdentifier) {
+									_this.serverFacade.listExperimentsForIdentifiers([dataSetData.result[0].experimentIdentifier], function(experimentResults) {
+										var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : experimentResults.result[0].permId } };
+										var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
+										_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
+											document.title = "Data Set " + dataSetData.result[0].code;
+											_this._showEditDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+											//window.scrollTo(0,0);
+										});
+									});
+								}
+							}
+						});
 					});
 					break;
 				case "showDrawingBoard":

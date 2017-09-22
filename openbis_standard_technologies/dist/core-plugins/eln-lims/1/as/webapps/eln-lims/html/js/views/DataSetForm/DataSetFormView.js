@@ -152,6 +152,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetTypeLabel);
 			var $dataSetCodeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
+			var $dataSetParentsCodeLabel = FormUtil.getFieldForLabelWithText('Parents', JSON.stringify(this._dataSetFormModel.dataSet.parentCodes), null);
+			$dataSetTypeFieldSet.append($dataSetParentsCodeLabel);
 		}
 		
 		var ownerName = null;
