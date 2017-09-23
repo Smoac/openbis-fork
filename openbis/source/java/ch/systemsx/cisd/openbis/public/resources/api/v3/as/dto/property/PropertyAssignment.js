@@ -5,8 +5,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'as.dto.property.PropertyAssignment';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
+		prototype.permId = null;
 		prototype.section = null;
 		prototype.ordinal = null;
+		prototype.entityType = null;
 		prototype.propertyType = null;
 		prototype.mandatory = null;
 		prototype.showInEditView = null;
@@ -20,6 +22,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setFetchOptions = function(fetchOptions) {
 			this.fetchOptions = fetchOptions;
 		};
+		prototype.getPermId = function() {
+			return this.permId;
+		};
+		prototype.setPermId = function(permId) {
+			this.permId = permId;
+		};
 		prototype.getSection = function() {
 			return this.section;
 		};
@@ -31,6 +39,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setOrdinal = function(ordinal) {
 			this.ordinal = ordinal;
+		};
+		prototype.getEntityType = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasEntityType()) {
+				return this.entityType;
+			} else {
+				throw new exceptions.NotFetchedException("Entity type has not been fetched.");
+			}
+		};
+		prototype.setEntityType = function(entityType) {
+			this.entityType = entityType;
 		};
 		prototype.getPropertyType = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasPropertyType()) {
@@ -78,6 +96,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "PropertyAssignmentFetchOptions",
+		entityType : "IEntityType",
 		propertyType : "PropertyType",
 		registrator : "Person",
 		registrationDate : "Date"

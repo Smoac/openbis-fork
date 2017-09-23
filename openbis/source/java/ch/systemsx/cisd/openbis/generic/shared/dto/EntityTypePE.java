@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Collection;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -79,6 +80,9 @@ public abstract class EntityTypePE extends AbstractTypePE
     {
         this.validationScript = validationScript;
     }
+
+    @Transient
+    public abstract Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes();
 
     /**
      * Creates an {@link EntityPropertyPE} from given <var>entityKind</var>.

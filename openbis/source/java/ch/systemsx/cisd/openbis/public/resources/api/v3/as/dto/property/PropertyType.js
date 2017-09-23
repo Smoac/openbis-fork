@@ -6,6 +6,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
 		prototype.code = null;
+		prototype.permId = null;
 		prototype.label = null;
 		prototype.description = null;
 		prototype.managedInternally = null;
@@ -29,6 +30,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setCode = function(code) {
 			this.code = code;
+		};
+		prototype.getPermId = function() {
+			return this.permId;
+		};
+		prototype.setPermId = function(permId) {
+			this.permId = permId;
 		};
 		prototype.getLabel = function() {
 			return this.label;
@@ -110,6 +117,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "PropertyTypeFetchOptions",
+		permId : "PropertyTypePermId",
 		dataType : "DataType",
 		vocabulary : "Vocabulary",
 		materialType : "MaterialType",

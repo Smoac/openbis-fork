@@ -32,6 +32,14 @@ public class PropertyAssignmentRecord extends ObjectBaseRecord
 
     public Long prty_id;
 
+    public String prty_code;
+
+    public Long type_id;
+    
+    public String type_code;
+    
+    public String kind_code;
+
     public Boolean is_mandatory;
 
     public Boolean is_shown_edit;

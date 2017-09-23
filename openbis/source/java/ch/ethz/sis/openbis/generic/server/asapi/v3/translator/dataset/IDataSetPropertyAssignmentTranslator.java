@@ -16,12 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.IPropertyAssignmentTranslator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.IObjectToManyRelationTranslator;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface IDataSetPropertyAssignmentTranslator extends IPropertyAssignmentTranslator
+public interface IDataSetPropertyAssignmentTranslator extends IObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>
 {
 
 }

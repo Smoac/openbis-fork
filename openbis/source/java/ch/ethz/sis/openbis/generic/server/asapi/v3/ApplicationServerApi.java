@@ -204,6 +204,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOpera
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.UpdateSamplesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.CreateSemanticAnnotationsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.CreateSemanticAnnotationsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.get.GetSemanticAnnotationsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.get.GetSemanticAnnotationsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticAnnotationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ExecuteCustomASServiceOperation;
@@ -442,6 +451,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    public List<SemanticAnnotationPermId> createSemanticAnnotations(String sessionToken, List<SemanticAnnotationCreation> creations)
+    {
+        CreateSemanticAnnotationsOperationResult result = executeOperation(sessionToken, new CreateSemanticAnnotationsOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
+    @Transactional
     public void updateSpaces(String sessionToken, List<SpaceUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateSpacesOperation(updates));
@@ -576,6 +593,16 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             ExternalDmsFetchOptions fetchOptions)
     {
         GetExternalDmsOperationResult result = executeOperation(sessionToken, new GetExternalDmsOperation(externalDmsIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(String sessionToken,
+            List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationFetchOptions fetchOptions)
+    {
+        GetSemanticAnnotationsOperationResult result =
+                executeOperation(sessionToken, new GetSemanticAnnotationsOperation(annotationIds, fetchOptions));
         return result.getObjectMap();
     }
 

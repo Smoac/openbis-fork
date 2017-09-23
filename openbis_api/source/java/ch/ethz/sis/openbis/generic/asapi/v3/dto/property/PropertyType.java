@@ -17,12 +17,14 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -35,7 +37,7 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyType")
-public class PropertyType implements Serializable, ICodeHolder, IDescriptionHolder, IRegistrationDateHolder, IRegistratorHolder
+public class PropertyType implements Serializable, ICodeHolder, IDescriptionHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -44,6 +46,9 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
 
     @JsonProperty
     private String code;
+
+    @JsonProperty
+    private PropertyTypePermId permId;
 
     @JsonProperty
     private String label;
@@ -103,6 +108,20 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
     public void setCode(String code)
     {
         this.code = code;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public PropertyTypePermId getPermId()
+    {
+        return permId;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPermId(PropertyTypePermId permId)
+    {
+        this.permId = permId;
     }
 
     // Method automatically generated with DtoGenerator

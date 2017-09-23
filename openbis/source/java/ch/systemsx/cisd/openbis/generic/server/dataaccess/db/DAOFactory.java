@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISemanticAnnotationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
@@ -138,6 +139,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IOperationExecutionDAO operationExecutionDAO;
 
+    private final ISemanticAnnotationDAO semanticAnnotationDAO;
+
     private DatabaseConfigurationContext context;
 
     public DAOFactory(final DatabaseConfigurationContext context,
@@ -183,6 +186,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                 new ExternalDataManagementSystemDAO(sessionFactory);
         operationExecutionDAO =
                 new OperationExecutionDAO(sessionFactory, historyCreator);
+        semanticAnnotationDAO = new SemanticAnnotationDAO(sessionFactory, historyCreator);
     }
 
     //
@@ -342,6 +346,12 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IOperationExecutionDAO getOperationExecutionDAO()
     {
         return operationExecutionDAO;
+    }
+
+    @Override
+    public ISemanticAnnotationDAO getSemanticAnnotationDAO()
+    {
+        return semanticAnnotationDAO;
     }
 
     private static String projectConstraintFunction =

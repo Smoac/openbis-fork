@@ -48,6 +48,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStore
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletedObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.fetchoptions.EntityTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
@@ -87,15 +88,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -669,8 +675,10 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("property", "PropertyAssignment", PropertyAssignmentFetchOptions.class);
 
+        addPermId(gen, PropertyAssignmentPermId.class);
         gen.addStringField("section");
         gen.addSimpleField(Integer.class, "ordinal");
+        gen.addFetchedField(IEntityType.class, "entityType", "Entity type", EntityTypeFetchOptions.class);
         gen.addFetchedField(PropertyType.class, "propertyType", "Property type", PropertyTypeFetchOptions.class)
                 .withInterface(IPropertyTypeHolder.class);
         gen.addBooleanField("mandatory");
@@ -679,7 +687,7 @@ public class Generator extends AbstractGenerator
         addRegistrator(gen);
         addRegistrationDate(gen);
         gen.setToStringMethod(
-                "\"PropertyAssignment property type: \" + (propertyType != null ? propertyType.getCode() : null) + \", mandatory: \" + mandatory");
+                "\"PropertyAssignment entity type: \" + (entityType != null ? entityType.getCode() : null) + \", property type: \" + (propertyType != null ? propertyType.getCode() : null) + \", mandatory: \" + mandatory");
 
         return gen;
     }
@@ -689,6 +697,7 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("property", "PropertyType", PropertyTypeFetchOptions.class);
 
         addCode(gen);
+        addPermId(gen, PropertyTypePermId.class);
         gen.addStringField("label");
         addDescription(gen);
         gen.addBooleanField("managedInternally");
@@ -766,6 +775,27 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createSemanticAnnotation()
+    {
+        DtoGenerator gen =
+                new DtoGenerator("semanticannotation", "SemanticAnnotation", SemanticAnnotationFetchOptions.class);
+
+        gen.addFetchedField(IEntityType.class, "entityType", "Entity type", EntityTypeFetchOptions.class);
+        gen.addFetchedField(PropertyType.class, "propertyType", "Property type", PropertyTypeFetchOptions.class);
+        gen.addFetchedField(PropertyAssignment.class, "propertyAssignment", "Property assignment", PropertyAssignmentFetchOptions.class);
+        addPermId(gen, SemanticAnnotationPermId.class);
+        gen.addSimpleField(String.class, "predicateOntologyId");
+        gen.addSimpleField(String.class, "predicateOntologyVersion");
+        gen.addSimpleField(String.class, "predicateAccessionId");
+        gen.addSimpleField(String.class, "descriptorOntologyId");
+        gen.addSimpleField(String.class, "descriptorOntologyVersion");
+        gen.addSimpleField(String.class, "descriptorAccessionId");
+        gen.addSimpleField(Date.class, "creationDate");
+        gen.setToStringMethod("\"SemanticAnnotation\"");
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -801,6 +831,7 @@ public class Generator extends AbstractGenerator
         list.add(createOperationExecution());
         list.add(createOperationExecutionSummary());
         list.add(createOperationExecutionDetails());
+        list.add(createSemanticAnnotation());
 
         for (DtoGenerator gen : list)
         {

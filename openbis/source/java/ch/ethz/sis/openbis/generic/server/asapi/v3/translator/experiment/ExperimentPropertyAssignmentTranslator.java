@@ -16,17 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectToManyRelationTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.IPropertyAssignmentTranslator;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
@@ -35,8 +38,12 @@ import net.lemnik.eodsql.QueryTool;
  * @author Franz-Josef Elmer
  */
 @Component
-public class ExperimentPropertyAssignmentTranslator extends PropertyAssignmentTranslator implements IExperimentPropertyAssignmentTranslator
+public class ExperimentPropertyAssignmentTranslator extends ObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>
+        implements IExperimentPropertyAssignmentTranslator
 {
+
+    @Autowired
+    private IPropertyAssignmentTranslator assignmentTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet experimentTypeIds)
@@ -50,8 +57,14 @@ public class ExperimentPropertyAssignmentTranslator extends PropertyAssignmentTr
             Collection<Long> experimentTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        return getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(experimentTypePropertyTypeIds)), 
+        return assignmentTranslator.getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(experimentTypePropertyTypeIds)),
                 relatedFetchOptions);
+    }
+
+    @Override
+    protected Collection<PropertyAssignment> createCollection()
+    {
+        return new ArrayList<>();
     }
 
 }

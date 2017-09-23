@@ -174,6 +174,8 @@ public final class TableNames
     public static final String METAPROJECT_ASSIGNMENTS_ALL_TABLE = "metaproject_assignments_all";
 
     public static final String OPERATION_EXECUTIONS_TABLE = "operation_executions";
+    
+    public static final String SEMANTIC_ANNOTATIONS_TABLE = "semantic_annotations";
 
     private TableNames()
     {

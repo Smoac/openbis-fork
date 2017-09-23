@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -93,6 +94,7 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
         PropertyTypeRecord baseRecord = relations.get(IPropertyTypeBaseTranslator.class, typeId);
 
         result.setCode(baseRecord.code);
+        result.setPermId(new PropertyTypePermId(baseRecord.code));
         result.setLabel(baseRecord.label);
         result.setDescription(baseRecord.description);
         result.setDataType(DataType.valueOf(baseRecord.data_type));

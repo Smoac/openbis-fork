@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,9 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN }) })
+@Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 public class DataSetTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -141,6 +140,13 @@ public class DataSetTypePE extends EntityTypePE
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
+    }
+
+    @Override
+    @Transient
+    public Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes()
+    {
+        return getDataSetTypePropertyTypes();
     }
 
     /**

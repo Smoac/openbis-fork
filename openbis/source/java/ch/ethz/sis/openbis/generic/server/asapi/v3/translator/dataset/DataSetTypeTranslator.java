@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
@@ -75,7 +76,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         TranslationResults relations = (TranslationResults) objectRelations;
         DataSetTypeBaseRecord baseRecord = relations.get(IDataSetTypeBaseTranslator.class, typeId);
 
-        result.setPermId(new EntityTypePermId(baseRecord.code));
+        result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.DATA_SET));
         result.setCode(baseRecord.code);
         result.setKind(DataSetKind.valueOf(baseRecord.kind));
         result.setMainDataSetPattern(baseRecord.mainDataSetPattern);

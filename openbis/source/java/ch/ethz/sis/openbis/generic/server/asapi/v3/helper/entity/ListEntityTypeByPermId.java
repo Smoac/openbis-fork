@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,11 +35,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public class ListEntityTypeByPermId extends AbstractListObjectById<EntityTypePermId, EntityTypePE>
 {
 
-    private IEntityTypeDAO entityTypeDAO;
+    private IDAOFactory daoFactory;
 
-    public ListEntityTypeByPermId(IDAOFactory daoFactory, EntityKind entityKind)
+    public ListEntityTypeByPermId(IDAOFactory daoFactory)
     {
-        this.entityTypeDAO = daoFactory.getEntityTypeDAO(entityKind);
+        this.daoFactory = daoFactory;
     }
 
     @Override
@@ -49,12 +51,53 @@ public class ListEntityTypeByPermId extends AbstractListObjectById<EntityTypePer
     @Override
     public EntityTypePermId createId(EntityTypePE entityType)
     {
-        return new EntityTypePermId(entityType.getCode());
+        return new EntityTypePermId(entityType.getPermId(), EntityTypeConverter.convert(entityType.getEntityKind()));
     }
 
     @Override
     public List<EntityTypePE> listByIds(IOperationContext context, List<EntityTypePermId> ids)
     {
+        List<EntityTypePermId> materialTypeIds = new ArrayList<>();
+        List<EntityTypePermId> experimentTypeIds = new ArrayList<>();
+        List<EntityTypePermId> sampleTypeIds = new ArrayList<>();
+        List<EntityTypePermId> dataSetTypeIds = new ArrayList<>();
+
+        for (EntityTypePermId id : ids)
+        {
+            EntityKind entityKind = EntityTypeConverter.convert(id.getEntityKind());
+
+            if (EntityKind.MATERIAL.equals(entityKind))
+            {
+                materialTypeIds.add(id);
+            } else if (EntityKind.EXPERIMENT.equals(entityKind))
+            {
+                experimentTypeIds.add(id);
+            } else if (EntityKind.SAMPLE.equals(entityKind))
+            {
+                sampleTypeIds.add(id);
+            } else if (EntityKind.DATA_SET.equals(entityKind))
+            {
+                dataSetTypeIds.add(id);
+            }
+        }
+
+        List<EntityTypePE> results = new ArrayList<>();
+        results.addAll(listByIds(context, materialTypeIds, EntityKind.MATERIAL));
+        results.addAll(listByIds(context, experimentTypeIds, EntityKind.EXPERIMENT));
+        results.addAll(listByIds(context, sampleTypeIds, EntityKind.SAMPLE));
+        results.addAll(listByIds(context, dataSetTypeIds, EntityKind.DATA_SET));
+        return results;
+    }
+
+    private List<EntityTypePE> listByIds(IOperationContext context, List<EntityTypePermId> ids, EntityKind entityKind)
+    {
+        if (ids.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+
+        IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(entityKind);
+
         List<String> permIds = new LinkedList<String>();
 
         for (EntityTypePermId id : ids)

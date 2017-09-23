@@ -16,14 +16,21 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
+import java.util.Collection;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.IObjectToManyRelationTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface IPropertyAssignmentTranslator extends IObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>
+public interface IPropertyAssignmentTranslator
 {
+
+    public Map<Long, PropertyAssignment> getAssignments(TranslationContext context,
+            Collection<PropertyAssignmentRecord> assignmentRecords,
+            PropertyAssignmentFetchOptions assignmentFetchOptions);
 
 }

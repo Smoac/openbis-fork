@@ -82,6 +82,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSample
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IUpdateSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IVerifySamplesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ICreateSemanticAnnotationsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.IGetSemanticAnnotationsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.IExecuteCustomASServiceOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.ISearchCustomASServicesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session.IGetSessionInformationOperationExecutor;
@@ -162,6 +164,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ICreateTagsOperationExecutor createTagsExecutor;
+
+    @Autowired
+    private ICreateSemanticAnnotationsOperationExecutor createSemanticAnnotationsExecutor;
 
     @Autowired
     private ICreateVocabularyTermsOperationExecutor createVocabularyTermsExecutor;
@@ -255,6 +260,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IGetOperationExecutionsOperationExecutor getOperationExecutionsExecutor;
+
+    @Autowired
+    private IGetSemanticAnnotationsOperationExecutor getSemanticAnnotationsExecutor;
 
     @Autowired
     private ISearchSpacesOperationExecutor searchSpacesExecutor;
@@ -416,6 +424,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(getExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));
+        resultMap.putAll(getSemanticAnnotationsExecutor.execute(context, operations));
     }
 
     private void verify(List<? extends IOperation> operations,
@@ -457,6 +466,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createSamplesExecutor.execute(context, operations));
         resultMap.putAll(createExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(createDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(createSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(createTagsExecutor.execute(context, operations));
     }
 

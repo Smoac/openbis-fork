@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.fetchoptions.EntityTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
@@ -33,6 +34,9 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private EntityTypeFetchOptions entityType;
+
+    @JsonProperty
     private PropertyTypeFetchOptions propertyType;
 
     @JsonProperty
@@ -40,6 +44,28 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
 
     @JsonProperty
     private PropertyAssignmentSortOptions sort;
+
+    // Method automatically generated with DtoGenerator
+    public EntityTypeFetchOptions withEntityType()
+    {
+        if (entityType == null)
+        {
+            entityType = new EntityTypeFetchOptions();
+        }
+        return entityType;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public EntityTypeFetchOptions withEntityTypeUsing(EntityTypeFetchOptions fetchOptions)
+    {
+        return entityType = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasEntityType()
+    {
+        return entityType != null;
+    }
 
     // Method automatically generated with DtoGenerator
     public PropertyTypeFetchOptions withPropertyType()
@@ -106,6 +132,7 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PropertyAssignment", this);
+        f.addFetchOption("EntityType", entityType);
         f.addFetchOption("PropertyType", propertyType);
         f.addFetchOption("Registrator", registrator);
         return f;

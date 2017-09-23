@@ -190,7 +190,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet dataSetTypeIds);
 
-    @Select(sql = "select * from data_set_type_property_types where id = any(?{1})", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, 'DATA_SET' as kind_code, dt.id as type_id, dt.code as type_code, dtpt.* from data_set_type_property_types dtpt, property_types pt, data_set_types dt where dtpt.id = any(?{1}) and dtpt.prty_id = pt.id and dtpt.dsty_id = dt.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet dataSetTypePropertyTypeIds);
 

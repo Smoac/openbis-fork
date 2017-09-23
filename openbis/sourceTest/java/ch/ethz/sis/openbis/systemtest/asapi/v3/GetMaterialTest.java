@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
@@ -169,7 +168,7 @@ public class GetMaterialTest extends AbstractDataSetTest
         MaterialType type = item.getType();
 
         assertEquals(type.getCode(), "SELF_REF");
-        assertEquals(type.getPermId(), new EntityTypePermId("SELF_REF"));
+        assertEquals(type.getPermId().getPermId(), "SELF_REF");
         assertEquals(type.getDescription(), "Self Referencing Material");
         assertEqualsDate(type.getModificationDate(), "2012-03-13 15:34:44");
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);

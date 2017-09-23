@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -30,12 +31,43 @@ public class EntityTypePermId extends ObjectPermId implements IEntityTypeId
 
     private static final long serialVersionUID = 1L;
 
+    private EntityKind entityKind;
+
     /**
      * @param permId Entity type perm id, e.g. "MY_ENTITY_TYPE".
      */
     public EntityTypePermId(String permId)
     {
+        this(permId, null);
+    }
+
+    /**
+     * @param permId Entity type perm id, e.g. "MY_ENTITY_TYPE".
+     * @param entityKind Entity kind, e.g. "SAMPLE"
+     */
+    public EntityTypePermId(String permId, EntityKind entityKind)
+    {
         super(permId != null ? permId.toUpperCase() : null);
+        setEntityKind(entityKind);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (super.equals(obj))
+        {
+            EntityTypePermId that = (EntityTypePermId) obj;
+            return this.getEntityKind() == null ? that.getEntityKind() == null : this.getEntityKind().equals(that.getEntityKind());
+        } else
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString()
+    {
+        return super.toString() + ", " + getEntityKind();
     }
 
     //
@@ -46,6 +78,16 @@ public class EntityTypePermId extends ObjectPermId implements IEntityTypeId
     private EntityTypePermId()
     {
         super();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return entityKind;
+    }
+
+    private void setEntityKind(EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
     }
 
 }

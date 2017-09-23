@@ -5,9 +5,24 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 	stjs.extend(PropertyAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.property.fetchoptions.PropertyAssignmentFetchOptions';
 		constructor.serialVersionUID = 1;
+		prototype.entityType = null;
 		prototype.propertyType = null;
 		prototype.registrator = null;
 		prototype.sort = null;
+
+		prototype.withEntityType = function() {
+			if (this.entityType == null) {
+				var EntityTypeFetchOptions = require("as/dto/entitytype/fetchoptions/EntityTypeFetchOptions");
+				this.entityType = new EntityTypeFetchOptions();
+			}
+			return this.entityType;
+		};
+		prototype.withEntityTypeUsing = function(fetchOptions) {
+			return this.entityType = fetchOptions;
+		};
+		prototype.hasEntityType = function() {
+			return this.entityType != null;
+		};
 		prototype.withPropertyType = function() {
 			if (this.propertyType == null) {
 				var PropertyTypeFetchOptions = require("as/dto/property/fetchoptions/PropertyTypeFetchOptions");
@@ -45,6 +60,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 			return this.sort;
 		};
 	}, {
+		entityType : "EntityType",
 		propertyType : "PropertyType",
 		registrator : "Person",
 		sort : "PropertyAssignmentSortOptions"

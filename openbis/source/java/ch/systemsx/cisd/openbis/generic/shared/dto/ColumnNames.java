@@ -384,6 +384,18 @@ public final class ColumnNames
 
     public static final String H5AR_FOLDERS = "h5ar_folders";
 
+    public static final String PREDICATE_ONTOLOGY_ID = "predicate_ontology_id";
+
+    public static final String PREDICATE_ONTOLOGY_VERSION = "predicate_ontology_version";
+
+    public static final String PREDICATE_ACCESSION_ID = "predicate_accession_id";
+
+    public static final String DESCRIPTOR_ONTOLOGY_ID = "descriptor_ontology_id";
+
+    public static final String DESCRIPTOR_ONTOLOGY_VERSION = "descriptor_ontology_version";
+
+    public static final String DESCRIPTOR_ACCESSION_ID = "descriptor_accession_id";
+
     private ColumnNames()
     {
         // Can not be instantiated.

@@ -82,6 +82,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
@@ -573,6 +574,42 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     execution.getDetails();
+                }
+            });
+    }
+
+    protected void assertEntityTypeNotFetched(final SemanticAnnotation holder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    holder.getEntityType();
+                }
+            });
+    }
+
+    protected void assertPropertyTypeNotFetched(final SemanticAnnotation holder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    holder.getPropertyType();
+                }
+            });
+    }
+
+    protected void assertPropertyAssignmentNotFetched(final SemanticAnnotation holder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    holder.getPropertyAssignment();
                 }
             });
     }

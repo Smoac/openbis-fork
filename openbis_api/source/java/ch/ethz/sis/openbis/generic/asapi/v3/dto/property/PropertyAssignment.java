@@ -15,12 +15,15 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,7 +35,7 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyAssignment")
-public class PropertyAssignment implements Serializable, IPropertyTypeHolder, IRegistrationDateHolder, IRegistratorHolder
+public class PropertyAssignment implements Serializable, IPermIdHolder, IPropertyTypeHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -40,10 +43,16 @@ public class PropertyAssignment implements Serializable, IPropertyTypeHolder, IR
     private PropertyAssignmentFetchOptions fetchOptions;
 
     @JsonProperty
+    private PropertyAssignmentPermId permId;
+
+    @JsonProperty
     private String section;
 
     @JsonProperty
     private Integer ordinal;
+
+    @JsonProperty
+    private IEntityType entityType;
 
     @JsonProperty
     private PropertyType propertyType;
@@ -78,6 +87,20 @@ public class PropertyAssignment implements Serializable, IPropertyTypeHolder, IR
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
+    public PropertyAssignmentPermId getPermId()
+    {
+        return permId;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPermId(PropertyAssignmentPermId permId)
+    {
+        this.permId = permId;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public String getSection()
     {
         return section;
@@ -100,6 +123,26 @@ public class PropertyAssignment implements Serializable, IPropertyTypeHolder, IR
     public void setOrdinal(Integer ordinal)
     {
         this.ordinal = ordinal;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public IEntityType getEntityType()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasEntityType())
+        {
+            return entityType;
+        }
+        else
+        {
+            throw new NotFetchedException("Entity type has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setEntityType(IEntityType entityType)
+    {
+        this.entityType = entityType;
     }
 
     // Method automatically generated with DtoGenerator
@@ -201,7 +244,7 @@ public class PropertyAssignment implements Serializable, IPropertyTypeHolder, IR
     @Override
     public String toString()
     {
-        return "PropertyAssignment property type: " + (propertyType != null ? propertyType.getCode() : null) + ", mandatory: " + mandatory;
+        return "PropertyAssignment entity type: " + (entityType != null ? entityType.getCode() : null) + ", property type: " + (propertyType != null ? propertyType.getCode() : null) + ", mandatory: " + mandatory;
     }
 
 }

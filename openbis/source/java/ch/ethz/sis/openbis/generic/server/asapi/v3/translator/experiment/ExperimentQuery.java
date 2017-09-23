@@ -110,7 +110,7 @@ public interface ExperimentQuery extends ObjectQuery
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet experimentTypeIds);
 
-    @Select(sql = "select * from experiment_type_property_types where id = any(?{1})", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, 'EXPERIMENT' as kind_code, et.id as type_id, et.code as type_code, etpt.* from experiment_type_property_types etpt, property_types pt, experiment_types et where etpt.id = any(?{1}) and etpt.prty_id = pt.id and etpt.exty_id = et.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet experimentTypePropertyTypeIds);
 }

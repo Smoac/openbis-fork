@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,9 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.MATERIAL_TYPES_TABLE, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN }) })
+@Table(name = TableNames.MATERIAL_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 public final class MaterialTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -111,4 +110,12 @@ public final class MaterialTypePE extends EntityTypePE
     {
         return EntityKind.MATERIAL;
     }
+
+    @Override
+    @Transient
+    public Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes()
+    {
+        return getMaterialTypePropertyTypes();
+    }
+
 }

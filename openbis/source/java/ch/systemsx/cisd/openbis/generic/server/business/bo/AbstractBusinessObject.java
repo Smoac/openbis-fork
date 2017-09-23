@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISemanticAnnotationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
@@ -375,7 +376,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         return daoFactory;
     }
-    
+
     @Override
     public final ISpaceDAO getSpaceDAO()
     {
@@ -602,6 +603,12 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IMetaprojectDAO getMetaprojectDAO()
     {
         return daoFactory.getMetaprojectDAO();
+    }
+
+    @Override
+    public final ISemanticAnnotationDAO getSemanticAnnotationDAO()
+    {
+        return daoFactory.getSemanticAnnotationDAO();
     }
 
     @Override

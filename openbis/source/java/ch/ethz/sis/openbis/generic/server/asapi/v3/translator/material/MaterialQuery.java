@@ -41,10 +41,12 @@ public interface MaterialQuery extends ObjectQuery
             + "where m.maty_id = mt.id and m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialBaseRecord> getMaterials(LongSet materialIds);
 
-    @Select(sql = "select m.id as objectId, m.maty_id as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select m.id as objectId, m.maty_id as relatedId from materials m where m.id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet materialIds);
 
-    @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate from material_types mt where mt.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate from material_types mt where mt.id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialTypeBaseRecord> getTypes(LongSet materialTypeIds);
 
     // PropertyQueryGenerator was used to generate this query
@@ -74,17 +76,19 @@ public interface MaterialQuery extends ObjectQuery
             + "where ph.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet materialIds);
 
-    @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet materialIds);
 
-    @Select(sql = "select ma.mate_id as objectId, ma.mepr_id as relatedId from metaproject_assignments ma where ma.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select ma.mate_id as objectId, ma.mepr_id as relatedId from metaproject_assignments ma where ma.mate_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTagIds(LongSet materialIds);
 
-    @Select(sql = "select maty_id as objectId, id as relatedId from material_type_property_types where maty_id = any(?{1})",
-            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select maty_id as objectId, id as relatedId from material_type_property_types where maty_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet materialTypeIds);
 
-    @Select(sql = "select * from material_type_property_types where id = any(?{1})", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, 'MATERIAL' as kind_code, mt.id as type_id, mt.code as type_code, mtpt.* from material_type_property_types mtpt, property_types pt, material_types mt where mtpt.id = any(?{1}) and mtpt.prty_id = pt.id and mtpt.maty_id = mt.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet materialTypePropertyTypeIds);
 

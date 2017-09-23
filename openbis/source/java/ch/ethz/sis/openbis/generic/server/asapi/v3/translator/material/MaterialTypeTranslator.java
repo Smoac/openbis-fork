@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
@@ -74,7 +75,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
         TranslationResults relations = (TranslationResults) objectRelations;
         MaterialTypeBaseRecord baseRecord = relations.get(IMaterialTypeBaseTranslator.class, typeId);
 
-        result.setPermId(new EntityTypePermId(baseRecord.code));
+        result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.MATERIAL));
         result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);

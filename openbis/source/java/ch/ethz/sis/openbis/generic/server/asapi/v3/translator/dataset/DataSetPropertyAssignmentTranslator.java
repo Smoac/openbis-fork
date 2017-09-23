@@ -16,17 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectToManyRelationTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.IPropertyAssignmentTranslator;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
@@ -35,8 +38,12 @@ import net.lemnik.eodsql.QueryTool;
  * @author Franz-Josef Elmer
  */
 @Component
-public class DataSetPropertyAssignmentTranslator extends PropertyAssignmentTranslator implements IDataSetPropertyAssignmentTranslator
+public class DataSetPropertyAssignmentTranslator extends ObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>
+        implements IDataSetPropertyAssignmentTranslator
 {
+
+    @Autowired
+    private IPropertyAssignmentTranslator assignmentTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet dataSetTypeIds)
@@ -50,8 +57,14 @@ public class DataSetPropertyAssignmentTranslator extends PropertyAssignmentTrans
             Collection<Long> dataSetTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(dataSetTypePropertyTypeIds)), 
+        return assignmentTranslator.getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(dataSetTypePropertyTypeIds)),
                 relatedFetchOptions);
+    }
+
+    @Override
+    protected Collection<PropertyAssignment> createCollection()
+    {
+        return new ArrayList<>();
     }
 
 }

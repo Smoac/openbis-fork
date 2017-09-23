@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,9 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.SAMPLE_TYPES_TABLE, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN }) })
+@Table(name = TableNames.SAMPLE_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 @Indexed(index = "SampleTypePE")
 public final class SampleTypePE extends EntityTypePE
 {
@@ -231,6 +230,13 @@ public final class SampleTypePE extends EntityTypePE
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
+    }
+
+    @Override
+    @Transient
+    public Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes()
+    {
+        return getSampleTypePropertyTypes();
     }
 
 }

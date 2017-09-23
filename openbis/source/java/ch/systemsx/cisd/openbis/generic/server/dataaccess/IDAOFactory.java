@@ -122,4 +122,7 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     /** Returns an implementation of {@link IOperationExecutionDAO}. */
     public IOperationExecutionDAO getOperationExecutionDAO();
 
+    /** Returns an implementation of {@link ISemanticAnnotationDAO}. */
+    public ISemanticAnnotationDAO getSemanticAnnotationDAO();
+
 }

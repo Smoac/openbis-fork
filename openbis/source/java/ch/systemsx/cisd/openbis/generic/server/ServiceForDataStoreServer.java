@@ -2535,7 +2535,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             // type
             if (newData.getDataSetType() != null)
             {
-                creation.setTypeId(new EntityTypePermId(newData.getDataSetType().getCode()));
+                creation.setTypeId(new EntityTypePermId(newData.getDataSetType().getCode(),
+                        ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DATA_SET));
             }
 
             // experiment
