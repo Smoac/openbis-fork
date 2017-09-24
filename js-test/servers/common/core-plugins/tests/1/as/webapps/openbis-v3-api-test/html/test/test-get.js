@@ -366,6 +366,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
+		
+		QUnit.test("getSemanticAnnotations()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.SemanticAnnotationFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+
+			var fCreate = function(facade) {
+				return $.when(c.createSemanticAnnotation(facade), c.createSemanticAnnotation(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getSemanticAnnotations(permIds, fo);
+			}
+
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getSemanticAnnotations(permIds, new c.SemanticAnnotationFetchOptions());
+			}
+
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
 
 	}
 

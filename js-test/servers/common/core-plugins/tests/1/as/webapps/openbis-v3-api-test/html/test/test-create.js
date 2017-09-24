@@ -537,6 +537,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findTag, fCheck);
 		});
+		
+		QUnit.test("createSemanticAnnotations()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fCreate = function(facade) {
+				var creation = new c.SemanticAnnotationCreation();
+				creation.setEntityTypeId(new c.EntityTypePermId("UNKNOWN", "SAMPLE"));
+				creation.setPredicateOntologyId("jsPredicateOntologyId");
+				creation.setPredicateOntologyVersion("jsPredicateOntologyVersion");
+				creation.setPredicateAccessionId("jsPredicateAccessionId");
+				creation.setDescriptorOntologyId("jsDescriptorOntologyId");
+				creation.setDescriptorOntologyVersion("jsDescriptorOntologyVersion");
+				creation.setDescriptorAccessionId("jsDescriptorAccessionId");
+				return facade.createSemanticAnnotations([ creation ]);
+			}
+
+			var fCheck = function(annotation) {
+				c.assertEqual(annotation.getEntityType().getCode(), "UNKNOWN", "Entity type code");
+				c.assertEqual(annotation.getPredicateOntologyId(), "jsPredicateOntologyId", "Predicate ontology id");
+				c.assertEqual(annotation.getPredicateOntologyVersion(), "jsPredicateOntologyVersion", "Predicate ontology version");
+				c.assertEqual(annotation.getPredicateAccessionId(), "jsPredicateAccessionId", "Predicate accession id");
+				c.assertEqual(annotation.getDescriptorOntologyId(), "jsDescriptorOntologyId", "Descriptor ontology id");
+				c.assertEqual(annotation.getDescriptorOntologyVersion(), "jsDescriptorOntologyVersion", "Descriptor ontology version");
+				c.assertEqual(annotation.getDescriptorAccessionId(), "jsDescriptorAccessionId", "Descriptor accession id");
+			}
+
+			testCreate(c, fCreate, c.findSemanticAnnotation, fCheck);
+		});
 
 	}
 

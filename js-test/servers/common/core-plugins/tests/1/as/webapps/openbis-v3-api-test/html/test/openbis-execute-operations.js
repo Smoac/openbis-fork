@@ -136,6 +136,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		this.createTags = function(creations) {
 			return this._executeCreateOperation(new c.CreateTagsOperation(creations));
 		}
+		
+		this.createSemanticAnnotations = function(creations) {
+			return this._executeCreateOperation(new c.CreateSemanticAnnotationsOperation(creations));
+		}
 
 		this.updateSpaces = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateSpacesOperation(updates));
@@ -207,6 +211,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.getTags = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetTagsOperation(ids, fetchOptions));
+		}
+		
+		this.getSemanticAnnotations = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetSemanticAnnotationsOperation(ids, fetchOptions));
 		}
 
 		this.getExternalDataManagementSystems = function(ids, fetchOptions) {

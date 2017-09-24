@@ -29,6 +29,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.AttachmentCreation = dtos.AttachmentCreation;
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
+		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation= dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
 		this.DataSetFileCreation = dtos.DataSetFileCreation;
@@ -75,6 +76,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermPermId = dtos.VocabularyTermPermId;
 		this.TagPermId = dtos.TagPermId;
 		this.TagCode = dtos.TagCode;
+		this.SemanticAnnotationsPermId = dtos.SemanticAnnotationsPermId;
 		this.SpaceSearchCriteria = dtos.SpaceSearchCriteria;
 		this.ProjectSearchCriteria = dtos.ProjectSearchCriteria;
 		this.ExperimentSearchCriteria = dtos.ExperimentSearchCriteria;
@@ -103,6 +105,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsFetchOptions = dtos.ExternalDmsFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.TagFetchOptions = dtos.TagFetchOptions;
+		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
 		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
@@ -148,6 +151,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
+		this.CreateSemanticAnnotationsOperation = dtos.CreateSemanticAnnotationsOperation;
 		this.CreateExternalDmsOperation = dtos.CreateExternalDmsOperation;
 
 		this.UpdateSpacesOperation = dtos.UpdateSpacesOperation;
@@ -169,6 +173,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
+		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
 		this.GetOperationExecutionsOperation = dtos.GetOperationExecutionsOperation;
 
 		this.SearchSpacesOperation = dtos.SearchSpacesOperation;
@@ -371,6 +376,21 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
+		
+		this.createSemanticAnnotation = function(facade) {
+			var c = this;
+			var creation = new dtos.SemanticAnnotationCreation();
+			creation.setEntityTypeId(new dtos.EntityTypePermId("UNKNOWN", "SAMPLE"));
+			creation.setPredicateOntologyId("jsPredicateOntologyId");
+			creation.setPredicateOntologyVersion("jsPredicateOntologyVersion");
+			creation.setPredicateAccessionId("jsPredicateAccessionId");
+			creation.setDescriptorOntologyId("jsDescriptorOntologyId");
+			creation.setDescriptorOntologyVersion("jsDescriptorOntologyVersion");
+			creation.setDescriptorAccessionId("jsDescriptorAccessionId");
+			return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
 
 		this.createOperationExecution = function(facade) {
 			var c = this;
@@ -471,6 +491,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			return facade.getTags([ id ], c.createTagFetchOptions()).then(function(tags) {
 				return tags[id];
+			});
+		}.bind(this);
+		
+		this.findSemanticAnnotation = function(facade, id) {
+			var c = this;
+			return facade.getSemanticAnnotations([ id ], c.createSemanticAnnotationFetchOptions()).then(function(annotations) {
+				return annotations[id];
 			});
 		}.bind(this);
 		
@@ -738,6 +765,14 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withSamples();
 			fo.withDataSets();
 			fo.withMaterials();
+			return fo;
+		};
+		
+		this.createSemanticAnnotationFetchOptions = function() {
+			var fo = new dtos.SemanticAnnotationFetchOptions();
+			fo.withEntityType();
+			fo.withPropertyType();
+			fo.withPropertyAssignment();
 			return fo;
 		};
 		

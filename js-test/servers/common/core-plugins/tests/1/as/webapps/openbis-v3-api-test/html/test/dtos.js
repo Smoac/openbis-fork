@@ -447,6 +447,16 @@ var sources = [
 	'as/dto/space/update/UpdateSpacesOperation',
 	'as/dto/space/update/UpdateSpacesOperationResult',
 	
+	'as/dto/semanticannotation/create/SemanticAnnotationCreation',
+	'as/dto/semanticannotation/create/CreateSemanticAnnotationsOperation',
+	'as/dto/semanticannotation/create/CreateSemanticAnnotationsOperationResult',
+	'as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions',
+	'as/dto/semanticannotation/fetchoptions/SemanticAnnotationSortOptions',
+	'as/dto/semanticannotation/get/GetSemanticAnnotationsOperation',
+	'as/dto/semanticannotation/get/GetSemanticAnnotationsOperationResult',
+	'as/dto/semanticannotation/id/SemanticAnnotationPermId',
+	'as/dto/semanticannotation/SemanticAnnotation',
+	
 	'as/dto/tag/fetchoptions/TagFetchOptions',
 	'as/dto/tag/fetchoptions/TagSortOptions',
 	'as/dto/tag/id/TagCode',
