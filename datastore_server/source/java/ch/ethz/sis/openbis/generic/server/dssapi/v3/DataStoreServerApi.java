@@ -49,9 +49,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.IDataStoreId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdException;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
@@ -92,6 +94,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvi
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -356,31 +359,44 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             ownerType = DataSetOwnerType.EXPERIMENT;
             owner = new NewDataSetDTO.DataSetOwner(ownerType, experimentIdentifier.toString());
         }
-        if(owner == null) {
+        if (owner == null)
+        {
             throw new UserFailureException("A dataset needs either a Sample or Experiment as owner.");
         }
         IEntityTypeId typeId = dataSetCreation.getMetadataCreation().getTypeId();
-        
+        String typeCode = null;
+
+        if (typeId != null)
+        {
+            if (typeId instanceof EntityTypePermId)
+            {
+                typeCode = ((EntityTypePermId) typeId).getPermId();
+            } else
+            {
+                throw new UnsupportedObjectIdException(typeId);
+            }
+        }
+
         List<FileInfoDssDTO> fileInfos = FileInfoDssBuilder.getFileInfos(temporaryIncomingDir);
 
-        NewDataSetDTO dataSet = new NewDataSetDTO(typeId.toString(), owner, null, fileInfos);
+        NewDataSetDTO dataSet = new NewDataSetDTO(typeCode, owner, null, fileInfos);
         return dataSet;
     }
-    
+
     private List<FullDataSetCreation> filterPhysicalDataSets(List<FullDataSetCreation> newDataSets)
     {
         return newDataSets
-        .stream()
-        .filter((dataSetCreation) -> dataSetCreation.getMetadataCreation().getPhysicalData() != null)
-        .collect(Collectors.toList());
+                .stream()
+                .filter((dataSetCreation) -> dataSetCreation.getMetadataCreation().getPhysicalData() != null)
+                .collect(Collectors.toList());
     }
 
     private List<FullDataSetCreation> filterNonPhysicalDataSets(List<FullDataSetCreation> newDataSets)
     {
         return newDataSets
-        .stream()
-        .filter((dataSetCreation) -> dataSetCreation.getMetadataCreation().getPhysicalData() == null)
-        .collect(Collectors.toList());
+                .stream()
+                .filter((dataSetCreation) -> dataSetCreation.getMetadataCreation().getPhysicalData() == null)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -442,29 +458,37 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         for (FullDataSetCreation dataSetCreation : newDataSets)
         {
             PutDataSetService putService =
-                    new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);   
+                    new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);
             putService.setStoreDirectory(ServiceProvider.getConfigProvider().getStoreRoot());
             NewDataSetDTO newDataset;
             try
-            {   DataSetCreation metadataCreation = dataSetCreation.getMetadataCreation();
+            {
+                DataSetCreation metadataCreation = dataSetCreation.getMetadataCreation();
                 CreationId creationId = metadataCreation.getCreationId();
                 String dataSetTypeCodeNull = null;
                 IEntityTypeId typeId = metadataCreation.getTypeId();
-                if(null != typeId) {
-                    dataSetTypeCodeNull = typeId.toString(); 
+                if (null != typeId)
+                {
+                    if (typeId instanceof EntityTypePermId)
+                    {
+                        dataSetTypeCodeNull = ((EntityTypePermId) typeId).getPermId();
+                    } else
+                    {
+                        throw new UnsupportedObjectIdException(typeId);
+                    }
                 }
-                File temporaryIncomingDir =  putService.getTemporaryIncomingDir(dataSetTypeCodeNull, creationId.toString());
+                File temporaryIncomingDir = putService.getTemporaryIncomingDir(dataSetTypeCodeNull, creationId.toString());
                 newDataset = getNewDataSet(dataSetCreation, temporaryIncomingDir);
                 String code = dataSetCreation.getMetadataCreation().getCode();
                 putService.putDataSet(sessionToken, newDataset, creationId.toString(), code);
-                
+
             } catch (IOException e)
             {
                 operationLog.error(e.getMessage());
             }
         }
     }
-    
+
     private void injectDataStoreIdAndCodesIfNeeded(List<FullDataSetCreation> newDataSets)
     {
         String dataStoreCode = configProvider.getDataStoreCode();
