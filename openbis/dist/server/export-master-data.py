@@ -204,7 +204,6 @@ def exportDataSetType(dataSetType):
     var = getVarName("DATA_SET", dataSetType.getCode())
     code = codeLiteral(dataSetType.getCode())
     description = strLiteral(dataSetType.getDescription())
-    dataSetKind = strLiteral(dataSetType.getDataSetKind())
     mainDataSetPattern = strLiteral(dataSetType.getMainDataSetPattern())
     mainDataSetPath = strLiteral(dataSetType.getMainDataSetPath())
     deletionDisallowed = dataSetType.isDeletionDisallowed()
@@ -215,7 +214,6 @@ def exportDataSetType(dataSetType):
         return """
 %(var)s = tr.getOrCreateNewDataSetType(%(code)s)
 %(var)s.setDescription(%(description)s)
-%(var)s.setDataSetKind(%(dataSetKind)s)
 %(var)s.setMainDataSetPattern(%(mainDataSetPattern)s)
 %(var)s.setMainDataSetPath(%(mainDataSetPath)s)
 %(var)s.setDeletionDisallowed(%(deletionDisallowed)s)

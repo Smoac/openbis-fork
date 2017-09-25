@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
@@ -159,6 +160,12 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     public String getDataSetType()
     {
         return dataSet.getDataSetType().getCode();
+    }
+
+    @Override
+    public DataSetKind getDataSetKind()
+    {
+        return DataSetKind.valueOf(dataSet.getDataSetKind().name());
     }
 
     @Override

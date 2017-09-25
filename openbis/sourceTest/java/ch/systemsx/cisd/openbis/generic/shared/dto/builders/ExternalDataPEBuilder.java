@@ -71,11 +71,16 @@ public class ExternalDataPEBuilder
     {
         DataSetTypePE dataSetType = new DataSetTypePE();
         dataSetType.setCode(typeCode);
-        dataSetType.setDataSetKind(DataSetKind.PHYSICAL.name());
         dataSet.setDataSetType(dataSetType);
         return this;
     }
 
+    public ExternalDataPEBuilder kind(String dataSetKind)
+    {
+    	dataSet.setDataSetKind(dataSetKind);
+    	return this;
+    }
+    
     public ExternalDataPEBuilder experiment(ExperimentPE experiment)
     {
         dataSet.setExperiment(experiment);

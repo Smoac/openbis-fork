@@ -9,7 +9,6 @@ import java.util.Random;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -265,7 +264,6 @@ public class ANewMetadataUITest extends SystemTestCase
                     break;
                 case DATA_SET:
                     entityType = new DataSetType();
-                    ((DataSetType) entityType).setDataSetKind(DataSetKind.PHYSICAL);
                     ((DataSetType) entityType).setDataSetTypePropertyTypes(new ArrayList<DataSetTypePropertyType>());
                     break;
                 case MATERIAL:

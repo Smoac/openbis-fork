@@ -33,6 +33,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
@@ -648,7 +649,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     experiment.setProject(project);
                     one(dataSetDAO).tryToFindDataSetByCode("ds1");
                     ExternalDataPEBuilder ds1 =
-                            new ExternalDataPEBuilder(1).code("ds1").type("T1").store("S")
+                            new ExternalDataPEBuilder(1).kind(DataSetKind.PHYSICAL.name()).code("ds1").type("T1").store("S")
                                     .experiment(experiment)
                                     .property("alpha", DataTypeCode.REAL, "3.14159")
                                     .property("status", DataTypeCode.VARCHAR, "normal");

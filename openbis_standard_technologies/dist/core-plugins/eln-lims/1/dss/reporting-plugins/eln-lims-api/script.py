@@ -19,7 +19,9 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataTypeCode;
- 
+
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataSetKind;
+
 from java.util import ArrayList
 from java.util import Date;
 from java.text import SimpleDateFormat;
@@ -582,9 +584,9 @@ def insertDataSet(tr, parameters, tableBuilder):
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	properties = getProperties(tr, parameters);
-	
+
 	#Create Dataset
-	dataSet = tr.createNewDataSet(dataSetType);
+	dataSet = tr.createNewDataSet(dataSetType, DataSetKind.PHYSICAL);
 	if sampleIdentifier is not None:
 		dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
 		dataSet.setSample(dataSetSample);

@@ -41,31 +41,24 @@ exp_type_SIRNA_HCS.setDescription('Small Interfering RNA High Content Screening'
 
 data_set_type_HCS_ANALYSIS_CELL_CLASS = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CELL_CLASS')
 data_set_type_HCS_ANALYSIS_CELL_CLASS.setDescription('HCS image analysis cell classification')
-data_set_type_HCS_ANALYSIS_CELL_CLASS.setContainerType(False)
 
 data_set_type_HCS_ANALYSIS_CELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CELL_FEATURES')
 data_set_type_HCS_ANALYSIS_CELL_FEATURES.setDescription('HCS image analysis cell feature vectors')
-data_set_type_HCS_ANALYSIS_CELL_FEATURES.setContainerType(False)
 
 data_set_type_HCS_ANALYSIS_CELL_SEGMENTATION = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CELL_SEGMENTATION')
 data_set_type_HCS_ANALYSIS_CELL_SEGMENTATION.setDescription('HCS image analysis cell segmentation')
-data_set_type_HCS_ANALYSIS_CELL_SEGMENTATION.setContainerType(False)
 
 data_set_type_MICROSCOPY_IMG_OVERVIEW = tr.getOrCreateNewDataSetType('MICROSCOPY_IMG_OVERVIEW')
 data_set_type_MICROSCOPY_IMG_OVERVIEW.setDescription('Overview Microscopy Images. Generated from raw images.')
-data_set_type_MICROSCOPY_IMG_OVERVIEW.setContainerType(False)
 
 data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION = tr.getOrCreateNewDataSetType('HCS_IMAGE_CONTAINER_SEGMENTATION')
 data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setDescription('Container for HCS segmentation (a.k.a. overlays) images of different resolutions (original, overviews, thumbnails).')
-data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setContainerType(True)
 
 data_set_type_HCS_ANALYSIS_CONTAINER_CELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CONTAINER_CELL_FEATURES')
 data_set_type_HCS_ANALYSIS_CONTAINER_CELL_FEATURES.setDescription('Container for HCS image analysis cell feature vectors.')
-data_set_type_HCS_ANALYSIS_CONTAINER_CELL_FEATURES.setContainerType(True)
 
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CONTAINER_WELL_FEATURES')
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setDescription('Container for HCS image analysis well feature vectors.')
-data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setContainerType(True)
 
 material_type_BACTERIUM = tr.getOrCreateNewMaterialType('BACTERIUM')
 material_type_BACTERIUM.setDescription('Bacterium')

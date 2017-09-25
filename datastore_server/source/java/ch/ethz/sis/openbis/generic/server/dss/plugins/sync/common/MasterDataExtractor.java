@@ -285,7 +285,6 @@ public class MasterDataExtractor
             {
                 Element dsTypeElement = getEntityTypeXML(doc, dsType, "xmd:dataSetType");
                 dsTypeElement.setAttribute("description", dsType.getDescription());
-                dsTypeElement.setAttribute("dataSetKind", dsType.getDataSetKind());
                 dsTypeElement.setAttribute("mainDataSetPattern", dsType.getMainDataSetPattern());
                 dsTypeElement.setAttribute("mainDataSetPath", dsType.getMainDataSetPath());
                 dsTypeElement.setAttribute("deletionDisallowed", String.valueOf(dsType.isDeletionDisallowed()));

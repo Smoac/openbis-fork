@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchServic
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 
 /**
@@ -56,10 +57,14 @@ public interface IDataSetRegistrationTransactionV2
      */
     IDataSet createNewDataSet(String dataSetType);
 
+    IDataSet createNewDataSet(String dataSetType, DataSetKind datasetKindOrNull);
+
     /**
      * Create a new data set with the specified type and code.
      */
     IDataSet createNewDataSet(String dataSetType, String dataSetCode);
+
+    IDataSet createNewDataSet(String dataSetType, String dataSetCode, DataSetKind datasetKindOrNull);
 
     /**
      * Get a data set from the openBIS AS. Returns null if the data set does not exist.

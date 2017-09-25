@@ -28,5 +28,4 @@ samp_type_SEARCH.setGeneratedCodePrefix('S')
 
 data_set_type_PROT_RESULT = tr.getOrCreateNewDataSetType('PROT_RESULT')
 data_set_type_PROT_RESULT.setDescription('protXML file')
-data_set_type_PROT_RESULT.setContainerType(False)
 

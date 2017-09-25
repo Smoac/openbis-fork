@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create;
 
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
@@ -33,8 +32,6 @@ public class DataSetTypeCreation implements IEntityTypeCreation
 
     private static final long serialVersionUID = 1L;
 
-    private DataSetKind kind = DataSetKind.PHYSICAL;
-
     private String code;
 
     private String description;
@@ -48,16 +45,6 @@ public class DataSetTypeCreation implements IEntityTypeCreation
     private IPluginId validationPluginId;
 
     private List<PropertyAssignmentCreation> propertyAssignments;
-
-    public DataSetKind getKind()
-    {
-        return kind;
-    }
-
-    public void setKind(DataSetKind kind)
-    {
-        this.kind = kind;
-    }
 
     @Override
     public String getCode()

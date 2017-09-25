@@ -133,7 +133,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                         creation.setCode(codeGenerator.createPermId());
                     }
 
-                    DataSetKind kind = DataSetKind.valueOf(type.getDataSetKind());
+                    DataSetKind kind = determineDataSetKind(creation);
                     DataPE dataSet = null;
 
                     if (DataSetKind.PHYSICAL.equals(kind))
@@ -145,12 +145,10 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                     } else if (DataSetKind.LINK.equals(kind))
                     {
                         dataSet = new LinkDataPE();
-                    } else
-                    {
-                        throw new IllegalArgumentException("Unsupported data set kind: " + kind);
                     }
 
                     dataSet.setCode(creation.getCode());
+                    dataSet.setDataSetKind(kind.name());
                     dataSet.setDataSetType(type);
                     dataSet.setDerived(false == creation.isMeasured());
                     dataSet.setDataProducerCode(creation.getDataProducer());
@@ -164,7 +162,26 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                     dataSets.add(dataSet);
                 }
 
-                @Override
+                /**
+                 * Historically, the dataset kind was part of the data set type. Old clients might still not set the kind.
+                 * In that case we make a guess. If linkedData is set, we assume LINK. Otherwise we assume PHYSICAL since it is the 
+                 * most likely option.
+                 */
+                private DataSetKind determineDataSetKind(DataSetCreation creation)
+				{
+                	if (creation.getDataSetKind() != null)
+                	{
+                		return creation.getDataSetKind();
+                	} else if (creation.getLinkedData() != null)
+                	{
+                		return DataSetKind.LINK;
+                	} else
+                	{
+                		return DataSetKind.PHYSICAL;
+                	}
+				}
+
+				@Override
                 public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
                 {
                     return new CreateProgress(object, objectIndex, totalObjectCount);

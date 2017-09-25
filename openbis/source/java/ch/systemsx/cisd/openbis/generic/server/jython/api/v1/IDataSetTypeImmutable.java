@@ -25,21 +25,6 @@ public interface IDataSetTypeImmutable extends IEntityType
 {
 
     /**
-     * Return <code>true</code> if the data set type is a container type.
-     */
-    public boolean isContainerType();
-
-    /**
-     * Return <code>true</code> if the data set type is a link type.
-     */
-    public boolean isLinkType();
-
-    /**
-     * Get the kind of the data set type (PHYSICAL, CONTAINER or LINK)
-     */
-    public String getDataSetKind();
-
-    /**
      * Get the description for this data set type.
      */
     @Override

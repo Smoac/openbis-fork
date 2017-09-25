@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -208,6 +209,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         String experimentCode = dataset.getExperimentCode();
         DataSetInformation datasetInfo = new DataSetInformation();
         datasetInfo.setDataSetType(new DataSetType(datasetTypeCode));
+        datasetInfo.setDataSetKind(DataSetKind.PHYSICAL);
         datasetInfo.setSampleCode(sampleCode);
         datasetInfo.setProjectCode(projectCode);
         datasetInfo.setSpaceCode(spaceCode);

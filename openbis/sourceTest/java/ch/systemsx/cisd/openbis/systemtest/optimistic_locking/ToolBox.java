@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
@@ -109,6 +110,8 @@ public class ToolBox
     private static final FileFormatType FILE_FORMAT_TYPE = new FileFormatType("XML");
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("UNKNOWN");
+
+    private static final DataSetKind DATA_SET_KIND = DataSetKind.PHYSICAL;
 
     private final ICommonServer commonServer;
 
@@ -458,6 +461,7 @@ public class ToolBox
         NewDataSet dataSet = new NewDataSet();
         dataSet.setCode(code);
         dataSet.setDataSetType(DATA_SET_TYPE);
+        dataSet.setDataSetKind(DATA_SET_KIND);
         dataSet.setFileFormatType(FILE_FORMAT_TYPE);
         dataSet.setDataSetProperties(Collections.<NewProperty> emptyList());
         dataSet.setLocation("a/b/c/" + code);
@@ -482,6 +486,7 @@ public class ToolBox
         NewContainerDataSet dataSet = new NewContainerDataSet();
         dataSet.setCode(code);
         dataSet.setDataSetType(new DataSetType("CONTAINER_TYPE"));
+        dataSet.setDataSetKind(DataSetKind.CONTAINER);
         dataSet.setDataStoreCode(DATA_STORE_CODE);
         dataSet.setUserId(userId);
         return dataSet;

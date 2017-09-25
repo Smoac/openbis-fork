@@ -284,7 +284,6 @@ public class Translator
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();
         fillEntityTypeInitializerWithCommon(dataSetType, vocabTerms, initializer);
         initializer.setDeletionDisallowed(dataSetType.isDeletionDisallow());
-        initializer.setDataSetKind(translate(dataSetType.getDataSetKind()));
         initializer.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
         initializer.setMainDataSetPath(dataSetType.getMainDataSetPath());
         return new DataSetType(initializer);

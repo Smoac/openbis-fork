@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.MaximumIntensityProjectionGenerationAlgorithm;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -63,16 +62,12 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         sampleType.setGeneratedCodePrefix("M-");
         registerSampleType(commonServer, sampleType);
         DataSetType dataSetType = new DataSetType("MICROSCOPY_IMG");
-        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         registerDataSetType(commonServer, dataSetType);
         dataSetType = new DataSetType("MICROSCOPY_IMG_OVERVIEW");
-        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         registerDataSetType(commonServer, dataSetType);
         dataSetType = new DataSetType("MICROSCOPY_REPRESENTATIVE_IMG");
-        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         registerDataSetType(commonServer, dataSetType);
         dataSetType = new DataSetType("MICROSCOPY_IMG_CONTAINER");
-        dataSetType.setDataSetKind(DataSetKind.CONTAINER);
         registerDataSetType(commonServer, dataSetType);
         registerProject(commonServer, "/TEST/TEST-PROJECT");
     }

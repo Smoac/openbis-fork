@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierF
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -64,6 +65,8 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
     private static final String SAMPLE_CODE = "my-sample";
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("MY");
+
+    private static final DataSetKind DATA_SET_KIND = DataSetKind.PHYSICAL;
 
     private static final String DATA_SET_CODE = "my-dataset-123";
 
@@ -132,6 +135,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
+        dataSetInformation.setDataSetKind(DATA_SET_KIND);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(DATA_SET_CODE, SAMPLE_CODE);
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
@@ -158,6 +162,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
+        dataSetInformation.setDataSetKind(DATA_SET_KIND);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
 
@@ -184,6 +189,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
+        dataSetInformation.setDataSetKind(DATA_SET_KIND);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(DATA_SET_CODE, SAMPLE_CODE);
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
@@ -248,6 +254,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
+        dataSetInformation.setDataSetKind(DATA_SET_KIND);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(DATA_SET_CODE, SAMPLE_CODE);
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);

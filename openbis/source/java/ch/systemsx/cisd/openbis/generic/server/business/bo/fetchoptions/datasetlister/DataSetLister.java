@@ -225,7 +225,7 @@ public class DataSetLister implements IDataSetLister
         initializer.setCode(dataSet.ds_code);
         initializer.setDataSetTypeCode(dataSet.dt_code);
         initializer.setContainerDataSet(DataSetKind.CONTAINER.name().equals(
-                dataSet.dt_data_set_kind));
+                dataSet.ds_data_set_kind));
         initializer.setStorageConfirmed(dataSet.ed_sc == null || dataSet.ed_sc); // if there's no
                                                                                  // external data
                                                                                  // than the storage
@@ -236,7 +236,7 @@ public class DataSetLister implements IDataSetLister
         {
             initializer.setPostRegistered(dataSet.ds_is_post_registered);
         }
-        initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.dt_data_set_kind));
+        initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.ds_data_set_kind));
         if (initializer.isLinkDataSet())
         {
             initializer.setExternalDataSetCode(dataSet.ld_external_code);

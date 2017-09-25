@@ -41,8 +41,6 @@ public final class DataSetType extends EntityType
     {
         private boolean deletionDisallowed;
 
-        private DataSetKind dataSetKind;
-
         private String mainDataSetPattern;
 
         private String mainDataSetPath;
@@ -60,16 +58,6 @@ public final class DataSetType extends EntityType
         public void setDeletionDisallowed(boolean deletionDisallowed)
         {
             this.deletionDisallowed = deletionDisallowed;
-        }
-
-        public DataSetKind getDataSetKind()
-        {
-            return dataSetKind;
-        }
-
-        public void setDataSetKind(DataSetKind dataSetKind)
-        {
-            this.dataSetKind = dataSetKind;
         }
 
         public String getMainDataSetPattern()
@@ -96,8 +84,6 @@ public final class DataSetType extends EntityType
 
     private boolean deletionDisallowed;
 
-    private DataSetKind dataSetKind;
-
     private String mainDataSetPattern;
 
     private String mainDataSetPath;
@@ -111,7 +97,6 @@ public final class DataSetType extends EntityType
     {
         super(initializer);
         deletionDisallowed = initializer.isDeletionDisallowed();
-        dataSetKind = initializer.getDataSetKind();
         mainDataSetPattern = initializer.getMainDataSetPattern();
         mainDataSetPath = initializer.getMainDataSetPath();
     }
@@ -122,14 +107,6 @@ public final class DataSetType extends EntityType
     public boolean isDeletionDisallowed()
     {
         return deletionDisallowed;
-    }
-
-    /**
-     * Returns the kind of data sets of this type.
-     */
-    public DataSetKind getDataSetKind()
-    {
-        return dataSetKind;
     }
 
     /**
@@ -155,7 +132,6 @@ public final class DataSetType extends EntityType
         builder.append(getCode());
         builder.append(getDescription());
         builder.append("deletionDisallowed", deletionDisallowed);
-        builder.append("dataSetKind", dataSetKind);
         builder.append("mainDataSetPattern", mainDataSetPattern);
         builder.append("mainDataSetPath", mainDataSetPath);
         builder.append(getPropertyTypeGroups());
@@ -173,11 +149,6 @@ public final class DataSetType extends EntityType
     private void setDeletionDisallowed(boolean deletionDisallowed)
     {
         this.deletionDisallowed = deletionDisallowed;
-    }
-
-    private void setDataSetKind(DataSetKind dataSetKind)
-    {
-        this.dataSetKind = dataSetKind;
     }
 
     private void setMainDataSetPattern(String mainDataSetPattern)

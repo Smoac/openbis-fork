@@ -110,11 +110,9 @@ def createDataSetTypeWithProperties(tr, datasetDefinition):
     if isItemToInstall(tr, datasetDefinition):
         datasetDefinition = datasetDefinition[1:];
         dataSetCode = datasetDefinition[0];
-        kind = datasetDefinition[1];
-        description = datasetDefinition[2];
-        properties = datasetDefinition[3];
+        description = datasetDefinition[1];
+        properties = datasetDefinition[2];
         newDataSet = tr.getOrCreateNewDataSetType(dataSetCode);
-        newDataSet.setDataSetKind(kind);
         newDataSet.setDescription(description);
         addProperties(tr, newDataSet, properties);
     
@@ -591,31 +589,31 @@ PROPERTIES_ANNOTATIONS_ORDERING = [
 ## DataSet Types
 ##
 
-ELN_PREVIEW = [MANDATORY_ITEM_VERSION, "ELN_PREVIEW", "PHYSICAL", "ELN Preview image", [
+ELN_PREVIEW = [MANDATORY_ITEM_VERSION, "ELN_PREVIEW", "ELN Preview image", [
         [MANDATORY_ITEM_VERSION, "NAME", "General", "Name", DataType.VARCHAR, None,    "Name", None, None],
         [MANDATORY_ITEM_VERSION, "NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
         [MANDATORY_ITEM_VERSION, "XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", "COMMENTS_DATA_SET", None]
         ]];
 
-SEQ_FILE = [FIRST_TIME_VERSIONED, "SEQ_FILE", "PHYSICAL", "", [
+SEQ_FILE = [FIRST_TIME_VERSIONED, "SEQ_FILE", "", [
         [FIRST_TIME_VERSIONED,"NAME", "General", "Name", DataType.VARCHAR, None,    "Name", None, None],
         [FIRST_TIME_VERSIONED,"NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
         [FIRST_TIME_VERSIONED,"XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", "COMMENTS_DATA_SET", None]
     ]];
 
-RAW_DATA = [FIRST_TIME_VERSIONED, "RAW_DATA", "PHYSICAL", "", [
+RAW_DATA = [FIRST_TIME_VERSIONED, "RAW_DATA", "", [
         [FIRST_TIME_VERSIONED,"NAME", "General", "Name", DataType.VARCHAR, None,    "Name", None, None],
         [FIRST_TIME_VERSIONED,"NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
         [FIRST_TIME_VERSIONED,"XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", "COMMENTS_DATA_SET", None]
     ]];
 
-ANALYZED_DATA = [FIRST_TIME_VERSIONED, "ANALYZED_DATA", "PHYSICAL", "", [
+ANALYZED_DATA = [FIRST_TIME_VERSIONED, "ANALYZED_DATA", "", [
         [FIRST_TIME_VERSIONED,"NAME", "General", "Name", DataType.VARCHAR, None,    "Name", None, None],
         [FIRST_TIME_VERSIONED,"NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
         [FIRST_TIME_VERSIONED,"XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", "COMMENTS_DATA_SET", None]
     ]];
 
-ATTACHMENT = [MANDATORY_ITEM_VERSION, "ATTACHMENT", "PHYSICAL", "", [
+ATTACHMENT = [MANDATORY_ITEM_VERSION, "ATTACHMENT", "", [
         [MANDATORY_ITEM_VERSION, "NAME", "General", "Name", DataType.VARCHAR, None,    "Name", None, None],
         [MANDATORY_ITEM_VERSION, "NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
         [MANDATORY_ITEM_VERSION, "XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", "COMMENTS_DATA_SET", None]

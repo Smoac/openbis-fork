@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -216,7 +217,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         return registrationDetails.getDataSetType().getCode();
     }
 
-    @Override
+	@Override
+	public DataSetKind getDataSetKind()
+	{
+		return registrationDetails.getDataSetKind();
+	}
+
+	@Override
     public DataSetType getDataSetTypeWithPropertyTypes()
     {
         String dataSetTypeCode = getDataSetType();
@@ -235,7 +242,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         registrationDetails.setDataSetType(dataSetTypeCode);
     }
 
-    protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)
+	@Override
+	public void setDataSetKind(DataSetKind dataSetKind)
+	{
+		registrationDetails.setDataSetKind(dataSetKind);
+	}
+
+	protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)
     {
         registrationDetails.getDataSetInformation().setExperiment(exp);
         ExperimentIdentifier experimentId =

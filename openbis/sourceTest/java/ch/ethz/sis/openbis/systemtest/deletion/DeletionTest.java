@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
@@ -648,6 +649,7 @@ public abstract class DeletionTest extends AbstractTest
         creation.setExperimentId(experiment);
         creation.setTypeId(new EntityTypePermId("DELETION_TEST"));
         creation.setCode(code + "-" + UUID.randomUUID().toString());
+        creation.setDataSetKind(DataSetKind.PHYSICAL);
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
 
         PhysicalDataCreation data = new PhysicalDataCreation();
@@ -670,6 +672,7 @@ public abstract class DeletionTest extends AbstractTest
         creation.setExperimentId(experiment);
         creation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER"));
         creation.setCode(code + "-" + UUID.randomUUID().toString());
+        creation.setDataSetKind(DataSetKind.CONTAINER);
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
 
         for (Map.Entry<String, String> entry : props(properties).entrySet())

@@ -23,7 +23,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
@@ -53,7 +52,6 @@ public class CreateDataSetTypeTest extends CreateEntityTypeTest<DataSetTypeCreat
     @Override
     protected void fillTypeSpecificFields(DataSetTypeCreation creation)
     {
-        creation.setKind(DataSetKind.PHYSICAL);
         creation.setMainDataSetPattern(".*\\.jpg");
         creation.setMainDataSetPath("original/images/");
         creation.setDisallowDeletion(true);
@@ -89,7 +87,6 @@ public class CreateDataSetTypeTest extends CreateEntityTypeTest<DataSetTypeCreat
     @Override
     protected void assertTypeSpecificFields(DataSetTypeCreation creation, DataSetType type)
     {
-        assertEquals(type.getKind(), creation.getKind());
         assertEquals(type.getMainDataSetPattern(), creation.getMainDataSetPattern());
         assertEquals(type.getMainDataSetPath(), creation.getMainDataSetPath());
         assertEquals(type.isDisallowDeletion(), (Boolean) creation.isDisallowDeletion());

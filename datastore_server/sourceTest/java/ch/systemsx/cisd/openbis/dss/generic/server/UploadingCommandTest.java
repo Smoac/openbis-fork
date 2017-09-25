@@ -317,8 +317,8 @@ public class UploadingCommandTest extends AssertJUnit
         externalData.setDerived(true); // measured == (derived == false)
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("D");
-        dataSetTypePE.setDataSetKind(DataSetKind.PHYSICAL.name());
         externalData.setDataSetType(dataSetTypePE);
+        externalData.setDataSetKind(DataSetKind.PHYSICAL.name());
         externalData.setExperiment(createExperiment());
         // TODO 2009-09-15, Piotr Buczek: write a test with no parents but with sample connection
         // Does it make any difference how many parents are added here?

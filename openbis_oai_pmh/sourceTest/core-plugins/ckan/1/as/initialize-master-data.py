@@ -48,7 +48,6 @@ experiment_type_PUBLICATION = tr.getOrCreateNewExperimentType('PUBLICATION')
 experiment_type_PUBLICATION.setDescription(None)
 
 dataset_type_PUBLICATION_CONTAINER = tr.getOrCreateNewDataSetType('PUBLICATION_CONTAINER')
-dataset_type_PUBLICATION_CONTAINER.setDataSetKind('CONTAINER')
 
 ''' PROPERTY TYPES '''
 

@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -184,7 +183,7 @@ public class TranslatorTest extends AssertJUnit
         ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType translatedDataSetType =
                 Translator.translate(dataSetType, vocabTerms);
 
-        assertEquals("DataSetType[CODE,<null>,deletionDisallowed=false,dataSetKind=<null>,"
+        assertEquals("DataSetType[CODE,<null>,deletionDisallowed=false,"
                 + "mainDataSetPattern=<null>,mainDataSetPath=<null>,"
                 + "[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,NAME,Name,<null>,optional]]], "
                 + "PropertyTypeGroup[A,[PropertyType[VARCHAR,CITY,City,<null>,optional]]], "
@@ -201,7 +200,7 @@ public class TranslatorTest extends AssertJUnit
     {
         DataSetTypeBuilder builder =
                 new DataSetTypeBuilder().code("CODE").description("hello").deletionDisallowed()
-                        .kind(DataSetKind.CONTAINER).mainDataSetPattern(".*")
+                        .mainDataSetPattern(".*")
                         .mainDataSetPath("/here");
         builder.propertyType(new PropertyTypeBuilder("Name").getPropertyType()).section("A");
         HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
@@ -210,7 +209,7 @@ public class TranslatorTest extends AssertJUnit
         ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType translatedDataSetType =
                 Translator.translate(builder.getDataSetType(), vocabTerms);
 
-        assertEquals("DataSetType[CODE,hello,deletionDisallowed=true,dataSetKind=CONTAINER,"
+        assertEquals("DataSetType[CODE,hello,deletionDisallowed=true,"
                 + "mainDataSetPattern=.*,mainDataSetPath=/here,"
                 + "[PropertyTypeGroup[A,[PropertyType[VARCHAR,NAME,Name,<null>,optional]]]]]",
                 translatedDataSetType.toString());

@@ -32,16 +32,6 @@ class DataSetTypeWrapper extends DataSetTypeImmutable implements IDataSetType
     }
 
     @Override
-    public void setContainerType(boolean isContainerType)
-    {
-    }
-
-    @Override
-    public void setDataSetKind(String dataSetKid)
-    {
-    }
-
-    @Override
     public void setDescription(String description)
     {
     }

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
@@ -52,7 +51,6 @@ public class CreateDataSetTypeRmi implements Command<DataSetType>
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType t =
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType();
         t.setCode(dataSetType.getCode());
-        t.setDataSetKind(DataSetKind.PHYSICAL);
         return t;
     }
 

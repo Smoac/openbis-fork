@@ -1,13 +1,12 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/dataset/DataSetKind" ], function(stjs, DataSetKind) {
+define([ "stjs" ], function(stjs) {
 	var DataSetTypeCreation = function() {
 	};
 	stjs.extend(DataSetTypeCreation, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.dataset.create.DataSetTypeCreation';
 		constructor.serialVersionUID = 1;
-		prototype.kind = DataSetKind.PHYSICAL;
 		prototype.code = null;
 		prototype.description = null;
 		prototype.mainDataSetPattern = null;
@@ -16,12 +15,6 @@ define([ "stjs", "as/dto/dataset/DataSetKind" ], function(stjs, DataSetKind) {
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
 
-		prototype.getKind = function() {
-			return this.kind;
-		};
-		prototype.setKind = function(kind) {
-			this.kind = kind;
-		};
 		prototype.getCode = function() {
 			return this.code;
 		};

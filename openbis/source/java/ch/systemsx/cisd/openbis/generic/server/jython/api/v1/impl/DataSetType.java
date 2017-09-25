@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author Kaloyan Enimanev
@@ -33,24 +32,6 @@ public class DataSetType extends DataSetTypeImmutable implements IDataSetType
     public void setDescription(String description)
     {
         getDataSetType().setDescription(description);
-    }
-
-    @Override
-    public void setContainerType(boolean isContainerType)
-    {
-        if (isContainerType)
-        {
-            getDataSetType().setDataSetKind(DataSetKind.CONTAINER);
-        } else
-        {
-            getDataSetType().setDataSetKind(DataSetKind.PHYSICAL);
-        }
-    }
-
-    @Override
-    public void setDataSetKind(String dataSetKind)
-    {
-        getDataSetType().setDataSetKind(DataSetKind.valueOf(dataSetKind));
     }
 
     @Override

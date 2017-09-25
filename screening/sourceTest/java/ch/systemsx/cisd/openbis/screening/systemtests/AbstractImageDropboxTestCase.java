@@ -103,7 +103,7 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
         List<AbstractExternalData> dataSets = getRegisteredDataSets(experimentCode);
         for (AbstractExternalData dataSet : dataSets)
         {
-            if (dataSet.getDataSetType().getDataSetKind().equals(DataSetKind.CONTAINER))
+            if (dataSet.getDataSetKind().equals(DataSetKind.CONTAINER))
             {
                 return dataSet;
             }

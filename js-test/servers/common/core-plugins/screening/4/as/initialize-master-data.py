@@ -75,27 +75,21 @@ samp_type_SIRNA_WELL.setGeneratedCodePrefix('O')
 
 data_set_type_HCS_ANALYSIS_WELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_WELL_FEATURES')
 data_set_type_HCS_ANALYSIS_WELL_FEATURES.setDescription('HCS image analysis well feature vectors.')
-data_set_type_HCS_ANALYSIS_WELL_FEATURES.setContainerType(False)
 
 data_set_type_HCS_IMAGE_OVERVIEW = tr.getOrCreateNewDataSetType('HCS_IMAGE_OVERVIEW')
 data_set_type_HCS_IMAGE_OVERVIEW.setDescription('Overview High Content Screening Images. Generated from raw images.')
-data_set_type_HCS_IMAGE_OVERVIEW.setContainerType(False)
 
 data_set_type_HCS_IMAGE_RAW = tr.getOrCreateNewDataSetType('HCS_IMAGE_RAW')
 data_set_type_HCS_IMAGE_RAW.setDescription('Raw High Content Screening Images')
-data_set_type_HCS_IMAGE_RAW.setContainerType(False)
 
 data_set_type_HCS_IMAGE_SEGMENTATION = tr.getOrCreateNewDataSetType('HCS_IMAGE_SEGMENTATION')
 data_set_type_HCS_IMAGE_SEGMENTATION.setDescription('HCS Segmentation Images (overlays).')
-data_set_type_HCS_IMAGE_SEGMENTATION.setContainerType(False)
 
 data_set_type_HCS_IMAGE_CONTAINER_RAW = tr.getOrCreateNewDataSetType('HCS_IMAGE_CONTAINER_RAW')
 data_set_type_HCS_IMAGE_CONTAINER_RAW.setDescription('Container for HCS images of different resolutions (raw, overviews, thumbnails).')
-data_set_type_HCS_IMAGE_CONTAINER_RAW.setContainerType(True)
 
 data_set_type_HCS_ANALYSIS_FEATURES_LIST = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_FEATURES_LIST')
 data_set_type_HCS_ANALYSIS_FEATURES_LIST.setDescription('The list (or group) of features. The subset of features from feature vectors.')
-data_set_type_HCS_ANALYSIS_FEATURES_LIST.setContainerType(False)
 
 material_type_COMPOUND = tr.getOrCreateNewMaterialType('COMPOUND')
 material_type_COMPOUND.setDescription('Compound')

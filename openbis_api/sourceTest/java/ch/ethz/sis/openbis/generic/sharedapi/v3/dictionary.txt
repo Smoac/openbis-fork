@@ -216,6 +216,7 @@ getCreatorPerson
 getCriteria
 getDataSetFile
 getDataSetId
+getDataSetKind
 getDataSetPermId
 getDataSets
 getDataStore
@@ -612,6 +613,7 @@ setCreationId
 setCreatorPerson
 setCriteria
 setDataSetId
+setDataSetKind
 setDataSetPermId
 setDataSets
 setDataStore

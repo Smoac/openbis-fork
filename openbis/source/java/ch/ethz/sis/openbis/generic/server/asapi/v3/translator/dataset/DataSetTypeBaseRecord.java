@@ -28,8 +28,6 @@ public class DataSetTypeBaseRecord extends ObjectBaseRecord
 
     public String code;
 
-    public String kind;
-
     public String description;
     
     public String mainDataSetPattern;

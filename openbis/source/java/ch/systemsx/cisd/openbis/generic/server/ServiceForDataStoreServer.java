@@ -35,6 +35,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
@@ -2528,6 +2529,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
             DataSetCreation creation = new DataSetCreation();
             creation.setCode(newData.getCode());
+            creation.setDataSetKind(map(newData.getDataSetKind()));
             creation.setMeasured(newData.isMeasured());
             creation.setDataProducer(newData.getDataProducerCode());
             creation.setDataProductionDate(newData.getProductionDate());
@@ -2665,7 +2667,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
-    private void injectSampleId(DataSetCreation creation, NewExternalData newData)
+    private DataSetKind map(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind dataSetKind)
+	{
+    	if (dataSetKind != null) {
+    		return DataSetKind.valueOf(dataSetKind.name());
+    	}
+		return null;
+	}
+
+	private void injectSampleId(DataSetCreation creation, NewExternalData newData)
     {
         SampleIdentifier sampleIdentifier = newData.getSampleIdentifierOrNull();
         String permId = newData.getSamplePermIdOrNull();

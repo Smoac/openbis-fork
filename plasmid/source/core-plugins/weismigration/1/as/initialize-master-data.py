@@ -75,9 +75,8 @@ def createSampleTypeWithProperties(sampleTypeCode, description, properties):
     addProperties(newSampleType, properties);
     samplesCache[sampleTypeCode] = newSampleType;
     
-def createDataSetTypeWithProperties(dataSetCode, kind, description, properties):
+def createDataSetTypeWithProperties(dataSetCode, description, properties):
     newDataSet = tr.getOrCreateNewDataSetType(dataSetCode);
-    newDataSet.setDataSetKind(kind);
     newDataSet.setDescription(description);
     addProperties(newDataSet, properties);
     
@@ -266,25 +265,25 @@ for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.ite
 ##
 ## DataSet Types
 ##
-createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", definitions.DefaultDatasetDefinition);
-createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "",definitions.DefaultDatasetDefinition);
-createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "",definitions.DefaultDatasetDefinition);
-createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "",  definitions.DefaultDatasetDefinition);  
+createDataSetTypeWithProperties("ELN_PREVIEW", "ELN Preview image", definitions.DefaultDatasetDefinition);
+createDataSetTypeWithProperties("SEQ_FILE", "",definitions.DefaultDatasetDefinition);
+createDataSetTypeWithProperties("RAW_DATA", "",definitions.DefaultDatasetDefinition);
+createDataSetTypeWithProperties("ANALYZED_DATA", "",  definitions.DefaultDatasetDefinition);  
     #===============================================================================================
-    # createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
+    # createDataSetTypeWithProperties("SEQ_FILE", "", [
     #     ["NAME", "General", "Name", DataType.MULTILINE_VARCHAR, None,    "Name", None, None,False],
     #     ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None,False],
     #     ["XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", commentsScriptName, None,False]
     #     
     # ]);
     # 
-    # createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
+    # createDataSetTypeWithProperties("RAW_DATA", "", [
     #     ["NAME", "General", "Name", DataType.MULTILINE_VARCHAR, None,    "Name", None, None,False],
     #     ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None,False],
     #     ["XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", commentsScriptName, None,False]
     # ]);
     # 
-    # createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "", [
+    # createDataSetTypeWithProperties("ANALYZED_DATA", "", [
     #     ["NAME", "General", "Name", DataType.MULTILINE_VARCHAR, None,    "Name", None, None,False],
     #     ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None,False],
     #     ["XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", commentsScriptName, None,False]

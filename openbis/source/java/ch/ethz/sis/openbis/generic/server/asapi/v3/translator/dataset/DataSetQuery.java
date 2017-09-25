@@ -47,7 +47,7 @@ public interface DataSetQuery extends ObjectQuery
             + "where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetAuthorizationRecord> getAuthorizations(LongSet dataSetIds);
 
-    @Select(sql = "select d.id, d.code, d.is_derived as isDerived, d.data_producer_code as dataProducer, d.production_timestamp as dataProductionDate, d.access_timestamp as accessDate, d.modification_timestamp as modificationDate, d.registration_timestamp as registrationDate "
+    @Select(sql = "select d.id, d.code, d.is_derived as isDerived, d.data_producer_code as dataProducer, d.production_timestamp as dataProductionDate, d.access_timestamp as accessDate, d.modification_timestamp as modificationDate, d.registration_timestamp as registrationDate, d.data_set_kind as dataSetKind "
             + "from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetBaseRecord> getDataSets(LongSet dataSetIds);
 
@@ -95,7 +95,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet dataSetIds);
 
-    @Select(sql = "select dt.id, dt.code, dt.data_set_kind as kind, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
+    @Select(sql = "select dt.id, dt.code, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
             + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
                     LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetTypeBaseRecord> getTypes(LongSet dataSetTypeIds);

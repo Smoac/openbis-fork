@@ -1116,12 +1116,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         for (DatasetRecord record : records)
         {
             ids.add(record.id);
-            DataSetType dsType = dataSetTypes.get(record.dsty_id);
             AbstractExternalData dataSetOrNull = null;
-            if (dsType.getDataSetKind() == DataSetKind.CONTAINER)
+            if (record.data_set_kind.equals(DataSetKind.CONTAINER.name()))
             {
                 dataSetOrNull = convertToContainerDataSet(record);
-            } else if (dsType.getDataSetKind() == DataSetKind.LINK)
+            } else if (record.data_set_kind.equals(DataSetKind.LINK.name()))
             {
                 dataSetOrNull = convertToLinkDataSet(record);
             } else if (record.location != null)
@@ -1342,7 +1341,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         DataSetType result = new DataSetType();
         setCode(result, record);
-        result.setDataSetKind(DataSetKind.valueOf(record.data_set_kind));
         return result;
     }
 

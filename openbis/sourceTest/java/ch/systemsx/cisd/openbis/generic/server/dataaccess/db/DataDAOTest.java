@@ -198,6 +198,7 @@ public final class DataDAOTest extends AbstractDAOTest
 
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
+        externalData.setDataSetKind("PHYSICAL");
         externalData.setExperiment(pickAnExperiment());
         if (sampleOrNull != null)
         {
@@ -223,6 +224,7 @@ public final class DataDAOTest extends AbstractDAOTest
 
         data.setCode(dataSetCode);
         data.setDataSetType(getDataSetType(LINK_DATA_SET_TYPE_CODE));
+        data.setDataSetKind("LINK");
         data.setExperiment(pickAnExperiment());
         data.setSampleAcquiredFrom(sample);
         data.setDataStore(pickADataStore());

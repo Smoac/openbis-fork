@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -284,6 +285,7 @@ class PutDataSetTopLevelDataSetHandler
         {
             dataSetInfo.setDataSetType(new DataSetType(typeCode));
         }
+        dataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
 
         Map<String, String> primitiveProps = newDataSet.getProperties();
         if (false == primitiveProps.isEmpty())

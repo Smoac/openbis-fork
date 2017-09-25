@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegi
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors.TransactionError;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -148,7 +147,6 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         assertEquals(1, dataSetTypeMatcher.getRecordedObjects().size());
         DataSetType dataSetType = dataSetTypeMatcher.recordedObject();
         assertEquals("DATA-SET-TYPE", dataSetType.getCode());
-        assertEquals(DataSetKind.CONTAINER, dataSetType.getDataSetKind());
         assertEquals("Data set type description.", dataSetType.getDescription());
 
         assertEquals(1, materialTypeMatcher.getRecordedObjects().size());

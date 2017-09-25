@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SpeedUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -58,6 +59,8 @@ public class DataSetInformation implements Serializable
     private IEntityProperty[] sampleProperties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
+
+    private DataSetKind dataSetKind;
 
     private int speedHint = ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT;
 
@@ -189,7 +192,17 @@ public class DataSetInformation implements Serializable
         this.dataSetType = dataSetType;
     }
 
-    public final String getInstanceUUID()
+    public DataSetKind getDataSetKind()
+	{
+		return dataSetKind;
+	}
+
+	public void setDataSetKind(DataSetKind dataSetKind)
+	{
+		this.dataSetKind = dataSetKind;
+	}
+
+	public final String getInstanceUUID()
     {
         return instanceUUID;
     }
@@ -473,7 +486,13 @@ public class DataSetInformation implements Serializable
         {
             appendNameAndObject(buffer, "Data Set Type", "null");
         }
-        appendNameAndObject(buffer, "Experiment Identifier", getExperimentIdentifier());
+        if (null != getDataSetKind())
+        {
+            appendNameAndObject(buffer, "Data Set Kind", getDataSetKind().name());
+        } else
+        {
+            appendNameAndObject(buffer, "Data Set Kind", "null");
+        }        appendNameAndObject(buffer, "Experiment Identifier", getExperimentIdentifier());
         appendNameAndObject(buffer, "Sample Identifier", getSampleIdentifier());
         if (StringUtils.isBlank(getProducerCode()) == false)
         {

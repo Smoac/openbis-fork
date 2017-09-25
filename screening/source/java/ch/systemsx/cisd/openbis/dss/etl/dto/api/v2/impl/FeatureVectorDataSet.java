@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -200,6 +201,12 @@ public class FeatureVectorDataSet extends DataSet<FeatureVectorDataSetInformatio
     public void setDataSetType(String dataSetTypeCode)
     {
         dataSet.setDataSetType(dataSetTypeCode);
+    }
+
+    @Override
+    public void setDataSetKind(DataSetKind dataSetKind)
+    {
+        dataSet.setDataSetKind(dataSetKind);
     }
 
     @Override

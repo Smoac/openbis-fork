@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author Kaloyan Enimanev
@@ -55,25 +54,6 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
     public String getDescription()
     {
         return getDataSetType().getDescription();
-    }
-
-    @Override
-    public boolean isContainerType()
-    {
-        return DataSetKind.CONTAINER == getDataSetType().getDataSetKind();
-    }
-
-    @Override
-    public boolean isLinkType()
-    {
-        return DataSetKind.LINK == getDataSetType().getDataSetKind();
-    }
-
-    @Override
-    public String getDataSetKind()
-    {
-        DataSetKind kind = getDataSetType().getDataSetKind();
-        return kind == null ? null : kind.name();
     }
 
     @Override

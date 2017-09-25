@@ -2315,67 +2315,51 @@ samp_type_ILLUMINA_SEQUENCING.setGeneratedCodePrefix('BSSE-QGF-')
 
 data_set_type_ALIGNMENT = tr.createNewDataSetType('ALIGNMENT')
 data_set_type_ALIGNMENT.setDescription('Aligner ouput, ideally bam/sam')
-data_set_type_ALIGNMENT.setContainerType(False)
 
 data_set_type_BASECALL_STATS = tr.createNewDataSetType('BASECALL_STATS')
 data_set_type_BASECALL_STATS.setDescription('Base Call Statistics')
-data_set_type_BASECALL_STATS.setContainerType(False)
 
 data_set_type_BIGWIGGLE = tr.createNewDataSetType('BIGWIGGLE')
 data_set_type_BIGWIGGLE.setDescription('visualization')
-data_set_type_BIGWIGGLE.setContainerType(False)
 
 data_set_type_ELAND_ALIGNMENT = tr.createNewDataSetType('ELAND_ALIGNMENT')
 data_set_type_ELAND_ALIGNMENT.setDescription('Illumina Eland Alignment Output')
-data_set_type_ELAND_ALIGNMENT.setContainerType(False)
 
 data_set_type_FASTQ_GZ = tr.createNewDataSetType('FASTQ_GZ')
 data_set_type_FASTQ_GZ.setDescription('Gzipped Fastq file produced by Casava 1.8+')
-data_set_type_FASTQ_GZ.setContainerType(False)
 
 data_set_type_ILLUMINA_GA_OUTPUT = tr.createNewDataSetType('ILLUMINA_GA_OUTPUT')
 data_set_type_ILLUMINA_GA_OUTPUT.setDescription('The directory structure as produced by the Illumina GA Pipeline (whatever Illumina spits out)')
-data_set_type_ILLUMINA_GA_OUTPUT.setContainerType(False)
 
 data_set_type_ILLUMINA_HISEQ_OUTPUT = tr.createNewDataSetType('ILLUMINA_HISEQ_OUTPUT')
 data_set_type_ILLUMINA_HISEQ_OUTPUT.setDescription('HiSeq2000 Output')
-data_set_type_ILLUMINA_HISEQ_OUTPUT.setContainerType(False)
 
 data_set_type_MACS_OUTPUT = tr.createNewDataSetType('MACS_OUTPUT')
 data_set_type_MACS_OUTPUT.setDescription('MACS Peak Caller output')
-data_set_type_MACS_OUTPUT.setContainerType(False)
 
 data_set_type_QUALITY_JPGS = tr.createNewDataSetType('QUALITY_JPGS')
 data_set_type_QUALITY_JPGS.setDescription('R generated Quality plots')
-data_set_type_QUALITY_JPGS.setContainerType(False)
 
 data_set_type_QUALITY_PDFS = tr.createNewDataSetType('QUALITY_PDFS')
 data_set_type_QUALITY_PDFS.setDescription('R generated pdfs showing quality data')
-data_set_type_QUALITY_PDFS.setContainerType(False)
 
 data_set_type_QUALITY_SVG = tr.createNewDataSetType('QUALITY_SVG')
 data_set_type_QUALITY_SVG.setDescription('R generated Quality plots')
-data_set_type_QUALITY_SVG.setContainerType(False)
 
 data_set_type_RUNINFO = tr.createNewDataSetType('RUNINFO')
 data_set_type_RUNINFO.setDescription('Run statstics: Status.html and Status_Files folder')
-data_set_type_RUNINFO.setContainerType(False)
 
 data_set_type_SRF_PER_LANE = tr.createNewDataSetType('SRF_PER_LANE')
 data_set_type_SRF_PER_LANE.setDescription('Short Read Format file (SRF) plus meta data file (TSV)')
-data_set_type_SRF_PER_LANE.setContainerType(False)
 
 data_set_type_THUMBNAILS = tr.createNewDataSetType('THUMBNAILS')
 data_set_type_THUMBNAILS.setDescription('Thumbnails provided by the Illumina software')
-data_set_type_THUMBNAILS.setContainerType(False)
 
 data_set_type_TSV = tr.createNewDataSetType('TSV')
 data_set_type_TSV.setDescription('Tab separated files')
-data_set_type_TSV.setContainerType(False)
 
 data_set_type_UNKNOWN = tr.createNewDataSetType('UNKNOWN')
 data_set_type_UNKNOWN.setDescription('Unknown')
-data_set_type_UNKNOWN.setContainerType(False)
 
 prop_type_AFFILIATION = tr.createNewPropertyType('AFFILIATION', DataType.CONTROLLEDVOCABULARY)
 prop_type_AFFILIATION.setLabel('Affiliation')

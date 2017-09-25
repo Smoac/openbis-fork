@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -53,12 +52,6 @@ public class DataSetTypeBuilder extends AbstractEntityTypeBuilder<DataSetType>
     public DataSetTypeBuilder description(String description)
     {
         dataSetType.setDescription(description);
-        return this;
-    }
-
-    public DataSetTypeBuilder kind(DataSetKind dataSetKind)
-    {
-        dataSetType.setDataSetKind(dataSetKind);
         return this;
     }
 

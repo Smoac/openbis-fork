@@ -62,9 +62,8 @@ def createSampleTypeWithProperties(sampleTypeCode, description, properties):
     addProperties(newSampleType, properties);
     samplesCache[sampleTypeCode] = newSampleType;
     
-def createDataSetTypeWithProperties(dataSetCode, kind, description, properties):
+def createDataSetTypeWithProperties(dataSetCode, description, properties):
     newDataSet = tr.getOrCreateNewDataSetType(dataSetCode);
-    newDataSet.setDataSetKind(kind);
     newDataSet.setDescription(description);
     addProperties(newDataSet, properties);
     
@@ -229,4 +228,4 @@ createSampleTypeWithProperties("SIRNA", "", definitions.siRNADefinition);
 ##
 ## Data set Types
 ##
-createDataSetTypeWithProperties("DOCUMENT", "PHYSICAL", "", definitions.documentDefinition);
+createDataSetTypeWithProperties("DOCUMENT", "", definitions.documentDefinition);

@@ -286,15 +286,13 @@ public class ResourceListParser
         if (dsKind.equals(DataSetKind.CONTAINER.toString()))
         {
             ds = new NewContainerDataSet();
+            ds.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.CONTAINER);
         }
         else if (dsKind.equals(DataSetKind.PHYSICAL.toString()))
         {
             ds = new NewExternalData();
+            ds.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.PHYSICAL);
         }
-        // else if (dsKind.equals(DataSetKind.LINK.toString())) {
-        // ds = new NewLinkDataSet();
-        // ((NewLinkDataSet)ds).
-        // }
         else
         {
             throw new IllegalArgumentException(dsKind + " data sets are currently not supported");

@@ -33,8 +33,6 @@ public class DataSetType extends EntityType
 
     private String mainDataSetPath;
 
-    private DataSetKind dataSetKind;
-
     private boolean deletionDisallow;
 
     public void setMainDataSetPattern(String mainDataSetPattern)
@@ -75,16 +73,6 @@ public class DataSetType extends EntityType
     public String getMainDataSetPattern()
     {
         return mainDataSetPattern;
-    }
-
-    public DataSetKind getDataSetKind()
-    {
-        return dataSetKind;
-    }
-
-    public void setDataSetKind(DataSetKind dataSetKind)
-    {
-        this.dataSetKind = dataSetKind;
     }
 
     public boolean isDeletionDisallow()

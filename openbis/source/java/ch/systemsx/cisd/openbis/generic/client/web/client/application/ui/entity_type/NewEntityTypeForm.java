@@ -30,9 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetKindModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
@@ -359,11 +357,9 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                 break;
             case DATA_SET:
                 DataSetType datasetToEdit = (DataSetType) entityToEdit;
-                ((DataSetKindSelectionWidget) formFields.get(3)).setValue(new DataSetKindModel(datasetToEdit.getDataSetKind()));
-                ((DataSetKindSelectionWidget) formFields.get(3)).setEnabled(false);
-                ((CheckBoxField) formFields.get(4)).setValue(datasetToEdit.isDeletionDisallow());
-                FieldUtil.setValueWithUnescaping(((TextField<String>) formFields.get(5)), datasetToEdit.getMainDataSetPattern());
-                FieldUtil.setValueWithUnescaping(((TextField<String>) formFields.get(6)), datasetToEdit.getMainDataSetPath());
+                ((CheckBoxField) formFields.get(3)).setValue(datasetToEdit.isDeletionDisallow());
+                FieldUtil.setValueWithUnescaping(((TextField<String>) formFields.get(4)), datasetToEdit.getMainDataSetPattern());
+                FieldUtil.setValueWithUnescaping(((TextField<String>) formFields.get(5)), datasetToEdit.getMainDataSetPath());
                 break;
         }
 
@@ -471,10 +467,9 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                     script.setName((String) formFields.get(2).getValue());
                     toSaveDataSet.setValidationScript(script);
                 }
-                toSaveDataSet.setDataSetKind(((DataSetKindSelectionWidget) formFields.get(3)).getValue().getBaseObject());
-                toSaveDataSet.setDeletionDisallow((Boolean) formFields.get(4).getValue());
-                toSaveDataSet.setMainDataSetPattern((String) formFields.get(5).getValue());
-                toSaveDataSet.setMainDataSetPath((String) formFields.get(6).getValue());
+                toSaveDataSet.setDeletionDisallow((Boolean) formFields.get(3).getValue());
+                toSaveDataSet.setMainDataSetPattern((String) formFields.get(4).getValue());
+                toSaveDataSet.setMainDataSetPath((String) formFields.get(5).getValue());
                 newTypeWithAssigments.setEntity(toSaveDataSet);
                 break;
             case EXPERIMENT:

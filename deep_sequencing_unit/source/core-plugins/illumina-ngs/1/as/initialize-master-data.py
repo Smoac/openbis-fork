@@ -2189,59 +2189,45 @@ samp_type_RAW.setGeneratedCodePrefix('QGF-RAW-')
 
 data_set_type_ALIGNMENT = tr.getOrCreateNewDataSetType('ALIGNMENT')
 data_set_type_ALIGNMENT.setDescription('Aligner ouput, ideally bam/sam')
-data_set_type_ALIGNMENT.setContainerType(False)
 
 data_set_type_BASECALL_STATS = tr.getOrCreateNewDataSetType('BASECALL_STATS')
 data_set_type_BASECALL_STATS.setDescription('Base Call Statistics from the Illumina Pipeline (configureBclToFastq.pl)')
-data_set_type_BASECALL_STATS.setContainerType(False)
 
 data_set_type_BIGWIGGLE = tr.getOrCreateNewDataSetType('BIGWIGGLE')
 data_set_type_BIGWIGGLE.setDescription('Visualization')
-data_set_type_BIGWIGGLE.setContainerType(False)
 
 data_set_type_ELAND_ALIGNMENT = tr.getOrCreateNewDataSetType('ELAND_ALIGNMENT')
 data_set_type_ELAND_ALIGNMENT.setDescription('Illumina Eland Alignment Output')
-data_set_type_ELAND_ALIGNMENT.setContainerType(False)
 
 data_set_type_FASTQ_GZ = tr.getOrCreateNewDataSetType('FASTQ_GZ')
 data_set_type_FASTQ_GZ.setDescription('Gzipped Fastq file produced by Casava 1.8+')
-data_set_type_FASTQ_GZ.setContainerType(False)
 
 data_set_type_ILLUMINA_GA_OUTPUT = tr.getOrCreateNewDataSetType('ILLUMINA_GA_OUTPUT')
 data_set_type_ILLUMINA_GA_OUTPUT.setDescription('The directory structure as produced by the Illumina GA Pipeline (whatever Illumina spits out)\ ')
-data_set_type_ILLUMINA_GA_OUTPUT.setContainerType(False)
 
 data_set_type_ILLUMINA_HISEQ_OUTPUT = tr.getOrCreateNewDataSetType('ILLUMINA_HISEQ_OUTPUT')
 data_set_type_ILLUMINA_HISEQ_OUTPUT.setDescription('HiSeq2000 Output')
-data_set_type_ILLUMINA_HISEQ_OUTPUT.setContainerType(False)
 
 data_set_type_MACS_OUTPUT = tr.getOrCreateNewDataSetType('MACS_OUTPUT')
 data_set_type_MACS_OUTPUT.setDescription('MACS Peak Caller output')
-data_set_type_MACS_OUTPUT.setContainerType(False)
 
 data_set_type_QUALITY_JPGS = tr.getOrCreateNewDataSetType('QUALITY_JPGS')
 data_set_type_QUALITY_JPGS.setDescription('R generated Quality plots')
-data_set_type_QUALITY_JPGS.setContainerType(False)
 
 data_set_type_QUALITY_PDFS = tr.getOrCreateNewDataSetType('QUALITY_PDFS')
 data_set_type_QUALITY_PDFS.setDescription('R generated pdfs showing quality data')
-data_set_type_QUALITY_PDFS.setContainerType(False)
 
 data_set_type_QUALITY_SVG = tr.getOrCreateNewDataSetType('QUALITY_SVG')
 data_set_type_QUALITY_SVG.setDescription('R generated Quality plots')
-data_set_type_QUALITY_SVG.setContainerType(False)
 
 data_set_type_RUNINFO = tr.getOrCreateNewDataSetType('RUNINFO')
 data_set_type_RUNINFO.setDescription('Run statstics: Status.html and Status_Files folder')
-data_set_type_RUNINFO.setContainerType(False)
 
 data_set_type_THUMBNAILS = tr.getOrCreateNewDataSetType('THUMBNAILS')
 data_set_type_THUMBNAILS.setDescription('Thumbnails provided by the Illumina software')
-data_set_type_THUMBNAILS.setContainerType(False)
 
 data_set_type_TSV = tr.getOrCreateNewDataSetType('TSV')
 data_set_type_TSV.setDescription('Tab separated files')
-data_set_type_TSV.setContainerType(False)
 
 prop_type_AGILENT_KIT = tr.getOrCreateNewPropertyType('AGILENT_KIT', DataType.CONTROLLEDVOCABULARY)
 prop_type_AGILENT_KIT.setLabel('Agilent Kit')

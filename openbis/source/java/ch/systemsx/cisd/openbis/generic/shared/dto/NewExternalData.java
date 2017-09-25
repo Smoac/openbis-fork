@@ -27,6 +27,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -63,6 +64,8 @@ public class NewExternalData implements Serializable
     private FileFormatType fileFormatType;
 
     private DataSetType dataSetType;
+
+    private DataSetKind dataSetKind;
 
     private LocatorType locatorType;
 
@@ -114,19 +117,27 @@ public class NewExternalData implements Serializable
         this.samplePermIdOrNull = samplePermId;
     }
 
-    /** Returns <code>dataSetType</code>. */
     public final DataSetType getDataSetType()
     {
         return dataSetType;
     }
 
-    /** Sets <code>dataSetType</code>. */
     public final void setDataSetType(final DataSetType dataSetType)
     {
         this.dataSetType = dataSetType;
     }
 
-    public String getShareId()
+    public DataSetKind getDataSetKind()
+	{
+		return dataSetKind;
+	}
+
+	public void setDataSetKind(DataSetKind dataSetKind)
+	{
+		this.dataSetKind = dataSetKind;
+	}
+
+	public String getShareId()
     {
         return shareId;
     }
@@ -404,6 +415,7 @@ public class NewExternalData implements Serializable
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append("code", getCode());
         builder.append("type", getDataSetType());
+        builder.append("kind", getDataSetKind());
         builder.append("fileFormat", getFileFormatType());
         builder.append("properties", getDataSetProperties());
         return builder.toString();

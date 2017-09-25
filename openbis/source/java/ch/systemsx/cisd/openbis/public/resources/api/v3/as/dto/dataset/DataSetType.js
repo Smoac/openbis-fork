@@ -10,7 +10,6 @@ define([ "stjs" ], function(stjs) {
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
 		prototype.permId = null;
-		prototype.kind = null;
 		prototype.code = null;
 		prototype.description = null;
 		prototype.mainDataSetPattern = null;
@@ -39,12 +38,6 @@ define([ "stjs" ], function(stjs) {
 		};
 		prototype.setPermId = function(permId) {
 			this.permId = permId;
-		};
-		prototype.getKind = function() {
-			return this.kind;
-		};
-		prototype.setKind = function(kind) {
-			this.kind = kind;
 		};
 		prototype.getCode = function() {
 			return this.code;
@@ -88,7 +81,6 @@ define([ "stjs" ], function(stjs) {
 	}, {
 		fetchOptions : "DataSetTypeFetchOptions",
 		permId : "EntityTypePermId",
-		kind : "DataSetKind",
 		modificationDate : "Date"
 	});
 	return DataSetType;

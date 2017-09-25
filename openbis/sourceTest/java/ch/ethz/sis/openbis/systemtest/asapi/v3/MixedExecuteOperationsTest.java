@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete.DeleteObjectsWithTrashOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
@@ -148,6 +149,7 @@ public class MixedExecuteOperationsTest extends AbstractOperationExecutionTest
         dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
         dataSetCreation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
         dataSetCreation.setCode("DS-" + time);
+        dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
         dataSetCreation.setSampleId(sampleId);
         DataSetPermId dataSetPermId = new DataSetPermId(dataSetCreation.getCode());
         operations.add(new CreateDataSetsOperation(dataSetCreation));

@@ -39,7 +39,6 @@ public class DataSetTypeTest extends AssertJUnit
     {
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();
         initializer.setCode(DATA_SET_TYPE_CODE);
-        initializer.setDataSetKind(DataSetKind.PHYSICAL);
         initializer.setDescription("hello");
         initializer.setValidationPluginInfo(new ValidationPluginInfo("test", "validation test"));
         initializer.setMainDataSetPattern(".*");
@@ -118,7 +117,7 @@ public class DataSetTypeTest extends AssertJUnit
     {
         String stringRepresentation = dataSetType.toString();
         assertEquals(
-                "DataSetType[dataSet-type,hello,deletionDisallowed=false,dataSetKind=PHYSICAL,"
+                "DataSetType[dataSet-type,hello,deletionDisallowed=false,"
                         + "mainDataSetPattern=.*,mainDataSetPath=/a/b/c,"
                         + "[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,PROP1,Property 1,<null>,optional],"
                         + " PropertyType[VARCHAR,PROP2,Property 2,Property 2 Description,optional]]]]]",

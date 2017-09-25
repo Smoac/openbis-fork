@@ -117,7 +117,6 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
 
         DataSetTypePE dataSetType = new DataSetTypePE();
         dataSetType.setCode("AUTH-DATASET-TYPE");
-        dataSetType.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.PHYSICAL.name());
         getCommonService().createType(dataSetType, EntityKind.DATA_SET);
 
         DataStorePE dataStore = getCommonService().tryFindDataStore();

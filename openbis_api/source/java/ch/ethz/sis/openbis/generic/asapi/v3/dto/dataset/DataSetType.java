@@ -21,7 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -46,9 +45,6 @@ public class DataSetType implements Serializable, ICodeHolder, IDescriptionHolde
 
     @JsonProperty
     private EntityTypePermId permId;
-
-    @JsonProperty
-    private DataSetKind kind;
 
     @JsonProperty
     private String code;
@@ -96,19 +92,6 @@ public class DataSetType implements Serializable, ICodeHolder, IDescriptionHolde
     public void setPermId(EntityTypePermId permId)
     {
         this.permId = permId;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    public DataSetKind getKind()
-    {
-        return kind;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public void setKind(DataSetKind kind)
-    {
-        this.kind = kind;
     }
 
     // Method automatically generated with DtoGenerator

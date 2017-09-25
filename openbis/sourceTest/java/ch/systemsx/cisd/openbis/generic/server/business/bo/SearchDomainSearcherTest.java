@@ -348,8 +348,8 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         data.setExperiment(experiment);
         DataSetTypePE type = new DataSetTypePE();
         type.setCode("UNKNOWN");
-        type.setDataSetKind(DataSetKind.PHYSICAL.name());
         data.setDataSetType(type);
+        data.setDataSetKind(DataSetKind.PHYSICAL.name());
         FileFormatTypePE fileFormatType = new FileFormatTypePE();
         fileFormatType.setCode("fileFormat");
         data.setFileFormatType(fileFormatType);

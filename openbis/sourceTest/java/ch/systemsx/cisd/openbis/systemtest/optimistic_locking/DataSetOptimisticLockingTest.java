@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -133,6 +134,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setDataSetType(new DataSetType("HCS_IMAGE"));
+        newDataSet.setDataSetKind(DataSetKind.PHYSICAL);
         newDataSet.setDataSetProperties(Arrays.asList(new NewProperty("COMMENT", "1")));
         AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
@@ -162,6 +164,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setDataSetType(new DataSetType("HCS_IMAGE"));
+        newDataSet.setDataSetKind(DataSetKind.PHYSICAL);
         newDataSet.setDataSetProperties(Arrays.asList(new NewProperty("COMMENT", "1")));
         AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         DataSetUpdatesDTO dataSetUpdates =
@@ -183,6 +186,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setDataSetType(new DataSetType("HCS_IMAGE"));
+        newDataSet.setDataSetKind(DataSetKind.PHYSICAL);
         newDataSet.setDataSetProperties(Arrays.asList(new NewProperty("COMMENT", "1")));
         AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();

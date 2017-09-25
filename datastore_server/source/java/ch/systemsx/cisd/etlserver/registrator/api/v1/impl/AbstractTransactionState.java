@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -235,9 +236,19 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return createNewDataSet(registrationDetailsFactory, dataSetType, null);
         }
 
+        public IDataSet createNewDataSet(String dataSetType, DataSetKind dataSetKindOrNull)
+        {
+            return createNewDataSet(registrationDetailsFactory, dataSetType, null, dataSetKindOrNull);
+        }
+
         public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
         {
             return createNewDataSet(registrationDetailsFactory, dataSetType, dataSetCode);
+        }
+
+        public IDataSet createNewDataSet(String dataSetType, String dataSetCode, DataSetKind dataSetKindOrNull)
+        {
+            return createNewDataSet(registrationDetailsFactory, dataSetType, dataSetCode, dataSetKindOrNull);
         }
 
         public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
@@ -251,18 +262,24 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 String specifiedCodeOrNull)
         {
             return createNewDataSet(registrationDetailsFactory, registrationDetails, null,
-                    specifiedCodeOrNull);
+                    specifiedCodeOrNull, null);
         }
 
         public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<T> factory,
                 String dataSetTypeOrNull, String dataSetCodeOrNull)
         {
-            return createNewDataSet(factory, null, dataSetTypeOrNull, dataSetCodeOrNull);
+            return createNewDataSet(factory, null, dataSetTypeOrNull, dataSetCodeOrNull, null);
+        }
+
+        public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<T> factory,
+                String dataSetTypeOrNull, String dataSetCodeOrNull, DataSetKind dataSetKindOrNull)
+        {
+            return createNewDataSet(factory, null, dataSetTypeOrNull, dataSetCodeOrNull, dataSetKindOrNull);
         }
 
         private IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<T> factory,
                 DataSetRegistrationDetails<T> registrationDetailsOrNull, String dataSetTypeOrNull,
-                String specifiedCodeOrNull)
+                String specifiedCodeOrNull, DataSetKind dataSetKindOrNull)
         {
             DataSetRegistrationDetails<T> registrationDetails = registrationDetailsOrNull;
             if (null == registrationDetails)
@@ -273,6 +290,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             if (null != dataSetTypeOrNull)
             {
                 registrationDetails.setDataSetType(dataSetTypeOrNull);
+            }
+            if (null != dataSetKindOrNull)
+            {
+            	registrationDetails.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.valueOf(dataSetKindOrNull.name()));
             }
             final String dataSetCode;
             if (null == specifiedCodeOrNull)

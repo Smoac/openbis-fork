@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCode
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -173,6 +174,12 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     {
         return dataSet.getDataSetType().getCode();
     }
+
+	@Override
+	public DataSetKind getDataSetKind()
+	{
+		return dataSet.getDataSetKind();
+	}
 
     @Override
     public DataSetType getDataSetTypeWithPropertyTypes()

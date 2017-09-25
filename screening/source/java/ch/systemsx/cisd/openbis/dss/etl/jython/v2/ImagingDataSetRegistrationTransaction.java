@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -173,6 +174,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         IDataSet dataSet = createNewDataSet();
 
         dataSet.setDataSetType(ScreeningConstants.ANALYSIS_FEATURE_LIST);
+        dataSet.setDataSetKind(DataSetKind.PHYSICAL);
 
         IDataSetUpdatable container = config.getContainerDataSet();
 
@@ -387,7 +389,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, thumbnailDatasets, imageCache);
         if (images.size() > 0)
         {
-            IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());
+            IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode(), DataSetKind.PHYSICAL);
             for (int i = 0; i < images.size(); i++)
             {
                 BufferedImage imageData = images.get(i);
@@ -641,7 +643,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             ThumbnailsStorageFormat thumbnailsStorageFormat)
     {
         String thumbnailsDatasetTypeCode = findThumbnailsDatasetTypeCode(imageDataSetInformation);
-        IDataSet thumbnailDataset = createNewDataSet(thumbnailsDatasetTypeCode);
+        IDataSet thumbnailDataset = createNewDataSet(thumbnailsDatasetTypeCode, "PHYSICAL");
         thumbnailDataset.setFileFormatType(thumbnailsStorageFormat.getFileFormat()
                 .getOpenBISFileType());
         thumbnailDataset.setMeasuredData(false);

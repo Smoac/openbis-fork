@@ -23,17 +23,6 @@ public interface IDataSetType extends IDataSetTypeImmutable, IEntityTypeMutable
 {
 
     /**
-     * @deprecated use {@link #setDataSetKind(String)} instead Set to <code>true</code> if the type is a container type.
-     */
-    @Deprecated
-    public void setContainerType(boolean isContainerType);
-
-    /**
-     * Sets the data set kind (PHYSICAL, CONTAINER or LINK)
-     */
-    public void setDataSetKind(String kind);
-
-    /**
      * Set the description for this data set type.
      */
     public void setDescription(String description);

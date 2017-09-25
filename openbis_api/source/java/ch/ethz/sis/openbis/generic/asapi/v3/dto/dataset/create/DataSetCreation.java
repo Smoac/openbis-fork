@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.IDataStoreId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -51,6 +52,8 @@ public class DataSetCreation implements ICreation, ICreationIdHolder, IObjectCre
     private IDataStoreId dataStoreId;
 
     private String code;
+
+    private DataSetKind dataSetKind;
 
     private boolean measured;
 
@@ -128,7 +131,17 @@ public class DataSetCreation implements ICreation, ICreationIdHolder, IObjectCre
         this.code = code;
     }
 
-    public boolean isMeasured()
+    public DataSetKind getDataSetKind()
+	{
+		return dataSetKind;
+	}
+
+	public void setDataSetKind(DataSetKind dataSetKind)
+	{
+		this.dataSetKind = dataSetKind;
+	}
+
+	public boolean isMeasured()
     {
         return measured;
     }

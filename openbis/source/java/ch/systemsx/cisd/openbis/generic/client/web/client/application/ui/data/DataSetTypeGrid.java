@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddEntityTypeDialog;
@@ -199,14 +198,9 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private TextField<String> mainDataSetPathField;
 
-                private DataSetKindSelectionWidget dataSetKindSelectionWidget;
-
                 private CheckBoxField deletionDisallow;
 
                 {
-                    dataSetKindSelectionWidget = createContainerField();
-                    addField(dataSetKindSelectionWidget);
-
                     deletionDisallow = createDeletionDisallowField();
                     addField(deletionDisallow);
 
@@ -226,8 +220,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 {
                     dataSetType.setMainDataSetPath(mainDataSetPathField.getValue());
                     dataSetType.setMainDataSetPattern(mainDataSetPatternField.getValue());
-                    dataSetType.setDataSetKind(dataSetKindSelectionWidget.getValue()
-                            .getBaseObject());
                     dataSetType.setDeletionDisallow(deletionDisallow.getValue());
 
                     DataSetTypeGrid.this.register(dataSetType, registrationCallback);
@@ -260,13 +252,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 viewContext.getMessage(Dict.MAIN_DATA_SET_PATH_TOOLTIP));
         mainDataSetPathField.setEmptyText(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH_EXAMPLE));
         return mainDataSetPathField;
-    }
-
-    private DataSetKindSelectionWidget createContainerField()
-    {
-        DataSetKindSelectionWidget dataSetKindSelectionWidget =
-                new DataSetKindSelectionWidget(viewContext, GRID_ID);
-        return dataSetKindSelectionWidget;
     }
 
     private CheckBoxField createDeletionDisallowField()

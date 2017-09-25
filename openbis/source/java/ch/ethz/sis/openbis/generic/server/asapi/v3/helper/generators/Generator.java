@@ -310,7 +310,6 @@ public class Generator extends AbstractGenerator
         gen.addImplementedInterface(IEntityType.class);
 
         addPermId(gen, EntityTypePermId.class);
-        gen.addSimpleField(DataSetKind.class, "kind");
         addCode(gen);
         addDescription(gen);
         gen.addStringField("mainDataSetPattern");
@@ -340,6 +339,7 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("presentInArchive");
         gen.addBooleanField("storageConfirmation");
         gen.addSimpleField(Integer.class, "speedHint");
+        gen.addSimpleField(DataSetKind.class, "kind");
 
         gen.setToStringMethod("\"PhysicalData \" + location");
 

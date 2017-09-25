@@ -22,9 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityTypeExecutor;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -69,24 +67,6 @@ public class CreateDataSetTypesExecutor extends AbstractCreateEntityTypeExecutor
         type.setMainDataSetPattern(creation.getMainDataSetPattern());
         type.setMainDataSetPath(creation.getMainDataSetPath());
         type.setDeletionDisallow(creation.isDisallowDeletion());
-
-        if (creation.getKind() != null)
-        {
-            switch (creation.getKind())
-            {
-                case CONTAINER:
-                    type.setDataSetKind(DataSetKind.CONTAINER);
-                    break;
-                case LINK:
-                    type.setDataSetKind(DataSetKind.LINK);
-                    break;
-                case PHYSICAL:
-                    type.setDataSetKind(DataSetKind.PHYSICAL);
-                    break;
-                default:
-                    throw new UserFailureException("Unsupported data set kind " + creation.getKind());
-            }
-        }
     }
 
     @Override

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * An example dropbox implemented in Java.
@@ -35,6 +36,7 @@ public class ExampleJavaDataSetRegistrationDropboxV2 extends
         ISample sample = transaction.createNewSample("/CISD/DP1-A", "NORMAL");
         sample.setContainer(container);
         IDataSet dataSet = transaction.createNewDataSet("UNKNOWN");
+        dataSet.setDataSetKind(DataSetKind.PHYSICAL);
         dataSet.setSample(sample);
         transaction.moveFile(transaction.getIncoming().getAbsolutePath(), dataSet);
     }

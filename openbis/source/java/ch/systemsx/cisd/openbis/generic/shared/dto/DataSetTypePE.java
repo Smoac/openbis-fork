@@ -57,8 +57,6 @@ public class DataSetTypePE extends EntityTypePE
 
     private String mainDataSetPattern;
 
-    private String dataSetKind;
-
     private boolean deletionDisallow;
 
     @Override
@@ -147,23 +145,6 @@ public class DataSetTypePE extends EntityTypePE
     public Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes()
     {
         return getDataSetTypePropertyTypes();
-    }
-
-    /**
-     * Returns kind of the data set.
-     */
-    @Column(name = ColumnNames.DATA_SET_KIND_COLUMN)
-    public String getDataSetKind()
-    {
-        return dataSetKind;
-    }
-
-    /**
-     * Set to <code>true</code> if this data set is a container data set.
-     */
-    public void setDataSetKind(String dataSetKind)
-    {
-        this.dataSetKind = dataSetKind;
     }
 
     /**

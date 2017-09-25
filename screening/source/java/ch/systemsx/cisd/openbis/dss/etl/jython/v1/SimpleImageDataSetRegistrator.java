@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -625,6 +626,7 @@ public class SimpleImageDataSetRegistrator
     protected void setImageDataset(File incoming, ImageDataSetInformation dataset)
     {
         dataset.setDatasetTypeCode(simpleImageConfig.getDataSetType());
+        dataset.setDataSetKind(DataSetKind.PHYSICAL);
         dataset.setFileFormatCode(simpleImageConfig.getFileFormatType());
         dataset.setMeasured(simpleImageConfig.isMeasuredData());
 
@@ -767,6 +769,7 @@ public class SimpleImageDataSetRegistrator
                 .getFileFormatType()));
         registrationDetails.setDataSetType(new DataSetType(simpleImageConfig.getDataSetType()));
         registrationDetails.setMeasuredData(simpleImageConfig.isMeasuredData());
+        registrationDetails.setDataSetKind(dataset.getDataSetKind());
 
     }
 

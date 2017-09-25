@@ -165,7 +165,6 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         String mainDataSetPattern = entityType.getMainDataSetPattern();
         assertValidDataSetTypeMainPattern(mainDataSetPattern);
         dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
-        dataSetTypePE.setDataSetKind(entityType.getDataSetKind().name());
         dataSetTypePE.setDeletionDisallow(entityType.isDeletionDisallow());
         dataSetTypePE.setValidationScript(getValidationScriptPE(entityType));
 

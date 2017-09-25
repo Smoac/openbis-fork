@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchServic
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 
 /**
  * Interface for a data set registration transaction. All actions that go through the transaction are committed atomically or rolledback.
@@ -59,10 +60,14 @@ public interface IDataSetRegistrationTransaction
      */
     IDataSet createNewDataSet(String dataSetType);
 
+    IDataSet createNewDataSet(String dataSetType, DataSetKind datasetKindOrNull);
+
     /**
      * Create a new data set with the specified type and code.
      */
     IDataSet createNewDataSet(String dataSetType, String dataSetCode);
+
+    IDataSet createNewDataSet(String dataSetType, String dataSetCode, DataSetKind datasetKindOrNull);
 
     /**
      * Get a data set from the openBIS AS. Returns null if the data set does not exist.

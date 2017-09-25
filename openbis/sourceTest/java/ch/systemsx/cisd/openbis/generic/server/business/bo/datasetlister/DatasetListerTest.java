@@ -240,16 +240,11 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByTrackingCriteriaWithSampleType()
     {
+    	// when
         List<AbstractExternalData> dataSets =
                 lister.listByTrackingCriteria(new TrackingDataSetCriteria("CELL_PLATE", 6));
-        Collections.sort(dataSets, new Comparator<AbstractExternalData>()
-            {
-                @Override
-                public int compare(AbstractExternalData o1, AbstractExternalData o2)
-                {
-                    return (int) (o1.getId() - o2.getId());
-                }
-            });
+        Collections.sort(dataSets, (o1, o2) -> (int) (o1.getId() - o2.getId()));
+        // then
         assertEquals("20081105092159333-3", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals("no comment", dataSets.get(0).getProperties().get(0).tryGetOriginalValue());

@@ -146,6 +146,7 @@ public class DataSetListerTest extends AbstractDAOTest
     {
         try
         {
+        	// given
             query.update("update data_stores set download_url='http://download_1',remote_url='http://remote_1'"
                     + " where code='STANDARD'");
             final long newDataStoreId =
@@ -164,7 +165,11 @@ public class DataSetListerTest extends AbstractDAOTest
             codes.add("20081105092259000-19");
             codes.add("20081105092259000-20");
             codes.add("20081105092259000-21");
+
+            // when
             List<DataStoreURLForDataSets> result = lister.getDataStoreDownloadURLs(codes);
+
+            // then
             assertEquals(2, result.size());
             for (DataStoreURLForDataSets url : result)
             {

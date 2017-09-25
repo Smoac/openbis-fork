@@ -239,7 +239,7 @@ public class GetDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getType().getCode(), "HCS_IMAGE");
         assertEquals(dataSet.getType().getPermId().getPermId(), "HCS_IMAGE");
         assertEquals(dataSet.getType().getDescription(), "High Content Screening Image");
-        assertEquals(dataSet.getType().getKind(), DataSetKind.PHYSICAL);
+        assertEquals(dataSet.getKind(), DataSetKind.PHYSICAL);
         assertEqualsDate(dataSet.getType().getModificationDate(), "2009-03-23 15:34:44");
         assertEquals(dataSet.getType().getFetchOptions().hasPropertyAssignments(), false);
 
@@ -260,7 +260,7 @@ public class GetDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet2.getType().getCode(), "CONTAINER_TYPE");
         assertEquals(dataSet2.getType().getPermId().getPermId(), "CONTAINER_TYPE");
         assertEquals(dataSet2.getType().getDescription(), "A container (virtual) data set type");
-        assertEquals(dataSet2.getType().getKind(), DataSetKind.CONTAINER);
+        assertEquals(dataSet2.getKind(), DataSetKind.CONTAINER);
         assertEqualsDate(dataSet2.getType().getModificationDate(), "2011-05-09 12:24:44");
 
         assertPhysicalDataNotFetched(dataSet2);

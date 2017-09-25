@@ -27,6 +27,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -182,7 +183,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // data set
         object = searchAndAssertOneOrNone(TEST_USER, "20081105092159111-1", GlobalSearchObjectKind.DATA_SET);
-        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL);
 
         object = searchAndAssertOneOrNone(TEST_USER, "20081105092159111-1", GlobalSearchObjectKind.MATERIAL);
         assertNull(object);
@@ -210,7 +211,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // data set
         object = searchAndAssertOneOrNone(TEST_USER, "20081105092159111-1");
-        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL);
 
         // material
         object = searchAndAssertOneOrNone(TEST_USER, "HSV1");
@@ -510,7 +511,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object1 = result.getObjects().get(0);
         GlobalSearchObject object2 = result.getObjects().get(1);
 
-        assertDataSet(object1, "20110509092359990-11", object1.getMatch());
+        assertDataSet(object1, "20110509092359990-11", object1.getMatch(), DataSetKind.PHYSICAL);
         AssertionUtil.assertContains("Location: contained/20110509092359990-11", object1.getMatch());
         AssertionUtil.assertContains("Perm ID: 20110509092359990-11", object1.getMatch());
         assertEquals(object1.getDataSet().getCode(), "20110509092359990-11");
@@ -519,7 +520,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSampleNotFetched(object1);
         assertMaterialNotFetched(object1);
 
-        assertDataSet(object2, "20081105092259000-18", object2.getMatch());
+        assertDataSet(object2, "20081105092259000-18", object2.getMatch(), DataSetKind.PHYSICAL);
         AssertionUtil.assertContains("Location: xml/result-18", object2.getMatch());
         assertEquals(object2.getDataSet().getCode(), "20081105092259000-18");
         assertEquals(object2.getScore(), 10.0);
@@ -535,7 +536,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20081105092159111-1", fo);
 
-        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", null);
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -550,11 +551,25 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20081105092159111-1", fo);
 
-        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL);
         assertEquals(object.getDataSet().getCode(), "20081105092159111-1");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchDataSetWithKindLink()
+    {
+    	// given
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withDataSet();
+
+        // when
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20120628092259000-23", fo);
+
+        // then
+        assertDataSet(object, "20120628092259000-23", "Perm ID: 20120628092259000-23", DataSetKind.LINK);
     }
 
     @Test
@@ -565,7 +580,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20081105092159111-1", fo);
 
-        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", null);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -685,7 +700,10 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContainsExactly(permId);
         criteria.withObjectKind().thatIn(objectKinds);
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withDataSet();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
         assertTrue(result.getObjects().size() <= 1);
 
         return result.getObjects().isEmpty() ? null : result.getObjects().get(0);
@@ -747,7 +765,7 @@ public class GlobalSearchTest extends AbstractTest
         assertTrue(object.getScore() > 0);
     }
 
-    private void assertDataSet(GlobalSearchObject object, String code, String match)
+    private void assertDataSet(GlobalSearchObject object, String code, String match, DataSetKind dataSetKind)
     {
         assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.DATA_SET);
@@ -755,6 +773,10 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(object.getObjectIdentifier(), new DataSetPermId(code));
         assertEquals(object.getMatch(), match);
         assertTrue(object.getScore() > 0);
+        if (dataSetKind != null)
+        {
+            assertEquals(object.getDataSet().getKind(), dataSetKind);
+        }
     }
 
     private void assertMaterial(GlobalSearchObject object, String code, String typeCode, String match)

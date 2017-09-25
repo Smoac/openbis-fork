@@ -23,6 +23,7 @@ import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -125,6 +126,7 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         metadataDataSetInfo.setSampleCode(gridPrepSampleId.getSampleCode());
         metadataDataSetInfo.setSpaceCode(gridPrepSampleId.getSpaceLevel().getSpaceCode());
         metadataDataSetInfo.setDataSetType(globalState.getMetadataDataSetType().getDataSetType());
+        metadataDataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
         return metadataDataSetInfo;
     }
 }

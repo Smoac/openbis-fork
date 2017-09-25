@@ -23,6 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.cina.dss.CinaImageDataSetInformation;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -81,6 +82,7 @@ public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
         metadataDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
         metadataDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
         metadataDataSetInfo.setDataSetType(globalState.getImageDataSetType().getDataSetType());
+        metadataDataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
         List<String> parentDataSetCodes =
                 Collections.singletonList(bundleMetadataDataSetInformation.getDataSetCode());
         metadataDataSetInfo.setParentDataSetCodes(parentDataSetCodes);

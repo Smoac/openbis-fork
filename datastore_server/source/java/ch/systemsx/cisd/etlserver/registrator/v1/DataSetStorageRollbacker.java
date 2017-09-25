@@ -35,6 +35,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
@@ -173,6 +174,7 @@ public class DataSetStorageRollbacker
         {
             dataSetInfo.setDataSetType(new DataSetType(dataSetTypeCodeOrNull));
         }
+        dataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
 
         // Create the error directory
         File baseDirectory =

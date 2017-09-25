@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -33,6 +34,8 @@ public interface IDataSet extends IDataSetUpdatable
      * Set the data set type.
      */
     public void setDataSetType(String dataSetTypeCode);
+
+    public void setDataSetKind(DataSetKind dataSetKind);
 
     /**
      * Sets the speed hint for the data set. The speed hint is a negative or positive number with an absolute value less than or equal

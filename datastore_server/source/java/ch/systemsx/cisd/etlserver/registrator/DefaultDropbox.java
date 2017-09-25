@@ -20,6 +20,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.AbstractJavaDataSetRegistra
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * Default drop box which can register everything.
@@ -47,6 +48,10 @@ public class DefaultDropbox extends AbstractJavaDataSetRegistrationDropboxV2
         if (dataSet.getDataSetType() == null)
         {
             dataSet.setDataSetType("UNKNOWN");
+        }
+        if (dataSet.getDataSetKind() == null)
+        {
+        	dataSet.setDataSetKind(DataSetKind.PHYSICAL);
         }
         transaction.moveFile(transaction.getIncoming().getAbsolutePath(), dataSet);
     }

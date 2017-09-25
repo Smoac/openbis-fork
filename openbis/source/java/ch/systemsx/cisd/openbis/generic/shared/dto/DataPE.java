@@ -93,6 +93,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
         IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder
 {
+	
     private static final long serialVersionUID = IServer.VERSION;
 
     public static final DataPE[] EMPTY_ARRAY = new DataPE[0];
@@ -111,6 +112,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Date registrationDate;
 
     private DataSetTypePE dataSetType;
+
+    // default to PHYSICAL for backwards compatibility - this is the most likely choice
+    private String dataSetKind = "PHYSICAL";
 
     private ExperimentPE experiment;
 
@@ -383,7 +387,18 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.dataSetType = dataSetType;
     }
 
-    /**
+    @Column(name = ColumnNames.DATA_SET_KIND_COLUMN, nullable = false)
+    public String getDataSetKind()
+	{
+		return dataSetKind;
+	}
+
+	public void setDataSetKind(String dataSetKind)
+	{
+		this.dataSetKind = dataSetKind;
+	}
+
+	/**
      * Returns <code>true</code> if this data set is data set is derived from a sample (otherwise it is measured from a sample).
      */
     @Column(name = ColumnNames.IS_DERIVED)

@@ -37,7 +37,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$dataSetTypeFieldSet.append($('<legend>').text('Identification Info'));
 		$wrapper.append($dataSetTypeFieldSet);
 		
-		var $dataSetTypeSelector = FormUtil.getPhysicalDataSetsDropDown('DATASET_TYPE', dataSetFormModel.dataSetTypes);
+		var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetFormModel.dataSetTypes);
 		$dataSetTypeSelector.change(function() { 
 			repaintMetadata(
 					dataSetFormModel.getDataSetType($('#DATASET_TYPE').val())

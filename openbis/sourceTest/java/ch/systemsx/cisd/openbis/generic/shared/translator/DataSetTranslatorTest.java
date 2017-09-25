@@ -82,8 +82,8 @@ public class DataSetTranslatorTest extends AssertJUnit
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("dataSetTypeCode");
         dataSetTypePE.setDescription("dataSetTypeDescription");
-        dataSetTypePE.setDataSetKind(DataSetKind.PHYSICAL.name());
         externalDataPE.setDataSetType(dataSetTypePE);
+        externalDataPE.setDataSetKind(DataSetKind.PHYSICAL.name());
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("fileFormatTypeCode");
         fileFormatTypePE.setDescription("fileFormatTypeDescription");

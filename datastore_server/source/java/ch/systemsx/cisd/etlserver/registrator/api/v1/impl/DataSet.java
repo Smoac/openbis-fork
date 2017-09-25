@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
@@ -239,6 +240,18 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     public void setDataSetType(String dataSetTypeCode)
     {
         registrationDetails.setDataSetType(dataSetTypeCode);
+    }
+
+    @Override
+    public DataSetKind getDataSetKind()
+    {
+        return DataSetKind.valueOf(registrationDetails.getDataSetKind().name());
+    }
+
+    @Override
+    public void setDataSetKind(DataSetKind dataSetKind)
+    {
+        registrationDetails.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.valueOf(dataSetKind.name()));
     }
 
     protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)

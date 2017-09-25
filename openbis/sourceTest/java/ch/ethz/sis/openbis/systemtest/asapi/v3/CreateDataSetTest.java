@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
@@ -82,6 +83,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     @Test
     public void testCreateLinkDataSetWithSpaceUser()
     {
+    	// given
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
         String code = UUID.randomUUID().toString();
         LinkedDataCreation linkedData = new LinkedDataCreation();
@@ -89,36 +91,69 @@ public class CreateDataSetTest extends AbstractDataSetTest
         linkedData.setExternalCode("test-" + System.currentTimeMillis());
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
+        creation.setDataSetKind(DataSetKind.LINK);
         creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/NOE/EXP-TEST-2"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setLinkedData(linkedData);
         creation.setCreationId(new CreationId(code));
 
-        List<DataSetPermId> dataSets = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+        // when
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
 
-        assertEquals(dataSets.get(0).getPermId(), code.toUpperCase());
-        assertEquals(dataSets.size(), 1);
+        // then
+        assertEquals(dataSetIds.size(), 1);
+        assertEquals(dataSetIds.get(0).getPermId(), code.toUpperCase());
+        assertDataSetKind(sessionToken, dataSetIds, DataSetKind.LINK);
     }
+
+	private void assertDataSetKind(String sessionToken, List<DataSetPermId> dataSetIds, DataSetKind kind)
+	{
+		Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, dataSetIds, new DataSetFetchOptions());
+        assertEquals(dataSets.size(), 1);
+        assertEquals(dataSets.get(dataSetIds.get(0)).getKind(), kind);
+	}
 
     @Test
     public void testCreateContainerDataSetWithSpaceUser()
     {
+    	// given
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
         String code = UUID.randomUUID().toString();
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
+        creation.setDataSetKind(DataSetKind.CONTAINER);
         creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/NOE/EXP-TEST-2"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setCreationId(new CreationId(code));
 
-        List<DataSetPermId> dataSets = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+        // when
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
 
-        assertEquals(dataSets.get(0).getPermId(), code.toUpperCase());
-        assertEquals(dataSets.size(), 1);
+        // then
+        assertEquals(dataSetIds.size(), 1);
+        assertEquals(dataSetIds.get(0).getPermId(), code.toUpperCase());
+        assertDataSetKind(sessionToken, dataSetIds, DataSetKind.CONTAINER);
     }
 
+    @Test
+    public void testDataSetWhichDefaultsToPhysical()
+    {
+    	// given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setDataSetKind(null);
+
+        // when
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+
+        // then
+        assertEquals(dataSetIds.size(), 1);
+        assertEquals(dataSetIds.get(0).getPermId(), creation.getCode().toUpperCase());
+        assertDataSetKind(sessionToken, dataSetIds, DataSetKind.PHYSICAL);
+    }
+    
     @Test
     public void testCreateDSWithAdminUserInBehalfOfASpaceObserver()
     {
@@ -1151,6 +1186,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode("TEST_PHYSICAL_DATASET");
+        creation.setDataSetKind(DataSetKind.PHYSICAL);
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
@@ -1607,6 +1643,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode("TEST_CONTAINER_DATASET");
+        creation.setDataSetKind(DataSetKind.CONTAINER);
         creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
@@ -1678,6 +1715,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode("TEST_LINK_DATASET");
+        creation.setDataSetKind(DataSetKind.LINK);
         creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
@@ -1828,6 +1866,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
+        creation.setDataSetKind(DataSetKind.PHYSICAL);
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
@@ -1843,6 +1882,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
+        creation.setDataSetKind(DataSetKind.CONTAINER);
         creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
@@ -1860,6 +1900,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
+        creation.setDataSetKind(DataSetKind.LINK);
         creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));

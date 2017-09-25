@@ -28,6 +28,8 @@ public class DataSetRecord
 
     public String ds_code;
 
+    public String ds_data_set_kind;
+
     public Date ds_registration_timestamp;
 
     public Date ds_modification_timestamp;
@@ -41,8 +43,6 @@ public class DataSetRecord
     public String ctnr_code;
 
     public String dt_code;
-
-    public String dt_data_set_kind;
 
     public Boolean ed_sc;
 

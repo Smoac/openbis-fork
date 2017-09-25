@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -219,6 +220,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
         result.setPostRegistered(relations.get(IDataSetPostRegisteredTranslator.class, dataSetId));
+        result.setKind(DataSetKind.valueOf(baseRecord.dataSetKind));
 
         if (fetchOptions.hasType())
         {

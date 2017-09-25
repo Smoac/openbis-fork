@@ -72,6 +72,9 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private DataSetType type;
 
     @JsonProperty
+    private DataSetKind kind;
+
+    @JsonProperty
     private DataStore dataStore;
 
     @JsonProperty
@@ -199,7 +202,18 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
         this.type = type;
     }
 
-    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public DataSetKind getKind()
+	{
+		return kind;
+	}
+
+	public void setKind(DataSetKind kind)
+	{
+		this.kind = kind;
+	}
+
+	// Method automatically generated with DtoGenerator
     @JsonIgnore
     public DataStore getDataStore()
     {

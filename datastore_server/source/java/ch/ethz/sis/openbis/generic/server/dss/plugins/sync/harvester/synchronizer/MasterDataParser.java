@@ -38,7 +38,6 @@ import org.w3c.dom.NodeList;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -386,7 +385,6 @@ public class MasterDataParser
             DataSetType dataSetType = new DataSetType();
             dataSetType.setCode(nameTranslator.translate(getAttribute(dataSetTypeElement, "code")));
             dataSetType.setDescription(getAttribute(dataSetTypeElement, "description"));
-            dataSetType.setDataSetKind(DataSetKind.valueOf(getAttribute(dataSetTypeElement, "dataSetKind")));
             String mainDataSetPattern = getAttribute(dataSetTypeElement, "mainDataSetPattern");
             if (mainDataSetPattern.length() < 1)
             {

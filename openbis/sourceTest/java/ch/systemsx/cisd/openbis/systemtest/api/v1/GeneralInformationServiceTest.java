@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -32,6 +33,7 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
@@ -991,24 +993,16 @@ public class GeneralInformationServiceTest extends SystemTestCase
     @Test
     public void testListDataSets()
     {
-        SampleInitializer s1 = new SampleInitializer();
-        s1.setId(1042L);
-        s1.setCode("CP-TEST-1");
-        s1.setIdentifier("/CISD/CP-TEST-1");
-        s1.setPermId("200902091219327-1025");
-        s1.setSampleTypeCode("CELL_PLATE");
-        s1.setSampleTypeId(3L);
-        s1.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
+        Sample s1 = getSample();
         List<DataSet> dataSets =
-                generalInformationService.listDataSets(sessionToken, Arrays.asList(new Sample(s1)));
+                generalInformationService.listDataSets(sessionToken, Arrays.asList(s1));
 
         assertDataSets("[20081105092159111-1]", dataSets);
 
         loginAsObserver();
         try
         {
-            generalInformationService.listDataSets(sessionToken, Arrays.asList(new Sample(s1)));
+            generalInformationService.listDataSets(sessionToken, Arrays.asList(s1));
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
@@ -1017,6 +1011,76 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     ex.getMessage());
         }
     }
+
+    @Test
+    public void testListDataSetsWithPhysicalKind()
+    {
+    	// given
+        Sample s1 = getSample();
+
+        // when
+        List<DataSet> dataSets =
+                generalInformationService.listDataSets(sessionToken, Arrays.asList(s1));
+
+        // then
+        DataSet dataSet = getDataSet(dataSets, "20081105092159111-1");
+        assertFalse(dataSet.isContainerDataSet());
+        assertFalse(dataSet.isLinkDataSet());
+    }
+
+    @Test
+    public void testListDataSetsWithLinkKind()
+    {
+    	// given
+        Sample s1 = getSample(325L, "MP002-1", "200811050917877-331", "MASTER_PLATE");
+
+        // when
+        List<DataSet> dataSets =
+                generalInformationService.listDataSets(sessionToken, Arrays.asList(s1));
+
+        // then
+        DataSet dataSet = getDataSet(dataSets, "20120628092259000-23");
+        assertFalse(dataSet.isContainerDataSet());
+        assertTrue(dataSet.isLinkDataSet());
+    }
+
+    private Sample getSample(Long id, String code, String permId, String sampleTypeCode)
+    {
+    	SampleInitializer sampleIdentifier = getSampleIdentifier();
+    	sampleIdentifier.setId(id);
+    	sampleIdentifier.setCode(code);
+    	sampleIdentifier.setPermId(permId);
+    	sampleIdentifier.setSampleTypeCode(sampleTypeCode);
+    	return new Sample(sampleIdentifier);
+    }
+
+    private Sample getSample()
+	{
+		SampleInitializer s1 = getSampleIdentifier();
+		return new Sample(s1);
+	}
+
+	private SampleInitializer getSampleIdentifier()
+	{
+		SampleInitializer s1 = new SampleInitializer();
+        s1.setId(1042L);
+        s1.setCode("CP-TEST-1");
+        s1.setIdentifier("/CISD/CP-TEST-1");
+        s1.setPermId("200902091219327-1025");
+        s1.setSampleTypeCode("CELL_PLATE");
+        s1.setSampleTypeId(3L);
+        s1.setRegistrationDetails(new EntityRegistrationDetails(
+                new EntityRegistrationDetailsInitializer()));
+		return s1;
+	}
+
+	private DataSet getDataSet(List<DataSet> dataSets, String code)
+	{
+		return dataSets.stream()
+    			.filter(ds -> ds.getCode().equals(code))
+    			.findFirst()
+    			.orElseThrow( (() -> new RuntimeException("DataSet with code " + code + " missing.")));
+	}
 
     public void testGetPostregistrationStatusTrueByDefaultForContainerDataSets()
     {
@@ -1067,16 +1131,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     @Test
     public void testListDataSetsForSampleOnlyDirectlyConnected()
     {
-        SampleInitializer s1 = new SampleInitializer();
-        s1.setId(1042L);
-        s1.setCode("CP-TEST-1");
-        s1.setIdentifier("/CISD/CP-TEST-1");
-        s1.setPermId("200902091219327-1025");
-        s1.setSampleTypeCode("CELL_PLATE");
-        s1.setSampleTypeId(3L);
-        s1.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
-        Sample sample = new Sample(s1);
+        Sample sample = getSample();
         AbstractExternalData dataSetInfo =
                 genericServer.getDataSetInfo(sessionToken, new TechId(13));
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
@@ -1114,18 +1169,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
     @Test
     public void testListDataSetsForSampleAlsoIndirectlyConnected()
     {
-        SampleInitializer s1 = new SampleInitializer();
-        s1.setId(1042L);
-        s1.setCode("CP-TEST-1");
-        s1.setIdentifier("/CISD/CP-TEST-1");
-        s1.setPermId("200902091219327-1025");
-        s1.setSampleTypeCode("CELL_PLATE");
-        s1.setSampleTypeId(3L);
-        s1.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
+        Sample s1 = getSample();
         List<DataSet> dataSets =
                 generalInformationService
-                        .listDataSetsForSample(sessionToken, new Sample(s1), false);
+                        .listDataSetsForSample(sessionToken, s1, false);
 
         assertDataSets(
                 "[20081105092159111-1, 20081105092259000-9, 20081105092259900-0, 20081105092259900-1, 20081105092359990-2]",
@@ -1137,7 +1184,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         loginAsObserver();
         try
         {
-            generalInformationService.listDataSetsForSample(sessionToken, new Sample(s1), false);
+            generalInformationService.listDataSetsForSample(sessionToken, s1, false);
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {

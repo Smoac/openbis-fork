@@ -196,6 +196,7 @@ public final class EntityOperationBuilder
         NewExternalData newExternalData = new NewExternalData();
         newExternalData.setCode(dataSet.getCode());
         newExternalData.setDataSetType(dataSet.getDataSetType());
+        newExternalData.setDataSetKind(dataSet.getDataSetKind());
         newExternalData.setDataStoreCode(dataSet.getDataStore().getCode());
         if (dataSet instanceof PhysicalDataSet)
         {

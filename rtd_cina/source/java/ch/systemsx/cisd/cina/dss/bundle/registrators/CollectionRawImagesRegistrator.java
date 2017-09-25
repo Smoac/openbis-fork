@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -67,6 +68,7 @@ public class CollectionRawImagesRegistrator extends BundleDataSetHelper
         imagesDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
         imagesDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
         imagesDataSetInfo.setDataSetType(globalState.getRawImagesDataSetType().getDataSetType());
+        imagesDataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
         return imagesDataSetInfo;
     }
 }

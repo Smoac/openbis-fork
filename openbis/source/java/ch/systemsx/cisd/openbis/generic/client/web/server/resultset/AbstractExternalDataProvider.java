@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CONTAINER_DATASETS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_PRODUCER_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_SET_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_SET_KIND;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_STORE_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXPERIMENT_TYPE;
@@ -99,6 +100,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(CODE).withDefaultWidth(150);
         builder.addColumn(EXTERNAL_CODE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(DATA_SET_TYPE).withDefaultWidth(200);
+        builder.addColumn(DATA_SET_KIND).withDefaultWidth(150).hideByDefault();
         builder.addColumn(CONTAINER_DATASETS).withDefaultWidth(150).hideByDefault();
         builder.addColumn(ORDER_IN_CONTAINERS).withDefaultWidth(100).hideByDefault();
         builder.addColumn(PARENT_DATASETS).withDefaultWidth(150).hideByDefault();
@@ -152,6 +154,7 @@ public abstract class AbstractExternalDataProvider extends
                         metaProjectsToString(dataSet.getMetaprojects()));
 
                 builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
+                builder.column(DATA_SET_KIND).addString(dataSet.getDataSetKind().name());
                 List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
                 builder.column(CONTAINER_DATASETS).addEntityLink(containerDataSets);
                 CommaSeparatedListBuilder listBuilder = new CommaSeparatedListBuilder();

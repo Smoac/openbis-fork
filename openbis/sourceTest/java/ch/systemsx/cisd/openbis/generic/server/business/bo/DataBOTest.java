@@ -110,6 +110,8 @@ public class DataBOTest extends AbstractBOTest
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("DST");
 
+    private static final DataSetKind DATA_SET_KIND = DataSetKind.PHYSICAL;
+
     private static final class DataMatcher extends BaseMatcher<ExternalDataPE>
     {
         @Override
@@ -133,7 +135,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithDirectSampleConnection()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -174,7 +176,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithUserID()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -224,7 +226,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithUserEMail()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -275,7 +277,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithExistingParentDataSet()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -313,7 +315,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithNonExistingParentDataSetFails()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -324,9 +326,10 @@ public class DataBOTest extends AbstractBOTest
         final ExperimentPE experiment = new ExperimentPE();
         final DataStorePE dataStore = new DataStorePE();
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
-        final DataSetTypePE dataSetTypeUnknown = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetTypeUnknown = createDataSetType();
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
+        parentData.setDataSetKind(DataSetKind.PHYSICAL.toString());
         parentData.setDataSetType(dataSetTypeUnknown);
         parentData.setExperiment(createExperiment("EXP1"));
         context.checking(new Expectations()
@@ -352,7 +355,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineWithNonExistingParentDataSetAndNonExistingExperimentFails()
     {
-        final DataSetTypePE dataSetType = createDataSetType();
+        final DataSetTypePE dataSetType = createDataSetTypeWithCode();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -362,9 +365,10 @@ public class DataBOTest extends AbstractBOTest
         final LocatorTypePE locatorType = new LocatorTypePE();
         final DataStorePE dataStore = new DataStorePE();
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
-        final DataSetTypePE dataSetTypeUnknown = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetTypeUnknown = createDataSetType();
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
+        parentData.setDataSetKind(DataSetKind.PHYSICAL.toString());
         parentData.setDataSetType(dataSetTypeUnknown);
         ExperimentPE experiment = createExperiment("EXP1");
         parentData.setExperiment(experiment);
@@ -396,7 +400,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineContainerWithExistingComponent()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.CONTAINER);
+        final DataSetTypePE dataSetType = createDataSetType();
         ExperimentPE experimentPE = createExperiment("EXP1");
         DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
@@ -431,11 +435,11 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineContainerWithNonExistingComponentFails()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.CONTAINER);
+        final DataSetTypePE dataSetType = createDataSetType();
         final ExperimentPE experiment = createExperiment("EXP1");
         final DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
-        final DataSetTypePE dataSetTypeUnknown = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetTypeUnknown = createDataSetType();
         final DataPE component = new DataPE();
         component.setCode(COMPONENT_CODE);
         component.setDataSetType(dataSetTypeUnknown);
@@ -471,13 +475,14 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineContainerWithComponentFromDifferentSpace()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.CONTAINER);
+        final DataSetTypePE dataSetType = createDataSetType();
         ExperimentPE experiment1 = createExperiment("EXP1", "S1");
         ExperimentPE experiment2 = createExperiment("EXP2", "S2");
         DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
         final DataPE data = new DataPE();
         data.setCode(COMPONENT_CODE);
+        data.setDataSetKind(DataSetKind.CONTAINER.toString());
         data.setExperiment(createExperiment("EXP1", "S2"));
         context.checking(new Expectations()
             {
@@ -520,7 +525,8 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testDefineLinkDataSet()
     {
-        DataSetTypePE dataSetType = createDataSetType(DataSetKind.LINK);
+    	// given
+        DataSetTypePE dataSetType = createDataSetType();
         dataSetType.setCode("my-type");
         DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
@@ -540,9 +546,11 @@ public class DataBOTest extends AbstractBOTest
             });
         IDataBO dataBO = createDataBO();
 
+        // when
         dataBO.define(data, experimentPE, SourceType.MEASUREMENT);
-        DataPE dataSet = dataBO.getData();
 
+        // then
+        DataPE dataSet = dataBO.getData();
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals("my-type", dataSet.getDataSetType().getCode());
         assertEquals(true, dataSet.isLinkData());
@@ -782,9 +790,9 @@ public class DataBOTest extends AbstractBOTest
                 createExperiment(EXPERIMENT_IDENTIFIER.getExperimentCode(), "spaceCode");
 
         final DataPE container1 = createDataSet("container-1", null, experiment);
-        container1.getDataSetType().setDataSetKind(DataSetKind.CONTAINER.name());
+        container1.setDataSetKind(DataSetKind.CONTAINER.name());
         final DataPE container2 = createDataSet("container-2", null, experiment);
-        container2.getDataSetType().setDataSetKind(DataSetKind.CONTAINER.name());
+        container1.setDataSetKind(DataSetKind.CONTAINER.name());
         final RelationshipTypePE relationshipTypePE = new RelationshipTypePE();
         relationshipTypePE.setCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
         context.checking(new Expectations()
@@ -923,7 +931,8 @@ public class DataBOTest extends AbstractBOTest
         dataSet.setModificationDate(PRODUCTION_DATE);
         dataSet.setSample(sampleOrNull);
         dataSet.setExperiment(experimentOrNull);
-        DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        dataSet.setDataSetKind(DataSetKind.PHYSICAL.toString());
+        DataSetTypePE dataSetType = createDataSetType();
         dataSetType.setCode(DATA_SET_TYPE.getCode());
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
@@ -945,7 +954,8 @@ public class DataBOTest extends AbstractBOTest
         dataSet.setModificationDate(PRODUCTION_DATE);
         dataSet.setSample(sampleOrNull);
         dataSet.setExperiment(experimentOrNull);
-        DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        dataSet.setDataSetKind(DataSetKind.PHYSICAL.toString());
+        DataSetTypePE dataSetType = createDataSetType();
         dataSetType.setCode(DATA_SET_TYPE.getCode());
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
@@ -960,7 +970,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testSaveNewDataSet()
     {
-        final DataSetTypePE dataSetType = createDataSetType();
+        final DataSetTypePE dataSetType = createDataSetTypeWithCode();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -991,7 +1001,7 @@ public class DataBOTest extends AbstractBOTest
     @Test
     public void testStorageConfirmed()
     {
-        final DataSetTypePE dataSetType = createDataSetType();
+        final DataSetTypePE dataSetType = createDataSetTypeWithCode();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
         final VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.addTerm(new VocabularyTermPE());
@@ -1036,17 +1046,16 @@ public class DataBOTest extends AbstractBOTest
                 exp.with(Expectations.any(Collection.class)), exp.with(type), exp.with(Expectations.any(HashMap.class)));
     }
 
-    private DataSetTypePE createDataSetType()
+    private DataSetTypePE createDataSetTypeWithCode()
     {
-        final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
+        final DataSetTypePE dataSetType = createDataSetType();
         dataSetType.setCode("data-set-type-code");
         return dataSetType;
     }
 
-    private DataSetTypePE createDataSetType(DataSetKind dataSetKind)
+    private DataSetTypePE createDataSetType()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
-        dataSetType.setDataSetKind(dataSetKind.toString());
         return dataSetType;
     }
 
@@ -1119,6 +1128,7 @@ public class DataBOTest extends AbstractBOTest
         data.setComplete(BooleanOrUnknown.U);
         data.setStorageFormat(StorageFormat.PROPRIETARY);
         data.setDataSetType(DATA_SET_TYPE);
+        data.setDataSetKind(DATA_SET_KIND);
         data.setFileFormatType(FILE_FORMAT_TYPE);
         data.setLocatorType(LOCATOR_TYPE);
         data.setLocation(LOCATION);
@@ -1130,6 +1140,7 @@ public class DataBOTest extends AbstractBOTest
     private NewContainerDataSet createContainerDataSetWithComponents(String... components)
     {
         NewContainerDataSet data = new NewContainerDataSet();
+    	data.setDataSetKind(DataSetKind.CONTAINER);
         data.setCode(DATA_SET_CODE);
         data.setContainedDataSetCodes(Arrays.asList(components));
         data.setDataProducerCode(DATA_PRODUCER_CODE);
@@ -1137,6 +1148,7 @@ public class DataBOTest extends AbstractBOTest
         data.setComplete(BooleanOrUnknown.U);
         data.setStorageFormat(StorageFormat.PROPRIETARY);
         data.setDataSetType(DATA_SET_TYPE);
+        data.setDataSetKind(DATA_SET_KIND);
         data.setDataStoreCode(DATA_STORE_CODE);
         return data;
     }
@@ -1144,7 +1156,9 @@ public class DataBOTest extends AbstractBOTest
     private NewLinkDataSet createLinkDataSetWithComponents(String externalCode)
     {
         NewLinkDataSet data = new NewLinkDataSet();
+        data.setDataSetKind(DataSetKind.LINK);
         data.setCode(DATA_SET_CODE);
+        data.setDataSetKind(DATA_SET_KIND);
         data.setExternalCode(externalCode);
         data.setExternalDataManagementSystemCode(EXTERNAL_DATA_MANAGEMENT_SYSTEM_CODE);
         data.setDataSetType(DATA_SET_TYPE);

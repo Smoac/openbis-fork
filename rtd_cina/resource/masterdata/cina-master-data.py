@@ -74,23 +74,18 @@ samp_type_GRID_REPLICA.setGeneratedCodePrefix('REPLICA')
 
 data_set_type_ANALYSIS = tr.createNewDataSetType('ANALYSIS')
 data_set_type_ANALYSIS.setDescription('Analysis')
-data_set_type_ANALYSIS.setContainerType(False)
 
 data_set_type_BUNDLE = tr.createNewDataSetType('BUNDLE')
 data_set_type_BUNDLE.setDescription('Bundle Data Set')
-data_set_type_BUNDLE.setContainerType(False)
 
 data_set_type_IMAGE = tr.createNewDataSetType('IMAGE')
 data_set_type_IMAGE.setDescription('Annotated image')
-data_set_type_IMAGE.setContainerType(False)
 
 data_set_type_METADATA = tr.createNewDataSetType('METADATA')
 data_set_type_METADATA.setDescription('Metadata Data Set')
-data_set_type_METADATA.setContainerType(False)
 
 data_set_type_RAW_IMAGES = tr.createNewDataSetType('RAW_IMAGES')
 data_set_type_RAW_IMAGES.setDescription('Raw Images')
-data_set_type_RAW_IMAGES.setContainerType(False)
 
 prop_type_ANALYSIS_PROCEDURE = tr.createNewPropertyType('ANALYSIS_PROCEDURE', DataType.VARCHAR)
 prop_type_ANALYSIS_PROCEDURE.setLabel('Analysis procedure')

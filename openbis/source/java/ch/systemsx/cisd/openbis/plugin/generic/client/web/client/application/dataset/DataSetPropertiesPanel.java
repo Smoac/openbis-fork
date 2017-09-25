@@ -100,6 +100,8 @@ public class DataSetPropertiesPanel extends ContentPanel
             }
         }
 
+        properties.put(messageProvider.getMessage(Dict.DATA_SET_KIND), dataset.getDataSetKind());
+
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
 
         properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE),

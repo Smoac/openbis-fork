@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -254,12 +255,24 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(dataSetType);
     }
 
+	@Override
+	public IDataSet createNewDataSet(String dataSetType, DataSetKind datasetKindOrNull)
+	{
+        return getStateAsLiveState().createNewDataSet(dataSetType, datasetKindOrNull);
+	}
+
     @Override
     public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
     {
         return getStateAsLiveState().createNewDataSet(dataSetType, dataSetCode);
     }
 
+	@Override
+	public IDataSet createNewDataSet(String dataSetType, String dataSetCode, DataSetKind datasetKindOrNull)
+	{
+        return getStateAsLiveState().createNewDataSet(dataSetType, dataSetCode, datasetKindOrNull);
+	}
+    
     public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
     {
         return getStateAsLiveState().createNewDataSet(registrationDetails);

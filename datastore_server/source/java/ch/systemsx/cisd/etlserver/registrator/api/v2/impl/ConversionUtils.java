@@ -219,6 +219,7 @@ public class ConversionUtils
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setDataSetType(registrationDetails.getDataSetType());
+        data.setDataSetKind(registrationDetails.getDataSetKind());
         data.setMeasured(registrationDetails.isMeasuredData());
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
@@ -255,6 +256,7 @@ public class ConversionUtils
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setDataSetType(registrationDetails.getDataSetType());
+        data.setDataSetKind(registrationDetails.getDataSetKind());
         data.setMeasured(registrationDetails.isMeasuredData());
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
@@ -279,6 +281,7 @@ public class ConversionUtils
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setDataSetType(registrationDetails.getDataSetType());
+        data.setDataSetKind(registrationDetails.getDataSetKind());
         data.setMeasured(registrationDetails.isMeasuredData());
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());

@@ -27,7 +27,5 @@ public class DataSetTypeGridColumnIDs extends EntityTypeGridColumnIDs
 
     public static final String MAIN_DATA_SET_PATTERN = "MAIN_DATA_SET_PATTERN";
 
-    public static final String DATA_SET_KIND = "DATA_SET_KIND";
-
     public static final String DELETION_DISALLOW = "DELETION_DISALLOW";
 }

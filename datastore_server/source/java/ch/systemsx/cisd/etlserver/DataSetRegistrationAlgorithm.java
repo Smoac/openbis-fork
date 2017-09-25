@@ -47,6 +47,7 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -161,6 +162,7 @@ public class DataSetRegistrationAlgorithm
 
             this.dataSetType = typeExtractor.getDataSetType(incomingDataSetFile);
             dataSetInformation.setDataSetType(dataSetType);
+            dataSetInformation.setDataSetKind(DataSetKind.PHYSICAL);
             this.storeRoot = storageProcessor.getStoreRootDirectory();
             this.defaultErrorMessageTemplate = DATA_SET_STORAGE_FAILURE_TEMPLATE;
         }
@@ -467,6 +469,7 @@ public class DataSetRegistrationAlgorithm
         data.setSpeedHint(dataSetInformation.getSpeedHint());
         data.setLocatorType(getTypeExtractor().getLocatorType(incomingDataSetFile));
         data.setDataSetType(getTypeExtractor().getDataSetType(incomingDataSetFile));
+        data.setDataSetKind(dataSetInformation.getDataSetKind());
         data.setFileFormatType(getTypeExtractor().getFileFormatType(incomingDataSetFile));
         data.setMeasured(getTypeExtractor().isMeasuredData(incomingDataSetFile));
         data.setDataStoreCode(state.dataStoreCode);

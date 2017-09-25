@@ -64,9 +64,8 @@ def createSampleTypeWithProperties(sampleTypeCode, description, properties):
     addProperties(newSampleType, properties);
     samplesCache[sampleTypeCode] = newSampleType;
     
-def createDataSetTypeWithProperties(dataSetCode, kind, description, properties):
+def createDataSetTypeWithProperties(dataSetCode, description, properties):
     newDataSet = tr.getOrCreateNewDataSetType(dataSetCode);
-    newDataSet.setDataSetKind(kind);
     newDataSet.setDescription(description);
     addProperties(newDataSet, properties);
     
@@ -205,7 +204,7 @@ for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.ite
 #createExperimentTypeWithProperties("METHOD", "FOLDER FOR ORGANIZING METHODS SAMPLES", []);
 
 #createDatasetTypeWithProperties("SEQ_FILE", "Sequence fasta files", []);
-createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "Sequence fasta files", definitions.seqFileDefinition);
+createDataSetTypeWithProperties("SEQ_FILE", "Sequence fasta files", definitions.seqFileDefinition);
 ##
 ## Sample Types
 ##

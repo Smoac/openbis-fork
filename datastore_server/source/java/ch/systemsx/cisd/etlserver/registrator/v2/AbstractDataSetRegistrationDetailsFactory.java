@@ -24,6 +24,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSet;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -73,6 +74,10 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         {
             setDataSetTypeToDefaultValue(dataSetInfo);
         }
+        if (null == dataSetInfo.getDataSetKind())
+        {
+            setDataSetKindToDefaultValue(dataSetInfo);
+        }
         setDatabaseInstance(dataSetInfo);
         registrationDetails.setDataSetInformation(dataSetInfo);
         return registrationDetails;
@@ -120,6 +125,12 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
             dataSetInfo.setDataSetType(type);
         }
 
+        DataSetKind kind = userProvidedDataSetInformationOrNull.getDataSetKind();
+        if (null != kind)
+        {
+            dataSetInfo.setDataSetKind(kind);
+        }
+
         List<NewProperty> props = userProvidedDataSetInformationOrNull.getDataSetProperties();
         if (false == props.isEmpty())
         {
@@ -139,6 +150,11 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
     protected void setDataSetTypeToDefaultValue(T dataSetInfo)
     {
         dataSetInfo.setDataSetType(new DataSetType(DataSetTypeCode.UNKNOWN.getCode()));
+    }
+
+    protected void setDataSetKindToDefaultValue(T dataSetInfo)
+    {
+        dataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
     }
 
     protected final void setDatabaseInstance(DataSetInformation dataSetInfo)

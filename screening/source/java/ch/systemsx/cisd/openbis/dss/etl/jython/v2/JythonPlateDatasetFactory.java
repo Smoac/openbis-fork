@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDatasetFactory;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -190,6 +191,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
                 registrationDetails.getDataSetInformation();
         featureVectorDataSet.setFeatures(featureDefinitions);
         registrationDetails.setDataSetType(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE);
+        registrationDetails.setDataSetKind(DataSetKind.PHYSICAL);
         registrationDetails.setMeasuredData(false);
         if (false == featureVectorDataSet.isNotEmpty())
         {

@@ -410,7 +410,7 @@ public class EntityGraphManager
         return service.getSampleType(sessionToken, typeCode);
     }
 
-    private DataSetType createDataSetType(String typeCode, DataSetKind dataSetKind)
+    private DataSetType createDataSetType(String typeCode)
     {
         for (DataSetType dataSetType : commonService.listDataSetTypes(sessionToken))
         {
@@ -421,7 +421,6 @@ public class EntityGraphManager
         }
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(typeCode);
-        dataSetType.setDataSetKind(dataSetKind);
         commonService.registerDataSetType(sessionToken, dataSetType);
         dataSetType = service.getDataSetType(sessionToken, typeCode).getDataSetType();
         return dataSetType;
@@ -519,11 +518,9 @@ public class EntityGraphManager
         try
         {
             NewExternalData dataSet = new NewExternalData();
-            DataSetKind dataSetKind = DataSetKind.PHYSICAL;
             List<DataSetNode> components = dataSetNode.getComponents();
             if (components.isEmpty() == false)
             {
-                dataSetKind = DataSetKind.CONTAINER;
                 NewContainerDataSet cont = new NewContainerDataSet();
                 cont.setContainedDataSetCodes(getRelatedDataSetIdentifiers(dataSetNode, "component", components));
                 dataSet = cont;
@@ -534,7 +531,8 @@ public class EntityGraphManager
             {
                 dataSetTypeCode = "UNKNOWN-" + generateUniqueId();
             }
-            dataSet.setDataSetType(createDataSetType(dataSetTypeCode, dataSetKind));
+            dataSet.setDataSetType(createDataSetType(dataSetTypeCode));
+            dataSet.setDataSetKind(DataSetKind.PHYSICAL);
             dataSet.setFileFormatType(new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE));
             dataSet.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
             dataSet.setLocation(UUID.randomUUID().toString());

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -470,6 +471,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         NewExternalData newData = new NewExternalData();
         newData.setCode(permId);
         newData.setDataSetType(new DataSetType("UNKNOWN"));
+        newData.setDataSetKind(DataSetKind.PHYSICAL);
         newData.setFileFormatType(new FileFormatType("PROPRIETARY"));
         newData.setLocation("some/location/" + permId);
         newData.setLocatorType(new LocatorType("RELATIVE_LOCATION"));
@@ -489,6 +491,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         NewContainerDataSet newData = new NewContainerDataSet();
         newData.setCode(permId);
         newData.setDataSetType(new DataSetType("CONTAINER_TYPE"));
+        newData.setDataSetKind(DataSetKind.CONTAINER);
         newData.setDataStoreCode("STANDARD");
 
         List<String> containedCodes = new LinkedList<String>();

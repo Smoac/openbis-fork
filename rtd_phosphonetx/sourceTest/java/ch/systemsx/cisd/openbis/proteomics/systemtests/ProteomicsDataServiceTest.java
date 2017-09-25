@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -84,6 +85,7 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
             NewSample sample = msInjectionSamples.get(i);
             NewExternalData dataSet = new NewExternalData();
             dataSet.setDataSetType(new DataSetTypeBuilder().code("UNKNOWN").getDataSetType());
+            dataSet.setDataSetKind(DataSetKind.PHYSICAL);
             dataSet.setCode("DS-" + i);
             dataSet.setFileFormatType(new FileFormatType("XML"));
             dataSet.setDataStoreCode("STANDARD");

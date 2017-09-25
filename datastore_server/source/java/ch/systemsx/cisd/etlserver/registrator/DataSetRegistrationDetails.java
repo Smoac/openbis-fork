@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -131,6 +132,16 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
     public void setDataSetType(String dataSetTypeCode)
     {
         setDataSetType(new DataSetType(dataSetTypeCode));
+    }
+
+    public DataSetKind getDataSetKind()
+    {
+        return dataSetInformation.getDataSetKind();
+    }
+
+    public void setDataSetKind(DataSetKind dataSetKind)
+    {
+        dataSetInformation.setDataSetKind(dataSetKind);
     }
 
     public T getDataSetInformation()

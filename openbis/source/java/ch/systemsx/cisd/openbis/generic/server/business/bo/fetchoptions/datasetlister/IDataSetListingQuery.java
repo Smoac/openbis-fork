@@ -36,10 +36,10 @@ public interface IDataSetListingQuery extends BaseQuery
 
     @Select(sql = "select"
             + " ds.*," // This line is here so that we can potentially read access_timestamp field, which might not be present in the database
-            + " ds.id as ds_id, ds.code as ds_code, ds.registration_timestamp as ds_registration_timestamp,"
+            + " ds.id as ds_id, ds.code as ds_code, ds.data_set_kind as ds_data_set_kind, ds.registration_timestamp as ds_registration_timestamp,"
             + " ds.modification_timestamp as ds_modification_timestamp,"
             + " prdq.id IS NULL as ds_is_post_registered, "
-            + " dt.code as dt_code, dt.data_set_kind as dt_data_set_kind,"
+            + " dt.code as dt_code,"
             + " ex.code as ex_code, "
             + " ed.storage_confirmation as ed_sc,"
             + " sa.code as sa_code, sac.code as sac_code,"

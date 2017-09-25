@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmuta
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyTermImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author Manuel Kohler
@@ -85,6 +86,7 @@ public class AlignmentJavaDataSetRegistrationDropboxV2 extends
         // transaction.getGlobalState().getMailClient().sendEmailMessage(subject, content, replyToOrNull, fromOrNull, recipients)
 
         IDataSet newDataSet = transaction.createNewDataSet(DATA_SET_TYPE_ALIGNMENT);
+        newDataSet.setDataSetKind(DataSetKind.PHYSICAL);
 
         IExperimentImmutable experiment = firstDs.getExperiment();
 

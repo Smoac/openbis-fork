@@ -48,11 +48,9 @@ exp_type_MS_QUANTIFICATION.setDescription('Quantification of LC-MS data')
 
 data_set_type_MZXML_DATA = tr.getOrCreateNewDataSetType('MZXML_DATA')
 data_set_type_MZXML_DATA.setDescription('standardized format for ms data')
-data_set_type_MZXML_DATA.setContainerType(False)
 
 data_set_type_RAW_DATA = tr.getOrCreateNewDataSetType('RAW_DATA')
 data_set_type_RAW_DATA.setDescription(None)
-data_set_type_RAW_DATA.setContainerType(False)
 
 prop_type_PARENTDATASETCODES = tr.getOrCreateNewPropertyType('PARENT-DATA-SET-CODES', DataType.VARCHAR)
 prop_type_PARENTDATASETCODES.setLabel('Parent Dataset Codes')

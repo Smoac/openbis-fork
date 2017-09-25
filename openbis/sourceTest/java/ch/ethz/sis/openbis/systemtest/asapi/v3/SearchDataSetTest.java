@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
@@ -742,6 +743,32 @@ public class SearchDataSetTest extends AbstractDataSetTest
         {
             assertEquals(result.getObjects().size(), 0);
         }
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testFetchDataSetKind()
+    {
+    	// given
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new DataSetPermId("20120628092259000-23")); // link
+        criteria.withId().thatEquals(new DataSetPermId("COMPONENT_1A")); // physical
+        criteria.withId().thatEquals(new DataSetPermId("ROOT_CONTAINER")); // container
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.sortBy().code().asc();
+
+        // when
+        List<DataSet> dataSets = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+
+        // then
+        assertEquals(dataSets.get(0).getKind(), DataSetKind.LINK);
+        assertEquals(dataSets.get(1).getKind(), DataSetKind.PHYSICAL);
+        assertEquals(dataSets.get(2).getKind(), DataSetKind.CONTAINER);
 
         v3api.logout(sessionToken);
     }

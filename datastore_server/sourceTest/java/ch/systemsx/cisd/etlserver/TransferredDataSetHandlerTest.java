@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -113,6 +114,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
 
+    private static final DataSetKind DATA_SET_KIND = DataSetKind.PHYSICAL;
+
     private static final FileFormatType FILE_FORMAT_TYPE = new FileFormatType("FF1");
 
     private static final String DATA_PRODUCER_CODE = "microscope";
@@ -151,6 +154,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             assertEquals(expectedData.getLocatorType(), data.getLocatorType());
             assertEquals(expectedData.getFileFormatType(), data.getFileFormatType());
             assertEquals(expectedData.getDataSetType(), data.getDataSetType());
+            assertEquals(expectedData.getDataSetKind(), data.getDataSetKind());
             assertEquals(expectedData.getParentDataSetCodes(), data.getParentDataSetCodes());
             assertEquals(expectedData.getProductionDate(), data.getProductionDate());
             assertEquals(expectedData.getStorageFormat(), data.getStorageFormat());
@@ -313,6 +317,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
         dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
+        dataSetInformation.setDataSetKind(DATA_SET_KIND);
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("experiment1".toUpperCase());
         experimentIdentifier.setProjectCode("project1".toUpperCase());
@@ -363,6 +368,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data.setLocation(getRelativeTargetFolder() + File.separator + dataSet.getName());
         data.setLocatorType(LOCATOR_TYPE);
         data.setDataSetType(DATA_SET_TYPE);
+        data.setDataSetKind(DATA_SET_KIND);
         data.setFileFormatType(FILE_FORMAT_TYPE);
         data.setStorageFormat(StorageFormat.BDS_DIRECTORY);
         data.setDataProducerCode(DATA_PRODUCER_CODE);

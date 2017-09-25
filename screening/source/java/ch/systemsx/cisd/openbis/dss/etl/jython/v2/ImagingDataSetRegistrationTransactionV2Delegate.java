@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchServic
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
@@ -120,11 +121,23 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
         return transaction.createNewDataSet(dataSetType);
     }
 
+	@Override
+	public IDataSet createNewDataSet(String dataSetType, DataSetKind datasetKindOrNull)
+	{
+        return transaction.createNewDataSet(dataSetType, datasetKindOrNull);
+	}
+
     @Override
     public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
     {
         return transaction.createNewDataSet(dataSetType, dataSetCode);
     }
+
+	@Override
+	public IDataSet createNewDataSet(String dataSetType, String dataSetCode, DataSetKind datasetKindOrNull)
+	{
+        return transaction.createNewDataSet(dataSetType, dataSetCode, datasetKindOrNull);
+	}
 
     @Override
     public IDataSetImmutable getDataSet(String dataSetCode)

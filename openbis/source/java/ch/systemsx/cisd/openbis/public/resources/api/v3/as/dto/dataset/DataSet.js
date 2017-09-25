@@ -22,6 +22,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.linkedData = null;
 		prototype.tags = null;
 		prototype.type = null;
+		prototype.kind = null;
 		prototype.dataStore = null;
 		prototype.history = null;
 		prototype.modificationDate = null;
@@ -151,6 +152,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setType = function(type) {
 			this.type = type;
 		};
+        prototype.getKind = function() {
+            return this.kind;
+        };
+        prototype.setKind = function(kind) {
+            this.kind = kind;
+        };
 		prototype.getDataStore = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasDataStore()) {
 				return this.dataStore;

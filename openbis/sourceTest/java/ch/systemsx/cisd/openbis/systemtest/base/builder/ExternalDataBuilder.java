@@ -70,6 +70,8 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
 
     private String dataSetTypeCode;
 
+    private DataSetKind dataSetKind;
+
     private boolean container;
 
     public ExternalDataBuilder(ICommonServerForInternalUse commonServer,
@@ -88,6 +90,12 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
     {
         this.dataSetTypeCode = type;
         return this;
+    }
+
+    public ExternalDataBuilder withKind(DataSetKind kind)
+    {
+    	this.dataSetKind = kind;
+    	return this;
     }
 
     public ExternalDataBuilder inSample(Sample sample)
@@ -168,13 +176,6 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
     {
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(dataSetTypeCode == null ? "DT" + number++ : dataSetTypeCode);
-        if (this.container)
-        {
-            dataSetType.setDataSetKind(DataSetKind.CONTAINER);
-        } else
-        {
-            dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
-        }
         registerDataSetType(dataSetType);
 
         NewExternalData data;
@@ -189,6 +190,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         }
         data.setCode(this.code);
         data.setDataSetType(dataSetType);
+        data.setDataSetKind(dataSetKind);
         data.setFileFormatType(new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE));
         data.setSampleIdentifierOrNull(this.sampleIdentifier);
         data.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));

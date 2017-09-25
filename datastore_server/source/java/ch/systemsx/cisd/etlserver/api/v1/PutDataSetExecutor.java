@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.RSyncConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -362,6 +363,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         {
             dataSetInfo.setDataSetType(new DataSetType(typeCode));
         }
+        dataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
 
         Map<String, String> primitiveProps = newDataSet.getProperties();
         if (false == primitiveProps.isEmpty())
@@ -812,6 +814,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             {
                 dataSetInfo.setDataSetType(new DataSetType(typeCode));
             }
+            dataSetInfo.setDataSetKind(DataSetKind.PHYSICAL);
 
             Map<String, String> primitiveProps = newDataSet.getProperties();
             if (false == primitiveProps.isEmpty())

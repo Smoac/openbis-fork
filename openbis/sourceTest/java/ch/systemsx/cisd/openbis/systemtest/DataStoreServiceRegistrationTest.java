@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -119,7 +118,7 @@ public class DataStoreServiceRegistrationTest extends SystemTestCase
 
         // 2. register a new data set type
         DataSetType dataSetType =
-                new DataSetTypeBuilder().code("H").kind(DataSetKind.PHYSICAL).getDataSetType();
+                new DataSetTypeBuilder().code("H").getDataSetType();
         commonServer.registerDataSetType(systemSessionToken, dataSetType);
 
         checkDataSetTypes("[H, HCS_IMAGE, HCS_IMAGE_ANALYSIS_DATA, UNKNOWN]",
