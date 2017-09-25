@@ -125,6 +125,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SampleTypeCreation = dtos.SampleTypeCreation;
 		this.DataSetTypeCreation = dtos.DataSetTypeCreation;
 		this.MaterialTypeCreation = dtos.MaterialTypeCreation;
+		this.WebAppSettings = dtos.WebAppSettings;
 
 		// operations
 

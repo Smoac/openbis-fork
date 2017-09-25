@@ -956,6 +956,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
     {
         try
@@ -979,6 +980,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
         Session session = getSession(sessionToken);

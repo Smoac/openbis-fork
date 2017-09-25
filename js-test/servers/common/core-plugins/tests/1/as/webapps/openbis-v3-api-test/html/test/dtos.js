@@ -502,6 +502,8 @@ var sources = [
 	'as/dto/vocabulary/update/UpdateVocabularyTermsOperation',
 	'as/dto/vocabulary/update/UpdateVocabularyTermsOperationResult',
 	
+	'as/dto/webapp/WebAppSettings',
+	
 	'as/dto/operation/delete/OperationExecutionDeletionOptions',
 	'as/dto/operation/delete/DeleteOperationExecutionsOperation',
 	'as/dto/operation/delete/DeleteOperationExecutionsOperationResult',
