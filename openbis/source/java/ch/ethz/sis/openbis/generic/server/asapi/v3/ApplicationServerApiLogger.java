@@ -145,6 +145,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.webapp.WebAppSettings;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
@@ -665,6 +666,19 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<String, String> getServerInformation(String sessionToken)
     {
         logAccess(sessionToken, "server-info");
+        return null;
+    }
+
+    @Override
+    public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
+    {
+        logAccess(sessionToken, "set-web-app-settings", "SETTINGS(%s)", webAppSettings);
+    }
+
+    @Override
+    public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
+    {
+        logAccess(sessionToken, "get-web-app-settings", "WEB_APP_ID(%s)", webAppId);
         return null;
     }
 

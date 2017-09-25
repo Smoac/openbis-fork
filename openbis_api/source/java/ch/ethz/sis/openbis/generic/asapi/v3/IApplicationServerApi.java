@@ -144,6 +144,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.webapp.WebAppSettings;
 import ch.systemsx.cisd.common.annotation.TechPreview;
 import ch.systemsx.cisd.common.api.IRpcService;
 
@@ -344,6 +345,10 @@ public interface IApplicationServerApi extends IRpcService
             IOperationExecutionOptions options);
 
     public Map<String, String> getServerInformation(String sessionToken);
+    
+    public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings);
+    
+    public WebAppSettings getWebAppSettings(String sessionToken, String webAppId);
 
     @TechPreview
     public List<String> createPermIdStrings(String sessionToken, int amount);

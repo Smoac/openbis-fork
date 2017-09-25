@@ -1640,3 +1640,12 @@ withEntityType
 withEntityTypeUsing
 withPropertyAssignment
 withPropertyAssignmentUsing
+
+get Web App Settings
+set Web App Settings
+Web App Settings
+get Settings
+set Settings
+get Web App Id
+set Web App Id
+]

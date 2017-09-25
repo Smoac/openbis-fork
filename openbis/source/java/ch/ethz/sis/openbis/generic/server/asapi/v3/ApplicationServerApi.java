@@ -273,8 +273,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.SearchVocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.UpdateVocabularyTermsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.webapp.WebAppSettings;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IExecuteOperationExecutor;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -285,6 +287,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -950,6 +953,41 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         // info.put("server-disabled-info", disabledText);
         // }
         return info;
+    }
+
+    @Override
+    public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
+    {
+        try
+        {
+            Session session = getSession(sessionToken);
+            PersonPE person = session.tryGetPerson();
+            if (person != null)
+            {
+                synchronized (displaySettingsProvider)
+                {
+                    displaySettingsProvider.replaceWebAppSettings(person, 
+                            new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings(
+                                    webAppSettings.getWebAppId(), webAppSettings.getSettings()));
+                    getDAOFactory().getPersonDAO().updatePerson(person);
+                }
+            }
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+        }
+    }
+
+    @Override
+    public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
+    {
+        Session session = getSession(sessionToken);
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings settings 
+                = displaySettingsProvider.getWebAppSettings(session.tryGetPerson(), webAppId);
+        WebAppSettings webAppSettings = new WebAppSettings();
+        webAppSettings.setWebAppId(webAppId);
+        webAppSettings.setSettings(settings.getSettings());
+        return webAppSettings;
     }
 
     @Override
