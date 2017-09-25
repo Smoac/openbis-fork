@@ -29,6 +29,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import SearchOperator
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataSetKind
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from org.springframework.web.context.request import RequestContextHolder, RequestAttributes
 
@@ -535,6 +536,7 @@ def copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment, tag):
 				publicationDataSet = tr.createNewDataSet(originalDataSet.getDataSetType())
 			else:
 				publicationDataSet = tr.createNewDataSet("PUBLICATION_CONTAINER")
+			publicationDataSet.setDataSetKind(DataSetKind.CONTAINER);
 
 			log("copyOrUpdateDataSets - originalDataSet: " + str(originalDataSet.getDataSetCode()) + ", publicationDataSet: " + str(publicationDataSet.getDataSetCode()), DEBUG) 
 			
