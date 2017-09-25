@@ -1188,6 +1188,28 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.setWebAppSettings = function(webAppSettings) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "setWebAppSettings",
+					"params" : [ thisFacade._private.sessionToken, webAppSettings]
+				}
+			});
+		}
+
+		this.getWebAppSettings = function(webAppId) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getWebAppSettings",
+					"params" : [ thisFacade._private.sessionToken, webAppId]
+				}
+			});
+		}
+		
 		this.createPermIdStrings = function(amount) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
