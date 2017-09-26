@@ -349,8 +349,6 @@ public interface IApplicationServerApi extends IRpcService
     @TechPreview
     public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings);
     
-    public void createWebAppProperties(String sessionToken, List<WebAppPropertyCreation> creations);
-    
     @TechPreview
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId);
 
