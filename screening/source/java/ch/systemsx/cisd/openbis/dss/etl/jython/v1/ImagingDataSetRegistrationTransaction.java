@@ -576,6 +576,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         ImageContainerDataSet containerDataset =
                 (ImageContainerDataSet) createNewDataSet(imageContainerDatasetFactory,
                         containerDatasetTypeCode);
+        containerDataset.setDataSetKind(DataSetKind.CONTAINER);
         setSameDatasetOwner(mainDataset, containerDataset);
         moveDatasetRelations(mainDataset, containerDataset);
 
