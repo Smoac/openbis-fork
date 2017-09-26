@@ -2,6 +2,7 @@ import glob
 import os
 from datetime import datetime
 from ch.systemsx.cisd.openbis.dss.generic.shared.utils import ExcelFileReader
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataSetKind
 
 def process(transaction):
     print "Starting..."
@@ -43,6 +44,7 @@ def createDsWithPermId(transaction, sample, code, ds_type):
 
 def registerContainerDS(transaction, experiment, comp_ds_code):
     container = transaction.createNewDataSet("HCS_IMAGE_CONTAINER_RAW", "CONTAINER_DS1")
+    container.setDataSetKind(DataSetKind.CONTAINER)
     container.setExperiment(experiment)
     container.setContainedDataSetCodes([comp_ds_code])
 

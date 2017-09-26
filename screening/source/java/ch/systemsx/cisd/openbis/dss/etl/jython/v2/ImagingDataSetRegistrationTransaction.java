@@ -679,6 +679,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                         factory.featureVectorContainerDatasetFactory, containerDatasetTypeCode);
         containerDataSet.setContainedDataSetCodes(Collections.singletonList(mainDataset
                 .getDataSetCode()));
+        containerDataSet.setDataSetKind(DataSetKind.CONTAINER);
 
         containerDataSet.setOriginalDataSet(mainDataset);
 
