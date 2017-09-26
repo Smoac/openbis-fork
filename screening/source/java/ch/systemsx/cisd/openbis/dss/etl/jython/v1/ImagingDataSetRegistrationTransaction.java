@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -595,6 +596,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                         factory.featureVectorContainerDatasetFactory, containerDatasetTypeCode);
         containerDataSet.setContainedDataSetCodes(Collections.singletonList(mainDataset
                 .getDataSetCode()));
+        containerDataSet.setDataSetKind(DataSetKind.CONTAINER);
 
         containerDataSet.setOriginalDataSet(mainDataset);
 

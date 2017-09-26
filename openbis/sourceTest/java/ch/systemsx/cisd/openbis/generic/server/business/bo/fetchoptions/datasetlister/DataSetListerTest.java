@@ -175,12 +175,11 @@ public class DataSetListerTest extends AbstractDAOTest
             {
                 if (url.getDataStoreURL().equals("http://download_1"))
                 {
-                    assertEquals(Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                	assertListContains(Arrays.asList("20081105092159188-3", "20081105092159111-1",
                             "20081105092259000-19"), url.getDataSetCodes());
                 } else if (url.getDataStoreURL().equals("http://download_2"))
                 {
-                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"),
-                            url.getDataSetCodes());
+                	assertListContains(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url.getDataSetCodes());
                 } else
                 {
                     fail("URL " + url + " not expected.");
@@ -193,12 +192,11 @@ public class DataSetListerTest extends AbstractDAOTest
             {
                 if (url.getDataStoreURL().equals("http://remote_1"))
                 {
-                    assertEquals(Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                	assertListContains(Arrays.asList("20081105092159188-3", "20081105092159111-1",
                             "20081105092259000-19"), url.getDataSetCodes());
                 } else if (url.getDataStoreURL().equals("http://remote_2"))
                 {
-                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"),
-                            url.getDataSetCodes());
+                	assertListContains(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url.getDataSetCodes());
                 } else
                 {
                     fail("URL " + url + " not expected.");
@@ -210,7 +208,18 @@ public class DataSetListerTest extends AbstractDAOTest
         }
     }
 
-    @Test
+    private void assertListContains(List<String> expectedCodes, List<String> dataSetCodes)
+	{
+    	for (String expectedCode : expectedCodes)
+    	{
+    		if (false == dataSetCodes.contains(expectedCode))
+    		{
+    			fail("Data set code " + expectedCode + " is expected to be in collection " + dataSetCodes);
+    		}
+    	}
+	}
+
+	@Test
     public void testGetDataSetMetaDataForExistingDataSetCodesWithParentsShouldReturnDataSetsWithParents()
     {
         List<String> codes = new ArrayList<String>();
