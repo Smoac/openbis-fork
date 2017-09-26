@@ -1,3 +1,5 @@
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataSetKind
+
 SPACE_CODE = "LDSS"
 PROJECT_ID = "/LDSS/LDSP"
 EXPERIMENT_ID = "/LDSS/LDSP/LDSPE"
@@ -16,6 +18,7 @@ def process(transaction):
     linkds = transaction.createNewDataSet("LINK_TYPE")
     linkds.setExperiment(experiment)
     linkds.setExternalCode("EX_CODE_1")
+    linkds.setDataSetKind(DataSetKind.LINK)
     externalDMS = transaction.getExternalDataManagementSystem("DMS_1")
     if (externalDMS is None):
         raise "External data management system with code DMS_1, has not been found in the database"
