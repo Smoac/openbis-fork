@@ -1,5 +1,7 @@
 from ch.systemsx.cisd.common.mail import EMailAddress
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataSetKind
+
 SPACE_CODE = "RICH_SPACE"
 PROJECT_ID = "/RICH_SPACE/RICH_PROJECT"
 EXPERIMENT_ID = "/RICH_SPACE/RICH_PROJECT/RICH_EXPERIMENT"
@@ -98,6 +100,7 @@ def process(transaction):
     
     # register link data set
     link = transaction.createNewDataSet("LINK_TYPE", "FR_LINK_CODE")
+    link.setDataSetKind(DataSetKind.LINK);
     link.setExperiment(experiment)
     link.setExternalCode("EX_CODE")
     link.setExternalDataManagementSystem(transaction.getExternalDataManagementSystem("DMS_1"))
