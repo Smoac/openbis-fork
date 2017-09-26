@@ -346,8 +346,12 @@ public interface IApplicationServerApi extends IRpcService
 
     public Map<String, String> getServerInformation(String sessionToken);
     
+    @TechPreview
     public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings);
     
+    public void createWebAppProperties(String sessionToken, List<WebAppPropertyCreation> creations);
+    
+    @TechPreview
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId);
 
     @TechPreview
