@@ -35,6 +35,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 // TODO 2010-07-14, Piotr Buczek: write tests for nontrivial methods
 final public class AuthorizationDataProvider implements IAuthorizationDataProvider
 {
+    private static final class PermId2StringMapper implements IMapper<List<PermId>, List<?>>
+    {
+        @Override
+        public List<?> map(List<PermId> permIds)
+        {
+            return PermId.asStrings(permIds);
+        }
+    }
+
+    private static final class TechId2LongMapper implements IMapper<List<TechId>, List<?>>
+    {
+        @Override
+        public List<?> map(List<TechId> techIds)
+        {
+            return TechId.asLongs(techIds);
+        }
+    }
+
     private final IAuthorizationDAOFactory daoFactory;
 
     public AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
@@ -192,14 +210,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(final List<TechId> dataSetTechIds)
     {
         return getEntityCollectionAccessData("dataset", DataSetAccessPE.DATASET_ACCESS_BY_TECH_IDS_QUERY_NAME,
-                DataSetAccessPE.DATA_SET_IDS_PARAMETER_NAME, dataSetTechIds, new IMapper<List<TechId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<TechId> techIds)
-                        {
-                            return TechId.asLongs(techIds);
-                        }
-                    });
+                DataSetAccessPE.DATA_SET_IDS_PARAMETER_NAME, dataSetTechIds, new TechId2LongMapper());
     }
 
     @Override
@@ -213,70 +224,35 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(final List<TechId> deletionIds)
     {
         return getEntityCollectionAccessData("deletion", DataSetAccessPE.DELETED_DATASET_ACCESS_QUERY_NAME,
-                DataSetAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new IMapper<List<TechId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<TechId> techIds)
-                        {
-                            return TechId.asLongs(techIds);
-                        }
-                    });
+                DataSetAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper());
     }
 
     @Override
     public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleTechIds)
     {
         return getEntityCollectionAccessData("sample", SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME,
-                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, sampleTechIds, new IMapper<List<TechId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<TechId> techIds)
-                        {
-                            return TechId.asLongs(techIds);
-                        }
-                    });
+                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, sampleTechIds, new TechId2LongMapper());
     }
 
     @Override
     public Set<SampleAccessPE> getSampleCollectionAccessDataByPermIds(List<PermId> samplePermIds)
     {
         return getEntityCollectionAccessData("sample", SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME,
-                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, samplePermIds, new IMapper<List<PermId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<PermId> permIds)
-                        {
-                            return PermId.asStrings(permIds);
-                        }
-                    });
+                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, samplePermIds, new PermId2StringMapper());
     }
 
     @Override
     public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(List<TechId> deletionIds)
     {
         return getEntityCollectionAccessData("deletion", SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME,
-                SampleAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new IMapper<List<TechId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<TechId> techIds)
-                        {
-                            return TechId.asLongs(techIds);
-                        }
-                    });
+                SampleAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper());
     }
 
     @Override
     public Set<ExperimentAccessPE> getExperimentCollectionAccessData(final List<TechId> experimentIds)
     {
         return getEntityCollectionAccessData("experiment", ExperimentAccessPE.EXPERIMENT_ACCESS_QUERY_NAME,
-                ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME, experimentIds, new IMapper<List<TechId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<TechId> techIds)
-                        {
-                            return TechId.asLongs(techIds);
-                        }
-                    });
+                ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME, experimentIds, new TechId2LongMapper());
     }
 
     @Override
@@ -284,14 +260,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
             final List<TechId> deletionIds)
     {
         return getEntityCollectionAccessData("deletion", ExperimentAccessPE.DELETED_EXPERIMENT_ACCESS_QUERY_NAME,
-                ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new IMapper<List<TechId>, List<?>>()
-                    {
-                        @Override
-                        public List<?> map(List<TechId> techIds)
-                        {
-                            return TechId.asLongs(techIds);
-                        }
-                    });
+                ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper());
     }
 
     private <V, R> Set<R> getEntityCollectionAccessData(String entityName, String queryName, String parameterName, List<V> values,

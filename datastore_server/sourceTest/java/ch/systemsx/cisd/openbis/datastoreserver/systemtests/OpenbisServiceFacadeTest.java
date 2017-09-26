@@ -413,7 +413,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
         String code = dataSet.getCode();
         // Because serviceFacade.getDataSet() relies on updated lucene index (which is done
-        // asynchronously) we tried it for ten second to retrieve the just created data set.
+        // asynchronously) we tried it for 60 second to retrieve the just created data set.
         for (int i = 0; i < 60; i++)
         {
             DataSet retrievedDataSet = serviceFacade.getDataSet(code);
