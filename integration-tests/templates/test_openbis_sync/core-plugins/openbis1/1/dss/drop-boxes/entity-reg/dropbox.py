@@ -43,8 +43,7 @@ def createDsWithPermId(transaction, sample, code, ds_type):
     return ds
 
 def registerContainerDS(transaction, experiment, comp_ds_code):
-    container = transaction.createNewDataSet("HCS_IMAGE_CONTAINER_RAW", "CONTAINER_DS1")
-    container.setDataSetKind(DataSetKind.CONTAINER)
+    container = transaction.createNewDataSet("HCS_IMAGE_CONTAINER_RAW", "CONTAINER_DS1", DataSetKind.CONTAINER)
     container.setExperiment(experiment)
     container.setContainedDataSetCodes([comp_ds_code])
 
