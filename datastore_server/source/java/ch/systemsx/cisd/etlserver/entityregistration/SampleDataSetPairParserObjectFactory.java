@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyModel;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -54,7 +55,7 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
      * Clients use the factory factory to make a SampleDataSetPairParserObjectFactory.
      */
     public static IParserObjectFactoryFactory<SampleDataSetPair> createFactoryFactory(
-            final SampleType sampleType, final DataSetType dataSetType)
+            final SampleType sampleType, final DataSetType dataSetType, DataSetKind dataSetKind)
     {
         IParserObjectFactoryFactory<SampleDataSetPair> factoryFactory =
                 new IParserObjectFactoryFactory<SampleDataSetPair>()
@@ -64,7 +65,7 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {
                             return new SampleDataSetPairParserObjectFactory(sampleType,
-                                    dataSetType, propertyMapper);
+                                    dataSetType, dataSetKind, propertyMapper);
                         }
                     };
 
@@ -75,17 +76,20 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
 
     private final DataSetType dataSetType;
 
+    private final DataSetKind dataSetKind;
+
     /**
      * Clients should use the factory factory to create the factory.
      * 
      * @param propertyMapper
      */
-    private SampleDataSetPairParserObjectFactory(SampleType sampleType, DataSetType dataSetType,
+    private SampleDataSetPairParserObjectFactory(SampleType sampleType, DataSetType dataSetType, DataSetKind dataSetKind,
             IPropertyMapper propertyMapper)
     {
         super(SampleDataSetPair.class, propertyMapper);
         this.sampleType = sampleType;
         this.dataSetType = dataSetType;
+        this.dataSetKind = dataSetKind;
     }
 
     private final PropertyType createPropertyType(final String propertyTypeCode)
@@ -218,5 +222,6 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
     {
         DataSetInformation dataSetInformation = newSampleDataSet.getDataSetInformation();
         dataSetInformation.setDataSetType(dataSetType);
+        dataSetInformation.setDataSetKind(dataSetKind);
     }
 }

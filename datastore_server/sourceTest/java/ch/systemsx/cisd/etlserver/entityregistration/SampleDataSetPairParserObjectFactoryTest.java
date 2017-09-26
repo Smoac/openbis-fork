@@ -50,7 +50,7 @@ public class SampleDataSetPairParserObjectFactoryTest extends AssertJUnit
         BisTabFileLoader<SampleDataSetPair> controlFileLoader =
                 new BisTabFileLoader<SampleDataSetPair>(
                         SampleDataSetPairParserObjectFactory.createFactoryFactory(
-                                properties.trySampleType(), properties.tryDataSetType()), false);
+                                properties.trySampleType(), properties.tryDataSetType(), properties.tryDataSetKind()), false);
 
         Reader reader = UnicodeUtils.createReader(new FileInputStream(controlFile));
         Map<String, String> defaults = Collections.emptyMap();

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.entityregistration;
 
 import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.DATA_SET_TYPE_PROPERTIES_KEY;
+import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.DATA_SET_KIND_PROPERTIES_KEY;
 import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_PROPERTIES_KEY;
 
 import java.io.File;
@@ -137,9 +138,9 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]\n"
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DATA_SET_KIND(PHYSICAL) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]\n"
                         + "Encountered errors in the following lines:\n"
                         + "# Illegal empty identifier\n"
                         + "\t/MYSPACE/MYPROJ/EXP2\tVAL11\tVAL21\tVAL31\tFILE_TYPE\tVAL41\tVAL51\tds2/\n\n"
@@ -177,8 +178,8 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DATA_SET_KIND(PHYSICAL) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
                         + "The following subfolders were in the uploaded folder, but were not mentioned in the control file:\n"
                         + "ds2,ds3\n"
                         + "The following lines were successfully processed:\n"
@@ -215,10 +216,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DATA_SET_KIND(PHYSICAL) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();
@@ -249,14 +250,15 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         Properties props = createDefaultHandlerProps();
         props.put(HANDLER_PROP_PREFIX + SAMPLE_TYPE_PROPERTIES_KEY, "DEF_SAMPLE_TYPE");
         props.put(HANDLER_PROP_PREFIX + DATA_SET_TYPE_PROPERTIES_KEY, "DEF_DS_TYPE");
+        props.put(HANDLER_PROP_PREFIX + DATA_SET_KIND_PROPERTIES_KEY, "PHYSICAL");
         initializeDataSetHandler(props);
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(null) DATA_SET_TYPE(null) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(null) DATA_SET_TYPE(null) DATA_SET_KIND(null) USER(test@test.test)\n"
+        				+ "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();
@@ -288,10 +290,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DATA_SET_KIND(PHYSICAL) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();
@@ -324,10 +326,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
-                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
-                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DATA_SET_KIND(PHYSICAL) USER(test@test.test)\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();
@@ -363,10 +365,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(markerFile);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
-                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DATA_SET_KIND(PHYSICAL) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Is complete::U]\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Data Set Kind::PHYSICAL;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Is complete::U]";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();

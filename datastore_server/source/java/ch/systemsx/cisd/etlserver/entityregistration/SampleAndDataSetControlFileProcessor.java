@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationGlobalState.SampleRegistrationMode;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleDataSetPair.SampleDataSetPairProcessing;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -129,6 +130,18 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             return dataSetType;
         }
 
+        public DataSetKind tryDataSetKind()
+        {
+            String dataSetKindString =
+                    properties
+                            .tryGet(SampleAndDataSetRegistrationHandler.DATA_SET_KIND_CONTROL_FILE_KEY);
+            if (null == dataSetKindString)
+            {
+                return null;
+            }
+            return DataSetKind.valueOf(dataSetKindString);
+        }
+
         public String tryUserString()
         {
             return properties.tryGet(SampleAndDataSetRegistrationHandler.USER_CONTROL_FILE_KEY);
@@ -199,6 +212,16 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             return dataSetType;
         }
 
+        public DataSetKind getDataSetKind()
+        {
+        	DataSetKind dataSetKind = overrideProperties.tryDataSetKind();
+            if (null == dataSetKind)
+            {
+            	dataSetKind = globalProperties.tryDataSetKind();
+            }
+            return dataSetKind;
+        }
+
         public Person getUser()
         {
             return user;
@@ -258,7 +281,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         BisTabFileLoader<SampleDataSetPair> controlFileLoader =
                 new BisTabFileLoader<SampleDataSetPair>(
                         SampleDataSetPairParserObjectFactory.createFactoryFactory(
-                                properties.getSampleType(), properties.getDataSetType()), false);
+                                properties.getSampleType(), properties.getDataSetType(), properties.getDataSetKind()), false);
 
         List<SampleDataSetPair> loadedSampleDataSetPairs = null;
 
@@ -471,9 +494,9 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     {
         String message =
                 String.format(
-                        "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DATA_SET_TYPE(%s) USER(%s)",
+                        "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DATA_SET_TYPE(%s) DATA_SET_KIND(%s) USER(%s)",
                         controlFile.getName(), overrideProperties.trySampleType(),
-                        overrideProperties.tryDataSetType(), overrideProperties.tryUserString());
+                        overrideProperties.tryDataSetType(), overrideProperties.tryDataSetKind(), overrideProperties.tryUserString());
         logInfo(message);
     }
 

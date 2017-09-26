@@ -260,6 +260,10 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
 
             data.setFileFormatType(fileFormatType);
         }
+        if (null != data.getDataSetKind())
+        {
+            data.setDataSetKind(data.getDataSetKind());
+        }
     }
 
     /**

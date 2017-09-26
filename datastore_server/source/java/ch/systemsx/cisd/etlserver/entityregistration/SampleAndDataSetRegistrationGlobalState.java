@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -52,6 +53,8 @@ class SampleAndDataSetRegistrationGlobalState
 
     private final DataSetType dataSetTypeOrNull;
 
+    private final DataSetKind dataSetKindOrNull;
+
     private final SampleRegistrationMode sampleRegistrationMode;
 
     private final List<String> errorEmailRecipientsOrNull;
@@ -70,7 +73,7 @@ class SampleAndDataSetRegistrationGlobalState
 
     SampleAndDataSetRegistrationGlobalState(IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService, SpaceIdentifier spaceIdentifierOrNull,
-            SampleType sampleTypeOrNull, DataSetType dataSetTypeOrNull,
+            SampleType sampleTypeOrNull, DataSetType dataSetTypeOrNull, DataSetKind dataSetKindOrNull,
             SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
             String controlFilePattern, boolean alwaysCleanupAfterProcessing,
             boolean unmentionedSubfolderIsFailure, boolean useIsFinishedMarkerFile, Logger operationLog)
@@ -80,6 +83,7 @@ class SampleAndDataSetRegistrationGlobalState
         this.spaceIdentifierOrNull = spaceIdentifierOrNull;
         this.sampleTypeOrNull = sampleTypeOrNull;
         this.dataSetTypeOrNull = dataSetTypeOrNull;
+        this.dataSetKindOrNull = dataSetKindOrNull;
         this.sampleRegistrationMode = sampleRegistrationMode;
         this.errorEmailRecipientsOrNull = errorEmailRecipientsOrNull;
         this.controlFilePattern = controlFilePattern;
@@ -126,6 +130,11 @@ class SampleAndDataSetRegistrationGlobalState
     public DataSetType tryDataSetType()
     {
         return dataSetTypeOrNull;
+    }
+
+    public DataSetKind tryDataSetKind()
+    {
+        return dataSetKindOrNull;
     }
 
     public SampleRegistrationMode getSampleRegistrationMode()

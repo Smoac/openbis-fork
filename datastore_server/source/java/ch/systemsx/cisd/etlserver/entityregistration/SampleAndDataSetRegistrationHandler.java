@@ -37,6 +37,7 @@ import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistratio
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -58,7 +59,11 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
 
     static final String DATA_SET_TYPE_CONTROL_FILE_KEY = "DATA_SET_TYPE";
 
+    static final String DATA_SET_KIND_CONTROL_FILE_KEY = "DATA_SET_KIND";
+
     static final String DATA_SET_TYPE_PROPERTIES_KEY = "data-set-type";
+
+    static final String DATA_SET_KIND_PROPERTIES_KEY = "data-set-kind";
 
     static final String SAMPLE_REGISTRATION_MODE_PROPERTIES_KEY = "sample-registration-mode";
 
@@ -126,6 +131,14 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
             dataSetTypeOrNull.setCode(dataSetTypeCodeOrNull);
         }
 
+        String dataSetKindStringOrNull =
+                PropertyUtils.getProperty(specificProperties, DATA_SET_KIND_PROPERTIES_KEY);
+        DataSetKind dataSetKindOrNull = null;
+        if (null != dataSetKindStringOrNull)
+        {
+        	dataSetKindOrNull = DataSetKind.valueOf(dataSetKindStringOrNull);
+        }
+
         String sampleRegistrationModeStringOrNull =
                 PropertyUtils.getProperty(specificProperties,
                         SAMPLE_REGISTRATION_MODE_PROPERTIES_KEY);
@@ -161,7 +174,7 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
                 ((IExtensibleDataSetHandler) delegator).isUseIsFinishedMarkerFile();
 
         return new SampleAndDataSetRegistrationGlobalState(delegator, service, spaceIdentifier,
-                sampleTypeOrNull, dataSetTypeOrNull, registrationMode, errorEmailRecipients,
+                sampleTypeOrNull, dataSetTypeOrNull, dataSetKindOrNull, registrationMode, errorEmailRecipients,
                 controlFilePattern, deleteFilesOnFailure, unmentionedSubfolderIsFailure,
                 userFinishedMarkerFile, operationLog);
     }
