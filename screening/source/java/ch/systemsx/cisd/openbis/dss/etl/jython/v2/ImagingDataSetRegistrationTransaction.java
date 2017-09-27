@@ -643,7 +643,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             ThumbnailsStorageFormat thumbnailsStorageFormat)
     {
         String thumbnailsDatasetTypeCode = findThumbnailsDatasetTypeCode(imageDataSetInformation);
-        IDataSet thumbnailDataset = createNewDataSet(thumbnailsDatasetTypeCode, "PHYSICAL");
+        IDataSet thumbnailDataset = createNewDataSet(thumbnailsDatasetTypeCode,  DataSetKind.PHYSICAL);
         thumbnailDataset.setFileFormatType(thumbnailsStorageFormat.getFileFormat()
                 .getOpenBISFileType());
         thumbnailDataset.setMeasuredData(false);
