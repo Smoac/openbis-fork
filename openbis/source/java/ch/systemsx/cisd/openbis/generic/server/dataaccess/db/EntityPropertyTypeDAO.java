@@ -92,6 +92,12 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     //
 
     @Override
+    public List<EntityTypePropertyTypePE> listEntityPropertyTypes() throws DataAccessException
+    {
+        return cast(getHibernateTemplate().loadAll(getEntityTypePropertyTypeAssignmentClass()));
+    }
+
+    @Override
     public final List<EntityTypePropertyTypePE> listEntityPropertyTypes(
             final EntityTypePE entityType) throws DataAccessException
     {
@@ -304,7 +310,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                 String.format(
                         "SELECT e.id FROM %s e WHERE e.%s = ? AND e not in (SELECT p.entity FROM %s p WHERE p.entityTypePropertyType = ?)",
                         entityKind.getEntityClass().getSimpleName(), entityKind
-                                .getEntityTypeFieldName(), entityKind.getEntityPropertyClass()
+                                .getEntityTypeFieldName(),
+                        entityKind.getEntityPropertyClass()
                                 .getSimpleName());
         final List<Long> list =
                 cast(getHibernateTemplate().find(query,
@@ -495,7 +502,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         String query =
                 String.format("UPDATE %s etpt SET etpt.ordinal = etpt.ordinal + ? "
                         + "WHERE etpt.entityTypeInternal = ? AND etpt.ordinal >= ?", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         final int updatedRows =
                 hibernateTemplate.bulkUpdate(query,
                         toArray(new Long(increment), entityType, fromOrdinal));
@@ -518,7 +525,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         String query =
                 String.format("select max(etpt.ordinal) from %s etpt "
                         + "WHERE etpt.entityTypeInternal = ?", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
 
         List<Long> resultList = cast(hibernateTemplate.find(query, entityType));
         Long maxOrdinal = resultList.get(0);
@@ -544,7 +551,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                 String.format("SELECT count(pv) FROM %s pa join pa.propertyValues pv "
                         + "WHERE pa.propertyTypeInternal.simpleCode = ? "
                         + "AND pa.entityTypeInternal.code = ?", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         return ((Long) (getHibernateTemplate().find(query,
                 toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
     }

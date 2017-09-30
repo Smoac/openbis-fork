@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticAnnotationId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SemanticAnnotationPE;
@@ -28,6 +29,12 @@ public interface ISemanticAnnotationAuthorizationExecutor extends IObjectAuthori
 
     void canCreate(IOperationContext context, SemanticAnnotationPE annotation);
 
+    void canUpdate(IOperationContext context, ISemanticAnnotationId id, SemanticAnnotationPE annotation);
+
+    void canDelete(IOperationContext context, ISemanticAnnotationId entityId, SemanticAnnotationPE entity);
+
     void canGet(IOperationContext context);
+
+    void canSearch(IOperationContext context);
 
 }

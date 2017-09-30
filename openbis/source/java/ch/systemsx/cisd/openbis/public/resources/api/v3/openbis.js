@@ -601,6 +601,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
+		
+		this.updateSemanticAnnotations = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateSemanticAnnotations",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
 
 		this.getSpaces = function(ids, fetchOptions) {
 			var thisFacade = this;
@@ -982,6 +993,18 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				returnType : "SearchResult"
 			});
 		}
+		
+		this.searchSemanticAnnotations = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchSemanticAnnotations",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
 
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
@@ -1091,6 +1114,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				url : openbisUrl,
 				data : {
 					"method" : "deleteOperationExecutions",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+		
+		this.deleteSemanticAnnotations = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteSemanticAnnotations",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
 				}
 			});

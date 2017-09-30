@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticAnnotationId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -40,7 +41,25 @@ public class SemanticAnnotationAuthorizationExecutor implements ISemanticAnnotat
     @DatabaseCreateOrDeleteModification({ ObjectKind.SEMANTIC_ANNOTATION })
     @DatabaseUpdateModification({ ObjectKind.PROPERTY_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT, ObjectKind.MATERIAL_TYPE,
             ObjectKind.EXPERIMENT_TYPE, ObjectKind.SAMPLE_TYPE, ObjectKind.DATASET_TYPE })
-    public void canCreate(IOperationContext context, SemanticAnnotationPE space)
+    public void canCreate(IOperationContext context, SemanticAnnotationPE annotation)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("UPDATE_SEMANTIC_ANNOTATION")
+    @DatabaseUpdateModification(value = ObjectKind.SEMANTIC_ANNOTATION)
+    public void canUpdate(IOperationContext context, ISemanticAnnotationId id, SemanticAnnotationPE annotation)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("DELETE_SEMANTIC_ANNOTATION")
+    @DatabaseCreateOrDeleteModification({ ObjectKind.SEMANTIC_ANNOTATION, ObjectKind.DELETION })
+    @DatabaseUpdateModification({ ObjectKind.PROPERTY_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT, ObjectKind.MATERIAL_TYPE,
+            ObjectKind.EXPERIMENT_TYPE, ObjectKind.SAMPLE_TYPE, ObjectKind.DATASET_TYPE })
+    public void canDelete(IOperationContext context, ISemanticAnnotationId id, SemanticAnnotationPE annotation)
     {
     }
 
@@ -48,6 +67,13 @@ public class SemanticAnnotationAuthorizationExecutor implements ISemanticAnnotat
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_SEMANTIC_ANNOTATION")
     public void canGet(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_SEMANTIC_ANNOTATION")
+    public void canSearch(IOperationContext context)
     {
     }
 

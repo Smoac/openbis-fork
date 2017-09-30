@@ -44,6 +44,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetUpdate = dtos.DataSetUpdate;
 		this.PhysicalDataUpdate = dtos.PhysicalDataUpdate;
 		this.LinkedDataUpdate = dtos.LinkedDataUpdate;
+		this.SemanticAnnotationUpdate = dtos.SemanticAnnotationUpdate;
 		this.ContentCopyListUpdateValue = dtos.ContentCopyListUpdateValue;
 		this.DataStorePermId = dtos.DataStorePermId;
 		this.MaterialUpdate = dtos.MaterialUpdate;
@@ -59,6 +60,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
 		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
 		this.TagDeletionOptions = dtos.TagDeletionOptions;
+		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
 		this.EntityTypePermId = dtos.EntityTypePermId;
 		this.SpacePermId = dtos.SpacePermId;
 		this.ProjectPermId = dtos.ProjectPermId;
@@ -92,6 +94,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
 		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
+		this.SemanticAnnotationSearchCriteria = dtos.SemanticAnnotationSearchCriteria;
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
 		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
@@ -120,6 +123,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
 		this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
 		this.PropertyTypePermId = dtos.PropertyTypePermId;
+		this.PropertyAssignmentPermId = dtos.PropertyAssignmentPermId;
 		this.PluginPermId = dtos.PluginPermId;
 		this.ExperimentTypeCreation = dtos.ExperimentTypeCreation;
 		this.SampleTypeCreation = dtos.SampleTypeCreation;
@@ -139,6 +143,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
 		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
+		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
 
 		this.CreateSpacesOperation = dtos.CreateSpacesOperation;
 		this.CreateProjectsOperation = dtos.CreateProjectsOperation;
@@ -165,6 +170,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
 		this.UpdateTagsOperation = dtos.UpdateTagsOperation;
 		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
+		this.UpdateSemanticAnnotationsOperation = dtos.UpdateSemanticAnnotationsOperation;
 
 		this.GetSpacesOperation = dtos.GetSpacesOperation;
 		this.GetProjectsOperation = dtos.GetProjectsOperation;
@@ -196,6 +202,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchOperationExecutionsOperation = dtos.SearchOperationExecutionsOperation;
 		this.SearchDeletionsOperation = dtos.SearchDeletionsOperation;
 		this.SearchDataStoresOperation = dtos.SearchDataStoresOperation;
+		this.SearchSemanticAnnotationsOperation = dtos.SearchSemanticAnnotationsOperation;
 
 		this.DeleteSpacesOperation = dtos.DeleteSpacesOperation;
 		this.DeleteProjectsOperation = dtos.DeleteProjectsOperation;
@@ -207,6 +214,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
 		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
 		this.DeleteOperationExecutionsOperation = dtos.DeleteOperationExecutionsOperation;
+		this.DeleteSemanticAnnotationsOperation = dtos.DeleteSemanticAnnotationsOperation;
 
 		this.RevertDeletionsOperation = dtos.RevertDeletionsOperation;
 		this.ConfirmDeletionsOperation = dtos.ConfirmDeletionsOperation;
@@ -593,6 +601,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			options.setReason("test reason");
 			return facade.deleteOperationExecutions([ id ], options);
 		}.bind(this);
+		
+		this.deleteSemanticAnnotation = function(facade, id) {
+			var c = this;
+			var options = new dtos.SemanticAnnotationDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteSemanticAnnotations([ id ], options);
+		}.bind(this);
 
 		this.getObjectProperty = function(object, propertyName) {
 			var propertyNames = propertyName.split('.');
@@ -773,7 +788,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.SemanticAnnotationFetchOptions();
 			fo.withEntityType();
 			fo.withPropertyType();
-			fo.withPropertyAssignment();
+			fo.withPropertyAssignment().withEntityType();
+			fo.withPropertyAssignment().withPropertyType();
 			return fo;
 		};
 		

@@ -393,7 +393,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					});
 				}, 1000)
 			};
-			
+
 			c.start();
 			c.createFacadeAndLogin().then(function(facade) {
 				c.ok("Login");
@@ -422,21 +422,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.finish();
 			});
 		});
-		
+
 		QUnit.test("searchSamples() withoutExperiment", function(assert) {
 			var c = new common(assert, openbis);
-			
+
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
 				criteria.withCode().thatStartsWith("TEST-SAMPLE");
 				criteria.withoutExperiment();
 				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
-			
+
 			var fCheck = function(facade, samples) {
 				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1-CONTAINED-2", "TEST-SAMPLE-1" ]);
 			}
-			
+
 			testSearch(c, fSearch, fCheck);
 		});
 
@@ -1079,13 +1079,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("searchExternalDms()", function(assert) {
 			var c = new common(assert, openbis);
-			
+
 			var fSearch = function(facade) {
 				var criteria = new c.ExternalDmsSearchCriteria();
 				criteria.withCode().thatEquals("DMS_2");
 				return facade.searchExternalDataManagementSystems(criteria, c.createExternalDmsFetchOptions());
 			}
-			
+
 			var fCheck = function(facade, entities) {
 				c.assertEqual(entities.length, 1);
 				var edms = entities[0];
@@ -1096,10 +1096,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(edms.getAddressType(), "OPENBIS", "Address type");
 				c.assertEqual(edms.isOpenbis(), true, "is openBIS?");
 			}
-			
+
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchTags()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1298,6 +1298,92 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						c.fail();
 					}
 				});
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSemanticAnnotations() withPermId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				return c.createSemanticAnnotation(facade).then(function(permId) {
+					var criteria = new c.SemanticAnnotationSearchCriteria();
+					criteria.withPermId().thatEquals(permId.getPermId());
+					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
+				});
+			}
+
+			var fCheck = function(facade, annotations) {
+				c.assertEqual(annotations.length, 1);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSemanticAnnotations() withEntityTypeId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var creation = new c.SemanticAnnotationCreation();
+			creation.setEntityTypeId(new c.EntityTypePermId("SIRNA_WELL", "SAMPLE"));
+
+			var fSearch = function(facade) {
+				return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
+					var criteria = new c.SemanticAnnotationSearchCriteria();
+					criteria.withEntityType().withId().thatEquals(creation.getEntityTypeId());
+					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
+				});
+			}
+
+			var fCheck = function(facade, annotations) {
+				c.assertEqual(annotations.length, 1);
+				c.assertEqual(annotations[0].getEntityType().getCode(), "SIRNA_WELL", "Entity type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSemanticAnnotations() withPropertyTypeId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var creation = new c.SemanticAnnotationCreation();
+			creation.setPropertyTypeId(new c.PropertyTypePermId("DNA_CONCENTRATION_POOL"));
+
+			var fSearch = function(facade) {
+				return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
+					var criteria = new c.SemanticAnnotationSearchCriteria();
+					criteria.withPropertyType().withId().thatEquals(creation.getPropertyTypeId());
+					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
+				});
+			}
+
+			var fCheck = function(facade, annotations) {
+				c.assertEqual(annotations.length, 1);
+				c.assertEqual(annotations[0].getPropertyType().getCode(), "DNA_CONCENTRATION_POOL", "Property type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSemanticAnnotations() withPropertyAssignmentId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var creation = new c.SemanticAnnotationCreation();
+			creation.setPropertyAssignmentId(new c.PropertyAssignmentPermId(new c.EntityTypePermId("ILLUMINA_FLOW_CELL", "SAMPLE"), new c.PropertyTypePermId("CYCLES")));
+
+			var fSearch = function(facade) {
+				return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
+					var criteria = new c.SemanticAnnotationSearchCriteria();
+					criteria.withPropertyAssignment().withId().thatEquals(creation.getPropertyAssignmentId());
+					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
+				});
+			}
+
+			var fCheck = function(facade, annotations) {
+				c.assertEqual(annotations.length, 1);
+				c.assertEqual(annotations[0].getPropertyAssignment().getEntityType().getCode(), "ILLUMINA_FLOW_CELL", "Entity type code");
+				c.assertEqual(annotations[0].getPropertyAssignment().getEntityType().getPermId().getEntityKind(), "SAMPLE", "Entity type kind");
+				c.assertEqual(annotations[0].getPropertyAssignment().getPropertyType().getCode(), "CYCLES", "Property type code");
 			}
 
 			testSearch(c, fSearch, fCheck);

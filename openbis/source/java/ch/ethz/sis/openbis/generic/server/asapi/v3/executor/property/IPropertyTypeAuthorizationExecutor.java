@@ -27,4 +27,6 @@ public interface IPropertyTypeAuthorizationExecutor extends IObjectAuthorization
 
     void canGet(IOperationContext context);
 
+    void canSearch(IOperationContext context);
+
 }

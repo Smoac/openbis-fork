@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,8 +33,10 @@ public class PropertyAssignmentPermId implements IPropertyAssignmentId
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private IEntityTypeId entityTypeId;
 
+    @JsonProperty
     private IPropertyTypeId propertyTypeId;
 
     public PropertyAssignmentPermId(IEntityTypeId entityTypeId, IPropertyTypeId propertyTypeId)
@@ -105,11 +110,13 @@ public class PropertyAssignmentPermId implements IPropertyAssignmentId
         super();
     }
 
+    @JsonIgnore
     public IEntityTypeId getEntityTypeId()
     {
         return entityTypeId;
     }
 
+    @JsonIgnore
     private void setEntityTypeId(IEntityTypeId entityTypeId)
     {
         if (entityTypeId == null)
@@ -119,11 +126,13 @@ public class PropertyAssignmentPermId implements IPropertyAssignmentId
         this.entityTypeId = entityTypeId;
     }
 
+    @JsonIgnore
     public IPropertyTypeId getPropertyTypeId()
     {
         return propertyTypeId;
     }
 
+    @JsonIgnore
     private void setPropertyTypeId(IPropertyTypeId propertyTypeId)
     {
         if (propertyTypeId == null)

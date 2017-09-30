@@ -180,6 +180,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		this.updateOperationExecutions = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateOperationExecutionsOperation(updates));
 		}
+		
+		this.updateSemanticAnnotations = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateSemanticAnnotationsOperation(updates));
+		}
 
 		this.getSpaces = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetSpacesOperation(ids, fetchOptions));
@@ -296,6 +300,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		this.searchDataStores = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchDataStoresOperation(criteria, fetchOptions));
 		}
+		
+		this.searchSemanticAnnotations = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchSemanticAnnotationsOperation(criteria, fetchOptions));
+		}
 
 		this.deleteSpaces = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteSpacesOperation(ids, deletionOptions));
@@ -335,6 +343,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.deleteOperationExecutions = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteOperationExecutionsOperation(ids, deletionOptions));
+		}
+		
+		this.deleteSemanticAnnotations = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeleteSemanticAnnotationsOperation(ids, deletionOptions));
 		}
 
 		this.searchDeletions = function(criteria, fetchOptions) {

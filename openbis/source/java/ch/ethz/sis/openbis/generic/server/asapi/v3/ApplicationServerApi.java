@@ -208,11 +208,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnot
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.CreateSemanticAnnotationsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.CreateSemanticAnnotationsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.delete.DeleteSemanticAnnotationsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.delete.SemanticAnnotationDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.get.GetSemanticAnnotationsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.get.GetSemanticAnnotationsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticAnnotationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SearchSemanticAnnotationsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SearchSemanticAnnotationsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.UpdateSemanticAnnotationsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ExecuteCustomASServiceOperation;
@@ -524,6 +531,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    public void updateSemanticAnnotations(String sessionToken, List<SemanticAnnotationUpdate> updates)
+    {
+        executeOperation(sessionToken, new UpdateSemanticAnnotationsOperation(updates));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
@@ -722,6 +736,16 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public SearchResult<SemanticAnnotation> searchSemanticAnnotations(String sessionToken, SemanticAnnotationSearchCriteria searchCriteria,
+            SemanticAnnotationFetchOptions fetchOptions)
+    {
+        SearchSemanticAnnotationsOperationResult result =
+                executeOperation(sessionToken, new SearchSemanticAnnotationsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
     @Transactional
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
     {
@@ -786,6 +810,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             OperationExecutionDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteOperationExecutionsOperation(executionIds, deletionOptions));
+    }
+
+    @Override
+    @Transactional
+    public void deleteSemanticAnnotations(String sessionToken, List<? extends ISemanticAnnotationId> annotationIds,
+            SemanticAnnotationDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeleteSemanticAnnotationsOperation(annotationIds, deletionOptions));
     }
 
     @Override

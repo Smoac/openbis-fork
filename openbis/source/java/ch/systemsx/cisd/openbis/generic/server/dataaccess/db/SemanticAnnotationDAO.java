@@ -76,4 +76,19 @@ final class SemanticAnnotationDAO extends AbstractGenericEntityDAO<SemanticAnnot
         return list;
     }
 
+    @Override
+    public List<SemanticAnnotationPE> findByPermIds(Collection<String> permIds)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(SemanticAnnotationPE.class);
+        criteria.add(Restrictions.in("permId", permIds));
+
+        final List<SemanticAnnotationPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d semantic annotation(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
 }

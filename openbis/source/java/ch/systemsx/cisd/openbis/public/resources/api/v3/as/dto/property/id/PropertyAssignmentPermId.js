@@ -19,13 +19,21 @@ define([ "stjs", "as/dto/property/id/IPropertyAssignmentId" ], function(stjs, IP
 			return this.entityTypeId;
 		};
 		prototype.setEntityTypeId = function(entityTypeId) {
-			this.entityTypeId = entityTypeId;
+			if (entityTypeId) {
+				this.entityTypeId = entityTypeId;
+			} else {
+				this.entityTypeId = null
+			}
 		};
 		prototype.getPropertyTypeId = function() {
 			return this.propertyTypeId;
 		};
 		prototype.setPropertyTypeId = function(propertyTypeId) {
-			this.propertyTypeId = propertyTypeId;
+			if (propertyTypeId) {
+				this.propertyTypeId = propertyTypeId;
+			} else {
+				this.propertyTypeId = null;
+			}
 		};
 		prototype.toString = function() {
 			return (this.getEntityTypeId() ? this.getEntityTypeId().toString() : "") + ", " + (this.getPropertyTypeId() ? this.getPropertyTypeId().toString() : "");
@@ -60,6 +68,9 @@ define([ "stjs", "as/dto/property/id/IPropertyAssignmentId" ], function(stjs, IP
 			}
 			return true;
 		};
-	}, {});
+	}, {
+		entityTypeId : "IEntityTypeId",
+		propertyTypeId : "IPropertyTypeId"
+	});
 	return PropertyAssignmentPermId;
 })

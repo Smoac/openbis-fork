@@ -38,6 +38,11 @@ public interface IEntityPropertyTypeDAO
 {
 
     /**
+     * Returns a list of all entity type - property type assignments.
+     */
+    public List<EntityTypePropertyTypePE> listEntityPropertyTypes() throws DataAccessException;
+
+    /**
      * Returns a list of all entity type - property type assignments connected to given {@link EntityTypePE}.
      */
     public List<EntityTypePropertyTypePE> listEntityPropertyTypes(final EntityTypePE entityType)

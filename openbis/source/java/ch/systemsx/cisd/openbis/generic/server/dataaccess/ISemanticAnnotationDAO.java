@@ -33,4 +33,6 @@ public interface ISemanticAnnotationDAO extends IGenericDAO<SemanticAnnotationPE
 
     List<SemanticAnnotationPE> findByIds(Collection<Long> ids);
 
+    List<SemanticAnnotationPE> findByPermIds(Collection<String> permIds);
+
 }

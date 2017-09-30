@@ -12,7 +12,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						c.assertNotNull(entity, "Entity can be found");
 						var token = fCheck(entity, facade);
 						if (token) {
-							token.then(function() {c.finish()});
+							token.then(function() {
+								c.finish()
+							});
 						} else {
 							c.finish();
 						}
@@ -23,7 +25,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.finish();
 			});
 		}
-		
+
 		QUnit.test("createPermIdStrings", function(assert) {
 			var c = new common(assert, openbis);
 			c.start();
@@ -132,7 +134,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findExperiment, fCheck);
 		});
-		
+
 		QUnit.test("createExperimentTypes()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT_TYPE");
@@ -176,7 +178,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findExperimentType, fCheck);
 		});
-		
+
 		QUnit.test("createSamples()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("SAMPLE");
@@ -257,7 +259,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findSampleType, fCheck);
 		});
-		
+
 		QUnit.test("createDataSets() link data set via DSS", function(assert) {
 			var c = new common(assert, openbis);
 			var emdsId = null;
@@ -276,7 +278,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						var cc = new c.ContentCopyCreation();
 						cc.setExternalDmsId(emdsPermId);
 						cc.setPath("my/path");
-						linkedData.setContentCopies([cc]);
+						linkedData.setContentCopies([ cc ]);
 						dataSet.setLinkedData(linkedData);
 						creation.setMetadataCreation(dataSet);
 						var f1 = new c.DataSetFileCreation();
@@ -287,12 +289,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						f2.setPath("root/my-file-in.txt");
 						f2.setFileLength(42);
 						f2.setChecksumCRC32(123456);
-						creation.setFileMetadata([f1, f2]);
-						return facade.getDataStoreFacade("DSS1", "DSS2").createDataSets([creation]);
+						creation.setFileMetadata([ f1, f2 ]);
+						return facade.getDataStoreFacade("DSS1", "DSS2").createDataSets([ creation ]);
 					});
 				});
 			}
-			
+
 			var waitUntilIndexed = function(facade, dataSetCode, timeout, action) {
 				if (timeout < 0) {
 					c.fail("Data set " + dataSetCode + " after " + timeout + " msec.");
@@ -309,7 +311,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					});
 				}, 1000)
 			};
-			
+
 			var fCheck = function(dataSet, facade) {
 				c.assertEqual(dataSet.getType().getCode(), "LINK_TYPE", "Data set type");
 				var contentCopies = dataSet.getLinkedData().getContentCopies();
@@ -328,10 +330,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						files.sort(function(f1, f2) {
 							return f1.getPath().localeCompare(f2.getPath());
 						});
-						var expectedPaths = ["", "root", "root/folder", "root/my-file-in.txt"];
-						var expectedDirectoryFlags = [true, true, true, false];
-						var expectedSizes = [42, 42, 0, 42];
-						var expectedChecksums = [0, 0, 0, 123456];
+						var expectedPaths = [ "", "root", "root/folder", "root/my-file-in.txt" ];
+						var expectedDirectoryFlags = [ true, true, true, false ];
+						var expectedSizes = [ 42, 42, 0, 42 ];
+						var expectedChecksums = [ 0, 0, 0, 123456 ];
 						for (i = 0; i < files.length; i++) {
 							var file = files[i];
 							var postfix = " of file " + (i + 1);
@@ -346,7 +348,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				});
 				return dfd.promise();
 			}
-			
+
 			testCreate(c, fCreate, c.findDataSet, fCheck);
 		});
 
@@ -496,7 +498,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		QUnit.test("createExternalDataManagementSystem()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("EDMS");
-			
+
 			var fCreate = function(facade) {
 				var edmsCreation = new c.ExternalDmsCreation();
 				edmsCreation.setCode(code);
@@ -505,7 +507,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				edmsCreation.setAddress("host:my/path")
 				return facade.createExternalDms([ edmsCreation ]);
 			}
-			
+
 			var fCheck = function(edms) {
 				c.assertEqual(edms.getCode(), code, "EDMS code");
 				c.assertEqual(edms.getLabel(), "Test EDMS", "EDMS label");
@@ -514,10 +516,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(edms.getAddressType(), "FILE_SYSTEM", "EDMS address type");
 				c.assertEqual(edms.isOpenbis(), false, "EDMS is openBIS");
 			}
-			
+
 			testCreate(c, fCreate, c.findExternalDms, fCheck);
 		});
-		
+
 		QUnit.test("createTags()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("TAG");
@@ -537,30 +539,75 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findTag, fCheck);
 		});
-		
-		QUnit.test("createSemanticAnnotations()", function(assert) {
+
+		var createSemanticAnnotationCreation = function(c) {
+			var creation = new c.SemanticAnnotationCreation();
+			creation.setPredicateOntologyId("jsPredicateOntologyId");
+			creation.setPredicateOntologyVersion("jsPredicateOntologyVersion");
+			creation.setPredicateAccessionId("jsPredicateAccessionId");
+			creation.setDescriptorOntologyId("jsDescriptorOntologyId");
+			creation.setDescriptorOntologyVersion("jsDescriptorOntologyVersion");
+			creation.setDescriptorAccessionId("jsDescriptorAccessionId");
+			return creation;
+		}
+
+		var checkCreatedSemanticAnnotation = function(c, annotation) {
+			c.assertEqual(annotation.getPredicateOntologyId(), "jsPredicateOntologyId", "Predicate ontology id");
+			c.assertEqual(annotation.getPredicateOntologyVersion(), "jsPredicateOntologyVersion", "Predicate ontology version");
+			c.assertEqual(annotation.getPredicateAccessionId(), "jsPredicateAccessionId", "Predicate accession id");
+			c.assertEqual(annotation.getDescriptorOntologyId(), "jsDescriptorOntologyId", "Descriptor ontology id");
+			c.assertEqual(annotation.getDescriptorOntologyVersion(), "jsDescriptorOntologyVersion", "Descriptor ontology version");
+			c.assertEqual(annotation.getDescriptorAccessionId(), "jsDescriptorAccessionId", "Descriptor accession id");
+		}
+
+		QUnit.test("createSemanticAnnotations() with entity type id", function(assert) {
 			var c = new common(assert, openbis);
 
 			var fCreate = function(facade) {
-				var creation = new c.SemanticAnnotationCreation();
+				var creation = createSemanticAnnotationCreation(c);
 				creation.setEntityTypeId(new c.EntityTypePermId("UNKNOWN", "SAMPLE"));
-				creation.setPredicateOntologyId("jsPredicateOntologyId");
-				creation.setPredicateOntologyVersion("jsPredicateOntologyVersion");
-				creation.setPredicateAccessionId("jsPredicateAccessionId");
-				creation.setDescriptorOntologyId("jsDescriptorOntologyId");
-				creation.setDescriptorOntologyVersion("jsDescriptorOntologyVersion");
-				creation.setDescriptorAccessionId("jsDescriptorAccessionId");
 				return facade.createSemanticAnnotations([ creation ]);
 			}
 
 			var fCheck = function(annotation) {
+				checkCreatedSemanticAnnotation(c, annotation);
 				c.assertEqual(annotation.getEntityType().getCode(), "UNKNOWN", "Entity type code");
-				c.assertEqual(annotation.getPredicateOntologyId(), "jsPredicateOntologyId", "Predicate ontology id");
-				c.assertEqual(annotation.getPredicateOntologyVersion(), "jsPredicateOntologyVersion", "Predicate ontology version");
-				c.assertEqual(annotation.getPredicateAccessionId(), "jsPredicateAccessionId", "Predicate accession id");
-				c.assertEqual(annotation.getDescriptorOntologyId(), "jsDescriptorOntologyId", "Descriptor ontology id");
-				c.assertEqual(annotation.getDescriptorOntologyVersion(), "jsDescriptorOntologyVersion", "Descriptor ontology version");
-				c.assertEqual(annotation.getDescriptorAccessionId(), "jsDescriptorAccessionId", "Descriptor accession id");
+			}
+
+			testCreate(c, fCreate, c.findSemanticAnnotation, fCheck);
+		});
+
+		QUnit.test("createSemanticAnnotations() with property type id", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fCreate = function(facade) {
+				var creation = createSemanticAnnotationCreation(c);
+				creation.setPropertyTypeId(new c.PropertyTypePermId("CONCENTRATION"));
+				return facade.createSemanticAnnotations([ creation ]);
+			}
+
+			var fCheck = function(annotation) {
+				checkCreatedSemanticAnnotation(c, annotation);
+				c.assertEqual(annotation.getPropertyType().getCode(), "CONCENTRATION", "Property type code");
+			}
+
+			testCreate(c, fCreate, c.findSemanticAnnotation, fCheck);
+		});
+
+		QUnit.test("createSemanticAnnotations() with property assignment id", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fCreate = function(facade) {
+				var creation = createSemanticAnnotationCreation(c);
+				creation.setPropertyAssignmentId(new c.PropertyAssignmentPermId(new c.EntityTypePermId("ILLUMINA_FLOW_CELL", "SAMPLE"), new c.PropertyTypePermId("RUNNINGTIME")));
+				return facade.createSemanticAnnotations([ creation ]);
+			}
+
+			var fCheck = function(annotation) {
+				checkCreatedSemanticAnnotation(c, annotation);
+				c.assertEqual(annotation.getPropertyAssignment().getEntityType().getCode(), "ILLUMINA_FLOW_CELL", "Entity type code");
+				c.assertEqual(annotation.getPropertyAssignment().getEntityType().getPermId().getEntityKind(), "SAMPLE", "Entity type kind");
+				c.assertEqual(annotation.getPropertyAssignment().getPropertyType().getCode(), "RUNNINGTIME", "Property type code");
 			}
 
 			testCreate(c, fCreate, c.findSemanticAnnotation, fCheck);

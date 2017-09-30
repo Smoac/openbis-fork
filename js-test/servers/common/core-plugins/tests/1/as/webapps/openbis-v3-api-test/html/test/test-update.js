@@ -335,35 +335,35 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		QUnit.test("updateDataSets() link data set", function(assert) {
 			var c = new common(assert, openbis);
 			var code = "20160613195437233-437";
-			
+
 			var fCreate = function(facade) {
-				return [new c.DataSetPermId(code)];
+				return [ new c.DataSetPermId(code) ];
 			}
 
 			var fUpdate = function(facade, permId) {
 				var linkUpdate = new c.LinkedDataUpdate();
 				linkUpdate.setExternalCode("new code");
-				
+
 				var update = new c.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setLinkedData(linkUpdate);
-				
+
 				return facade.updateDataSets([ update ]);
 			}
-			
+
 			var fCheck = function(dataSet) {
 				c.assertEqual(dataSet.getCode(), code, "Code");
 				c.assertEqual(dataSet.getLinkedData().getExternalCode(), "new code", "External code");
 				c.assertEqual(dataSet.getLinkedData().getExternalDms().getPermId().toString(), "DMS_1", "External DMS");
 			}
-			
+
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
 		});
-		
+
 		QUnit.test("updateDataSets() add content copy to link data set", function(assert) {
 			var c = new common(assert, openbis);
 			var edmsId = null;
-			
+
 			var fCreate = function(facade) {
 				return c.createLinkDataSet(facade, "root/path", "my-hash", "my-repository-id").then(function(permId) {
 					code = permId.getPermId();
@@ -381,20 +381,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					contentCopyCreation.setPath("my/data/path");
 					contentCopyCreation.setGitCommitHash("my-git-hash");
 					contentCopyCreation.setGitRepositoryId("my-git-repository-id");
-					contentCopyListUpdateValue.add([contentCopyCreation]);
-					contentCopyListUpdateValue.remove([contentCopy.getId()]);
-					
+					contentCopyListUpdateValue.add([ contentCopyCreation ]);
+					contentCopyListUpdateValue.remove([ contentCopy.getId() ]);
+
 					var linkUpdate = new c.LinkedDataUpdate();
 					linkUpdate.setContentCopyActions(contentCopyListUpdateValue.getActions());
-					
+
 					var update = new c.DataSetUpdate();
 					update.setDataSetId(permId);
 					update.setLinkedData(linkUpdate);
-					
+
 					return facade.updateDataSets([ update ]);
 				});
 			}
-			
+
 			var fCheck = function(dataSet) {
 				c.assertEqual(dataSet.getCode(), code, "Code");
 				var contentCopies = dataSet.getLinkedData().getContentCopies();
@@ -405,10 +405,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(contentCopies[0].getGitCommitHash(), "my-git-hash", "Git commit hash");
 				c.assertEqual(contentCopies[0].getGitRepositoryId(), "my-git-repository-id", "Git repository id");
 			}
-			
+
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
 		});
-		
+
 		QUnit.test("updateMaterials()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("MATERIAL");
@@ -465,11 +465,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testUpdate(c, fCreate, fUpdate, c.findVocabularyTerm, fCheck);
 		});
-		
+
 		QUnit.test("updateExternalDms()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("EDMS");
-			
+
 			var fCreate = function(facade) {
 				var edmsCreation = new c.ExternalDmsCreation();
 				edmsCreation.setCode(code);
@@ -478,7 +478,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				edmsCreation.setAddress("https://my-site/q=${term}")
 				return facade.createExternalDms([ edmsCreation ]);
 			}
-			
+
 			var fUpdate = function(facade, permId) {
 				var edmsUpdate = new c.ExternalDmsUpdate();
 				edmsUpdate.setExternalDmsId(permId);
@@ -486,7 +486,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				edmsUpdate.setAddress("https://my-second-site/q=${term}");
 				return facade.updateExternalDataManagementSystems([ edmsUpdate ]);
 			}
-			
+
 			var fCheck = function(edms) {
 				c.assertEqual(edms.getCode(), code, "EDMS code");
 				c.assertEqual(edms.getLabel(), "Test EDMS 2", "EDMS label");
@@ -495,7 +495,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(edms.getAddressType(), "OPENBIS", "EDMS address type");
 				c.assertEqual(edms.isOpenbis(), true, "EDMS is openBIS");
 			}
-			
+
 			testUpdate(c, fCreate, fUpdate, c.findExternalDms, fCheck);
 		});
 
@@ -549,6 +549,39 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findOperationExecution, fCheck);
+		});
+
+		QUnit.test("updateSemanticAnnotations()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fCreate = function(facade) {
+				return c.createSemanticAnnotation(facade).then(function(permId) {
+					return [ permId ];
+				});
+			}
+
+			var fUpdate = function(facade, permId) {
+				var update = new c.SemanticAnnotationUpdate();
+				update.setSemanticAnnotationId(permId);
+				update.setPredicateOntologyId("updatedPredicateOntologyId");
+				update.setPredicateOntologyVersion("updatedPredicateOntologyVersion");
+				update.setPredicateAccessionId("updatedPredicateAccessionId");
+				update.setDescriptorOntologyId("updatedDescriptorOntologyId");
+				update.setDescriptorOntologyVersion("updatedDescriptorOntologyVersion");
+				update.setDescriptorAccessionId("updatedDescriptorAccessionId");
+				return facade.updateSemanticAnnotations([ update ]);
+			}
+
+			var fCheck = function(annotation) {
+				c.assertEqual(annotation.getPredicateOntologyId(), "updatedPredicateOntologyId", "Predicate Ontology Id");
+				c.assertEqual(annotation.getPredicateOntologyVersion(), "updatedPredicateOntologyVersion", "Predicate Ontology Version");
+				c.assertEqual(annotation.getPredicateAccessionId(), "updatedPredicateAccessionId", "Predicate Accession Id");
+				c.assertEqual(annotation.getDescriptorOntologyId(), "updatedDescriptorOntologyId", "Descriptor Ontology Id");
+				c.assertEqual(annotation.getDescriptorOntologyVersion(), "updatedDescriptorOntologyVersion", "Descriptor Ontology Version");
+				c.assertEqual(annotation.getDescriptorAccessionId(), "updatedDescriptorAccessionId", "Descriptor Accession Id");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findSemanticAnnotation, fCheck);
 		});
 
 	}

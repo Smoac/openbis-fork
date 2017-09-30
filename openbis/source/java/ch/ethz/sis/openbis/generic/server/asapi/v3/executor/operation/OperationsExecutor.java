@@ -83,7 +83,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSample
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IUpdateSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IVerifySamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ICreateSemanticAnnotationsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.IDeleteSemanticAnnotationsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.IGetSemanticAnnotationsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ISearchSemanticAnnotationsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.IUpdateSemanticAnnotationsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.IExecuteCustomASServiceOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.ISearchCustomASServicesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session.IGetSessionInformationOperationExecutor;
@@ -143,6 +146,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IDeleteOperationExecutionsOperationExecutor deleteOperationExecutionsExecutor;
+
+    @Autowired
+    private IDeleteSemanticAnnotationsOperationExecutor deleteSemanticAnnotationsExecutor;
 
     @Autowired
     private ICreateSpacesOperationExecutor createSpacesExecutor;
@@ -215,6 +221,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateOperationExecutionsOperationExecutor updateOperationExecutionsExecutor;
+
+    @Autowired
+    private IUpdateSemanticAnnotationsOperationExecutor updateSemanticAnnotationsExecutor;
 
     @Autowired
     private IVerifyExperimentsOperationExecutor verifyExperimentsExecutor;
@@ -322,6 +331,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ISearchDataStoresOperationExecutor searchDataStoresExecutionsExecutor;
 
     @Autowired
+    private ISearchSemanticAnnotationsOperationExecutor searchSemanticAnnotationsExecutor;
+
+    @Autowired
     private IExecuteCustomASServiceOperationExecutor executeCustomASServiceExecutor;
 
     @Autowired
@@ -409,6 +421,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchObjectKindModificationsExecutor.execute(context, operations));
         resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(searchDataStoresExecutionsExecutor.execute(context, operations));
+        resultMap.putAll(searchSemanticAnnotationsExecutor.execute(context, operations));
     }
 
     private void executeGets(List<? extends IOperation> operations,
@@ -439,6 +452,7 @@ public class OperationsExecutor implements IOperationsExecutor
     private void executeUpdates(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
+        resultMap.putAll(updateSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(updateTagsExecutor.execute(context, operations));
@@ -473,6 +487,7 @@ public class OperationsExecutor implements IOperationsExecutor
     private void executeDeletions(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
+        resultMap.putAll(deleteSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(deleteExperimentsExecutor.execute(context, operations));
         resultMap.putAll(deleteSamplesExecutor.execute(context, operations));
         resultMap.putAll(deleteDataSetsExecutor.execute(context, operations));
