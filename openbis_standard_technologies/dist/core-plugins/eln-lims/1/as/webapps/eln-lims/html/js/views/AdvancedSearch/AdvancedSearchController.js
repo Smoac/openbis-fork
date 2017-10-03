@@ -32,7 +32,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 		for(ruleKey in criteria.rules) {
 			var rule = criteria.rules[ruleKey];
 			numberOfRules++;
-			if(!rule.value || rule.value.trim() === "*") {
+			if(rule.value === null || rule.value === undefined || ("" + rule.value).trim() === "" || ("" + rule.value).trim() === "*") {
 				numberOfGeneralRules++;
 			}
 		}
