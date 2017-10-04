@@ -18,7 +18,7 @@
 #-- Restore etc folder from backup (skip if backup don't exist)
 
 echo "1 - Starting ELN-LIMS Upgrade"
-
+# set -x
 # Define a timestamp function
 timestamp() {
   date +"%y%m%d-%H%M"
@@ -68,11 +68,11 @@ if [ -d $ELN_INSTALLATION ]; then
 	tar xfz $ELN_TARBALL -C $CORE_PLUGINS
 	
 	#if is minimum master data, remove the extra types script
-	if [ IS_MINIMUM_MASTER_DATA ]; then
+	if [ -f $ELN_INSTALLATION_MINIMUM_MD_SCRIPT ]; then
+		echo "7 - Not modifying master data scripts since a standard master data installation was found"
+	else
 		echo "7 - Replacing master data script since minimum master data installation was found"
 		mv $ELN_INSTALLATION_MINIMUM_MD_SCRIPT $ELN_INSTALLATION_STANDARD_MD_SCRIPT
-	else
-		echo "7 - Not modifying master data scripts since a standard master data installation was found"
 	fi
 
 	#Restore config folder contents if they where backup
