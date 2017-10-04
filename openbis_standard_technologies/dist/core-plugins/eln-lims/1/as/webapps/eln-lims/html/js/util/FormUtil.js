@@ -962,7 +962,7 @@ var FormUtil = new function() {
 
 			// info text
 			$formFieldContainer.append(FormUtil.getInfoText("Example and usage instructions: "))
-								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='100%' ></center>").append("<br>")
+								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='100%' ></center>")
 								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized on the UI after upload</b></center>").append("<br>")
 								.append("The eln-lims dropbox requires you to provide a root folder with a specific name. This name contains information to tell the system where your uploaded data should be attached to.").append("<br>")
 								.append("<br>").append("Step by step:").append("<br>")
