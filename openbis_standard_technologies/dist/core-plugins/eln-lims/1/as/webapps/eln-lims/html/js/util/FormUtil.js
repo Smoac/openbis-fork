@@ -951,7 +951,7 @@ var FormUtil = new function() {
 		var $dialog = $("<div>");
 		$dialog
 			.append($("<div>")
-				.append($("<legend>").text("Name generator for dataset upload with dropbox")));
+				.append($("<legend>").text("Helper tool for Dataset upload using eln-lims dropbox:")));
 
 		mainController.serverFacade.listDataSetTypes((function(data) {
 
@@ -961,11 +961,13 @@ var FormUtil = new function() {
 			$dialog.append($formFieldContainer);
 
 			// info text
-			$formFieldContainer.append(FormUtil.getInfoText("Usage example: "))
-								.append("1. In your dropbox location, create a folder with the provided Dropbox Folder Name. ").append("<br>")
-								.append("2. Inside this folder, create another one with a name of your choice containing the data you want to upload.").append("<br>")
-								.append("3. After the dropbox uploads your data you should find a new dataset with your chosen name and your data starting from your named folder.").append("<br>")
-								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='100%' ></center>");
+			$formFieldContainer.append(FormUtil.getInfoText("Example and usage instructions: "))
+								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='100%' ></center>").append("<br>")
+								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized on the UI after upload</b></center>").append("<br>")
+								.append("1. The eln-lims dropbox requires you to provide a root folder with a specific name. This name contains information to tell the system where your uploaded data should be attached to. This helper tool will let you generate this name using the form below to upload data to the entity shown on the form that opened this pop-up.").append("<br>")
+								.append("2. Inside the root folder with the name generated with this tool, you should put another folder with a name of your choice containing the data you want to upload.").append("<br>")
+								.append("3. After uploading your data should appear on the entity selected by the root folder.");
+								
 
 			// dataset type dropdown
 			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
@@ -982,6 +984,14 @@ var FormUtil = new function() {
 					.append($("<label>", { class : "control-label" }).text("Dataset name:")))
 					.append($nameInput);
 
+			var ownerHint = "to upload data to the current ";
+			if(nameElements[0] === "O") {
+				ownerHint += ELNDictionary.Sample;
+			} else if(nameElements[0] === "E") {
+				ownerHint += ELNDictionary.ExperimentELN;
+			}
+			ownerHint += " " + nameElements[nameElements.length-1];
+			
 			// dropbox folder name ouput
 			var $dropboxFolderName = $("<input>", {
 				class : "form-control",
@@ -997,7 +1007,7 @@ var FormUtil = new function() {
 			$formFieldContainer
 				.append($("<div>", { class : "form-group" })
 					.append($("<label>", { class : "control-label" })
-						.text("Dropbox Folder Name:"))
+						.text("Generated root folder name for the dropbox " + ownerHint + ":"))
 					.append($("<div>", { class : "input-group" })
 						.append($dropboxFolderName)
 						.append($("<span>", { class : "input-group-btn"})
