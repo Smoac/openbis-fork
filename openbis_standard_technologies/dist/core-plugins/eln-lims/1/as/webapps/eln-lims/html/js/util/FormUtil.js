@@ -961,9 +961,11 @@ var FormUtil = new function() {
 			$dialog.append($formFieldContainer);
 
 			// info text
-			var infoText = "In your dropbox location, create a folder containing the data you want to upload. " + 
-							"Name this folder with the provided Dropbox Folder Name.";
-			$formFieldContainer.append(FormUtil.getInfoText(infoText));
+			$formFieldContainer.append(FormUtil.getInfoText("Usage example: "))
+								.append("1. In your dropbox location, create a folder with the provided Dropbox Folder Name. ").append("<br>")
+								.append("2. Inside this folder, create another one with a name of your choice containing the data you want to upload.").append("<br>")
+								.append("3. After the dropbox uploads your data you should find a new dataset with your chosen name and your data starting from your named folder.").append("<br>")
+								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='100%' ></center>");
 
 			// dataset type dropdown
 			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
@@ -1062,10 +1064,10 @@ var FormUtil = new function() {
 	this.getDialogCss = function() {
 		return {
 				'text-align' : 'left',
-				'top' : '15%',
+				'top' : '10%',
 				'width' : '70%',
 				'left' : '15%',
-				'right' : '20%',
+				'right' : '15%',
 				'overflow' : 'auto'
 		};
 	}
