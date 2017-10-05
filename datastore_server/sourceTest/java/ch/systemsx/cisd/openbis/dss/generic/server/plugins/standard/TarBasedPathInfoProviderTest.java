@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,7 +75,7 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
                 tar.close();
             }
         }
-        pathInfoProvider = new TarBasedPathInfoProvider(tarFile, 10, logger);
+        pathInfoProvider = new TarBasedPathInfoProvider(tarFile, Arrays.asList(), 10, logger);
     }
 
     @Test

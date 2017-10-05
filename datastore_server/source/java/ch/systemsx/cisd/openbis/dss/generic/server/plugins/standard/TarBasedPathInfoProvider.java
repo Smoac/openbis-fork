@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +43,12 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
 import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
+import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerReader;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderChecker;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
@@ -60,9 +69,12 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
 
     private Map<String, List<DataSetPathInfo>> pathInfoChildren;
 
-    TarBasedPathInfoProvider(File packageFile, int bufferSize, ISimpleLogger ioSpeedLogger)
+    private List<H5FolderFlags> h5FolderFlags;
+
+    TarBasedPathInfoProvider(File packageFile, List<H5FolderFlags> h5FolderFlags, int bufferSize, ISimpleLogger ioSpeedLogger)
     {
         this.packageFile = packageFile;
+        this.h5FolderFlags = h5FolderFlags;
         this.bufferSize = bufferSize;
         this.ioSpeedLogger = ioSpeedLogger;
     }
@@ -132,7 +144,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
             try
             {
                 pathInfos = new TreeMap<String, DataSetPathInfo>();
-                untar = new UntarMetaData(packageFile, copier, pathInfos);
+                untar = new UntarMetaData(packageFile, new H5FolderChecker(h5FolderFlags), copier, pathInfos);
                 untar.extract((File) null);
                 createPathInfoLinks();
             } catch (IOException ex)
@@ -194,10 +206,13 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
     private static final class UntarMetaData extends Untar
     {
         private Map<String, DataSetPathInfo> pathInfos;
+        private H5FolderChecker folderChecker;
 
-        public UntarMetaData(File tarFile, MonitoredIOStreamCopier copier, Map<String, DataSetPathInfo> pathInfos) throws FileNotFoundException
+        public UntarMetaData(File tarFile, H5FolderChecker folderChecker,
+                MonitoredIOStreamCopier copier, Map<String, DataSetPathInfo> pathInfos) throws FileNotFoundException
         {
             super(tarFile, copier);
+            this.folderChecker = folderChecker;
             this.pathInfos = pathInfos;
         }
 
@@ -205,7 +220,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         protected OutputStream createOutputStream(File entryFile, TarArchiveEntry entry)
                 throws IOException
         {
-            return new PathInfoOutputStream(entry, pathInfos);
+            return new PathInfoOutputStream(entry, folderChecker, pathInfos);
         }
 
         @Override
@@ -245,18 +260,52 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
 
         private long fileSize;
 
-        public PathInfoOutputStream(TarArchiveEntry entry, Map<String, DataSetPathInfo> pathInfos)
+
+        private OutputStream fileOutputStream;
+
+        private File tmpFile;
+
+        public PathInfoOutputStream(TarArchiveEntry entry, H5FolderChecker folderChecker, 
+                Map<String, DataSetPathInfo> pathInfos)
         {
             super(new NullOutputStream());
             this.entry = entry;
             this.pathInfos = pathInfos;
             checksum = new CRC32();
+            String name = entry.getName();
+            if (folderChecker.handleHdf5AsFolder(name))
+            {
+                try
+                {
+                    tmpFile = Files.createTempFile("openbis", "untarh5").toFile();
+                    System.out.println("temp file: " + tmpFile.getAbsolutePath());
+                    tmpFile.deleteOnExit();
+                    fileOutputStream = new FileOutputStream(tmpFile);
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            } else
+            {
+                fileOutputStream = new NullOutputStream();
+            }
+        }
+        
+        @Override
+        protected void finalize() throws Throwable
+        {
+            fileOutputStream.close();
+            if (tmpFile != null)
+            {
+                tmpFile.delete();
+            }
         }
 
         @Override
         public void write(int b) throws IOException
         {
             out.write(b);
+            fileOutputStream.write(b);
             checksum.update(b);
             fileSize++;
         }
@@ -265,6 +314,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         public void write(byte[] b, int off, int len) throws IOException
         {
             out.write(b, off, len);
+            fileOutputStream.write(b, off, len);
             checksum.update(b, off, len);
             fileSize += len;
         }
@@ -273,7 +323,36 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         public void close() throws IOException
         {
             super.close();
+            fileOutputStream.close();
             String name = entry.getName();
+            if (tmpFile == null)
+            {
+                addAsPathInfo(name);
+            } else
+            {
+                IHDF5ContainerReader reader = new HDF5Container(tmpFile).createSimpleReader();
+                try
+                {
+                    if (HierarchicalContentUtils.isFileAbstractionOk(reader, "/"))
+                    {
+                        List<ArchiveEntry> entries = reader.getGroupMembers("/");
+                        for (ArchiveEntry archiveEntry : entries)
+                        {
+                            handleEntry(name, reader, archiveEntry);
+                        }
+                    } else
+                    {
+                        addAsPathInfo(name);
+                    }
+                } finally
+                {
+                    reader.close();
+                }
+            }
+        }
+
+        private void addAsPathInfo(String name)
+        {
             DataSetPathInfo pathInfo = new DataSetPathInfo();
             pathInfo.setChecksumCRC32((int) checksum.getValue());
             pathInfo.setDirectory(false);
@@ -283,6 +362,28 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
             pathInfo.setSizeInBytes(fileSize);
             pathInfos.put(name, pathInfo);
             addDirectory(FileUtilities.getParentRelativePath(name), pathInfos);
+        }
+        
+        private void handleEntry(String name, IHDF5ContainerReader reader, ArchiveEntry archiveEntry)
+        {
+            String path =  name + archiveEntry.getPath();
+            DataSetPathInfo pathInfo = new DataSetPathInfo();
+            pathInfo.setChecksumCRC32(archiveEntry.getCrc32());
+            pathInfo.setDirectory(archiveEntry.isDirectory());
+            pathInfo.setLastModified(new Date(archiveEntry.getLastModified()));
+            pathInfo.setRelativePath(path);
+            pathInfo.setFileName(archiveEntry.getName());
+            pathInfo.setSizeInBytes(archiveEntry.getSize());
+            pathInfos.put(path, pathInfo);
+            addDirectory(FileUtilities.getParentRelativePath(path), pathInfos);
+            if (archiveEntry.isDirectory())
+            {
+                List<ArchiveEntry> groupMembers = reader.getGroupMembers(archiveEntry.getPath());
+                for (ArchiveEntry childEntry : groupMembers)
+                {
+                    handleEntry(name, reader, childEntry);
+                }
+            }
         }
 
     }

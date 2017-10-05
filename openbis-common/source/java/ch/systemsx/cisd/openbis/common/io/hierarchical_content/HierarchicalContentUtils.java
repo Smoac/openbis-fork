@@ -24,6 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
+import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
@@ -108,6 +110,22 @@ public class HierarchicalContentUtils
     static boolean handleHdf5AsFolder(String filename, boolean h5Folders, boolean h5arFolders)
     {
         return (filename.toLowerCase().endsWith("h5") && h5Folders) || (filename.toLowerCase().endsWith("h5ar") && h5arFolders);
+    }
+
+    public static boolean isFileAbstractionOk(IHDF5ContainerReader reader, String groupPath)
+    {
+        final List<ArchiveEntry> entries = reader.getGroupMembers(groupPath);
+        for (ArchiveEntry entry : entries)
+        {
+            if (entry.isRegularFile() && false == reader.isFileAbstraction(entry))
+            {
+                return false;
+            } else if (entry.isDirectory())
+            {
+                return isFileAbstractionOk(reader, entry.getPath());
+            }
+        }
+        return true;
     }
 
 }

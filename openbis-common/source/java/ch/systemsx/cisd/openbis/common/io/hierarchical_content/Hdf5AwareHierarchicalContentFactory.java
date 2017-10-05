@@ -17,9 +17,8 @@
 package ch.systemsx.cisd.openbis.common.io.hierarchical_content;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -33,29 +32,16 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
  */
 public class Hdf5AwareHierarchicalContentFactory implements IHierarchicalContentFactory
 {
-    private boolean h5arFoldersDefault;
-
-    private boolean h5FoldersDefault;
-    
-    private Map<String, H5FolderFlags> h5FolderFlagsByTreeRoot = new HashMap<>();
+    private H5FolderChecker folderChecker;
 
     public Hdf5AwareHierarchicalContentFactory(boolean h5Folders, boolean h5arFolders)
     {
-        this.h5FoldersDefault = h5Folders;
-        this.h5arFoldersDefault = h5arFolders;
+        this(Arrays.asList(new H5FolderFlags("", h5Folders, h5arFolders)));
     }
     
     public Hdf5AwareHierarchicalContentFactory(List<H5FolderFlags> h5FolderFlags)
     {
-        if (h5FolderFlags.size() == 1)
-        {
-            h5FoldersDefault = h5FolderFlags.get(0).isH5Folders();
-            h5arFoldersDefault = h5FolderFlags.get(0).isH5arFolders();
-        }
-        for (H5FolderFlags flags : h5FolderFlags)
-        {
-            h5FolderFlagsByTreeRoot.put(flags.getTreeRoot(), flags);
-        }
+        folderChecker = new H5FolderChecker(h5FolderFlags);
     }
     
     @Override
@@ -99,7 +85,7 @@ public class Hdf5AwareHierarchicalContentFactory implements IHierarchicalContent
             return false;
         }
         String filename = file.getName();
-        if (h5FolderFlagsByTreeRoot.isEmpty() == false)
+        if (folderChecker.hasOnlyDefaults() == false)
         {
             IHierarchicalContentNode rootNode = rootContent.getRootNode();
             if (rootNode != null)
@@ -108,19 +94,10 @@ public class Hdf5AwareHierarchicalContentFactory implements IHierarchicalContent
                 if (rootFile != null)
                 {
                     String relativeFilePath = FileUtilities.getRelativeFilePath(rootFile, file);
-                    if (relativeFilePath != null)
-                    {
-                        String treeRoot = relativeFilePath.split("/")[0];
-                        H5FolderFlags flags = h5FolderFlagsByTreeRoot.get(treeRoot);
-                        if (flags != null)
-                        {
-                            return HierarchicalContentUtils.handleHdf5AsFolder(filename, 
-                                    flags.isH5Folders(), flags.isH5arFolders());
-                        }
-                    }
+                    return folderChecker.handleHdf5AsFolder(relativeFilePath);
                 }
             }
         }
-        return HierarchicalContentUtils.handleHdf5AsFolder(filename, h5FoldersDefault, h5arFoldersDefault);
+        return folderChecker.handleHdf5AsFolderByDefault(filename);
     }
 }

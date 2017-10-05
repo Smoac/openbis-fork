@@ -129,7 +129,8 @@ public class TarPackageManager extends AbstractPackageManager
         List<H5FolderFlags> h5FolderFlags = extractH5FolderFlags(dataSets);
         if (onlyMetaData)
         {
-            final ISingleDataSetPathInfoProvider pathInfoProvider = new TarBasedPathInfoProvider(packageFile, bufferSize, logger);
+            final ISingleDataSetPathInfoProvider pathInfoProvider 
+                    = new TarBasedPathInfoProvider(packageFile, h5FolderFlags, bufferSize, logger);
             return new PathInfoProviderBasedHierarchicalContent(pathInfoProvider, null, new IDelegatedAction()
                 {
                     @Override
