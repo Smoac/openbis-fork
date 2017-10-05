@@ -26,11 +26,11 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Tar;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.MockLogger;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
@@ -38,6 +38,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
 {
+    private static final File TEST_DATA_FOLDER = new File("../datastore_server/resource/test-data/"
+            + TarBasedPathInfoProviderTest.class.getSimpleName());
+
     private static final SimpleComparator<DataSetPathInfo, String> COMPARATOR = new SimpleComparator<DataSetPathInfo, String>()
         {
             @Override
@@ -51,23 +54,19 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
 
     private TarBasedPathInfoProvider pathInfoProvider;
 
+    private File tarFile;
+
     @BeforeMethod
     public void prepareExample() throws Exception
     {
         logger = new MockLogger();
-        File dataSet = new File(workingDirectory, "ds1");
-        File data = new File(dataSet, "data");
-        File subFolder = new File(data, "sub");
-        subFolder.mkdirs();
-        FileUtilities.writeToFile(new File(subFolder, "hello.txt"), "hello test");
-        FileUtilities.writeToFile(new File(subFolder, "some.txt"), "This is some text for testing purpose.");
-        FileUtilities.writeToFile(new File(data, "hello.txt"), "hello world");
-        File tarFile = new File(workingDirectory, "data.tar");
+        tarFile = new File(workingDirectory, "data.tar");
         Tar tar = null;
         try
         {
             tar = new Tar(tarFile);
-            tar.add(data, dataSet.getPath().length());
+            File file = new File(TEST_DATA_FOLDER, "ds1");
+            tar.add(file, file.getPath().length());
         } finally
         {
             if (tar != null)
@@ -104,9 +103,9 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
 
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", children.get(0));
         assertPathInfo("data/sub/some.txt[some.txt, 38, 2f7b8cfb]", children.get(1));
-        AssertionUtil.assertContains("INFO: Reading statistics for input stream: 59 bytes in 7 chunks took < 1sec.",
+        AssertionUtil.assertContains("INFO: Reading statistics for input stream: 15.86 KB in 1626 chunks took < 1sec.",
                 logger.toString());
-        AssertionUtil.assertContains("INFO: Writing statistics for output stream: 59 bytes in 7 chunks took < 1sec.",
+        AssertionUtil.assertContains("INFO: Writing statistics for output stream: 15.86 KB in 1626 chunks took < 1sec.",
                 logger.toString());
         assertEquals(2, children.size());
     }
@@ -130,6 +129,30 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
 
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", pathInfos.get(0));
         assertEquals(1, pathInfos.size());
+    }
+    
+    @Test
+    public void testHdf5FileAsFile()
+    {
+        DataSetPathInfo pathInfo = pathInfoProvider.tryGetPathInfoByRelativePath("data.h5ar");
+        
+        assertEquals(false, pathInfo.isDirectory());
+        assertPathInfo("data.h5ar[data.h5ar, 16184, 83bcffb0]", pathInfo);
+    }
+    
+    @Test
+    public void testHdf5FileAsFolder()
+    {
+        List<H5FolderFlags> flags = Arrays.asList(new H5FolderFlags("", false, true));
+        TarBasedPathInfoProvider provider = new TarBasedPathInfoProvider(tarFile, flags, 10, logger);
+        
+        DataSetPathInfo parent = provider.tryGetPathInfoByRelativePath("data.h5ar/data");
+        List<DataSetPathInfo> children = provider.listChildrenPathInfos(parent);
+        
+        Collections.sort(children, COMPARATOR);
+        assertPathInfo("data.h5ar/data/hello.txt[hello.txt, 11, d4a1185]", children.get(0));
+        assertPathInfo("data.h5ar/data/sub[sub, 0, 0]", children.get(1));
+        assertEquals(2, children.size());
     }
 
     private void assertPathInfo(String expectedPathInfo, DataSetPathInfo pathInfo)
