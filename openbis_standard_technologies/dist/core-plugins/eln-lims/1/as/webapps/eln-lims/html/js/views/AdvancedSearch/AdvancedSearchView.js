@@ -242,6 +242,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
+				                    {value : "Experiment", label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
 //				                    {value : "Children", label : "Children"}
