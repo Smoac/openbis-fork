@@ -59,15 +59,21 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 		});
 	}
 	
-	this.addSelectedDataSet = function(datasetPermId) {
+	this.addSelectedDataSets = function(datasetPermIds) {
 		var _this = this;
 		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
 				function(DataSetPermId, DataSetFetchOptions) {
-		            var id1 = new DataSetPermId(datasetPermId);
+					var ids = [];
+					for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
+						var id = new DataSetPermId(datasetPermIds[dIdx]);
+						ids.push(id);
+					}
 		            var fetchOptions = new DataSetFetchOptions();
 		            fetchOptions.withProperties();
-		            mainController.openbisV3.getDataSets([ id1 ], fetchOptions).done(function(map) {
-		            	_this.addSelected(map[datasetPermId]);
+		            mainController.openbisV3.getDataSets(ids, fetchOptions).done(function(map) {
+		            	for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
+							_this.addSelected(map[datasetPermIds[dIdx]]);
+						}
 		            });
 		});
 	}

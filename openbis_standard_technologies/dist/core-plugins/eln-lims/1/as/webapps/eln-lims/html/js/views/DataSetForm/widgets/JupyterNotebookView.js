@@ -34,7 +34,26 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		if(entity) {
 			switch(entity["@type"]) {
 				case "DataSet":
-					datasetsSearchDropdown.addSelectedDataSet(entity.code);
+					datasetsSearchDropdown.addSelectedDataSets([entity.code]);
+					break;
+				case "Sample":
+					if(mainController.currentView._sampleFormModel.datasets) {
+						var datasetCodes = [];
+						for(var eIdx = 0; eIdx < mainController.currentView._sampleFormModel.datasets.length; eIdx++) {
+							datasetCodes.push(mainController.currentView._sampleFormModel.datasets[eIdx].code);
+						}
+						datasetsSearchDropdown.addSelectedDataSets(datasetCodes);
+					}
+					break;
+				case "Experiment":
+					if(mainController.currentView._experimentFormModel.dataSetViewer && 
+							mainController.currentView._experimentFormModel.dataSetViewer._datasetViewerModel.entityDataSets) {
+						var datasetCodes = [];
+						for(datasetCode in mainController.currentView._experimentFormModel.dataSetViewer._datasetViewerModel.entityDataSets) {
+							datasetCodes.push(datasetCode);
+						}
+						datasetsSearchDropdown.addSelectedDataSets(datasetCodes);
+					}
 					break;
 			}
 		}
