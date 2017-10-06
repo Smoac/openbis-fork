@@ -71,7 +71,7 @@ var JupyterUtil = new function() {
 		});
 	}
 	
-	this.createJupyterNotebookAndOpen = function(folder, fileName, dataSetIds, ownerEntity) {
+	this.createJupyterNotebookAndOpen = function(folder, fileName, dataSets, ownerEntity) {
 		var _this = this;
 		fileName = fileName + ".ipynb";
 		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
@@ -83,7 +83,7 @@ var JupyterUtil = new function() {
             data : "TEST",
             success : function(result) {
             	var fileName = result.fileName
-            	var newJupyterNotebook = _this.createJupyterNotebookContent(dataSetIds, ownerEntity, fileName);
+            	var newJupyterNotebook = _this.createJupyterNotebookContent(dataSets, ownerEntity, fileName);
         		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
         		
         		$.ajax({
@@ -106,8 +106,12 @@ var JupyterUtil = new function() {
 		});
 	}
 	
-	this.createJupyterNotebookContent = function(dataSetIds, ownerEntity, fileName) {
+	this.createJupyterNotebookContent = function(dataSets, ownerEntity, fileName) {
 		var content = [];
+		var dataSetIds = [];
+		for(var dIdx = 0; dIdx < dataSets.length; dIdx++) {
+			dataSetIds.push(dataSets[dIdx].permId.permId);
+		}
 		var mainTitle = {
 				   "cell_type": "markdown",
 				   "metadata": {},
@@ -180,6 +184,40 @@ var JupyterUtil = new function() {
 		}
 		content.push(datasetsInfoTitle);
 		for(var cIdx = 0; cIdx < dataSetIds.length; cIdx++) {
+			if(dataSets[cIdx].sample) {
+				var datasetOwnerInfo = {
+					      "cell_type": "code",
+					      "execution_count": null,
+					      "metadata": {
+					        "collapsed": true
+					      },
+					      "outputs": [],
+					      "source": [
+					        "# Dataset " + dataSetIds[cIdx] + " Owner:\n",
+					        "s" + cIdx + " = o.get_sample('" + dataSets[cIdx].sample.permId.permId + "')\n",
+					        "s" + cIdx
+					      ]
+				};
+				
+				content.push(datasetOwnerInfo);
+			} else if(dataSets[cIdx].experiment) {
+				var datasetOwnerInfo = {
+					      "cell_type": "code",
+					      "execution_count": null,
+					      "metadata": {
+					        "collapsed": true
+					      },
+					      "outputs": [],
+					      "source": [
+					        "# Dataset " + dataSetIds[cIdx] + " Owner:\n",
+					        "e" + cIdx + " = o.get_experiment('" + dataSets[cIdx].experiment.permId.permId + "')\n",
+					        "e" + cIdx + ".attrs"
+					      ]
+				};
+				
+				content.push(datasetOwnerInfo);
+			}
+			
 			var datasetInfo = {
 				      "cell_type": "code",
 				      "execution_count": null,
@@ -188,10 +226,12 @@ var JupyterUtil = new function() {
 				      },
 				      "outputs": [],
 				      "source": [
-				        "ds" + cIdx + " = o.get_dataset('" + dataSetIds[cIdx]+ "')\n",
+				        "# Dataset " + dataSetIds[cIdx] + ":\n",
+				        "ds" + cIdx + " = o.get_dataset('" + dataSetIds[cIdx] + "')\n",
 				        "ds" + cIdx + ".attrs"
 				      ]
 			};
+			
 			content.push(datasetInfo);
 		}
 		
@@ -246,6 +286,33 @@ var JupyterUtil = new function() {
 		}
 		content.push(saveTitle);
 		
+		var ownerSettings = "";
+		switch(ownerEntity["@type"]) {
+				case "as.dto.experiment.Experiment":
+					owner = "owner= o.get_experiment('"+ ownerEntity.identifier.identifier +"'),\n";
+					ownerSettings = "experiment= o.get_experiment('"+ ownerEntity.identifier.identifier +"'),\n";
+					break;
+				case "as.dto.sample.Sample":
+					owner = "owner= o.get_sample('"+ ownerEntity.identifier.identifier +"'),\n";
+					ownerSettings = "sample= o.get_sample('"+ ownerEntity.identifier.identifier +"'),\n";
+					break;
+		}
+		
+		var ownerTitle = {
+				"cell_type": "code",
+			      "execution_count": null,
+			      "metadata": {
+			        "collapsed": true
+			      },
+			      "outputs": [],
+			      "source": [
+			                 "# Result Owner\n",
+			                 owner,
+			                 "owner"
+			      ]
+		}
+		content.push(ownerTitle);
+		
 		var createHTML = [
 					        "from nbconvert import HTMLExporter\n",
 					        "import codecs\n",
@@ -256,17 +323,6 @@ var JupyterUtil = new function() {
 					        "codecs.open(fileName + '.html', 'w', encoding='utf-8').write(output)\n",
 					        "\n"
 		];
-		
-		
-		var ownerSettings = ""
-		switch(ownerEntity["@type"]) {
-			case "as.dto.experiment.Experiment":
-				ownerSettings = "experiment= o.get_experiment('"+ ownerEntity.identifier.identifier +"'),\n";
-				break;
-			case "as.dto.sample.Sample":
-				ownerSettings = "sample= o.get_sample('"+ ownerEntity.identifier.identifier +"'),\n";
-				break;
-		}
 		
 		
 		var createDataset = [

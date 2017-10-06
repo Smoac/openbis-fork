@@ -91,14 +91,9 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		$window.submit(function() {
 			var selectedDatasets = datasetsSearchDropdown.getSelected();
-			var notebookDatasets = [];
-			for(var dIdx = 0; dIdx < selectedDatasets.length; dIdx++) {
-				notebookDatasets.push(selectedDatasets[dIdx].permId.permId);
-			}
-				
 			var selectedOwner = ownerSearchDropdown.getSelected();
 			var notebookOwner = selectedOwner[0];
-			_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets, notebookOwner);
+			_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), selectedDatasets, notebookOwner);
 		});
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {

@@ -70,6 +70,8 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 					}
 		            var fetchOptions = new DataSetFetchOptions();
 		            fetchOptions.withProperties();
+		            fetchOptions.withSample();
+		            fetchOptions.withExperiment();
 		            mainController.openbisV3.getDataSets(ids, fetchOptions).done(function(map) {
 		            	for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
 							_this.addSelected(map[datasetPermIds[dIdx]]);
