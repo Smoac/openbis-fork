@@ -137,8 +137,11 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 	var searchExperiment = function(action) {
 		var criteria = { 	
 						entityKind : "EXPERIMENT", 
-						logicalOperator : "AND", 
-						rules : { "UUIDv4" : { type : "All", value : storedParams.data.q } }
+						logicalOperator : "OR", 
+						rules : {
+							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-2": { type: "Property/Attribute", 	name: "ATTR.CODE", value: storedParams.data.q }
+						}
 					};
 		mainController.serverFacade.searchForExperimentsAdvanced(criteria, null, function(results) { results.type = "Experiments"; action(results) });
 	}
@@ -146,8 +149,11 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 	var searchSample = function(action) {
 		var criteria = { 	
 						entityKind : "SAMPLE", 
-						logicalOperator : "AND", 
-						rules : { "UUIDv4" : { type : "All", value : storedParams.data.q } }
+						logicalOperator : "OR", 
+						rules : {
+							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-2": { type: "Property/Attribute", 	name: "ATTR.CODE", value: storedParams.data.q }
+						}
 					};
 		mainController.serverFacade.searchForSamplesAdvanced(criteria, null, function(results) { results.type = "Samples"; action(results) });
 	}
