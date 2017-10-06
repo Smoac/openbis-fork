@@ -118,7 +118,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				];
 				FormUtil.showDropboxFolderNameDialog(nameElements);
 			}).bind(this));
-			toolbarModel.push({ component : $uploadBtn, tooltip: "Name generator for dataset upload with dropbox" });
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Helper tool for Dataset upload using eln-lims dropbox" });
 
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
