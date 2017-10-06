@@ -153,9 +153,17 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 	var searchDataset = function(action) {
 		var criteria = { 	
 						entityKind : "DATASET", 
-						logicalOperator : "AND", 
-						rules : { "UUIDv4" : { type : "All", value : storedParams.data.q } }
+						logicalOperator : "OR", 
+						rules : {
+							"UUIDv4-1": { type: "Sample", 				name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-2": { type: "Sample", 				name: "ATTR.CODE", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-3": { type: "Experiment", 			name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-4": { type: "Experiment", 			name: "ATTR.CODE", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-5": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-6": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContainsString", value: storedParams.data.q }
+						}
 					};
+		
 		mainController.serverFacade.searchForDataSetsAdvanced(criteria, null, function(results) { results.type = "DataSets"; action(results) });
 	}
 	
