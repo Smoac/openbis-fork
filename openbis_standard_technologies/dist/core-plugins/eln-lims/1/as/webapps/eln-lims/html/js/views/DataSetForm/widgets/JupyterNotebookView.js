@@ -27,8 +27,8 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		$window.append($('<legend>').append("Create Jupyter Notebook"));
 		
 		var $datasetsContainer = $("<div>", { style : "width: 100%;" });
-		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets (*)"));
-		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, true, "Select as many datasets as you need", false, false, true);
+		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets"));
+		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, false, "Select as many datasets as you need", false, false, true);
 		datasetsSearchDropdown.init($datasetsContainer);
 		
 		if(entity) {
