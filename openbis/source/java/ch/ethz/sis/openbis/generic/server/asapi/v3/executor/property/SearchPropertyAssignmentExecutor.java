@@ -30,16 +30,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.EntityTypeIdMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISearchEntityTypeExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ISearchSemanticAnnotationExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SemanticAnnotationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -55,6 +58,9 @@ public class SearchPropertyAssignmentExecutor extends AbstractSearchObjectManual
 
     @Autowired
     private ISearchPropertyTypeExecutor searchPropertyTypeExecutor;
+
+    @Autowired
+    private ISearchSemanticAnnotationExecutor searchSemanticAnnotationExecutor;
 
     @Override
     protected List<EntityTypePropertyTypePE> listAll()
@@ -79,6 +85,9 @@ public class SearchPropertyAssignmentExecutor extends AbstractSearchObjectManual
         } else if (criteria instanceof PropertyTypeSearchCriteria)
         {
             return new PropertyTypeMatcher();
+        } else if (criteria instanceof SemanticAnnotationSearchCriteria)
+        {
+            return new SemanticAnnotationMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
@@ -163,6 +172,110 @@ public class SearchPropertyAssignmentExecutor extends AbstractSearchObjectManual
             return matching;
         }
 
+    }
+
+    private class SemanticAnnotationMatcher extends Matcher<EntityTypePropertyTypePE>
+    {
+        @Override
+        public List<EntityTypePropertyTypePE> getMatching(IOperationContext context, List<EntityTypePropertyTypePE> assignments,
+                ISearchCriteria criteria)
+        {
+            List<EntityTypePropertyTypePE> sampleAssignments = getSampleAssignments(assignments);
+
+            List<SemanticAnnotationPE> annotations =
+                    searchSemanticAnnotationExecutor.search(context, (SemanticAnnotationSearchCriteria) criteria);
+
+            Set<PropertyTypePE> propertyTypesWithMatchingAnnotations =
+                    getPropertyTypesWithMatchingAnnotations(context, sampleAssignments, annotations);
+            Set<EntityTypePropertyTypePE> assignmentsWithMatchingAnnotations =
+                    getAssignmentsWithMatchingAnnotations(context, sampleAssignments, annotations);
+            Set<EntityTypePropertyTypePE> assignmentsWithoutAnyAnnotations = getAssignmentsWithoutAnyAnnotations(context, sampleAssignments);
+            Set<EntityTypePropertyTypePE> matching = new HashSet<EntityTypePropertyTypePE>();
+
+            matching.addAll(assignmentsWithMatchingAnnotations);
+
+            for (EntityTypePropertyTypePE assignmentWithoutAnyAnnotations : assignmentsWithoutAnyAnnotations)
+            {
+                if (propertyTypesWithMatchingAnnotations.contains(assignmentWithoutAnyAnnotations.getPropertyType()))
+                {
+                    matching.add(assignmentWithoutAnyAnnotations);
+                }
+            }
+
+            return new ArrayList<EntityTypePropertyTypePE>(matching);
+        }
+
+        private List<EntityTypePropertyTypePE> getSampleAssignments(List<EntityTypePropertyTypePE> assignments)
+        {
+            List<EntityTypePropertyTypePE> sampleAssignments = new ArrayList<EntityTypePropertyTypePE>();
+
+            for (EntityTypePropertyTypePE assignment : assignments)
+            {
+                if (EntityKind.SAMPLE.equals(assignment.getEntityType().getEntityKind()))
+                {
+                    sampleAssignments.add(assignment);
+                }
+            }
+
+            return sampleAssignments;
+        }
+
+        private Set<PropertyTypePE> getPropertyTypesWithMatchingAnnotations(IOperationContext context, List<EntityTypePropertyTypePE> assignments,
+                List<SemanticAnnotationPE> annotations)
+        {
+            Set<PropertyTypePE> propertyTypesSet = new HashSet<PropertyTypePE>();
+            Set<PropertyTypePE> propertyTypesWithAnnotations = new HashSet<PropertyTypePE>();
+
+            for (EntityTypePropertyTypePE assignment : assignments)
+            {
+                propertyTypesSet.add(assignment.getPropertyType());
+            }
+
+            for (SemanticAnnotationPE annotation : annotations)
+            {
+                if (annotation.getPropertyType() != null && propertyTypesSet.contains(annotation.getPropertyType()))
+                {
+                    propertyTypesWithAnnotations.add(annotation.getPropertyType());
+                }
+            }
+
+            return propertyTypesWithAnnotations;
+        }
+
+        private Set<EntityTypePropertyTypePE> getAssignmentsWithMatchingAnnotations(IOperationContext context,
+                List<EntityTypePropertyTypePE> assignments,
+                List<SemanticAnnotationPE> annotations)
+        {
+            Set<EntityTypePropertyTypePE> assignmentsSet = new HashSet<EntityTypePropertyTypePE>(assignments);
+            Set<EntityTypePropertyTypePE> assignmentsWithAnnotations = new HashSet<EntityTypePropertyTypePE>();
+
+            for (SemanticAnnotationPE annotation : annotations)
+            {
+                if (annotation.getSampleTypePropertyType() != null && assignmentsSet.contains(annotation.getSampleTypePropertyType()))
+                {
+                    assignmentsWithAnnotations.add(annotation.getSampleTypePropertyType());
+                }
+            }
+
+            return assignmentsWithAnnotations;
+        }
+
+        private Set<EntityTypePropertyTypePE> getAssignmentsWithoutAnyAnnotations(IOperationContext context,
+                List<EntityTypePropertyTypePE> assignments)
+        {
+            List<SemanticAnnotationPE> allAnnotations = searchSemanticAnnotationExecutor.search(context, new SemanticAnnotationSearchCriteria());
+            Set<EntityTypePropertyTypePE> assignmentsWithoutAnyAnnotations = new HashSet<EntityTypePropertyTypePE>(assignments);
+
+            for (SemanticAnnotationPE annotation : allAnnotations)
+            {
+                if (annotation.getSampleTypePropertyType() != null)
+                {
+                    assignmentsWithoutAnyAnnotations.remove(annotation.getSampleTypePropertyType());
+                }
+            }
+
+            return assignmentsWithoutAnyAnnotations;
+        }
     }
 
 }

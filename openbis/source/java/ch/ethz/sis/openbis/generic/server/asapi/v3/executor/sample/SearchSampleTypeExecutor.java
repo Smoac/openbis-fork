@@ -17,7 +17,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,10 +27,13 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.ListableSampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ISearchSemanticAnnotationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SemanticAnnotationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -41,6 +46,9 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
 
     @Autowired
     private ISampleTypeAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
+    private ISearchSemanticAnnotationExecutor searchSemanticAnnotationExecutor;
 
     @Override
     public List<SampleTypePE> search(IOperationContext context, SampleTypeSearchCriteria criteria)
@@ -60,6 +68,9 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
         if (criteria instanceof ListableSampleTypeSearchCriteria)
         {
             return new ListableMatcher();
+        } else if (criteria instanceof SemanticAnnotationSearchCriteria)
+        {
+            return new SemanticAnnotationMatcher();
         }
         return super.getMatcher(criteria);
     }
@@ -82,4 +93,28 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
             return list;
         }
     }
+
+    private class SemanticAnnotationMatcher extends Matcher<SampleTypePE>
+    {
+        @Override
+        public List<SampleTypePE> getMatching(IOperationContext context, List<SampleTypePE> objects, ISearchCriteria criteria)
+        {
+            List<SemanticAnnotationPE> annotations =
+                    searchSemanticAnnotationExecutor.search(context, (SemanticAnnotationSearchCriteria) criteria);
+
+            Set<SampleTypePE> sampleTypesSet = new HashSet<SampleTypePE>(objects);
+            Set<SampleTypePE> matches = new HashSet<SampleTypePE>();
+
+            for (SemanticAnnotationPE annotation : annotations)
+            {
+                if (annotation.getSampleType() != null && sampleTypesSet.contains(annotation.getSampleType()))
+                {
+                    matches.add(annotation.getSampleType());
+                }
+            }
+
+            return new ArrayList<SampleTypePE>(matches);
+        }
+    }
+
 }

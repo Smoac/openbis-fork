@@ -36,7 +36,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IDataSetType
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IExperimentTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMaterialTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISampleTypeAuthorizationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityTypeConverter;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -105,7 +105,7 @@ public class SearchEntityTypeExecutor extends AbstractSearchObjectManuallyExecut
         @Override
         protected boolean isMatching(IOperationContext context, EntityTypePE object, ISearchCriteria criteria)
         {
-            EntityKind entityKind = EntityTypeConverter.convert(((EntityKindSearchCriteria) criteria).getFieldValue());
+            EntityKind entityKind = EntityKindConverter.convert(((EntityKindSearchCriteria) criteria).getFieldValue());
 
             if (entityKind == null)
             {

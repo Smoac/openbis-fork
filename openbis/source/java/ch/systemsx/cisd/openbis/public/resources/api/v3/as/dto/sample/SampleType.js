@@ -21,6 +21,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.generatedCodePrefix = null;
 		prototype.modificationDate = null;
 		prototype.propertyAssignments = null;
+		prototype.semanticAnnotations = null;
 		prototype.getPropertyAssignments = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasPropertyAssignments()) {
 				return this.propertyAssignments;
@@ -96,6 +97,16 @@ define([ "stjs" ], function(stjs) {
 		};
 		prototype.setGeneratedCodePrefix = function(generatedCodePrefix) {
 			this.generatedCodePrefix = generatedCodePrefix;
+		};
+		prototype.getSemanticAnnotations = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSemanticAnnotations()) {
+				return this.semanticAnnotations;
+			} else {
+				throw new exceptions.NotFetchedException("Semantic annotations have not been fetched.");
+			}
+		};
+		prototype.setSemanticAnnotations = function(semanticAnnotations) {
+			this.semanticAnnotations = semanticAnnotations;
 		};
 		prototype.getModificationDate = function() {
 			return this.modificationDate;

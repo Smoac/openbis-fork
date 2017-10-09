@@ -20,6 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,6 +39,9 @@ public class PropertyTypeFetchOptions extends FetchOptions<PropertyType> impleme
 
     @JsonProperty
     private MaterialTypeFetchOptions materialType;
+
+    @JsonProperty
+    private SemanticAnnotationFetchOptions semanticAnnotations;
 
     @JsonProperty
     private PersonFetchOptions registrator;
@@ -90,6 +94,28 @@ public class PropertyTypeFetchOptions extends FetchOptions<PropertyType> impleme
     }
 
     // Method automatically generated with DtoGenerator
+    public SemanticAnnotationFetchOptions withSemanticAnnotations()
+    {
+        if (semanticAnnotations == null)
+        {
+            semanticAnnotations = new SemanticAnnotationFetchOptions();
+        }
+        return semanticAnnotations;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public SemanticAnnotationFetchOptions withSemanticAnnotationsUsing(SemanticAnnotationFetchOptions fetchOptions)
+    {
+        return semanticAnnotations = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSemanticAnnotations()
+    {
+        return semanticAnnotations != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -134,6 +160,7 @@ public class PropertyTypeFetchOptions extends FetchOptions<PropertyType> impleme
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PropertyType", this);
         f.addFetchOption("Vocabulary", vocabulary);
         f.addFetchOption("MaterialType", materialType);
+        f.addFetchOption("SemanticAnnotations", semanticAnnotations);
         f.addFetchOption("Registrator", registrator);
         return f;
     }

@@ -20,6 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -39,6 +40,11 @@ public class PropertyAssignmentSearchCriteria extends AbstractObjectSearchCriter
     public PropertyTypeSearchCriteria withPropertyType()
     {
         return with(new PropertyTypeSearchCriteria());
+    }
+
+    public SemanticAnnotationSearchCriteria withSemanticAnnotations()
+    {
+        return with(new SemanticAnnotationSearchCriteria());
     }
 
     @Override

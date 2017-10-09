@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -33,6 +34,9 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
 
     @JsonProperty
     private PropertyAssignmentFetchOptions propertyAssignments;
+
+    @JsonProperty
+    private SemanticAnnotationFetchOptions semanticAnnotations;
 
     @JsonProperty
     private SampleTypeSortOptions sort;
@@ -60,6 +64,28 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     }
 
     // Method automatically generated with DtoGenerator
+    public SemanticAnnotationFetchOptions withSemanticAnnotations()
+    {
+        if (semanticAnnotations == null)
+        {
+            semanticAnnotations = new SemanticAnnotationFetchOptions();
+        }
+        return semanticAnnotations;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public SemanticAnnotationFetchOptions withSemanticAnnotationsUsing(SemanticAnnotationFetchOptions fetchOptions)
+    {
+        return semanticAnnotations = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSemanticAnnotations()
+    {
+        return semanticAnnotations != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     @Override
     public SampleTypeSortOptions sortBy()
     {
@@ -81,6 +107,7 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("SampleType", this);
         f.addFetchOption("PropertyAssignments", propertyAssignments);
+        f.addFetchOption("SemanticAnnotations", semanticAnnotations);
         return f;
     }
 

@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.fetchoptions.EntityTy
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -38,6 +39,9 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
 
     @JsonProperty
     private PropertyTypeFetchOptions propertyType;
+
+    @JsonProperty
+    private SemanticAnnotationFetchOptions semanticAnnotations;
 
     @JsonProperty
     private PersonFetchOptions registrator;
@@ -90,6 +94,28 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     }
 
     // Method automatically generated with DtoGenerator
+    public SemanticAnnotationFetchOptions withSemanticAnnotations()
+    {
+        if (semanticAnnotations == null)
+        {
+            semanticAnnotations = new SemanticAnnotationFetchOptions();
+        }
+        return semanticAnnotations;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public SemanticAnnotationFetchOptions withSemanticAnnotationsUsing(SemanticAnnotationFetchOptions fetchOptions)
+    {
+        return semanticAnnotations = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSemanticAnnotations()
+    {
+        return semanticAnnotations != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -134,6 +160,7 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PropertyAssignment", this);
         f.addFetchOption("EntityType", entityType);
         f.addFetchOption("PropertyType", propertyType);
+        f.addFetchOption("SemanticAnnotations", semanticAnnotations);
         f.addFetchOption("Registrator", registrator);
         return f;
     }

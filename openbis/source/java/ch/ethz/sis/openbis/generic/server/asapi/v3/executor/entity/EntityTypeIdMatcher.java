@@ -21,7 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityTypeConverter;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 
@@ -57,7 +57,7 @@ public class EntityTypeIdMatcher extends SimpleFieldMatcher<EntityTypePE>
             }
 
             return permId.getPermId().equals(object.getPermId())
-                    && permId.getEntityKind().equals(EntityTypeConverter.convert(object.getEntityKind()));
+                    && permId.getEntityKind().equals(EntityKindConverter.convert(object.getEntityKind()));
         } else
         {
             throw new IllegalArgumentException("Unknown id: " + id.getClass());

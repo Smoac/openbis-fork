@@ -21,6 +21,7 @@ import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,9 +39,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -183,6 +187,115 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withType().withCode().thatEquals("REINFECT_PLATE");
         testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithTypeWithSemanticAnnotationsWithIdThatEquals()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withSemanticAnnotations().withId().thatEquals(new SemanticAnnotationPermId("ST_DILUTION_PLATE"));
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+
+        List<Sample> samples = search(sessionToken, criteria, fo);
+
+        assertEquals(samples.size(), 6, samples.toString());
+        for (Sample sample : samples)
+        {
+            assertEquals(sample.getType().getCode(), "DILUTION_PLATE");
+        }
+    }
+
+    @Test
+    public void testSearchWithTypeWithSemanticAnnotationsWithIdOrIdAndWithSampleCodeThatContains()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatContains("P2");
+
+        SemanticAnnotationSearchCriteria annotationCriteria = criteria.withType().withSemanticAnnotations();
+        annotationCriteria.withOrOperator();
+        annotationCriteria.withId().thatEquals(new SemanticAnnotationPermId("ST_MASTER_PLATE"));
+        annotationCriteria.withId().thatEquals(new SemanticAnnotationPermId("ST_DILUTION_PLATE"));
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+
+        List<Sample> samples = search(sessionToken, criteria, fo);
+
+        assertEquals(samples.size(), 2, samples.toString());
+        for (Sample sample : samples)
+        {
+            AssertionUtil.assertContains("P2", sample.getCode());
+            AssertionUtil.assertCollectionContains(Arrays.asList("MASTER_PLATE", "DILUTION_PLATE"), sample.getType().getCode());
+        }
+    }
+
+    @Test
+    public void testSearchWithTypeWithPropertyAssignmentsWithSemanticAnnotationsWithIdThatEqualsWhereSemanticAnnotationIsDefinedAtPropertyAssignment()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withPropertyAssignments().withSemanticAnnotations().withId()
+                .thatEquals(new SemanticAnnotationPermId("ST_CELL_PLATE_PT_ORGANISM"));
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+
+        List<Sample> samples = search(sessionToken, criteria, fo);
+
+        assertEquals(samples.size(), 14, samples.toString());
+        for (Sample sample : samples)
+        {
+            assertEquals(sample.getType().getCode(), "CELL_PLATE");
+        }
+    }
+
+    @Test
+    public void testSearchWithTypeWithPropertyAssignmentsWithSemanticAnnotationsWithIdThatEqualsWhereSemanticAnnotationIsDefinedAtPropertyTypeLevelOnly()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withPropertyAssignments().withSemanticAnnotations().withId()
+                .thatEquals(new SemanticAnnotationPermId("PT_ORGANISM"));
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+
+        List<Sample> samples = search(sessionToken, criteria, fo);
+
+        assertEquals(samples.size(), 2, samples.toString());
+        for (Sample sample : samples)
+        {
+            AssertionUtil.assertCollectionContains(Arrays.asList("DELETION_TEST", "NORMAL"), sample.getType().getCode());
+        }
+    }
+
+    @Test
+    public void testSearchWithTypeWithPropertyAssignmentsWithPropertyTypeWithSemanticAnnotationsWithIdThatEquals()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withPropertyAssignments().withPropertyType().withSemanticAnnotations().withId()
+                .thatEquals(new SemanticAnnotationPermId("PT_DESCRIPTION"));
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+
+        List<Sample> samples = search(sessionToken, criteria, fo);
+
+        assertEquals(samples.size(), 11, samples.toString());
+        for (Sample sample : samples)
+        {
+            AssertionUtil.assertCollectionContains(Arrays.asList("MASTER_PLATE", "CONTROL_LAYOUT", "DELETION_TEST"), sample.getType().getCode());
+        }
     }
 
     @Test

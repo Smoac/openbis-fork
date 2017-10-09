@@ -20,6 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -34,6 +35,11 @@ public class PropertyTypeSearchCriteria extends AbstractObjectSearchCriteria<IPr
     public CodeSearchCriteria withCode()
     {
         return with(new CodeSearchCriteria());
+    }
+
+    public SemanticAnnotationSearchCriteria withSemanticAnnotations()
+    {
+        return with(new SemanticAnnotationSearchCriteria());
     }
 
     @Override

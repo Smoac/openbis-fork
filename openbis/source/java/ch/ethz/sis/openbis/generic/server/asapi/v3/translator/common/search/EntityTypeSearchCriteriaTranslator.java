@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchF
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * @author pkupczyk
@@ -56,6 +57,9 @@ public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromComposi
         } else if (SearchObjectKind.MATERIAL.equals(objectKind))
         {
             return DetailedSearchField.createAttributeField(MaterialAttributeSearchFieldKind.MATERIAL_TYPE);
+        } else if (SearchObjectKind.SAMPLE.equals(objectKind))
+        {
+            return DetailedSearchField.createAttributeField(SampleAttributeSearchFieldKind.SAMPLE_TYPE);
         } else
         {
             throw new IllegalArgumentException("Unknown object kind: " + objectKind);

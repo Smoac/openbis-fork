@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity;
 /**
  * @author pkupczyk
  */
-public class EntityTypeConverter
+public class EntityKindConverter
 {
 
     public static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind convert(

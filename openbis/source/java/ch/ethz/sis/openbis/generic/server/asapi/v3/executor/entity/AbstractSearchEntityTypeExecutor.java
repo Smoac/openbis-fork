@@ -16,20 +16,31 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodesMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -39,6 +50,9 @@ public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_SEARCH_CRITER
         extends AbstractSearchObjectManuallyExecutor<ENTITY_TYPE_SEARCH_CRITERIA, ENTITY_TYPE_PE>
 {
     private final EntityKind entityKind;
+
+    @Autowired
+    private ISearchPropertyAssignmentExecutor searchPropertyAssignmentExecutor;
 
     protected AbstractSearchEntityTypeExecutor(EntityKind entityKind)
     {
@@ -60,6 +74,12 @@ public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_SEARCH_CRITER
         } else if (criteria instanceof PermIdSearchCriteria || criteria instanceof CodeSearchCriteria)
         {
             return new CodeMatcher<ENTITY_TYPE_PE>();
+        } else if (criteria instanceof CodesSearchCriteria)
+        {
+            return new CodesMatcher<ENTITY_TYPE_PE>();
+        } else if (criteria instanceof PropertyAssignmentSearchCriteria)
+        {
+            return new PropertyAssignmentMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
@@ -79,13 +99,45 @@ public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_SEARCH_CRITER
                 return true;
             } else if (id instanceof EntityTypePermId)
             {
-                return object.getPermId().equals(((EntityTypePermId) id).getPermId());
+                EntityTypePermId permId = (EntityTypePermId) id;
+
+                if (permId.getEntityKind() != null)
+                {
+                    return permId.getEntityKind().equals(EntityKindConverter.convert(entityKind)) && object.getPermId().equals(permId.getPermId());
+                } else
+                {
+                    return object.getPermId().equals(permId.getPermId());
+                }
             } else
             {
                 throw new IllegalArgumentException("Unknown id: " + criteria.getClass());
             }
         }
 
+    }
+
+    private class PropertyAssignmentMatcher extends Matcher<ENTITY_TYPE_PE>
+    {
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<ENTITY_TYPE_PE> getMatching(IOperationContext context, List<ENTITY_TYPE_PE> objects, ISearchCriteria criteria)
+        {
+            List<EntityTypePropertyTypePE> propertyAssignments =
+                    searchPropertyAssignmentExecutor.search(context, (PropertyAssignmentSearchCriteria) criteria);
+
+            Set<ENTITY_TYPE_PE> entityTypesSet = new HashSet<ENTITY_TYPE_PE>(objects);
+            Set<ENTITY_TYPE_PE> matches = new HashSet<ENTITY_TYPE_PE>();
+
+            for (EntityTypePropertyTypePE propertyAssignment : propertyAssignments)
+            {
+                if (propertyAssignment.getEntityType() != null && entityTypesSet.contains(propertyAssignment.getEntityType()))
+                {
+                    matches.add((ENTITY_TYPE_PE) propertyAssignment.getEntityType());
+                }
+            }
+
+            return new ArrayList<ENTITY_TYPE_PE>(matches);
+        }
     }
 
 }

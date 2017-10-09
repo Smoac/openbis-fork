@@ -20,22 +20,25 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnotationsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyAssignment")
-public class PropertyAssignment implements Serializable, IPermIdHolder, IPropertyTypeHolder, IRegistrationDateHolder, IRegistratorHolder
+public class PropertyAssignment implements Serializable, IPermIdHolder, IPropertyTypeHolder, IRegistrationDateHolder, IRegistratorHolder, ISemanticAnnotationsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -65,6 +68,9 @@ public class PropertyAssignment implements Serializable, IPermIdHolder, IPropert
 
     @JsonProperty
     private Boolean showRawValueInForms;
+
+    @JsonProperty
+    private List<SemanticAnnotation> semanticAnnotations;
 
     @JsonProperty
     private Person registrator;
@@ -203,6 +209,27 @@ public class PropertyAssignment implements Serializable, IPermIdHolder, IPropert
     public void setShowRawValueInForms(Boolean showRawValueInForms)
     {
         this.showRawValueInForms = showRawValueInForms;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public List<SemanticAnnotation> getSemanticAnnotations()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSemanticAnnotations())
+        {
+            return semanticAnnotations;
+        }
+        else
+        {
+            throw new NotFetchedException("Semantic annotations have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSemanticAnnotations(List<SemanticAnnotation> semanticAnnotations)
+    {
+        this.semanticAnnotations = semanticAnnotations;
     }
 
     // Method automatically generated with DtoGenerator

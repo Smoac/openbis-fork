@@ -106,6 +106,14 @@ CREATE DOMAIN description_2000 AS character varying(2000);
 
 
 --
+-- Name: edms_address_type; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN edms_address_type AS text
+	CONSTRAINT edms_address_type_check CHECK ((VALUE = ANY (ARRAY['OPENBIS'::text, 'URL'::text, 'FILE_SYSTEM'::text])));
+
+
+--
 -- Name: entity_kind; Type: DOMAIN; Schema: public; Owner: -
 --
 
@@ -157,10 +165,26 @@ CREATE DOMAIN identifier AS character varying(200);
 
 
 --
+-- Name: location_type; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN location_type AS text
+	CONSTRAINT location_type_check CHECK ((VALUE = ANY (ARRAY['OPENBIS'::text, 'URL'::text, 'FILE_SYSTEM_PLAIN'::text, 'FILE_SYSTEM_GIT'::text])));
+
+
+--
 -- Name: object_name; Type: DOMAIN; Schema: public; Owner: -
 --
 
 CREATE DOMAIN object_name AS character varying(50);
+
+
+--
+-- Name: operation_execution_availability; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN operation_execution_availability AS character varying(40)
+	CONSTRAINT operation_execution_availability_check CHECK (((VALUE)::text = ANY ((ARRAY['AVAILABLE'::character varying, 'DELETE_PENDING'::character varying, 'DELETED'::character varying, 'TIME_OUT_PENDING'::character varying, 'TIMED_OUT'::character varying])::text[])));
 
 
 --
@@ -323,6 +347,50 @@ $$;
 
 
 --
+-- Name: check_data_set_kind_link(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION check_data_set_kind_link() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    kind DATA_SET_KIND;
+BEGIN
+    SELECT data_set_kind INTO kind
+        FROM data_all 
+        WHERE id = NEW.data_id;
+        IF (kind <> 'LINK') THEN 
+            RAISE EXCEPTION 'Link data (Data Set Code: %) must reference a data set of kind LINK (is %).', 
+                            NEW.data_id, kind;
+        END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: check_data_set_kind_physical(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION check_data_set_kind_physical() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    kind DATA_SET_KIND;
+BEGIN
+    SELECT data_set_kind INTO kind
+        FROM data_all 
+        WHERE id = NEW.data_id;
+        IF (kind <> 'PHYSICAL') THEN 
+            RAISE EXCEPTION 'External data (Data Set Code: %) must reference a data set of kind PHYSICAL (is %).', 
+                            NEW.data_id, kind;
+        END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: check_deletion_consistency_on_experiment_deletion(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -385,6 +453,50 @@ BEGIN
 	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its component samples was not deleted.', NEW.code;
 	END IF;
 	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: content_copies_location_type_check(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION content_copies_location_type_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+   edms_address_type EDMS_ADDRESS_TYPE;
+   index integer;
+BEGIN
+
+   select position(address_type in NEW.location_type), address_type into index, edms_address_type from external_data_management_systems
+      where id = NEW.edms_id;
+
+   if index != 1 then
+      RAISE EXCEPTION 'Insert/Update to content_copies failed. Location type %, but edms.address_type %', NEW.location_type, edms_address_type;
+   end if;
+
+   RETURN NEW;
+
+END;
+$$;
+
+
+--
+-- Name: content_copies_uniqueness_check(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION content_copies_uniqueness_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.location_unique_check = NEW.data_id || ',' || 
+                              NEW.edms_id || ',' ||
+                              coalesce(NEW.path, '') || ',' || 
+                              coalesce(NEW.git_commit_hash, '') || ',' || 
+                              coalesce(NEW.git_repository_id, '') || ',' || 
+                              coalesce(NEW.external_code, '');
+  RETURN NEW;
 END;
 $$;
 
@@ -872,6 +984,37 @@ CREATE SEQUENCE code_seq
 
 
 --
+-- Name: content_copies; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE content_copies (
+    data_id tech_id NOT NULL,
+    edms_id tech_id NOT NULL,
+    external_code text_value,
+    id tech_id NOT NULL,
+    location_type location_type NOT NULL,
+    path text_value,
+    git_commit_hash text_value,
+    location_unique_check text_value NOT NULL,
+    pers_id_registerer tech_id,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    git_repository_id text_value
+);
+
+
+--
+-- Name: content_copies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE content_copies_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
 -- Name: controlled_vocabularies; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -979,6 +1122,7 @@ CREATE TABLE data_all (
     pers_id_modifier tech_id,
     version integer DEFAULT 0,
     access_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    data_set_kind data_set_kind DEFAULT 'PHYSICAL'::character varying NOT NULL,
     CONSTRAINT data_ck CHECK (((expe_id IS NOT NULL) OR (samp_id IS NOT NULL)))
 );
 
@@ -1005,7 +1149,8 @@ CREATE VIEW data AS
     data_all.is_derived,
     data_all.del_id,
     data_all.orig_del,
-    data_all.version
+    data_all.version,
+    data_all.data_set_kind
    FROM data_all
   WHERE (data_all.del_id IS NULL);
 
@@ -1032,7 +1177,8 @@ CREATE VIEW data_deleted AS
     data_all.is_derived,
     data_all.del_id,
     data_all.orig_del,
-    data_all.version
+    data_all.version,
+    data_all.data_set_kind
    FROM data_all
   WHERE (data_all.del_id IS NOT NULL);
 
@@ -1042,6 +1188,37 @@ CREATE VIEW data_deleted AS
 --
 
 CREATE SEQUENCE data_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: data_set_copies_history; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE data_set_copies_history (
+    id tech_id NOT NULL,
+    cc_id tech_id NOT NULL,
+    data_id tech_id NOT NULL,
+    external_code text_value,
+    path text_value,
+    git_commit_hash text_value,
+    edms_id tech_id NOT NULL,
+    pers_id_author tech_id,
+    valid_from_timestamp time_stamp NOT NULL,
+    valid_until_timestamp time_stamp,
+    git_repository_id text_value
+);
+
+
+--
+-- Name: data_set_copies_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE data_set_copies_history_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1091,7 +1268,7 @@ CREATE TABLE data_set_relationships_history (
 --
 
 CREATE VIEW data_set_history_view AS
- SELECT (2 * (data_set_relationships_history.id)::bigint) AS id,
+ SELECT (3 * (data_set_relationships_history.id)::bigint) AS id,
     data_set_relationships_history.main_data_id,
     data_set_relationships_history.relation_type,
     data_set_relationships_history.ordinal,
@@ -1103,13 +1280,18 @@ CREATE VIEW data_set_history_view AS
     NULL::text AS value,
     NULL::character varying AS vocabulary_term,
     NULL::character varying AS material,
+    NULL::text AS external_code,
+    NULL::text AS path,
+    NULL::text AS git_commit_hash,
+    NULL::text AS git_repository_id,
+    (NULL::bigint)::tech_id AS edms_id,
     data_set_relationships_history.pers_id_author,
     data_set_relationships_history.valid_from_timestamp,
     data_set_relationships_history.valid_until_timestamp
    FROM data_set_relationships_history
   WHERE (data_set_relationships_history.valid_until_timestamp IS NOT NULL)
 UNION
- SELECT ((2 * (data_set_properties_history.id)::bigint) + 1) AS id,
+ SELECT ((3 * (data_set_properties_history.id)::bigint) + 1) AS id,
     data_set_properties_history.ds_id AS main_data_id,
     NULL::text AS relation_type,
     NULL::integer AS ordinal,
@@ -1121,10 +1303,38 @@ UNION
     data_set_properties_history.value,
     data_set_properties_history.vocabulary_term,
     data_set_properties_history.material,
+    NULL::text AS external_code,
+    NULL::text AS path,
+    NULL::text AS git_commit_hash,
+    NULL::text AS git_repository_id,
+    NULL::bigint AS edms_id,
     data_set_properties_history.pers_id_author,
     data_set_properties_history.valid_from_timestamp,
     data_set_properties_history.valid_until_timestamp
-   FROM data_set_properties_history;
+   FROM data_set_properties_history
+UNION
+ SELECT ((3 * (data_set_copies_history.id)::bigint) + 2) AS id,
+    data_set_copies_history.data_id AS main_data_id,
+    NULL::text AS relation_type,
+    NULL::integer AS ordinal,
+    NULL::bigint AS expe_id,
+    NULL::bigint AS samp_id,
+    NULL::bigint AS data_id,
+    NULL::text AS entity_perm_id,
+    NULL::bigint AS dstpt_id,
+    NULL::text AS value,
+    NULL::character varying AS vocabulary_term,
+    NULL::character varying AS material,
+    data_set_copies_history.external_code,
+    data_set_copies_history.path,
+    data_set_copies_history.git_commit_hash,
+    data_set_copies_history.git_repository_id,
+    data_set_copies_history.edms_id,
+    data_set_copies_history.pers_id_author,
+    data_set_copies_history.valid_from_timestamp,
+    data_set_copies_history.valid_until_timestamp
+   FROM data_set_copies_history
+  WHERE (data_set_copies_history.valid_until_timestamp IS NOT NULL);
 
 
 --
@@ -1259,7 +1469,6 @@ CREATE TABLE data_set_types (
     main_ds_pattern character varying(300),
     main_ds_path character varying(1000),
     deletion_disallow boolean_char DEFAULT false,
-    data_set_kind data_set_kind DEFAULT 'PHYSICAL'::character varying NOT NULL,
     validation_script_id tech_id
 );
 
@@ -1749,7 +1958,9 @@ CREATE TABLE external_data (
     status archiving_status DEFAULT 'AVAILABLE'::character varying NOT NULL,
     present_in_archive boolean_char DEFAULT false,
     speed_hint integer DEFAULT '-50'::integer NOT NULL,
-    storage_confirmation boolean_char DEFAULT false NOT NULL
+    storage_confirmation boolean_char DEFAULT false NOT NULL,
+    h5_folders boolean_char NOT NULL,
+    h5ar_folders boolean_char NOT NULL
 );
 
 
@@ -1771,10 +1982,10 @@ CREATE SEQUENCE external_data_management_system_id_seq
 
 CREATE TABLE external_data_management_systems (
     id tech_id NOT NULL,
-    code code,
+    code code NOT NULL,
     label text_value,
-    url_template text_value,
-    is_openbis boolean DEFAULT false NOT NULL
+    address text_value NOT NULL,
+    address_type edms_address_type NOT NULL
 );
 
 
@@ -1865,9 +2076,7 @@ CREATE SEQUENCE grid_custom_columns_id_seq
 --
 
 CREATE TABLE link_data (
-    data_id tech_id NOT NULL,
-    edms_id tech_id NOT NULL,
-    external_code text_value NOT NULL
+    data_id tech_id NOT NULL
 );
 
 
@@ -2105,13 +2314,24 @@ CREATE SEQUENCE mtpt_id_seq
 CREATE TABLE operation_executions (
     id tech_id NOT NULL,
     code code NOT NULL,
-    state operation_execution_state NOT NULL,
-    description text_value NOT NULL,
-    error text_value,
-    creation_date time_stamp_dfl,
+    state operation_execution_state DEFAULT 'NEW'::character varying NOT NULL,
+    owner tech_id NOT NULL,
+    description text_value,
+    notification text_value,
+    availability operation_execution_availability DEFAULT 'AVAILABLE'::character varying NOT NULL,
+    availability_time bigint DEFAULT 1 NOT NULL,
+    summary_operations text_value,
+    summary_progress text_value,
+    summary_error text_value,
+    summary_results text_value,
+    summary_availability operation_execution_availability DEFAULT 'AVAILABLE'::character varying NOT NULL,
+    summary_availability_time bigint DEFAULT 1 NOT NULL,
+    details_path character varying(1000),
+    details_availability operation_execution_availability DEFAULT 'AVAILABLE'::character varying NOT NULL,
+    details_availability_time bigint DEFAULT 1 NOT NULL,
+    creation_date time_stamp_dfl NOT NULL,
     start_date time_stamp,
     finish_date time_stamp,
-    CONSTRAINT operation_executions_state_error_check CHECK (((((state)::text <> 'FAILED'::text) AND (error IS NULL)) OR (((state)::text = 'FAILED'::text) AND (error IS NOT NULL)))),
     CONSTRAINT operation_executions_state_finish_date_check CHECK (((((state)::text = ANY ((ARRAY['NEW'::character varying, 'SCHEDULED'::character varying, 'RUNNING'::character varying])::text[])) AND (finish_date IS NULL)) OR (((state)::text = ANY ((ARRAY['FINISHED'::character varying, 'FAILED'::character varying])::text[])) AND (finish_date IS NOT NULL)))),
     CONSTRAINT operation_executions_state_start_date_check CHECK (((((state)::text = ANY ((ARRAY['NEW'::character varying, 'SCHEDULED'::character varying])::text[])) AND (start_date IS NULL)) OR (((state)::text = ANY ((ARRAY['RUNNING'::character varying, 'FINISHED'::character varying, 'FAILED'::character varying])::text[])) AND (start_date IS NOT NULL))))
 );
@@ -2371,7 +2591,9 @@ CREATE TABLE role_assignments (
     ag_id_grantee tech_id,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    CONSTRAINT roas_ag_pers_arc_ck CHECK ((((ag_id_grantee IS NOT NULL) AND (pers_id_grantee IS NULL)) OR ((ag_id_grantee IS NULL) AND (pers_id_grantee IS NOT NULL))))
+    project_id tech_id,
+    CONSTRAINT roas_ag_pers_arc_ck CHECK ((((ag_id_grantee IS NOT NULL) AND (pers_id_grantee IS NULL)) OR ((ag_id_grantee IS NULL) AND (pers_id_grantee IS NOT NULL)))),
+    CONSTRAINT roas_space_project_ck CHECK (((space_id IS NULL) OR (project_id IS NULL)))
 );
 
 
@@ -2420,7 +2642,8 @@ CREATE TABLE sample_relationships_history (
     pers_id_author tech_id,
     valid_from_timestamp time_stamp NOT NULL,
     valid_until_timestamp time_stamp,
-    space_id tech_id
+    space_id tech_id,
+    proj_id tech_id
 );
 
 
@@ -2435,6 +2658,7 @@ CREATE VIEW sample_history_view AS
     sample_relationships_history.space_id,
     sample_relationships_history.expe_id,
     sample_relationships_history.samp_id,
+    sample_relationships_history.proj_id,
     sample_relationships_history.data_id,
     sample_relationships_history.entity_perm_id,
     NULL::bigint AS stpt_id,
@@ -2453,6 +2677,7 @@ UNION
     NULL::bigint AS space_id,
     NULL::bigint AS expe_id,
     NULL::bigint AS samp_id,
+    NULL::bigint AS proj_id,
     NULL::bigint AS data_id,
     NULL::text AS entity_perm_id,
     sample_properties_history.stpt_id,
@@ -2685,6 +2910,7 @@ CREATE VIEW samples_deleted AS
     samples_all.del_id,
     samples_all.orig_del,
     samples_all.space_id,
+    samples_all.proj_id,
     samples_all.samp_id_part_of,
     samples_all.version
    FROM samples_all
@@ -2719,6 +2945,39 @@ CREATE TABLE scripts (
     plugin_type plugin_type DEFAULT 'JYTHON'::character varying NOT NULL,
     is_available boolean_char DEFAULT true NOT NULL,
     CONSTRAINT script_nn_ck CHECK ((((plugin_type)::text = 'PREDEPLOYED'::text) OR (script IS NOT NULL)))
+);
+
+
+--
+-- Name: semantic_annotation_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE semantic_annotation_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: semantic_annotations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE semantic_annotations (
+    id tech_id NOT NULL,
+    perm_id code NOT NULL,
+    saty_id tech_id,
+    stpt_id tech_id,
+    prty_id tech_id,
+    predicate_ontology_id text,
+    predicate_ontology_version text,
+    predicate_accession_id text,
+    descriptor_ontology_id text,
+    descriptor_ontology_version text,
+    descriptor_accession_id text,
+    creation_date time_stamp_dfl NOT NULL,
+    CONSTRAINT semantic_annotations_ssp_ck CHECK ((((saty_id IS NOT NULL) AND (stpt_id IS NULL) AND (prty_id IS NULL)) OR ((saty_id IS NULL) AND (stpt_id IS NOT NULL) AND (prty_id IS NULL)) OR ((saty_id IS NULL) AND (stpt_id IS NULL) AND (prty_id IS NOT NULL))))
 );
 
 
@@ -2823,6 +3082,23 @@ COPY authorization_groups (id, code, description, registration_timestamp, pers_i
 --
 
 SELECT pg_catalog.setval('code_seq', 21, true);
+
+
+--
+-- Data for Name: content_copies; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY content_copies (data_id, edms_id, external_code, id, location_type, path, git_commit_hash, location_unique_check, pers_id_registerer, registration_timestamp, git_repository_id) FROM stdin;
+33	1	EXTERNAL_CODE_1	1	URL	\N	\N	33,1,,,EXTERNAL_CODE_1	2	2016-06-13 19:54:37.233702+02	\N
+34	2	EXTERNAL_CODE_2	2	OPENBIS	\N	\N	34,2,,,EXTERNAL_CODE_2	2	2016-06-13 19:54:44.452762+02	\N
+\.
+
+
+--
+-- Name: content_copies_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('content_copies_id_seq', 2, true);
 
 
 --
@@ -3166,30 +3442,30 @@ SELECT pg_catalog.setval('cvte_id_seq', 264, true);
 -- Data for Name: data_all; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY data_all (id, code, dsty_id, dast_id, expe_id, data_producer_code, production_timestamp, samp_id, registration_timestamp, pers_id_registerer, is_valid, modification_timestamp, is_derived, del_id, orig_del, pers_id_modifier, version, access_timestamp) FROM stdin;
-3	20130412142205843-196	18	1	2	\N	\N	2	2013-04-12 14:32:30.714563+02	\N	f	2013-04-12 14:31:32.717+02	t	\N	\N	2	1	2015-09-04 10:06:23.467859+02
-5	20130412142543232-197	18	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-12 14:31:32.421+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-2	20130412142942295-198	18	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-12 14:31:31.106+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-6	20130412143121081-200	21	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-16 14:13:16.634+02	f	\N	\N	3	0	2015-09-04 10:05:23.467859+02
-10	20130412152038345-381	21	1	3	\N	\N	173	2013-04-12 15:20:49.056891+02	\N	f	2013-04-12 15:20:50.204+02	f	\N	\N	2	0	2015-09-04 10:05:23.467859+02
-8	20130412151710024-379	18	1	3	\N	\N	173	2013-04-12 15:20:49.056891+02	\N	f	2013-04-12 15:20:49.452+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-9	20130412152036861-380	19	1	3	\N	\N	173	2013-04-12 15:20:49.056891+02	\N	f	2013-04-12 15:20:49.869+02	f	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-12	20130412153118625-384	20	1	2	\N	\N	2	2013-04-12 15:31:23.376258+02	\N	f	2013-04-12 15:31:23.741+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-4	20130412143119901-199	19	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-16 14:13:16.532+02	f	\N	\N	3	1	2015-09-04 10:05:23.467859+02
-21	20130415093804724-403	1	2	6	\N	\N	345	2013-04-15 09:38:05.462023+02	\N	f	2013-04-15 10:47:57.983+02	f	\N	\N	3	2	2015-09-04 10:05:23.467859+02
-22	20130415100158230-407	1	2	6	\N	\N	\N	2013-04-15 10:01:58.792459+02	\N	f	2013-04-15 10:48:23.222+02	f	\N	\N	3	1	2015-09-04 10:05:23.467859+02
-23	20130415100238098-408	1	2	\N	\N	\N	345	2013-04-15 10:02:38.543438+02	\N	f	2013-04-15 10:49:15.769+02	f	\N	\N	3	1	2015-09-04 10:05:23.467859+02
-13	20130412153119864-385	24	1	2	\N	\N	2	2013-04-12 15:31:23.376258+02	\N	f	2013-04-16 14:13:16.633+02	f	\N	\N	3	0	2015-09-04 10:05:23.467859+02
-30	20130417094937144-429	26	2	5	\N	\N	350	2013-04-17 09:49:41.124317+02	\N	f	2013-04-17 09:49:42.458+02	f	\N	\N	2	0	2015-09-04 10:05:23.467859+02
-29	20130417094934693-427	27	2	5	\N	\N	350	2013-04-17 09:49:41.124317+02	\N	f	2013-04-17 09:49:42.056+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-28	20130417094936021-428	23	2	5	\N	\N	350	2013-04-17 09:49:41.124317+02	\N	f	2013-04-17 09:49:41.525+02	f	\N	\N	2	1	2015-09-04 10:05:23.467859+02
-24	20130415100308111-409	1	2	6	\N	\N	\N	2013-04-15 10:03:08.563355+02	\N	f	2013-04-15 10:49:33.428+02	f	\N	\N	2	8	2015-09-04 10:05:23.467859+02
-17	20130412153659994-391	25	1	2	\N	\N	2	2013-04-12 15:37:02.416612+02	\N	f	2013-04-24 11:17:54.49+02	f	\N	\N	2	0	2015-09-04 10:05:23.467859+02
-31	20130424111751432-431	22	1	2	\N	\N	2	2013-04-24 11:17:53.33839+02	\N	f	2013-05-15 15:19:52.209+02	f	\N	\N	3	2	2015-09-04 10:05:23.467859+02
-32	20130424111751209-430	22	1	2	\N	\N	2	2013-04-24 11:17:53.33839+02	\N	f	2013-05-15 15:20:11.306+02	f	\N	\N	3	2	2015-09-04 10:05:23.467859+02
-16	20130412153659945-390	17	1	2	\N	\N	2	2013-04-12 15:37:02.416612+02	\N	f	2013-05-15 15:20:29.57+02	t	\N	\N	3	3	2015-09-04 10:05:23.467859+02
-33	20160613195437233-437	28	1	7	\N	\N	\N	2016-06-13 19:54:37.233702+02	2	f	2016-06-13 19:54:37.233702+02	t	\N	\N	2	0	2016-06-13 19:54:37.233702+02
-34	20160613195444452-438	28	1	7	\N	\N	\N	2016-06-13 19:54:44.452762+02	2	f	2016-06-13 19:54:44.452762+02	t	\N	\N	2	0	2016-06-13 19:54:44.452762+02
+COPY data_all (id, code, dsty_id, dast_id, expe_id, data_producer_code, production_timestamp, samp_id, registration_timestamp, pers_id_registerer, is_valid, modification_timestamp, is_derived, del_id, orig_del, pers_id_modifier, version, access_timestamp, data_set_kind) FROM stdin;
+10	20130412152038345-381	21	1	3	\N	\N	173	2013-04-12 15:20:49.056891+02	\N	f	2013-04-12 15:20:50.204+02	f	\N	\N	2	0	2015-09-04 10:05:23.467859+02	CONTAINER
+6	20130412143121081-200	21	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-16 14:13:16.634+02	f	\N	\N	3	0	2015-09-04 10:05:23.467859+02	CONTAINER
+13	20130412153119864-385	24	1	2	\N	\N	2	2013-04-12 15:31:23.376258+02	\N	f	2013-04-16 14:13:16.633+02	f	\N	\N	3	0	2015-09-04 10:05:23.467859+02	CONTAINER
+17	20130412153659994-391	25	1	2	\N	\N	2	2013-04-12 15:37:02.416612+02	\N	f	2013-04-24 11:17:54.49+02	f	\N	\N	2	0	2015-09-04 10:05:23.467859+02	CONTAINER
+30	20130417094937144-429	26	2	5	\N	\N	350	2013-04-17 09:49:41.124317+02	\N	f	2013-04-17 09:49:42.458+02	f	\N	\N	2	0	2015-09-04 10:05:23.467859+02	CONTAINER
+24	20130415100308111-409	1	2	6	\N	\N	\N	2013-04-15 10:03:08.563355+02	\N	f	2013-04-15 10:49:33.428+02	f	\N	\N	2	8	2015-09-04 10:05:23.467859+02	PHYSICAL
+23	20130415100238098-408	1	2	\N	\N	\N	345	2013-04-15 10:02:38.543438+02	\N	f	2013-04-15 10:49:15.769+02	f	\N	\N	3	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+22	20130415100158230-407	1	2	6	\N	\N	\N	2013-04-15 10:01:58.792459+02	\N	f	2013-04-15 10:48:23.222+02	f	\N	\N	3	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+21	20130415093804724-403	1	2	6	\N	\N	345	2013-04-15 09:38:05.462023+02	\N	f	2013-04-15 10:47:57.983+02	f	\N	\N	3	2	2015-09-04 10:05:23.467859+02	PHYSICAL
+16	20130412153659945-390	17	1	2	\N	\N	2	2013-04-12 15:37:02.416612+02	\N	f	2013-05-15 15:20:29.57+02	t	\N	\N	3	3	2015-09-04 10:05:23.467859+02	PHYSICAL
+8	20130412151710024-379	18	1	3	\N	\N	173	2013-04-12 15:20:49.056891+02	\N	f	2013-04-12 15:20:49.452+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+2	20130412142942295-198	18	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-12 14:31:31.106+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+5	20130412142543232-197	18	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-12 14:31:32.421+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+3	20130412142205843-196	18	1	2	\N	\N	2	2013-04-12 14:32:30.714563+02	\N	f	2013-04-12 14:31:32.717+02	t	\N	\N	2	1	2015-09-04 10:06:23.467859+02	PHYSICAL
+4	20130412143119901-199	19	1	2	\N	\N	2	2013-04-12 14:31:30.714563+02	\N	f	2013-04-16 14:13:16.532+02	f	\N	\N	3	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+9	20130412152036861-380	19	1	3	\N	\N	173	2013-04-12 15:20:49.056891+02	\N	f	2013-04-12 15:20:49.869+02	f	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+12	20130412153118625-384	20	1	2	\N	\N	2	2013-04-12 15:31:23.376258+02	\N	f	2013-04-12 15:31:23.741+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+32	20130424111751209-430	22	1	2	\N	\N	2	2013-04-24 11:17:53.33839+02	\N	f	2013-05-15 15:20:11.306+02	f	\N	\N	3	2	2015-09-04 10:05:23.467859+02	PHYSICAL
+31	20130424111751432-431	22	1	2	\N	\N	2	2013-04-24 11:17:53.33839+02	\N	f	2013-05-15 15:19:52.209+02	f	\N	\N	3	2	2015-09-04 10:05:23.467859+02	PHYSICAL
+28	20130417094936021-428	23	2	5	\N	\N	350	2013-04-17 09:49:41.124317+02	\N	f	2013-04-17 09:49:41.525+02	f	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+29	20130417094934693-427	27	2	5	\N	\N	350	2013-04-17 09:49:41.124317+02	\N	f	2013-04-17 09:49:42.056+02	t	\N	\N	2	1	2015-09-04 10:05:23.467859+02	PHYSICAL
+33	20160613195437233-437	28	1	7	\N	\N	\N	2016-06-13 19:54:37.233702+02	2	f	2016-06-13 19:54:37.233702+02	t	\N	\N	2	0	2016-06-13 19:54:37.233702+02	LINK
+34	20160613195444452-438	28	1	7	\N	\N	\N	2016-06-13 19:54:44.452762+02	2	f	2016-06-13 19:54:44.452762+02	t	\N	\N	2	0	2016-06-13 19:54:44.452762+02	LINK
 \.
 
 
@@ -3198,6 +3474,21 @@ COPY data_all (id, code, dsty_id, dast_id, expe_id, data_producer_code, producti
 --
 
 SELECT pg_catalog.setval('data_id_seq', 34, true);
+
+
+--
+-- Data for Name: data_set_copies_history; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY data_set_copies_history (id, cc_id, data_id, external_code, path, git_commit_hash, edms_id, pers_id_author, valid_from_timestamp, valid_until_timestamp, git_repository_id) FROM stdin;
+\.
+
+
+--
+-- Name: data_set_copies_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('data_set_copies_history_id_seq', 1, false);
 
 
 --
@@ -3419,35 +3710,35 @@ COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_manage
 -- Data for Name: data_set_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY data_set_types (id, code, description, modification_timestamp, main_ds_pattern, main_ds_path, deletion_disallow, data_set_kind, validation_script_id) FROM stdin;
-1	UNKNOWN	Unknown	2013-04-12 10:04:52.629266+02	\N	\N	t	PHYSICAL	\N
-2	ALIGNMENT	Aligner ouput, ideally bam/sam	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-3	BASECALL_STATS	Base Call Statistics from the Illumina Pipeline (configureBclToFastq.pl)	2013-04-12 10:04:56.658885+02	original/.*/.*/Demultiplex_Stats.htm	\N	f	PHYSICAL	\N
-4	BIGWIGGLE	Visualization	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-5	ELAND_ALIGNMENT	Illumina Eland Alignment Output	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-6	FASTQ_GZ	Gzipped Fastq file produced by Casava 1.8+	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-7	ILLUMINA_HISEQ_OUTPUT	HiSeq2000 Output	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-8	ILLUMINA_MISEQ_OUTPUT	MiSeq Output	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-9	MACS_OUTPUT	MACS Peak Caller output	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-10	QUALITY_JPGS	R generated Quality plots	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-11	QUALITY_PDFS	R generated pdfs showing quality data	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-12	QUALITY_SVG	R generated Quality plots	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-13	RUNINFO	Run statstics: Status.html and Status_Files folder	2013-04-12 10:04:56.658885+02	original/.*/Data/Status.htm	\N	f	PHYSICAL	\N
-14	THUMBNAILS	Thumbnails provided by the Illumina software	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-15	TSV	Tab separated files	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
-16	PROT_RESULT	protXML file	2013-04-12 10:05:45.583358+02	\N	\N	f	PHYSICAL	\N
-17	HCS_ANALYSIS_WELL_FEATURES	HCS image analysis well feature vectors.	2013-04-12 10:05:46.102969+02	\N	\N	f	PHYSICAL	\N
-18	HCS_IMAGE_OVERVIEW	Overview High Content Screening Images. Generated from raw images.	2013-04-12 10:05:46.102969+02	\N	\N	f	PHYSICAL	\N
-19	HCS_IMAGE_RAW	Raw High Content Screening Images	2013-04-12 10:05:46.102969+02	\N	\N	f	PHYSICAL	\N
-20	HCS_IMAGE_SEGMENTATION	HCS Segmentation Images (overlays).	2013-04-12 10:05:46.102969+02	\N	\N	f	PHYSICAL	\N
-21	HCS_IMAGE_CONTAINER_RAW	Container for HCS images of different resolutions (raw, overviews, thumbnails).	2013-04-12 10:05:46.102969+02	\N	\N	f	CONTAINER	\N
-22	HCS_ANALYSIS_FEATURES_LIST	The list (or group) of features. The subset of features from feature vectors.	2013-04-12 10:05:46.102969+02	\N	\N	f	PHYSICAL	\N
-23	MICROSCOPY_IMG	A data set containing microscopy images	2013-04-12 10:51:10.506047+02	\N	\N	f	PHYSICAL	\N
-24	HCS_IMAGE_CONTAINER_SEGMENTATION	\N	2013-04-12 15:30:29.99535+02	\N	\N	f	CONTAINER	\N
-25	HCS_ANALYSIS_CONTAINER_WELL_FEATURES	\N	2013-04-12 15:35:04.718506+02	\N	\N	f	CONTAINER	\N
-26	MICROSCOPY_IMG_CONTAINER	\N	2013-04-12 15:54:10.754523+02	\N	\N	f	CONTAINER	\N
-27	MICROSCOPY_IMG_OVERVIEW	\N	2013-04-16 17:07:28.682859+02	\N	\N	f	PHYSICAL	\N
-28	LINK_TYPE	\N	2016-06-13 19:53:47.706+02	\N	\N	f	LINK	\N
+COPY data_set_types (id, code, description, modification_timestamp, main_ds_pattern, main_ds_path, deletion_disallow, validation_script_id) FROM stdin;
+1	UNKNOWN	Unknown	2013-04-12 10:04:52.629266+02	\N	\N	t	\N
+2	ALIGNMENT	Aligner ouput, ideally bam/sam	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+3	BASECALL_STATS	Base Call Statistics from the Illumina Pipeline (configureBclToFastq.pl)	2013-04-12 10:04:56.658885+02	original/.*/.*/Demultiplex_Stats.htm	\N	f	\N
+4	BIGWIGGLE	Visualization	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+5	ELAND_ALIGNMENT	Illumina Eland Alignment Output	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+6	FASTQ_GZ	Gzipped Fastq file produced by Casava 1.8+	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+7	ILLUMINA_HISEQ_OUTPUT	HiSeq2000 Output	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+8	ILLUMINA_MISEQ_OUTPUT	MiSeq Output	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+9	MACS_OUTPUT	MACS Peak Caller output	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+10	QUALITY_JPGS	R generated Quality plots	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+11	QUALITY_PDFS	R generated pdfs showing quality data	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+12	QUALITY_SVG	R generated Quality plots	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+13	RUNINFO	Run statstics: Status.html and Status_Files folder	2013-04-12 10:04:56.658885+02	original/.*/Data/Status.htm	\N	f	\N
+14	THUMBNAILS	Thumbnails provided by the Illumina software	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+15	TSV	Tab separated files	2013-04-12 10:04:56.658885+02	\N	\N	f	\N
+16	PROT_RESULT	protXML file	2013-04-12 10:05:45.583358+02	\N	\N	f	\N
+17	HCS_ANALYSIS_WELL_FEATURES	HCS image analysis well feature vectors.	2013-04-12 10:05:46.102969+02	\N	\N	f	\N
+18	HCS_IMAGE_OVERVIEW	Overview High Content Screening Images. Generated from raw images.	2013-04-12 10:05:46.102969+02	\N	\N	f	\N
+19	HCS_IMAGE_RAW	Raw High Content Screening Images	2013-04-12 10:05:46.102969+02	\N	\N	f	\N
+20	HCS_IMAGE_SEGMENTATION	HCS Segmentation Images (overlays).	2013-04-12 10:05:46.102969+02	\N	\N	f	\N
+21	HCS_IMAGE_CONTAINER_RAW	Container for HCS images of different resolutions (raw, overviews, thumbnails).	2013-04-12 10:05:46.102969+02	\N	\N	f	\N
+22	HCS_ANALYSIS_FEATURES_LIST	The list (or group) of features. The subset of features from feature vectors.	2013-04-12 10:05:46.102969+02	\N	\N	f	\N
+23	MICROSCOPY_IMG	A data set containing microscopy images	2013-04-12 10:51:10.506047+02	\N	\N	f	\N
+24	HCS_IMAGE_CONTAINER_SEGMENTATION	\N	2013-04-12 15:30:29.99535+02	\N	\N	f	\N
+25	HCS_ANALYSIS_CONTAINER_WELL_FEATURES	\N	2013-04-12 15:35:04.718506+02	\N	\N	f	\N
+26	MICROSCOPY_IMG_CONTAINER	\N	2013-04-12 15:54:10.754523+02	\N	\N	f	\N
+27	MICROSCOPY_IMG_OVERVIEW	\N	2013-04-16 17:07:28.682859+02	\N	\N	f	\N
+28	LINK_TYPE	\N	2016-06-13 19:53:47.706+02	\N	\N	f	\N
 \.
 
 
@@ -3463,66 +3754,66 @@ SELECT pg_catalog.setval('data_store_id_seq', 2, true);
 --
 
 COPY data_store_service_data_set_types (data_store_service_id, data_set_type_id) FROM stdin;
-231	17
-231	25
-237	17
-237	25
-232	23
-232	27
-232	17
-232	11
-232	18
-232	1
-232	2
-232	4
-232	7
-232	12
-232	14
-232	6
-232	22
-232	10
-232	28
-232	19
-232	24
-232	16
-232	15
-232	20
-232	5
-232	21
-232	3
-232	8
-232	13
-232	25
-232	26
-232	9
-235	23
-235	27
-235	17
-235	11
-235	18
-235	1
-235	2
-235	4
-235	7
-235	12
-235	14
-235	6
-235	22
-235	10
-235	28
-235	19
-235	24
-235	16
-235	15
-235	20
-235	5
-235	21
-235	3
-235	8
-235	13
-235	25
-235	26
-235	9
+240	1
+240	25
+240	23
+240	22
+240	12
+240	18
+240	26
+240	17
+240	8
+240	24
+240	19
+240	7
+240	5
+240	27
+240	11
+240	21
+240	28
+240	6
+240	15
+240	13
+240	10
+240	3
+240	9
+240	16
+240	2
+240	20
+240	4
+240	14
+241	25
+241	17
+247	25
+247	17
+249	1
+249	25
+249	23
+249	22
+249	12
+249	18
+249	26
+249	17
+249	8
+249	24
+249	19
+249	7
+249	5
+249	27
+249	11
+249	21
+249	28
+249	6
+249	15
+249	13
+249	10
+249	3
+249	9
+249	16
+249	2
+249	20
+249	4
+249	14
 \.
 
 
@@ -3531,16 +3822,16 @@ COPY data_store_service_data_set_types (data_store_service_id, data_set_type_id)
 --
 
 COPY data_store_services (id, key, label, kind, data_store_id, reporting_plugin_type) FROM stdin;
-230	feature-lists-aggregation-service	Features Lists	QUERIES	1	AGGREGATION_TABLE_MODEL
-231	default-plate-image-analysis	Image Analysis Results	QUERIES	1	TABLE_MODEL
-232	path-info-db-consistency-check	Path Info DB consistency check	PROCESSING	1	\N
-233	test-aggregation-service	Test Aggregation Service	QUERIES	1	AGGREGATION_TABLE_MODEL
-234	js-test	js-test	QUERIES	1	AGGREGATION_TABLE_MODEL
-235	path-info-db-consistency-check	Path Info DB consistency check	PROCESSING	2	\N
-236	js-test	js-test	QUERIES	2	AGGREGATION_TABLE_MODEL
-237	default-plate-image-analysis	Image Analysis Results	QUERIES	2	TABLE_MODEL
-238	feature-lists-aggregation-service	Features Lists	QUERIES	2	AGGREGATION_TABLE_MODEL
-239	test-aggregation-service	Test Aggregation Service	QUERIES	2	AGGREGATION_TABLE_MODEL
+240	path-info-db-consistency-check	Path Info DB consistency check	PROCESSING	1	\N
+241	default-plate-image-analysis	Image Analysis Results	QUERIES	1	TABLE_MODEL
+242	js-test	js-test	QUERIES	1	AGGREGATION_TABLE_MODEL
+243	feature-lists-aggregation-service	Features Lists	QUERIES	1	AGGREGATION_TABLE_MODEL
+244	test-aggregation-service	Test Aggregation Service	QUERIES	1	AGGREGATION_TABLE_MODEL
+245	js-test	js-test	QUERIES	2	AGGREGATION_TABLE_MODEL
+246	test-aggregation-service	Test Aggregation Service	QUERIES	2	AGGREGATION_TABLE_MODEL
+247	default-plate-image-analysis	Image Analysis Results	QUERIES	2	TABLE_MODEL
+248	feature-lists-aggregation-service	Features Lists	QUERIES	2	AGGREGATION_TABLE_MODEL
+249	path-info-db-consistency-check	Path Info DB consistency check	PROCESSING	2	\N
 \.
 
 
@@ -3548,7 +3839,7 @@ COPY data_store_services (id, key, label, kind, data_store_id, reporting_plugin_
 -- Name: data_store_services_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('data_store_services_id_seq', 239, true);
+SELECT pg_catalog.setval('data_store_services_id_seq', 249, true);
 
 
 --
@@ -3556,8 +3847,8 @@ SELECT pg_catalog.setval('data_store_services_id_seq', 239, true);
 --
 
 COPY data_stores (id, code, download_url, remote_url, session_token, registration_timestamp, modification_timestamp, is_archiver_configured, data_source_definitions, uuid) FROM stdin;
-1	DSS1	http://localhost:20001	http://127.0.0.1:20001	160613194720642-5166FAA93B1BA3AF21D28EBBDC1793DE	2013-04-12 10:06:09.172514+02	2016-06-13 19:47:21.048+02	t	code=imaging-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=imaging_test_js_common\tusername=pkupczyk\tpassword=\t\ncode=path-info-db\tdriverClassName=org.postgresql.Driver\tsid=pathinfo_test_js_common\tusername=pkupczyk\tpassword=\t\ncode=proteomics-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=proteomics_test_js_common\tusername=pkupczyk\tpassword=\t\n	1FD3FF61-1576-4908-AE3D-296E60B4CE06
-2	DSS2	http://localhost:20002	http://127.0.0.1:20002	160613194732182-916CC89C8A7083013C92291C028047ED	2013-04-12 16:44:04.986246+02	2016-06-13 19:47:32.298+02	t	code=imaging-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=imaging_test_js_common2\tusername=pkupczyk\tpassword=\t\ncode=path-info-db\tdriverClassName=org.postgresql.Driver\tsid=pathinfo_test_js_common2\tusername=pkupczyk\tpassword=\t\ncode=proteomics-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=proteomics_test_js_common2\tusername=pkupczyk\tpassword=\t\n	1FD3FF61-1576-4908-AE3D-296E60B4CE06
+1	DSS1	http://localhost:20001	http://127.0.0.1:20001	171009170324500-421F96491B0C39A02E1C534BF254297D	2013-04-12 10:06:09.172514+02	2017-10-09 17:03:24.953+02	t	code=imaging-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=imaging_test_js_common\tusername=pkupczyk\tpassword=\t\ncode=path-info-db\tdriverClassName=org.postgresql.Driver\tsid=pathinfo_test_js_common\tusername=pkupczyk\tpassword=\t\ncode=proteomics-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=proteomics_test_js_common\tusername=pkupczyk\tpassword=\t\n	1FD3FF61-1576-4908-AE3D-296E60B4CE06
+2	DSS2	http://localhost:20002	http://127.0.0.1:20002	171009170338233-585E42AEA3133313766B76832987E53C	2013-04-12 16:44:04.986246+02	2017-10-09 17:03:38.35+02	t	code=imaging-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=imaging_test_js_common2\tusername=pkupczyk\tpassword=\t\ncode=path-info-db\tdriverClassName=org.postgresql.Driver\tsid=pathinfo_test_js_common2\tusername=pkupczyk\tpassword=\t\ncode=proteomics-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=proteomics_test_js_common2\tusername=pkupczyk\tpassword=\t\n	1FD3FF61-1576-4908-AE3D-296E60B4CE06
 \.
 
 
@@ -3624,6 +3915,19 @@ COPY database_version_logs (db_version, module_name, run_status, run_status_time
 152	../../../../openbis/source/sql/postgresql/migration/migration-151-152.sql	SUCCESS	2016-06-13 19:46:53.478	\\x414c544552205441424c45204556454e54532041444420434f4c554d4e20455841435f494420544543485f49443b0a414c544552205441424c45204556454e54532041444420434f4e53545241494e542045564e545f455841435f464b20464f524549474e204b45592028455841435f494429205245464552454e434553204154544143484d454e545f434f4e54454e5453284944293b0a43524541544520494e4445582065766e745f657861635f666b5f69204f4e206576656e7473205553494e472062747265652028657861635f6964293b0a0a2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0a2d2d2052756c657320666f722070726f7065727469657320686973746f72790a2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0a0a2d2d204d6174657269616c2050726f70657274696573202d2d0a0a435245415445204f52205245504c4143452052554c45206d6174657269616c5f70726f706572746965735f7570646174652041530a202020204f4e2055504441544520544f206d6174657269616c5f70726f70657274696573200a20202020574845524520284f4c442e56414c5545204953204e4f54204e554c4c20414e44206465636f6465287265706c61636528737562737472696e67284f4c442e76616c75652066726f6d203120666f722031292c20275c272c20275c5c27292c2027657363617065272920213d2045275c5c786566626662642720414e44204f4c442e56414c554520213d204e45572e56414c554529200a20202020202020204f5220284f4c442e435654455f4944204953204e4f54204e554c4c20414e44204f4c442e435654455f494420213d204e45572e435654455f494429200a20202020202020204f5220284f4c442e4d4154455f50524f505f4944204953204e4f54204e554c4c20414e44204f4c442e4d4154455f50524f505f494420213d204e45572e4d4154455f50524f505f4944290a20202020444f20414c534f200a20202020202020494e5345525420494e544f206d6174657269616c5f70726f706572746965735f686973746f727920280a20202020202020202049442c200a2020202020202020204d4154455f49442c200a2020202020202020204d5450545f49442c200a20202020202020202056414c55452c200a202020202020202020564f434142554c4152595f5445524d2c0a2020202020202020204d4154455249414c2c200a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d502c0a20202020202020202056414c49445f554e54494c5f54494d455354414d50200a20202020202020292056414c55455320280a2020202020202020206e65787476616c28274d4154455249414c5f50524f50455254595f49445f53455127292c200a2020202020202020204f4c442e4d4154455f49442c200a2020202020202020204f4c442e4d5450545f49442c200a2020202020202020204f4c442e56414c55452c200a2020202020202020202873656c6563742028742e636f6465207c7c2027205b27207c7c20762e636f6465207c7c20275d27292066726f6d20636f6e74726f6c6c65645f766f636162756c6172795f7465726d732061732074206a6f696e20636f6e74726f6c6c65645f766f636162756c61726965732061732076206f6e20742e636f766f5f6964203d20762e696420776865726520742e6964203d204f4c442e435654455f4944292c0a2020202020202020202873656c65637420286d2e636f6465207c7c2027205b27207c7c206d742e636f6465207c7c20275d27292066726f6d206d6174657269616c73206173206d206a6f696e206d6174657269616c5f7479706573206173206d74206f6e206d2e6d6174795f6964203d206d742e6964207768657265206d2e6964203d204f4c442e4d4154455f50524f505f4944292c0a2020202020202020204f4c442e504552535f49445f415554484f522c0a2020202020202020204f4c442e4d4f44494649434154494f4e5f54494d455354414d502c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a202020202020200a2d2d204578706572696d656e742050726f70657274696573202d2d0a0a435245415445204f52205245504c4143452052554c45206578706572696d656e745f70726f706572746965735f7570646174652041530a202020204f4e2055504441544520544f206578706572696d656e745f70726f70657274696573200a20202020574845524520284f4c442e56414c5545204953204e4f54204e554c4c20414e44206465636f6465287265706c61636528737562737472696e67284f4c442e76616c75652066726f6d203120666f722031292c20275c272c20275c5c27292c2027657363617065272920213d2045275c5c786566626662642720414e44204f4c442e56414c554520213d204e45572e56414c554529200a20202020202020204f5220284f4c442e435654455f4944204953204e4f54204e554c4c20414e44204f4c442e435654455f494420213d204e45572e435654455f494429200a20202020202020204f5220284f4c442e4d4154455f50524f505f4944204953204e4f54204e554c4c20414e44204f4c442e4d4154455f50524f505f494420213d204e45572e4d4154455f50524f505f4944290a20202020444f20414c534f200a20202020202020494e5345525420494e544f206578706572696d656e745f70726f706572746965735f686973746f727920280a20202020202020202049442c200a202020202020202020455850455f49442c0a202020202020202020455450545f49442c200a20202020202020202056414c55452c200a202020202020202020564f434142554c4152595f5445524d2c0a2020202020202020204d4154455249414c2c200a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d502c0a20202020202020202056414c49445f554e54494c5f54494d455354414d50200a20202020202020292056414c55455320280a2020202020202020206e65787476616c28274558504552494d454e545f50524f50455254595f49445f53455127292c200a2020202020202020204f4c442e455850455f49442c200a2020202020202020204f4c442e455450545f49442c200a2020202020202020204f4c442e56414c55452c200a2020202020202020202873656c6563742028742e636f6465207c7c2027205b27207c7c20762e636f6465207c7c20275d27292066726f6d20636f6e74726f6c6c65645f766f636162756c6172795f7465726d732061732074206a6f696e20636f6e74726f6c6c65645f766f636162756c61726965732061732076206f6e20742e636f766f5f6964203d20762e696420776865726520742e6964203d204f4c442e435654455f4944292c0a2020202020202020202873656c65637420286d2e636f6465207c7c2027205b27207c7c206d742e636f6465207c7c20275d27292066726f6d206d6174657269616c73206173206d206a6f696e206d6174657269616c5f7479706573206173206d74206f6e206d2e6d6174795f6964203d206d742e6964207768657265206d2e6964203d204f4c442e4d4154455f50524f505f4944292c0a2020202020202020204f4c442e504552535f49445f415554484f522c0a2020202020202020204f4c442e4d4f44494649434154494f4e5f54494d455354414d502c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a202020202020200a2d2d2053616d706c652050726f70657274696573202d2d0a0a435245415445204f52205245504c4143452052554c452073616d706c655f70726f706572746965735f7570646174652041530a202020204f4e2055504441544520544f2073616d706c655f70726f706572746965730a20202020574845524520284f4c442e56414c5545204953204e4f54204e554c4c20414e44206465636f6465287265706c61636528737562737472696e67284f4c442e76616c75652066726f6d203120666f722031292c20275c272c20275c5c27292c2027657363617065272920213d2045275c5c786566626662642720414e44204f4c442e56414c554520213d204e45572e56414c554529200a20202020202020204f5220284f4c442e435654455f4944204953204e4f54204e554c4c20414e44204f4c442e435654455f494420213d204e45572e435654455f494429200a20202020202020204f5220284f4c442e4d4154455f50524f505f4944204953204e4f54204e554c4c20414e44204f4c442e4d4154455f50524f505f494420213d204e45572e4d4154455f50524f505f4944290a20202020444f20414c534f0a20202020202020494e5345525420494e544f2073616d706c655f70726f706572746965735f686973746f727920280a20202020202020202049442c200a20202020202020202053414d505f49442c0a202020202020202020535450545f49442c200a20202020202020202056414c55452c200a202020202020202020564f434142554c4152595f5445524d2c0a2020202020202020204d4154455249414c2c200a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d502c0a20202020202020202056414c49445f554e54494c5f54494d455354414d50200a20202020202020292056414c55455320280a2020202020202020206e65787476616c282753414d504c455f50524f50455254595f49445f53455127292c200a2020202020202020204f4c442e53414d505f49442c200a2020202020202020204f4c442e535450545f49442c200a2020202020202020204f4c442e56414c55452c200a2020202020202020202873656c6563742028742e636f6465207c7c2027205b27207c7c20762e636f6465207c7c20275d27292066726f6d20636f6e74726f6c6c65645f766f636162756c6172795f7465726d732061732074206a6f696e20636f6e74726f6c6c65645f766f636162756c61726965732061732076206f6e20742e636f766f5f6964203d20762e696420776865726520742e6964203d204f4c442e435654455f4944292c0a2020202020202020202873656c65637420286d2e636f6465207c7c2027205b27207c7c206d742e636f6465207c7c20275d27292066726f6d206d6174657269616c73206173206d206a6f696e206d6174657269616c5f7479706573206173206d74206f6e206d2e6d6174795f6964203d206d742e6964207768657265206d2e6964203d204f4c442e4d4154455f50524f505f4944292c0a2020202020202020204f4c442e504552535f49445f415554484f522c0a2020202020202020204f4c442e4d4f44494649434154494f4e5f54494d455354414d502c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a20202020202020202020202020200a2d2d2044617461205365742050726f70657274696573202d2d0a0a435245415445204f52205245504c4143452052554c4520646174615f7365745f70726f706572746965735f7570646174652041530a202020204f4e2055504441544520544f20646174615f7365745f70726f70657274696573200a20202020574845524520284f4c442e56414c5545204953204e4f54204e554c4c20414e44206465636f6465287265706c61636528737562737472696e67284f4c442e76616c75652066726f6d203120666f722031292c20275c272c20275c5c27292c2027657363617065272920213d2045275c5c786566626662642720414e44204f4c442e56414c554520213d204e45572e56414c554529200a20202020202020204f5220284f4c442e435654455f4944204953204e4f54204e554c4c20414e44204f4c442e435654455f494420213d204e45572e435654455f494429200a20202020202020204f5220284f4c442e4d4154455f50524f505f4944204953204e4f54204e554c4c20414e44204f4c442e4d4154455f50524f505f494420213d204e45572e4d4154455f50524f505f4944290a20202020444f20414c534f0a20202020202020494e5345525420494e544f20646174615f7365745f70726f706572746965735f686973746f727920280a20202020202020202049442c200a20202020202020202044535f49442c0a20202020202020202044535450545f49442c200a20202020202020202056414c55452c200a202020202020202020564f434142554c4152595f5445524d2c0a2020202020202020204d4154455249414c2c200a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d502c0a20202020202020202056414c49445f554e54494c5f54494d455354414d50200a20202020202020292056414c55455320280a2020202020202020206e65787476616c2827444154415f5345545f50524f50455254595f49445f53455127292c200a2020202020202020204f4c442e44535f49442c200a2020202020202020204f4c442e44535450545f49442c200a2020202020202020204f4c442e56414c55452c200a2020202020202020202873656c6563742028742e636f6465207c7c2027205b27207c7c20762e636f6465207c7c20275d27292066726f6d20636f6e74726f6c6c65645f766f636162756c6172795f7465726d732061732074206a6f696e20636f6e74726f6c6c65645f766f636162756c61726965732061732076206f6e20742e636f766f5f6964203d20762e696420776865726520742e6964203d204f4c442e435654455f4944292c0a2020202020202020202873656c65637420286d2e636f6465207c7c2027205b27207c7c206d742e636f6465207c7c20275d27292066726f6d206d6174657269616c73206173206d206a6f696e206d6174657269616c5f7479706573206173206d74206f6e206d2e6d6174795f6964203d206d742e6964207768657265206d2e6964203d204f4c442e4d4154455f50524f505f4944292c0a2020202020202020204f4c442e504552535f49445f415554484f522c0a2020202020202020204f4c442e4d4f44494649434154494f4e5f54494d455354414d502c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a0a2d2d20456e64206f662072756c657320666f722070726f7065727469657320686973746f72790a	\N
 153	../../../../openbis/source/sql/postgresql/migration/migration-152-153.sql	SUCCESS	2016-06-13 19:46:53.51	\\x2d2d20737461746520646f6d61696e0a43524541544520444f4d41494e204f5045524154494f4e5f455845435554494f4e5f535441544520415320564152434841522834302920434845434b202856414c554520494e2028274e4557272c20275343484544554c4544272c202752554e4e494e47272c202746494e4953484544272c20274641494c45442729293b0a0a2d2d207461626c650a435245415445205441424c45204f5045524154494f4e5f455845435554494f4e532028494420544543485f4944204e4f54204e554c4c2c20434f444520434f4445204e4f54204e554c4c2c205354415445204f5045524154494f4e5f455845435554494f4e5f5354415445204e4f54204e554c4c2c204445534352495054494f4e20544558545f56414c5545204e4f54204e554c4c2c204552524f5220544558545f56414c55452c204352454154494f4e5f444154452054494d455f5354414d505f44464c2c2053544152545f444154452054494d455f5354414d502c2046494e4953485f444154452054494d455f5354414d50293b0a0a2d2d2073657175656e63650a4352454154452053455155454e4345204f5045524154494f4e5f455845435554494f4e535f49445f5345513b0a0a2d2d20706b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f504b205052494d415259204b4559284944293b0a0a2d2d20636f646520756e6971756520636f6e73747261696e740a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f434f44455f554b20554e495155452028434f4445293b0a0a2d2d20636f646520696e646578200a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f434f44455f49204f4e204f5045524154494f4e5f455845435554494f4e532028434f4445293b0a0a2d2d20636865636b730a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f4552524f525f434845434b20434845434b20280a0928535441544520213d20274641494c45442720414e44204552524f52204953204e554c4c29204f520a09285354415445203d20274641494c45442720414e44204552524f52204953204e4f54204e554c4c290a293b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f53544152545f444154455f434845434b20434845434b20280a0928535441544520494e2028274e4557272c275343484544554c4544272920414e442053544152545f44415445204953204e554c4c29204f52200a0928535441544520494e20282752554e4e494e47272c2746494e4953484544272c274641494c4544272920414e442053544152545f44415445204953204e4f54204e554c4c290a293b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f46494e4953485f444154455f434845434b20434845434b20280a0928535441544520494e2028274e4557272c275343484544554c4544272c2752554e4e494e47272920414e442046494e4953485f44415445204953204e554c4c29204f52200a0928535441544520494e20282746494e4953484544272c274641494c4544272920414e442046494e4953485f44415445204953204e4f54204e554c4c290a293b0a2d2d206772616e740a4752414e542053454c454354204f4e205441424c45204f5045524154494f4e5f455845435554494f4e5320544f2047524f5550204f50454e4249535f524541444f4e4c593b0a	\N
 154	../../../../openbis/source/sql/postgresql/migration/migration-153-154.sql	SUCCESS	2016-06-13 19:46:53.528	\\x414c544552205441424c452070726f6a6563747320414c54455220434f4c554d4e206465736372697074696f6e205459504520544558545f56414c55453b0a	\N
+155	../../../../openbis/source/sql/postgresql/migration/migration-154-155.sql	SUCCESS	2017-10-09 17:02:52.791	\\x2d2d2064726f70206578697374696e6720646566696e6974696f6e730a44524f50205441424c4520494620455849535453204f5045524154494f4e5f455845435554494f4e533b0a44524f5020444f4d41494e20494620455849535453204f5045524154494f4e5f455845435554494f4e5f53544154453b0a0a2d2d20617661696c6162696c69747920646f6d61696e0a43524541544520444f4d41494e204f5045524154494f4e5f455845435554494f4e5f535441544520415320564152434841522834302920434845434b202856414c554520494e2028274e4557272c20275343484544554c4544272c202752554e4e494e47272c202746494e4953484544272c20274641494c45442729293b0a43524541544520444f4d41494e204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c49545920415320564152434841522834302920434845434b202856414c554520494e202827415641494c41424c45272c2744454c4554455f50454e44494e47272c2744454c45544544272c2754494d455f4f55545f50454e44494e47272c2754494d45445f4f55542729293b0a0a2d2d207461626c650a435245415445205441424c45204f5045524154494f4e5f455845435554494f4e5320280a09494420544543485f4944204e4f54204e554c4c2c200a09434f444520434f4445204e4f54204e554c4c2c0a095354415445204f5045524154494f4e5f455845435554494f4e5f5354415445204e4f54204e554c4c2044454641554c5420274e4557272c0a094f574e455220544543485f4944204e4f54204e554c4c2c0a094445534352495054494f4e20544558545f56414c55452c0a09415641494c4142494c495459204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c495459204e4f54204e554c4c2044454641554c542027415641494c41424c45272c0a09415641494c4142494c4954595f54494d4520424947494e54204e4f54204e554c4c2044454641554c5420312c0a0953554d4d4152595f4f5045524154494f4e5320544558545f56414c55452c0a0953554d4d4152595f50524f475245535320544558545f56414c55452c0a0953554d4d4152595f4552524f5220544558545f56414c55452c0a0953554d4d4152595f524553554c545320544558545f56414c55452c0a0953554d4d4152595f415641494c4142494c495459204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c495459204e4f54204e554c4c2044454641554c542027415641494c41424c45272c0a0953554d4d4152595f415641494c4142494c4954595f54494d4520424947494e54204e4f54204e554c4c2044454641554c5420312c0a0944455441494c535f5041544820564152434841522831303030292c0a0944455441494c535f415641494c4142494c495459204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c495459204e4f54204e554c4c2044454641554c542027415641494c41424c45272c0a0944455441494c535f415641494c4142494c4954595f54494d4520424947494e54204e4f54204e554c4c2044454641554c5420312c0a094352454154494f4e5f444154452054494d455f5354414d505f44464c204e4f54204e554c4c2c200a0953544152545f444154452054494d455f5354414d502c200a0946494e4953485f444154452054494d455f5354414d500a293b0a0a2d2d20706b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f504b205052494d415259204b4559284944293b0a0a2d2d20666b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f4f574e45525f464b20464f524549474e204b455920284f574e455229205245464552454e43455320504552534f4e5328494429204f4e2044454c45544520434153434144452044454645525241424c4520494e495449414c4c592044454645525245443b0a0a2d2d20636f646520756e6971756520636f6e73747261696e740a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f434f44455f554b20554e495155452028434f4445293b0a0a2d2d20636f646520696e6465780a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f434f44455f49204f4e204f5045524154494f4e5f455845435554494f4e532028434f4445293b0a0a2d2d206f776e657220696e6465780a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f4f574e45525f49204f4e204f5045524154494f4e5f455845435554494f4e5320284f574e4552293b0a0a2d2d20617661696c6162696c747920696e646578200a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f415641494c4142494c4954595f49204f4e204f5045524154494f4e5f455845435554494f4e532028415641494c4142494c495459293b0a0a2d2d2073756d6d6172795f617661696c6162696c6974790a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f53554d4d4152595f415641494c4142494c4954595f49204f4e204f5045524154494f4e5f455845435554494f4e53202853554d4d4152595f415641494c4142494c495459293b0a0a2d2d2064657461696c735f617661696c6162696c6974790a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f44455441494c535f415641494c4142494c4954595f49204f4e204f5045524154494f4e5f455845435554494f4e53202844455441494c535f415641494c4142494c495459293b0a0a2d2d20636865636b730a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f53544152545f444154455f434845434b20434845434b20280a0928535441544520494e2028274e4557272c275343484544554c4544272920414e442053544152545f44415445204953204e554c4c29204f52200a0928535441544520494e20282752554e4e494e47272c2746494e4953484544272c274641494c4544272920414e442053544152545f44415445204953204e4f54204e554c4c290a293b0a0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f46494e4953485f444154455f434845434b20434845434b20280a0928535441544520494e2028274e4557272c275343484544554c4544272c2752554e4e494e47272920414e442046494e4953485f44415445204953204e554c4c29204f52200a0928535441544520494e20282746494e4953484544272c274641494c4544272920414e442046494e4953485f44415445204953204e4f54204e554c4c290a293b0a0a2d2d206772616e740a4752414e542053454c454354204f4e205441424c45204f5045524154494f4e5f455845435554494f4e5320544f2047524f5550204f50454e4249535f524541444f4e4c593b0a	\N
+156	../../../../openbis/source/sql/postgresql/migration/migration-155-156.sql	SUCCESS	2017-10-09 17:02:52.836	\\x2d2d2064726f70206578697374696e6720646566696e6974696f6e730a44524f50205441424c4520494620455849535453204f5045524154494f4e5f455845435554494f4e533b0a44524f5020444f4d41494e20494620455849535453204f5045524154494f4e5f455845435554494f4e5f53544154453b0a44524f5020444f4d41494e20494620455849535453204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c4954593b0a0a2d2d20617661696c6162696c69747920646f6d61696e0a43524541544520444f4d41494e204f5045524154494f4e5f455845435554494f4e5f535441544520415320564152434841522834302920434845434b202856414c554520494e2028274e4557272c20275343484544554c4544272c202752554e4e494e47272c202746494e4953484544272c20274641494c45442729293b0a43524541544520444f4d41494e204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c49545920415320564152434841522834302920434845434b202856414c554520494e202827415641494c41424c45272c2744454c4554455f50454e44494e47272c2744454c45544544272c2754494d455f4f55545f50454e44494e47272c2754494d45445f4f55542729293b0a0a2d2d207461626c650a435245415445205441424c45204f5045524154494f4e5f455845435554494f4e5320280a09494420544543485f4944204e4f54204e554c4c2c200a09434f444520434f4445204e4f54204e554c4c2c0a095354415445204f5045524154494f4e5f455845435554494f4e5f5354415445204e4f54204e554c4c2044454641554c5420274e4557272c0a094f574e455220544543485f4944204e4f54204e554c4c2c0a094445534352495054494f4e20544558545f56414c55452c0a094e4f54494649434154494f4e20544558545f56414c55452c0a09415641494c4142494c495459204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c495459204e4f54204e554c4c2044454641554c542027415641494c41424c45272c0a09415641494c4142494c4954595f54494d4520424947494e54204e4f54204e554c4c2044454641554c5420312c0a0953554d4d4152595f4f5045524154494f4e5320544558545f56414c55452c0a0953554d4d4152595f50524f475245535320544558545f56414c55452c0a0953554d4d4152595f4552524f5220544558545f56414c55452c0a0953554d4d4152595f524553554c545320544558545f56414c55452c0a0953554d4d4152595f415641494c4142494c495459204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c495459204e4f54204e554c4c2044454641554c542027415641494c41424c45272c0a0953554d4d4152595f415641494c4142494c4954595f54494d4520424947494e54204e4f54204e554c4c2044454641554c5420312c0a0944455441494c535f5041544820564152434841522831303030292c0a0944455441494c535f415641494c4142494c495459204f5045524154494f4e5f455845435554494f4e5f415641494c4142494c495459204e4f54204e554c4c2044454641554c542027415641494c41424c45272c0a0944455441494c535f415641494c4142494c4954595f54494d4520424947494e54204e4f54204e554c4c2044454641554c5420312c0a094352454154494f4e5f444154452054494d455f5354414d505f44464c204e4f54204e554c4c2c200a0953544152545f444154452054494d455f5354414d502c200a0946494e4953485f444154452054494d455f5354414d500a293b0a0a2d2d20706b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f504b205052494d415259204b4559284944293b0a0a2d2d20666b0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f4f574e45525f464b20464f524549474e204b455920284f574e455229205245464552454e43455320504552534f4e5328494429204f4e2044454c45544520434153434144452044454645525241424c4520494e495449414c4c592044454645525245443b0a0a2d2d20636f646520756e6971756520636f6e73747261696e740a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f434f44455f554b20554e495155452028434f4445293b0a0a2d2d20636f646520696e6465780a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f434f44455f49204f4e204f5045524154494f4e5f455845435554494f4e532028434f4445293b0a0a2d2d206f776e657220696e6465780a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f4f574e45525f49204f4e204f5045524154494f4e5f455845435554494f4e5320284f574e4552293b0a0a2d2d20617661696c6162696c747920696e646578200a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f415641494c4142494c4954595f49204f4e204f5045524154494f4e5f455845435554494f4e532028415641494c4142494c495459293b0a0a2d2d2073756d6d6172795f617661696c6162696c6974790a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f53554d4d4152595f415641494c4142494c4954595f49204f4e204f5045524154494f4e5f455845435554494f4e53202853554d4d4152595f415641494c4142494c495459293b0a0a2d2d2064657461696c735f617661696c6162696c6974790a43524541544520494e444558204f5045524154494f4e5f455845435554494f4e535f44455441494c535f415641494c4142494c4954595f49204f4e204f5045524154494f4e5f455845435554494f4e53202844455441494c535f415641494c4142494c495459293b0a0a2d2d20636865636b730a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f53544152545f444154455f434845434b20434845434b20280a0928535441544520494e2028274e4557272c275343484544554c4544272920414e442053544152545f44415445204953204e554c4c29204f52200a0928535441544520494e20282752554e4e494e47272c2746494e4953484544272c274641494c4544272920414e442053544152545f44415445204953204e4f54204e554c4c290a293b0a0a414c544552205441424c45204f5045524154494f4e5f455845435554494f4e532041444420434f4e53545241494e54204f5045524154494f4e5f455845435554494f4e535f53544154455f46494e4953485f444154455f434845434b20434845434b20280a0928535441544520494e2028274e4557272c275343484544554c4544272c2752554e4e494e47272920414e442046494e4953485f44415445204953204e554c4c29204f52200a0928535441544520494e20282746494e4953484544272c274641494c4544272920414e442046494e4953485f44415445204953204e4f54204e554c4c290a293b0a0a2d2d206772616e740a4752414e542053454c454354204f4e205441424c45204f5045524154494f4e5f455845435554494f4e5320544f2047524f5550204f50454e4249535f524541444f4e4c593b0a	\N
+157	../../../../openbis/source/sql/postgresql/migration/migration-156-157.sql	SUCCESS	2017-10-09 17:02:52.882	\\x414c544552205441424c452053414d504c455f52454c4154494f4e53484950535f484953544f52592041444420434f4c554d4e2050524f4a5f494420544543485f49443b0a414c544552205441424c452053414d504c455f52454c4154494f4e53484950535f484953544f52592041444420434f4e53545241494e542053414d5052454c485f50524f4a4543545f464b20464f524549474e204b4559202850524f4a5f494429205245464552454e4345532050524f4a4543545328494429204f4e2044454c45544520534554204e554c4c3b0a43524541544520494e4445582053414d5052454c485f4d41494e5f53414d505f464b5f50524f4a5f464b5f49204f4e2053414d504c455f52454c4154494f4e53484950535f484953544f525920284d41494e5f53414d505f49442c2050524f4a5f4944293b0a0a44524f5020564945572073616d706c655f686973746f72795f766965773b0a0a43524541544520564945572073616d706c655f686973746f72795f7669657720415320280a202053454c4543540a20202020322a69642061732069642c0a202020206d61696e5f73616d705f69642c0a2020202072656c6174696f6e5f747970652c0a2020202073706163655f69642c0a20202020657870655f69642c0a2020202073616d705f69642c0a2020202070726f6a5f69642c0a20202020646174615f69642c0a20202020656e746974795f7065726d5f69642c0a202020206e756c6c20617320737470745f69642c0a202020206e756c6c2061732076616c75652c0a202020206e756c6c20617320766f636162756c6172795f7465726d2c0a202020206e756c6c206173206d6174657269616c2c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a2020202053414d504c455f52454c4154494f4e53484950535f484953544f52590a202057484552450a2020202076616c69645f756e74696c5f74696d657374616d70204953204e4f54204e554c4c290a554e494f4e0a202053454c4543540a20202020322a69642b312061732069642c0a2020202073616d705f6964206173206d61696e5f73616d705f69642c0a202020206e756c6c2061732072656c6174696f6e5f747970652c0a202020206e756c6c2061732073706163655f69642c0a202020206e756c6c20617320657870655f69642c0a202020206e756c6c2061732073616d705f69642c0a202020206e756c6c2061732070726f6a5f69642c0a202020206e756c6c20617320646174615f69642c0a202020206e756c6c20617320656e746974795f7065726d5f69642c0a20202020737470745f69642c0a2020202076616c75652c0a20202020766f636162756c6172795f7465726d2c0a202020206d6174657269616c2c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a2020202053414d504c455f50524f504552544945535f484953544f52593b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f70726f6a6563745f7570646174652041530a202020204f4e2055504441544520544f2073616d706c65735f616c6c200a20202020574845524520284f4c442e50524f4a5f494420213d204e45572e50524f4a5f4944204f52204f4c442e50524f4a5f4944204953204e554c4c204f52204f4c442e455850455f4944204953204e4f54204e554c4c2920414e44204e45572e50524f4a5f4944204953204e4f54204e554c4c20414e44204e45572e455850455f4944204953204e554c4c0a20202020444f20414c534f20280a202020202020205550444154452053414d504c455f52454c4154494f4e53484950535f484953544f5259205345542056414c49445f554e54494c5f54494d455354414d50203d204e45572e4d4f44494649434154494f4e5f54494d455354414d50200a2020202020202020205748455245204d41494e5f53414d505f4944203d204f4c442e494420414e442050524f4a5f4944203d204f4c442e50524f4a5f494420414e442056414c49445f554e54494c5f54494d455354414d50204953204e554c4c3b0a20202020202020494e5345525420494e544f2053414d504c455f52454c4154494f4e53484950535f484953544f525920280a20202020202020202049442c200a2020202020202020204d41494e5f53414d505f49442c0a20202020202020202052454c4154494f4e5f545950452c200a20202020202020202050524f4a5f49442c200a202020202020202020454e544954595f5045524d5f49442c0a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d500a20202020202020292056414c55455320280a2020202020202020206e65787476616c282753414d504c455f52454c4154494f4e53484950535f484953544f52595f49445f53455127292c200a2020202020202020204e45572e49442c200a202020202020202020274f574e4544272c200a2020202020202020204e45572e50524f4a5f49442c200a2020202020202020202853454c454354205045524d5f49442046524f4d2050524f4a45435453205748455245204944203d204e45572e50524f4a5f4944292c0a2020202020202020204e45572e504552535f49445f4d4f4449464945522c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a20202020293b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f70726f6a6563745f72656d6f76655f7570646174652041530a202020204f4e2055504441544520544f2073616d706c65735f616c6c200a202020205748455245204f4c442e50524f4a5f4944204953204e4f54204e554c4c20414e4420284e45572e50524f4a5f4944204953204e554c4c204f5220284f4c442e455850455f4944204953204e554c4c20414e44204e45572e455850455f4944204953204e4f54204e554c4c29290a20202020444f20414c534f20280a202020202020205550444154452053414d504c455f52454c4154494f4e53484950535f484953544f5259205345542056414c49445f554e54494c5f54494d455354414d50203d204e45572e4d4f44494649434154494f4e5f54494d455354414d50200a2020202020202020205748455245204d41494e5f53414d505f4944203d204f4c442e494420414e442050524f4a5f4944203d204f4c442e50524f4a5f494420414e442056414c49445f554e54494c5f54494d455354414d50204953204e554c4c3b0a20202020293b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f70726f6a6563745f696e736572742041530a202020204f4e20494e5345525420544f2073616d706c65735f616c6c200a202020205748455245204e45572e455850455f4944204953204e554c4c20414e44204e45572e50524f4a5f4944204953204e4f54204e554c4c0a20202020444f20414c534f20280a202020202020494e5345525420494e544f2053414d504c455f52454c4154494f4e53484950535f484953544f525920280a20202020202020202049442c200a2020202020202020204d41494e5f53414d505f49442c0a20202020202020202052454c4154494f4e5f545950452c200a20202020202020202050524f4a5f49442c200a202020202020202020454e544954595f5045524d5f49442c0a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d500a20202020202020292056414c55455320280a2020202020202020206e65787476616c282753414d504c455f52454c4154494f4e53484950535f484953544f52595f49445f53455127292c200a2020202020202020204e45572e49442c200a202020202020202020274f574e4544272c200a2020202020202020204e45572e50524f4a5f49442c200a2020202020202020202853454c454354205045524d5f49442046524f4d2050524f4a45435453205748455245204944203d204e45572e50524f4a5f4944292c0a2020202020202020204e45572e504552535f49445f4d4f4449464945522c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a202020293b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f73706163655f7570646174652041530a202020204f4e2055504441544520544f2073616d706c65735f616c6c200a20202020574845524520284f4c442e53504143455f494420213d204e45572e53504143455f4944204f52204f4c442e53504143455f4944204953204e554c4c204f52204f4c442e455850455f4944204953204e4f54204e554c4c204f52204f4c442e50524f4a5f4944204953204e4f54204e554c4c2920414e44204e45572e53504143455f4944204953204e4f54204e554c4c20414e44204e45572e455850455f4944204953204e554c4c20414e44204e45572e50524f4a5f4944204953204e554c4c0a20202020444f20414c534f20280a202020202020205550444154452053414d504c455f52454c4154494f4e53484950535f484953544f5259205345542056414c49445f554e54494c5f54494d455354414d50203d204e45572e4d4f44494649434154494f4e5f54494d455354414d50200a2020202020202020205748455245204d41494e5f53414d505f4944203d204f4c442e494420414e442053504143455f4944203d204f4c442e53504143455f494420414e442056414c49445f554e54494c5f54494d455354414d50204953204e554c4c3b0a20202020202020494e5345525420494e544f2053414d504c455f52454c4154494f4e53484950535f484953544f525920280a20202020202020202049442c200a2020202020202020204d41494e5f53414d505f49442c0a20202020202020202052454c4154494f4e5f545950452c200a20202020202020202053504143455f49442c200a202020202020202020454e544954595f5045524d5f49442c0a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d500a20202020202020292056414c55455320280a2020202020202020206e65787476616c282753414d504c455f52454c4154494f4e53484950535f484953544f52595f49445f53455127292c200a2020202020202020204e45572e49442c200a202020202020202020274f574e4544272c200a2020202020202020204e45572e53504143455f49442c200a2020202020202020202853454c45435420434f44452046524f4d20535041434553205748455245204944203d204e45572e53504143455f4944292c0a2020202020202020204e45572e504552535f49445f4d4f4449464945522c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a20202020293b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f73706163655f72656d6f76655f7570646174652041530a202020204f4e2055504441544520544f2073616d706c65735f616c6c200a202020205748455245204f4c442e53504143455f4944204953204e4f54204e554c4c20414e4420284e45572e53504143455f4944204953204e554c4c204f5220284f4c442e455850455f4944204953204e554c4c20414e44204e45572e455850455f4944204953204e4f54204e554c4c29204f5220284f4c442e50524f4a5f4944204953204e554c4c20414e44204e45572e50524f4a5f4944204953204e4f54204e554c4c29290a20202020444f20414c534f20280a202020202020205550444154452053414d504c455f52454c4154494f4e53484950535f484953544f5259205345542056414c49445f554e54494c5f54494d455354414d50203d204e45572e4d4f44494649434154494f4e5f54494d455354414d50200a2020202020202020205748455245204d41494e5f53414d505f4944203d204f4c442e494420414e442053504143455f4944203d204f4c442e53504143455f494420414e442056414c49445f554e54494c5f54494d455354414d50204953204e554c4c3b0a20202020293b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f73706163655f696e736572742041530a202020204f4e20494e5345525420544f2073616d706c65735f616c6c200a202020205748455245204e45572e455850455f4944204953204e554c4c20414e44204e45572e53504143455f4944204953204e4f54204e554c4c20414e44204e45572e50524f4a5f4944204953204e554c4c0a20202020444f20414c534f20280a202020202020494e5345525420494e544f2053414d504c455f52454c4154494f4e53484950535f484953544f525920280a20202020202020202049442c200a2020202020202020204d41494e5f53414d505f49442c0a20202020202020202052454c4154494f4e5f545950452c200a20202020202020202053504143455f49442c200a202020202020202020454e544954595f5045524d5f49442c0a202020202020202020504552535f49445f415554484f522c0a20202020202020202056414c49445f46524f4d5f54494d455354414d500a20202020202020292056414c55455320280a2020202020202020206e65787476616c282753414d504c455f52454c4154494f4e53484950535f484953544f52595f49445f53455127292c200a2020202020202020204e45572e49442c200a202020202020202020274f574e4544272c200a2020202020202020204e45572e53504143455f49442c200a2020202020202020202853454c45435420434f44452046524f4d20535041434553205748455245204944203d204e45572e53504143455f4944292c0a2020202020202020204e45572e504552535f49445f4d4f4449464945522c0a2020202020202020204e45572e4d4f44494649434154494f4e5f54494d455354414d500a20202020202020293b0a202020293b0a	\N
+158	../../../../openbis/source/sql/postgresql/migration/migration-157-158.sql	SUCCESS	2017-10-09 17:02:52.919	\\x43524541544520444f4d41494e2045444d535f414444524553535f54595045204153205445585420434845434b202856414c554520494e2028274f50454e424953272c202755524c272c202746494c455f53595354454d2729293b0a0a414c544552205441424c452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732041444420434f4c554d4e20616464726573735f747970652045444d535f414444524553535f545950453b0a5550444154452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732053455420616464726573735f747970653d274f50454e424953272057484552452069735f6f70656e626973203d20747275653b0a5550444154452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732053455420616464726573735f747970653d2755524c272057484552452069735f6f70656e626973203d2066616c73653b0a414c544552205441424c452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d7320414c54455220434f4c554d4e20616464726573735f7479706520534554204e4f54204e554c4c3b0a0a414c544552205441424c452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732052454e414d4520434f4c554d4e2075726c5f74656d706c61746520544f20616464726573733b0a5550444154452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732053455420616464726573733d27554e4b4e4f574e272057484552452061646472657373204953204e554c4c3b0a414c544552205441424c452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d7320414c54455220434f4c554d4e206164647265737320534554204e4f54204e554c4c3b0a0a414c544552205441424c452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732044524f5020434f4c554d4e2069735f6f70656e6269733b0a0a5550444154452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d732053455420636f6465203d202853454c45435420636f616c6573636528636f64652c202727292046524f4d2065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d73206f7264657220627920636f616c65736365286c656e67746828636f6465292c20273027292064657363206c696d6974203129207c7c20696420574845524520636f6465204953204e554c4c3b0a414c544552205441424c452065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d7320414c54455220434f4c554d4e20636f646520534554204e4f54204e554c4c3b0a	\N
+159	../../../../openbis/source/sql/postgresql/migration/migration-158-159.sql	SUCCESS	2017-10-09 17:02:52.965	\\x43524541544520444f4d41494e204c4f434154494f4e5f54595045204153205445585420434845434b202856414c554520494e2028274f50454e424953272c202755524c272c202746494c455f53595354454d5f504c41494e272c202746494c455f53595354454d5f4749542729293b0a0a414c544552205441424c45206c696e6b5f646174612052454e414d4520544f20636f6e74656e745f636f706965733b0a0a414c544552205441424c4520636f6e74656e745f636f70696573200a202044524f5020434f4e53545241494e54206c6e64615f706b2c0a202044524f5020434f4e53545241494e54206c6e64615f646174615f666b3b0a0a0a435245415445205441424c45206c696e6b5f6461746120280a20202020646174615f696420746563685f6964204e4f54204e554c4c0a293b0a0a414c544552205441424c45206c696e6b5f646174610a202041444420434f4e53545241494e54206c6e64615f706b205052494d415259204b455928646174615f6964292c0a202041444420434f4e53545241494e54206c6e64615f646174615f666b20464f524549474e204b45592028646174615f696429205245464552454e43455320646174615f616c6c28696429204f4e2044454c45544520434153434144453b0a0a494e5345525420494e544f206c696e6b5f646174612053454c4543542044495354494e435428646174615f6964292046524f4d20636f6e74656e745f636f706965733b0a0a4352454154452053455155454e434520636f6e74656e745f636f706965735f69645f7365713b0a0a414c544552205441424c4520636f6e74656e745f636f70696573200a202041444420434f4c554d4e20696420544543485f4944204e4f54204e554c4c2044454641554c54206e65787476616c2827636f6e74656e745f636f706965735f69645f73657127292c0a202041444420434f4c554d4e206c6f636174696f6e5f74797065204c4f434154494f4e5f545950452c0a202041444420434f4c554d4e207061746820544558545f56414c55452c0a202041444420434f4c554d4e206769745f636f6d6d69745f6861736820544558545f56414c55452c0a202041444420434f4c554d4e206c6f636174696f6e5f756e697175655f636865636b20544558545f56414c55452c0a2020414c54455220434f4c554d4e2065787465726e616c5f636f64652044524f50204e4f54204e554c4c2c0a202041444420434f4e53545241494e5420636f636f5f706b205052494d415259204b4559284944292c0a202041444420434f4e53545241494e5420636f636f5f646174615f666b20464f524549474e204b45592028646174615f696429205245464552454e434553206c696e6b5f6461746128646174615f6964293b0a20200a414c544552205441424c4520636f6e74656e745f636f70696573200a202052454e414d4520434f4e53545241494e54206c6e64615f65646d735f666b20544f20636f636f5f65646d735f666b3b0a20200a55504441544520636f6e74656e745f636f7069657320534554206c6f636174696f6e5f74797065203d20274f50454e424953272077686572652065646d735f696420494e0a20202853454c4543542069642046524f4d2065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d7320574845524520616464726573735f74797065203d20274f50454e42495327293b0a0a55504441544520636f6e74656e745f636f7069657320534554206c6f636174696f6e5f74797065203d202755524c272077686572652065646d735f696420494e0a20202853454c4543542069642046524f4d2065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d7320574845524520616464726573735f74797065203d202755524c27293b0a20200a55504441544520636f6e74656e745f636f7069657320534554206c6f636174696f6e5f756e697175655f636865636b203d200a2020646174615f6964207c7c20272c27207c7c200a202065646d735f6964207c7c20272c27207c7c200a2020636f616c6573636528706174682c20272729207c7c20272c27207c7c200a2020636f616c65736365286769745f636f6d6d69745f686173682c20272729207c7c20272c27207c7c200a2020636f616c657363652865787465726e616c5f636f64652c202727293b0a20200a414c544552205441424c4520636f6e74656e745f636f706965730a2020414c54455220434f4c554d4e2069642044524f502044454641554c542c0a2020414c54455220434f4c554d4e206c6f636174696f6e5f7479706520534554204e4f54204e554c4c2c0a2020414c54455220434f4c554d4e206c6f636174696f6e5f756e697175655f636865636b20534554204e4f54204e554c4c2c0a202041444420434f4e53545241494e5420636f6e74656e745f636f706965735f756e697175655f636865636b5f756b20554e49515545286c6f636174696f6e5f756e697175655f636865636b293b0a0a20202020202020200a435245415445204f52205245504c4143452046554e4354494f4e20636f6e74656e745f636f706965735f756e697175656e6573735f636865636b28290a202052455455524e5320747269676765722041530a24424f4459240a424547494e0a20204e45572e6c6f636174696f6e5f756e697175655f636865636b203d204e45572e646174615f6964207c7c20272c27207c7c0a2020202020202020202020202020202020202020202020202020202020204e45572e65646d735f6964207c7c20272c27207c7c0a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e706174682c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e6769745f636f6d6d69745f686173682c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e65787465726e616c5f636f64652c202727293b0a202052455455524e204e45573b0a454e443b0a24424f4459240a20204c414e47554147452027706c706773716c273b0a0a435245415445205452494747455220636f6e74656e745f636f706965735f756e697175656e6573735f636865636b0a20204245464f524520494e53455254204f52205550444154450a20204f4e20636f6e74656e745f636f706965730a2020464f52204541434820524f570a2020455845435554452050524f43454455524520636f6e74656e745f636f706965735f756e697175656e6573735f636865636b28293b0a0a20200a435245415445204f52205245504c4143452046554e4354494f4e20636f6e74656e745f636f706965735f6c6f636174696f6e5f747970655f636865636b28292052455455524e5320747269676765722041532024240a4445434c4152450a20202065646d735f616464726573735f747970652045444d535f414444524553535f545950453b0a202020696e64657820696e74656765723b0a424547494e0a0a20202073656c65637420706f736974696f6e28616464726573735f7479706520696e204e45572e6c6f636174696f6e5f74797065292c20616464726573735f7479706520696e746f20696e6465782c2065646d735f616464726573735f747970652066726f6d2065787465726e616c5f646174615f6d616e6167656d656e745f73797374656d730a2020202020207768657265206964203d204e45572e65646d735f69643b0a0a202020696620696e64657820213d2031207468656e0a202020202020524149534520455843455054494f4e2027496e736572742f55706461746520746f20636f6e74656e745f636f70696573206661696c65642e204c6f636174696f6e207479706520252c206275742065646d732e616464726573735f747970652025272c204e45572e6c6f636174696f6e5f747970652c2065646d735f616464726573735f747970653b0a202020656e642069663b0a0a20202052455455524e204e45573b0a0a454e443b0a2424204c414e47554147452027706c706773716c273b0a0a435245415445205452494747455220636f6e74656e745f636f706965735f6c6f636174696f6e5f747970655f636865636b200a20204245464f524520494e53455254204f5220555044415445200a20204f4e20636f6e74656e745f636f706965730a2020464f52204541434820524f57200a2020455845435554452050524f43454455524520636f6e74656e745f636f706965735f6c6f636174696f6e5f747970655f636865636b28293b0a20200a	\N
+160	../../../../openbis/source/sql/postgresql/migration/migration-159-160.sql	SUCCESS	2017-10-09 17:02:52.994	\\x435245415445204f52205245504c4143452046554e4354494f4e20636f6e74656e745f636f706965735f756e697175656e6573735f636865636b28290a202052455455524e5320747269676765722041530a24424f4459240a424547494e0a20204e45572e6c6f636174696f6e5f756e697175655f636865636b203d204e45572e646174615f6964207c7c20272c27207c7c0a2020202020202020202020202020202020202020202020202020202020204e45572e65646d735f6964207c7c20272c27207c7c0a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e706174682c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e6769745f636f6d6d69745f686173682c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e65787465726e616c5f636f64652c202727293b0a202052455455524e204e45573b0a454e443b0a24424f4459240a20204c414e47554147452027706c706773716c273b0a0a55504441544520636f6e74656e745f636f7069657320534554206c6f636174696f6e5f756e697175655f636865636b203d200a2020646174615f6964207c7c20272c27207c7c200a202065646d735f6964207c7c20272c27207c7c200a2020636f616c6573636528706174682c20272729207c7c20272c27207c7c200a2020636f616c65736365286769745f636f6d6d69745f686173682c20272729207c7c20272c27207c7c200a2020636f616c657363652865787465726e616c5f636f64652c202727293b0a	\N
+161	../../../../openbis/source/sql/postgresql/migration/migration-160-161.sql	SUCCESS	2017-10-09 17:02:53.031	\\x2d2d204d6967726174696f6e2066726f6d2031363020746f203136310a0a2d2d206164642070726f6a6563745f696420636f6c756d6e0a414c544552205441424c4520524f4c455f41535349474e4d454e54532041444420434f4c554d4e2050524f4a4543545f494420544543485f49443b0a0a2d2d206164642070726f6a6563745f696420636f6c756d6e20746f20756e6971756520636f6e747261696e74730a414c544552205441424c4520524f4c455f41535349474e4d454e54532044524f5020434f4e53545241494e5420524f41535f50455f53504143455f424b5f554b3b0a414c544552205441424c4520524f4c455f41535349474e4d454e54532044524f5020434f4e53545241494e5420524f41535f41475f53504143455f424b5f554b3b0a0a43524541544520554e4951554520494e44455820524f41535f50455f53504143455f50524f4a4543545f424b5f554b204f4e20524f4c455f41535349474e4d454e54532028504552535f49445f4752414e5445452c20524f4c455f434f44452c20636f616c657363652853504143455f49442c2d31292c20636f616c657363652850524f4a4543545f49442c2d3129293b200a43524541544520554e4951554520494e44455820524f41535f41475f53504143455f50524f4a4543545f424b5f554b204f4e20524f4c455f41535349474e4d454e5453202841475f49445f4752414e5445452c20524f4c455f434f44452c20636f616c657363652853504143455f49442c2d31292c20636f616c657363652850524f4a4543545f49442c2d3129293b200a0a2d2d206164642070726f6a6563745f696420666f726569676e206b65790a414c544552205441424c4520524f4c455f41535349474e4d454e54532041444420434f4e53545241494e5420524f41535f50524f4a4543545f464b20464f524549474e204b4559202850524f4a4543545f494429205245464552454e4345532050524f4a4543545328494429204f4e2044454c45544520434153434144453b0a0a2d2d206164642070726f6a6563745f696420696e6465780a43524541544520494e44455820524f41535f50524f4a4543545f464b5f49204f4e20524f4c455f41535349474e4d454e5453202850524f4a4543545f4944293b0a0a2d2d206164642073706163655f696420616e642070726f6a6563745f696420636865636b0a414c544552205441424c4520524f4c455f41535349474e4d454e54532041444420434f4e53545241494e5420524f41535f53504143455f50524f4a4543545f434b20434845434b202853504143455f4944204953204e554c4c204f522050524f4a4543545f4944204953204e554c4c293b0a	\N
+162	../../../../openbis/source/sql/postgresql/migration/migration-161-162.sql	SUCCESS	2017-10-09 17:02:53.078	\\x414c544552205441424c4520636f6e74656e745f636f706965732041444420434f4c554d4e20706572735f69645f7265676973746572657220544543485f49443b0a414c544552205441424c4520636f6e74656e745f636f706965732041444420434f4c554d4e20726567697374726174696f6e5f74696d657374616d702054494d455f5354414d505f44464c3b0a0a55504441544520636f6e74656e745f636f70696573200a53455420706572735f69645f72656769737465726572203d20782e706572735f69645f726567697374657265722c0a20202020726567697374726174696f6e5f74696d657374616d70203d20782e726567697374726174696f6e5f74696d657374616d700a46524f4d20280a202053454c4543542069642c20706572735f69645f726567697374657265722c20726567697374726174696f6e5f74696d657374616d70200a202046524f4d20646174610a2920780a574845524520636f6e74656e745f636f706965732e646174615f6964203d20782e69643b0a0a414c544552205441424c4520636f6e74656e745f636f7069657320414c54455220434f4c554d4e20726567697374726174696f6e5f74696d657374616d7020534554204e4f54204e554c4c3b0a414c544552205441424c4520636f6e74656e745f636f7069657320414c54455220434f4c554d4e20726567697374726174696f6e5f74696d657374616d70205345542044454641554c542043555252454e545f54494d455354414d503b0a0a0a435245415445205441424c4520646174615f7365745f636f706965735f686973746f727920280a2020696420544543485f4944204e4f54204e554c4c2c0a202063635f696420544543485f4944204e4f54204e554c4c2c0a2020646174615f696420544543485f4944204e4f54204e554c4c2c0a202065787465726e616c5f636f646520544558545f56414c55452c0a20207061746820544558545f56414c55452c0a20206769745f636f6d6d69745f6861736820544558545f56414c55452c200a202065646d735f696420544543485f4944204e4f54204e554c4c2c0a2020706572735f69645f617574686f7220544543485f49442c0a202076616c69645f66726f6d5f74696d657374616d702054494d455f5354414d50204e4f54204e554c4c2c200a202076616c69645f756e74696c5f74696d657374616d702054494d455f5354414d50293b0a0a414c544552205441424c4520646174615f7365745f636f706965735f686973746f72792041444420434f4e53545241494e5420647363685f706b205052494d415259204b4559286964293b0a20200a4352454154452053455155454e434520646174615f7365745f636f706965735f686973746f72795f69645f7365713b0a20200a44524f50205649455720646174615f7365745f686973746f72795f766965773b0a20200a435245415445205649455720646174615f7365745f686973746f72795f7669657720415320280a202053454c4543540a20202020332a69642061732069642c0a202020206d61696e5f646174615f69642c0a2020202072656c6174696f6e5f747970652c0a202020206f7264696e616c2c0a20202020657870655f69642c0a2020202073616d705f69642c0a20202020646174615f69642c0a20202020656e746974795f7065726d5f69642c0a202020206e756c6c2061732064737470745f69642c0a202020206e756c6c2061732076616c75652c0a202020206e756c6c20617320766f636162756c6172795f7465726d2c0a202020206e756c6c206173206d6174657269616c2c0a202020206e756c6c2061732065787465726e616c5f636f64652c0a202020206e756c6c20617320706174682c0a202020206e756c6c206173206769745f636f6d6d69745f686173682c0a202020206e756c6c3a3a544543485f49442061732065646d735f69642c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a20202020646174615f7365745f72656c6174696f6e73686970735f686973746f72790a202057484552450a2020202076616c69645f756e74696c5f74696d657374616d70204953204e4f54204e554c4c290a554e494f4e0a202053454c4543540a20202020332a69642b312061732069642c0a2020202064735f6964206173206d61696e5f646174615f69642c0a202020206e756c6c2061732072656c6174696f6e5f747970652c0a202020206e756c6c206173206f7264696e616c2c0a202020206e756c6c20617320657870655f69642c0a202020206e756c6c2061732073616d705f69642c0a202020206e756c6c20617320646174615f69642c0a202020206e756c6c20617320656e746974795f7065726d5f69642c0a2020202064737470745f69642c0a2020202076616c75652c0a20202020766f636162756c6172795f7465726d2c0a202020206d6174657269616c2c0a202020206e756c6c2061732065787465726e616c5f636f64652c0a202020206e756c6c20617320706174682c0a202020206e756c6c206173206769745f636f6d6d69745f686173682c0a202020206e756c6c2061732065646d735f69642c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a20202020646174615f7365745f70726f706572746965735f686973746f72790a20554e494f4e0a20202853454c4543540a202020332a69642b322061732069642c0a20202020646174615f6964206173206d61696e5f646174615f69642c0a202020206e756c6c2061732072656c6174696f6e5f747970652c0a202020206e756c6c206173206f7264696e616c2c0a202020206e756c6c20617320657870655f69642c0a202020206e756c6c2061732073616d705f69642c0a202020206e756c6c20617320646174615f69642c0a202020206e756c6c20617320656e746974795f7065726d5f69642c0a202020206e756c6c2061732064737470745f69642c0a202020206e756c6c2061732076616c75652c0a202020206e756c6c20617320766f636162756c6172795f7465726d2c0a202020206e756c6c206173206d6174657269616c2c0a2020202065787465726e616c5f636f64652c0a20202020706174682c0a202020206769745f636f6d6d69745f686173682c0a2020202065646d735f69642c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a20202020646174615f7365745f636f706965735f686973746f72790a202057484552450a2020202076616c69645f756e74696c5f74696d657374616d70204953204e4f54204e554c4c293b0a202020200a435245415445204f52205245504c4143452052554c4520636f6e74656e745f636f706965735f686973746f72795f696e736572742041530a20204f4e20494e5345525420544f20636f6e74656e745f636f706965730a2020444f20414c534f20280a20202020494e5345525420494e544f20646174615f7365745f636f706965735f686973746f727920280a20202020202069642c0a20202020202063635f69642c0a202020202020646174615f69642c0a20202020202065787465726e616c5f636f64652c0a202020202020706174682c0a2020202020206769745f636f6d6d69745f686173682c0a20202020202065646d735f69642c0a202020202020706572735f69645f617574686f722c0a20202020202076616c69645f66726f6d5f74696d657374616d700a20202020292056414c55455320280a2020202020206e65787476616c2827646174615f7365745f636f706965735f686973746f72795f69645f73657127292c200a2020202020204e45572e69642c0a2020202020204e45572e646174615f69642c200a2020202020204e45572e65787465726e616c5f636f64652c0a2020202020204e45572e706174682c0a2020202020204e45572e6769745f636f6d6d69745f686173682c0a2020202020204e45572e65646d735f69642c0a2020202020204e45572e706572735f69645f726567697374657265722c0a2020202020204e45572e726567697374726174696f6e5f74696d657374616d70293b0a2020293b0a0a435245415445204f52205245504c4143452052554c4520636f6e74656e745f636f706965735f686973746f72795f64656c6574652041530a20204f4e2044454c45544520544f20636f6e74656e745f636f706965730a2020444f20414c534f20280a2020202055504441544520646174615f7365745f636f706965735f686973746f7279205345542076616c69645f756e74696c5f74696d657374616d70203d2043555252454e545f54494d455354414d500a2020202057484552452063635f6964203d204f4c442e69643b0a2020293b0a0a0a20200a	\N
+163	../../../../openbis/source/sql/postgresql/migration/migration-162-163.sql	SUCCESS	2017-10-09 17:02:53.104	\\x414c544552205441424c4520636f6e74656e745f636f706965732041444420434f4c554d4e206769745f7265706f7369746f72795f696420544558545f56414c55453b0a414c544552205441424c4520646174615f7365745f636f706965735f686973746f72792041444420434f4c554d4e206769745f7265706f7369746f72795f696420544558545f56414c55453b0a0a44524f50205649455720646174615f7365745f686973746f72795f766965773b0a0a435245415445205649455720646174615f7365745f686973746f72795f7669657720415320280a202053454c4543540a20202020332a69642061732069642c0a202020206d61696e5f646174615f69642c0a2020202072656c6174696f6e5f747970652c0a202020206f7264696e616c2c0a20202020657870655f69642c0a2020202073616d705f69642c0a20202020646174615f69642c0a20202020656e746974795f7065726d5f69642c0a202020206e756c6c2061732064737470745f69642c0a202020206e756c6c2061732076616c75652c0a202020206e756c6c20617320766f636162756c6172795f7465726d2c0a202020206e756c6c206173206d6174657269616c2c0a202020206e756c6c2061732065787465726e616c5f636f64652c0a202020206e756c6c20617320706174682c0a202020206e756c6c206173206769745f636f6d6d69745f686173682c0a202020206e756c6c206173206769745f7265706f7369746f72795f69642c0a202020206e756c6c3a3a544543485f49442061732065646d735f69642c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a20202020646174615f7365745f72656c6174696f6e73686970735f686973746f72790a202057484552450a2020202076616c69645f756e74696c5f74696d657374616d70204953204e4f54204e554c4c290a554e494f4e0a202053454c4543540a20202020332a69642b312061732069642c0a2020202064735f6964206173206d61696e5f646174615f69642c0a202020206e756c6c2061732072656c6174696f6e5f747970652c0a202020206e756c6c206173206f7264696e616c2c0a202020206e756c6c20617320657870655f69642c0a202020206e756c6c2061732073616d705f69642c0a202020206e756c6c20617320646174615f69642c0a202020206e756c6c20617320656e746974795f7065726d5f69642c0a2020202064737470745f69642c0a2020202076616c75652c0a20202020766f636162756c6172795f7465726d2c0a202020206d6174657269616c2c0a202020206e756c6c2061732065787465726e616c5f636f64652c0a202020206e756c6c20617320706174682c0a202020206e756c6c206173206769745f636f6d6d69745f686173682c0a202020206e756c6c206173206769745f7265706f7369746f72795f69642c0a202020206e756c6c2061732065646d735f69642c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a20202020646174615f7365745f70726f706572746965735f686973746f72790a20554e494f4e0a20202853454c4543540a202020332a69642b322061732069642c0a20202020646174615f6964206173206d61696e5f646174615f69642c0a202020206e756c6c2061732072656c6174696f6e5f747970652c0a202020206e756c6c206173206f7264696e616c2c0a202020206e756c6c20617320657870655f69642c0a202020206e756c6c2061732073616d705f69642c0a202020206e756c6c20617320646174615f69642c0a202020206e756c6c20617320656e746974795f7065726d5f69642c0a202020206e756c6c2061732064737470745f69642c0a202020206e756c6c2061732076616c75652c0a202020206e756c6c20617320766f636162756c6172795f7465726d2c0a202020206e756c6c206173206d6174657269616c2c0a2020202065787465726e616c5f636f64652c0a20202020706174682c0a202020206769745f636f6d6d69745f686173682c0a202020206769745f7265706f7369746f72795f69642c0a2020202065646d735f69642c0a20202020706572735f69645f617574686f722c0a2020202076616c69645f66726f6d5f74696d657374616d702c0a2020202076616c69645f756e74696c5f74696d657374616d700a202046524f4d0a20202020646174615f7365745f636f706965735f686973746f72790a202057484552450a2020202076616c69645f756e74696c5f74696d657374616d70204953204e4f54204e554c4c293b0a202020200a435245415445204f52205245504c4143452052554c4520636f6e74656e745f636f706965735f686973746f72795f696e736572742041530a20204f4e20494e5345525420544f20636f6e74656e745f636f706965730a2020444f20414c534f20280a20202020494e5345525420494e544f20646174615f7365745f636f706965735f686973746f727920280a20202020202069642c0a20202020202063635f69642c0a202020202020646174615f69642c0a20202020202065787465726e616c5f636f64652c0a202020202020706174682c0a2020202020206769745f636f6d6d69745f686173682c0a2020202020206769745f7265706f7369746f72795f69642c0a20202020202065646d735f69642c0a202020202020706572735f69645f617574686f722c0a20202020202076616c69645f66726f6d5f74696d657374616d700a20202020292056414c55455320280a2020202020206e65787476616c2827646174615f7365745f636f706965735f686973746f72795f69645f73657127292c200a2020202020204e45572e69642c0a2020202020204e45572e646174615f69642c200a2020202020204e45572e65787465726e616c5f636f64652c0a2020202020204e45572e706174682c0a2020202020204e45572e6769745f636f6d6d69745f686173682c0a2020202020204e45572e6769745f7265706f7369746f72795f69642c0a2020202020204e45572e65646d735f69642c0a2020202020204e45572e706572735f69645f726567697374657265722c0a2020202020204e45572e726567697374726174696f6e5f74696d657374616d70293b0a2020293b0a0a435245415445204f52205245504c4143452046554e4354494f4e20636f6e74656e745f636f706965735f756e697175656e6573735f636865636b28290a202052455455524e5320747269676765722041530a24424f4459240a424547494e0a20204e45572e6c6f636174696f6e5f756e697175655f636865636b203d204e45572e646174615f6964207c7c20272c27207c7c200a2020202020202020202020202020202020202020202020202020202020204e45572e65646d735f6964207c7c20272c27207c7c0a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e706174682c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e6769745f636f6d6d69745f686173682c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e6769745f7265706f7369746f72795f69642c20272729207c7c20272c27207c7c200a202020202020202020202020202020202020202020202020202020202020636f616c65736365284e45572e65787465726e616c5f636f64652c202727293b0a202052455455524e204e45573b0a454e443b0a24424f4459240a20204c414e47554147452027706c706773716c273b0a	\N
+164	../../../../openbis/source/sql/postgresql/migration/migration-163-164.sql	SUCCESS	2017-10-09 17:02:53.132	\\x2d2d204d6967726174696f6e2066726f6d2031363320746f203136340a0a44524f5020564945572073616d706c65735f64656c657465643b0a0a43524541544520564945572073616d706c65735f64656c657465642041530a202020202053454c4543542069642c207065726d5f69642c20636f64652c20657870655f69642c20736174795f69642c20726567697374726174696f6e5f74696d657374616d702c206d6f64696669636174696f6e5f74696d657374616d702c20706572735f69645f726567697374657265722c20706572735f69645f6d6f6469666965722c2064656c5f69642c206f7269675f64656c2c2073706163655f69642c2070726f6a5f69642c2073616d705f69645f706172745f6f662c2076657273696f6e200a2020202020202046524f4d2073616d706c65735f616c6c200a20202020202057484552452064656c5f6964204953204e4f54204e554c4c3b0a0a435245415445204f52205245504c4143452052554c452073616d706c655f64656c657465645f7570646174652041530a202020204f4e2055504441544520544f2073616d706c65735f64656c6574656420444f20494e53544541440a202020202020205550444154452073616d706c65735f616c6c0a202020202020202020205345542064656c5f6964203d204e45572e64656c5f69642c0a20202020202020202020202020206f7269675f64656c203d204e45572e6f7269675f64656c2c0a20202020202020202020202020206d6f64696669636174696f6e5f74696d657374616d70203d204e45572e6d6f64696669636174696f6e5f74696d657374616d702c0a202020202020202020202020202076657273696f6e203d204e45572e76657273696f6e0a202020202020202020205748455245206964203d204e45572e69643b0a20202020200a435245415445204f52205245504c4143452052554c452073616d706c655f64656c657465645f64656c6574652041530a202020204f4e2044454c45544520544f2073616d706c65735f64656c6574656420444f20494e53544541440a2020202020202044454c4554452046524f4d2073616d706c65735f616c6c0a20202020202020202020202020205748455245206964203d204f4c442e69643b0a2020202020200a4752414e542053454c454354204f4e2073616d706c65735f64656c6574656420544f2047524f5550204f50454e4249535f524541444f4e4c593b0a	\N
+165	../../../../openbis/source/sql/postgresql/migration/migration-164-165.sql	SUCCESS	2017-10-09 17:02:53.181	\\x414c544552205441424c452065787465726e616c5f646174612041444420434f4c554d4e2068355f666f6c6465727320424f4f4c45414e5f43484152204e4f54204e554c4c2044454641554c54202754273b0a414c544552205441424c452065787465726e616c5f646174612041444420434f4c554d4e20683561725f666f6c6465727320424f4f4c45414e5f43484152204e4f54204e554c4c2044454641554c54202754273b0a0a414c544552205441424c452065787465726e616c5f6461746120414c54455220434f4c554d4e2068355f666f6c646572732044524f502044454641554c543b0a414c544552205441424c452065787465726e616c5f6461746120414c54455220434f4c554d4e20683561725f666f6c646572732044524f502044454641554c543b0a	\N
+166	../../../../openbis/source/sql/postgresql/migration/migration-165-166.sql	SUCCESS	2017-10-09 17:02:53.223	\\x2d2d204d6967726174696f6e2066726f6d2031363520746f203136360a0a2d2d207461626c650a435245415445205441424c452053454d414e5449435f414e4e4f544154494f4e532028494420544543485f4944204e4f54204e554c4c2c0a095045524d5f494420434f4445204e4f54204e554c4c2c0a09534154595f494420544543485f49442c200a09535450545f494420544543485f49442c0a09505254595f494420544543485f49442c0a095052454449434154455f4f4e544f4c4f47595f494420544558542c0a095052454449434154455f4f4e544f4c4f47595f56455253494f4e20544558542c0a095052454449434154455f414343455353494f4e5f494420544558542c0a0944455343524950544f525f4f4e544f4c4f47595f494420544558542c0a0944455343524950544f525f4f4e544f4c4f47595f56455253494f4e20544558542c0a0944455343524950544f525f414343455353494f4e5f494420544558542c0a094352454154494f4e5f444154452074696d655f7374616d705f64666c204e4f54204e554c4c0a09293b0a0a2d2d2073657175656e63650a4352454154452053455155454e43452053454d414e5449435f414e4e4f544154494f4e5f49445f5345513b0a0a2d2d20706b0a414c544552205441424c452053454d414e5449435f414e4e4f544154494f4e532041444420434f4e53545241494e542053454d414e5449435f414e4e4f544154494f4e535f504b205052494d415259204b4559284944293b0a0a2d2d20666b0a414c544552205441424c452053454d414e5449435f414e4e4f544154494f4e532041444420434f4e53545241494e542053454d414e5449435f414e4e4f544154494f4e535f534154595f49445f464b20464f524549474e204b45592028534154595f494429205245464552454e4345532053414d504c455f545950455328494429204f4e2044454c45544520434153434144452044454645525241424c4520494e495449414c4c592044454645525245443b0a414c544552205441424c452053454d414e5449435f414e4e4f544154494f4e532041444420434f4e53545241494e542053454d414e5449435f414e4e4f544154494f4e535f535450545f49445f464b20464f524549474e204b45592028535450545f494429205245464552454e4345532053414d504c455f545950455f50524f50455254595f545950455328494429204f4e2044454c45544520434153434144452044454645525241424c4520494e495449414c4c592044454645525245443b0a414c544552205441424c452053454d414e5449435f414e4e4f544154494f4e532041444420434f4e53545241494e542053454d414e5449435f414e4e4f544154494f4e535f505254595f49445f464b20464f524549474e204b45592028505254595f494429205245464552454e4345532050524f50455254595f545950455328494429204f4e2044454c45544520434153434144452044454645525241424c4520494e495449414c4c592044454645525245443b0a0a2d2d20696e646578200a43524541544520494e4445582053454d414e5449435f414e4e4f544154494f4e535f534154595f49445f49204f4e2053454d414e5449435f414e4e4f544154494f4e532028534154595f4944293b0a43524541544520494e4445582053454d414e5449435f414e4e4f544154494f4e535f535450545f49445f49204f4e2053454d414e5449435f414e4e4f544154494f4e532028535450545f4944293b0a43524541544520494e4445582053454d414e5449435f414e4e4f544154494f4e535f505254595f49445f49204f4e2053454d414e5449435f414e4e4f544154494f4e532028505254595f4944293b0a0a2d2d20636865636b730a414c544552205441424c452053454d414e5449435f414e4e4f544154494f4e532041444420434f4e53545241494e542053454d414e5449435f414e4e4f544154494f4e535f5353505f434b20434845434b200a092828534154595f4944204953204e4f54204e554c4c20414e4420535450545f4944204953204e554c4c20414e4420505254595f4944204953204e554c4c29204f52200a092028534154595f4944204953204e554c4c20414e4420535450545f4944204953204e4f54204e554c4c20414e4420505254595f4944204953204e554c4c29204f520a092028534154595f4944204953204e554c4c20414e4420535450545f4944204953204e554c4c20414e4420505254595f4944204953204e4f54204e554c4c290a09293b0a0a2d2d206772616e740a4752414e542053454c454354204f4e205441424c452053454d414e5449435f414e4e4f544154494f4e5320544f2047524f5550204f50454e4249535f524541444f4e4c593b0a	\N
+167	../../../../openbis/source/sql/postgresql/migration/migration-166-167.sql	SUCCESS	2017-10-09 17:02:53.304	\\x2d2d204d6967726174696f6e2066726f6d2031363520746f203136360a0a414c544552205441424c4520646174615f616c6c2041444420434f4c554d4e20646174615f7365745f6b696e6420646174615f7365745f6b696e642044454641554c542027504859534943414c27204e4f54204e554c4c3b0a0a55504441544520646174615f616c6c0a0953455420646174615f7365745f6b696e64203d20646174615f7365745f74797065732e646174615f7365745f6b696e640a0946524f4d20646174615f7365745f74797065730a09574845524520646174615f616c6c2e647374795f6964203d20646174615f7365745f74797065732e69643b0a0a55504441544520646174615f616c6c0a0953455420646174615f7365745f6b696e64203d2027504859534943414c270a0946524f4d2065787465726e616c5f646174610a0957484552452065787465726e616c5f646174612e646174615f6964203d20646174615f616c6c2e69643b0a0a55504441544520646174615f616c6c0a0953455420646174615f7365745f6b696e64203d20274c494e4b270a0946524f4d206c696e6b5f646174610a095748455245206c696e6b5f646174612e646174615f6964203d20646174615f616c6c2e69643b0a0a414c544552205441424c4520646174615f7365745f74797065732044524f5020434f4c554d4e20646174615f7365745f6b696e643b0a0a435245415445204f52205245504c414345205649455720646174612041530a202020202053454c4543542069642c20636f64652c20647374795f69642c20646173745f69642c20657870655f69642c20646174615f70726f64756365725f636f64652c2070726f64756374696f6e5f74696d657374616d702c2073616d705f69642c20726567697374726174696f6e5f74696d657374616d702c206163636573735f74696d657374616d702c20706572735f69645f726567697374657265722c20706572735f69645f6d6f6469666965722c2069735f76616c69642c206d6f64696669636174696f6e5f74696d657374616d702c2069735f646572697665642c2064656c5f69642c206f7269675f64656c2c2076657273696f6e2c20646174615f7365745f6b696e64200a2020202020202046524f4d20646174615f616c6c200a20202020202057484552452064656c5f6964204953204e554c4c3b0a0a435245415445204f52205245504c414345205649455720646174615f64656c657465642041530a202020202053454c4543542069642c20636f64652c20647374795f69642c20646173745f69642c20657870655f69642c20646174615f70726f64756365725f636f64652c2070726f64756374696f6e5f74696d657374616d702c2073616d705f69642c20726567697374726174696f6e5f74696d657374616d702c206163636573735f74696d657374616d702c20706572735f69645f726567697374657265722c20706572735f69645f6d6f6469666965722c2069735f76616c69642c206d6f64696669636174696f6e5f74696d657374616d702c2069735f646572697665642c2064656c5f69642c206f7269675f64656c2c2076657273696f6e2c20646174615f7365745f6b696e64200a2020202020202046524f4d20646174615f616c6c200a20202020202057484552452064656c5f6964204953204e4f54204e554c4c3b0a0a435245415445204f52205245504c4143452052554c4520646174615f696e736572742041530a20204f4e20494e5345525420544f206461746120444f20494e5354454144200a2020202020494e5345525420494e544f20646174615f616c6c20280a2020202020202069642c200a20202020202020636f64652c200a2020202020202064656c5f69642c0a202020202020206f7269675f64656c2c0a20202020202020657870655f69642c0a20202020202020646173745f69642c0a20202020202020646174615f70726f64756365725f636f64652c0a20202020202020647374795f69642c0a2020202020202069735f646572697665642c0a2020202020202069735f76616c69642c0a202020202020206d6f64696669636174696f6e5f74696d657374616d702c0a202020202020206163636573735f74696d657374616d702c0a20202020202020706572735f69645f726567697374657265722c0a20202020202020706572735f69645f6d6f6469666965722c0a2020202020202070726f64756374696f6e5f74696d657374616d702c0a20202020202020726567697374726174696f6e5f74696d657374616d702c0a2020202020202073616d705f69642c0a2020202020202076657273696f6e2c0a20202020202020646174615f7365745f6b696e640a2020202020292056414c55455320280a202020202020204e45572e69642c200a202020202020204e45572e636f64652c200a202020202020204e45572e64656c5f69642c200a202020202020204e45572e6f7269675f64656c2c0a202020202020204e45572e657870655f69642c0a202020202020204e45572e646173745f69642c0a202020202020204e45572e646174615f70726f64756365725f636f64652c0a202020202020204e45572e647374795f69642c0a202020202020204e45572e69735f646572697665642c200a202020202020204e45572e69735f76616c69642c0a202020202020204e45572e6d6f64696669636174696f6e5f74696d657374616d702c0a202020202020204e45572e6163636573735f74696d657374616d702c0a202020202020204e45572e706572735f69645f726567697374657265722c0a202020202020204e45572e706572735f69645f6d6f6469666965722c0a202020202020204e45572e70726f64756374696f6e5f74696d657374616d702c0a202020202020204e45572e726567697374726174696f6e5f74696d657374616d702c0a202020202020204e45572e73616d705f69642c0a202020202020204e45572e76657273696f6e2c0a202020202020204e45572e646174615f7365745f6b696e640a2020202020293b0a20202020200a435245415445204f52205245504c4143452052554c4520646174615f7570646174652041530a202020204f4e2055504441544520544f206461746120444f20494e5354454144200a2020202020202055504441544520646174615f616c6c0a2020202020202020202053455420636f6465203d204e45572e636f64652c0a202020202020202020202020202064656c5f6964203d204e45572e64656c5f69642c0a20202020202020202020202020206f7269675f64656c203d204e45572e6f7269675f64656c2c0a2020202020202020202020202020657870655f6964203d204e45572e657870655f69642c0a2020202020202020202020202020646173745f6964203d204e45572e646173745f69642c0a2020202020202020202020202020646174615f70726f64756365725f636f6465203d204e45572e646174615f70726f64756365725f636f64652c0a2020202020202020202020202020647374795f6964203d204e45572e647374795f69642c0a202020202020202020202020202069735f64657269766564203d204e45572e69735f646572697665642c0a202020202020202020202020202069735f76616c6964203d204e45572e69735f76616c69642c0a20202020202020202020202020206d6f64696669636174696f6e5f74696d657374616d70203d204e45572e6d6f64696669636174696f6e5f74696d657374616d702c0a20202020202020202020202020206163636573735f74696d657374616d70203d204e45572e6163636573735f74696d657374616d702c0a2020202020202020202020202020706572735f69645f72656769737465726572203d204e45572e706572735f69645f726567697374657265722c0a2020202020202020202020202020706572735f69645f6d6f646966696572203d204e45572e706572735f69645f6d6f6469666965722c0a202020202020202020202020202070726f64756374696f6e5f74696d657374616d70203d204e45572e70726f64756374696f6e5f74696d657374616d702c0a2020202020202020202020202020726567697374726174696f6e5f74696d657374616d70203d204e45572e726567697374726174696f6e5f74696d657374616d702c0a202020202020202020202020202073616d705f6964203d204e45572e73616d705f69642c0a202020202020202020202020202076657273696f6e203d204e45572e76657273696f6e2c0a2020202020202020202020202020646174615f7365745f6b696e64203d204e45572e646174615f7365745f6b696e640a202020202020205748455245206964203d204e45572e69643b0a0a2d2d206c696e6b5f64617461206d75737420726566657220746f2061206461746120736574206f66206b696e64204c494e4b0a435245415445204f52205245504c4143452046554e4354494f4e20636865636b5f646174615f7365745f6b696e645f6c696e6b28292052455455524e5320747269676765722041532024240a4445434c4152450a202020206b696e6420444154415f5345545f4b494e443b0a424547494e0a2020202053454c45435420646174615f7365745f6b696e6420494e544f206b696e640a202020202020202046524f4d20646174615f616c6c200a20202020202020205748455245206964203d204e45572e646174615f69643b0a2020202020202020494620286b696e64203c3e20274c494e4b2729205448454e200a202020202020202020202020524149534520455843455054494f4e20274c696e6b20646174612028446174612053657420436f64653a202529206d757374207265666572656e63652061206461746120736574206f66206b696e64204c494e4b202869732025292e272c200a202020202020202020202020202020202020202020202020202020204e45572e646174615f69642c206b696e643b0a2020202020202020454e442049463b0a2020202052455455524e204e45573b0a454e443b0a2424204c414e47554147452027706c706773716c273b0a0a43524541544520434f4e53545241494e54205452494747455220636865636b5f646174615f7365745f6b696e645f6c696e6b200a20202020414654455220494e53455254204f5220555044415445204f4e206c696e6b5f646174610a2020202044454645525241424c4520494e495449414c4c592044454645525245440a20202020464f52204541434820524f570a20202020455845435554452050524f43454455524520636865636b5f646174615f7365745f6b696e645f6c696e6b28293b0a0a2d2d2065787465726e616c5f64617461206d75737420726566657220746f2061206461746120736574206f66206b696e6420504859534943414c0a435245415445204f52205245504c4143452046554e4354494f4e20636865636b5f646174615f7365745f6b696e645f706879736963616c28292052455455524e5320747269676765722041532024240a4445434c4152450a202020206b696e6420444154415f5345545f4b494e443b0a424547494e0a2020202053454c45435420646174615f7365745f6b696e6420494e544f206b696e640a202020202020202046524f4d20646174615f616c6c200a20202020202020205748455245206964203d204e45572e646174615f69643b0a2020202020202020494620286b696e64203c3e2027504859534943414c2729205448454e200a202020202020202020202020524149534520455843455054494f4e202745787465726e616c20646174612028446174612053657420436f64653a202529206d757374207265666572656e63652061206461746120736574206f66206b696e6420504859534943414c202869732025292e272c200a202020202020202020202020202020202020202020202020202020204e45572e646174615f69642c206b696e643b0a2020202020202020454e442049463b0a2020202052455455524e204e45573b0a454e443b0a2424204c414e47554147452027706c706773716c273b0a0a43524541544520434f4e53545241494e54205452494747455220636865636b5f646174615f7365745f6b696e645f706879736963616c200a20202020414654455220494e53455254204f5220555044415445204f4e2065787465726e616c5f646174610a2020202044454645525241424c4520494e495449414c4c592044454645525245440a20202020464f52204541434820524f570a20202020455845435554452050524f43454455524520636865636b5f646174615f7365745f6b696e645f706879736963616c28293b0a0a	\N
 \.
 
 
@@ -4352,23 +4656,23 @@ COPY experiments_all (id, perm_id, code, exty_id, pers_id_registerer, registrati
 -- Data for Name: external_data; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY external_data (data_id, share_id, size, location, ffty_id, loty_id, cvte_id_stor_fmt, is_complete, cvte_id_store, status, present_in_archive, speed_hint, storage_confirmation) FROM stdin;
-3	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/0d/71/e9/20130412142205843-196	10	1	1	U	\N	AVAILABLE	f	-50	t
-5	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/40/26/e3/20130412142543232-197	10	1	1	U	\N	AVAILABLE	f	-50	t
-2	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/4f/6d/30/20130412142942295-198	8	1	1	U	\N	AVAILABLE	f	-50	t
-4	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/44/10/06/20130412143119901-199	9	1	1	T	\N	AVAILABLE	f	-50	t
-29	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/cd/53/dc/20130417094934693-427	8	1	1	U	\N	AVAILABLE	f	-50	t
-8	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/c0/e2/31/20130412151710024-379	10	1	1	U	\N	AVAILABLE	f	-50	t
-9	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/7e/71/80/20130412152036861-380	9	1	1	T	\N	AVAILABLE	f	-50	t
-12	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/2e/ac/5a/20130412153118625-384	9	1	1	T	\N	AVAILABLE	f	-50	t
-16	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/29/f1/0c/20130412153659945-390	2	1	1	U	\N	AVAILABLE	f	-50	t
-28	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/67/85/36/20130417094936021-428	9	1	1	T	\N	AVAILABLE	f	-50	t
-21	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/06/e5/ad/20130415093804724-403	2	1	1	U	\N	AVAILABLE	f	-50	t
-22	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/1c/84/72/20130415100158230-407	2	1	1	U	\N	AVAILABLE	f	-50	t
-23	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/91/0a/10/20130415100238098-408	2	1	1	U	\N	AVAILABLE	f	-50	t
-24	2	1	1FD3FF61-1576-4908-AE3D-296E60B4CE06/2f/7a/b9/20130415100308111-409	2	1	1	U	\N	AVAILABLE	f	-50	t
-32	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/4f/5a/52/20130424111751209-430	2	1	1	U	\N	AVAILABLE	f	-50	t
-31	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/fe/c5/45/20130424111751432-431	2	1	1	U	\N	AVAILABLE	f	-50	t
+COPY external_data (data_id, share_id, size, location, ffty_id, loty_id, cvte_id_stor_fmt, is_complete, cvte_id_store, status, present_in_archive, speed_hint, storage_confirmation, h5_folders, h5ar_folders) FROM stdin;
+3	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/0d/71/e9/20130412142205843-196	10	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+5	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/40/26/e3/20130412142543232-197	10	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+2	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/4f/6d/30/20130412142942295-198	8	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+4	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/44/10/06/20130412143119901-199	9	1	1	T	\N	AVAILABLE	f	-50	t	t	t
+29	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/cd/53/dc/20130417094934693-427	8	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+8	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/c0/e2/31/20130412151710024-379	10	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+9	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/7e/71/80/20130412152036861-380	9	1	1	T	\N	AVAILABLE	f	-50	t	t	t
+12	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/2e/ac/5a/20130412153118625-384	9	1	1	T	\N	AVAILABLE	f	-50	t	t	t
+16	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/29/f1/0c/20130412153659945-390	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+28	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/67/85/36/20130417094936021-428	9	1	1	T	\N	AVAILABLE	f	-50	t	t	t
+21	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/06/e5/ad/20130415093804724-403	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+22	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/1c/84/72/20130415100158230-407	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+23	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/91/0a/10/20130415100238098-408	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+24	2	1	1FD3FF61-1576-4908-AE3D-296E60B4CE06/2f/7a/b9/20130415100308111-409	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+32	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/4f/5a/52/20130424111751209-430	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
+31	1	\N	1FD3FF61-1576-4908-AE3D-296E60B4CE06/fe/c5/45/20130424111751432-431	2	1	1	U	\N	AVAILABLE	f	-50	t	t	t
 \.
 
 
@@ -4383,9 +4687,9 @@ SELECT pg_catalog.setval('external_data_management_system_id_seq', 2, true);
 -- Data for Name: external_data_management_systems; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY external_data_management_systems (id, code, label, url_template, is_openbis) FROM stdin;
-1	DMS_1	Test EDMS	http://example.edms.com/code=${code}	f
-2	DMS_2	Test External openBIS instance	http://www.openbis.ch/perm_id=${code}	t
+COPY external_data_management_systems (id, code, label, address, address_type) FROM stdin;
+2	DMS_2	Test External openBIS instance	http://www.openbis.ch/perm_id=${code}	OPENBIS
+1	DMS_1	Test EDMS	http://example.edms.com/code=${code}	URL
 \.
 
 
@@ -4448,9 +4752,9 @@ SELECT pg_catalog.setval('grid_custom_columns_id_seq', 1, false);
 -- Data for Name: link_data; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY link_data (data_id, edms_id, external_code) FROM stdin;
-33	1	EXTERNAL_CODE_1
-34	2	EXTERNAL_CODE_2
+COPY link_data (data_id) FROM stdin;
+33
+34
 \.
 
 
@@ -4621,7 +4925,7 @@ SELECT pg_catalog.setval('mtpt_id_seq', 8, true);
 -- Data for Name: operation_executions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY operation_executions (id, code, state, description, error, creation_date, start_date, finish_date) FROM stdin;
+COPY operation_executions (id, code, state, owner, description, notification, availability, availability_time, summary_operations, summary_progress, summary_error, summary_results, summary_availability, summary_availability_time, details_path, details_availability, details_availability_time, creation_date, start_date, finish_date) FROM stdin;
 \.
 
 
@@ -4657,10 +4961,10 @@ COPY persons (id, first_name, last_name, user_id, email, space_id, registration_
 5	Ryszard	Kapuściński	openbis_screening_test_js	franz-josef.elmer@systemsx.ch	\N	2013-04-12 14:37:25.404454+02	3	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
 7	Günter	Jelinek	test_space_admin	franz-josef.elmer@systemsx.ch	\N	2013-04-12 14:58:47.459521+02	3	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
 4	Elfriede	Čapek	openbis_test_js	franz-josef.elmer@systemsx.ch	\N	2013-04-12 14:35:53.704419+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c77080000001000000000787371007e00063f4000000000001877080000002000000016740012302e35333535393134303637343736393838737200176a6176612e7574696c2e4c696e6b6564486173684d617034c04e5c106cc0fb0200015a000b6163636573734f726465727871007e00063f4000000000000c77080000001000000002740006706172616d3174000676616c756531740006706172616d3274000676616c7565327800740012302e303738313533303237383631343731367371007e000a3f4000000000000c77080000001000000002740006706172616d3174000676616c756531740006706172616d3274000676616c7565327800740012302e393931363538373336373138383138357371007e000a3f4000000000000c7708000000100000000271007e000c74000676616c75653171007e000e74000676616c7565327800740013302e31393936373233313733363531383434337371007e000a3f4000000000000c77080000001000000002740006706172616d3174000676616c756531740006706172616d3274000676616c7565327800740013302e32383132393335393934303036363933347371007e000a3f4000000000000c77080000001000000002740006706172616d3174000676616c756531740006706172616d3274000676616c7565327800740012302e383735353739353736323430383532357371007e000a3f4000000000000c77080000001000000002740006706172616d3174000676616c756531740006706172616d3274000676616c7565327800740013302e31353635343339343432363338333037387371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e333330343032393233393830373237387371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e393632393030313531303332393534357371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e343436353930363038393137313736377371007e000a3f4000000000000c7708000000100000000271007e001c74000676616c75653171007e001e74000676616c7565327800740012302e323536313339343032393736323539367371007e000a3f4000000000000c7708000000100000000271007e001c74000676616c75653171007e001e74000676616c7565327800740010302e38323138333232303035313232397371007e000a3f4000000000000c7708000000100000000271007e001c74000676616c75653171007e001e74000676616c7565327800740012302e393835323335313539393833383538357371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740013302e32383737343136353437383533343939377371007e000a3f4000000000000c7708000000100000000271007e001c74000676616c75653171007e001e74000676616c7565327800740013302e32363533373735333135323636313032367371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e373633363834363537383637393937397371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e383539303038313430363239313537347371007e000a3f4000000000000c7708000000100000000271007e001c74000676616c75653171007e001e74000676616c7565327800740011302e3737383430373232343931393634377371007e000a3f4000000000000c77080000001000000002740006706172616d3174000676616c756531740006706172616d3274000676616c7565327800740012302e383132333334373930333630313832357371007e000a3f4000000000000c7708000000100000000271007e000c74000676616c75653171007e000e74000676616c7565327800740012302e363333333838393535363131373335367371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e393334303130313933323137353435377371007e000a3f4000000000000c7708000000100000000271007e002274000676616c75653171007e002474000676616c7565327800740012302e363237303933393234323039343735357371007e000a3f4000000000000c7708000000100000000271007e000c74000676616c75653171007e000e74000676616c7565327800787371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078737200136a6176612e7574696c2e41727261794c6973747881d21d99c7619d03000149000473697a6578700000000077040000000a78	t
-9	Claude	Čapek	selenium	franz-josef.elmer@systemsx.ch	\N	2013-04-23 12:02:27.70936+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
 3	Claude	Kapuściński	admin	franz-josef.elmer@systemsx.ch	\N	2013-04-12 10:07:44.572139+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000f5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a00176c65676163794d656461646174615549456e61626c65644c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c000e64656661756c7450726f6a6563747400124c6a6176612f6c616e672f537472696e673b4c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c71007e00024c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f400000000000307708000000400000002d74001973616d706c652d64657461696c732d677269642d504c415445737200136a6176612e7574696c2e41727261794c6973747881d21d99c7619d03000149000473697a657870000000237704000000237372003f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e436f6c756d6e53657474696e6700000000000000010200055a000968617346696c7465725a000668696464656e49000577696474684c0008636f6c756d6e494471007e00024c0007736f72744469727400444c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f536f7274496e666f24536f72744469723b787001000000016c740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b00000000014774000d444154415f5345545f54595045707371007e000b00000000010a740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00000000013874000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001a70726f70657274792d494e5445524e2d5245534f4c5554494f4e707371007e000b00000000009674002270726f70657274792d494e5445524e2d414e414c595349535f50524f434544555245707874001273706163652d62726f777365722d677269647371007e0009000000047704000000047371007e000b000000000096740004434f4445707371007e000b0000000000c874000b4445534352495054494f4e707371007e000b0000000000c874000b5245474953545241544f52707371007e000b00010000012c740011524547495354524154494f4e5f44415445707874001d66696c652d666f726d61742d747970652d62726f777365722d677269647371007e0009000000027704000000027371007e000b000000000096740004434f4445707371007e000b00000000012c74000b4445534352495054494f4e707874002570726f70657274792d747970652d61737369676e6d656e742d62726f777365722d677269647371007e00090000000f77040000000f7371007e000b0100000000c874001250524f50455254595f545950455f434f4445707371007e000b0001000000967400054c4142454c707371007e000b00010000009674000b4445534352495054494f4e707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b0100000000c874000b41535349474e45445f544f707371007e000b010000000096740007545950455f4f46707371007e000b00000000009674000c49535f4d414e4441544f5259707371007e000b0000000000c8740009444154415f54595045707371007e000b0001000000647400074f5244494e414c707371007e000b00000000009674000753454354494f4e707371007e000b00000000009674000a49535f44594e414d4943707371007e000b00000000009674000a49535f4d414e41474544707371007e000b00000000009674001749535f53484f574e5f494e5f454449544f525f56494557707371007e000b00000000009674000e53484f575f5241575f56414c5545707371007e000b000000000096740006534352495054707874002273616d706c652d64657461696c732d677269642d53414d504c452d554e4b4e4f574e7371007e0009000000147704000000147371007e000b0100000000f4740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707874000c71756572792d656469746f727371007e0009000000097704000000097371007e000b0100000000967400044e414d45707371007e000b00000000009674000b4445534352495054494f4e707371007e000b00010000009674000953514c5f5155455259707371007e000b01010000009674000949535f5055424c4943707371007e000b00010000009674000a51554552595f54595045707371007e000b00010000009674000b454e544954595f54595045707371007e000b00010000009674000e51554552595f4441544142415345707371007e000b00010000009674000b5245474953545241544f52707371007e000b00010000012c740011524547495354524154494f4e5f4441544570787400326578706572696d656e742d64657461696c732d677269642d53414d504c452d4d4943524f53434f50595f504c41544f4e49437371007e0009000000147704000000147371007e000b010000000096740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707874002273616d706c652d64657461696c732d677269642d4d4943524f53434f50595f494d477371007e0009000000227704000000227371007e000b010000000151740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001a70726f70657274792d494e5445524e2d5245534f4c5554494f4e70787400266578706572696d656e742d64657461696c732d677269642d53414d504c452d554e4b4e4f574e7371007e0009000000157704000000157371007e000b010000000163740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e707874001b73616d706c652d64657461696c732d677269642d554e4b4e4f574e7371007e0009000000227704000000227371007e000b010000000096740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e707874002973616d706c652d64657461696c732d677269642d53414d504c452d4d4943524f53434f50595f494d477371007e0009000000147704000000147371007e000b010000000096740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a454354537078740037646174612d7365742d64657461696c732d677269642d4843535f494d4147455f434f4e5441494e45525f5241572d434f4e5441494e45527371007e0009000000227704000000227371007e000b010000000156740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001a70726f70657274792d494e5445524e2d5245534f4c5554494f4e7078740038646174612d7365742d64657461696c732d677269642d4d4943524f53434f50595f494d475f434f4e5441494e45522d434f4e5441494e45527371007e0009000000227704000000227371007e000b010000000096740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001a70726f70657274792d494e5445524e2d5245534f4c5554494f4e7078740034646174612d7365742d64657461696c732d677269642d4843535f494d4147455f434f4e5441494e45525f5241572d504152454e547371007e00090000001f77040000001f7371007e000b010000000096740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707874001c656e746974792d62726f777365722d677269642d4d4154455249414c7371007e00090000000077040000000078740018747970652d62726f777365722d677269642d53414d504c457371007e00090000000c77040000000c7371007e000b010000000096740004434f4445707371007e000b00000000012c74000b4445534352495054494f4e707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b00010000009674001156414c49444154494f4e5f534352495054707371007e000b00010000009674000b49535f4c49535441424c45707371007e000b0001000000c874001149535f53484f575f434f4e5441494e4552707371007e000b0001000000c874000f49535f53484f575f504152454e5453707371007e000b000100000096740014535542434f44455f554e495155455f4c4142454c707371007e000b0001000000967400194155544f5f47454e45524154455f434f4445535f4c4142454c707371007e000b00010000009674001749535f53484f575f504152454e545f4d45544144415441707371007e000b00010000009674001547454e4552415445445f434f44455f505245464958707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707874001564656c6574696f6e2d62726f777365722d677269647371007e0009000000047704000000047371007e000b00000000012c74000d44454c4554494f4e5f44415445707371007e000b0100000000c874000744454c45544552707371007e000b00000000012c740008454e544954494553707371007e000b0100000001f4740006524541534f4e7078740013656e746974792d62726f777365722d677269647371007e00090000000e77040000000e7371007e000b010000000096740004434f4445707371007e000b00010000009674000f4558504552494d454e545f54595045707371007e000b0001000000967400154558504552494d454e545f4944454e544946494552707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a454354537078740024656e746974792d70726f70657274792d686973746f72792d62726f777365722d677269647371007e0009000000077704000000077371007e000b00010000009674001250524f50455254595f545950455f434f4445707371007e000b00000000009674001350524f50455254595f545950455f4c4142454c707371007e000b00000000009674000d52454c4154494f4e5f54595045707371007e000b00000000009674000556414c5545707371007e000b000000000096740006415554484f52707371007e000b00000000009674000f56414c49445f46524f4d5f44415445707371007e000b00000000009674001056414c49445f554e54494c5f444154457078740040646174612d7365742d64657461696c732d677269642d4843535f414e414c595349535f434f4e5441494e45525f57454c4c5f46454154555245532d4348494c447371007e00090000001f77040000001f7371007e000b010000000096740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707874001470726f6a6563742d62726f777365722d677269647371007e0009000000077704000000077371007e000b010000000096740004434f4445707371007e000b0100000000967400055350414345707371007e000b0000000000c874000b4445534352495054494f4e707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0001000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f444154457078740024646174612d7365742d64657461696c732d677269642d554e4b4e4f574e2d504152454e547371007e0009000000227704000000227371007e000b0100000000e3740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e70787400246578706572696d656e742d64657461696c732d677269642d4843535f504c41544f4e49437371007e0009000000237704000000237371007e000b0100000000e2740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001a70726f70657274792d494e5445524e2d5245534f4c5554494f4e707371007e000b00000000009674002270726f70657274792d494e5445524e2d414e414c595349535f50524f434544555245707874002b6578706572696d656e742d64657461696c732d677269642d53414d504c452d4843535f504c41544f4e49437371007e0009000000157704000000157371007e000b010000000096740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001e70726f70657274792d494e5445524e2d504c4154455f47454f4d45545259707874001c726f6c652d61737369676e6d656e742d62726f777365722d677269647371007e0009000000057704000000057371007e000b010000000096740006504552534f4e707371007e000b010000000096740013415554484f52495a4154494f4e5f47524f5550707371007e000b0100000000967400055350414345707371007e000b010000000096740004524f4c45707371007e000b01000000009674001144415441424153455f494e5354414e43457078740020646174612d7365742d7265706f7274696e672d677269643937323031333937337371007e0009000000017704000000017371007e000b00000000009674000b746573745f636f6c756d6e70787400127365617263682d726573756c742d677269647371007e0009000000067704000000067371007e000b00000000009674000b454e544954595f4b494e44707371007e000b01000000009674000b454e544954595f54595045707371007e000b01000000015e74000a4944454e544946494552707371007e000b00000000009674000b5245474953545241544f52707371007e000b01000000008c74000e4d41544348494e475f4649454c44707371007e000b0000000000c874000d4d41544348494e475f54455854707874001e73616d706c652d64657461696c732d677269642d5349524e415f57454c4c7371007e00090000001f77040000001f7371007e000b010000000096740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a454354537078740044646174612d7365742d64657461696c732d677269642d4843535f414e414c595349535f434f4e5441494e45525f57454c4c5f46454154555245532d434f4e5441494e45527371007e0009000000217704000000217371007e000b0100000000ee740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b00000000011b74000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e7078740033646174612d7365742d7265706f7274696e672d6772696464656661756c742d706c6174652d696d6167652d616e616c797369737371007e0009000000087704000000087371007e000b00000000012074000d444154415f5345545f434f4445707371007e000b000000000096740010504c4154455f4944454e544946494552707371007e000b000000000096740003524f57707371007e000b000000000096740006434f4c554d4e707371007e000b000000000096740012666561747572652d524f575f4e554d424552707371007e000b000000000096740015666561747572652d434f4c554d4e5f4e554d424552707371007e000b00000000009674000b666561747572652d545055707371007e000b00000000009674000d666561747572652d5354415445707874002073616d706c652d64657461696c732d677269642d53414d504c452d504c4154457371007e0009000000167704000000167371007e000b010000000096740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001270726f70657274792d555345522d47454e45707371007e000b00000000009674001370726f70657274792d555345522d5349524e417078740020656e746974792d62726f777365722d677269642d53414d504c452d28616c6c297371007e0009000000187704000000187371007e000b01000000014e740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00000000012c740011524547495354524154494f4e5f44415445707371007e000b00000000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000010c74001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001e70726f70657274792d494e5445524e2d504c4154455f47454f4d45545259707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e707371007e000b00000000009674001270726f70657274792d555345522d47454e45707371007e000b00000000009674001370726f70657274792d555345522d5349524e41707874001f6578706572696d656e742d64657461696c732d677269642d554e4b4e4f574e7371007e0009000000257704000000257371007e000b010000000129740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e707371007e000b000100000096740012434f4e5441494e45525f4441544153455453707371007e000b0001000000647400134f524445525f494e5f434f4e5441494e455253707371007e000b00010000009674000453495a457078740017706c6174652d6d6174657269616c2d72657669657765727371007e00090000000e77040000000e7371007e000b0000000001f474000b57454c4c5f494d41474553707371007e000b0000000000967400234d4154455249414c5f50524f50455254592d47454e452d242424555345522d47454e45707371007e000b00000000009674002f4d4154455249414c5f50524f50455254592d50524f502d24242447454e452d555345522d4445534352495054494f4e707371007e000b0000000000967400304d4154455249414c5f50524f50455254592d50524f502d24242447454e452d555345522d47454e455f53594d424f4c53707371007e000b0000000000967400254d4154455249414c5f50524f50455254592d5349524e412d242424555345522d5349524e41707371007e000b0000000000967400314d4154455249414c5f50524f50455254592d50524f502d2424245349524e412d555345522d494e48494249544f525f4f46707371007e000b0000000000967400384d4154455249414c5f50524f50455254592d50524f502d2424245349524e412d555345522d4e55434c454f544944455f53455155454e4345707371007e000b00000000018a74000a6578706572696d656e74707371007e000b010000000096740005504c415445707371007e000b01000000009674000457454c4c707371007e000b00000000009674001066696c655f666f726d61745f74797065707371007e000b00000000009674000e494d4147455f444154415f534554707371007e000b000000000096740017494d4147455f414e414c595349535f444154415f534554707371007e000b000000000096740012414e414c595349535f50524f4345445552457078740013706572736f6e2d62726f777365722d677269647371007e0009000000077704000000077371007e000b0100000000fe740007555345525f49447e72004263682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e536f7274496e666f24536f727444697200000000000000001200007872000e6a6176612e6c616e672e456e756d000000000000000012000078707400034153437371007e000b00000000009674000a46495253545f4e414d45707371007e000b0000000000967400094c4153545f4e414d45707371007e000b0000000000c8740005454d41494c707371007e000b00000000009674000b5245474953545241544f52707371007e000b00000000012c740011524547495354524154494f4e5f44415445707371007e000b00000000005074000949535f414354495645707874001c747970652d62726f777365722d677269642d4558504552494d454e547371007e0009000000047704000000047371007e000b010000000096740004434f4445707371007e000b00000000012c74000b4445534352495054494f4e707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b00010000009674001156414c49444154494f4e5f5343524950547078740015766f636162756c6172792d7465726d732d677269647371007e00090000000d77040000000d7371007e000b010000000096740004434f4445707371007e000b0100000000c87400054c4142454c707371007e000b00000000012c74000b4445534352495054494f4e707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b0001000000647400074f5244494e414c707371007e000b0000000000c874000355524c707371007e000b00010000006474000b49535f4f4646494349414c707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000647400105445524d5f544f54414c5f5553414745707371007e000b0001000000647400175445524d5f464f525f444154415f5345545f5553414745707371007e000b00010000006474001a5445524d5f464f525f4558504552494d454e54535f5553414745707371007e000b0001000000647400185445524d5f464f525f4d4154455249414c535f5553414745707371007e000b0001000000647400165445524d5f464f525f53414d504c45535f55534147457078740020656e746974792d62726f777365722d677269642d53414d504c452d504c4154457371007e0009000000157704000000157371007e000b010000000096740004434f4445707371007e000b000100000096740007535542434f4445707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b0001000000967400055350414345707371007e000b00010000009674001153414d504c455f4944454e544946494552707371007e000b00010000009674000b53414d504c455f54595045707371007e000b00010000009674001249535f494e5354414e43455f53414d504c45707371007e000b00010000009674000a49535f44454c45544544707371007e000b0000000000c874000b5245474953545241544f52707371007e000b0000000000c87400084d4f444946494552707371007e000b00010000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707371007e000b01000000009674000a4558504552494d454e54707371007e000b0001000000c87400154558504552494d454e545f4944454e544946494552707371007e000b01000000009674000750524f4a454354707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674001367656e65726174656446726f6d506172656e74707371007e000b00000000009674000f636f6e7461696e6572506172656e74707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001e70726f70657274792d494e5445524e2d504c4154455f47454f4d4554525970787400176174746163686d656e742d62726f777365722d677269647371007e0009000000077704000000077371007e000b0000000000c874000946494c455f4e414d45707371007e000b0000000000967400085045524d4c494e4b707371007e000b00000000009674000756455253494f4e707371007e000b0000000000c87400055449544c45707371007e000b00000000012c74000b4445534352495054494f4e707371007e000b00000000009674000b5245474953545241544f52707371007e000b00000000012c740011524547495354524154494f4e5f444154457078740017766f636162756c6172792d62726f777365722d677269647371007e0009000000087704000000087371007e000b0100000000c8740004434f444571007e057b7371007e000b00000000012c74000b4445534352495054494f4e707371007e000b00000000009674001549535f4d414e414745445f494e5445524e414c4c59707371007e000b00000000009674000b5245474953545241544f52707371007e000b00000000012c740011524547495354524154494f4e5f44415445707371007e000b00010000012c74000c55524c5f54454d504c415445707371007e000b00010000009674002b564f434142554c4152595f53484f575f415641494c41424c455f5445524d535f494e5f43484f4f53455253707371007e000b00010000012c7400114d4f44494649434154494f4e5f444154457078740041646174612d7365742d64657461696c732d677269642d4843535f414e414c595349535f434f4e5441494e45525f57454c4c5f46454154555245532d504152454e547371007e00090000001f77040000001f7371007e000b010000000096740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a454354537078740023646174612d7365742d64657461696c732d677269642d554e4b4e4f574e2d4348494c447371007e0009000000217704000000217371007e000b010000000110740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b0000000000c874000d444154415f5345545f54595045707371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e7078740021656e746974792d62726f777365722d677269642d4d4154455249414c2d47454e457371007e0009000000097704000000097371007e000b010000000096740004434f4445707371007e000b00010000009674000d4d4154455249414c5f54595045707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e707371007e000b00000000009674001a70726f70657274792d555345522d47454e455f53594d424f4c53707874001a747970652d62726f777365722d677269642d444154415f5345547371007e0009000000097704000000097371007e000b010000000146740004434f4445707371007e000b0000000001e274000b4445534352495054494f4e707371007e000b00010000009674001144415441424153455f494e5354414e4345707371007e000b00010000009674001156414c49444154494f4e5f534352495054707371007e000b00000000009674000d444154415f5345545f4b494e44707371007e000b00010000009674001144454c4554494f4e5f444953414c4c4f57707371007e000b0001000000967400124d41494e5f444154415f5345545f50415448707371007e000b0001000000967400154d41494e5f444154415f5345545f5041545445524e707371007e000b00010000012c7400114d4f44494649434154494f4e5f44415445707874001b646174612d7365742d7365617263682d726573756c742d677269647371007e0009000000277704000000277371007e000b01000000010c740004434f4445707371007e000b00010000009674000d45585445524e414c5f434f4445707371007e000b00000000012d74000d444154415f5345545f5459504571007e057b7371007e000b000100000096740011434f4e5441494e45525f44415441534554707371007e000b0001000000647400124f524445525f494e5f434f4e5441494e4552707371007e000b00010000009674000f504152454e545f4441544153455453707371007e000b00010000006474000653414d504c45707371007e000b0000000000c874001f45585445524e414c5f444154415f53414d504c455f4944454e544946494552707371007e000b00000000009674000b53414d504c455f54595045707371007e000b00010000006474000a4558504552494d454e54707371007e000b00010000006474002345585445524e414c5f444154415f4558504552494d454e545f4944454e544946494552707371007e000b00010000007874000f4558504552494d454e545f54595045707371007e000b00000000009674000750524f4a454354707371007e000b00000000009674000b5245474953545241544f52707371007e000b0000000000967400084d4f444946494552707371007e000b0000000000c8740011524547495354524154494f4e5f44415445707371007e000b0001000000c87400114d4f44494649434154494f4e5f44415445707371007e000b00010000009674000a49535f44454c45544544707371007e000b00010000009674000b534f555243455f54595045707371007e000b00010000009674000b49535f434f4d504c455445707371007e000b0001000000967400084c4f434154494f4e707371007e000b0001000000c8740010415243484956494e475f535441545553707371007e000b01010000009674001046494c455f464f524d41545f54595045707371007e000b0001000000c874000f50524f44554354494f4e5f44415445707371007e000b000100000096740012444154415f50524f44554345525f434f4445707371007e000b00010000009674000f444154415f53544f52455f434f4445707371007e000b00010000009674001145585445524e414c5f444d535f434f4445707371007e000b00010000009674001245585445524e414c5f444d535f4c4142454c707371007e000b0001000000967400075045524d5f4944707371007e000b00010000009674001153484f575f44455441494c535f4c494e4b707371007e000b00000000009674000c4d45544150524f4a45435453707371007e000b00000000009674001250524553454e545f494e5f41524348495645707371007e000b00000000009674001453544f524147455f434f4e4649524d4154494f4e707371007e000b00000000009674002270726f70657274792d494e5445524e2d414e414c595349535f50524f434544555245707371007e000b00000000009674001970726f70657274792d555345522d4445534352495054494f4e707371007e000b00000000009674001a70726f70657274792d494e5445524e2d5245534f4c5554494f4e707371007e000b000100000096740012434f4e5441494e45525f4441544153455453707371007e000b0001000000647400134f524445525f494e5f434f4e5441494e455253707371007e000b00010000009674000453495a4570787870707371007e00063f4000000000000c7708000000100000000374003773616d706c652d7479706573616d706c655f726567697374726174696f6e5f636f6e7461696e65725f63686f6f736572554e4b4e4f574e74000528616c6c2974003473616d706c652d7479706573616d706c655f726567697374726174696f6e5f706172656e745f63686f6f736572554e4b4e4f574e71007e06fb74001e73616d706c652d747970656d61696e5f73616d706c655f62726f7773657271007e06fb7874002e656e746974793d4558504552494d454e54267065726d49643d32303136303631333139353430373037342d3433367371007e00063f4000000000000077080000001000000000787371007e00063f40000000000018770800000020000000117400156c6566745f70616e656c5f5349524e415f57454c4c737200116a6176612e6c616e672e496e746567657212e2a0a4f781873802000149000576616c7565787200106a6176612e6c616e672e4e756d62657286ac951d0b94e08b02000078700000015e7400186c6566745f70616e656c5f4843535f494d4147455f5241577371007e0702000001c97400216c6566745f70616e656c5f4843535f494d4147455f5345474d454e544154494f4e7371007e07020000015e74001e6c6566745f70616e656c5f4d4943524f53434f50595f504c41544f4e49437371007e07020000015e7400256c6566745f70616e656c5f4843535f414e414c595349535f46454154555245535f4c4953547371007e07020000015e74001d6c6566745f70616e656c5f4843535f494d4147455f4f564552564945577371007e07020000015e7400256c6566745f70616e656c5f4843535f414e414c595349535f57454c4c5f46454154555245537371007e07020000015e7400226c6566745f70616e656c5f4843535f494d4147455f434f4e5441494e45525f5241577371007e07020000015e7400106c6566745f70616e656c5f504c4154457371007e07020000015e7400236c6566745f70616e656c5f4d4943524f53434f50595f494d475f434f4e5441494e45527371007e07020000015e74002f6c6566745f70616e656c5f4843535f414e414c595349535f434f4e5441494e45525f57454c4c5f46454154555245537371007e0702000001d874002b6c6566745f70616e656c5f4843535f494d4147455f434f4e5441494e45525f5345474d454e544154494f4e7371007e07020000015e74000f6c6566745f70616e656c5f47454e457371007e07020000015e7400196c6566745f70616e656c5f4d4943524f53434f50595f494d477371007e07020000015e7400226c6566745f70616e656c5f4d4943524f53434f50595f494d475f4f564552564945577371007e07020000015e7400176c6566745f70616e656c5f4843535f504c41544f4e49437371007e07020000015e7400126c6566745f70616e656c5f554e4b4e4f574e7371007e07020000015e787371007e00063f4000000000000c7708000000100000000274000757656c636f6d657372004663682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e506f72746c6574436f6e66696775726174696f6e00000000000000010200014c00046e616d6571007e0002787071007e0726740007486973746f72797371007e072771007e0729787372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f400000000000187708000000200000001474002d67656e657269635f646174617365745f7669657765724843535f494d4147455f434f4e5441494e45525f52415774001a646174612d7365742d636f6e7461696e65642d73656374696f6e74002e67656e657269635f646174617365745f7669657765724d4943524f53434f50595f494d475f434f4e5441494e455271007e072f74002567656e657269635f6578706572696d656e745f7669657765724843535f504c41544f4e49437400196578706572696d656e742d73616d706c652d73656374696f6e74003667656e657269635f646174617365745f7669657765724843535f494d4147455f434f4e5441494e45525f5345474d454e544154494f4e740015646174612d7365742d646174612d73656374696f6e74003067656e657269635f646174617365745f7669657765724843535f414e414c595349535f57454c4c5f464541545552455371007e073474002067656e657269635f6578706572696d656e745f766965776572554e4b4e4f574e740011646174612d736574732d73656374696f6e74001c67656e657269635f73616d706c655f766965776572554e4b4e4f574e7400126174746163686d656e742d73656374696f6e74002d67656e657269635f646174617365745f7669657765724d4943524f53434f50595f494d475f4f5645525649455771007e073474001d67656e657269635f646174617365745f766965776572554e4b4e4f574e71007e073474002467656e657269635f646174617365745f7669657765724d4943524f53434f50595f494d4771007e073474002c67656e657269635f646174617365745f7669657765724843535f494d4147455f5345474d454e544154494f4e71007e073474001b67656e657269635f6d6174657269616c5f76696577657247454e45740020706c6174652d6c6f636174696f6e732d6d6174657269616c2d73656374696f6e74001a67656e657269635f73616d706c655f766965776572504c41544571007e073774002367656e657269635f646174617365745f7669657765724843535f494d4147455f52415771007e073474002367656e657269635f73616d706c655f7669657765724d4943524f53434f50595f494d4774001a6c6f676963616c2d696d6167652d77656c6c2d73656374696f6e74002c67656e657269635f6578706572696d656e745f7669657765724d4943524f53434f50595f504c41544f4e494371007e073274001f67656e657269635f73616d706c655f7669657765725349524e415f57454c4c71007e073774003a67656e657269635f646174617365745f7669657765724843535f414e414c595349535f434f4e5441494e45525f57454c4c5f464541545552455371007e072f74003067656e657269635f646174617365745f7669657765724843535f414e414c595349535f46454154555245535f4c49535471007e073474002867656e657269635f646174617365745f7669657765724843535f494d4147455f4f5645525649455771007e0734787371007e00063f4000000000000c7708000000100000000174000973637265656e696e677372005363682e73797374656d73782e636973642e6f70656e6269732e706c7567696e2e73637265656e696e672e7368617265642e62617369632e64746f2e53637265656e696e67446973706c617953657474696e677300000000000000010200074c001864656661756c74416e616c7973697350726f63656475726571007e00024c000f64656661756c744368616e6e656c7371007e00014c001864656661756c744665617475726552616e6765547970657371007e00014c001264656661756c744d6f76696544656c61797371007e00014c001264656661756c745265736f6c7574696f6e7371007e00014c001664656661756c745472616e73666f726d6174696f6e7371007e00014c001a696e74656e7369747952616e676573466f724368616e6e656c7371007e00017870740003416c6c7371007e00063f4000000000000c770800000010000000047400256578706572696d656e742d6368616e6e656c32303133303431323130353233323631362d3274000f4d6572676564204368616e6e656c737400276578706572696d656e742d6368616e6e656c32303133303431323135303034393434362d32303471007e07507400276578706572696d656e742d6368616e6e656c32303133303431323135353133383031392d3339367400035247427400166578706572696d656e742d6368616e6e656c6e756c6c71007e07507870707371007e00063f4000000000000c7708000000100000000171007e074f7372004a63682e73797374656d73782e636973642e6f70656e6269732e706c7567696e2e73637265656e696e672e7368617265642e62617369632e64746f2e496d6167655265736f6c7574696f6e00000000000000010200034900066865696768745a000a69734f726967696e616c49000577696474687870000002000000000200787371007e00063f4000000000000c7708000000100000000471007e074f7371007e00063f4000000000000c77080000001000000002740004444150497400092444454641554c542471007e075071007e075b7871007e07517371007e00063f4000000000000c7708000000100000000271007e075a71007e075b71007e075071007e075b7871007e07527371007e00063f4000000000000c7708000000100000000171007e075371007e075b7871007e07547371007e00063f4000000000000c7708000000100000000171007e075071007e075b78787371007e00063f4000000000000c7708000000100000000371007e074f7371007e00063f40000000000000770800000010000000007871007e07517371007e00063f40000000000000770800000010000000007871007e07527371007e00063f40000000000000770800000010000000007878787371007e0009000000147704000000147372003d63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e456e74697479566973697400000000000000010200054a000974696d655374616d704c000a656e746974794b696e6471007e00024c000e656e7469747954797065436f646571007e00024c000a6964656e74696669657271007e00024c00067065726d494471007e00027870000001554ae647c074000a4558504552494d454e54740007554e4b4e4f574e7400242f544553542f544553542d50524f4a4543542f544553542d4558504552494d454e542d3374001532303136303631333139353430373037342d3433367371007e07640000013ea857eae7740008444154415f5345547400174843535f494d4147455f434f4e5441494e45525f52415774001532303133303431323134333132313038312d32303071007e076d7371007e07640000013e3c15424371007e076b7400204843535f494d4147455f434f4e5441494e45525f5345474d454e544154494f4e74001532303133303431323135333131393836342d33383571007e07707371007e07640000013e3be9c7d371007e07667400134d4943524f53434f50595f504c41544f4e49437400222f504c41544f4e49432f53435245454e494e472d4558414d504c45532f4558502d3274001532303133303431323135353133383031392d3339367371007e07640000013e3be6ea1a74000653414d504c4574000e4d4943524f53434f50595f494d477400122f504c41544f4e49432f5345524945532d3174001532303133303431373039343931313936372d3432367371007e07640000013e3be5a6f571007e076674000c4843535f504c41544f4e49437400222f504c41544f4e49432f53435245454e494e472d4558414d504c45532f4558502d3174001332303133303431323130353233323631362d327371007e07640000013e3be3f2b271007e0776740005504c4154457400112f504c41544f4e49432f504c4154452d3174001432303133303431323134303134373733352d32307371007e07640000013e3be0e86e71007e077671007e076774002d2f544553542f544553542d53414d504c452d313a544553542d53414d504c452d312d434f4e5441494e45442d3174001532303133303432343133343732313634342d3433347371007e07640000013e3bdeea3771007e077671007e07677400132f544553542f544553542d53414d504c452d3274001532303133303431353039313932333438352d3430327371007e07640000013e3bb49dea71007e076b7400174d4943524f53434f50595f494d475f4f5645525649455774001532303133303431373039343933343639332d34323771007e078a7371007e07640000013e3b56365571007e076b74001a4843535f414e414c595349535f46454154555245535f4c49535474001532303133303432343131313735313433322d34333171007e078d7371007e07640000013e3b55e9be71007e076b71007e078c74001532303133303432343131313735313230392d34333071007e078f7371007e07640000013e3b55cc3971007e076b7400244843535f414e414c595349535f434f4e5441494e45525f57454c4c5f464541545552455374001532303133303431323135333635393939342d33393171007e07927371007e07640000013e3b500a5971007e076b74001a4843535f414e414c595349535f57454c4c5f464541545552455374001532303133303431323135333635393934352d33393071007e07957371007e07640000013e16fe882971007e076b7400184d4943524f53434f50595f494d475f434f4e5441494e455274001532303133303431373039343933373134342d34323971007e07987371007e07640000013e16fbc42471007e076b71007e077774001532303133303431373039343933363032312d34323871007e079a7371007e07640000013e16f7a38271007e076671007e07677400242f544553542f544553542d50524f4a4543542f544553542d4558504552494d454e542d3274001532303133303431353039313734353039392d3430317371007e07640000013e13682eea71007e076b71007e076774001532303133303431353130303233383039382d34303871007e079f7371007e07640000013e1305b69371007e077674000a5349524e415f57454c4c7400142f504c41544f4e49432f504c4154452d313a423274001432303133303431323134303135313939392d33357371007e07640000013e12e3717371007e077671007e07a17400142f504c41544f4e49432f504c4154452d313a413174001432303133303431323134303135313633382d323278	t
 10	Günter	Lévi-Strauss	observer	franz-josef.elmer@systemsx.ch	\N	2013-04-23 12:02:27.70936+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
-2	Ryszard	Jelinek	etlserver	franz-josef.elmer@systemsx.ch	\N	2013-04-12 10:06:08.930166+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
+2	Claude	Čapek	etlserver	franz-josef.elmer@systemsx.ch	\N	2013-04-12 10:06:08.930166+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
+9	Claude	Grass	selenium	franz-josef.elmer@systemsx.ch	\N	2013-04-23 12:02:27.70936+02	1	\\xaced00057372004163682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e446973706c617953657474696e6773000000000000000102000e5a0009646562756767696e675a001669676e6f72654c617374486973746f7279546f6b656e5a001575736557696c64636172645365617263684d6f64654c000e636f6c756d6e53657474696e677374000f4c6a6176612f7574696c2f4d61703b4c001b637573746f6d576562417070446973706c617953657474696e677371007e00014c001064726f70446f776e53657474696e677371007e00014c00166c617374486973746f7279546f6b656e4f724e756c6c7400124c6a6176612f6c616e672f537472696e673b4c001670616e656c436f6c6c617073656453657474696e677371007e00014c001170616e656c53697a6553657474696e677371007e00014c0015706f72746c6574436f6e66696775726174696f6e7371007e00014c001d7265616c4e756d626572466f726d6174696e67506172616d65746572737400514c63682f73797374656d73782f636973642f6f70656e6269732f67656e657269632f7368617265642f62617369632f64746f2f5265616c4e756d626572466f726d6174696e67506172616d65746572733b4c000b74616253657474696e677371007e00014c001a746563686e6f6c6f6779537065636966696353657474696e677371007e00014c00067669736974737400104c6a6176612f7574696c2f4c6973743b7870000000737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c7708000000100000000078707371007e00063f4000000000000c7708000000100000000078707371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c7708000000100000000078707372004f63682e73797374656d73782e636973642e6f70656e6269732e67656e657269632e7368617265642e62617369632e64746f2e5265616c4e756d626572466f726d6174696e67506172616d657465727300000000000000010200035a0010666f726d6174696e67456e61626c6564490009707265636973696f6e5a000a736369656e746966696378700100000004007371007e00063f4000000000000c77080000001000000000787371007e00063f4000000000000c770800000010000000007870	t
 \.
 
 
@@ -4882,14 +5186,14 @@ SELECT pg_catalog.setval('role_assignment_id_seq', 8, true);
 -- Data for Name: role_assignments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY role_assignments (id, role_code, space_id, pers_id_grantee, ag_id_grantee, pers_id_registerer, registration_timestamp) FROM stdin;
-1	ETL_SERVER	\N	2	\N	1	2013-04-12 10:06:08.930166+02
-2	ADMIN	\N	3	\N	1	2013-04-12 10:07:44.572139+02
-3	ADMIN	\N	4	\N	3	2013-04-12 14:37:02.947129+02
-4	ADMIN	\N	5	\N	3	2013-04-12 14:37:33.612726+02
-6	ADMIN	3	7	\N	3	2013-04-12 15:22:02.603332+02
-7	ADMIN	\N	9	\N	3	2013-04-23 15:15:09.53293+02
-8	OBSERVER	3	10	\N	3	2013-04-23 15:15:09.53293+02
+COPY role_assignments (id, role_code, space_id, pers_id_grantee, ag_id_grantee, pers_id_registerer, registration_timestamp, project_id) FROM stdin;
+1	ETL_SERVER	\N	2	\N	1	2013-04-12 10:06:08.930166+02	\N
+2	ADMIN	\N	3	\N	1	2013-04-12 10:07:44.572139+02	\N
+3	ADMIN	\N	4	\N	3	2013-04-12 14:37:02.947129+02	\N
+4	ADMIN	\N	5	\N	3	2013-04-12 14:37:33.612726+02	\N
+6	ADMIN	3	7	\N	3	2013-04-12 15:22:02.603332+02	\N
+7	ADMIN	\N	9	\N	3	2013-04-23 15:15:09.53293+02	\N
+8	OBSERVER	3	10	\N	3	2013-04-23 15:15:09.53293+02	\N
 \.
 
 
@@ -5648,1061 +5952,1061 @@ COPY sample_relationships_all (id, sample_id_parent, relationship_id, sample_id_
 -- Data for Name: sample_relationships_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY sample_relationships_history (id, main_samp_id, relation_type, expe_id, samp_id, data_id, entity_perm_id, pers_id_author, valid_from_timestamp, valid_until_timestamp, space_id) FROM stdin;
-2	2	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:47.477+02	\N	\N
-3	3	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:47.735+02	\N	\N
-4	2	CONTAINER	\N	4	\N	20130412140151638-22	3	2013-04-12 14:01:51.636+02	\N	\N
-5	4	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.636+02	\N	\N
-6	4	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.636+02	\N	\N
-7	2	CONTAINER	\N	5	\N	20130412140151651-23	3	2013-04-12 14:01:51.651+02	\N	\N
-8	5	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.651+02	\N	\N
-9	5	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.651+02	\N	\N
-10	2	CONTAINER	\N	6	\N	20130412140151661-24	3	2013-04-12 14:01:51.661+02	\N	\N
-11	6	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.661+02	\N	\N
-12	6	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.661+02	\N	\N
-13	2	CONTAINER	\N	7	\N	20130412140151672-25	3	2013-04-12 14:01:51.672+02	\N	\N
-14	7	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.672+02	\N	\N
-15	7	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.672+02	\N	\N
-16	2	CONTAINER	\N	8	\N	20130412140151683-26	3	2013-04-12 14:01:51.682+02	\N	\N
-17	8	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.682+02	\N	\N
-18	8	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.682+02	\N	\N
-19	2	CONTAINER	\N	9	\N	20130412140151750-27	3	2013-04-12 14:01:51.749+02	\N	\N
-20	9	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.749+02	\N	\N
-21	9	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.749+02	\N	\N
-22	2	CONTAINER	\N	10	\N	20130412140151792-28	3	2013-04-12 14:01:51.791+02	\N	\N
-23	10	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.791+02	\N	\N
-24	10	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.791+02	\N	\N
-25	2	CONTAINER	\N	11	\N	20130412140151848-29	3	2013-04-12 14:01:51.848+02	\N	\N
-26	11	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.848+02	\N	\N
-27	11	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.848+02	\N	\N
-28	2	CONTAINER	\N	12	\N	20130412140151886-30	3	2013-04-12 14:01:51.885+02	\N	\N
-29	12	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.885+02	\N	\N
-30	12	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.885+02	\N	\N
-31	2	CONTAINER	\N	13	\N	20130412140151918-31	3	2013-04-12 14:01:51.917+02	\N	\N
-32	13	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.917+02	\N	\N
-33	13	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.917+02	\N	\N
-34	2	CONTAINER	\N	14	\N	20130412140151949-32	3	2013-04-12 14:01:51.948+02	\N	\N
-35	14	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.948+02	\N	\N
-36	14	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.948+02	\N	\N
-37	2	CONTAINER	\N	15	\N	20130412140151970-33	3	2013-04-12 14:01:51.969+02	\N	\N
-38	15	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.969+02	\N	\N
-39	15	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.969+02	\N	\N
-40	2	CONTAINER	\N	16	\N	20130412140151987-34	3	2013-04-12 14:01:51.986+02	\N	\N
-41	16	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.986+02	\N	\N
-42	16	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.986+02	\N	\N
-43	2	CONTAINER	\N	17	\N	20130412140151999-35	3	2013-04-12 14:01:51.998+02	\N	\N
-44	17	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.998+02	\N	\N
-45	17	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.998+02	\N	\N
-46	2	CONTAINER	\N	18	\N	20130412140152009-36	3	2013-04-12 14:01:52.009+02	\N	\N
-47	18	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.009+02	\N	\N
-48	18	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.009+02	\N	\N
-49	2	CONTAINER	\N	19	\N	20130412140152021-37	3	2013-04-12 14:01:52.02+02	\N	\N
-50	19	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.02+02	\N	\N
-51	19	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.02+02	\N	\N
-52	2	CONTAINER	\N	20	\N	20130412140152031-38	3	2013-04-12 14:01:52.03+02	\N	\N
-53	20	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.03+02	\N	\N
-54	20	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.03+02	\N	\N
-55	2	CONTAINER	\N	21	\N	20130412140152041-39	3	2013-04-12 14:01:52.04+02	\N	\N
-56	21	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.04+02	\N	\N
-57	21	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.04+02	\N	\N
-58	2	CONTAINER	\N	22	\N	20130412140152052-40	3	2013-04-12 14:01:52.051+02	\N	\N
-59	22	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.051+02	\N	\N
-60	22	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.051+02	\N	\N
-61	2	CONTAINER	\N	23	\N	20130412140152084-41	3	2013-04-12 14:01:52.083+02	\N	\N
-62	23	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.083+02	\N	\N
-63	23	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.083+02	\N	\N
-64	2	CONTAINER	\N	24	\N	20130412140152095-42	3	2013-04-12 14:01:52.094+02	\N	\N
-65	24	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.094+02	\N	\N
-66	24	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.094+02	\N	\N
-67	2	CONTAINER	\N	25	\N	20130412140152106-43	3	2013-04-12 14:01:52.106+02	\N	\N
-68	25	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.106+02	\N	\N
-69	25	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.106+02	\N	\N
-70	2	CONTAINER	\N	26	\N	20130412140152117-44	3	2013-04-12 14:01:52.116+02	\N	\N
-71	26	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.116+02	\N	\N
-72	26	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.116+02	\N	\N
-73	2	CONTAINER	\N	27	\N	20130412140152127-45	3	2013-04-12 14:01:52.127+02	\N	\N
-74	27	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.127+02	\N	\N
-75	27	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.127+02	\N	\N
-76	2	CONTAINER	\N	28	\N	20130412140152138-46	3	2013-04-12 14:01:52.137+02	\N	\N
-77	28	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.137+02	\N	\N
-78	28	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.137+02	\N	\N
-79	2	CONTAINER	\N	29	\N	20130412140152148-47	3	2013-04-12 14:01:52.147+02	\N	\N
-80	29	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.147+02	\N	\N
-81	29	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.147+02	\N	\N
-82	2	CONTAINER	\N	30	\N	20130412140152159-48	3	2013-04-12 14:01:52.158+02	\N	\N
-83	30	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.158+02	\N	\N
-84	30	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.158+02	\N	\N
-85	2	CONTAINER	\N	31	\N	20130412140152169-49	3	2013-04-12 14:01:52.169+02	\N	\N
-86	31	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.169+02	\N	\N
-87	31	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.169+02	\N	\N
-88	2	CONTAINER	\N	32	\N	20130412140152180-50	3	2013-04-12 14:01:52.179+02	\N	\N
-89	32	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.179+02	\N	\N
-90	32	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.179+02	\N	\N
-91	2	CONTAINER	\N	33	\N	20130412140152190-51	3	2013-04-12 14:01:52.19+02	\N	\N
-92	33	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.19+02	\N	\N
-93	33	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.19+02	\N	\N
-94	2	CONTAINER	\N	34	\N	20130412140152224-52	3	2013-04-12 14:01:52.224+02	\N	\N
-95	34	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.224+02	\N	\N
-96	34	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.224+02	\N	\N
-97	2	CONTAINER	\N	35	\N	20130412140152236-53	3	2013-04-12 14:01:52.235+02	\N	\N
-98	35	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.235+02	\N	\N
-99	35	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.235+02	\N	\N
-100	2	CONTAINER	\N	36	\N	20130412140152248-54	3	2013-04-12 14:01:52.247+02	\N	\N
-101	36	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.247+02	\N	\N
-102	36	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.247+02	\N	\N
-103	2	CONTAINER	\N	37	\N	20130412140152259-55	3	2013-04-12 14:01:52.258+02	\N	\N
-104	37	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.258+02	\N	\N
-105	37	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.258+02	\N	\N
-106	2	CONTAINER	\N	38	\N	20130412140152270-56	3	2013-04-12 14:01:52.269+02	\N	\N
-107	38	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.269+02	\N	\N
-108	38	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.269+02	\N	\N
-109	2	CONTAINER	\N	39	\N	20130412140152280-57	3	2013-04-12 14:01:52.28+02	\N	\N
-110	39	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.28+02	\N	\N
-111	39	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.28+02	\N	\N
-112	2	CONTAINER	\N	40	\N	20130412140152291-58	3	2013-04-12 14:01:52.291+02	\N	\N
-113	40	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.291+02	\N	\N
-114	40	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.291+02	\N	\N
-115	2	CONTAINER	\N	41	\N	20130412140152303-59	3	2013-04-12 14:01:52.302+02	\N	\N
-116	41	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.302+02	\N	\N
-117	41	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.302+02	\N	\N
-118	2	CONTAINER	\N	42	\N	20130412140152313-60	3	2013-04-12 14:01:52.313+02	\N	\N
-119	42	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.313+02	\N	\N
-120	42	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.313+02	\N	\N
-121	2	CONTAINER	\N	43	\N	20130412140152324-61	3	2013-04-12 14:01:52.324+02	\N	\N
-122	43	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.324+02	\N	\N
-123	43	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.324+02	\N	\N
-124	2	CONTAINER	\N	44	\N	20130412140152334-62	3	2013-04-12 14:01:52.334+02	\N	\N
-125	44	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.334+02	\N	\N
-126	44	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.334+02	\N	\N
-127	2	CONTAINER	\N	45	\N	20130412140152345-63	3	2013-04-12 14:01:52.344+02	\N	\N
-128	45	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.344+02	\N	\N
-129	45	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.344+02	\N	\N
-130	2	CONTAINER	\N	46	\N	20130412140152355-64	3	2013-04-12 14:01:52.355+02	\N	\N
-131	46	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.355+02	\N	\N
-132	46	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.355+02	\N	\N
-133	2	CONTAINER	\N	47	\N	20130412140152365-65	3	2013-04-12 14:01:52.365+02	\N	\N
-134	47	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.365+02	\N	\N
-135	47	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.365+02	\N	\N
-136	2	CONTAINER	\N	48	\N	20130412140152375-66	3	2013-04-12 14:01:52.375+02	\N	\N
-137	48	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.375+02	\N	\N
-138	48	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.375+02	\N	\N
-139	2	CONTAINER	\N	49	\N	20130412140152387-67	3	2013-04-12 14:01:52.386+02	\N	\N
-140	49	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.386+02	\N	\N
-141	49	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.386+02	\N	\N
-142	2	CONTAINER	\N	50	\N	20130412140152420-68	3	2013-04-12 14:01:52.419+02	\N	\N
-143	50	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.419+02	\N	\N
-144	50	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.419+02	\N	\N
-145	2	CONTAINER	\N	51	\N	20130412140152431-69	3	2013-04-12 14:01:52.431+02	\N	\N
-146	51	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.431+02	\N	\N
-147	51	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.431+02	\N	\N
-148	2	CONTAINER	\N	52	\N	20130412140152442-70	3	2013-04-12 14:01:52.441+02	\N	\N
-149	52	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.441+02	\N	\N
-150	52	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.441+02	\N	\N
-151	2	CONTAINER	\N	53	\N	20130412140152470-71	3	2013-04-12 14:01:52.47+02	\N	\N
-152	53	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.47+02	\N	\N
-153	53	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.47+02	\N	\N
-154	2	CONTAINER	\N	54	\N	20130412140152480-72	3	2013-04-12 14:01:52.48+02	\N	\N
-155	54	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.48+02	\N	\N
-156	54	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.48+02	\N	\N
-157	2	CONTAINER	\N	55	\N	20130412140152490-73	3	2013-04-12 14:01:52.49+02	\N	\N
-158	55	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.49+02	\N	\N
-159	55	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.49+02	\N	\N
-160	2	CONTAINER	\N	56	\N	20130412140152501-74	3	2013-04-12 14:01:52.5+02	\N	\N
-161	56	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.5+02	\N	\N
-162	56	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.5+02	\N	\N
-163	2	CONTAINER	\N	57	\N	20130412140152527-75	3	2013-04-12 14:01:52.527+02	\N	\N
-164	57	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.527+02	\N	\N
-165	57	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.527+02	\N	\N
-166	2	CONTAINER	\N	58	\N	20130412140152537-76	3	2013-04-12 14:01:52.537+02	\N	\N
-167	58	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.537+02	\N	\N
-168	58	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.537+02	\N	\N
-169	2	CONTAINER	\N	59	\N	20130412140152548-77	3	2013-04-12 14:01:52.547+02	\N	\N
-170	59	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.547+02	\N	\N
-171	59	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.547+02	\N	\N
-172	2	CONTAINER	\N	60	\N	20130412140152559-78	3	2013-04-12 14:01:52.558+02	\N	\N
-173	60	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.558+02	\N	\N
-174	60	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.558+02	\N	\N
-175	2	CONTAINER	\N	61	\N	20130412140152595-79	3	2013-04-12 14:01:52.594+02	\N	\N
-176	61	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.594+02	\N	\N
-177	61	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.594+02	\N	\N
-178	2	CONTAINER	\N	62	\N	20130412140152606-80	3	2013-04-12 14:01:52.606+02	\N	\N
-179	62	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.606+02	\N	\N
-180	62	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.606+02	\N	\N
-181	2	CONTAINER	\N	63	\N	20130412140152617-81	3	2013-04-12 14:01:52.617+02	\N	\N
-182	63	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.617+02	\N	\N
-183	63	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.617+02	\N	\N
-184	2	CONTAINER	\N	64	\N	20130412140152634-82	3	2013-04-12 14:01:52.633+02	\N	\N
-185	64	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.633+02	\N	\N
-186	64	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.633+02	\N	\N
-187	2	CONTAINER	\N	65	\N	20130412140152645-83	3	2013-04-12 14:01:52.644+02	\N	\N
-188	65	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.644+02	\N	\N
-189	65	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.644+02	\N	\N
-190	2	CONTAINER	\N	66	\N	20130412140152655-84	3	2013-04-12 14:01:52.655+02	\N	\N
-191	66	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.655+02	\N	\N
-192	66	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.655+02	\N	\N
-193	2	CONTAINER	\N	67	\N	20130412140152665-85	3	2013-04-12 14:01:52.665+02	\N	\N
-194	67	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.665+02	\N	\N
-195	67	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.665+02	\N	\N
-196	2	CONTAINER	\N	68	\N	20130412140152675-86	3	2013-04-12 14:01:52.675+02	\N	\N
-197	68	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.675+02	\N	\N
-198	68	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.675+02	\N	\N
-199	2	CONTAINER	\N	69	\N	20130412140152685-87	3	2013-04-12 14:01:52.685+02	\N	\N
-200	69	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.685+02	\N	\N
-201	69	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.685+02	\N	\N
-202	2	CONTAINER	\N	70	\N	20130412140152695-88	3	2013-04-12 14:01:52.695+02	\N	\N
-203	70	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.695+02	\N	\N
-204	70	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.695+02	\N	\N
-205	2	CONTAINER	\N	71	\N	20130412140152706-89	3	2013-04-12 14:01:52.705+02	\N	\N
-206	71	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.705+02	\N	\N
-207	71	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.705+02	\N	\N
-208	2	CONTAINER	\N	72	\N	20130412140152716-90	3	2013-04-12 14:01:52.716+02	\N	\N
-209	72	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.716+02	\N	\N
-210	72	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.716+02	\N	\N
-211	2	CONTAINER	\N	73	\N	20130412140152726-91	3	2013-04-12 14:01:52.726+02	\N	\N
-212	73	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.726+02	\N	\N
-213	73	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.726+02	\N	\N
-214	2	CONTAINER	\N	74	\N	20130412140152738-92	3	2013-04-12 14:01:52.737+02	\N	\N
-215	74	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.737+02	\N	\N
-216	74	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.737+02	\N	\N
-217	2	CONTAINER	\N	75	\N	20130412140152771-93	3	2013-04-12 14:01:52.771+02	\N	\N
-218	75	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.771+02	\N	\N
-219	75	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.771+02	\N	\N
-220	2	CONTAINER	\N	76	\N	20130412140152783-94	3	2013-04-12 14:01:52.782+02	\N	\N
-221	76	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.782+02	\N	\N
-222	76	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.782+02	\N	\N
-223	2	CONTAINER	\N	77	\N	20130412140152794-95	3	2013-04-12 14:01:52.793+02	\N	\N
-224	77	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.793+02	\N	\N
-225	77	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.793+02	\N	\N
-226	2	CONTAINER	\N	78	\N	20130412140152804-96	3	2013-04-12 14:01:52.803+02	\N	\N
-227	78	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.803+02	\N	\N
-228	78	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.803+02	\N	\N
-229	2	CONTAINER	\N	79	\N	20130412140152814-97	3	2013-04-12 14:01:52.814+02	\N	\N
-230	79	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.814+02	\N	\N
-231	79	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.814+02	\N	\N
-232	2	CONTAINER	\N	80	\N	20130412140152825-98	3	2013-04-12 14:01:52.824+02	\N	\N
-233	80	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.824+02	\N	\N
-234	80	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.824+02	\N	\N
-235	2	CONTAINER	\N	81	\N	20130412140152835-99	3	2013-04-12 14:01:52.834+02	\N	\N
-236	81	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.834+02	\N	\N
-237	81	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.834+02	\N	\N
-238	2	CONTAINER	\N	82	\N	20130412140152846-100	3	2013-04-12 14:01:52.845+02	\N	\N
-239	82	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.845+02	\N	\N
-240	82	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.845+02	\N	\N
-241	3	CONTAINER	\N	83	\N	20130412140152921-101	3	2013-04-12 14:01:52.921+02	\N	\N
-242	83	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.921+02	\N	\N
-243	83	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.921+02	\N	\N
-244	3	CONTAINER	\N	84	\N	20130412140152952-102	3	2013-04-12 14:01:52.951+02	\N	\N
-245	84	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.951+02	\N	\N
-246	84	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.951+02	\N	\N
-247	3	CONTAINER	\N	85	\N	20130412140152963-103	3	2013-04-12 14:01:52.962+02	\N	\N
-248	85	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.962+02	\N	\N
-249	85	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.962+02	\N	\N
-250	3	CONTAINER	\N	86	\N	20130412140152976-104	3	2013-04-12 14:01:52.975+02	\N	\N
-251	86	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.975+02	\N	\N
-252	86	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.975+02	\N	\N
-253	3	CONTAINER	\N	87	\N	20130412140152987-105	3	2013-04-12 14:01:52.986+02	\N	\N
-254	87	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.986+02	\N	\N
-255	87	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.986+02	\N	\N
-256	3	CONTAINER	\N	88	\N	20130412140152997-106	3	2013-04-12 14:01:52.997+02	\N	\N
-257	88	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.997+02	\N	\N
-258	88	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.997+02	\N	\N
-259	3	CONTAINER	\N	89	\N	20130412140153007-107	3	2013-04-12 14:01:53.007+02	\N	\N
-260	89	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.007+02	\N	\N
-261	89	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.007+02	\N	\N
-262	3	CONTAINER	\N	90	\N	20130412140153018-108	3	2013-04-12 14:01:53.017+02	\N	\N
-263	90	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.017+02	\N	\N
-264	90	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.017+02	\N	\N
-265	3	CONTAINER	\N	91	\N	20130412140153040-109	3	2013-04-12 14:01:53.039+02	\N	\N
-266	91	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.039+02	\N	\N
-267	91	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.039+02	\N	\N
-268	3	CONTAINER	\N	92	\N	20130412140153050-110	3	2013-04-12 14:01:53.05+02	\N	\N
-269	92	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.05+02	\N	\N
-270	92	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.05+02	\N	\N
-271	3	CONTAINER	\N	93	\N	20130412140153061-111	3	2013-04-12 14:01:53.06+02	\N	\N
-272	93	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.06+02	\N	\N
-273	93	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.06+02	\N	\N
-274	3	CONTAINER	\N	94	\N	20130412140153071-112	3	2013-04-12 14:01:53.07+02	\N	\N
-275	94	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.07+02	\N	\N
-276	94	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.07+02	\N	\N
-277	3	CONTAINER	\N	95	\N	20130412140153081-113	3	2013-04-12 14:01:53.081+02	\N	\N
-278	95	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.081+02	\N	\N
-279	95	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.081+02	\N	\N
-280	3	CONTAINER	\N	96	\N	20130412140153091-114	3	2013-04-12 14:01:53.091+02	\N	\N
-281	96	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.091+02	\N	\N
-282	96	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.091+02	\N	\N
-283	3	CONTAINER	\N	97	\N	20130412140153101-115	3	2013-04-12 14:01:53.101+02	\N	\N
-284	97	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.101+02	\N	\N
-285	97	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.101+02	\N	\N
-286	3	CONTAINER	\N	98	\N	20130412140153111-116	3	2013-04-12 14:01:53.111+02	\N	\N
-287	98	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.111+02	\N	\N
-288	98	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.111+02	\N	\N
-289	3	CONTAINER	\N	99	\N	20130412140153130-117	3	2013-04-12 14:01:53.129+02	\N	\N
-290	99	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.129+02	\N	\N
-291	99	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.129+02	\N	\N
-292	3	CONTAINER	\N	100	\N	20130412140153142-118	3	2013-04-12 14:01:53.142+02	\N	\N
-293	100	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.142+02	\N	\N
-294	100	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.142+02	\N	\N
-295	3	CONTAINER	\N	101	\N	20130412140153153-119	3	2013-04-12 14:01:53.152+02	\N	\N
-296	101	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.152+02	\N	\N
-297	101	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.152+02	\N	\N
-298	3	CONTAINER	\N	102	\N	20130412140153169-120	3	2013-04-12 14:01:53.169+02	\N	\N
-299	102	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.169+02	\N	\N
-300	102	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.169+02	\N	\N
-301	3	CONTAINER	\N	103	\N	20130412140153182-121	3	2013-04-12 14:01:53.181+02	\N	\N
-302	103	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.181+02	\N	\N
-303	103	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.181+02	\N	\N
-304	3	CONTAINER	\N	104	\N	20130412140153192-122	3	2013-04-12 14:01:53.192+02	\N	\N
-305	104	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.192+02	\N	\N
-306	104	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.192+02	\N	\N
-307	3	CONTAINER	\N	105	\N	20130412140153202-123	3	2013-04-12 14:01:53.202+02	\N	\N
-308	105	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.202+02	\N	\N
-309	105	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.202+02	\N	\N
-310	3	CONTAINER	\N	106	\N	20130412140153212-124	3	2013-04-12 14:01:53.212+02	\N	\N
-311	106	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.212+02	\N	\N
-312	106	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.212+02	\N	\N
-313	3	CONTAINER	\N	107	\N	20130412140153222-125	3	2013-04-12 14:01:53.222+02	\N	\N
-314	107	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.222+02	\N	\N
-315	107	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.222+02	\N	\N
-316	3	CONTAINER	\N	108	\N	20130412140153232-126	3	2013-04-12 14:01:53.232+02	\N	\N
-317	108	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.232+02	\N	\N
-318	108	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.232+02	\N	\N
-319	3	CONTAINER	\N	109	\N	20130412140153243-127	3	2013-04-12 14:01:53.242+02	\N	\N
-320	109	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.242+02	\N	\N
-321	109	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.242+02	\N	\N
-322	3	CONTAINER	\N	110	\N	20130412140153253-128	3	2013-04-12 14:01:53.253+02	\N	\N
-323	110	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.253+02	\N	\N
-324	110	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.253+02	\N	\N
-325	3	CONTAINER	\N	111	\N	20130412140153263-129	3	2013-04-12 14:01:53.263+02	\N	\N
-326	111	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.263+02	\N	\N
-327	111	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.263+02	\N	\N
-328	3	CONTAINER	\N	112	\N	20130412140153275-130	3	2013-04-12 14:01:53.275+02	\N	\N
-329	112	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.275+02	\N	\N
-330	112	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.275+02	\N	\N
-331	3	CONTAINER	\N	113	\N	20130412140153296-131	3	2013-04-12 14:01:53.296+02	\N	\N
-332	113	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.296+02	\N	\N
-333	113	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.296+02	\N	\N
-334	3	CONTAINER	\N	114	\N	20130412140153308-132	3	2013-04-12 14:01:53.307+02	\N	\N
-335	114	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.307+02	\N	\N
-336	114	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.307+02	\N	\N
-337	3	CONTAINER	\N	115	\N	20130412140153319-133	3	2013-04-12 14:01:53.319+02	\N	\N
-338	115	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.319+02	\N	\N
-339	115	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.319+02	\N	\N
-340	3	CONTAINER	\N	116	\N	20130412140153329-134	3	2013-04-12 14:01:53.329+02	\N	\N
-341	116	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.329+02	\N	\N
-342	116	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.329+02	\N	\N
-343	3	CONTAINER	\N	117	\N	20130412140153360-135	3	2013-04-12 14:01:53.36+02	\N	\N
-344	117	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.36+02	\N	\N
-345	117	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.36+02	\N	\N
-346	3	CONTAINER	\N	118	\N	20130412140153371-136	3	2013-04-12 14:01:53.371+02	\N	\N
-347	118	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.371+02	\N	\N
-348	118	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.371+02	\N	\N
-349	3	CONTAINER	\N	119	\N	20130412140153382-137	3	2013-04-12 14:01:53.382+02	\N	\N
-350	119	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.382+02	\N	\N
-351	119	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.382+02	\N	\N
-352	3	CONTAINER	\N	120	\N	20130412140153394-138	3	2013-04-12 14:01:53.393+02	\N	\N
-353	120	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.393+02	\N	\N
-354	120	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.393+02	\N	\N
-355	3	CONTAINER	\N	121	\N	20130412140153405-139	3	2013-04-12 14:01:53.404+02	\N	\N
-356	121	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.404+02	\N	\N
-357	121	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.404+02	\N	\N
-358	3	CONTAINER	\N	122	\N	20130412140153450-140	3	2013-04-12 14:01:53.449+02	\N	\N
-359	122	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.449+02	\N	\N
-360	122	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.449+02	\N	\N
-361	3	CONTAINER	\N	123	\N	20130412140153462-141	3	2013-04-12 14:01:53.462+02	\N	\N
-362	123	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.462+02	\N	\N
-363	123	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.462+02	\N	\N
-364	3	CONTAINER	\N	124	\N	20130412140153472-142	3	2013-04-12 14:01:53.472+02	\N	\N
-365	124	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.472+02	\N	\N
-366	124	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.472+02	\N	\N
-367	3	CONTAINER	\N	125	\N	20130412140153483-143	3	2013-04-12 14:01:53.482+02	\N	\N
-368	125	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.482+02	\N	\N
-369	125	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.482+02	\N	\N
-370	3	CONTAINER	\N	126	\N	20130412140153493-144	3	2013-04-12 14:01:53.492+02	\N	\N
-371	126	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.492+02	\N	\N
-372	126	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.492+02	\N	\N
-373	3	CONTAINER	\N	127	\N	20130412140153518-145	3	2013-04-12 14:01:53.517+02	\N	\N
-374	127	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.517+02	\N	\N
-375	127	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.517+02	\N	\N
-376	3	CONTAINER	\N	128	\N	20130412140153544-146	3	2013-04-12 14:01:53.544+02	\N	\N
-377	128	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.544+02	\N	\N
-378	128	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.544+02	\N	\N
-379	3	CONTAINER	\N	129	\N	20130412140153556-147	3	2013-04-12 14:01:53.555+02	\N	\N
-380	129	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.555+02	\N	\N
-381	129	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.555+02	\N	\N
-382	3	CONTAINER	\N	130	\N	20130412140153567-148	3	2013-04-12 14:01:53.566+02	\N	\N
-383	130	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.566+02	\N	\N
-384	130	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.566+02	\N	\N
-385	3	CONTAINER	\N	131	\N	20130412140153577-149	3	2013-04-12 14:01:53.577+02	\N	\N
-386	131	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.577+02	\N	\N
-387	131	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.577+02	\N	\N
-388	3	CONTAINER	\N	132	\N	20130412140153588-150	3	2013-04-12 14:01:53.587+02	\N	\N
-389	132	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.587+02	\N	\N
-390	132	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.587+02	\N	\N
-391	3	CONTAINER	\N	133	\N	20130412140153600-151	3	2013-04-12 14:01:53.599+02	\N	\N
-392	133	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.599+02	\N	\N
-393	133	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.599+02	\N	\N
-394	3	CONTAINER	\N	134	\N	20130412140153640-152	3	2013-04-12 14:01:53.64+02	\N	\N
-395	134	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.64+02	\N	\N
-396	134	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.64+02	\N	\N
-397	3	CONTAINER	\N	135	\N	20130412140153652-153	3	2013-04-12 14:01:53.651+02	\N	\N
-398	135	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.651+02	\N	\N
-399	135	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.651+02	\N	\N
-400	3	CONTAINER	\N	136	\N	20130412140153664-154	3	2013-04-12 14:01:53.664+02	\N	\N
-401	136	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.664+02	\N	\N
-402	136	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.664+02	\N	\N
-403	3	CONTAINER	\N	137	\N	20130412140153695-155	3	2013-04-12 14:01:53.695+02	\N	\N
-404	137	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.695+02	\N	\N
-405	137	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.695+02	\N	\N
-406	3	CONTAINER	\N	138	\N	20130412140153716-156	3	2013-04-12 14:01:53.715+02	\N	\N
-407	138	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.715+02	\N	\N
-408	138	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.715+02	\N	\N
-409	3	CONTAINER	\N	139	\N	20130412140153732-157	3	2013-04-12 14:01:53.731+02	\N	\N
-410	139	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.731+02	\N	\N
-411	139	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.731+02	\N	\N
-412	3	CONTAINER	\N	140	\N	20130412140153745-158	3	2013-04-12 14:01:53.744+02	\N	\N
-413	140	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.744+02	\N	\N
-414	140	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.744+02	\N	\N
-415	3	CONTAINER	\N	141	\N	20130412140153762-159	3	2013-04-12 14:01:53.762+02	\N	\N
-416	141	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.762+02	\N	\N
-417	141	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.762+02	\N	\N
-418	3	CONTAINER	\N	142	\N	20130412140153779-160	3	2013-04-12 14:01:53.779+02	\N	\N
-419	142	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.779+02	\N	\N
-420	142	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.779+02	\N	\N
-421	3	CONTAINER	\N	143	\N	20130412140153789-161	3	2013-04-12 14:01:53.789+02	\N	\N
-422	143	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.789+02	\N	\N
-423	143	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.789+02	\N	\N
-424	3	CONTAINER	\N	144	\N	20130412140153799-162	3	2013-04-12 14:01:53.799+02	\N	\N
-425	144	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.799+02	\N	\N
-426	144	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.799+02	\N	\N
-427	3	CONTAINER	\N	145	\N	20130412140153809-163	3	2013-04-12 14:01:53.809+02	\N	\N
-428	145	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.809+02	\N	\N
-429	145	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.809+02	\N	\N
-430	3	CONTAINER	\N	146	\N	20130412140153821-164	3	2013-04-12 14:01:53.82+02	\N	\N
-431	146	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.82+02	\N	\N
-432	146	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.82+02	\N	\N
-433	3	CONTAINER	\N	147	\N	20130412140153834-165	3	2013-04-12 14:01:53.833+02	\N	\N
-434	147	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.833+02	\N	\N
-435	147	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.833+02	\N	\N
-436	3	CONTAINER	\N	148	\N	20130412140153847-166	3	2013-04-12 14:01:53.846+02	\N	\N
-437	148	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.846+02	\N	\N
-438	148	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.846+02	\N	\N
-439	3	CONTAINER	\N	149	\N	20130412140153858-167	3	2013-04-12 14:01:53.858+02	\N	\N
-440	149	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.858+02	\N	\N
-441	149	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.858+02	\N	\N
-442	3	CONTAINER	\N	150	\N	20130412140153869-168	3	2013-04-12 14:01:53.869+02	\N	\N
-443	150	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.869+02	\N	\N
-444	150	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.869+02	\N	\N
-445	3	CONTAINER	\N	151	\N	20130412140153881-169	3	2013-04-12 14:01:53.88+02	\N	\N
-446	151	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.88+02	\N	\N
-447	151	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.88+02	\N	\N
-448	3	CONTAINER	\N	152	\N	20130412140153911-170	3	2013-04-12 14:01:53.91+02	\N	\N
-449	152	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.91+02	\N	\N
-450	152	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.91+02	\N	\N
-451	3	CONTAINER	\N	153	\N	20130412140153925-171	3	2013-04-12 14:01:53.925+02	\N	\N
-452	153	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.925+02	\N	\N
-453	153	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.925+02	\N	\N
-454	3	CONTAINER	\N	154	\N	20130412140153936-172	3	2013-04-12 14:01:53.935+02	\N	\N
-455	154	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.935+02	\N	\N
-456	154	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.935+02	\N	\N
-457	3	CONTAINER	\N	155	\N	20130412140153947-173	3	2013-04-12 14:01:53.947+02	\N	\N
-458	155	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.947+02	\N	\N
-459	155	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.947+02	\N	\N
-460	3	CONTAINER	\N	156	\N	20130412140153997-174	3	2013-04-12 14:01:53.997+02	\N	\N
-461	156	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.997+02	\N	\N
-462	156	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.997+02	\N	\N
-463	3	CONTAINER	\N	157	\N	20130412140154008-175	3	2013-04-12 14:01:54.007+02	\N	\N
-464	157	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.007+02	\N	\N
-465	157	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.007+02	\N	\N
-466	3	CONTAINER	\N	158	\N	20130412140154041-176	3	2013-04-12 14:01:54.041+02	\N	\N
-467	158	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.041+02	\N	\N
-468	158	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.041+02	\N	\N
-469	3	CONTAINER	\N	159	\N	20130412140154054-177	3	2013-04-12 14:01:54.053+02	\N	\N
-470	159	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.053+02	\N	\N
-471	159	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.053+02	\N	\N
-472	3	CONTAINER	\N	160	\N	20130412140154072-178	3	2013-04-12 14:01:54.072+02	\N	\N
-473	160	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.072+02	\N	\N
-474	160	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.072+02	\N	\N
-475	3	CONTAINER	\N	161	\N	20130412140154083-179	3	2013-04-12 14:01:54.082+02	\N	\N
-476	161	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.082+02	\N	\N
-477	161	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.082+02	\N	\N
-478	3	CONTAINER	\N	162	\N	20130412140154093-180	3	2013-04-12 14:01:54.092+02	\N	\N
-479	162	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.092+02	\N	\N
-480	162	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.092+02	\N	\N
-481	3	CONTAINER	\N	163	\N	20130412140154103-181	3	2013-04-12 14:01:54.102+02	\N	\N
-482	163	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.102+02	\N	\N
-483	163	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.102+02	\N	\N
-484	3	CONTAINER	\N	164	\N	20130412140154112-182	3	2013-04-12 14:01:54.112+02	\N	\N
-485	164	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.112+02	\N	\N
-486	164	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.112+02	\N	\N
-487	3	CONTAINER	\N	165	\N	20130412140154122-183	3	2013-04-12 14:01:54.122+02	\N	\N
-488	165	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.122+02	\N	\N
-489	165	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.122+02	\N	\N
-490	3	CONTAINER	\N	166	\N	20130412140154132-184	3	2013-04-12 14:01:54.132+02	\N	\N
-491	166	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.132+02	\N	\N
-492	166	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.132+02	\N	\N
-493	3	CONTAINER	\N	167	\N	20130412140154143-185	3	2013-04-12 14:01:54.142+02	\N	\N
-494	167	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.142+02	\N	\N
-495	167	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.142+02	\N	\N
-496	3	CONTAINER	\N	168	\N	20130412140154153-186	3	2013-04-12 14:01:54.152+02	\N	\N
-497	168	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.152+02	\N	\N
-498	168	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.152+02	\N	\N
-499	3	CONTAINER	\N	169	\N	20130412140154163-187	3	2013-04-12 14:01:54.163+02	\N	\N
-500	169	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.163+02	\N	\N
-501	169	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.163+02	\N	\N
-502	3	CONTAINER	\N	170	\N	20130412140154174-188	3	2013-04-12 14:01:54.173+02	\N	\N
-503	170	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.173+02	\N	\N
-504	170	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.173+02	\N	\N
-505	3	CONTAINER	\N	171	\N	20130412140154184-189	3	2013-04-12 14:01:54.183+02	\N	\N
-506	171	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.183+02	\N	\N
-507	171	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.183+02	\N	\N
-508	3	CONTAINER	\N	172	\N	20130412140154194-190	3	2013-04-12 14:01:54.193+02	\N	\N
-509	172	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.193+02	\N	\N
-510	172	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.193+02	\N	\N
-512	2	OWNER	\N	\N	2	20130412142942295-198	2	2013-04-12 14:31:31.106+02	\N	\N
-513	2	OWNER	\N	\N	3	20130412142205843-196	2	2013-04-12 14:31:31.717+02	\N	\N
-514	2	OWNER	\N	\N	4	20130412143119901-199	2	2013-04-12 14:31:32.074+02	\N	\N
-515	2	OWNER	\N	\N	5	20130412142543232-197	2	2013-04-12 14:31:32.421+02	\N	\N
-516	2	OWNER	\N	\N	6	20130412143121081-200	2	2013-04-12 14:31:32.79+02	\N	\N
-518	173	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.024+02	\N	\N
-519	174	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.128+02	\N	\N
-520	173	CONTAINER	\N	175	\N	20130412150557759-207	3	2013-04-12 15:05:57.759+02	\N	\N
-521	175	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.759+02	\N	\N
-522	175	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.759+02	\N	\N
-523	173	CONTAINER	\N	176	\N	20130412150557772-208	3	2013-04-12 15:05:57.771+02	\N	\N
-524	176	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.771+02	\N	\N
-525	176	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.771+02	\N	\N
-526	173	CONTAINER	\N	177	\N	20130412150557784-209	3	2013-04-12 15:05:57.784+02	\N	\N
-527	177	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.784+02	\N	\N
-528	177	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.784+02	\N	\N
-529	173	CONTAINER	\N	178	\N	20130412150557796-210	3	2013-04-12 15:05:57.796+02	\N	\N
-530	178	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.796+02	\N	\N
-531	178	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.796+02	\N	\N
-532	173	CONTAINER	\N	179	\N	20130412150557807-211	3	2013-04-12 15:05:57.807+02	\N	\N
-533	179	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.807+02	\N	\N
-534	179	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.807+02	\N	\N
-535	173	CONTAINER	\N	180	\N	20130412150557818-212	3	2013-04-12 15:05:57.818+02	\N	\N
-536	180	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.818+02	\N	\N
-537	180	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.818+02	\N	\N
-538	173	CONTAINER	\N	181	\N	20130412150557829-213	3	2013-04-12 15:05:57.828+02	\N	\N
-539	181	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.828+02	\N	\N
-540	181	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.828+02	\N	\N
-541	173	CONTAINER	\N	182	\N	20130412150557840-214	3	2013-04-12 15:05:57.84+02	\N	\N
-542	182	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.84+02	\N	\N
-543	182	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.84+02	\N	\N
-544	173	CONTAINER	\N	183	\N	20130412150557851-215	3	2013-04-12 15:05:57.85+02	\N	\N
-545	183	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.85+02	\N	\N
-546	183	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.85+02	\N	\N
-547	173	CONTAINER	\N	184	\N	20130412150557862-216	3	2013-04-12 15:05:57.861+02	\N	\N
-548	184	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.861+02	\N	\N
-549	184	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.861+02	\N	\N
-550	173	CONTAINER	\N	185	\N	20130412150557873-217	3	2013-04-12 15:05:57.873+02	\N	\N
-551	185	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.873+02	\N	\N
-552	185	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.873+02	\N	\N
-553	173	CONTAINER	\N	186	\N	20130412150557884-218	3	2013-04-12 15:05:57.883+02	\N	\N
-554	186	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.883+02	\N	\N
-555	186	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.883+02	\N	\N
-556	173	CONTAINER	\N	187	\N	20130412150557895-219	3	2013-04-12 15:05:57.894+02	\N	\N
-557	187	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.894+02	\N	\N
-558	187	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.894+02	\N	\N
-559	173	CONTAINER	\N	188	\N	20130412150557907-220	3	2013-04-12 15:05:57.906+02	\N	\N
-560	188	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.906+02	\N	\N
-561	188	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.906+02	\N	\N
-562	173	CONTAINER	\N	189	\N	20130412150557922-221	3	2013-04-12 15:05:57.922+02	\N	\N
-563	189	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.922+02	\N	\N
-564	189	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.922+02	\N	\N
-565	173	CONTAINER	\N	190	\N	20130412150557934-222	3	2013-04-12 15:05:57.934+02	\N	\N
-566	190	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.934+02	\N	\N
-567	190	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.934+02	\N	\N
-568	173	CONTAINER	\N	191	\N	20130412150557945-223	3	2013-04-12 15:05:57.945+02	\N	\N
-569	191	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.945+02	\N	\N
-570	191	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.945+02	\N	\N
-571	173	CONTAINER	\N	192	\N	20130412150557957-224	3	2013-04-12 15:05:57.957+02	\N	\N
-572	192	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.957+02	\N	\N
-573	192	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.957+02	\N	\N
-574	173	CONTAINER	\N	193	\N	20130412150557970-225	3	2013-04-12 15:05:57.969+02	\N	\N
-575	193	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.969+02	\N	\N
-576	193	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.969+02	\N	\N
-577	173	CONTAINER	\N	194	\N	20130412150557981-226	3	2013-04-12 15:05:57.981+02	\N	\N
-578	194	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.981+02	\N	\N
-579	194	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.981+02	\N	\N
-580	173	CONTAINER	\N	195	\N	20130412150557993-227	3	2013-04-12 15:05:57.993+02	\N	\N
-581	195	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.993+02	\N	\N
-582	195	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.993+02	\N	\N
-583	173	CONTAINER	\N	196	\N	20130412150558005-228	3	2013-04-12 15:05:58.004+02	\N	\N
-584	196	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.004+02	\N	\N
-585	196	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.004+02	\N	\N
-586	173	CONTAINER	\N	197	\N	20130412150558017-229	3	2013-04-12 15:05:58.016+02	\N	\N
-587	197	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.016+02	\N	\N
-588	197	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.016+02	\N	\N
-589	173	CONTAINER	\N	198	\N	20130412150558029-230	3	2013-04-12 15:05:58.028+02	\N	\N
-590	198	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.028+02	\N	\N
-591	198	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.028+02	\N	\N
-592	173	CONTAINER	\N	199	\N	20130412150558040-231	3	2013-04-12 15:05:58.04+02	\N	\N
-593	199	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.04+02	\N	\N
-594	199	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.04+02	\N	\N
-595	173	CONTAINER	\N	200	\N	20130412150558052-232	3	2013-04-12 15:05:58.052+02	\N	\N
-596	200	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.052+02	\N	\N
-597	200	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.052+02	\N	\N
-598	173	CONTAINER	\N	201	\N	20130412150558064-233	3	2013-04-12 15:05:58.063+02	\N	\N
-599	201	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.063+02	\N	\N
-600	201	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.063+02	\N	\N
-601	173	CONTAINER	\N	202	\N	20130412150558075-234	3	2013-04-12 15:05:58.074+02	\N	\N
-602	202	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.074+02	\N	\N
-603	202	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.074+02	\N	\N
-604	173	CONTAINER	\N	203	\N	20130412150558085-235	3	2013-04-12 15:05:58.085+02	\N	\N
-605	203	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.085+02	\N	\N
-606	203	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.085+02	\N	\N
-607	173	CONTAINER	\N	204	\N	20130412150558096-236	3	2013-04-12 15:05:58.095+02	\N	\N
-608	204	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.095+02	\N	\N
-609	204	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.095+02	\N	\N
-610	173	CONTAINER	\N	205	\N	20130412150558106-237	3	2013-04-12 15:05:58.106+02	\N	\N
-611	205	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.106+02	\N	\N
-612	205	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.106+02	\N	\N
-613	173	CONTAINER	\N	206	\N	20130412150558117-238	3	2013-04-12 15:05:58.116+02	\N	\N
-614	206	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.116+02	\N	\N
-615	206	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.116+02	\N	\N
-616	173	CONTAINER	\N	207	\N	20130412150558127-239	3	2013-04-12 15:05:58.126+02	\N	\N
-617	207	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.126+02	\N	\N
-618	207	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.126+02	\N	\N
-619	173	CONTAINER	\N	208	\N	20130412150558137-240	3	2013-04-12 15:05:58.136+02	\N	\N
-620	208	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.136+02	\N	\N
-621	208	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.136+02	\N	\N
-622	173	CONTAINER	\N	209	\N	20130412150558148-241	3	2013-04-12 15:05:58.147+02	\N	\N
-623	209	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.147+02	\N	\N
-624	209	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.147+02	\N	\N
-625	173	CONTAINER	\N	210	\N	20130412150558159-242	3	2013-04-12 15:05:58.159+02	\N	\N
-626	210	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.159+02	\N	\N
-627	210	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.159+02	\N	\N
-628	173	CONTAINER	\N	211	\N	20130412150558170-243	3	2013-04-12 15:05:58.169+02	\N	\N
-629	211	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.169+02	\N	\N
-630	211	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.169+02	\N	\N
-631	173	CONTAINER	\N	212	\N	20130412150558181-244	3	2013-04-12 15:05:58.18+02	\N	\N
-632	212	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.18+02	\N	\N
-633	212	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.18+02	\N	\N
-634	173	CONTAINER	\N	213	\N	20130412150558191-245	3	2013-04-12 15:05:58.191+02	\N	\N
-635	213	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.191+02	\N	\N
-636	213	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.191+02	\N	\N
-637	173	CONTAINER	\N	214	\N	20130412150558202-246	3	2013-04-12 15:05:58.202+02	\N	\N
-638	214	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.202+02	\N	\N
-639	214	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.202+02	\N	\N
-640	173	CONTAINER	\N	215	\N	20130412150558213-247	3	2013-04-12 15:05:58.212+02	\N	\N
-641	215	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.212+02	\N	\N
-642	215	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.212+02	\N	\N
-643	173	CONTAINER	\N	216	\N	20130412150558224-248	3	2013-04-12 15:05:58.223+02	\N	\N
-644	216	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.223+02	\N	\N
-645	216	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.223+02	\N	\N
-646	173	CONTAINER	\N	217	\N	20130412150558234-249	3	2013-04-12 15:05:58.234+02	\N	\N
-647	217	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.234+02	\N	\N
-648	217	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.234+02	\N	\N
-649	173	CONTAINER	\N	218	\N	20130412150558245-250	3	2013-04-12 15:05:58.244+02	\N	\N
-650	218	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.244+02	\N	\N
-651	218	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.244+02	\N	\N
-652	173	CONTAINER	\N	219	\N	20130412150558256-251	3	2013-04-12 15:05:58.255+02	\N	\N
-653	219	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.255+02	\N	\N
-654	219	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.255+02	\N	\N
-655	173	CONTAINER	\N	220	\N	20130412150558267-252	3	2013-04-12 15:05:58.267+02	\N	\N
-656	220	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.267+02	\N	\N
-657	220	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.267+02	\N	\N
-658	173	CONTAINER	\N	221	\N	20130412150558278-253	3	2013-04-12 15:05:58.278+02	\N	\N
-659	221	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.278+02	\N	\N
-660	221	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.278+02	\N	\N
-661	173	CONTAINER	\N	222	\N	20130412150558289-254	3	2013-04-12 15:05:58.289+02	\N	\N
-662	222	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.289+02	\N	\N
-663	222	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.289+02	\N	\N
-664	173	CONTAINER	\N	223	\N	20130412150558302-255	3	2013-04-12 15:05:58.301+02	\N	\N
-665	223	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.301+02	\N	\N
-666	223	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.301+02	\N	\N
-667	173	CONTAINER	\N	224	\N	20130412150558313-256	3	2013-04-12 15:05:58.312+02	\N	\N
-668	224	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.312+02	\N	\N
-669	224	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.312+02	\N	\N
-670	173	CONTAINER	\N	225	\N	20130412150558324-257	3	2013-04-12 15:05:58.323+02	\N	\N
-671	225	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.323+02	\N	\N
-672	225	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.323+02	\N	\N
-673	173	CONTAINER	\N	226	\N	20130412150558335-258	3	2013-04-12 15:05:58.334+02	\N	\N
-674	226	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.334+02	\N	\N
-675	226	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.334+02	\N	\N
-676	173	CONTAINER	\N	227	\N	20130412150558346-259	3	2013-04-12 15:05:58.345+02	\N	\N
-677	227	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.345+02	\N	\N
-678	227	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.345+02	\N	\N
-679	173	CONTAINER	\N	228	\N	20130412150558356-260	3	2013-04-12 15:05:58.356+02	\N	\N
-680	228	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.356+02	\N	\N
-681	228	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.356+02	\N	\N
-682	173	CONTAINER	\N	229	\N	20130412150558367-261	3	2013-04-12 15:05:58.366+02	\N	\N
-683	229	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.366+02	\N	\N
-684	229	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.366+02	\N	\N
-685	173	CONTAINER	\N	230	\N	20130412150558377-262	3	2013-04-12 15:05:58.377+02	\N	\N
-686	230	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.377+02	\N	\N
-687	230	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.377+02	\N	\N
-688	173	CONTAINER	\N	231	\N	20130412150558388-263	3	2013-04-12 15:05:58.388+02	\N	\N
-689	231	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.388+02	\N	\N
-690	231	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.388+02	\N	\N
-691	173	CONTAINER	\N	232	\N	20130412150558399-264	3	2013-04-12 15:05:58.399+02	\N	\N
-692	232	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.399+02	\N	\N
-693	232	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.399+02	\N	\N
-694	173	CONTAINER	\N	233	\N	20130412150558410-265	3	2013-04-12 15:05:58.41+02	\N	\N
-695	233	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.41+02	\N	\N
-696	233	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.41+02	\N	\N
-697	173	CONTAINER	\N	234	\N	20130412150558421-266	3	2013-04-12 15:05:58.42+02	\N	\N
-698	234	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.42+02	\N	\N
-699	234	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.42+02	\N	\N
-700	173	CONTAINER	\N	235	\N	20130412150558431-267	3	2013-04-12 15:05:58.43+02	\N	\N
-701	235	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.43+02	\N	\N
-702	235	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.43+02	\N	\N
-703	173	CONTAINER	\N	236	\N	20130412150558441-268	3	2013-04-12 15:05:58.441+02	\N	\N
-704	236	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.441+02	\N	\N
-705	236	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.441+02	\N	\N
-706	173	CONTAINER	\N	237	\N	20130412150558452-269	3	2013-04-12 15:05:58.451+02	\N	\N
-707	237	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.451+02	\N	\N
-708	237	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.451+02	\N	\N
-709	173	CONTAINER	\N	238	\N	20130412150558462-270	3	2013-04-12 15:05:58.462+02	\N	\N
-710	238	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.462+02	\N	\N
-711	238	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.462+02	\N	\N
-712	173	CONTAINER	\N	239	\N	20130412150558474-271	3	2013-04-12 15:05:58.473+02	\N	\N
-713	239	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.473+02	\N	\N
-714	239	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.473+02	\N	\N
-715	173	CONTAINER	\N	240	\N	20130412150558485-272	3	2013-04-12 15:05:58.485+02	\N	\N
-716	240	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.485+02	\N	\N
-717	240	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.485+02	\N	\N
-718	173	CONTAINER	\N	241	\N	20130412150558496-273	3	2013-04-12 15:05:58.495+02	\N	\N
-719	241	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.495+02	\N	\N
-720	241	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.495+02	\N	\N
-721	173	CONTAINER	\N	242	\N	20130412150558506-274	3	2013-04-12 15:05:58.505+02	\N	\N
-722	242	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.505+02	\N	\N
-723	242	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.505+02	\N	\N
-724	173	CONTAINER	\N	243	\N	20130412150558517-275	3	2013-04-12 15:05:58.516+02	\N	\N
-725	243	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.516+02	\N	\N
-726	243	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.516+02	\N	\N
-727	173	CONTAINER	\N	244	\N	20130412150558527-276	3	2013-04-12 15:05:58.527+02	\N	\N
-728	244	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.527+02	\N	\N
-729	244	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.527+02	\N	\N
-730	173	CONTAINER	\N	245	\N	20130412150558538-277	3	2013-04-12 15:05:58.537+02	\N	\N
-731	245	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.537+02	\N	\N
-732	245	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.537+02	\N	\N
-733	173	CONTAINER	\N	246	\N	20130412150558548-278	3	2013-04-12 15:05:58.547+02	\N	\N
-734	246	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.547+02	\N	\N
-735	246	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.547+02	\N	\N
-736	173	CONTAINER	\N	247	\N	20130412150558558-279	3	2013-04-12 15:05:58.558+02	\N	\N
-737	247	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.558+02	\N	\N
-738	247	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.558+02	\N	\N
-739	173	CONTAINER	\N	248	\N	20130412150558569-280	3	2013-04-12 15:05:58.568+02	\N	\N
-740	248	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.568+02	\N	\N
-741	248	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.568+02	\N	\N
-742	173	CONTAINER	\N	249	\N	20130412150558579-281	3	2013-04-12 15:05:58.579+02	\N	\N
-743	249	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.579+02	\N	\N
-744	249	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.579+02	\N	\N
-745	173	CONTAINER	\N	250	\N	20130412150558590-282	3	2013-04-12 15:05:58.589+02	\N	\N
-746	250	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.589+02	\N	\N
-747	250	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.589+02	\N	\N
-748	173	CONTAINER	\N	251	\N	20130412150558600-283	3	2013-04-12 15:05:58.6+02	\N	\N
-749	251	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.6+02	\N	\N
-750	251	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.6+02	\N	\N
-751	173	CONTAINER	\N	252	\N	20130412150558611-284	3	2013-04-12 15:05:58.61+02	\N	\N
-752	252	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.61+02	\N	\N
-753	252	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.61+02	\N	\N
-754	173	CONTAINER	\N	253	\N	20130412150558621-285	3	2013-04-12 15:05:58.62+02	\N	\N
-755	253	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.62+02	\N	\N
-756	253	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.62+02	\N	\N
-757	174	CONTAINER	\N	254	\N	20130412150558709-286	3	2013-04-12 15:05:58.708+02	\N	\N
-758	254	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.708+02	\N	\N
-759	254	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.708+02	\N	\N
-760	174	CONTAINER	\N	255	\N	20130412150558720-287	3	2013-04-12 15:05:58.719+02	\N	\N
-761	255	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.719+02	\N	\N
-762	255	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.719+02	\N	\N
-763	174	CONTAINER	\N	256	\N	20130412150558731-288	3	2013-04-12 15:05:58.73+02	\N	\N
-764	256	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.73+02	\N	\N
-765	256	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.73+02	\N	\N
-766	174	CONTAINER	\N	257	\N	20130412150558742-289	3	2013-04-12 15:05:58.741+02	\N	\N
-767	257	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.741+02	\N	\N
-768	257	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.741+02	\N	\N
-769	174	CONTAINER	\N	258	\N	20130412150558752-290	3	2013-04-12 15:05:58.752+02	\N	\N
-770	258	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.752+02	\N	\N
-771	258	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.752+02	\N	\N
-772	174	CONTAINER	\N	259	\N	20130412150558763-291	3	2013-04-12 15:05:58.762+02	\N	\N
-773	259	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.762+02	\N	\N
-774	259	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.762+02	\N	\N
-775	174	CONTAINER	\N	260	\N	20130412150558773-292	3	2013-04-12 15:05:58.773+02	\N	\N
-776	260	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.773+02	\N	\N
-777	260	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.773+02	\N	\N
-778	174	CONTAINER	\N	261	\N	20130412150558784-293	3	2013-04-12 15:05:58.784+02	\N	\N
-779	261	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.784+02	\N	\N
-780	261	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.784+02	\N	\N
-781	174	CONTAINER	\N	262	\N	20130412150558796-294	3	2013-04-12 15:05:58.795+02	\N	\N
-782	262	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.795+02	\N	\N
-783	262	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.795+02	\N	\N
-784	174	CONTAINER	\N	263	\N	20130412150558807-295	3	2013-04-12 15:05:58.807+02	\N	\N
-785	263	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.807+02	\N	\N
-786	263	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.807+02	\N	\N
-787	174	CONTAINER	\N	264	\N	20130412150558818-296	3	2013-04-12 15:05:58.818+02	\N	\N
-788	264	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.818+02	\N	\N
-789	264	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.818+02	\N	\N
-790	174	CONTAINER	\N	265	\N	20130412150558828-297	3	2013-04-12 15:05:58.828+02	\N	\N
-791	265	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.828+02	\N	\N
-792	265	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.828+02	\N	\N
-793	174	CONTAINER	\N	266	\N	20130412150558839-298	3	2013-04-12 15:05:58.838+02	\N	\N
-794	266	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.838+02	\N	\N
-795	266	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.838+02	\N	\N
-796	174	CONTAINER	\N	267	\N	20130412150558849-299	3	2013-04-12 15:05:58.849+02	\N	\N
-797	267	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.849+02	\N	\N
-798	267	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.849+02	\N	\N
-799	174	CONTAINER	\N	268	\N	20130412150558860-300	3	2013-04-12 15:05:58.859+02	\N	\N
-800	268	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.859+02	\N	\N
-801	268	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.859+02	\N	\N
-802	174	CONTAINER	\N	269	\N	20130412150558870-301	3	2013-04-12 15:05:58.869+02	\N	\N
-803	269	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.869+02	\N	\N
-804	269	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.869+02	\N	\N
-805	174	CONTAINER	\N	270	\N	20130412150558881-302	3	2013-04-12 15:05:58.88+02	\N	\N
-806	270	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.88+02	\N	\N
-807	270	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.88+02	\N	\N
-808	174	CONTAINER	\N	271	\N	20130412150558892-303	3	2013-04-12 15:05:58.892+02	\N	\N
-809	271	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.892+02	\N	\N
-810	271	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.892+02	\N	\N
-811	174	CONTAINER	\N	272	\N	20130412150558904-304	3	2013-04-12 15:05:58.903+02	\N	\N
-812	272	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.903+02	\N	\N
-813	272	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.903+02	\N	\N
-814	174	CONTAINER	\N	273	\N	20130412150558915-305	3	2013-04-12 15:05:58.914+02	\N	\N
-815	273	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.914+02	\N	\N
-816	273	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.914+02	\N	\N
-817	174	CONTAINER	\N	274	\N	20130412150558925-306	3	2013-04-12 15:05:58.925+02	\N	\N
-818	274	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.925+02	\N	\N
-819	274	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.925+02	\N	\N
-820	174	CONTAINER	\N	275	\N	20130412150558936-307	3	2013-04-12 15:05:58.935+02	\N	\N
-821	275	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.935+02	\N	\N
-822	275	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.935+02	\N	\N
-823	174	CONTAINER	\N	276	\N	20130412150558947-308	3	2013-04-12 15:05:58.946+02	\N	\N
-824	276	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.946+02	\N	\N
-825	276	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.946+02	\N	\N
-826	174	CONTAINER	\N	277	\N	20130412150558957-309	3	2013-04-12 15:05:58.957+02	\N	\N
-827	277	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.957+02	\N	\N
-828	277	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.957+02	\N	\N
-829	174	CONTAINER	\N	278	\N	20130412150558968-310	3	2013-04-12 15:05:58.967+02	\N	\N
-830	278	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.967+02	\N	\N
-831	278	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.967+02	\N	\N
-832	174	CONTAINER	\N	279	\N	20130412150558978-311	3	2013-04-12 15:05:58.978+02	\N	\N
-833	279	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.978+02	\N	\N
-834	279	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.978+02	\N	\N
-835	174	CONTAINER	\N	280	\N	20130412150558989-312	3	2013-04-12 15:05:58.988+02	\N	\N
-836	280	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.988+02	\N	\N
-837	280	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.988+02	\N	\N
-838	174	CONTAINER	\N	281	\N	20130412150558999-313	3	2013-04-12 15:05:58.999+02	\N	\N
-839	281	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.999+02	\N	\N
-840	281	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.999+02	\N	\N
-841	174	CONTAINER	\N	282	\N	20130412150559009-314	3	2013-04-12 15:05:59.009+02	\N	\N
-842	282	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.009+02	\N	\N
-843	282	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.009+02	\N	\N
-844	174	CONTAINER	\N	283	\N	20130412150559020-315	3	2013-04-12 15:05:59.02+02	\N	\N
-845	283	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.02+02	\N	\N
-846	283	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.02+02	\N	\N
-847	174	CONTAINER	\N	284	\N	20130412150559031-316	3	2013-04-12 15:05:59.03+02	\N	\N
-848	284	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.03+02	\N	\N
-849	284	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.03+02	\N	\N
-850	174	CONTAINER	\N	285	\N	20130412150559041-317	3	2013-04-12 15:05:59.041+02	\N	\N
-851	285	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.041+02	\N	\N
-852	285	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.041+02	\N	\N
-853	174	CONTAINER	\N	286	\N	20130412150559052-318	3	2013-04-12 15:05:59.051+02	\N	\N
-854	286	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.051+02	\N	\N
-855	286	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.051+02	\N	\N
-856	174	CONTAINER	\N	287	\N	20130412150559063-319	3	2013-04-12 15:05:59.062+02	\N	\N
-857	287	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.062+02	\N	\N
-858	287	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.062+02	\N	\N
-859	174	CONTAINER	\N	288	\N	20130412150559074-320	3	2013-04-12 15:05:59.073+02	\N	\N
-860	288	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.073+02	\N	\N
-861	288	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.073+02	\N	\N
-862	174	CONTAINER	\N	289	\N	20130412150559085-321	3	2013-04-12 15:05:59.085+02	\N	\N
-863	289	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.085+02	\N	\N
-864	289	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.085+02	\N	\N
-865	174	CONTAINER	\N	290	\N	20130412150559097-322	3	2013-04-12 15:05:59.096+02	\N	\N
-866	290	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.096+02	\N	\N
-867	290	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.096+02	\N	\N
-868	174	CONTAINER	\N	291	\N	20130412150559109-323	3	2013-04-12 15:05:59.108+02	\N	\N
-869	291	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.108+02	\N	\N
-870	291	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.108+02	\N	\N
-871	174	CONTAINER	\N	292	\N	20130412150559120-324	3	2013-04-12 15:05:59.119+02	\N	\N
-872	292	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.119+02	\N	\N
-873	292	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.119+02	\N	\N
-874	174	CONTAINER	\N	293	\N	20130412150559131-325	3	2013-04-12 15:05:59.13+02	\N	\N
-875	293	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.13+02	\N	\N
-876	293	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.13+02	\N	\N
-877	174	CONTAINER	\N	294	\N	20130412150559143-326	3	2013-04-12 15:05:59.143+02	\N	\N
-878	294	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.143+02	\N	\N
-879	294	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.143+02	\N	\N
-880	174	CONTAINER	\N	295	\N	20130412150559160-327	3	2013-04-12 15:05:59.16+02	\N	\N
-881	295	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.16+02	\N	\N
-882	295	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.16+02	\N	\N
-883	174	CONTAINER	\N	296	\N	20130412150559173-328	3	2013-04-12 15:05:59.172+02	\N	\N
-884	296	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.172+02	\N	\N
-885	296	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.172+02	\N	\N
-886	174	CONTAINER	\N	297	\N	20130412150559186-329	3	2013-04-12 15:05:59.185+02	\N	\N
-887	297	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.185+02	\N	\N
-888	297	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.185+02	\N	\N
-889	174	CONTAINER	\N	298	\N	20130412150559198-330	3	2013-04-12 15:05:59.198+02	\N	\N
-890	298	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.198+02	\N	\N
-891	298	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.198+02	\N	\N
-892	174	CONTAINER	\N	299	\N	20130412150559210-331	3	2013-04-12 15:05:59.209+02	\N	\N
-893	299	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.209+02	\N	\N
-894	299	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.209+02	\N	\N
-895	174	CONTAINER	\N	300	\N	20130412150559222-332	3	2013-04-12 15:05:59.221+02	\N	\N
-896	300	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.221+02	\N	\N
-897	300	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.221+02	\N	\N
-898	174	CONTAINER	\N	301	\N	20130412150559234-333	3	2013-04-12 15:05:59.233+02	\N	\N
-899	301	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.233+02	\N	\N
-900	301	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.233+02	\N	\N
-901	174	CONTAINER	\N	302	\N	20130412150559247-334	3	2013-04-12 15:05:59.246+02	\N	\N
-902	302	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.246+02	\N	\N
-903	302	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.246+02	\N	\N
-904	174	CONTAINER	\N	303	\N	20130412150559258-335	3	2013-04-12 15:05:59.258+02	\N	\N
-905	303	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.258+02	\N	\N
-906	303	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.258+02	\N	\N
-907	174	CONTAINER	\N	304	\N	20130412150559270-336	3	2013-04-12 15:05:59.269+02	\N	\N
-908	304	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.269+02	\N	\N
-909	304	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.269+02	\N	\N
-910	174	CONTAINER	\N	305	\N	20130412150559280-337	3	2013-04-12 15:05:59.28+02	\N	\N
-911	305	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.28+02	\N	\N
-912	305	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.28+02	\N	\N
-913	174	CONTAINER	\N	306	\N	20130412150559291-338	3	2013-04-12 15:05:59.291+02	\N	\N
-914	306	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.291+02	\N	\N
-915	306	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.291+02	\N	\N
-916	174	CONTAINER	\N	307	\N	20130412150559302-339	3	2013-04-12 15:05:59.301+02	\N	\N
-917	307	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.301+02	\N	\N
-918	307	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.301+02	\N	\N
-919	174	CONTAINER	\N	308	\N	20130412150559312-340	3	2013-04-12 15:05:59.312+02	\N	\N
-920	308	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.312+02	\N	\N
-921	308	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.312+02	\N	\N
-922	174	CONTAINER	\N	309	\N	20130412150559323-341	3	2013-04-12 15:05:59.322+02	\N	\N
-923	309	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.322+02	\N	\N
-924	309	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.322+02	\N	\N
-925	174	CONTAINER	\N	310	\N	20130412150559333-342	3	2013-04-12 15:05:59.332+02	\N	\N
-926	310	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.332+02	\N	\N
-927	310	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.332+02	\N	\N
-928	174	CONTAINER	\N	311	\N	20130412150559344-343	3	2013-04-12 15:05:59.343+02	\N	\N
-929	311	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.343+02	\N	\N
-930	311	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.343+02	\N	\N
-931	174	CONTAINER	\N	312	\N	20130412150559354-344	3	2013-04-12 15:05:59.354+02	\N	\N
-932	312	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.354+02	\N	\N
-933	312	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.354+02	\N	\N
-934	174	CONTAINER	\N	313	\N	20130412150559364-345	3	2013-04-12 15:05:59.364+02	\N	\N
-935	313	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.364+02	\N	\N
-936	313	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.364+02	\N	\N
-937	174	CONTAINER	\N	314	\N	20130412150559375-346	3	2013-04-12 15:05:59.375+02	\N	\N
-938	314	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.375+02	\N	\N
-939	314	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.375+02	\N	\N
-940	174	CONTAINER	\N	315	\N	20130412150559385-347	3	2013-04-12 15:05:59.385+02	\N	\N
-941	315	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.385+02	\N	\N
-942	315	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.385+02	\N	\N
-943	174	CONTAINER	\N	316	\N	20130412150559396-348	3	2013-04-12 15:05:59.395+02	\N	\N
-944	316	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.395+02	\N	\N
-945	316	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.395+02	\N	\N
-946	174	CONTAINER	\N	317	\N	20130412150559406-349	3	2013-04-12 15:05:59.406+02	\N	\N
-947	317	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.406+02	\N	\N
-948	317	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.406+02	\N	\N
-949	174	CONTAINER	\N	318	\N	20130412150559417-350	3	2013-04-12 15:05:59.416+02	\N	\N
-950	318	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.416+02	\N	\N
-951	318	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.416+02	\N	\N
-952	174	CONTAINER	\N	319	\N	20130412150559427-351	3	2013-04-12 15:05:59.427+02	\N	\N
-953	319	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.427+02	\N	\N
-954	319	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.427+02	\N	\N
-955	174	CONTAINER	\N	320	\N	20130412150559438-352	3	2013-04-12 15:05:59.437+02	\N	\N
-956	320	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.437+02	\N	\N
-957	320	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.437+02	\N	\N
-958	174	CONTAINER	\N	321	\N	20130412150559449-353	3	2013-04-12 15:05:59.448+02	\N	\N
-959	321	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.448+02	\N	\N
-960	321	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.448+02	\N	\N
-961	174	CONTAINER	\N	322	\N	20130412150559460-354	3	2013-04-12 15:05:59.46+02	\N	\N
-962	322	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.46+02	\N	\N
-963	322	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.46+02	\N	\N
-964	174	CONTAINER	\N	323	\N	20130412150559471-355	3	2013-04-12 15:05:59.471+02	\N	\N
-965	323	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.471+02	\N	\N
-966	323	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.471+02	\N	\N
-967	174	CONTAINER	\N	324	\N	20130412150559482-356	3	2013-04-12 15:05:59.481+02	\N	\N
-968	324	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.481+02	\N	\N
-969	324	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.481+02	\N	\N
-970	174	CONTAINER	\N	325	\N	20130412150559492-357	3	2013-04-12 15:05:59.491+02	\N	\N
-971	325	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.491+02	\N	\N
-972	325	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.491+02	\N	\N
-973	174	CONTAINER	\N	326	\N	20130412150559502-358	3	2013-04-12 15:05:59.501+02	\N	\N
-974	326	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.501+02	\N	\N
-975	326	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.501+02	\N	\N
-976	174	CONTAINER	\N	327	\N	20130412150559512-359	3	2013-04-12 15:05:59.512+02	\N	\N
-977	327	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.512+02	\N	\N
-978	327	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.512+02	\N	\N
-979	174	CONTAINER	\N	328	\N	20130412150559523-360	3	2013-04-12 15:05:59.522+02	\N	\N
-980	328	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.522+02	\N	\N
-981	328	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.522+02	\N	\N
-982	174	CONTAINER	\N	329	\N	20130412150559533-361	3	2013-04-12 15:05:59.533+02	\N	\N
-983	329	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.533+02	\N	\N
-984	329	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.533+02	\N	\N
-985	174	CONTAINER	\N	330	\N	20130412150559544-362	3	2013-04-12 15:05:59.543+02	\N	\N
-986	330	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.543+02	\N	\N
-987	330	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.543+02	\N	\N
-988	174	CONTAINER	\N	331	\N	20130412150559554-363	3	2013-04-12 15:05:59.554+02	\N	\N
-989	331	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.554+02	\N	\N
-990	331	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.554+02	\N	\N
-991	174	CONTAINER	\N	332	\N	20130412150559565-364	3	2013-04-12 15:05:59.564+02	\N	\N
-992	332	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.564+02	\N	\N
-993	332	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.564+02	\N	\N
-994	174	CONTAINER	\N	333	\N	20130412150559575-365	3	2013-04-12 15:05:59.575+02	\N	\N
-995	333	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.575+02	\N	\N
-996	333	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.575+02	\N	\N
-997	174	CONTAINER	\N	334	\N	20130412150559586-366	3	2013-04-12 15:05:59.585+02	\N	\N
-998	334	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.585+02	\N	\N
-999	334	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.585+02	\N	\N
-1000	174	CONTAINER	\N	335	\N	20130412150559596-367	3	2013-04-12 15:05:59.596+02	\N	\N
-1001	335	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.596+02	\N	\N
-1002	335	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.596+02	\N	\N
-1003	174	CONTAINER	\N	336	\N	20130412150559607-368	3	2013-04-12 15:05:59.606+02	\N	\N
-1004	336	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.606+02	\N	\N
-1005	336	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.606+02	\N	\N
-1006	174	CONTAINER	\N	337	\N	20130412150559617-369	3	2013-04-12 15:05:59.617+02	\N	\N
-1007	337	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.617+02	\N	\N
-1008	337	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.617+02	\N	\N
-1009	174	CONTAINER	\N	338	\N	20130412150559628-370	3	2013-04-12 15:05:59.627+02	\N	\N
-1010	338	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.627+02	\N	\N
-1011	338	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.627+02	\N	\N
-1012	174	CONTAINER	\N	339	\N	20130412150559639-371	3	2013-04-12 15:05:59.638+02	\N	\N
-1013	339	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.638+02	\N	\N
-1014	339	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.638+02	\N	\N
-1015	174	CONTAINER	\N	340	\N	20130412150559649-372	3	2013-04-12 15:05:59.649+02	\N	\N
-1016	340	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.649+02	\N	\N
-1017	340	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.649+02	\N	\N
-1018	174	CONTAINER	\N	341	\N	20130412150559659-373	3	2013-04-12 15:05:59.659+02	\N	\N
-1019	341	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.659+02	\N	\N
-1020	341	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.659+02	\N	\N
-1021	174	CONTAINER	\N	342	\N	20130412150559671-374	3	2013-04-12 15:05:59.67+02	\N	\N
-1022	342	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.67+02	\N	\N
-1023	342	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.67+02	\N	\N
-1024	174	CONTAINER	\N	343	\N	20130412150559681-375	3	2013-04-12 15:05:59.681+02	\N	\N
-1025	343	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.681+02	\N	\N
-1026	343	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.681+02	\N	\N
-1027	173	OWNER	\N	\N	8	20130412151710024-379	2	2013-04-12 15:20:49.452+02	\N	\N
-1028	173	OWNER	\N	\N	9	20130412152036861-380	2	2013-04-12 15:20:49.869+02	\N	\N
-1029	173	OWNER	\N	\N	10	20130412152038345-381	2	2013-04-12 15:20:50.204+02	\N	\N
-1031	2	OWNER	\N	\N	12	20130412153118625-384	2	2013-04-12 15:31:23.741+02	\N	\N
-1032	2	OWNER	\N	\N	13	20130412153119864-385	2	2013-04-12 15:31:24.338+02	\N	\N
-1033	2	OWNER	\N	\N	17	20130412153659994-391	2	2013-04-12 15:37:03.109+02	\N	\N
-1040	345	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:19:23.381+02	\N	\N
-1041	346	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:57:48.361+02	\N	\N
-1042	347	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:58:23.219+02	\N	\N
-1043	345	PARENT	\N	347	\N	20130415095823341-405	3	2013-04-15 09:58:23.387+02	\N	\N
-1044	347	CHILD	\N	345	\N	20130415091923485-402	3	2013-04-15 09:58:23.387+02	\N	\N
-1045	348	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:58:28.095+02	\N	\N
-1046	345	PARENT	\N	348	\N	20130415095828217-406	3	2013-04-15 09:58:28.22+02	\N	\N
-1047	348	CHILD	\N	345	\N	20130415091923485-402	3	2013-04-15 09:58:28.22+02	\N	\N
-1048	346	PARENT	\N	345	\N	20130415091923485-402	3	2013-04-15 09:58:50.054+02	\N	\N
-1049	345	CHILD	\N	346	\N	20130415095748527-404	3	2013-04-15 09:58:50.054+02	\N	\N
-1050	345	OWNER	\N	\N	21	20130415093804724-403	3	2013-04-15 10:12:40.811+02	\N	\N
-1055	350	OWNED	5	\N	\N	20130412155138019-396	3	2013-04-17 09:49:11.832+02	\N	\N
-1056	350	OWNER	\N	\N	28	20130417094936021-428	2	2013-04-17 09:49:41.525+02	\N	\N
-1057	350	OWNER	\N	\N	29	20130417094934693-427	2	2013-04-17 09:49:42.056+02	\N	\N
-1058	350	OWNER	\N	\N	30	20130417094937144-429	2	2013-04-17 09:49:42.458+02	\N	\N
-1059	351	OWNED	\N	\N	\N	TEST	3	2013-04-24 13:46:57.44+02	\N	3
-1060	351	CONTAINER	\N	352	\N	20130424134721644-434	3	2013-04-24 13:47:21.633+02	\N	\N
-1061	352	CONTAINED	\N	351	\N	20130424134657597-433	3	2013-04-24 13:47:21.633+02	\N	\N
-1062	352	OWNED	\N	\N	\N	TEST	3	2013-04-24 13:47:21.633+02	\N	3
-1063	351	CONTAINER	\N	353	\N	20130424134742549-435	3	2013-04-24 13:47:42.541+02	\N	\N
-1064	353	CONTAINED	\N	351	\N	20130424134657597-433	3	2013-04-24 13:47:42.541+02	\N	\N
-1065	353	OWNED	\N	\N	\N	TEST	3	2013-04-24 13:47:42.541+02	\N	3
-1066	2	OWNER	\N	\N	31	20130424111751432-431	3	2013-05-15 15:19:52.209+02	\N	\N
-1067	2	OWNER	\N	\N	32	20130424111751209-430	3	2013-05-15 15:20:11.306+02	\N	\N
-1068	2	OWNER	\N	\N	16	20130412153659945-390	3	2013-05-15 15:20:29.57+02	\N	\N
+COPY sample_relationships_history (id, main_samp_id, relation_type, expe_id, samp_id, data_id, entity_perm_id, pers_id_author, valid_from_timestamp, valid_until_timestamp, space_id, proj_id) FROM stdin;
+2	2	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:47.477+02	\N	\N	\N
+3	3	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:47.735+02	\N	\N	\N
+4	2	CONTAINER	\N	4	\N	20130412140151638-22	3	2013-04-12 14:01:51.636+02	\N	\N	\N
+5	4	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.636+02	\N	\N	\N
+6	4	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.636+02	\N	\N	\N
+7	2	CONTAINER	\N	5	\N	20130412140151651-23	3	2013-04-12 14:01:51.651+02	\N	\N	\N
+8	5	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.651+02	\N	\N	\N
+9	5	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.651+02	\N	\N	\N
+10	2	CONTAINER	\N	6	\N	20130412140151661-24	3	2013-04-12 14:01:51.661+02	\N	\N	\N
+11	6	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.661+02	\N	\N	\N
+12	6	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.661+02	\N	\N	\N
+13	2	CONTAINER	\N	7	\N	20130412140151672-25	3	2013-04-12 14:01:51.672+02	\N	\N	\N
+14	7	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.672+02	\N	\N	\N
+15	7	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.672+02	\N	\N	\N
+16	2	CONTAINER	\N	8	\N	20130412140151683-26	3	2013-04-12 14:01:51.682+02	\N	\N	\N
+17	8	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.682+02	\N	\N	\N
+18	8	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.682+02	\N	\N	\N
+19	2	CONTAINER	\N	9	\N	20130412140151750-27	3	2013-04-12 14:01:51.749+02	\N	\N	\N
+20	9	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.749+02	\N	\N	\N
+21	9	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.749+02	\N	\N	\N
+22	2	CONTAINER	\N	10	\N	20130412140151792-28	3	2013-04-12 14:01:51.791+02	\N	\N	\N
+23	10	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.791+02	\N	\N	\N
+24	10	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.791+02	\N	\N	\N
+25	2	CONTAINER	\N	11	\N	20130412140151848-29	3	2013-04-12 14:01:51.848+02	\N	\N	\N
+26	11	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.848+02	\N	\N	\N
+27	11	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.848+02	\N	\N	\N
+28	2	CONTAINER	\N	12	\N	20130412140151886-30	3	2013-04-12 14:01:51.885+02	\N	\N	\N
+29	12	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.885+02	\N	\N	\N
+30	12	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.885+02	\N	\N	\N
+31	2	CONTAINER	\N	13	\N	20130412140151918-31	3	2013-04-12 14:01:51.917+02	\N	\N	\N
+32	13	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.917+02	\N	\N	\N
+33	13	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.917+02	\N	\N	\N
+34	2	CONTAINER	\N	14	\N	20130412140151949-32	3	2013-04-12 14:01:51.948+02	\N	\N	\N
+35	14	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.948+02	\N	\N	\N
+36	14	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.948+02	\N	\N	\N
+37	2	CONTAINER	\N	15	\N	20130412140151970-33	3	2013-04-12 14:01:51.969+02	\N	\N	\N
+38	15	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.969+02	\N	\N	\N
+39	15	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.969+02	\N	\N	\N
+40	2	CONTAINER	\N	16	\N	20130412140151987-34	3	2013-04-12 14:01:51.986+02	\N	\N	\N
+41	16	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.986+02	\N	\N	\N
+42	16	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.986+02	\N	\N	\N
+43	2	CONTAINER	\N	17	\N	20130412140151999-35	3	2013-04-12 14:01:51.998+02	\N	\N	\N
+44	17	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:51.998+02	\N	\N	\N
+45	17	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:51.998+02	\N	\N	\N
+46	2	CONTAINER	\N	18	\N	20130412140152009-36	3	2013-04-12 14:01:52.009+02	\N	\N	\N
+47	18	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.009+02	\N	\N	\N
+48	18	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.009+02	\N	\N	\N
+49	2	CONTAINER	\N	19	\N	20130412140152021-37	3	2013-04-12 14:01:52.02+02	\N	\N	\N
+50	19	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.02+02	\N	\N	\N
+51	19	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.02+02	\N	\N	\N
+52	2	CONTAINER	\N	20	\N	20130412140152031-38	3	2013-04-12 14:01:52.03+02	\N	\N	\N
+53	20	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.03+02	\N	\N	\N
+54	20	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.03+02	\N	\N	\N
+55	2	CONTAINER	\N	21	\N	20130412140152041-39	3	2013-04-12 14:01:52.04+02	\N	\N	\N
+56	21	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.04+02	\N	\N	\N
+57	21	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.04+02	\N	\N	\N
+58	2	CONTAINER	\N	22	\N	20130412140152052-40	3	2013-04-12 14:01:52.051+02	\N	\N	\N
+59	22	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.051+02	\N	\N	\N
+60	22	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.051+02	\N	\N	\N
+61	2	CONTAINER	\N	23	\N	20130412140152084-41	3	2013-04-12 14:01:52.083+02	\N	\N	\N
+62	23	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.083+02	\N	\N	\N
+63	23	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.083+02	\N	\N	\N
+64	2	CONTAINER	\N	24	\N	20130412140152095-42	3	2013-04-12 14:01:52.094+02	\N	\N	\N
+65	24	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.094+02	\N	\N	\N
+66	24	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.094+02	\N	\N	\N
+67	2	CONTAINER	\N	25	\N	20130412140152106-43	3	2013-04-12 14:01:52.106+02	\N	\N	\N
+68	25	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.106+02	\N	\N	\N
+69	25	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.106+02	\N	\N	\N
+70	2	CONTAINER	\N	26	\N	20130412140152117-44	3	2013-04-12 14:01:52.116+02	\N	\N	\N
+71	26	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.116+02	\N	\N	\N
+72	26	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.116+02	\N	\N	\N
+73	2	CONTAINER	\N	27	\N	20130412140152127-45	3	2013-04-12 14:01:52.127+02	\N	\N	\N
+74	27	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.127+02	\N	\N	\N
+75	27	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.127+02	\N	\N	\N
+76	2	CONTAINER	\N	28	\N	20130412140152138-46	3	2013-04-12 14:01:52.137+02	\N	\N	\N
+77	28	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.137+02	\N	\N	\N
+78	28	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.137+02	\N	\N	\N
+79	2	CONTAINER	\N	29	\N	20130412140152148-47	3	2013-04-12 14:01:52.147+02	\N	\N	\N
+80	29	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.147+02	\N	\N	\N
+81	29	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.147+02	\N	\N	\N
+82	2	CONTAINER	\N	30	\N	20130412140152159-48	3	2013-04-12 14:01:52.158+02	\N	\N	\N
+83	30	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.158+02	\N	\N	\N
+84	30	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.158+02	\N	\N	\N
+85	2	CONTAINER	\N	31	\N	20130412140152169-49	3	2013-04-12 14:01:52.169+02	\N	\N	\N
+86	31	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.169+02	\N	\N	\N
+87	31	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.169+02	\N	\N	\N
+88	2	CONTAINER	\N	32	\N	20130412140152180-50	3	2013-04-12 14:01:52.179+02	\N	\N	\N
+89	32	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.179+02	\N	\N	\N
+90	32	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.179+02	\N	\N	\N
+91	2	CONTAINER	\N	33	\N	20130412140152190-51	3	2013-04-12 14:01:52.19+02	\N	\N	\N
+92	33	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.19+02	\N	\N	\N
+93	33	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.19+02	\N	\N	\N
+94	2	CONTAINER	\N	34	\N	20130412140152224-52	3	2013-04-12 14:01:52.224+02	\N	\N	\N
+95	34	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.224+02	\N	\N	\N
+96	34	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.224+02	\N	\N	\N
+97	2	CONTAINER	\N	35	\N	20130412140152236-53	3	2013-04-12 14:01:52.235+02	\N	\N	\N
+98	35	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.235+02	\N	\N	\N
+99	35	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.235+02	\N	\N	\N
+100	2	CONTAINER	\N	36	\N	20130412140152248-54	3	2013-04-12 14:01:52.247+02	\N	\N	\N
+101	36	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.247+02	\N	\N	\N
+102	36	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.247+02	\N	\N	\N
+103	2	CONTAINER	\N	37	\N	20130412140152259-55	3	2013-04-12 14:01:52.258+02	\N	\N	\N
+104	37	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.258+02	\N	\N	\N
+105	37	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.258+02	\N	\N	\N
+106	2	CONTAINER	\N	38	\N	20130412140152270-56	3	2013-04-12 14:01:52.269+02	\N	\N	\N
+107	38	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.269+02	\N	\N	\N
+108	38	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.269+02	\N	\N	\N
+109	2	CONTAINER	\N	39	\N	20130412140152280-57	3	2013-04-12 14:01:52.28+02	\N	\N	\N
+110	39	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.28+02	\N	\N	\N
+111	39	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.28+02	\N	\N	\N
+112	2	CONTAINER	\N	40	\N	20130412140152291-58	3	2013-04-12 14:01:52.291+02	\N	\N	\N
+113	40	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.291+02	\N	\N	\N
+114	40	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.291+02	\N	\N	\N
+115	2	CONTAINER	\N	41	\N	20130412140152303-59	3	2013-04-12 14:01:52.302+02	\N	\N	\N
+116	41	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.302+02	\N	\N	\N
+117	41	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.302+02	\N	\N	\N
+118	2	CONTAINER	\N	42	\N	20130412140152313-60	3	2013-04-12 14:01:52.313+02	\N	\N	\N
+119	42	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.313+02	\N	\N	\N
+120	42	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.313+02	\N	\N	\N
+121	2	CONTAINER	\N	43	\N	20130412140152324-61	3	2013-04-12 14:01:52.324+02	\N	\N	\N
+122	43	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.324+02	\N	\N	\N
+123	43	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.324+02	\N	\N	\N
+124	2	CONTAINER	\N	44	\N	20130412140152334-62	3	2013-04-12 14:01:52.334+02	\N	\N	\N
+125	44	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.334+02	\N	\N	\N
+126	44	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.334+02	\N	\N	\N
+127	2	CONTAINER	\N	45	\N	20130412140152345-63	3	2013-04-12 14:01:52.344+02	\N	\N	\N
+128	45	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.344+02	\N	\N	\N
+129	45	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.344+02	\N	\N	\N
+130	2	CONTAINER	\N	46	\N	20130412140152355-64	3	2013-04-12 14:01:52.355+02	\N	\N	\N
+131	46	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.355+02	\N	\N	\N
+132	46	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.355+02	\N	\N	\N
+133	2	CONTAINER	\N	47	\N	20130412140152365-65	3	2013-04-12 14:01:52.365+02	\N	\N	\N
+134	47	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.365+02	\N	\N	\N
+135	47	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.365+02	\N	\N	\N
+136	2	CONTAINER	\N	48	\N	20130412140152375-66	3	2013-04-12 14:01:52.375+02	\N	\N	\N
+137	48	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.375+02	\N	\N	\N
+138	48	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.375+02	\N	\N	\N
+139	2	CONTAINER	\N	49	\N	20130412140152387-67	3	2013-04-12 14:01:52.386+02	\N	\N	\N
+140	49	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.386+02	\N	\N	\N
+141	49	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.386+02	\N	\N	\N
+142	2	CONTAINER	\N	50	\N	20130412140152420-68	3	2013-04-12 14:01:52.419+02	\N	\N	\N
+143	50	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.419+02	\N	\N	\N
+144	50	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.419+02	\N	\N	\N
+145	2	CONTAINER	\N	51	\N	20130412140152431-69	3	2013-04-12 14:01:52.431+02	\N	\N	\N
+146	51	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.431+02	\N	\N	\N
+147	51	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.431+02	\N	\N	\N
+148	2	CONTAINER	\N	52	\N	20130412140152442-70	3	2013-04-12 14:01:52.441+02	\N	\N	\N
+149	52	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.441+02	\N	\N	\N
+150	52	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.441+02	\N	\N	\N
+151	2	CONTAINER	\N	53	\N	20130412140152470-71	3	2013-04-12 14:01:52.47+02	\N	\N	\N
+152	53	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.47+02	\N	\N	\N
+153	53	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.47+02	\N	\N	\N
+154	2	CONTAINER	\N	54	\N	20130412140152480-72	3	2013-04-12 14:01:52.48+02	\N	\N	\N
+155	54	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.48+02	\N	\N	\N
+156	54	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.48+02	\N	\N	\N
+157	2	CONTAINER	\N	55	\N	20130412140152490-73	3	2013-04-12 14:01:52.49+02	\N	\N	\N
+158	55	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.49+02	\N	\N	\N
+159	55	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.49+02	\N	\N	\N
+160	2	CONTAINER	\N	56	\N	20130412140152501-74	3	2013-04-12 14:01:52.5+02	\N	\N	\N
+161	56	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.5+02	\N	\N	\N
+162	56	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.5+02	\N	\N	\N
+163	2	CONTAINER	\N	57	\N	20130412140152527-75	3	2013-04-12 14:01:52.527+02	\N	\N	\N
+164	57	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.527+02	\N	\N	\N
+165	57	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.527+02	\N	\N	\N
+166	2	CONTAINER	\N	58	\N	20130412140152537-76	3	2013-04-12 14:01:52.537+02	\N	\N	\N
+167	58	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.537+02	\N	\N	\N
+168	58	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.537+02	\N	\N	\N
+169	2	CONTAINER	\N	59	\N	20130412140152548-77	3	2013-04-12 14:01:52.547+02	\N	\N	\N
+170	59	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.547+02	\N	\N	\N
+171	59	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.547+02	\N	\N	\N
+172	2	CONTAINER	\N	60	\N	20130412140152559-78	3	2013-04-12 14:01:52.558+02	\N	\N	\N
+173	60	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.558+02	\N	\N	\N
+174	60	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.558+02	\N	\N	\N
+175	2	CONTAINER	\N	61	\N	20130412140152595-79	3	2013-04-12 14:01:52.594+02	\N	\N	\N
+176	61	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.594+02	\N	\N	\N
+177	61	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.594+02	\N	\N	\N
+178	2	CONTAINER	\N	62	\N	20130412140152606-80	3	2013-04-12 14:01:52.606+02	\N	\N	\N
+179	62	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.606+02	\N	\N	\N
+180	62	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.606+02	\N	\N	\N
+181	2	CONTAINER	\N	63	\N	20130412140152617-81	3	2013-04-12 14:01:52.617+02	\N	\N	\N
+182	63	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.617+02	\N	\N	\N
+183	63	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.617+02	\N	\N	\N
+184	2	CONTAINER	\N	64	\N	20130412140152634-82	3	2013-04-12 14:01:52.633+02	\N	\N	\N
+185	64	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.633+02	\N	\N	\N
+186	64	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.633+02	\N	\N	\N
+187	2	CONTAINER	\N	65	\N	20130412140152645-83	3	2013-04-12 14:01:52.644+02	\N	\N	\N
+188	65	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.644+02	\N	\N	\N
+189	65	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.644+02	\N	\N	\N
+190	2	CONTAINER	\N	66	\N	20130412140152655-84	3	2013-04-12 14:01:52.655+02	\N	\N	\N
+191	66	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.655+02	\N	\N	\N
+192	66	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.655+02	\N	\N	\N
+193	2	CONTAINER	\N	67	\N	20130412140152665-85	3	2013-04-12 14:01:52.665+02	\N	\N	\N
+194	67	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.665+02	\N	\N	\N
+195	67	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.665+02	\N	\N	\N
+196	2	CONTAINER	\N	68	\N	20130412140152675-86	3	2013-04-12 14:01:52.675+02	\N	\N	\N
+197	68	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.675+02	\N	\N	\N
+198	68	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.675+02	\N	\N	\N
+199	2	CONTAINER	\N	69	\N	20130412140152685-87	3	2013-04-12 14:01:52.685+02	\N	\N	\N
+200	69	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.685+02	\N	\N	\N
+201	69	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.685+02	\N	\N	\N
+202	2	CONTAINER	\N	70	\N	20130412140152695-88	3	2013-04-12 14:01:52.695+02	\N	\N	\N
+203	70	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.695+02	\N	\N	\N
+204	70	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.695+02	\N	\N	\N
+205	2	CONTAINER	\N	71	\N	20130412140152706-89	3	2013-04-12 14:01:52.705+02	\N	\N	\N
+206	71	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.705+02	\N	\N	\N
+207	71	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.705+02	\N	\N	\N
+208	2	CONTAINER	\N	72	\N	20130412140152716-90	3	2013-04-12 14:01:52.716+02	\N	\N	\N
+209	72	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.716+02	\N	\N	\N
+210	72	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.716+02	\N	\N	\N
+211	2	CONTAINER	\N	73	\N	20130412140152726-91	3	2013-04-12 14:01:52.726+02	\N	\N	\N
+212	73	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.726+02	\N	\N	\N
+213	73	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.726+02	\N	\N	\N
+214	2	CONTAINER	\N	74	\N	20130412140152738-92	3	2013-04-12 14:01:52.737+02	\N	\N	\N
+215	74	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.737+02	\N	\N	\N
+216	74	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.737+02	\N	\N	\N
+217	2	CONTAINER	\N	75	\N	20130412140152771-93	3	2013-04-12 14:01:52.771+02	\N	\N	\N
+218	75	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.771+02	\N	\N	\N
+219	75	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.771+02	\N	\N	\N
+220	2	CONTAINER	\N	76	\N	20130412140152783-94	3	2013-04-12 14:01:52.782+02	\N	\N	\N
+221	76	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.782+02	\N	\N	\N
+222	76	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.782+02	\N	\N	\N
+223	2	CONTAINER	\N	77	\N	20130412140152794-95	3	2013-04-12 14:01:52.793+02	\N	\N	\N
+224	77	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.793+02	\N	\N	\N
+225	77	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.793+02	\N	\N	\N
+226	2	CONTAINER	\N	78	\N	20130412140152804-96	3	2013-04-12 14:01:52.803+02	\N	\N	\N
+227	78	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.803+02	\N	\N	\N
+228	78	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.803+02	\N	\N	\N
+229	2	CONTAINER	\N	79	\N	20130412140152814-97	3	2013-04-12 14:01:52.814+02	\N	\N	\N
+230	79	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.814+02	\N	\N	\N
+231	79	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.814+02	\N	\N	\N
+232	2	CONTAINER	\N	80	\N	20130412140152825-98	3	2013-04-12 14:01:52.824+02	\N	\N	\N
+233	80	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.824+02	\N	\N	\N
+234	80	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.824+02	\N	\N	\N
+235	2	CONTAINER	\N	81	\N	20130412140152835-99	3	2013-04-12 14:01:52.834+02	\N	\N	\N
+236	81	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.834+02	\N	\N	\N
+237	81	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.834+02	\N	\N	\N
+238	2	CONTAINER	\N	82	\N	20130412140152846-100	3	2013-04-12 14:01:52.845+02	\N	\N	\N
+239	82	CONTAINED	\N	2	\N	20130412140147735-20	3	2013-04-12 14:01:52.845+02	\N	\N	\N
+240	82	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.845+02	\N	\N	\N
+241	3	CONTAINER	\N	83	\N	20130412140152921-101	3	2013-04-12 14:01:52.921+02	\N	\N	\N
+242	83	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.921+02	\N	\N	\N
+243	83	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.921+02	\N	\N	\N
+244	3	CONTAINER	\N	84	\N	20130412140152952-102	3	2013-04-12 14:01:52.951+02	\N	\N	\N
+245	84	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.951+02	\N	\N	\N
+246	84	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.951+02	\N	\N	\N
+247	3	CONTAINER	\N	85	\N	20130412140152963-103	3	2013-04-12 14:01:52.962+02	\N	\N	\N
+248	85	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.962+02	\N	\N	\N
+249	85	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.962+02	\N	\N	\N
+250	3	CONTAINER	\N	86	\N	20130412140152976-104	3	2013-04-12 14:01:52.975+02	\N	\N	\N
+251	86	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.975+02	\N	\N	\N
+252	86	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.975+02	\N	\N	\N
+253	3	CONTAINER	\N	87	\N	20130412140152987-105	3	2013-04-12 14:01:52.986+02	\N	\N	\N
+254	87	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.986+02	\N	\N	\N
+255	87	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.986+02	\N	\N	\N
+256	3	CONTAINER	\N	88	\N	20130412140152997-106	3	2013-04-12 14:01:52.997+02	\N	\N	\N
+257	88	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:52.997+02	\N	\N	\N
+258	88	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:52.997+02	\N	\N	\N
+259	3	CONTAINER	\N	89	\N	20130412140153007-107	3	2013-04-12 14:01:53.007+02	\N	\N	\N
+260	89	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.007+02	\N	\N	\N
+261	89	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.007+02	\N	\N	\N
+262	3	CONTAINER	\N	90	\N	20130412140153018-108	3	2013-04-12 14:01:53.017+02	\N	\N	\N
+263	90	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.017+02	\N	\N	\N
+264	90	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.017+02	\N	\N	\N
+265	3	CONTAINER	\N	91	\N	20130412140153040-109	3	2013-04-12 14:01:53.039+02	\N	\N	\N
+266	91	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.039+02	\N	\N	\N
+267	91	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.039+02	\N	\N	\N
+268	3	CONTAINER	\N	92	\N	20130412140153050-110	3	2013-04-12 14:01:53.05+02	\N	\N	\N
+269	92	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.05+02	\N	\N	\N
+270	92	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.05+02	\N	\N	\N
+271	3	CONTAINER	\N	93	\N	20130412140153061-111	3	2013-04-12 14:01:53.06+02	\N	\N	\N
+272	93	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.06+02	\N	\N	\N
+273	93	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.06+02	\N	\N	\N
+274	3	CONTAINER	\N	94	\N	20130412140153071-112	3	2013-04-12 14:01:53.07+02	\N	\N	\N
+275	94	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.07+02	\N	\N	\N
+276	94	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.07+02	\N	\N	\N
+277	3	CONTAINER	\N	95	\N	20130412140153081-113	3	2013-04-12 14:01:53.081+02	\N	\N	\N
+278	95	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.081+02	\N	\N	\N
+279	95	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.081+02	\N	\N	\N
+280	3	CONTAINER	\N	96	\N	20130412140153091-114	3	2013-04-12 14:01:53.091+02	\N	\N	\N
+281	96	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.091+02	\N	\N	\N
+282	96	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.091+02	\N	\N	\N
+283	3	CONTAINER	\N	97	\N	20130412140153101-115	3	2013-04-12 14:01:53.101+02	\N	\N	\N
+284	97	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.101+02	\N	\N	\N
+285	97	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.101+02	\N	\N	\N
+286	3	CONTAINER	\N	98	\N	20130412140153111-116	3	2013-04-12 14:01:53.111+02	\N	\N	\N
+287	98	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.111+02	\N	\N	\N
+288	98	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.111+02	\N	\N	\N
+289	3	CONTAINER	\N	99	\N	20130412140153130-117	3	2013-04-12 14:01:53.129+02	\N	\N	\N
+290	99	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.129+02	\N	\N	\N
+291	99	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.129+02	\N	\N	\N
+292	3	CONTAINER	\N	100	\N	20130412140153142-118	3	2013-04-12 14:01:53.142+02	\N	\N	\N
+293	100	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.142+02	\N	\N	\N
+294	100	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.142+02	\N	\N	\N
+295	3	CONTAINER	\N	101	\N	20130412140153153-119	3	2013-04-12 14:01:53.152+02	\N	\N	\N
+296	101	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.152+02	\N	\N	\N
+297	101	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.152+02	\N	\N	\N
+298	3	CONTAINER	\N	102	\N	20130412140153169-120	3	2013-04-12 14:01:53.169+02	\N	\N	\N
+299	102	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.169+02	\N	\N	\N
+300	102	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.169+02	\N	\N	\N
+301	3	CONTAINER	\N	103	\N	20130412140153182-121	3	2013-04-12 14:01:53.181+02	\N	\N	\N
+302	103	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.181+02	\N	\N	\N
+303	103	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.181+02	\N	\N	\N
+304	3	CONTAINER	\N	104	\N	20130412140153192-122	3	2013-04-12 14:01:53.192+02	\N	\N	\N
+305	104	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.192+02	\N	\N	\N
+306	104	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.192+02	\N	\N	\N
+307	3	CONTAINER	\N	105	\N	20130412140153202-123	3	2013-04-12 14:01:53.202+02	\N	\N	\N
+308	105	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.202+02	\N	\N	\N
+309	105	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.202+02	\N	\N	\N
+310	3	CONTAINER	\N	106	\N	20130412140153212-124	3	2013-04-12 14:01:53.212+02	\N	\N	\N
+311	106	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.212+02	\N	\N	\N
+312	106	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.212+02	\N	\N	\N
+313	3	CONTAINER	\N	107	\N	20130412140153222-125	3	2013-04-12 14:01:53.222+02	\N	\N	\N
+314	107	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.222+02	\N	\N	\N
+315	107	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.222+02	\N	\N	\N
+316	3	CONTAINER	\N	108	\N	20130412140153232-126	3	2013-04-12 14:01:53.232+02	\N	\N	\N
+317	108	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.232+02	\N	\N	\N
+318	108	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.232+02	\N	\N	\N
+319	3	CONTAINER	\N	109	\N	20130412140153243-127	3	2013-04-12 14:01:53.242+02	\N	\N	\N
+320	109	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.242+02	\N	\N	\N
+321	109	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.242+02	\N	\N	\N
+322	3	CONTAINER	\N	110	\N	20130412140153253-128	3	2013-04-12 14:01:53.253+02	\N	\N	\N
+323	110	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.253+02	\N	\N	\N
+324	110	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.253+02	\N	\N	\N
+325	3	CONTAINER	\N	111	\N	20130412140153263-129	3	2013-04-12 14:01:53.263+02	\N	\N	\N
+326	111	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.263+02	\N	\N	\N
+327	111	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.263+02	\N	\N	\N
+328	3	CONTAINER	\N	112	\N	20130412140153275-130	3	2013-04-12 14:01:53.275+02	\N	\N	\N
+329	112	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.275+02	\N	\N	\N
+330	112	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.275+02	\N	\N	\N
+331	3	CONTAINER	\N	113	\N	20130412140153296-131	3	2013-04-12 14:01:53.296+02	\N	\N	\N
+332	113	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.296+02	\N	\N	\N
+333	113	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.296+02	\N	\N	\N
+334	3	CONTAINER	\N	114	\N	20130412140153308-132	3	2013-04-12 14:01:53.307+02	\N	\N	\N
+335	114	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.307+02	\N	\N	\N
+336	114	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.307+02	\N	\N	\N
+337	3	CONTAINER	\N	115	\N	20130412140153319-133	3	2013-04-12 14:01:53.319+02	\N	\N	\N
+338	115	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.319+02	\N	\N	\N
+339	115	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.319+02	\N	\N	\N
+340	3	CONTAINER	\N	116	\N	20130412140153329-134	3	2013-04-12 14:01:53.329+02	\N	\N	\N
+341	116	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.329+02	\N	\N	\N
+342	116	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.329+02	\N	\N	\N
+343	3	CONTAINER	\N	117	\N	20130412140153360-135	3	2013-04-12 14:01:53.36+02	\N	\N	\N
+344	117	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.36+02	\N	\N	\N
+345	117	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.36+02	\N	\N	\N
+346	3	CONTAINER	\N	118	\N	20130412140153371-136	3	2013-04-12 14:01:53.371+02	\N	\N	\N
+347	118	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.371+02	\N	\N	\N
+348	118	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.371+02	\N	\N	\N
+349	3	CONTAINER	\N	119	\N	20130412140153382-137	3	2013-04-12 14:01:53.382+02	\N	\N	\N
+350	119	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.382+02	\N	\N	\N
+351	119	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.382+02	\N	\N	\N
+352	3	CONTAINER	\N	120	\N	20130412140153394-138	3	2013-04-12 14:01:53.393+02	\N	\N	\N
+353	120	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.393+02	\N	\N	\N
+354	120	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.393+02	\N	\N	\N
+355	3	CONTAINER	\N	121	\N	20130412140153405-139	3	2013-04-12 14:01:53.404+02	\N	\N	\N
+356	121	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.404+02	\N	\N	\N
+357	121	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.404+02	\N	\N	\N
+358	3	CONTAINER	\N	122	\N	20130412140153450-140	3	2013-04-12 14:01:53.449+02	\N	\N	\N
+359	122	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.449+02	\N	\N	\N
+360	122	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.449+02	\N	\N	\N
+361	3	CONTAINER	\N	123	\N	20130412140153462-141	3	2013-04-12 14:01:53.462+02	\N	\N	\N
+362	123	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.462+02	\N	\N	\N
+363	123	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.462+02	\N	\N	\N
+364	3	CONTAINER	\N	124	\N	20130412140153472-142	3	2013-04-12 14:01:53.472+02	\N	\N	\N
+365	124	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.472+02	\N	\N	\N
+366	124	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.472+02	\N	\N	\N
+367	3	CONTAINER	\N	125	\N	20130412140153483-143	3	2013-04-12 14:01:53.482+02	\N	\N	\N
+368	125	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.482+02	\N	\N	\N
+369	125	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.482+02	\N	\N	\N
+370	3	CONTAINER	\N	126	\N	20130412140153493-144	3	2013-04-12 14:01:53.492+02	\N	\N	\N
+371	126	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.492+02	\N	\N	\N
+372	126	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.492+02	\N	\N	\N
+373	3	CONTAINER	\N	127	\N	20130412140153518-145	3	2013-04-12 14:01:53.517+02	\N	\N	\N
+374	127	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.517+02	\N	\N	\N
+375	127	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.517+02	\N	\N	\N
+376	3	CONTAINER	\N	128	\N	20130412140153544-146	3	2013-04-12 14:01:53.544+02	\N	\N	\N
+377	128	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.544+02	\N	\N	\N
+378	128	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.544+02	\N	\N	\N
+379	3	CONTAINER	\N	129	\N	20130412140153556-147	3	2013-04-12 14:01:53.555+02	\N	\N	\N
+380	129	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.555+02	\N	\N	\N
+381	129	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.555+02	\N	\N	\N
+382	3	CONTAINER	\N	130	\N	20130412140153567-148	3	2013-04-12 14:01:53.566+02	\N	\N	\N
+383	130	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.566+02	\N	\N	\N
+384	130	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.566+02	\N	\N	\N
+385	3	CONTAINER	\N	131	\N	20130412140153577-149	3	2013-04-12 14:01:53.577+02	\N	\N	\N
+386	131	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.577+02	\N	\N	\N
+387	131	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.577+02	\N	\N	\N
+388	3	CONTAINER	\N	132	\N	20130412140153588-150	3	2013-04-12 14:01:53.587+02	\N	\N	\N
+389	132	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.587+02	\N	\N	\N
+390	132	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.587+02	\N	\N	\N
+391	3	CONTAINER	\N	133	\N	20130412140153600-151	3	2013-04-12 14:01:53.599+02	\N	\N	\N
+392	133	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.599+02	\N	\N	\N
+393	133	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.599+02	\N	\N	\N
+394	3	CONTAINER	\N	134	\N	20130412140153640-152	3	2013-04-12 14:01:53.64+02	\N	\N	\N
+395	134	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.64+02	\N	\N	\N
+396	134	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.64+02	\N	\N	\N
+397	3	CONTAINER	\N	135	\N	20130412140153652-153	3	2013-04-12 14:01:53.651+02	\N	\N	\N
+398	135	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.651+02	\N	\N	\N
+399	135	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.651+02	\N	\N	\N
+400	3	CONTAINER	\N	136	\N	20130412140153664-154	3	2013-04-12 14:01:53.664+02	\N	\N	\N
+401	136	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.664+02	\N	\N	\N
+402	136	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.664+02	\N	\N	\N
+403	3	CONTAINER	\N	137	\N	20130412140153695-155	3	2013-04-12 14:01:53.695+02	\N	\N	\N
+404	137	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.695+02	\N	\N	\N
+405	137	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.695+02	\N	\N	\N
+406	3	CONTAINER	\N	138	\N	20130412140153716-156	3	2013-04-12 14:01:53.715+02	\N	\N	\N
+407	138	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.715+02	\N	\N	\N
+408	138	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.715+02	\N	\N	\N
+409	3	CONTAINER	\N	139	\N	20130412140153732-157	3	2013-04-12 14:01:53.731+02	\N	\N	\N
+410	139	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.731+02	\N	\N	\N
+411	139	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.731+02	\N	\N	\N
+412	3	CONTAINER	\N	140	\N	20130412140153745-158	3	2013-04-12 14:01:53.744+02	\N	\N	\N
+413	140	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.744+02	\N	\N	\N
+414	140	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.744+02	\N	\N	\N
+415	3	CONTAINER	\N	141	\N	20130412140153762-159	3	2013-04-12 14:01:53.762+02	\N	\N	\N
+416	141	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.762+02	\N	\N	\N
+417	141	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.762+02	\N	\N	\N
+418	3	CONTAINER	\N	142	\N	20130412140153779-160	3	2013-04-12 14:01:53.779+02	\N	\N	\N
+419	142	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.779+02	\N	\N	\N
+420	142	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.779+02	\N	\N	\N
+421	3	CONTAINER	\N	143	\N	20130412140153789-161	3	2013-04-12 14:01:53.789+02	\N	\N	\N
+422	143	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.789+02	\N	\N	\N
+423	143	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.789+02	\N	\N	\N
+424	3	CONTAINER	\N	144	\N	20130412140153799-162	3	2013-04-12 14:01:53.799+02	\N	\N	\N
+425	144	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.799+02	\N	\N	\N
+426	144	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.799+02	\N	\N	\N
+427	3	CONTAINER	\N	145	\N	20130412140153809-163	3	2013-04-12 14:01:53.809+02	\N	\N	\N
+428	145	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.809+02	\N	\N	\N
+429	145	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.809+02	\N	\N	\N
+430	3	CONTAINER	\N	146	\N	20130412140153821-164	3	2013-04-12 14:01:53.82+02	\N	\N	\N
+431	146	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.82+02	\N	\N	\N
+432	146	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.82+02	\N	\N	\N
+433	3	CONTAINER	\N	147	\N	20130412140153834-165	3	2013-04-12 14:01:53.833+02	\N	\N	\N
+434	147	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.833+02	\N	\N	\N
+435	147	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.833+02	\N	\N	\N
+436	3	CONTAINER	\N	148	\N	20130412140153847-166	3	2013-04-12 14:01:53.846+02	\N	\N	\N
+437	148	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.846+02	\N	\N	\N
+438	148	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.846+02	\N	\N	\N
+439	3	CONTAINER	\N	149	\N	20130412140153858-167	3	2013-04-12 14:01:53.858+02	\N	\N	\N
+440	149	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.858+02	\N	\N	\N
+441	149	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.858+02	\N	\N	\N
+442	3	CONTAINER	\N	150	\N	20130412140153869-168	3	2013-04-12 14:01:53.869+02	\N	\N	\N
+443	150	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.869+02	\N	\N	\N
+444	150	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.869+02	\N	\N	\N
+445	3	CONTAINER	\N	151	\N	20130412140153881-169	3	2013-04-12 14:01:53.88+02	\N	\N	\N
+446	151	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.88+02	\N	\N	\N
+447	151	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.88+02	\N	\N	\N
+448	3	CONTAINER	\N	152	\N	20130412140153911-170	3	2013-04-12 14:01:53.91+02	\N	\N	\N
+449	152	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.91+02	\N	\N	\N
+450	152	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.91+02	\N	\N	\N
+451	3	CONTAINER	\N	153	\N	20130412140153925-171	3	2013-04-12 14:01:53.925+02	\N	\N	\N
+452	153	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.925+02	\N	\N	\N
+453	153	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.925+02	\N	\N	\N
+454	3	CONTAINER	\N	154	\N	20130412140153936-172	3	2013-04-12 14:01:53.935+02	\N	\N	\N
+455	154	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.935+02	\N	\N	\N
+456	154	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.935+02	\N	\N	\N
+457	3	CONTAINER	\N	155	\N	20130412140153947-173	3	2013-04-12 14:01:53.947+02	\N	\N	\N
+458	155	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.947+02	\N	\N	\N
+459	155	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.947+02	\N	\N	\N
+460	3	CONTAINER	\N	156	\N	20130412140153997-174	3	2013-04-12 14:01:53.997+02	\N	\N	\N
+461	156	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:53.997+02	\N	\N	\N
+462	156	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:53.997+02	\N	\N	\N
+463	3	CONTAINER	\N	157	\N	20130412140154008-175	3	2013-04-12 14:01:54.007+02	\N	\N	\N
+464	157	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.007+02	\N	\N	\N
+465	157	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.007+02	\N	\N	\N
+466	3	CONTAINER	\N	158	\N	20130412140154041-176	3	2013-04-12 14:01:54.041+02	\N	\N	\N
+467	158	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.041+02	\N	\N	\N
+468	158	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.041+02	\N	\N	\N
+469	3	CONTAINER	\N	159	\N	20130412140154054-177	3	2013-04-12 14:01:54.053+02	\N	\N	\N
+470	159	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.053+02	\N	\N	\N
+471	159	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.053+02	\N	\N	\N
+472	3	CONTAINER	\N	160	\N	20130412140154072-178	3	2013-04-12 14:01:54.072+02	\N	\N	\N
+473	160	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.072+02	\N	\N	\N
+474	160	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.072+02	\N	\N	\N
+475	3	CONTAINER	\N	161	\N	20130412140154083-179	3	2013-04-12 14:01:54.082+02	\N	\N	\N
+476	161	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.082+02	\N	\N	\N
+477	161	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.082+02	\N	\N	\N
+478	3	CONTAINER	\N	162	\N	20130412140154093-180	3	2013-04-12 14:01:54.092+02	\N	\N	\N
+479	162	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.092+02	\N	\N	\N
+480	162	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.092+02	\N	\N	\N
+481	3	CONTAINER	\N	163	\N	20130412140154103-181	3	2013-04-12 14:01:54.102+02	\N	\N	\N
+482	163	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.102+02	\N	\N	\N
+483	163	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.102+02	\N	\N	\N
+484	3	CONTAINER	\N	164	\N	20130412140154112-182	3	2013-04-12 14:01:54.112+02	\N	\N	\N
+485	164	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.112+02	\N	\N	\N
+486	164	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.112+02	\N	\N	\N
+487	3	CONTAINER	\N	165	\N	20130412140154122-183	3	2013-04-12 14:01:54.122+02	\N	\N	\N
+488	165	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.122+02	\N	\N	\N
+489	165	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.122+02	\N	\N	\N
+490	3	CONTAINER	\N	166	\N	20130412140154132-184	3	2013-04-12 14:01:54.132+02	\N	\N	\N
+491	166	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.132+02	\N	\N	\N
+492	166	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.132+02	\N	\N	\N
+493	3	CONTAINER	\N	167	\N	20130412140154143-185	3	2013-04-12 14:01:54.142+02	\N	\N	\N
+494	167	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.142+02	\N	\N	\N
+495	167	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.142+02	\N	\N	\N
+496	3	CONTAINER	\N	168	\N	20130412140154153-186	3	2013-04-12 14:01:54.152+02	\N	\N	\N
+497	168	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.152+02	\N	\N	\N
+498	168	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.152+02	\N	\N	\N
+499	3	CONTAINER	\N	169	\N	20130412140154163-187	3	2013-04-12 14:01:54.163+02	\N	\N	\N
+500	169	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.163+02	\N	\N	\N
+501	169	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.163+02	\N	\N	\N
+502	3	CONTAINER	\N	170	\N	20130412140154174-188	3	2013-04-12 14:01:54.173+02	\N	\N	\N
+503	170	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.173+02	\N	\N	\N
+504	170	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.173+02	\N	\N	\N
+505	3	CONTAINER	\N	171	\N	20130412140154184-189	3	2013-04-12 14:01:54.183+02	\N	\N	\N
+506	171	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.183+02	\N	\N	\N
+507	171	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.183+02	\N	\N	\N
+508	3	CONTAINER	\N	172	\N	20130412140154194-190	3	2013-04-12 14:01:54.193+02	\N	\N	\N
+509	172	CONTAINED	\N	3	\N	20130412140147736-21	3	2013-04-12 14:01:54.193+02	\N	\N	\N
+510	172	OWNED	2	\N	\N	20130412105232616-2	3	2013-04-12 14:01:54.193+02	\N	\N	\N
+512	2	OWNER	\N	\N	2	20130412142942295-198	2	2013-04-12 14:31:31.106+02	\N	\N	\N
+513	2	OWNER	\N	\N	3	20130412142205843-196	2	2013-04-12 14:31:31.717+02	\N	\N	\N
+514	2	OWNER	\N	\N	4	20130412143119901-199	2	2013-04-12 14:31:32.074+02	\N	\N	\N
+515	2	OWNER	\N	\N	5	20130412142543232-197	2	2013-04-12 14:31:32.421+02	\N	\N	\N
+516	2	OWNER	\N	\N	6	20130412143121081-200	2	2013-04-12 14:31:32.79+02	\N	\N	\N
+518	173	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.024+02	\N	\N	\N
+519	174	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.128+02	\N	\N	\N
+520	173	CONTAINER	\N	175	\N	20130412150557759-207	3	2013-04-12 15:05:57.759+02	\N	\N	\N
+521	175	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.759+02	\N	\N	\N
+522	175	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.759+02	\N	\N	\N
+523	173	CONTAINER	\N	176	\N	20130412150557772-208	3	2013-04-12 15:05:57.771+02	\N	\N	\N
+524	176	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.771+02	\N	\N	\N
+525	176	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.771+02	\N	\N	\N
+526	173	CONTAINER	\N	177	\N	20130412150557784-209	3	2013-04-12 15:05:57.784+02	\N	\N	\N
+527	177	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.784+02	\N	\N	\N
+528	177	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.784+02	\N	\N	\N
+529	173	CONTAINER	\N	178	\N	20130412150557796-210	3	2013-04-12 15:05:57.796+02	\N	\N	\N
+530	178	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.796+02	\N	\N	\N
+531	178	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.796+02	\N	\N	\N
+532	173	CONTAINER	\N	179	\N	20130412150557807-211	3	2013-04-12 15:05:57.807+02	\N	\N	\N
+533	179	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.807+02	\N	\N	\N
+534	179	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.807+02	\N	\N	\N
+535	173	CONTAINER	\N	180	\N	20130412150557818-212	3	2013-04-12 15:05:57.818+02	\N	\N	\N
+536	180	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.818+02	\N	\N	\N
+537	180	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.818+02	\N	\N	\N
+538	173	CONTAINER	\N	181	\N	20130412150557829-213	3	2013-04-12 15:05:57.828+02	\N	\N	\N
+539	181	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.828+02	\N	\N	\N
+540	181	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.828+02	\N	\N	\N
+541	173	CONTAINER	\N	182	\N	20130412150557840-214	3	2013-04-12 15:05:57.84+02	\N	\N	\N
+542	182	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.84+02	\N	\N	\N
+543	182	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.84+02	\N	\N	\N
+544	173	CONTAINER	\N	183	\N	20130412150557851-215	3	2013-04-12 15:05:57.85+02	\N	\N	\N
+545	183	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.85+02	\N	\N	\N
+546	183	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.85+02	\N	\N	\N
+547	173	CONTAINER	\N	184	\N	20130412150557862-216	3	2013-04-12 15:05:57.861+02	\N	\N	\N
+548	184	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.861+02	\N	\N	\N
+549	184	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.861+02	\N	\N	\N
+550	173	CONTAINER	\N	185	\N	20130412150557873-217	3	2013-04-12 15:05:57.873+02	\N	\N	\N
+551	185	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.873+02	\N	\N	\N
+552	185	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.873+02	\N	\N	\N
+553	173	CONTAINER	\N	186	\N	20130412150557884-218	3	2013-04-12 15:05:57.883+02	\N	\N	\N
+554	186	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.883+02	\N	\N	\N
+555	186	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.883+02	\N	\N	\N
+556	173	CONTAINER	\N	187	\N	20130412150557895-219	3	2013-04-12 15:05:57.894+02	\N	\N	\N
+557	187	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.894+02	\N	\N	\N
+558	187	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.894+02	\N	\N	\N
+559	173	CONTAINER	\N	188	\N	20130412150557907-220	3	2013-04-12 15:05:57.906+02	\N	\N	\N
+560	188	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.906+02	\N	\N	\N
+561	188	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.906+02	\N	\N	\N
+562	173	CONTAINER	\N	189	\N	20130412150557922-221	3	2013-04-12 15:05:57.922+02	\N	\N	\N
+563	189	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.922+02	\N	\N	\N
+564	189	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.922+02	\N	\N	\N
+565	173	CONTAINER	\N	190	\N	20130412150557934-222	3	2013-04-12 15:05:57.934+02	\N	\N	\N
+566	190	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.934+02	\N	\N	\N
+567	190	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.934+02	\N	\N	\N
+568	173	CONTAINER	\N	191	\N	20130412150557945-223	3	2013-04-12 15:05:57.945+02	\N	\N	\N
+569	191	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.945+02	\N	\N	\N
+570	191	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.945+02	\N	\N	\N
+571	173	CONTAINER	\N	192	\N	20130412150557957-224	3	2013-04-12 15:05:57.957+02	\N	\N	\N
+572	192	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.957+02	\N	\N	\N
+573	192	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.957+02	\N	\N	\N
+574	173	CONTAINER	\N	193	\N	20130412150557970-225	3	2013-04-12 15:05:57.969+02	\N	\N	\N
+575	193	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.969+02	\N	\N	\N
+576	193	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.969+02	\N	\N	\N
+577	173	CONTAINER	\N	194	\N	20130412150557981-226	3	2013-04-12 15:05:57.981+02	\N	\N	\N
+578	194	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.981+02	\N	\N	\N
+579	194	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.981+02	\N	\N	\N
+580	173	CONTAINER	\N	195	\N	20130412150557993-227	3	2013-04-12 15:05:57.993+02	\N	\N	\N
+581	195	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:57.993+02	\N	\N	\N
+582	195	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:57.993+02	\N	\N	\N
+583	173	CONTAINER	\N	196	\N	20130412150558005-228	3	2013-04-12 15:05:58.004+02	\N	\N	\N
+584	196	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.004+02	\N	\N	\N
+585	196	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.004+02	\N	\N	\N
+586	173	CONTAINER	\N	197	\N	20130412150558017-229	3	2013-04-12 15:05:58.016+02	\N	\N	\N
+587	197	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.016+02	\N	\N	\N
+588	197	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.016+02	\N	\N	\N
+589	173	CONTAINER	\N	198	\N	20130412150558029-230	3	2013-04-12 15:05:58.028+02	\N	\N	\N
+590	198	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.028+02	\N	\N	\N
+591	198	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.028+02	\N	\N	\N
+592	173	CONTAINER	\N	199	\N	20130412150558040-231	3	2013-04-12 15:05:58.04+02	\N	\N	\N
+593	199	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.04+02	\N	\N	\N
+594	199	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.04+02	\N	\N	\N
+595	173	CONTAINER	\N	200	\N	20130412150558052-232	3	2013-04-12 15:05:58.052+02	\N	\N	\N
+596	200	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.052+02	\N	\N	\N
+597	200	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.052+02	\N	\N	\N
+598	173	CONTAINER	\N	201	\N	20130412150558064-233	3	2013-04-12 15:05:58.063+02	\N	\N	\N
+599	201	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.063+02	\N	\N	\N
+600	201	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.063+02	\N	\N	\N
+601	173	CONTAINER	\N	202	\N	20130412150558075-234	3	2013-04-12 15:05:58.074+02	\N	\N	\N
+602	202	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.074+02	\N	\N	\N
+603	202	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.074+02	\N	\N	\N
+604	173	CONTAINER	\N	203	\N	20130412150558085-235	3	2013-04-12 15:05:58.085+02	\N	\N	\N
+605	203	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.085+02	\N	\N	\N
+606	203	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.085+02	\N	\N	\N
+607	173	CONTAINER	\N	204	\N	20130412150558096-236	3	2013-04-12 15:05:58.095+02	\N	\N	\N
+608	204	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.095+02	\N	\N	\N
+609	204	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.095+02	\N	\N	\N
+610	173	CONTAINER	\N	205	\N	20130412150558106-237	3	2013-04-12 15:05:58.106+02	\N	\N	\N
+611	205	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.106+02	\N	\N	\N
+612	205	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.106+02	\N	\N	\N
+613	173	CONTAINER	\N	206	\N	20130412150558117-238	3	2013-04-12 15:05:58.116+02	\N	\N	\N
+614	206	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.116+02	\N	\N	\N
+615	206	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.116+02	\N	\N	\N
+616	173	CONTAINER	\N	207	\N	20130412150558127-239	3	2013-04-12 15:05:58.126+02	\N	\N	\N
+617	207	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.126+02	\N	\N	\N
+618	207	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.126+02	\N	\N	\N
+619	173	CONTAINER	\N	208	\N	20130412150558137-240	3	2013-04-12 15:05:58.136+02	\N	\N	\N
+620	208	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.136+02	\N	\N	\N
+621	208	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.136+02	\N	\N	\N
+622	173	CONTAINER	\N	209	\N	20130412150558148-241	3	2013-04-12 15:05:58.147+02	\N	\N	\N
+623	209	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.147+02	\N	\N	\N
+624	209	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.147+02	\N	\N	\N
+625	173	CONTAINER	\N	210	\N	20130412150558159-242	3	2013-04-12 15:05:58.159+02	\N	\N	\N
+626	210	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.159+02	\N	\N	\N
+627	210	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.159+02	\N	\N	\N
+628	173	CONTAINER	\N	211	\N	20130412150558170-243	3	2013-04-12 15:05:58.169+02	\N	\N	\N
+629	211	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.169+02	\N	\N	\N
+630	211	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.169+02	\N	\N	\N
+631	173	CONTAINER	\N	212	\N	20130412150558181-244	3	2013-04-12 15:05:58.18+02	\N	\N	\N
+632	212	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.18+02	\N	\N	\N
+633	212	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.18+02	\N	\N	\N
+634	173	CONTAINER	\N	213	\N	20130412150558191-245	3	2013-04-12 15:05:58.191+02	\N	\N	\N
+635	213	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.191+02	\N	\N	\N
+636	213	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.191+02	\N	\N	\N
+637	173	CONTAINER	\N	214	\N	20130412150558202-246	3	2013-04-12 15:05:58.202+02	\N	\N	\N
+638	214	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.202+02	\N	\N	\N
+639	214	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.202+02	\N	\N	\N
+640	173	CONTAINER	\N	215	\N	20130412150558213-247	3	2013-04-12 15:05:58.212+02	\N	\N	\N
+641	215	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.212+02	\N	\N	\N
+642	215	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.212+02	\N	\N	\N
+643	173	CONTAINER	\N	216	\N	20130412150558224-248	3	2013-04-12 15:05:58.223+02	\N	\N	\N
+644	216	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.223+02	\N	\N	\N
+645	216	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.223+02	\N	\N	\N
+646	173	CONTAINER	\N	217	\N	20130412150558234-249	3	2013-04-12 15:05:58.234+02	\N	\N	\N
+647	217	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.234+02	\N	\N	\N
+648	217	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.234+02	\N	\N	\N
+649	173	CONTAINER	\N	218	\N	20130412150558245-250	3	2013-04-12 15:05:58.244+02	\N	\N	\N
+650	218	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.244+02	\N	\N	\N
+651	218	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.244+02	\N	\N	\N
+652	173	CONTAINER	\N	219	\N	20130412150558256-251	3	2013-04-12 15:05:58.255+02	\N	\N	\N
+653	219	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.255+02	\N	\N	\N
+654	219	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.255+02	\N	\N	\N
+655	173	CONTAINER	\N	220	\N	20130412150558267-252	3	2013-04-12 15:05:58.267+02	\N	\N	\N
+656	220	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.267+02	\N	\N	\N
+657	220	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.267+02	\N	\N	\N
+658	173	CONTAINER	\N	221	\N	20130412150558278-253	3	2013-04-12 15:05:58.278+02	\N	\N	\N
+659	221	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.278+02	\N	\N	\N
+660	221	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.278+02	\N	\N	\N
+661	173	CONTAINER	\N	222	\N	20130412150558289-254	3	2013-04-12 15:05:58.289+02	\N	\N	\N
+662	222	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.289+02	\N	\N	\N
+663	222	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.289+02	\N	\N	\N
+664	173	CONTAINER	\N	223	\N	20130412150558302-255	3	2013-04-12 15:05:58.301+02	\N	\N	\N
+665	223	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.301+02	\N	\N	\N
+666	223	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.301+02	\N	\N	\N
+667	173	CONTAINER	\N	224	\N	20130412150558313-256	3	2013-04-12 15:05:58.312+02	\N	\N	\N
+668	224	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.312+02	\N	\N	\N
+669	224	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.312+02	\N	\N	\N
+670	173	CONTAINER	\N	225	\N	20130412150558324-257	3	2013-04-12 15:05:58.323+02	\N	\N	\N
+671	225	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.323+02	\N	\N	\N
+672	225	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.323+02	\N	\N	\N
+673	173	CONTAINER	\N	226	\N	20130412150558335-258	3	2013-04-12 15:05:58.334+02	\N	\N	\N
+674	226	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.334+02	\N	\N	\N
+675	226	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.334+02	\N	\N	\N
+676	173	CONTAINER	\N	227	\N	20130412150558346-259	3	2013-04-12 15:05:58.345+02	\N	\N	\N
+677	227	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.345+02	\N	\N	\N
+678	227	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.345+02	\N	\N	\N
+679	173	CONTAINER	\N	228	\N	20130412150558356-260	3	2013-04-12 15:05:58.356+02	\N	\N	\N
+680	228	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.356+02	\N	\N	\N
+681	228	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.356+02	\N	\N	\N
+682	173	CONTAINER	\N	229	\N	20130412150558367-261	3	2013-04-12 15:05:58.366+02	\N	\N	\N
+683	229	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.366+02	\N	\N	\N
+684	229	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.366+02	\N	\N	\N
+685	173	CONTAINER	\N	230	\N	20130412150558377-262	3	2013-04-12 15:05:58.377+02	\N	\N	\N
+686	230	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.377+02	\N	\N	\N
+687	230	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.377+02	\N	\N	\N
+688	173	CONTAINER	\N	231	\N	20130412150558388-263	3	2013-04-12 15:05:58.388+02	\N	\N	\N
+689	231	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.388+02	\N	\N	\N
+690	231	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.388+02	\N	\N	\N
+691	173	CONTAINER	\N	232	\N	20130412150558399-264	3	2013-04-12 15:05:58.399+02	\N	\N	\N
+692	232	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.399+02	\N	\N	\N
+693	232	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.399+02	\N	\N	\N
+694	173	CONTAINER	\N	233	\N	20130412150558410-265	3	2013-04-12 15:05:58.41+02	\N	\N	\N
+695	233	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.41+02	\N	\N	\N
+696	233	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.41+02	\N	\N	\N
+697	173	CONTAINER	\N	234	\N	20130412150558421-266	3	2013-04-12 15:05:58.42+02	\N	\N	\N
+698	234	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.42+02	\N	\N	\N
+699	234	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.42+02	\N	\N	\N
+700	173	CONTAINER	\N	235	\N	20130412150558431-267	3	2013-04-12 15:05:58.43+02	\N	\N	\N
+701	235	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.43+02	\N	\N	\N
+702	235	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.43+02	\N	\N	\N
+703	173	CONTAINER	\N	236	\N	20130412150558441-268	3	2013-04-12 15:05:58.441+02	\N	\N	\N
+704	236	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.441+02	\N	\N	\N
+705	236	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.441+02	\N	\N	\N
+706	173	CONTAINER	\N	237	\N	20130412150558452-269	3	2013-04-12 15:05:58.451+02	\N	\N	\N
+707	237	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.451+02	\N	\N	\N
+708	237	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.451+02	\N	\N	\N
+709	173	CONTAINER	\N	238	\N	20130412150558462-270	3	2013-04-12 15:05:58.462+02	\N	\N	\N
+710	238	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.462+02	\N	\N	\N
+711	238	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.462+02	\N	\N	\N
+712	173	CONTAINER	\N	239	\N	20130412150558474-271	3	2013-04-12 15:05:58.473+02	\N	\N	\N
+713	239	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.473+02	\N	\N	\N
+714	239	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.473+02	\N	\N	\N
+715	173	CONTAINER	\N	240	\N	20130412150558485-272	3	2013-04-12 15:05:58.485+02	\N	\N	\N
+716	240	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.485+02	\N	\N	\N
+717	240	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.485+02	\N	\N	\N
+718	173	CONTAINER	\N	241	\N	20130412150558496-273	3	2013-04-12 15:05:58.495+02	\N	\N	\N
+719	241	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.495+02	\N	\N	\N
+720	241	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.495+02	\N	\N	\N
+721	173	CONTAINER	\N	242	\N	20130412150558506-274	3	2013-04-12 15:05:58.505+02	\N	\N	\N
+722	242	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.505+02	\N	\N	\N
+723	242	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.505+02	\N	\N	\N
+724	173	CONTAINER	\N	243	\N	20130412150558517-275	3	2013-04-12 15:05:58.516+02	\N	\N	\N
+725	243	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.516+02	\N	\N	\N
+726	243	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.516+02	\N	\N	\N
+727	173	CONTAINER	\N	244	\N	20130412150558527-276	3	2013-04-12 15:05:58.527+02	\N	\N	\N
+728	244	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.527+02	\N	\N	\N
+729	244	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.527+02	\N	\N	\N
+730	173	CONTAINER	\N	245	\N	20130412150558538-277	3	2013-04-12 15:05:58.537+02	\N	\N	\N
+731	245	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.537+02	\N	\N	\N
+732	245	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.537+02	\N	\N	\N
+733	173	CONTAINER	\N	246	\N	20130412150558548-278	3	2013-04-12 15:05:58.547+02	\N	\N	\N
+734	246	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.547+02	\N	\N	\N
+735	246	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.547+02	\N	\N	\N
+736	173	CONTAINER	\N	247	\N	20130412150558558-279	3	2013-04-12 15:05:58.558+02	\N	\N	\N
+737	247	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.558+02	\N	\N	\N
+738	247	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.558+02	\N	\N	\N
+739	173	CONTAINER	\N	248	\N	20130412150558569-280	3	2013-04-12 15:05:58.568+02	\N	\N	\N
+740	248	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.568+02	\N	\N	\N
+741	248	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.568+02	\N	\N	\N
+742	173	CONTAINER	\N	249	\N	20130412150558579-281	3	2013-04-12 15:05:58.579+02	\N	\N	\N
+743	249	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.579+02	\N	\N	\N
+744	249	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.579+02	\N	\N	\N
+745	173	CONTAINER	\N	250	\N	20130412150558590-282	3	2013-04-12 15:05:58.589+02	\N	\N	\N
+746	250	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.589+02	\N	\N	\N
+747	250	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.589+02	\N	\N	\N
+748	173	CONTAINER	\N	251	\N	20130412150558600-283	3	2013-04-12 15:05:58.6+02	\N	\N	\N
+749	251	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.6+02	\N	\N	\N
+750	251	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.6+02	\N	\N	\N
+751	173	CONTAINER	\N	252	\N	20130412150558611-284	3	2013-04-12 15:05:58.61+02	\N	\N	\N
+752	252	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.61+02	\N	\N	\N
+753	252	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.61+02	\N	\N	\N
+754	173	CONTAINER	\N	253	\N	20130412150558621-285	3	2013-04-12 15:05:58.62+02	\N	\N	\N
+755	253	CONTAINED	\N	173	\N	20130412150557128-205	3	2013-04-12 15:05:58.62+02	\N	\N	\N
+756	253	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.62+02	\N	\N	\N
+757	174	CONTAINER	\N	254	\N	20130412150558709-286	3	2013-04-12 15:05:58.708+02	\N	\N	\N
+758	254	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.708+02	\N	\N	\N
+759	254	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.708+02	\N	\N	\N
+760	174	CONTAINER	\N	255	\N	20130412150558720-287	3	2013-04-12 15:05:58.719+02	\N	\N	\N
+761	255	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.719+02	\N	\N	\N
+762	255	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.719+02	\N	\N	\N
+763	174	CONTAINER	\N	256	\N	20130412150558731-288	3	2013-04-12 15:05:58.73+02	\N	\N	\N
+764	256	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.73+02	\N	\N	\N
+765	256	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.73+02	\N	\N	\N
+766	174	CONTAINER	\N	257	\N	20130412150558742-289	3	2013-04-12 15:05:58.741+02	\N	\N	\N
+767	257	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.741+02	\N	\N	\N
+768	257	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.741+02	\N	\N	\N
+769	174	CONTAINER	\N	258	\N	20130412150558752-290	3	2013-04-12 15:05:58.752+02	\N	\N	\N
+770	258	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.752+02	\N	\N	\N
+771	258	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.752+02	\N	\N	\N
+772	174	CONTAINER	\N	259	\N	20130412150558763-291	3	2013-04-12 15:05:58.762+02	\N	\N	\N
+773	259	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.762+02	\N	\N	\N
+774	259	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.762+02	\N	\N	\N
+775	174	CONTAINER	\N	260	\N	20130412150558773-292	3	2013-04-12 15:05:58.773+02	\N	\N	\N
+776	260	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.773+02	\N	\N	\N
+777	260	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.773+02	\N	\N	\N
+778	174	CONTAINER	\N	261	\N	20130412150558784-293	3	2013-04-12 15:05:58.784+02	\N	\N	\N
+779	261	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.784+02	\N	\N	\N
+780	261	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.784+02	\N	\N	\N
+781	174	CONTAINER	\N	262	\N	20130412150558796-294	3	2013-04-12 15:05:58.795+02	\N	\N	\N
+782	262	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.795+02	\N	\N	\N
+783	262	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.795+02	\N	\N	\N
+784	174	CONTAINER	\N	263	\N	20130412150558807-295	3	2013-04-12 15:05:58.807+02	\N	\N	\N
+785	263	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.807+02	\N	\N	\N
+786	263	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.807+02	\N	\N	\N
+787	174	CONTAINER	\N	264	\N	20130412150558818-296	3	2013-04-12 15:05:58.818+02	\N	\N	\N
+788	264	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.818+02	\N	\N	\N
+789	264	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.818+02	\N	\N	\N
+790	174	CONTAINER	\N	265	\N	20130412150558828-297	3	2013-04-12 15:05:58.828+02	\N	\N	\N
+791	265	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.828+02	\N	\N	\N
+792	265	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.828+02	\N	\N	\N
+793	174	CONTAINER	\N	266	\N	20130412150558839-298	3	2013-04-12 15:05:58.838+02	\N	\N	\N
+794	266	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.838+02	\N	\N	\N
+795	266	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.838+02	\N	\N	\N
+796	174	CONTAINER	\N	267	\N	20130412150558849-299	3	2013-04-12 15:05:58.849+02	\N	\N	\N
+797	267	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.849+02	\N	\N	\N
+798	267	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.849+02	\N	\N	\N
+799	174	CONTAINER	\N	268	\N	20130412150558860-300	3	2013-04-12 15:05:58.859+02	\N	\N	\N
+800	268	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.859+02	\N	\N	\N
+801	268	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.859+02	\N	\N	\N
+802	174	CONTAINER	\N	269	\N	20130412150558870-301	3	2013-04-12 15:05:58.869+02	\N	\N	\N
+803	269	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.869+02	\N	\N	\N
+804	269	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.869+02	\N	\N	\N
+805	174	CONTAINER	\N	270	\N	20130412150558881-302	3	2013-04-12 15:05:58.88+02	\N	\N	\N
+806	270	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.88+02	\N	\N	\N
+807	270	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.88+02	\N	\N	\N
+808	174	CONTAINER	\N	271	\N	20130412150558892-303	3	2013-04-12 15:05:58.892+02	\N	\N	\N
+809	271	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.892+02	\N	\N	\N
+810	271	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.892+02	\N	\N	\N
+811	174	CONTAINER	\N	272	\N	20130412150558904-304	3	2013-04-12 15:05:58.903+02	\N	\N	\N
+812	272	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.903+02	\N	\N	\N
+813	272	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.903+02	\N	\N	\N
+814	174	CONTAINER	\N	273	\N	20130412150558915-305	3	2013-04-12 15:05:58.914+02	\N	\N	\N
+815	273	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.914+02	\N	\N	\N
+816	273	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.914+02	\N	\N	\N
+817	174	CONTAINER	\N	274	\N	20130412150558925-306	3	2013-04-12 15:05:58.925+02	\N	\N	\N
+818	274	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.925+02	\N	\N	\N
+819	274	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.925+02	\N	\N	\N
+820	174	CONTAINER	\N	275	\N	20130412150558936-307	3	2013-04-12 15:05:58.935+02	\N	\N	\N
+821	275	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.935+02	\N	\N	\N
+822	275	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.935+02	\N	\N	\N
+823	174	CONTAINER	\N	276	\N	20130412150558947-308	3	2013-04-12 15:05:58.946+02	\N	\N	\N
+824	276	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.946+02	\N	\N	\N
+825	276	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.946+02	\N	\N	\N
+826	174	CONTAINER	\N	277	\N	20130412150558957-309	3	2013-04-12 15:05:58.957+02	\N	\N	\N
+827	277	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.957+02	\N	\N	\N
+828	277	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.957+02	\N	\N	\N
+829	174	CONTAINER	\N	278	\N	20130412150558968-310	3	2013-04-12 15:05:58.967+02	\N	\N	\N
+830	278	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.967+02	\N	\N	\N
+831	278	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.967+02	\N	\N	\N
+832	174	CONTAINER	\N	279	\N	20130412150558978-311	3	2013-04-12 15:05:58.978+02	\N	\N	\N
+833	279	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.978+02	\N	\N	\N
+834	279	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.978+02	\N	\N	\N
+835	174	CONTAINER	\N	280	\N	20130412150558989-312	3	2013-04-12 15:05:58.988+02	\N	\N	\N
+836	280	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.988+02	\N	\N	\N
+837	280	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.988+02	\N	\N	\N
+838	174	CONTAINER	\N	281	\N	20130412150558999-313	3	2013-04-12 15:05:58.999+02	\N	\N	\N
+839	281	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:58.999+02	\N	\N	\N
+840	281	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:58.999+02	\N	\N	\N
+841	174	CONTAINER	\N	282	\N	20130412150559009-314	3	2013-04-12 15:05:59.009+02	\N	\N	\N
+842	282	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.009+02	\N	\N	\N
+843	282	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.009+02	\N	\N	\N
+844	174	CONTAINER	\N	283	\N	20130412150559020-315	3	2013-04-12 15:05:59.02+02	\N	\N	\N
+845	283	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.02+02	\N	\N	\N
+846	283	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.02+02	\N	\N	\N
+847	174	CONTAINER	\N	284	\N	20130412150559031-316	3	2013-04-12 15:05:59.03+02	\N	\N	\N
+848	284	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.03+02	\N	\N	\N
+849	284	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.03+02	\N	\N	\N
+850	174	CONTAINER	\N	285	\N	20130412150559041-317	3	2013-04-12 15:05:59.041+02	\N	\N	\N
+851	285	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.041+02	\N	\N	\N
+852	285	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.041+02	\N	\N	\N
+853	174	CONTAINER	\N	286	\N	20130412150559052-318	3	2013-04-12 15:05:59.051+02	\N	\N	\N
+854	286	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.051+02	\N	\N	\N
+855	286	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.051+02	\N	\N	\N
+856	174	CONTAINER	\N	287	\N	20130412150559063-319	3	2013-04-12 15:05:59.062+02	\N	\N	\N
+857	287	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.062+02	\N	\N	\N
+858	287	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.062+02	\N	\N	\N
+859	174	CONTAINER	\N	288	\N	20130412150559074-320	3	2013-04-12 15:05:59.073+02	\N	\N	\N
+860	288	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.073+02	\N	\N	\N
+861	288	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.073+02	\N	\N	\N
+862	174	CONTAINER	\N	289	\N	20130412150559085-321	3	2013-04-12 15:05:59.085+02	\N	\N	\N
+863	289	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.085+02	\N	\N	\N
+864	289	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.085+02	\N	\N	\N
+865	174	CONTAINER	\N	290	\N	20130412150559097-322	3	2013-04-12 15:05:59.096+02	\N	\N	\N
+866	290	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.096+02	\N	\N	\N
+867	290	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.096+02	\N	\N	\N
+868	174	CONTAINER	\N	291	\N	20130412150559109-323	3	2013-04-12 15:05:59.108+02	\N	\N	\N
+869	291	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.108+02	\N	\N	\N
+870	291	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.108+02	\N	\N	\N
+871	174	CONTAINER	\N	292	\N	20130412150559120-324	3	2013-04-12 15:05:59.119+02	\N	\N	\N
+872	292	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.119+02	\N	\N	\N
+873	292	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.119+02	\N	\N	\N
+874	174	CONTAINER	\N	293	\N	20130412150559131-325	3	2013-04-12 15:05:59.13+02	\N	\N	\N
+875	293	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.13+02	\N	\N	\N
+876	293	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.13+02	\N	\N	\N
+877	174	CONTAINER	\N	294	\N	20130412150559143-326	3	2013-04-12 15:05:59.143+02	\N	\N	\N
+878	294	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.143+02	\N	\N	\N
+879	294	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.143+02	\N	\N	\N
+880	174	CONTAINER	\N	295	\N	20130412150559160-327	3	2013-04-12 15:05:59.16+02	\N	\N	\N
+881	295	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.16+02	\N	\N	\N
+882	295	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.16+02	\N	\N	\N
+883	174	CONTAINER	\N	296	\N	20130412150559173-328	3	2013-04-12 15:05:59.172+02	\N	\N	\N
+884	296	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.172+02	\N	\N	\N
+885	296	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.172+02	\N	\N	\N
+886	174	CONTAINER	\N	297	\N	20130412150559186-329	3	2013-04-12 15:05:59.185+02	\N	\N	\N
+887	297	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.185+02	\N	\N	\N
+888	297	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.185+02	\N	\N	\N
+889	174	CONTAINER	\N	298	\N	20130412150559198-330	3	2013-04-12 15:05:59.198+02	\N	\N	\N
+890	298	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.198+02	\N	\N	\N
+891	298	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.198+02	\N	\N	\N
+892	174	CONTAINER	\N	299	\N	20130412150559210-331	3	2013-04-12 15:05:59.209+02	\N	\N	\N
+893	299	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.209+02	\N	\N	\N
+894	299	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.209+02	\N	\N	\N
+895	174	CONTAINER	\N	300	\N	20130412150559222-332	3	2013-04-12 15:05:59.221+02	\N	\N	\N
+896	300	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.221+02	\N	\N	\N
+897	300	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.221+02	\N	\N	\N
+898	174	CONTAINER	\N	301	\N	20130412150559234-333	3	2013-04-12 15:05:59.233+02	\N	\N	\N
+899	301	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.233+02	\N	\N	\N
+900	301	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.233+02	\N	\N	\N
+901	174	CONTAINER	\N	302	\N	20130412150559247-334	3	2013-04-12 15:05:59.246+02	\N	\N	\N
+902	302	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.246+02	\N	\N	\N
+903	302	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.246+02	\N	\N	\N
+904	174	CONTAINER	\N	303	\N	20130412150559258-335	3	2013-04-12 15:05:59.258+02	\N	\N	\N
+905	303	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.258+02	\N	\N	\N
+906	303	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.258+02	\N	\N	\N
+907	174	CONTAINER	\N	304	\N	20130412150559270-336	3	2013-04-12 15:05:59.269+02	\N	\N	\N
+908	304	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.269+02	\N	\N	\N
+909	304	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.269+02	\N	\N	\N
+910	174	CONTAINER	\N	305	\N	20130412150559280-337	3	2013-04-12 15:05:59.28+02	\N	\N	\N
+911	305	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.28+02	\N	\N	\N
+912	305	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.28+02	\N	\N	\N
+913	174	CONTAINER	\N	306	\N	20130412150559291-338	3	2013-04-12 15:05:59.291+02	\N	\N	\N
+914	306	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.291+02	\N	\N	\N
+915	306	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.291+02	\N	\N	\N
+916	174	CONTAINER	\N	307	\N	20130412150559302-339	3	2013-04-12 15:05:59.301+02	\N	\N	\N
+917	307	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.301+02	\N	\N	\N
+918	307	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.301+02	\N	\N	\N
+919	174	CONTAINER	\N	308	\N	20130412150559312-340	3	2013-04-12 15:05:59.312+02	\N	\N	\N
+920	308	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.312+02	\N	\N	\N
+921	308	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.312+02	\N	\N	\N
+922	174	CONTAINER	\N	309	\N	20130412150559323-341	3	2013-04-12 15:05:59.322+02	\N	\N	\N
+923	309	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.322+02	\N	\N	\N
+924	309	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.322+02	\N	\N	\N
+925	174	CONTAINER	\N	310	\N	20130412150559333-342	3	2013-04-12 15:05:59.332+02	\N	\N	\N
+926	310	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.332+02	\N	\N	\N
+927	310	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.332+02	\N	\N	\N
+928	174	CONTAINER	\N	311	\N	20130412150559344-343	3	2013-04-12 15:05:59.343+02	\N	\N	\N
+929	311	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.343+02	\N	\N	\N
+930	311	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.343+02	\N	\N	\N
+931	174	CONTAINER	\N	312	\N	20130412150559354-344	3	2013-04-12 15:05:59.354+02	\N	\N	\N
+932	312	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.354+02	\N	\N	\N
+933	312	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.354+02	\N	\N	\N
+934	174	CONTAINER	\N	313	\N	20130412150559364-345	3	2013-04-12 15:05:59.364+02	\N	\N	\N
+935	313	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.364+02	\N	\N	\N
+936	313	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.364+02	\N	\N	\N
+937	174	CONTAINER	\N	314	\N	20130412150559375-346	3	2013-04-12 15:05:59.375+02	\N	\N	\N
+938	314	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.375+02	\N	\N	\N
+939	314	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.375+02	\N	\N	\N
+940	174	CONTAINER	\N	315	\N	20130412150559385-347	3	2013-04-12 15:05:59.385+02	\N	\N	\N
+941	315	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.385+02	\N	\N	\N
+942	315	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.385+02	\N	\N	\N
+943	174	CONTAINER	\N	316	\N	20130412150559396-348	3	2013-04-12 15:05:59.395+02	\N	\N	\N
+944	316	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.395+02	\N	\N	\N
+945	316	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.395+02	\N	\N	\N
+946	174	CONTAINER	\N	317	\N	20130412150559406-349	3	2013-04-12 15:05:59.406+02	\N	\N	\N
+947	317	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.406+02	\N	\N	\N
+948	317	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.406+02	\N	\N	\N
+949	174	CONTAINER	\N	318	\N	20130412150559417-350	3	2013-04-12 15:05:59.416+02	\N	\N	\N
+950	318	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.416+02	\N	\N	\N
+951	318	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.416+02	\N	\N	\N
+952	174	CONTAINER	\N	319	\N	20130412150559427-351	3	2013-04-12 15:05:59.427+02	\N	\N	\N
+953	319	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.427+02	\N	\N	\N
+954	319	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.427+02	\N	\N	\N
+955	174	CONTAINER	\N	320	\N	20130412150559438-352	3	2013-04-12 15:05:59.437+02	\N	\N	\N
+956	320	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.437+02	\N	\N	\N
+957	320	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.437+02	\N	\N	\N
+958	174	CONTAINER	\N	321	\N	20130412150559449-353	3	2013-04-12 15:05:59.448+02	\N	\N	\N
+959	321	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.448+02	\N	\N	\N
+960	321	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.448+02	\N	\N	\N
+961	174	CONTAINER	\N	322	\N	20130412150559460-354	3	2013-04-12 15:05:59.46+02	\N	\N	\N
+962	322	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.46+02	\N	\N	\N
+963	322	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.46+02	\N	\N	\N
+964	174	CONTAINER	\N	323	\N	20130412150559471-355	3	2013-04-12 15:05:59.471+02	\N	\N	\N
+965	323	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.471+02	\N	\N	\N
+966	323	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.471+02	\N	\N	\N
+967	174	CONTAINER	\N	324	\N	20130412150559482-356	3	2013-04-12 15:05:59.481+02	\N	\N	\N
+968	324	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.481+02	\N	\N	\N
+969	324	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.481+02	\N	\N	\N
+970	174	CONTAINER	\N	325	\N	20130412150559492-357	3	2013-04-12 15:05:59.491+02	\N	\N	\N
+971	325	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.491+02	\N	\N	\N
+972	325	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.491+02	\N	\N	\N
+973	174	CONTAINER	\N	326	\N	20130412150559502-358	3	2013-04-12 15:05:59.501+02	\N	\N	\N
+974	326	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.501+02	\N	\N	\N
+975	326	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.501+02	\N	\N	\N
+976	174	CONTAINER	\N	327	\N	20130412150559512-359	3	2013-04-12 15:05:59.512+02	\N	\N	\N
+977	327	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.512+02	\N	\N	\N
+978	327	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.512+02	\N	\N	\N
+979	174	CONTAINER	\N	328	\N	20130412150559523-360	3	2013-04-12 15:05:59.522+02	\N	\N	\N
+980	328	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.522+02	\N	\N	\N
+981	328	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.522+02	\N	\N	\N
+982	174	CONTAINER	\N	329	\N	20130412150559533-361	3	2013-04-12 15:05:59.533+02	\N	\N	\N
+983	329	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.533+02	\N	\N	\N
+984	329	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.533+02	\N	\N	\N
+985	174	CONTAINER	\N	330	\N	20130412150559544-362	3	2013-04-12 15:05:59.543+02	\N	\N	\N
+986	330	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.543+02	\N	\N	\N
+987	330	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.543+02	\N	\N	\N
+988	174	CONTAINER	\N	331	\N	20130412150559554-363	3	2013-04-12 15:05:59.554+02	\N	\N	\N
+989	331	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.554+02	\N	\N	\N
+990	331	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.554+02	\N	\N	\N
+991	174	CONTAINER	\N	332	\N	20130412150559565-364	3	2013-04-12 15:05:59.564+02	\N	\N	\N
+992	332	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.564+02	\N	\N	\N
+993	332	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.564+02	\N	\N	\N
+994	174	CONTAINER	\N	333	\N	20130412150559575-365	3	2013-04-12 15:05:59.575+02	\N	\N	\N
+995	333	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.575+02	\N	\N	\N
+996	333	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.575+02	\N	\N	\N
+997	174	CONTAINER	\N	334	\N	20130412150559586-366	3	2013-04-12 15:05:59.585+02	\N	\N	\N
+998	334	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.585+02	\N	\N	\N
+999	334	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.585+02	\N	\N	\N
+1000	174	CONTAINER	\N	335	\N	20130412150559596-367	3	2013-04-12 15:05:59.596+02	\N	\N	\N
+1001	335	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.596+02	\N	\N	\N
+1002	335	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.596+02	\N	\N	\N
+1003	174	CONTAINER	\N	336	\N	20130412150559607-368	3	2013-04-12 15:05:59.606+02	\N	\N	\N
+1004	336	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.606+02	\N	\N	\N
+1005	336	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.606+02	\N	\N	\N
+1006	174	CONTAINER	\N	337	\N	20130412150559617-369	3	2013-04-12 15:05:59.617+02	\N	\N	\N
+1007	337	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.617+02	\N	\N	\N
+1008	337	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.617+02	\N	\N	\N
+1009	174	CONTAINER	\N	338	\N	20130412150559628-370	3	2013-04-12 15:05:59.627+02	\N	\N	\N
+1010	338	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.627+02	\N	\N	\N
+1011	338	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.627+02	\N	\N	\N
+1012	174	CONTAINER	\N	339	\N	20130412150559639-371	3	2013-04-12 15:05:59.638+02	\N	\N	\N
+1013	339	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.638+02	\N	\N	\N
+1014	339	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.638+02	\N	\N	\N
+1015	174	CONTAINER	\N	340	\N	20130412150559649-372	3	2013-04-12 15:05:59.649+02	\N	\N	\N
+1016	340	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.649+02	\N	\N	\N
+1017	340	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.649+02	\N	\N	\N
+1018	174	CONTAINER	\N	341	\N	20130412150559659-373	3	2013-04-12 15:05:59.659+02	\N	\N	\N
+1019	341	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.659+02	\N	\N	\N
+1020	341	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.659+02	\N	\N	\N
+1021	174	CONTAINER	\N	342	\N	20130412150559671-374	3	2013-04-12 15:05:59.67+02	\N	\N	\N
+1022	342	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.67+02	\N	\N	\N
+1023	342	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.67+02	\N	\N	\N
+1024	174	CONTAINER	\N	343	\N	20130412150559681-375	3	2013-04-12 15:05:59.681+02	\N	\N	\N
+1025	343	CONTAINED	\N	174	\N	20130412150557128-206	3	2013-04-12 15:05:59.681+02	\N	\N	\N
+1026	343	OWNED	3	\N	\N	20130412150049446-204	3	2013-04-12 15:05:59.681+02	\N	\N	\N
+1027	173	OWNER	\N	\N	8	20130412151710024-379	2	2013-04-12 15:20:49.452+02	\N	\N	\N
+1028	173	OWNER	\N	\N	9	20130412152036861-380	2	2013-04-12 15:20:49.869+02	\N	\N	\N
+1029	173	OWNER	\N	\N	10	20130412152038345-381	2	2013-04-12 15:20:50.204+02	\N	\N	\N
+1031	2	OWNER	\N	\N	12	20130412153118625-384	2	2013-04-12 15:31:23.741+02	\N	\N	\N
+1032	2	OWNER	\N	\N	13	20130412153119864-385	2	2013-04-12 15:31:24.338+02	\N	\N	\N
+1033	2	OWNER	\N	\N	17	20130412153659994-391	2	2013-04-12 15:37:03.109+02	\N	\N	\N
+1040	345	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:19:23.381+02	\N	\N	\N
+1041	346	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:57:48.361+02	\N	\N	\N
+1042	347	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:58:23.219+02	\N	\N	\N
+1043	345	PARENT	\N	347	\N	20130415095823341-405	3	2013-04-15 09:58:23.387+02	\N	\N	\N
+1044	347	CHILD	\N	345	\N	20130415091923485-402	3	2013-04-15 09:58:23.387+02	\N	\N	\N
+1045	348	OWNED	6	\N	\N	20130415091745099-401	3	2013-04-15 09:58:28.095+02	\N	\N	\N
+1046	345	PARENT	\N	348	\N	20130415095828217-406	3	2013-04-15 09:58:28.22+02	\N	\N	\N
+1047	348	CHILD	\N	345	\N	20130415091923485-402	3	2013-04-15 09:58:28.22+02	\N	\N	\N
+1048	346	PARENT	\N	345	\N	20130415091923485-402	3	2013-04-15 09:58:50.054+02	\N	\N	\N
+1049	345	CHILD	\N	346	\N	20130415095748527-404	3	2013-04-15 09:58:50.054+02	\N	\N	\N
+1050	345	OWNER	\N	\N	21	20130415093804724-403	3	2013-04-15 10:12:40.811+02	\N	\N	\N
+1055	350	OWNED	5	\N	\N	20130412155138019-396	3	2013-04-17 09:49:11.832+02	\N	\N	\N
+1056	350	OWNER	\N	\N	28	20130417094936021-428	2	2013-04-17 09:49:41.525+02	\N	\N	\N
+1057	350	OWNER	\N	\N	29	20130417094934693-427	2	2013-04-17 09:49:42.056+02	\N	\N	\N
+1058	350	OWNER	\N	\N	30	20130417094937144-429	2	2013-04-17 09:49:42.458+02	\N	\N	\N
+1059	351	OWNED	\N	\N	\N	TEST	3	2013-04-24 13:46:57.44+02	\N	3	\N
+1060	351	CONTAINER	\N	352	\N	20130424134721644-434	3	2013-04-24 13:47:21.633+02	\N	\N	\N
+1061	352	CONTAINED	\N	351	\N	20130424134657597-433	3	2013-04-24 13:47:21.633+02	\N	\N	\N
+1062	352	OWNED	\N	\N	\N	TEST	3	2013-04-24 13:47:21.633+02	\N	3	\N
+1063	351	CONTAINER	\N	353	\N	20130424134742549-435	3	2013-04-24 13:47:42.541+02	\N	\N	\N
+1064	353	CONTAINED	\N	351	\N	20130424134657597-433	3	2013-04-24 13:47:42.541+02	\N	\N	\N
+1065	353	OWNED	\N	\N	\N	TEST	3	2013-04-24 13:47:42.541+02	\N	3	\N
+1066	2	OWNER	\N	\N	31	20130424111751432-431	3	2013-05-15 15:19:52.209+02	\N	\N	\N
+1067	2	OWNER	\N	\N	32	20130424111751209-430	3	2013-05-15 15:20:11.306+02	\N	\N	\N
+1068	2	OWNER	\N	\N	16	20130412153659945-390	3	2013-05-15 15:20:29.57+02	\N	\N	\N
 \.
 
 
@@ -7201,6 +7505,27 @@ COPY scripts (id, name, script_type, description, script, registration_timestamp
 
 
 --
+-- Name: semantic_annotation_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('semantic_annotation_id_seq', 6, true);
+
+
+--
+-- Data for Name: semantic_annotations; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY semantic_annotations (id, perm_id, saty_id, stpt_id, prty_id, predicate_ontology_id, predicate_ontology_version, predicate_accession_id, descriptor_ontology_id, descriptor_ontology_version, descriptor_accession_id, creation_date) FROM stdin;
+1	ST_PLATE	11	\N	\N	testPredicateOntologyId1	testPredicateOntologyVersion1	testPredicateAccessionId1	testDescriptorOntologyId1	testDescriptorOntologyVersion1	testDescriptorAccessionId1	2017-09-18 09:18:10.893+01
+2	ST_SIRNA_WELL	12	\N	\N	testPredicateOntologyId2	testPredicateOntologyVersion2	testPredicateAccessionId2	testDescriptorOntologyId2	testDescriptorOntologyVersion2	testDescriptorAccessionId2	2017-09-18 09:18:10.893+01
+3	ST_ILLUMINA_FLOW_CELL_PT_CREATED_ON_CS	\N	20	\N	testPredicateOntologyId3	testPredicateOntologyVersion3	testPredicateAccessionId3	testDescriptorOntologyId3	testDescriptorOntologyVersion3	testDescriptorAccessionId3	2017-09-18 09:18:10.893+01
+4	ST_LIBRARY_PT_PREPARED_BY	\N	30	\N	testPredicateOntologyId4	testPredicateOntologyVersion4	testPredicateAccessionId4	testDescriptorOntologyId4	testDescriptorOntologyVersion4	testDescriptorAccessionId4	2017-09-18 09:18:10.893+01
+5	PT_DESCRIPTION	\N	\N	1	testPredicateOntologyId5	testPredicateOntologyVersion5	testPredicateAccessionId5	testDescriptorOntologyId5	testDescriptorOntologyVersion5	testDescriptorAccessionId5	2017-09-18 09:18:10.893+01
+6	PT_AGILENT_KIT	\N	\N	2	testPredicateOntologyId6	testPredicateOntologyVersion6	testPredicateAccessionId6	testDescriptorOntologyId6	testDescriptorOntologyVersion6	testDescriptorAccessionId6	2017-09-18 09:18:10.893+01
+\.
+
+
+--
 -- Name: space_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -7278,6 +7603,22 @@ ALTER TABLE ONLY attachments
 
 ALTER TABLE ONLY attachments
     ADD CONSTRAINT atta_samp_bk_uk UNIQUE (samp_id, file_name, version);
+
+
+--
+-- Name: coco_pk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY content_copies
+    ADD CONSTRAINT coco_pk PRIMARY KEY (id);
+
+
+--
+-- Name: content_copies_unique_check_uk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY content_copies
+    ADD CONSTRAINT content_copies_unique_check_uk UNIQUE (location_unique_check);
 
 
 --
@@ -7382,6 +7723,14 @@ ALTER TABLE ONLY data_types
 
 ALTER TABLE ONLY deletions
     ADD CONSTRAINT del_pk PRIMARY KEY (id);
+
+
+--
+-- Name: dsch_pk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY data_set_copies_history
+    ADD CONSTRAINT dsch_pk PRIMARY KEY (id);
 
 
 --
@@ -7937,22 +8286,6 @@ ALTER TABLE ONLY relationship_types
 
 
 --
--- Name: roas_ag_space_bk_uk; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY role_assignments
-    ADD CONSTRAINT roas_ag_space_bk_uk UNIQUE (ag_id_grantee, role_code, space_id);
-
-
---
--- Name: roas_pe_space_bk_uk; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY role_assignments
-    ADD CONSTRAINT roas_pe_space_bk_uk UNIQUE (pers_id_grantee, role_code, space_id);
-
-
---
 -- Name: roas_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -8070,6 +8403,14 @@ ALTER TABLE ONLY scripts
 
 ALTER TABLE ONLY scripts
     ADD CONSTRAINT scri_uk UNIQUE (name);
+
+
+--
+-- Name: semantic_annotations_pk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY semantic_annotations
+    ADD CONSTRAINT semantic_annotations_pk PRIMARY KEY (id);
 
 
 --
@@ -8721,10 +9062,38 @@ CREATE INDEX mtpt_prty_fk_i ON material_type_property_types USING btree (prty_id
 
 
 --
+-- Name: operation_executions_availability_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX operation_executions_availability_i ON operation_executions USING btree (availability);
+
+
+--
 -- Name: operation_executions_code_i; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX operation_executions_code_i ON operation_executions USING btree (code);
+
+
+--
+-- Name: operation_executions_details_availability_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX operation_executions_details_availability_i ON operation_executions USING btree (details_availability);
+
+
+--
+-- Name: operation_executions_owner_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX operation_executions_owner_i ON operation_executions USING btree (owner);
+
+
+--
+-- Name: operation_executions_summary_availability_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX operation_executions_summary_availability_i ON operation_executions USING btree (summary_availability);
 
 
 --
@@ -8812,6 +9181,20 @@ CREATE INDEX roas_ag_fk_i_grantee ON role_assignments USING btree (ag_id_grantee
 
 
 --
+-- Name: roas_ag_space_project_bk_uk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX roas_ag_space_project_bk_uk ON role_assignments USING btree (ag_id_grantee, role_code, (COALESCE((space_id)::bigint, ('-1'::integer)::bigint)), (COALESCE((project_id)::bigint, ('-1'::integer)::bigint)));
+
+
+--
+-- Name: roas_pe_space_project_bk_uk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX roas_pe_space_project_bk_uk ON role_assignments USING btree (pers_id_grantee, role_code, (COALESCE((space_id)::bigint, ('-1'::integer)::bigint)), (COALESCE((project_id)::bigint, ('-1'::integer)::bigint)));
+
+
+--
 -- Name: roas_pers_fk_i_grantee; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -8823,6 +9206,13 @@ CREATE INDEX roas_pers_fk_i_grantee ON role_assignments USING btree (pers_id_gra
 --
 
 CREATE INDEX roas_pers_fk_i_registerer ON role_assignments USING btree (pers_id_registerer);
+
+
+--
+-- Name: roas_project_fk_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX roas_project_fk_i ON role_assignments USING btree (project_id);
 
 
 --
@@ -8907,6 +9297,13 @@ CREATE INDEX samprelh_main_samp_fk_expe_fk_i ON sample_relationships_history USI
 --
 
 CREATE INDEX samprelh_main_samp_fk_i ON sample_relationships_history USING btree (main_samp_id);
+
+
+--
+-- Name: samprelh_main_samp_fk_proj_fk_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX samprelh_main_samp_fk_proj_fk_i ON sample_relationships_history USING btree (main_samp_id, proj_id);
 
 
 --
@@ -9022,6 +9419,27 @@ CREATE INDEX script_pers_fk_i ON scripts USING btree (pers_id_registerer);
 
 
 --
+-- Name: semantic_annotations_prty_id_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX semantic_annotations_prty_id_i ON semantic_annotations USING btree (prty_id);
+
+
+--
+-- Name: semantic_annotations_saty_id_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX semantic_annotations_saty_id_i ON semantic_annotations USING btree (saty_id);
+
+
+--
+-- Name: semantic_annotations_stpt_id_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX semantic_annotations_stpt_id_i ON semantic_annotations USING btree (stpt_id);
+
+
+--
 -- Name: space_pers_registered_by_fk_i; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -9047,6 +9465,24 @@ CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 --
 
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
+
+
+--
+-- Name: content_copies_history_delete; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE content_copies_history_delete AS
+    ON DELETE TO content_copies DO  UPDATE data_set_copies_history SET valid_until_timestamp = now()
+  WHERE ((data_set_copies_history.cc_id)::bigint = (old.id)::bigint);
+
+
+--
+-- Name: content_copies_history_insert; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE content_copies_history_insert AS
+    ON INSERT TO content_copies DO  INSERT INTO data_set_copies_history (id, cc_id, data_id, external_code, path, git_commit_hash, git_repository_id, edms_id, pers_id_author, valid_from_timestamp)
+  VALUES (nextval('data_set_copies_history_id_seq'::regclass), new.id, new.data_id, new.external_code, new.path, new.git_commit_hash, new.git_repository_id, new.edms_id, new.pers_id_registerer, new.registration_timestamp);
 
 
 --
@@ -9081,8 +9517,8 @@ CREATE RULE data_deleted_update AS
 --
 
 CREATE RULE data_insert AS
-    ON INSERT TO data DO INSTEAD  INSERT INTO data_all (id, code, del_id, orig_del, expe_id, dast_id, data_producer_code, dsty_id, is_derived, is_valid, modification_timestamp, access_timestamp, pers_id_registerer, pers_id_modifier, production_timestamp, registration_timestamp, samp_id, version)
-  VALUES (new.id, new.code, new.del_id, new.orig_del, new.expe_id, new.dast_id, new.data_producer_code, new.dsty_id, new.is_derived, new.is_valid, new.modification_timestamp, new.access_timestamp, new.pers_id_registerer, new.pers_id_modifier, new.production_timestamp, new.registration_timestamp, new.samp_id, new.version);
+    ON INSERT TO data DO INSTEAD  INSERT INTO data_all (id, code, del_id, orig_del, expe_id, dast_id, data_producer_code, dsty_id, is_derived, is_valid, modification_timestamp, access_timestamp, pers_id_registerer, pers_id_modifier, production_timestamp, registration_timestamp, samp_id, version, data_set_kind)
+  VALUES (new.id, new.code, new.del_id, new.orig_del, new.expe_id, new.dast_id, new.data_producer_code, new.dsty_id, new.is_derived, new.is_valid, new.modification_timestamp, new.access_timestamp, new.pers_id_registerer, new.pers_id_modifier, new.production_timestamp, new.registration_timestamp, new.samp_id, new.version, new.data_set_kind);
 
 
 --
@@ -9248,7 +9684,7 @@ CREATE RULE data_set_relationships_update AS
 --
 
 CREATE RULE data_update AS
-    ON UPDATE TO data DO INSTEAD  UPDATE data_all SET code = new.code, del_id = new.del_id, orig_del = new.orig_del, expe_id = new.expe_id, dast_id = new.dast_id, data_producer_code = new.data_producer_code, dsty_id = new.dsty_id, is_derived = new.is_derived, is_valid = new.is_valid, modification_timestamp = new.modification_timestamp, access_timestamp = new.access_timestamp, pers_id_registerer = new.pers_id_registerer, pers_id_modifier = new.pers_id_modifier, production_timestamp = new.production_timestamp, registration_timestamp = new.registration_timestamp, samp_id = new.samp_id, version = new.version
+    ON UPDATE TO data DO INSTEAD  UPDATE data_all SET code = new.code, del_id = new.del_id, orig_del = new.orig_del, expe_id = new.expe_id, dast_id = new.dast_id, data_producer_code = new.data_producer_code, dsty_id = new.dsty_id, is_derived = new.is_derived, is_valid = new.is_valid, modification_timestamp = new.modification_timestamp, access_timestamp = new.access_timestamp, pers_id_registerer = new.pers_id_registerer, pers_id_modifier = new.pers_id_modifier, production_timestamp = new.production_timestamp, registration_timestamp = new.registration_timestamp, samp_id = new.samp_id, version = new.version, data_set_kind = new.data_set_kind
   WHERE ((data_all.id)::bigint = (new.id)::bigint);
 
 
@@ -9796,6 +10232,43 @@ CREATE RULE sample_parent_child_update AS
 
 
 --
+-- Name: sample_project_insert; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE sample_project_insert AS
+    ON INSERT TO samples_all
+   WHERE ((new.expe_id IS NULL) AND (new.proj_id IS NOT NULL)) DO  INSERT INTO sample_relationships_history (id, main_samp_id, relation_type, proj_id, entity_perm_id, pers_id_author, valid_from_timestamp)
+  VALUES (nextval('sample_relationships_history_id_seq'::regclass), new.id, 'OWNED'::text, new.proj_id, ( SELECT projects.perm_id
+           FROM projects
+          WHERE ((projects.id)::bigint = (new.proj_id)::bigint)), new.pers_id_modifier, new.modification_timestamp);
+
+
+--
+-- Name: sample_project_remove_update; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE sample_project_remove_update AS
+    ON UPDATE TO samples_all
+   WHERE ((old.proj_id IS NOT NULL) AND ((new.proj_id IS NULL) OR ((old.expe_id IS NULL) AND (new.expe_id IS NOT NULL)))) DO  UPDATE sample_relationships_history SET valid_until_timestamp = new.modification_timestamp
+  WHERE (((sample_relationships_history.main_samp_id)::bigint = (old.id)::bigint) AND ((sample_relationships_history.proj_id)::bigint = (old.proj_id)::bigint) AND (sample_relationships_history.valid_until_timestamp IS NULL));
+
+
+--
+-- Name: sample_project_update; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE sample_project_update AS
+    ON UPDATE TO samples_all
+   WHERE ((((old.proj_id)::bigint <> (new.proj_id)::bigint) OR (old.proj_id IS NULL) OR (old.expe_id IS NOT NULL)) AND (new.proj_id IS NOT NULL) AND (new.expe_id IS NULL)) DO ( UPDATE sample_relationships_history SET valid_until_timestamp = new.modification_timestamp
+  WHERE (((sample_relationships_history.main_samp_id)::bigint = (old.id)::bigint) AND ((sample_relationships_history.proj_id)::bigint = (old.proj_id)::bigint) AND (sample_relationships_history.valid_until_timestamp IS NULL));
+ INSERT INTO sample_relationships_history (id, main_samp_id, relation_type, proj_id, entity_perm_id, pers_id_author, valid_from_timestamp)
+  VALUES (nextval('sample_relationships_history_id_seq'::regclass), new.id, 'OWNED'::text, new.proj_id, ( SELECT projects.perm_id
+           FROM projects
+          WHERE ((projects.id)::bigint = (new.proj_id)::bigint)), new.pers_id_modifier, new.modification_timestamp);
+);
+
+
+--
 -- Name: sample_properties_delete; Type: RULE; Schema: public; Owner: -
 --
 
@@ -9862,7 +10335,7 @@ CREATE RULE sample_relationships_update AS
 
 CREATE RULE sample_space_insert AS
     ON INSERT TO samples_all
-   WHERE ((new.expe_id IS NULL) AND (new.space_id IS NOT NULL)) DO  INSERT INTO sample_relationships_history (id, main_samp_id, relation_type, space_id, entity_perm_id, pers_id_author, valid_from_timestamp)
+   WHERE ((new.expe_id IS NULL) AND (new.space_id IS NOT NULL) AND (new.proj_id IS NULL)) DO  INSERT INTO sample_relationships_history (id, main_samp_id, relation_type, space_id, entity_perm_id, pers_id_author, valid_from_timestamp)
   VALUES (nextval('sample_relationships_history_id_seq'::regclass), new.id, 'OWNED'::text, new.space_id, ( SELECT spaces.code
            FROM spaces
           WHERE ((spaces.id)::bigint = (new.space_id)::bigint)), new.pers_id_modifier, new.modification_timestamp);
@@ -9874,7 +10347,7 @@ CREATE RULE sample_space_insert AS
 
 CREATE RULE sample_space_remove_update AS
     ON UPDATE TO samples_all
-   WHERE ((old.space_id IS NOT NULL) AND ((new.space_id IS NULL) OR ((old.expe_id IS NULL) AND (new.expe_id IS NOT NULL)))) DO  UPDATE sample_relationships_history SET valid_until_timestamp = new.modification_timestamp
+   WHERE ((old.space_id IS NOT NULL) AND ((new.space_id IS NULL) OR ((old.expe_id IS NULL) AND (new.expe_id IS NOT NULL)) OR ((old.proj_id IS NULL) AND (new.proj_id IS NOT NULL)))) DO  UPDATE sample_relationships_history SET valid_until_timestamp = new.modification_timestamp
   WHERE (((sample_relationships_history.main_samp_id)::bigint = (old.id)::bigint) AND ((sample_relationships_history.space_id)::bigint = (old.space_id)::bigint) AND (sample_relationships_history.valid_until_timestamp IS NULL));
 
 
@@ -9884,7 +10357,7 @@ CREATE RULE sample_space_remove_update AS
 
 CREATE RULE sample_space_update AS
     ON UPDATE TO samples_all
-   WHERE ((((old.space_id)::bigint <> (new.space_id)::bigint) OR (old.space_id IS NULL) OR (old.expe_id IS NOT NULL)) AND (new.space_id IS NOT NULL) AND (new.expe_id IS NULL)) DO ( UPDATE sample_relationships_history SET valid_until_timestamp = new.modification_timestamp
+   WHERE ((((old.space_id)::bigint <> (new.space_id)::bigint) OR (old.space_id IS NULL) OR (old.expe_id IS NOT NULL) OR (old.proj_id IS NOT NULL)) AND (new.space_id IS NOT NULL) AND (new.expe_id IS NULL) AND (new.proj_id IS NULL)) DO ( UPDATE sample_relationships_history SET valid_until_timestamp = new.modification_timestamp
   WHERE (((sample_relationships_history.main_samp_id)::bigint = (old.id)::bigint) AND ((sample_relationships_history.space_id)::bigint = (old.space_id)::bigint) AND (sample_relationships_history.valid_until_timestamp IS NULL));
  INSERT INTO sample_relationships_history (id, main_samp_id, relation_type, space_id, entity_perm_id, pers_id_author, valid_from_timestamp)
   VALUES (nextval('sample_relationships_history_id_seq'::regclass), new.id, 'OWNED'::text, new.space_id, ( SELECT spaces.code
@@ -9917,6 +10390,20 @@ CREATE CONSTRAINT TRIGGER check_created_or_modified_sample_owner_is_alive AFTER 
 
 
 --
+-- Name: check_data_set_kind_link; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER check_data_set_kind_link AFTER INSERT OR UPDATE ON link_data DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE PROCEDURE check_data_set_kind_link();
+
+
+--
+-- Name: check_data_set_kind_physical; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER check_data_set_kind_physical AFTER INSERT OR UPDATE ON external_data DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE PROCEDURE check_data_set_kind_physical();
+
+
+--
 -- Name: check_deletion_consistency_on_experiment_deletion; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9928,6 +10415,20 @@ CREATE CONSTRAINT TRIGGER check_deletion_consistency_on_experiment_deletion AFTE
 --
 
 CREATE CONSTRAINT TRIGGER check_deletion_consistency_on_sample_deletion AFTER UPDATE ON samples_all DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE PROCEDURE check_deletion_consistency_on_sample_deletion();
+
+
+--
+-- Name: content_copies_location_type_check; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER content_copies_location_type_check BEFORE INSERT OR UPDATE ON content_copies FOR EACH ROW EXECUTE PROCEDURE content_copies_location_type_check();
+
+
+--
+-- Name: content_copies_uniqueness_check; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER content_copies_uniqueness_check BEFORE INSERT OR UPDATE ON content_copies FOR EACH ROW EXECUTE PROCEDURE content_copies_uniqueness_check();
 
 
 --
@@ -10083,6 +10584,22 @@ ALTER TABLE ONLY attachments
 
 ALTER TABLE ONLY attachments
     ADD CONSTRAINT atta_samp_fk FOREIGN KEY (samp_id) REFERENCES samples_all(id);
+
+
+--
+-- Name: coco_data_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY content_copies
+    ADD CONSTRAINT coco_data_fk FOREIGN KEY (data_id) REFERENCES link_data(data_id);
+
+
+--
+-- Name: coco_edms_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY content_copies
+    ADD CONSTRAINT coco_edms_fk FOREIGN KEY (edms_id) REFERENCES external_data_management_systems(id);
 
 
 --
@@ -10614,14 +11131,6 @@ ALTER TABLE ONLY link_data
 
 
 --
--- Name: lnda_edms_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY link_data
-    ADD CONSTRAINT lnda_edms_fk FOREIGN KEY (edms_id) REFERENCES external_data_management_systems(id);
-
-
---
 -- Name: mapr_cvte_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -10790,6 +11299,14 @@ ALTER TABLE ONLY material_type_property_types
 
 
 --
+-- Name: operation_executions_owner_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY operation_executions
+    ADD CONSTRAINT operation_executions_owner_fk FOREIGN KEY (owner) REFERENCES persons(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+
+
+--
 -- Name: pers_pers_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -10934,6 +11451,14 @@ ALTER TABLE ONLY role_assignments
 
 
 --
+-- Name: roas_project_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY role_assignments
+    ADD CONSTRAINT roas_project_fk FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+
+--
 -- Name: roas_space_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -11035,6 +11560,14 @@ ALTER TABLE ONLY sample_relationships_history
 
 ALTER TABLE ONLY sample_relationships_history
     ADD CONSTRAINT samprelh_main_samp_fk FOREIGN KEY (main_samp_id) REFERENCES samples_all(id) ON DELETE CASCADE;
+
+
+--
+-- Name: samprelh_project_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY sample_relationships_history
+    ADD CONSTRAINT samprelh_project_fk FOREIGN KEY (proj_id) REFERENCES projects(id) ON DELETE SET NULL;
 
 
 --
@@ -11155,6 +11688,30 @@ ALTER TABLE ONLY sample_types
 
 ALTER TABLE ONLY scripts
     ADD CONSTRAINT scri_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: semantic_annotations_prty_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY semantic_annotations
+    ADD CONSTRAINT semantic_annotations_prty_id_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: semantic_annotations_saty_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY semantic_annotations
+    ADD CONSTRAINT semantic_annotations_saty_id_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: semantic_annotations_stpt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY semantic_annotations
+    ADD CONSTRAINT semantic_annotations_stpt_id_fk FOREIGN KEY (stpt_id) REFERENCES sample_type_property_types(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -11286,6 +11843,16 @@ REVOKE ALL ON SEQUENCE code_seq FROM PUBLIC;
 REVOKE ALL ON SEQUENCE code_seq FROM pkupczyk;
 GRANT ALL ON SEQUENCE code_seq TO pkupczyk;
 GRANT SELECT ON SEQUENCE code_seq TO openbis_readonly;
+
+
+--
+-- Name: content_copies; Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON TABLE content_copies FROM PUBLIC;
+REVOKE ALL ON TABLE content_copies FROM pkupczyk;
+GRANT ALL ON TABLE content_copies TO pkupczyk;
+GRANT SELECT ON TABLE content_copies TO openbis_readonly;
 
 
 --
@@ -11869,16 +12436,6 @@ GRANT SELECT ON SEQUENCE grid_custom_columns_id_seq TO openbis_readonly;
 
 
 --
--- Name: link_data; Type: ACL; Schema: public; Owner: -
---
-
-REVOKE ALL ON TABLE link_data FROM PUBLIC;
-REVOKE ALL ON TABLE link_data FROM pkupczyk;
-GRANT ALL ON TABLE link_data TO pkupczyk;
-GRANT SELECT ON TABLE link_data TO openbis_readonly;
-
-
---
 -- Name: locator_type_id_seq; Type: ACL; Schema: public; Owner: -
 --
 
@@ -12249,16 +12806,6 @@ GRANT SELECT ON TABLE sample_relationships_history TO openbis_readonly;
 
 
 --
--- Name: sample_history_view; Type: ACL; Schema: public; Owner: -
---
-
-REVOKE ALL ON TABLE sample_history_view FROM PUBLIC;
-REVOKE ALL ON TABLE sample_history_view FROM pkupczyk;
-GRANT ALL ON TABLE sample_history_view TO pkupczyk;
-GRANT SELECT ON TABLE sample_history_view TO openbis_readonly;
-
-
---
 -- Name: sample_id_seq; Type: ACL; Schema: public; Owner: -
 --
 
@@ -12369,6 +12916,16 @@ GRANT SELECT ON TABLE samples_all TO openbis_readonly;
 
 
 --
+-- Name: samples_deleted; Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON TABLE samples_deleted FROM PUBLIC;
+REVOKE ALL ON TABLE samples_deleted FROM pkupczyk;
+GRANT ALL ON TABLE samples_deleted TO pkupczyk;
+GRANT SELECT ON TABLE samples_deleted TO openbis_readonly;
+
+
+--
 -- Name: script_id_seq; Type: ACL; Schema: public; Owner: -
 --
 
@@ -12386,6 +12943,16 @@ REVOKE ALL ON TABLE scripts FROM PUBLIC;
 REVOKE ALL ON TABLE scripts FROM pkupczyk;
 GRANT ALL ON TABLE scripts TO pkupczyk;
 GRANT SELECT ON TABLE scripts TO openbis_readonly;
+
+
+--
+-- Name: semantic_annotations; Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON TABLE semantic_annotations FROM PUBLIC;
+REVOKE ALL ON TABLE semantic_annotations FROM pkupczyk;
+GRANT ALL ON TABLE semantic_annotations TO pkupczyk;
+GRANT SELECT ON TABLE semantic_annotations TO openbis_readonly;
 
 
 --

@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -48,6 +50,9 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
 
     @Autowired
     private IPropertyTypeRegistratorTranslator registratorTranslator;
+
+    @Autowired
+    private IPropertyTypeSemanticAnnotationTranslator annotationTranslator;
 
     @Override
     protected PropertyType createObject(TranslationContext context, Long typeId, PropertyTypeFetchOptions fetchOptions)
@@ -83,6 +88,12 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
                     registratorTranslator.translate(context, typeIds, fetchOptions.withRegistrator()));
         }
 
+        if (fetchOptions.hasSemanticAnnotations())
+        {
+            relations.put(IPropertyTypeSemanticAnnotationTranslator.class,
+                    annotationTranslator.translate(context, typeIds, fetchOptions.withSemanticAnnotations()));
+        }
+
         return relations;
     }
 
@@ -107,16 +118,25 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
         if (fetchOptions.hasVocabulary())
         {
             result.setVocabulary(relations.get(IPropertyTypeVocabularyTranslator.class, typeId));
+            result.getFetchOptions().withVocabularyUsing(fetchOptions.withVocabulary());
         }
 
         if (fetchOptions.hasMaterialType())
         {
             result.setMaterialType(relations.get(IPropertyTypeMaterialTypeTranslator.class, typeId));
+            result.getFetchOptions().withMaterialTypeUsing(fetchOptions.withMaterialType());
         }
 
         if (fetchOptions.hasRegistrator())
         {
             result.setRegistrator(relations.get(IPropertyTypeRegistratorTranslator.class, typeId));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
+        }
+
+        if (fetchOptions.hasSemanticAnnotations())
+        {
+            result.setSemanticAnnotations((List<SemanticAnnotation>) relations.get(IPropertyTypeSemanticAnnotationTranslator.class, typeId));
+            result.getFetchOptions().withSemanticAnnotationsUsing(fetchOptions.withSemanticAnnotations());
         }
 
     }

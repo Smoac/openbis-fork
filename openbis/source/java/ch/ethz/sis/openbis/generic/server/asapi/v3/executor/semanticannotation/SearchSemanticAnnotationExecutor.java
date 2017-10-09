@@ -31,6 +31,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.DescriptorAccessionIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.DescriptorOntologyIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.DescriptorOntologyVersionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.PredicateAccessionIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.PredicateOntologyIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.PredicateOntologyVersionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
@@ -96,6 +102,24 @@ public class SearchSemanticAnnotationExecutor extends AbstractSearchObjectManual
         } else if (criteria instanceof PropertyAssignmentSearchCriteria)
         {
             return new PropertyAssignmentMatcher();
+        } else if (criteria instanceof PredicateOntologyIdSearchCriteria)
+        {
+            return new PredicateOntologyIdMatcher();
+        } else if (criteria instanceof PredicateOntologyVersionSearchCriteria)
+        {
+            return new PredicateOntologyVersionMatcher();
+        } else if (criteria instanceof PredicateAccessionIdSearchCriteria)
+        {
+            return new PredicateAccessionIdMatcher();
+        } else if (criteria instanceof DescriptorOntologyIdSearchCriteria)
+        {
+            return new DescriptorOntologyIdMatcher();
+        } else if (criteria instanceof DescriptorOntologyVersionSearchCriteria)
+        {
+            return new DescriptorOntologyVersionMatcher();
+        } else if (criteria instanceof DescriptorAccessionIdSearchCriteria)
+        {
+            return new DescriptorAccessionIdMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
@@ -131,6 +155,72 @@ public class SearchSemanticAnnotationExecutor extends AbstractSearchObjectManual
         protected String getFieldValue(SemanticAnnotationPE object)
         {
             return object.getPermId();
+        }
+
+    }
+
+    private class PredicateOntologyIdMatcher extends StringFieldMatcher<SemanticAnnotationPE>
+    {
+
+        @Override
+        protected String getFieldValue(SemanticAnnotationPE object)
+        {
+            return object.getPredicateOntologyId();
+        }
+
+    }
+
+    private class PredicateOntologyVersionMatcher extends StringFieldMatcher<SemanticAnnotationPE>
+    {
+
+        @Override
+        protected String getFieldValue(SemanticAnnotationPE object)
+        {
+            return object.getPredicateOntologyVersion();
+        }
+
+    }
+
+    private class PredicateAccessionIdMatcher extends StringFieldMatcher<SemanticAnnotationPE>
+    {
+
+        @Override
+        protected String getFieldValue(SemanticAnnotationPE object)
+        {
+            return object.getPredicateAccessionId();
+        }
+
+    }
+
+    private class DescriptorOntologyIdMatcher extends StringFieldMatcher<SemanticAnnotationPE>
+    {
+
+        @Override
+        protected String getFieldValue(SemanticAnnotationPE object)
+        {
+            return object.getDescriptorOntologyId();
+        }
+
+    }
+
+    private class DescriptorOntologyVersionMatcher extends StringFieldMatcher<SemanticAnnotationPE>
+    {
+
+        @Override
+        protected String getFieldValue(SemanticAnnotationPE object)
+        {
+            return object.getDescriptorOntologyVersion();
+        }
+
+    }
+
+    private class DescriptorAccessionIdMatcher extends StringFieldMatcher<SemanticAnnotationPE>
+    {
+
+        @Override
+        protected String getFieldValue(SemanticAnnotationPE object)
+        {
+            return object.getDescriptorAccessionId();
         }
 
     }

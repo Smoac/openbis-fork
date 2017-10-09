@@ -60,6 +60,10 @@ public interface SampleQuery extends ObjectQuery
                     LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleTypeBaseRecord> getTypes(LongSet sampleTypeIds);
 
+    @Select(sql = "select saty_id as objectId, id as relatedId from semantic_annotations where saty_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getTypeAnnotationIds(LongSet sampleTypeIds);
+
     // PropertyQueryGenerator was used to generate this query
     @Select(sql = "select p.samp_id as objectId, case pt.is_internal_namespace when FALSE then pt.code else '$' || pt.code end as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
             + "from sample_properties p "
@@ -149,4 +153,9 @@ public interface SampleQuery extends ObjectQuery
     @Select(sql = "select pt.code as prty_code, 'SAMPLE' as kind_code, st.id as type_id, st.code as type_code, stpt.* from sample_type_property_types stpt, property_types pt, sample_types st where stpt.id = any(?{1}) and stpt.prty_id = pt.id and stpt.saty_id = st.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet sampleTypePropertyTypeIds);
+
+    @Select(sql = "select stpt_id as objectId, id as relatedId from semantic_annotations where stpt_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getPropertyAssignmentAnnotationIds(LongSet sampleTypePropertyTypeIds);
+
 }

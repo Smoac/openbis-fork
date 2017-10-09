@@ -2,8 +2,8 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/sample/fetchoptions/SampleTypeSortOptions", 
-         "as/dto/property/fetchoptions/PropertyAssignmentFetchOptions"  ], function(stjs, FetchOptions) {
+define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/sample/fetchoptions/SampleTypeSortOptions", "as/dto/property/fetchoptions/PropertyAssignmentFetchOptions",
+		"as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions" ], function(stjs, FetchOptions) {
 	var SampleTypeFetchOptions = function() {
 	};
 	stjs.extend(SampleTypeFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
@@ -11,6 +11,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/sample/fetch
 		constructor.serialVersionUID = 1;
 		prototype.sort = null;
 		prototype.propertyAssignments = null;
+		prototype.semanticAnnotations = null;
 		prototype.withPropertyAssignments = function() {
 			if (this.propertyAssignments == null) {
 				var PropertyAssignmentFetchOptions = require("as/dto/property/fetchoptions/PropertyAssignmentFetchOptions");
@@ -24,6 +25,19 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/sample/fetch
 		prototype.hasPropertyAssignments = function() {
 			return this.propertyAssignments != null;
 		};
+		prototype.withSemanticAnnotations = function() {
+			if (this.semanticAnnotations == null) {
+				var SemanticAnnotationFetchOptions = require("as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions");
+				this.semanticAnnotations = new SemanticAnnotationFetchOptions();
+			}
+			return this.semanticAnnotations;
+		};
+		prototype.withSemanticAnnotationsUsing = function(fetchOptions) {
+			return this.semanticAnnotations = fetchOptions;
+		};
+		prototype.hasSemanticAnnotations = function() {
+			return this.semanticAnnotations != null;
+		};
 		prototype.sortBy = function() {
 			if (this.sort == null) {
 				var SampleTypeSortOptions = require("as/dto/sample/fetchoptions/SampleTypeSortOptions");
@@ -35,6 +49,8 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/sample/fetch
 			return this.sort;
 		};
 	}, {
+		propertyAssignments : "PropertyAssignmentFetchOptions",
+		semanticAnnotations : "SemanticAnnotationFetchOptions",
 		sort : "SampleTypeSortOptions"
 	});
 	return SampleTypeFetchOptions;

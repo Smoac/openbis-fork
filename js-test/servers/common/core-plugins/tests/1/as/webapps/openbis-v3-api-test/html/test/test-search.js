@@ -579,6 +579,60 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchSampleTypes() withSemanticAnnotations", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleTypeSearchCriteria();
+				criteria.withSemanticAnnotations().withPermId().thatEquals("ST_SIRNA_WELL");
+				var fetchOptions = new c.SampleTypeFetchOptions();
+				return facade.searchSampleTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, sampleTypes) {
+				c.assertEqual(sampleTypes.length, 1, "Number of sample types");
+				c.assertEqual(sampleTypes[0].getCode(), "SIRNA_WELL", "Sample type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSampleTypes() withPropertyAssignments withSemanticAnnotations", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleTypeSearchCriteria();
+				criteria.withPropertyAssignments().withSemanticAnnotations().withPermId().thatEquals("ST_ILLUMINA_FLOW_CELL_PT_CREATED_ON_CS");
+				var fetchOptions = new c.SampleTypeFetchOptions();
+				return facade.searchSampleTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, sampleTypes) {
+				c.assertEqual(sampleTypes.length, 1, "Number of sample types");
+				c.assertEqual(sampleTypes[0].getCode(), "ILLUMINA_FLOW_CELL", "Sample type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSampleTypes() withPropertyAssignments withPropertyType withSemanticAnnotations", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleTypeSearchCriteria();
+				criteria.withPropertyAssignments().withPropertyType().withSemanticAnnotations().withPermId().thatEquals("PT_AGILENT_KIT");
+				var fetchOptions = new c.SampleTypeFetchOptions();
+				return facade.searchSampleTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, sampleTypes) {
+				c.assertEqual(sampleTypes.length, 2, "Number of sample types");
+				c.assertObjectsWithValues(sampleTypes, "code", [ "LIBRARY", "LIBRARY_POOL" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchDataSets()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1321,23 +1375,48 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
-		QUnit.test("searchSemanticAnnotations() withEntityTypeId", function(assert) {
+		QUnit.test("searchSemanticAnnotations() withPredicate and withDescriptor", function(assert) {
 			var c = new common(assert, openbis);
-
-			var creation = new c.SemanticAnnotationCreation();
-			creation.setEntityTypeId(new c.EntityTypePermId("SIRNA_WELL", "SAMPLE"));
+			var expectedAnnotation = null;
 
 			var fSearch = function(facade) {
-				return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
+				return c.createSemanticAnnotation(facade).then(function(permId) {
+					return c.findSemanticAnnotation(facade, permId);
+				}).then(function(annotation) {
+					expectedAnnotation = annotation;
 					var criteria = new c.SemanticAnnotationSearchCriteria();
-					criteria.withEntityType().withId().thatEquals(creation.getEntityTypeId());
+					criteria.withPredicateOntologyId().thatEquals(annotation.getPredicateOntologyId());
 					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
 				});
 			}
 
 			var fCheck = function(facade, annotations) {
 				c.assertEqual(annotations.length, 1);
-				c.assertEqual(annotations[0].getEntityType().getCode(), "SIRNA_WELL", "Entity type code");
+				var annotation = annotations[0];
+				c.assertEqual(annotation.getPredicateOntologyId(), expectedAnnotation.getPredicateOntologyId(), "predicateOntologyId");
+				c.assertEqual(annotation.getPredicateOntologyVersion(), expectedAnnotation.getPredicateOntologyVersion(), "predicateOntologyVersion");
+				c.assertEqual(annotation.getPredicateAccessionId(), expectedAnnotation.getPredicateAccessionId(), "predicateAccessionId");
+				c.assertEqual(annotation.getDescriptorOntologyId(), expectedAnnotation.getDescriptorOntologyId(), "descriptorOntologyId");
+				c.assertEqual(annotation.getDescriptorOntologyVersion(), expectedAnnotation.getDescriptorOntologyVersion(), "descriptorOntologyVersion");
+				c.assertEqual(annotation.getDescriptorAccessionId(), expectedAnnotation.getDescriptorAccessionId(), "descriptorAccessionId");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSemanticAnnotations() withEntityTypeId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SemanticAnnotationSearchCriteria();
+				criteria.withEntityType().withId().thatEquals(new c.EntityTypePermId("PLATE", "SAMPLE"));
+				return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
+			}
+
+			var fCheck = function(facade, annotations) {
+				c.assertEqual(annotations.length, 1);
+				c.assertEqual(annotations[0].getPermId().getPermId(), "ST_PLATE", "Annotation perm id");
+				c.assertEqual(annotations[0].getEntityType().getCode(), "PLATE", "Entity type code");
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -1346,20 +1425,16 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		QUnit.test("searchSemanticAnnotations() withPropertyTypeId", function(assert) {
 			var c = new common(assert, openbis);
 
-			var creation = new c.SemanticAnnotationCreation();
-			creation.setPropertyTypeId(new c.PropertyTypePermId("DNA_CONCENTRATION_POOL"));
-
 			var fSearch = function(facade) {
-				return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
-					var criteria = new c.SemanticAnnotationSearchCriteria();
-					criteria.withPropertyType().withId().thatEquals(creation.getPropertyTypeId());
-					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
-				});
+				var criteria = new c.SemanticAnnotationSearchCriteria();
+				criteria.withPropertyType().withId().thatEquals(new c.PropertyTypePermId("DESCRIPTION"));
+				return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
 			}
 
 			var fCheck = function(facade, annotations) {
 				c.assertEqual(annotations.length, 1);
-				c.assertEqual(annotations[0].getPropertyType().getCode(), "DNA_CONCENTRATION_POOL", "Property type code");
+				c.assertEqual(annotations[0].getPermId().getPermId(), "PT_DESCRIPTION", "Annotation perm id");
+				c.assertEqual(annotations[0].getPropertyType().getCode(), "DESCRIPTION", "Property type code");
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -1368,22 +1443,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		QUnit.test("searchSemanticAnnotations() withPropertyAssignmentId", function(assert) {
 			var c = new common(assert, openbis);
 
-			var creation = new c.SemanticAnnotationCreation();
-			creation.setPropertyAssignmentId(new c.PropertyAssignmentPermId(new c.EntityTypePermId("ILLUMINA_FLOW_CELL", "SAMPLE"), new c.PropertyTypePermId("CYCLES")));
-
 			var fSearch = function(facade) {
-				return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
-					var criteria = new c.SemanticAnnotationSearchCriteria();
-					criteria.withPropertyAssignment().withId().thatEquals(creation.getPropertyAssignmentId());
-					return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
-				});
+				var criteria = new c.SemanticAnnotationSearchCriteria();
+				criteria.withPropertyAssignment().withId().thatEquals(new c.PropertyAssignmentPermId(new c.EntityTypePermId("LIBRARY", "SAMPLE"), new c.PropertyTypePermId("PREPARED_BY")));
+				return facade.searchSemanticAnnotations(criteria, c.createSemanticAnnotationFetchOptions());
 			}
 
 			var fCheck = function(facade, annotations) {
 				c.assertEqual(annotations.length, 1);
-				c.assertEqual(annotations[0].getPropertyAssignment().getEntityType().getCode(), "ILLUMINA_FLOW_CELL", "Entity type code");
+				c.assertEqual(annotations[0].getPermId().getPermId(), "ST_LIBRARY_PT_PREPARED_BY", "Annotation perm id");
+				c.assertEqual(annotations[0].getPropertyAssignment().getEntityType().getCode(), "LIBRARY", "Entity type code");
 				c.assertEqual(annotations[0].getPropertyAssignment().getEntityType().getPermId().getEntityKind(), "SAMPLE", "Entity type kind");
-				c.assertEqual(annotations[0].getPropertyAssignment().getPropertyType().getCode(), "CYCLES", "Property type code");
+				c.assertEqual(annotations[0].getPropertyAssignment().getPropertyType().getCode(), "PREPARED_BY", "Property type code");
 			}
 
 			testSearch(c, fSearch, fCheck);

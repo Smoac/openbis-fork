@@ -27,6 +27,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttribut
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind.REGISTRATION_DATE_UNTIL;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ModificationDateSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
@@ -47,7 +48,7 @@ public class MaterialAttributeProvider extends AbstractEntityAttributeProvider
         if (criteria instanceof TechIdSearchCriteria)
         {
             return ID;
-        } else if (criteria instanceof CodeSearchCriteria)
+        } else if (criteria instanceof CodeSearchCriteria || criteria instanceof CodesSearchCriteria)
         {
             return CODE;
         } else if (criteria instanceof PermIdSearchCriteria)

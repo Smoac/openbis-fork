@@ -16,6 +16,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.materialType = null;
 		prototype.schema = null;
 		prototype.transformation = null;
+		prototype.semanticAnnotations = null;
 		prototype.registrator = null;
 		prototype.registrationDate = null;
 
@@ -98,6 +99,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setTransformation = function(transformation) {
 			this.transformation = transformation;
+		};
+		prototype.getSemanticAnnotations = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSemanticAnnotations()) {
+				return this.semanticAnnotations;
+			} else {
+				throw new exceptions.NotFetchedException("Semantic annotations have not been fetched.");
+			}
+		};
+		prototype.setSemanticAnnotations = function(semanticAnnotations) {
+			this.semanticAnnotations = semanticAnnotations;
 		};
 		prototype.getRegistrator = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {

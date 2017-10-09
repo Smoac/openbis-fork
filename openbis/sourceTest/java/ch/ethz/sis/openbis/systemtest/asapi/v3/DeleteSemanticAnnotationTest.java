@@ -107,7 +107,7 @@ public class DeleteSemanticAnnotationTest extends AbstractDeletionTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        v3api.deleteSemanticAnnotations(sessionToken, Arrays.asList(new SemanticAnnotationPermId("20170918092158673-1")), null);
+        v3api.deleteSemanticAnnotations(sessionToken, Arrays.asList(new SemanticAnnotationPermId("ST_MASTER_PLATE")), null);
     }
 
     @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*Deletion reason cannot be null.*")
@@ -117,7 +117,7 @@ public class DeleteSemanticAnnotationTest extends AbstractDeletionTest
 
         SemanticAnnotationDeletionOptions options = new SemanticAnnotationDeletionOptions();
 
-        v3api.deleteSemanticAnnotations(sessionToken, Arrays.asList(new SemanticAnnotationPermId("20170918092158673-1")), options);
+        v3api.deleteSemanticAnnotations(sessionToken, Arrays.asList(new SemanticAnnotationPermId("ST_MASTER_PLATE")), options);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class DeleteSemanticAnnotationTest extends AbstractDeletionTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationPermId id = new SemanticAnnotationPermId("20170918092158673-1");
+        SemanticAnnotationPermId id = new SemanticAnnotationPermId("ST_MASTER_PLATE");
         SemanticAnnotationFetchOptions fo = new SemanticAnnotationFetchOptions();
 
         Map<ISemanticAnnotationId, SemanticAnnotation> beforeMap = v3api.getSemanticAnnotations(sessionToken, Arrays.asList(id), fo);
@@ -147,7 +147,7 @@ public class DeleteSemanticAnnotationTest extends AbstractDeletionTest
         SemanticAnnotationDeletionOptions options = new SemanticAnnotationDeletionOptions();
         options.setReason("It is just a test");
 
-        v3api.deleteSemanticAnnotations(sessionToken, Arrays.asList(new SemanticAnnotationPermId("20170918092158673-1")), options);
+        v3api.deleteSemanticAnnotations(sessionToken, Arrays.asList(new SemanticAnnotationPermId("ST_MASTER_PLATE")), options);
     }
 
 }

@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -47,6 +48,9 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
     @Autowired
     private ISamplePropertyAssignmentTranslator assignmentTranslator;
 
+    @Autowired
+    private ISampleTypeSemanticAnnotationTranslator annotationTranslator;
+
     @Override
     protected SampleType createObject(TranslationContext context, Long typeId, SampleTypeFetchOptions fetchOptions)
     {
@@ -62,10 +66,17 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
         TranslationResults relations = new TranslationResults();
 
         relations.put(ISampleTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
+
         if (fetchOptions.hasPropertyAssignments())
         {
             relations.put(ISamplePropertyAssignmentTranslator.class,
                     assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
+        }
+
+        if (fetchOptions.hasSemanticAnnotations())
+        {
+            relations.put(ISampleTypeSemanticAnnotationTranslator.class,
+                    annotationTranslator.translate(context, typeIds, fetchOptions.withSemanticAnnotations()));
         }
 
         return relations;
@@ -95,6 +106,12 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
             Collection<PropertyAssignment> assignments = relations.get(ISamplePropertyAssignmentTranslator.class, typeId);
             List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
             result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+        }
+
+        if (fetchOptions.hasSemanticAnnotations())
+        {
+            result.setSemanticAnnotations((List<SemanticAnnotation>) relations.get(ISampleTypeSemanticAnnotationTranslator.class, typeId));
+            result.getFetchOptions().withSemanticAnnotationsUsing(fetchOptions.withSemanticAnnotations());
         }
     }
 

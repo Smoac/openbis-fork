@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -36,16 +37,24 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.IDataSetTypeTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentTypeTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.material.IMaterialTypeTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleTypeTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.SampleQuery;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.semanticannotation.ISemanticAnnotationTranslator;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author Franz-Josef Elmer
@@ -68,6 +77,9 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
 
     @Autowired
     private IDataSetTypeTranslator dataSetTypeTranslator;
+
+    @Autowired
+    private ISemanticAnnotationTranslator annotationTranslator;
 
     @Autowired
     private IPersonTranslator personTranslator;
@@ -124,6 +136,12 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
                     assignment.setPropertyType(propertyType);
                 }
             }
+        }
+
+        if (assignmentFetchOptions.hasSemanticAnnotations())
+        {
+            setSemanticAnnotations(context, assignments, assignmentRecords, assignmentFetchOptions, EntityKind.SAMPLE);
+            // potentially more entity kinds in the future
         }
 
         if (assignmentFetchOptions.hasRegistrator())
@@ -256,6 +274,90 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
             for (PropertyAssignment assignment : entry.getValue())
             {
                 assignment.setEntityType(entityType);
+            }
+        }
+    }
+
+    private void setSemanticAnnotations(TranslationContext context, Map<Long, PropertyAssignment> assignments,
+            Collection<PropertyAssignmentRecord> assignmentRecords, PropertyAssignmentFetchOptions assignmentFetchOptions, EntityKind entityKind)
+    {
+        Collection<Long> propertyAssignmentIds = new HashSet<Long>();
+
+        for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
+        {
+            if (entityKind.equals(EntityKind.valueOf(assignmentRecord.kind_code)))
+            {
+                propertyAssignmentIds.add(assignmentRecord.id);
+            }
+        }
+
+        List<ObjectRelationRecord> assignmentToAnnotationRecords = null;
+
+        if (entityKind.equals(EntityKind.SAMPLE))
+        {
+            SampleQuery sampleQuery = QueryTool.getManagedQuery(SampleQuery.class);
+            assignmentToAnnotationRecords = sampleQuery.getPropertyAssignmentAnnotationIds(new LongOpenHashSet(propertyAssignmentIds));
+        }
+
+        if (assignmentToAnnotationRecords != null)
+        {
+            Collection<Long> annotationIds = new HashSet<Long>();
+
+            for (ObjectRelationRecord assignmentToAnnotationRecord : assignmentToAnnotationRecords)
+            {
+                annotationIds.add(assignmentToAnnotationRecord.relatedId);
+            }
+
+            Map<Long, SemanticAnnotation> annotations =
+                    annotationTranslator.translate(context, annotationIds, assignmentFetchOptions.withSemanticAnnotations());
+
+            for (ObjectRelationRecord assignmentToAnnotationRecord : assignmentToAnnotationRecords)
+            {
+                PropertyAssignment assignment = assignments.get(assignmentToAnnotationRecord.objectId);
+                SemanticAnnotation annotation = annotations.get(assignmentToAnnotationRecord.relatedId);
+
+                List<SemanticAnnotation> assignmentAnnotations = assignment.getSemanticAnnotations();
+                if (assignmentAnnotations == null)
+                {
+                    assignmentAnnotations = new ArrayList<SemanticAnnotation>();
+                    assignment.setSemanticAnnotations(assignmentAnnotations);
+                }
+                assignmentAnnotations.add(annotation);
+            }
+        }
+
+        setSemanticAnnotationsFromPropertyTypeIfMissing(context, assignments, assignmentRecords, assignmentFetchOptions, EntityKind.SAMPLE);
+    }
+
+    private void setSemanticAnnotationsFromPropertyTypeIfMissing(TranslationContext context, Map<Long, PropertyAssignment> assignments,
+            Collection<PropertyAssignmentRecord> assignmentRecords, PropertyAssignmentFetchOptions assignmentFetchOptions, EntityKind entityKind)
+    {
+        Collection<Long> propertyTypeIds = new HashSet<Long>();
+
+        for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
+        {
+            if (entityKind.equals(EntityKind.valueOf(assignmentRecord.kind_code)))
+            {
+                propertyTypeIds.add(assignmentRecord.prty_id);
+            }
+        }
+
+        PropertyTypeFetchOptions propertyTypeFetchOptions = new PropertyTypeFetchOptions();
+        propertyTypeFetchOptions.withSemanticAnnotations();
+
+        Map<Long, PropertyType> propertyTypes = propertyTypeTranslator.translate(context, propertyTypeIds, propertyTypeFetchOptions);
+
+        for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
+        {
+            if (entityKind.equals(EntityKind.valueOf(assignmentRecord.kind_code)))
+            {
+                PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+
+                if (assignment.getSemanticAnnotations() == null || assignment.getSemanticAnnotations().isEmpty())
+                {
+                    PropertyType propertyType = propertyTypes.get(assignmentRecord.prty_id);
+                    assignment.setSemanticAnnotations(propertyType.getSemanticAnnotations());
+                }
             }
         }
     }

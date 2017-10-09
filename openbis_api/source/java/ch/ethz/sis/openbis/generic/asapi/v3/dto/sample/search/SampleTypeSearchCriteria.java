@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.sample.search.SampleTypeSearchCriteria")
@@ -27,6 +28,11 @@ public class SampleTypeSearchCriteria extends AbstractEntityTypeSearchCriteria
     public ListableSampleTypeSearchCriteria withListable()
     {
         return with(new ListableSampleTypeSearchCriteria());
+    }
+
+    public SemanticAnnotationSearchCriteria withSemanticAnnotations()
+    {
+        return with(new SemanticAnnotationSearchCriteria());
     }
 
     @Override

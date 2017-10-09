@@ -51,7 +51,7 @@ public class ListEntityTypeByPermId extends AbstractListObjectById<EntityTypePer
     @Override
     public EntityTypePermId createId(EntityTypePE entityType)
     {
-        return new EntityTypePermId(entityType.getPermId(), EntityTypeConverter.convert(entityType.getEntityKind()));
+        return new EntityTypePermId(entityType.getPermId(), EntityKindConverter.convert(entityType.getEntityKind()));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ListEntityTypeByPermId extends AbstractListObjectById<EntityTypePer
 
         for (EntityTypePermId id : ids)
         {
-            EntityKind entityKind = EntityTypeConverter.convert(id.getEntityKind());
+            EntityKind entityKind = EntityKindConverter.convert(id.getEntityKind());
 
             if (EntityKind.MATERIAL.equals(entityKind))
             {

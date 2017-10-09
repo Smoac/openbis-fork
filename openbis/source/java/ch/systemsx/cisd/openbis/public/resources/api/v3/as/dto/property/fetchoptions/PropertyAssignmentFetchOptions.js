@@ -1,5 +1,5 @@
 define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fetchoptions/PropertyTypeFetchOptions", "as/dto/person/fetchoptions/PersonFetchOptions",
-		"as/dto/property/fetchoptions/PropertyAssignmentSortOptions" ], function(stjs, FetchOptions) {
+		"as/dto/property/fetchoptions/PropertyAssignmentSortOptions", "as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions" ], function(stjs, FetchOptions) {
 	var PropertyAssignmentFetchOptions = function() {
 	};
 	stjs.extend(PropertyAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
@@ -7,6 +7,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 		constructor.serialVersionUID = 1;
 		prototype.entityType = null;
 		prototype.propertyType = null;
+		prototype.semanticAnnotations = null;
 		prototype.registrator = null;
 		prototype.sort = null;
 
@@ -36,6 +37,19 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 		prototype.hasPropertyType = function() {
 			return this.propertyType != null;
 		};
+		prototype.withSemanticAnnotations = function() {
+			if (this.semanticAnnotations == null) {
+				var SemanticAnnotationFetchOptions = require("as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions");
+				this.semanticAnnotations = new SemanticAnnotationFetchOptions();
+			}
+			return this.semanticAnnotations;
+		};
+		prototype.withSemanticAnnotationsUsing = function(fetchOptions) {
+			return this.semanticAnnotations = fetchOptions;
+		};
+		prototype.hasSemanticAnnotations = function() {
+			return this.semanticAnnotations != null;
+		};
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
 				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
@@ -60,9 +74,10 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 			return this.sort;
 		};
 	}, {
-		entityType : "EntityType",
-		propertyType : "PropertyType",
-		registrator : "Person",
+		entityType : "EntityTypeFetchOptions",
+		propertyType : "PropertyTypeFetchOptions",
+		semanticAnnotations : "SemanticAnnotationFetchOptions",
+		registrator : "PersonFetchOptions",
 		sort : "PropertyAssignmentSortOptions"
 	});
 	return PropertyAssignmentFetchOptions;

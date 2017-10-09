@@ -46,7 +46,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropert
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityTypeConverter;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -259,7 +259,7 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     @Override
     protected EntityTypePermId createPermId(IOperationContext context, TYPE_PE entity)
     {
-        return new EntityTypePermId(entity.getCode(), EntityTypeConverter.convert(entity.getEntityKind()));
+        return new EntityTypePermId(entity.getCode(), EntityKindConverter.convert(entity.getEntityKind()));
     }
 
     @Override

@@ -33,7 +33,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.externaldms.search
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.material.search.MaterialSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.project.search.ProjectSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.search.SampleSearchCriteriaTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.search.SampleTypeSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.search.SpaceSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.tag.search.TagSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -58,7 +57,6 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
     protected List<ISearchCriteriaTranslator> createTranslators()
     {
         List<ISearchCriteriaTranslator> translators = new LinkedList<ISearchCriteriaTranslator>();
-        translators.add(new SampleTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new TagSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SpaceSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new ProjectSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
@@ -81,6 +79,7 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         translators.add(new EnumFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new EntityTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new ContentCopySearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new CollectionSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         return translators;
     }
 

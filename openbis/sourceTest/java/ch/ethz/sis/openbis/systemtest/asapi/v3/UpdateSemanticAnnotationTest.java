@@ -92,8 +92,8 @@ public class UpdateSemanticAnnotationTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("20170918092158673-1");
-        final SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("20170918092158673-2");
+        final SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("ST_MASTER_PLATE");
+        final SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("ST_DILUTION_PLATE");
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map =
                 v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId1, permId2), new SemanticAnnotationFetchOptions());
@@ -159,7 +159,7 @@ public class UpdateSemanticAnnotationTest extends AbstractTest
         String sessionToken = v3api.login(userId, PASSWORD);
 
         SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
-        update.setSemanticAnnotationId(new SemanticAnnotationPermId("20170918092158673-1"));
+        update.setSemanticAnnotationId(new SemanticAnnotationPermId("ST_MASTER_PLATE"));
         update.setPredicateOntologyId("testPredicateOntologyId1Updated");
 
         v3api.updateSemanticAnnotations(sessionToken, Arrays.asList(update));

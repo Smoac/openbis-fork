@@ -123,6 +123,7 @@ public abstract class EntityTypePE extends AbstractTypePE
         final EntityTypePE that = (EntityTypePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
+        builder.append(getEntityKind(), that.getEntityKind());
         return builder.isEquals();
     }
 
@@ -131,6 +132,7 @@ public abstract class EntityTypePE extends AbstractTypePE
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
+        builder.append(getEntityKind());
         return builder.toHashCode();
     }
 }

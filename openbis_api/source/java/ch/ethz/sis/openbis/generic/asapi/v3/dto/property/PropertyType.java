@@ -20,11 +20,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHo
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnotationsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -32,12 +34,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyType")
-public class PropertyType implements Serializable, ICodeHolder, IDescriptionHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder
+public class PropertyType implements Serializable, ICodeHolder, IDescriptionHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISemanticAnnotationsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -76,6 +79,9 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
 
     @JsonProperty
     private String transformation;
+
+    @JsonProperty
+    private List<SemanticAnnotation> semanticAnnotations;
 
     @JsonProperty
     private Person registrator;
@@ -254,6 +260,27 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
     public void setTransformation(String transformation)
     {
         this.transformation = transformation;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public List<SemanticAnnotation> getSemanticAnnotations()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSemanticAnnotations())
+        {
+            return semanticAnnotations;
+        }
+        else
+        {
+            throw new NotFetchedException("Semantic annotations have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSemanticAnnotations(List<SemanticAnnotation> semanticAnnotations)
+    {
+        this.semanticAnnotations = semanticAnnotations;
     }
 
     // Method automatically generated with DtoGenerator

@@ -43,16 +43,16 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     @Test
     public void testSearchWithEmptyCriteria()
     {
-        testSearch(TEST_USER, new SemanticAnnotationSearchCriteria(), "20170918092158673-1", "20170918092158673-2", "20170918092158673-3",
-                "20170918092158673-4", "20170918092158673-5", "20170918092158673-6");
+        testSearch(TEST_USER, new SemanticAnnotationSearchCriteria(), "ST_MASTER_PLATE", "ST_DILUTION_PLATE", "ST_MASTER_PLATE_PT_PLATE_GEOMETRY",
+                "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY", "PT_DESCRIPTION", "PT_GENE_SYMBOL", "ST_CELL_PLATE_PT_ORGANISM", "PT_ORGANISM");
     }
 
     @Test
     public void testSearchWithIdThatEquals()
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
-        criteria.withId().thatEquals(new SemanticAnnotationPermId("20170918092158673-2"));
-        testSearch(TEST_USER, criteria, "20170918092158673-2");
+        criteria.withId().thatEquals(new SemanticAnnotationPermId("ST_DILUTION_PLATE"));
+        testSearch(TEST_USER, criteria, "ST_DILUTION_PLATE");
     }
 
     @Test
@@ -67,8 +67,64 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     public void testSearchWithPermIdThatEquals()
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
-        criteria.withPermId().thatEquals("20170918092158673-2");
-        testSearch(TEST_USER, criteria, "20170918092158673-2");
+        criteria.withPermId().thatEquals("ST_DILUTION_PLATE");
+        testSearch(TEST_USER, criteria, "ST_DILUTION_PLATE");
+    }
+
+    @Test
+    public void testSearchWithPredicateOntologyIdThatEquals()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withPredicateOntologyId().thatEquals("testPredicateOntologyId3");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE_PT_PLATE_GEOMETRY");
+    }
+
+    @Test
+    public void testSearchWithPredicateOntologyVersionThatEquals()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withPredicateOntologyVersion().thatEquals("testPredicateOntologyVersion4");
+        testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
+    }
+
+    @Test
+    public void testSearchWithPredicateAccessionIdThatEquals()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withPredicateAccessionId().thatEquals("testPredicateAccessionId5");
+        testSearch(TEST_USER, criteria, "PT_DESCRIPTION");
+    }
+
+    @Test
+    public void testSearchWithDescriptorOntologyIdThatEquals()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withDescriptorOntologyId().thatEquals("testDescriptorOntologyId3");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE_PT_PLATE_GEOMETRY");
+    }
+
+    @Test
+    public void testSearchWithDescriptorOntologyVersionThatEquals()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withDescriptorOntologyVersion().thatEquals("testDescriptorOntologyVersion4");
+        testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
+    }
+
+    @Test
+    public void testSearchWithDescriptorAccessionIdThatEquals()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withDescriptorAccessionId().thatEquals("testDescriptorAccessionId5");
+        testSearch(TEST_USER, criteria, "PT_DESCRIPTION");
+    }
+
+    @Test
+    public void testSearchWithEntityType()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withEntityType();
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE", "ST_DILUTION_PLATE");
     }
 
     @Test
@@ -76,7 +132,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withEntityType().withId().thatEquals(new EntityTypePermId("DILUTION_PLATE", EntityKind.SAMPLE));
-        testSearch(TEST_USER, criteria, "20170918092158673-2");
+        testSearch(TEST_USER, criteria, "ST_DILUTION_PLATE");
     }
 
     @Test
@@ -84,7 +140,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withEntityType().withCode().thatEquals("MASTER_PLATE");
-        testSearch(TEST_USER, criteria, "20170918092158673-1");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE");
     }
 
     @Test
@@ -92,7 +148,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withEntityType().withKind().thatEquals(EntityKind.SAMPLE);
-        testSearch(TEST_USER, criteria, "20170918092158673-1", "20170918092158673-2");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE", "ST_DILUTION_PLATE");
         criteria.withEntityType().withKind().thatEquals(EntityKind.EXPERIMENT);
         testSearch(TEST_USER, criteria);
     }
@@ -103,7 +159,15 @@ public class SearchSemanticAnnotationTest extends AbstractTest
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withEntityType().withCode().thatEquals("MASTER_PLATE");
         criteria.withEntityType().withKind().thatEquals(EntityKind.SAMPLE);
-        testSearch(TEST_USER, criteria, "20170918092158673-1");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE");
+    }
+
+    @Test
+    public void testSearchWithPropertyType()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withPropertyType();
+        testSearch(TEST_USER, criteria, "PT_DESCRIPTION", "PT_GENE_SYMBOL", "PT_ORGANISM");
     }
 
     @Test
@@ -111,7 +175,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyType().withId().thatEquals(new PropertyTypePermId("GENE_SYMBOL"));
-        testSearch(TEST_USER, criteria, "20170918092158673-6");
+        testSearch(TEST_USER, criteria, "PT_GENE_SYMBOL");
     }
 
     @Test
@@ -119,7 +183,15 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyType().withCode().thatEquals("DESCRIPTION");
-        testSearch(TEST_USER, criteria, "20170918092158673-5");
+        testSearch(TEST_USER, criteria, "PT_DESCRIPTION");
+    }
+
+    @Test
+    public void testSearchWithPropertyAssignment()
+    {
+        SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
+        criteria.withPropertyAssignment();
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE_PT_PLATE_GEOMETRY", "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY", "ST_CELL_PLATE_PT_ORGANISM");
     }
 
     @Test
@@ -129,7 +201,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
         criteria.withPropertyAssignment().withId()
                 .thatEquals(new PropertyAssignmentPermId(new EntityTypePermId("CONTROL_LAYOUT", EntityKind.SAMPLE),
                         new PropertyTypePermId("$PLATE_GEOMETRY")));
-        testSearch(TEST_USER, criteria, "20170918092158673-4");
+        testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
     @Test
@@ -137,7 +209,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyAssignment().withEntityType().withId().thatEquals(new EntityTypePermId("CONTROL_LAYOUT", EntityKind.SAMPLE));
-        testSearch(TEST_USER, criteria, "20170918092158673-4");
+        testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
     @Test
@@ -145,7 +217,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyAssignment().withPropertyType().withId().thatEquals(new PropertyTypePermId("$PLATE_GEOMETRY"));
-        testSearch(TEST_USER, criteria, "20170918092158673-3", "20170918092158673-4");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE_PT_PLATE_GEOMETRY", "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
     @Test
@@ -154,7 +226,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyAssignment().withEntityType().withId().thatEquals(new EntityTypePermId("CONTROL_LAYOUT", EntityKind.SAMPLE));
         criteria.withPropertyAssignment().withPropertyType().withId().thatEquals(new PropertyTypePermId("$PLATE_GEOMETRY"));
-        testSearch(TEST_USER, criteria, "20170918092158673-4");
+        testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
     @Test
@@ -162,9 +234,9 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withAndOperator();
-        criteria.withPermId().thatContains("20170918092158673-");
-        criteria.withPermId().thatContains("-2");
-        testSearch(TEST_USER, criteria, "20170918092158673-2");
+        criteria.withPermId().thatContains("PLATE");
+        criteria.withPermId().thatContains("GEOMETRY");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE_PT_PLATE_GEOMETRY", "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
     @Test
@@ -172,10 +244,10 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withOrOperator();
-        criteria.withPermId().thatContains("20170918092158673-");
-        criteria.withPermId().thatContains("-2");
-        testSearch(TEST_USER, criteria, "20170918092158673-1", "20170918092158673-2", "20170918092158673-3",
-                "20170918092158673-4", "20170918092158673-5", "20170918092158673-6");
+        criteria.withPermId().thatContains("PLATE");
+        criteria.withPermId().thatContains("GEOMETRY");
+        testSearch(TEST_USER, criteria, "ST_MASTER_PLATE", "ST_DILUTION_PLATE", "ST_MASTER_PLATE_PT_PLATE_GEOMETRY",
+                "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY", "ST_CELL_PLATE_PT_ORGANISM");
     }
 
     private void testSearch(String user, SemanticAnnotationSearchCriteria criteria, String... expectedPermIds)

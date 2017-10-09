@@ -181,6 +181,7 @@ public class Generator extends AbstractGenerator
 
         gen.setToStringMethod("\"SampleType \" + code");
         addPropertyAssignments(gen);
+        addSemanticAnnotations(gen);
 
         return gen;
     }
@@ -684,6 +685,7 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("mandatory");
         gen.addBooleanField("showInEditView");
         gen.addBooleanField("showRawValueInForms");
+        addSemanticAnnotations(gen);
         addRegistrator(gen);
         addRegistrationDate(gen);
         gen.setToStringMethod(
@@ -707,6 +709,7 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField(MaterialType.class, "materialType", "Material type", MaterialTypeFetchOptions.class);
         gen.addStringField("schema");
         gen.addStringField("transformation");
+        addSemanticAnnotations(gen);
         addRegistrator(gen);
         addRegistrationDate(gen);
         gen.setToStringMethod("\"PropertyType \" + code");

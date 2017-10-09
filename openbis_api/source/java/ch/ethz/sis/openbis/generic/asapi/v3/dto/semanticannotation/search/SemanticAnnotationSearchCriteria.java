@@ -59,6 +59,36 @@ public class SemanticAnnotationSearchCriteria extends AbstractObjectSearchCriter
         return with(new PropertyAssignmentSearchCriteria());
     }
 
+    public PredicateOntologyIdSearchCriteria withPredicateOntologyId()
+    {
+        return with(new PredicateOntologyIdSearchCriteria());
+    }
+
+    public PredicateOntologyVersionSearchCriteria withPredicateOntologyVersion()
+    {
+        return with(new PredicateOntologyVersionSearchCriteria());
+    }
+
+    public PredicateAccessionIdSearchCriteria withPredicateAccessionId()
+    {
+        return with(new PredicateAccessionIdSearchCriteria());
+    }
+
+    public DescriptorOntologyIdSearchCriteria withDescriptorOntologyId()
+    {
+        return with(new DescriptorOntologyIdSearchCriteria());
+    }
+
+    public DescriptorOntologyVersionSearchCriteria withDescriptorOntologyVersion()
+    {
+        return with(new DescriptorOntologyVersionSearchCriteria());
+    }
+
+    public DescriptorAccessionIdSearchCriteria withDescriptorAccessionId()
+    {
+        return with(new DescriptorAccessionIdSearchCriteria());
+    }
+
     public SemanticAnnotationSearchCriteria withOrOperator()
     {
         return (SemanticAnnotationSearchCriteria) withOperator(SearchOperator.OR);

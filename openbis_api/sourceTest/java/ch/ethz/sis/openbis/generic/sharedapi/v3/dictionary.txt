@@ -1668,3 +1668,23 @@ get Settings
 set Settings
 get Web App Id
 set Web App Id
+CodesSearchCriteria
+CollectionFieldSearchCriteria
+DescriptorAccessionIdSearchCriteria
+DescriptorOntologyIdSearchCriteria
+DescriptorOntologyVersionSearchCriteria
+hasSemanticAnnotations
+ISemanticAnnotationsHolder
+PredicateAccessionIdSearchCriteria
+PredicateOntologyIdSearchCriteria
+PredicateOntologyVersionSearchCriteria
+setSemanticAnnotations
+withCodes
+withDescriptorAccessionId
+withDescriptorOntologyId
+withDescriptorOntologyVersion
+withPredicateAccessionId
+withPredicateOntologyId
+withPredicateOntologyVersion
+withSemanticAnnotations
+withSemanticAnnotationsUsing

@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectQuery
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectRelationRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.Select;
 
@@ -45,5 +46,9 @@ public interface PropertyTypeQuery extends ObjectQuery
     @Select(sql = "select id as objectId, pers_id_registerer as relatedId from property_types where id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet objectIds);
+
+    @Select(sql = "select prty_id as objectId, id as relatedId from semantic_annotations where prty_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getSemanticAnnotationIds(LongOpenHashSet propertyTypeIds);
 
 }

@@ -30,13 +30,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
-		this.DataSetCreation= dtos.DataSetCreation;
+		this.DataSetCreation = dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
 		this.DataSetFileCreation = dtos.DataSetFileCreation;
 		this.LinkedDataCreation = dtos.LinkedDataCreation;
-		this.ContentCopyCreation= dtos.ContentCopyCreation;
-		this.ExternalDmsCreation= dtos.ExternalDmsCreation;
-		this.ExternalDmsAddressType= require('as/dto/externaldms/ExternalDmsAddressType');
+		this.ContentCopyCreation = dtos.ContentCopyCreation;
+		this.ExternalDmsCreation = dtos.ExternalDmsCreation;
+		this.ExternalDmsAddressType = require('as/dto/externaldms/ExternalDmsAddressType');
 		this.SpaceUpdate = dtos.SpaceUpdate;
 		this.ProjectUpdate = dtos.ProjectUpdate;
 		this.ExperimentUpdate = dtos.ExperimentUpdate;
@@ -286,7 +286,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				});
 			});
 		}.bind(this);
-		
+
 		this.createLinkDataSet = function(facade, path, gitCommitHash, gitRepositoryId) {
 			var c = this;
 			return c.createExperiment(facade).then(function(experimentPermId) {
@@ -302,9 +302,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 					cc.setPath(path);
 					cc.setGitCommitHash(gitCommitHash);
 					cc.setGitRepositoryId(gitRepositoryId);
-					linkedData.setContentCopies([cc]);
+					linkedData.setContentCopies([ cc ]);
 					dataSet.setLinkedData(linkedData);
-					return facade.createDataSets([dataSet]).then(function(permIds) {
+					return facade.createDataSets([ dataSet ]).then(function(permIds) {
 						return permIds[0];
 					});
 				});
@@ -353,7 +353,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
-		
+
 		this.createExternalDms = function(facade) {
 			var c = this;
 			var creation = new dtos.ExternalDmsCreation();
@@ -364,7 +364,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
-		
+
 		this.createFileExternalDms = function(facade) {
 			var c = this;
 			var creation = new c.ExternalDmsCreation();
@@ -385,17 +385,17 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
-		
+
 		this.createSemanticAnnotation = function(facade) {
 			var c = this;
 			var creation = new dtos.SemanticAnnotationCreation();
 			creation.setEntityTypeId(new dtos.EntityTypePermId("UNKNOWN", "SAMPLE"));
-			creation.setPredicateOntologyId("jsPredicateOntologyId");
-			creation.setPredicateOntologyVersion("jsPredicateOntologyVersion");
-			creation.setPredicateAccessionId("jsPredicateAccessionId");
-			creation.setDescriptorOntologyId("jsDescriptorOntologyId");
-			creation.setDescriptorOntologyVersion("jsDescriptorOntologyVersion");
-			creation.setDescriptorAccessionId("jsDescriptorAccessionId");
+			creation.setPredicateOntologyId(c.generateId("jsPredicateOntologyId"));
+			creation.setPredicateOntologyVersion(c.generateId("jsPredicateOntologyVersion"));
+			creation.setPredicateAccessionId(c.generateId("jsPredicateAccessionId"));
+			creation.setDescriptorOntologyId(c.generateId("jsDescriptorOntologyId"));
+			creation.setDescriptorOntologyVersion(c.generateId("jsDescriptorOntologyVersion"));
+			creation.setDescriptorAccessionId(c.generateId("jsDescriptorAccessionId"));
 			return facade.createSemanticAnnotations([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -431,7 +431,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return experiments[id];
 			});
 		}.bind(this);
-		
+
 		this.findExperimentType = function(facade, id) {
 			var c = this;
 			var criteria = new c.ExperimentTypeSearchCriteria();
@@ -479,7 +479,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return materials[id];
 			});
 		}.bind(this);
-		
+
 		this.findMaterialType = function(facade, id) {
 			var c = this;
 			var criteria = new c.MaterialTypeSearchCriteria();
@@ -502,21 +502,21 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return tags[id];
 			});
 		}.bind(this);
-		
+
 		this.findSemanticAnnotation = function(facade, id) {
 			var c = this;
 			return facade.getSemanticAnnotations([ id ], c.createSemanticAnnotationFetchOptions()).then(function(annotations) {
 				return annotations[id];
 			});
 		}.bind(this);
-		
+
 		this.findExternalDms = function(facade, id) {
 			var c = this;
 			return facade.getExternalDataManagementSystems([ id ], c.createExternalDmsFetchOptions()).then(function(edms) {
 				return edms[id];
 			});
 		}.bind(this);
-		
+
 		this.findOperationExecution = function(facade, id) {
 			var c = this;
 			return facade.getOperationExecutions([ id ], c.createOperationExecutionFetchOptions()).then(function(executions) {
@@ -579,7 +579,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			options.setReason("test reason");
 			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
-		
+
 		this.replaceVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();
@@ -601,7 +601,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			options.setReason("test reason");
 			return facade.deleteOperationExecutions([ id ], options);
 		}.bind(this);
-		
+
 		this.deleteSemanticAnnotation = function(facade, id) {
 			var c = this;
 			var options = new dtos.SemanticAnnotationDeletionOptions();
@@ -671,7 +671,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withAttachments().withContent();
 			return fo;
 		};
-		
+
 		this.createExperimentTypeFetchOptions = function() {
 			var fo = new dtos.ExperimentTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
@@ -728,14 +728,14 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withModifier();
 			return fo;
 		};
-		
+
 		this.createDataSetTypeFetchOptions = function() {
 			var fo = new dtos.DataSetTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
 			fo.withPropertyAssignments().withRegistrator();
 			return fo;
 		};
-		
+
 		this.createMaterialFetchOptions = function() {
 			var fo = new dtos.MaterialFetchOptions();
 			fo.withType();
@@ -746,7 +746,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withTags();
 			return fo;
 		};
-		
+
 		this.createMaterialTypeFetchOptions = function() {
 			var fo = new dtos.MaterialTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
@@ -783,7 +783,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withMaterials();
 			return fo;
 		};
-		
+
 		this.createSemanticAnnotationFetchOptions = function() {
 			var fo = new dtos.SemanticAnnotationFetchOptions();
 			fo.withEntityType();
@@ -792,12 +792,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withPropertyAssignment().withPropertyType();
 			return fo;
 		};
-		
+
 		this.createExternalDmsFetchOptions = function() {
 			var fo = new dtos.ExternalDmsFetchOptions();
 			return fo;
 		};
-		
+
 		this.createOperationExecutionFetchOptions = function() {
 			var fo = new dtos.OperationExecutionFetchOptions();
 			fo.withOwner().withSpace();
@@ -818,12 +818,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.DataStoreFetchOptions();
 			return fo;
 		};
-		
+
 		this.createDataSetFileFetchOptions = function() {
 			var fo = new dtos.DataSetFileFetchOptions();
 			return fo;
 		};
-		
+
 		this.assertNull = function(actual, msg) {
 			this.assertEqual(actual, null, msg)
 		};

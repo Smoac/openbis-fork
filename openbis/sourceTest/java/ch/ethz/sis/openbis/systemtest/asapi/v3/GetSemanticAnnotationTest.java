@@ -46,8 +46,8 @@ public class GetSemanticAnnotationTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("20170918092158673-1");
-        SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("20170918092158673-2");
+        SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("ST_MASTER_PLATE");
+        SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map =
                 v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId1, permId2),
@@ -70,9 +70,9 @@ public class GetSemanticAnnotationTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("20170918092158673-1");
+        SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("ST_MASTER_PLATE");
         SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("I_DONT_EXIST");
-        SemanticAnnotationPermId permId3 = new SemanticAnnotationPermId("20170918092158673-2");
+        SemanticAnnotationPermId permId3 = new SemanticAnnotationPermId("ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map =
                 v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId1, permId2, permId3), new SemanticAnnotationFetchOptions());
@@ -94,8 +94,8 @@ public class GetSemanticAnnotationTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("20170918092158673-1");
-        SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("20170918092158673-1");
+        SemanticAnnotationPermId permId1 = new SemanticAnnotationPermId("ST_MASTER_PLATE");
+        SemanticAnnotationPermId permId2 = new SemanticAnnotationPermId("ST_MASTER_PLATE");
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map =
                 v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId1, permId2), new SemanticAnnotationFetchOptions());
@@ -114,7 +114,7 @@ public class GetSemanticAnnotationTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken,
-                Arrays.asList(new SemanticAnnotationPermId("20170918092158673-1")), new SemanticAnnotationFetchOptions());
+                Arrays.asList(new SemanticAnnotationPermId("ST_MASTER_PLATE")), new SemanticAnnotationFetchOptions());
 
         assertEquals(1, map.size());
     }
@@ -125,7 +125,7 @@ public class GetSemanticAnnotationTest extends AbstractTest
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken,
-                Arrays.asList(new SemanticAnnotationPermId("20170918092158673-1")), new SemanticAnnotationFetchOptions());
+                Arrays.asList(new SemanticAnnotationPermId("ST_MASTER_PLATE")), new SemanticAnnotationFetchOptions());
 
         assertEquals(1, map.size());
     }
@@ -136,7 +136,7 @@ public class GetSemanticAnnotationTest extends AbstractTest
         String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
 
         Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken,
-                Arrays.asList(new SemanticAnnotationPermId("20170918092158673-1")), new SemanticAnnotationFetchOptions());
+                Arrays.asList(new SemanticAnnotationPermId("ST_MASTER_PLATE")), new SemanticAnnotationFetchOptions());
 
         assertEquals(1, map.size());
     }
@@ -144,7 +144,7 @@ public class GetSemanticAnnotationTest extends AbstractTest
     @Test
     public void testGetByIdsWithFetchOptionsEmpty()
     {
-        SemanticAnnotationPermId permId = new SemanticAnnotationPermId("20170918092158673-1");
+        SemanticAnnotationPermId permId = new SemanticAnnotationPermId("ST_MASTER_PLATE");
         SemanticAnnotationFetchOptions fetchOptions = new SemanticAnnotationFetchOptions();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

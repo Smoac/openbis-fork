@@ -33,7 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdExcept
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.MapObjectById;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityTypeConverter;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.ListEntityTypeByPermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -91,10 +91,10 @@ public class MapEntityTypeByIdExecutor implements IMapEntityTypeByIdExecutor
                     {
                         if (entityTypePermId.getEntityKind() == null)
                         {
-                            entityTypeIdWithEntityKind = new EntityTypePermId(entityTypePermId.getPermId(), EntityTypeConverter.convert(entityKind));
+                            entityTypeIdWithEntityKind = new EntityTypePermId(entityTypePermId.getPermId(), EntityKindConverter.convert(entityKind));
                         } else
                         {
-                            if (entityKind.equals(EntityTypeConverter.convert(entityTypePermId.getEntityKind())))
+                            if (entityKind.equals(EntityKindConverter.convert(entityTypePermId.getEntityKind())))
                             {
                                 entityTypeIdWithEntityKind = entityTypePermId;
                             } else

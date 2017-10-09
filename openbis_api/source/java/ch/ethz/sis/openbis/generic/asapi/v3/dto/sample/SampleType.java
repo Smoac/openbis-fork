@@ -21,9 +21,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnotationsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,7 +38,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.SampleType")
-public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder, IEntityType, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder
+public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder, IEntityType, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder, ISemanticAnnotationsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -78,6 +80,9 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
 
     @JsonProperty
     private List<PropertyAssignment> propertyAssignments;
+
+    @JsonProperty
+    private List<SemanticAnnotation> semanticAnnotations;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -258,6 +263,27 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
     public void setPropertyAssignments(List<PropertyAssignment> propertyAssignments)
     {
         this.propertyAssignments = propertyAssignments;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public List<SemanticAnnotation> getSemanticAnnotations()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSemanticAnnotations())
+        {
+            return semanticAnnotations;
+        }
+        else
+        {
+            throw new NotFetchedException("Semantic annotations have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSemanticAnnotations(List<SemanticAnnotation> semanticAnnotations)
+    {
+        this.semanticAnnotations = semanticAnnotations;
     }
 
     // Method automatically generated with DtoGenerator

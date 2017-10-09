@@ -67,9 +67,9 @@ public abstract class AbstractFieldFromCompositeSearchCriteriaTranslator extends
                         .getTranslator(subCriteria);
 
         SearchCriteriaTranslationResult translationResult = subTranslator.translate(context, subCriteria);
-        String value = translationResult.getCriterion().getValue();
+        Collection<String> values = translationResult.getCriterion().getValues();
         DetailedSearchField searchField = doTranslateSearchField(context, criteria, subCriteria);
-        DetailedSearchCriterion detailedSearchCriterion = new DetailedSearchCriterion(searchField, value);
+        DetailedSearchCriterion detailedSearchCriterion = new DetailedSearchCriterion(searchField, values);
         return detailedSearchCriterion;
     }
 

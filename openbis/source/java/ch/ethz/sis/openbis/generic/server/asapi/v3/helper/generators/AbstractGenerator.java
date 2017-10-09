@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssig
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnotationsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -35,6 +36,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -148,6 +151,13 @@ public class AbstractGenerator
         gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments",
                 "Property assigments", PropertyAssignmentFetchOptions.class).withInterface(IPropertyAssignmentsHolder.class);
         gen.addClassForImport(PropertyAssignment.class);
+    }
+
+    public static void addSemanticAnnotations(DtoGenerator gen)
+    {
+        gen.addPluralFetchedField("List<SemanticAnnotation>", List.class.getName(), "semanticAnnotations",
+                "Semantic annotations", SemanticAnnotationFetchOptions.class).withInterface(ISemanticAnnotationsHolder.class);
+        gen.addClassForImport(SemanticAnnotation.class);
     }
 
     public static void addAttachments(DtoGenerator gen)

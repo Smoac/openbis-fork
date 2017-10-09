@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MetaprojectSearch;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -101,49 +103,57 @@ public class DetailedQueryBuilder
         for (DetailedSearchCriterion criterion : criteria)
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField(), entityKind);
+            Collection<String> values = criterion.getValues();
 
-            String value = criterion.getValue();
             if (criterion.getTimeZone() == null)
             {
-                List<String> fieldPatterns = new ArrayList<String>(fieldNames.size());
-                List<Analyzer> fieldAnalyzers = new ArrayList<Analyzer>(fieldNames.size());
-                List<Occur> fieldOccur = new ArrayList<Occur>(fieldNames.size());
+                List<String> fieldPatterns = new ArrayList<String>();
+                List<Analyzer> fieldAnalyzers = new ArrayList<Analyzer>();
+                List<Occur> fieldOccur = new ArrayList<Occur>();
+                List<String> fieldValueNames = new ArrayList<String>();
 
-                for (String fieldName : fieldNames)
+                if (values != null)
                 {
-                    String fieldPattern = null;
-                    Analyzer fieldAnalyzer = null;
-                    boolean isNumeric = fieldTypes.get(fieldName) == DocValuesType.SORTED_NUMERIC;
-                    if (MetaprojectSearch.isMetaprojectField(fieldName))
+                    for (String value : values)
                     {
-                        String fieldUserQuery =
-                                MetaprojectSearch.getMetaprojectUserQuery(value, userId);
-                        fieldPattern = LuceneQueryBuilder.adaptQuery(fieldUserQuery,
-                                useWildcardSearchMode, false);
-                        fieldAnalyzer = new IgnoreCaseAnalyzer();
-                    } else if (isNumeric && criterion.getType() != null && SortableNumberBridgeUtils.isValidNumber(criterion.getValue()))
-                    {
-                        fieldPattern = getRangeNumberQuery(criterion, fieldPattern);
-                        fieldAnalyzer = PassThroughAnalyzer.INSTANCE;
-                    } else
-                    {
-                        fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode);
-                        fieldAnalyzer = searchAnalyzer;
-                    }
+                        for (String fieldName : fieldNames)
+                        {
+                            String fieldPattern = null;
+                            Analyzer fieldAnalyzer = null;
+                            boolean isNumeric = fieldTypes.get(fieldName) == DocValuesType.SORTED_NUMERIC;
+                            if (MetaprojectSearch.isMetaprojectField(fieldName))
+                            {
+                                String fieldUserQuery =
+                                        MetaprojectSearch.getMetaprojectUserQuery(value, userId);
+                                fieldPattern = LuceneQueryBuilder.adaptQuery(fieldUserQuery,
+                                        useWildcardSearchMode, false);
+                                fieldAnalyzer = new IgnoreCaseAnalyzer();
+                            } else if (isNumeric && criterion.getType() != null && SortableNumberBridgeUtils.isValidNumber(value))
+                            {
+                                fieldPattern = getRangeNumberQuery(criterion.getType(), value, fieldPattern);
+                                fieldAnalyzer = PassThroughAnalyzer.INSTANCE;
+                            } else
+                            {
+                                fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode);
+                                fieldAnalyzer = searchAnalyzer;
+                            }
 
-                    fieldPatterns.add(fieldPattern);
-                    fieldAnalyzers.add(fieldAnalyzer);
-                    fieldOccur.add(criterion.isNegated() ? Occur.MUST_NOT : Occur.SHOULD);
+                            fieldPatterns.add(fieldPattern);
+                            fieldAnalyzers.add(fieldAnalyzer);
+                            fieldOccur.add(criterion.isNegated() ? Occur.MUST_NOT : Occur.SHOULD);
+                            fieldValueNames.add(fieldName);
+                        }
+                    }
                 }
 
-                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames,
+                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldValueNames,
                         fieldPatterns, fieldAnalyzers, fieldOccur);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
-                if (false == StringUtils.isEmpty(value))
+                if (false == StringUtils.isEmpty(criterion.getValue()))
                 {
-                    DateRangeCalculator rangeCalculator = new DateRangeCalculator(value, criterion.getTimeZone(), criterion.getType());
+                    DateRangeCalculator rangeCalculator = new DateRangeCalculator(criterion.getValue(), criterion.getTimeZone(), criterion.getType());
                     String fieldName = fieldNames.get(0);
                     StringEncodingDateBridge bridge = new StringEncodingDateBridge(Resolution.SECOND);
                     TermRangeQuery q =
@@ -153,19 +163,21 @@ public class DetailedQueryBuilder
                 }
             }
         }
+
         for (IAssociationCriteria association : associations)
         {
             String fieldName = getIndexFieldName(association);
             Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldName, association.getSearchPatterns(), searchAnalyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }
+
         return resultQuery;
     }
 
-    private String getRangeNumberQuery(DetailedSearchCriterion criterion, String fieldPattern)
+    private String getRangeNumberQuery(CompareType compareType, String value, String fieldPattern)
     {
-        String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(criterion.getValue());
-        switch (criterion.getType())
+        String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(value);
+        switch (compareType)
         {
             case LESS_THAN:
                 return "{* TO " + parsedNumberValue + "}";
