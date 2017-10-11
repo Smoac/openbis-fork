@@ -951,7 +951,7 @@ var FormUtil = new function() {
 		var $dialog = $("<div>");
 		$dialog
 			.append($("<div>")
-				.append($("<legend>").text("Helper tool for Dataset upload using eln-lims dropbox:")));
+				.append($("<legend>").text("Helper tool for Dataset upload using the eln-lims dropbox:")));
 
 		mainController.serverFacade.listDataSetTypes((function(data) {
 
@@ -963,11 +963,11 @@ var FormUtil = new function() {
 			// info text
 			$formFieldContainer.append(FormUtil.getInfoText("Example and usage instructions: "))
 								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='80%' ></center>")
-								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized on the UI after upload</b></center>")
-								.append("The eln-lims dropbox requires you to provide a root folder with a specific name. This name contains information to tell the system where your uploaded data should be attached to.").append("<br>")
-								.append("1. Generate the root name folder with this helper tool using the form below to upload data to the entity shown on the form that opened this pop-up.").append("<br>")
-								.append("2. Inside the root folder with the name generated with this tool, you should put another folder with a name of your choice containing the data you want to upload.").append("<br>")
-								.append("3. The uploading will be triggered automatically. When the upload finishes your data should appear on the entity selected by the root folder.").append("<br>");
+								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized in the ELN after upload</b></center>")
+								.append("The eln-lims dropbox requires a root folder with a specific name. This name contains information on where the data should be uploaded.").append("<br>")
+								.append("1. Generate the name of the root folder with this helper tool using the form below.").append("<br>")
+								.append("2. The root folder should contain another folder, with a name of your choice, with the data to upload. This can have as many layers as needed.").append("<br>")
+								.append("3. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
 								
 
 			// dataset type dropdown
