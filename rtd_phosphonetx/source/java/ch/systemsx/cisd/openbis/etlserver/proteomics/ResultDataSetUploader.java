@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -55,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.ProbabilityToFDRCalculator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Occurrence;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.OccurrenceUtil;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author Franz-Josef Elmer
@@ -450,6 +449,7 @@ class ResultDataSetUploader extends AbstractHandler
                         double probability = proteinSummaryDataFilter.getMinProbability();
                         double fdr = proteinSummaryDataFilter.getFalsePositiveErrorRate();
                         calculator.add(probability, fdr);
+                        calculator.init();
                         dao.createProbabilityToFDRMapping(dataSetID, probability, fdr);
                     }
                     return calculator;
