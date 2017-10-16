@@ -329,7 +329,9 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
                 else:
                     pool_samples[lane + "_" + sample_code] = sampleValues
             except:
-                if int(sampleValues['NCBI_ORGANISM_TAXONOMY']) != 10847:
+                if sampleValues.has_key('10X_INDEX_SET'):
+                    regular_samples[sample_code] = sampleValues
+                elif int(sampleValues['NCBI_ORGANISM_TAXONOMY']) != 10847:
                     pool_samples[lane + "_" + sample_code] = sampleValues
                 else:
                     regular_samples[sample_code] = sampleValues
