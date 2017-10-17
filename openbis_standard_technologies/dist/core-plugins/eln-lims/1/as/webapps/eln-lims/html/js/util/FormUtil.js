@@ -432,7 +432,16 @@ var FormUtil = new function() {
             				for(var eIdx = 0; eIdx < project.experiments.length; eIdx++) {
                     			var experiment = project.experiments[eIdx];
                     			if(withExperiments) {
-                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier));
+                    				var name = null;
+                    				if(profile.propertyReplacingCode) {
+                    					name = experiment.properties[profile.propertyReplacingCode];
+                    				}
+                    				if(name) {
+                    					name = " (" + name + ")";
+                    				} else {
+                    					name = "";
+                    				}
+                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier + name));
                     			}
                 			}
             			}
