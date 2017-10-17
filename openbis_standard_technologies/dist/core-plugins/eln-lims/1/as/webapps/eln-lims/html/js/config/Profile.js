@@ -166,6 +166,7 @@ $.extend(DefaultProfile.prototype, {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1) || ($.inArray(spaceCode, this.inventorySpacesReadOnly) !== -1);
 		}
 		
+		this.isFileAuthenticationService = false;
 		this.directLinkEnabled = true;
 		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.cifsFileServer = null;
@@ -797,6 +798,20 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			}));
 		}
+		
+		this.initAuth = function(callback) {
+			var _this = this;
+			this.serverFacade.getOpenbisV3(function(openbisV3) {
+				openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+				openbisV3.getServerInformation().done(function(serverInformation) {
+	                var authSystem = serverInformation["authentication-service"];
+	                if (authSystem && authSystem.indexOf("file") !== -1) {
+	                	_this.isFileAuthenticationService = true;
+	                }
+	                callback();
+	            });
+			});
+		}
 
 		//
 		// Initializes
@@ -809,15 +824,17 @@ $.extend(DefaultProfile.prototype, {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
-									_this.initSettings(function() {
-										//Check if the new storage system can be enabled
-										var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-										var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
-										_this.storagesConfiguration = { 
-												"isEnabled" : storageRack && storagePositionType
-										};
-										
-										callbackWhenDone();
+									_this.initAuth(function() {
+										_this.initSettings(function() {
+											//Check if the new storage system can be enabled
+											var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+											var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
+											_this.storagesConfiguration = { 
+													"isEnabled" : storageRack && storagePositionType
+											};
+											
+											callbackWhenDone();
+										});
 									});
 								});
 							});
