@@ -30,9 +30,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			if(this._sampleTableModel.experiment && this._sampleTableModel.experiment.properties[profile.propertyReplacingCode]) {
 				title = "" + ELNDictionary.getExperimentKindName(this._sampleTableModel.experimentIdentifier) + ": " + this._sampleTableModel.experiment.properties[profile.propertyReplacingCode];
 			}
+			
+			var spaceCode = this._sampleTableModel.experimentIdentifier.split("/")[1];
+			var projectCode = this._sampleTableModel.experimentIdentifier.split("/")[2];
+			var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
+			var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode);
+			
 			$title
 				.append($("<h2>").append(title))
-				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(this._sampleTableModel.experimentIdentifier));
+				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		} else if(this._sampleTableModel.title) {
 			$title.append($("<h2>").append(this._sampleTableModel.title));
 		}
