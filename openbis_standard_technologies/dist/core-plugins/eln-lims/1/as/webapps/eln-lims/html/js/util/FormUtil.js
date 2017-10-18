@@ -884,11 +884,21 @@ var FormUtil = new function() {
 	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier) {
 		var view = null;
 		switch(entityKind) {
-			case "Sample":
-				view = "showViewSamplePageFromPermId";
+			case "Space":
+				view = "showSpacePage";
+				break;
+			case "Project":
+				view = "showProjectPageFromIdentifier";
 				break;
 			case "Experiment":
 				view = "showExperimentPageFromIdentifier";
+				break;
+			case "Sample":
+				if(permIdOrIdentifier.lastIndexOf(displayName) !== -1) {
+					view = "showViewSamplePageFromIdentifier";
+				} else {
+					view = "showViewSamplePageFromPermId";
+				}
 				break;
 			case "DataSet":
 				view = "showViewDataSetPageFromPermId";
@@ -903,6 +913,30 @@ var FormUtil = new function() {
 		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(displayName);
 		link.click(click);
 		return link;
+	}
+	
+	this.getFormPath = function(spaceCode, projectCode, experimentCode, containerSampleCode, containerSampleIdentifierOrPermId, sampleCode, sampleIdentifierOrPermId, datasetCodeAndPermId) {
+		var entityPath = $("<span>");
+		if(spaceCode) {
+			entityPath.append("/").append(this.getFormLink(spaceCode, 'Space', spaceCode));
+		}
+		if(projectCode) {
+			entityPath.append("/").append(this.getFormLink(projectCode, 'Project', "/" + spaceCode + "/" + projectCode));
+		}
+		if(experimentCode) {
+			entityPath.append("/").append(this.getFormLink(experimentCode, 'Experiment', "/" + spaceCode + "/" + projectCode + "/"+ experimentCode));
+		}
+		if(sampleCode && sampleIdentifierOrPermId) {
+			entityPath.append("/");
+			if(containerSampleCode && containerSampleIdentifierOrPermId) {
+				entityPath.append(this.getFormLink(containerSampleCode, 'Sample', containerSampleIdentifierOrPermId)).append(":");;
+			}
+			entityPath.append(this.getFormLink(sampleCode, 'Sample', sampleIdentifierOrPermId));
+		}
+		if(datasetCodeAndPermId) {
+			entityPath.append("/").append(this.getFormLink(datasetCodeAndPermId, 'DataSet', datasetCodeAndPermId));
+		}
+		return entityPath;
 	}
 	
 	this.getBox = function() {

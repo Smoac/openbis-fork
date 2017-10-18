@@ -34,29 +34,46 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		//
 		// Title
 		//
-		var $title = $('<div>');
+		var spaceCode;
+		var projectCode;
+		var experimentCode;
+		
+		var experimentIdentifier = null;
+		if(this._dataSetFormModel.isExperiment()) {
+			experimentIdentifier = this._dataSetFormModel.entity.identifier.identifier;
+		} else { //Both Sample and Experiment exist
+			experimentIdentifier = this._dataSetFormModel.entity.experimentIdentifierOrNull;
+		}
+		if(experimentIdentifier) {
+			spaceCode = experimentIdentifier.split("/")[1];
+			projectCode = experimentIdentifier.split("/")[2];
+			experimentCode = experimentIdentifier.split("/")[3];
+		}
+		var sampleCode;
+		var sampleIdentifier;
+		if(!this._dataSetFormModel.isExperiment()) {
+			sampleCode = this._dataSetFormModel.entity.code;
+			spaceCode = this._dataSetFormModel.entity.identifier.split("/")[1];
+			sampleIdentifier = this._dataSetFormModel.entity.identifier;
+		}
+		var datasetCodeAndPermId = this._dataSetFormModel.dataSet.code;
+		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode, null, null, sampleCode, sampleIdentifier, datasetCodeAndPermId);
+		
 		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode];
 		if(!nameLabel) {
 			nameLabel = this._dataSetFormModel.dataSet.code;
 		}
 		
-		var entityPath = null;
-		if(this._dataSetFormModel.isExperiment()) {
-			entityPath = this._dataSetFormModel.entity.identifier.identifier + "/" + this._dataSetFormModel.dataSet.code;
-		} else { //Both Sample and Experiment exist
-			entityPath = this._dataSetFormModel.entity.experimentIdentifierOrNull + "/" + this._dataSetFormModel.entity.code + "/" + this._dataSetFormModel.entity.code;
-		}
-		
 		var titleText = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			titleText = 'Create Dataset';
-			entityPath = "";
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
 			titleText = 'Update Dataset: ' + nameLabel;
 		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
 			titleText = 'Dataset: ' + nameLabel;
 		}
 		
+		var $title = $('<div>');
 		$title
 			.append($("<h2>").append(titleText))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));

@@ -520,6 +520,19 @@ function MainController(profile) {
 						}
 					});
 					break;
+				case "showViewSamplePageFromIdentifier":
+					var _this = this;
+					this.serverFacade.searchWithIdentifiers([arg], function(data) {
+						if(!data[0]) {
+							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+						} else {
+							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
+							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
+							_this._showViewSamplePage(data[0], isELNSubExperiment);
+							//window.scrollTo(0,0);
+						}
+					});
+					break;
 				case "showCreateDataSetPageFromPermId":
 					var _this = this;
 					this.serverFacade.searchWithUniqueId(arg, function(data) {
