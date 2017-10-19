@@ -25,6 +25,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
 	this._sampleTypeProtocolsTableModel = null;
+	this._sampleTypeDefinitionsMiscellaneousSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsHintsTableModels = {}; // key: sample type; value: table model
 
@@ -322,6 +323,15 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
 
+			// Checkboxes for miscellaneous options
+			// isProtocol
+			// isStorage
+			var miscellaneousSettingsTableModel = this._getSampleTypesDefinitionMiscellaneousSettingsTableModel(sampleTypeSettings);
+			var miscellaneousSettingsTable = this._getTable(miscellaneousSettingsTableModel);
+			miscellaneousSettingsTable.css( { "margin-left" : "30px" } );
+			$sampleTypeFieldset.append(miscellaneousSettingsTable);
+			this._sampleTypeDefinitionsMiscellaneousSettingsTableModels[sampleType.code] = miscellaneousSettingsTableModel;
+			
 			// table for parents / children settings:
 			// SAMPLE_PARENTS_TITLE, SAMPLE_PARENTS_DISABLED, SAMPLE_PARENTS_ANY_TYPE_DISABLED, 
 			// SAMPLE_CHILDREN_TITLE, SAMPLE_CHILDREN_DISABLED, SAMPLE_CHILDREN_ANY_TYPE_DISABLED
@@ -338,6 +348,61 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 	}
 
+	this._getSampleTypesDefinitionMiscellaneousSettingsTableModel = function(sampleTypeSettings) {
+		var tableModel = this._getTableModel();
+		tableModel.fullWidth = false;
+		// define columns
+		tableModel.columns = [
+			{ label : "Options" },
+			{ label : "enabled" }
+		];
+		tableModel.rowBuilders = {
+			"Options" : function(rowData) {
+				return $("<span>").text(rowData.name);
+			},
+			"enabled" : function(rowData) {
+				var $checkbox = $("<input>", { type : "checkbox" });
+				if (rowData.enabled) {
+					$checkbox.attr("checked", true);
+				}
+				return $checkbox;
+			}
+		};
+		// add data
+		if (sampleTypeSettings) { // values from profile
+			tableModel.addRow({
+				name : "Use as Protocol",
+				enabled : sampleTypeSettings["USE_AS_PROTOCOL"]
+			});
+			tableModel.addRow({
+				name : "Enable Storage",
+				enabled : sampleTypeSettings["ENABLE_STORAGE"]
+			});
+		} else { // default values
+			tableModel.addRow({
+				name : "Use as Protocol",
+				enabled : false
+			});
+			tableModel.addRow({
+				name : "Enable Storage",
+				enabled : false
+			});
+		}
+		// transform output
+		tableModel.valuesTransformer = function(values) {
+			var settings = {};
+			for (var rowValues of values) {
+				if (rowValues["Options"] === "Use as Protocol") {
+					settings["USE_AS_PROTOCOL"] = rowValues["enabled"];
+				} else if (rowValues["Options"] === "Enable Storage") {
+					settings["ENABLE_STORAGE"] = rowValues["enabled"];
+				}
+			}
+			return settings;
+		}
+		return tableModel;
+	}
+	
 	this._getSampleTypesDefinitionSettingsTableModel = function(sampleTypeSettings) {
 		var tableModel = this._getTableModel();
 		// define columns
