@@ -142,15 +142,12 @@ $.extend(DefaultProfile.prototype, {
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS", "STORAGE", "STOCK_CATALOG"];
 		this.inventorySpacesReadOnly = ["ELN_SETTINGS", "STOCK_ORDERS"];
-		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
-		this.sampleTypeStorageEnabled = ["ANTIBODY", "BACTERIA", "CHEMICAL", "ENZYME", "CELL_LINE", "FLY", "MEDIA", "OLIGO", "PLASMID", "YEAST", "SOLUTION_BUFFER", "RNA", 
-		                                 //Extension for ETHZ Costumers until this is configurable on the Settings
-		                                 "EBBACTERIA", "TBBACTERIA", "CELL", "STRAIN", "SYNTHETIC_PEPTIDE", "FLUOROPHORE"];
+		
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 		
 		this.isSampleTypeWithStorage = function(sampleTypeCode) {
-			return $.inArray(sampleTypeCode, this.sampleTypeStorageEnabled) !== -1;
+			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["ENABLE_STORAGE"];
 		}
 		
 		this.isELNIdentifier = function(identifier) {
@@ -183,7 +180,9 @@ $.extend(DefaultProfile.prototype, {
 		this.propertyReplacingCode = "NAME";
 		
 		this.sampleTypeDefinitionsExtension = {
+		
 		}
+		
 		this.searchType = {
 			"TYPE" : "SEARCH",
 			"DISPLAY_NAME" : "Search",
@@ -209,8 +208,9 @@ $.extend(DefaultProfile.prototype, {
 		this.isDatasetTypeCode = function(datasetTypeCode) {
 			return ($.inArray(datasetTypeCode, this.allDatasetTypeCodes) !== -1);
 		}
+		
 		this.isSampleTypeProtocol = function(sampleTypeCode) {
-			return ($.inArray(sampleTypeCode, this.sampleTypeProtocols) !== -1);
+			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["USE_AS_PROTOCOL"];
 		}
 		
 		this.isSampleTypeHidden = function(sampleTypeCode) {

@@ -58,10 +58,6 @@ function SettingsManager(serverFacade) {
 		return profile.allPropertyTypes.map(function(_) { return _.code; });
 	}
 
-	this.getSampleTypeProtocolsOptions = function() {
-		return profile.allSampleTypes.map(function(_) {return _.code})
-	}
-
 	this.getInventorySpacesOptions = function() {
 		return profile.allSpaces;
 	}
@@ -81,7 +77,6 @@ function SettingsManager(serverFacade) {
 			"forcedDisableRTF",
 			"forceMonospaceFont",
 			"inventorySpaces",
-			"sampleTypeProtocols",
 		];
 		for (var field of fields) {
 			if (settings[field]) {
@@ -106,7 +101,6 @@ function SettingsManager(serverFacade) {
 		this._validateForcedMonospaceFont(settings, errors);
 		this._validateInventorySpaces(settings, errors);
 		this._validateDataSetTypeForFileNameMap(settings, errors);
-		this._validateSampleTypeProtocols(settings, errors);
 		this._validateSampleTypeDefinitionsExtension(settings, errors);
 		return errors;
 	}
@@ -193,16 +187,6 @@ function SettingsManager(serverFacade) {
 				}
 			}
 		}
-	}
-
-	this._validateSampleTypeProtocols = function(settings, errors) {
-		if (settings.sampleTypeProtocols) {
-			for (var item of settings.sampleTypeProtocols) {
-				if (this.getSampleTypeProtocolsOptions().indexOf(item) === -1) {
-					errors.push(item + " is not a sample type protocol.");
-				}
-			}
-		}		
 	}
 
 	this._validateDataSetTypeForFileNameMap = function(settings, errors) {
