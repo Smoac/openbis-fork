@@ -50,7 +50,7 @@ ELNDictionary.settingsView = {
 		},
 		sampleTypeDefinitionsExtension : {
 			title : ELNDictionary.Sample +" Type definitions Extension",
-			info : "This section is used to extend the common openBIS definitions to give: 1. Intended parent/children hints. 2. Support annotations for these links using properties.",			
+			info : "This section is used to extend the common openBIS definitions to: 1. Enable the storage. 2. Specify if the object type is a protocol. 3. Add intended parent/children hints. 4. Support annotations for these links using properties.",			
 		},
 	}
 }
