@@ -20,8 +20,6 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataTypeCode;
 
-from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataSetKind;
-
 from java.util import ArrayList
 from java.util import Date;
 from java.text import SimpleDateFormat;
@@ -199,6 +197,9 @@ def process(tr, parameters, tableBuilder):
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
+	if method == "isFileAuthUser":
+		result = isFileAuthUser(tr, parameters, tableBuilder);
+		isOk = True;
 	if method == "searchSamples":
 		result = searchSamples(tr, parameters, tableBuilder, sessionId);
 		isOk = True;
@@ -506,6 +507,21 @@ def init(tr, parameters, tableBuilder):
 	
 	return True;
 
+def isFileAuthUser(tr, parameters, tableBuilder):
+	userId = parameters.get("userId"); #String
+	path = '../openBIS-server/jetty/bin/passwd.sh';
+	if os.path.isfile(path):
+		isFileAuthUser = False;
+		try:
+			result = subprocess.check_output([path, 'show', userId]) #Checks if the user is available on the file
+			resultLines = result.split("\n")
+			isFileAuthUser = (len(resultLines) == 3) and (resultLines[1].startswith(userId))
+		except:
+			pass
+		return isFileAuthUser
+	else:
+		return False;
+
 def registerUserPassword(tr, parameters, tableBuilder):
 	userId = parameters.get("userId"); #String
 	password = parameters.get("password"); #String
@@ -586,7 +602,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	properties = getProperties(tr, parameters);
 
 	#Create Dataset
-	dataSet = tr.createNewDataSet(dataSetType, DataSetKind.PHYSICAL);
+	dataSet = tr.createNewDataSet(dataSetType);
 	if sampleIdentifier is not None:
 		dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
 		dataSet.setSample(dataSetSample);

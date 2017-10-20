@@ -132,6 +132,13 @@ function ServerFacade(openbisServer) {
 	//
 	// User Related Functions
 	//
+	this.isFileAuthUser = function(callbackFunction) {
+		this.customELNApi({
+			"method" : "isFileAuthUser",
+			"userId" : this.getUserId(),
+		}, callbackFunction, "eln-lims-api");
+	}
+	
 	this.listPersons = function(callbackFunction) {
 		this.openbisServer.listPersons(callbackFunction);
 	};

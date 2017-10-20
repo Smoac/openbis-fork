@@ -164,6 +164,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isFileAuthenticationService = false;
+		this.isFileAuthenticationUser = false;
 		this.directLinkEnabled = true;
 		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.cifsFileServer = null;
@@ -812,6 +813,14 @@ $.extend(DefaultProfile.prototype, {
 	            });
 			});
 		}
+		
+		this.isFileAuthUser = function(callback) {
+			var _this = this;
+			this.serverFacade.isFileAuthUser(function(error, result) {
+				_this.isFileAuthenticationUser = result && result.data === 1;
+				callback();
+			});
+		}
 
 		//
 		// Initializes
@@ -825,15 +834,17 @@ $.extend(DefaultProfile.prototype, {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
 									_this.initAuth(function() {
-										_this.initSettings(function() {
-											//Check if the new storage system can be enabled
-											var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-											var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
-											_this.storagesConfiguration = { 
-													"isEnabled" : storageRack && storagePositionType
-											};
-											
-											callbackWhenDone();
+										_this.isFileAuthUser(function() {
+											_this.initSettings(function() {
+												//Check if the new storage system can be enabled
+												var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+												var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
+												_this.storagesConfiguration = { 
+														"isEnabled" : storageRack && storagePositionType
+												};
+												
+												callbackWhenDone();
+											});
 										});
 									});
 								});
