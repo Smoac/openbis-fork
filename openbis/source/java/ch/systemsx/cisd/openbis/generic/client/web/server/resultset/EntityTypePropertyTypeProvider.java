@@ -148,7 +148,10 @@ public class EntityTypePropertyTypeProvider extends
                 }
 
                 PropertyAssignment assignment = assignmentsMap.get(etpt);
-                annotationProvider.addMoreCells(builder, assignment.getSemanticAnnotations(), assignment.isSemanticAnnotationsInherited());
+                if (assignment != null)
+                {
+                    annotationProvider.addMoreCells(builder, assignment.getSemanticAnnotations(), assignment.isSemanticAnnotationsInherited());
+                }
             }
         }
         return builder.getModel();
