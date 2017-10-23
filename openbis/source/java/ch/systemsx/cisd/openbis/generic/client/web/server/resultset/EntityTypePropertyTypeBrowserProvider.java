@@ -30,8 +30,13 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SECTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SHOW_RAW_VALUE;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -51,15 +56,18 @@ public class EntityTypePropertyTypeBrowserProvider extends EntityTypePropertyTyp
 {
     private final List<NewPTNewAssigment> propertyTypesAsgs;
 
-    public EntityTypePropertyTypeBrowserProvider(EntityType entity, List<NewPTNewAssigment> propertyTypesAsgs)
+    public EntityTypePropertyTypeBrowserProvider(IApplicationServerApi applicationServerApi, String sessionToken, EntityType entity,
+            List<NewPTNewAssigment> propertyTypesAsgs)
     {
-        super(null, null, entity);
+        super(null, applicationServerApi, sessionToken, entity);
         this.propertyTypesAsgs = propertyTypesAsgs;
     }
 
     @Override
     protected TypedTableModel<EntityTypePropertyType<?>> createTableModel()
     {
+        SemanticAnnotationProvider annotationProvider = new SemanticAnnotationProvider();
+
         TypedTableModelBuilder<EntityTypePropertyType<?>> builder = new TypedTableModelBuilder<EntityTypePropertyType<?>>();
         builder.addColumn(ORDINAL).withDefaultWidth(100);
         builder.addColumn(SECTION);
@@ -75,13 +83,19 @@ public class EntityTypePropertyTypeBrowserProvider extends EntityTypePropertyTyp
         builder.addColumn(SHOW_RAW_VALUE);
         builder.addColumn(SCRIPT);
 
+        annotationProvider.addMoreColumns(builder, true);
+
+        Collection<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>();
         for (NewPTNewAssigment propertyTypeAsg : propertyTypesAsgs)
         {
-            //
-            // Create EntityTypePropertyType from Browser in memory structure
-            //
             EntityTypePropertyType<?> etpt = NewETNewPTAssigments.getEntityTypePropertyType(entity, propertyTypeAsg);
+            etpts.add(etpt);
+        }
 
+        Map<EntityTypePropertyType<?>, PropertyAssignment> assignmentsMap = createAssignmentsMap(etpts);
+
+        for (EntityTypePropertyType<?> etpt : etpts)
+        {
             //
             // Create Row
             //
@@ -104,7 +118,11 @@ public class EntityTypePropertyTypeBrowserProvider extends EntityTypePropertyTyp
             {
                 builder.column(SCRIPT).addString(script.getName());
             }
+
+            PropertyAssignment assignment = assignmentsMap.get(etpt);
+            annotationProvider.addMoreCells(builder, assignment.getSemanticAnnotations(), assignment.isSemanticAnnotationsInherited());
         }
+
         return builder.getModel();
     }
 

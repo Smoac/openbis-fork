@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/CodeSearchCriteria", "as/dto/common/search/CodesSearchCriteria",
+define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/IdsSearchCriteria", "as/dto/common/search/CodeSearchCriteria", "as/dto/common/search/CodesSearchCriteria",
 		"as/dto/property/search/PropertyAssignmentSearchCriteria", "as/dto/common/search/PermIdSearchCriteria", "as/dto/common/search/AbstractCompositeSearchCriteria" ], function(require, stjs,
 		AbstractObjectSearchCriteria) {
 	var AbstractEntityTypeSearchCriteria = function() {
@@ -10,6 +10,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 	stjs.extend(AbstractEntityTypeSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.entitytype.search.AbstractEntityTypeSearchCriteria';
 		constructor.serialVersionUID = 1;
+		prototype.withIds = function() {
+			var IdsSearchCriteria = require("as/dto/common/search/IdsSearchCriteria");
+			return this.addCriteria(new IdsSearchCriteria());
+		};
 		prototype.withCode = function() {
 			var CodeSearchCriteria = require("as/dto/common/search/CodeSearchCriteria");
 			return this.addCriteria(new CodeSearchCriteria());

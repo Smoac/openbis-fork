@@ -32,8 +32,25 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SHOW_RAW_VALUE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.TYPE_OF;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections4.map.ReferenceIdentityMap;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -55,20 +72,26 @@ public class EntityTypePropertyTypeProvider extends
         AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
 {
 
+    private IApplicationServerApi applicationServerApi;
+
     protected final EntityType entity;
 
-    public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken,
+    public EntityTypePropertyTypeProvider(ICommonServer commonServer, IApplicationServerApi applicationServerApi, String sessionToken,
             EntityType entity)
     {
         super(commonServer, sessionToken);
+        this.applicationServerApi = applicationServerApi;
         this.entity = entity;
     }
 
     @Override
     protected TypedTableModel<EntityTypePropertyType<?>> createTableModel()
     {
-        List<EntityTypePropertyType<?>> entityTypePropertyTypes =
-                commonServer.listEntityTypePropertyTypes(sessionToken);
+        List<EntityTypePropertyType<?>> etpts = commonServer.listEntityTypePropertyTypes(sessionToken);
+
+        Map<EntityTypePropertyType<?>, PropertyAssignment> assignmentsMap = createAssignmentsMap(etpts);
+        SemanticAnnotationProvider annotationProvider = new SemanticAnnotationProvider();
+
         TypedTableModelBuilder<EntityTypePropertyType<?>> builder =
                 new TypedTableModelBuilder<EntityTypePropertyType<?>>();
         builder.addColumn(ORDINAL).withDefaultWidth(100);
@@ -89,7 +112,10 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(IS_SHOWN_IN_EDITOR_VIEW);
         builder.addColumn(SHOW_RAW_VALUE);
         builder.addColumn(SCRIPT);
-        for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
+
+        annotationProvider.addMoreColumns(builder, true);
+
+        for (EntityTypePropertyType<?> etpt : etpts)
         {
             if (entity == null || entity.equals(etpt.getEntityType()))
             {
@@ -120,6 +146,9 @@ public class EntityTypePropertyTypeProvider extends
                 {
                     builder.column(SCRIPT).addString(script.getName());
                 }
+
+                PropertyAssignment assignment = assignmentsMap.get(etpt);
+                annotationProvider.addMoreCells(builder, assignment.getSemanticAnnotations(), assignment.isSemanticAnnotationsInherited());
             }
         }
         return builder.getModel();
@@ -166,6 +195,37 @@ public class EntityTypePropertyTypeProvider extends
     {
         MaterialType materialType = entity.getMaterialType();
         return materialType != null ? materialType.getCode() : null;
+    }
+
+    protected Map<EntityTypePropertyType<?>, PropertyAssignment> createAssignmentsMap(Collection<EntityTypePropertyType<?>> etpts)
+    {
+        Map<IPropertyAssignmentId, EntityTypePropertyType<?>> idToEtptMap = new HashMap<IPropertyAssignmentId, EntityTypePropertyType<?>>();
+
+        for (EntityTypePropertyType<?> etpt : etpts)
+        {
+            IEntityTypeId entityTypeId = new EntityTypePermId(etpt.getEntityType().getCode(),
+                    EntityKindConverter.convert(etpt.getEntityKind()));
+            IPropertyTypeId propertyTypeId = new PropertyTypePermId(etpt.getPropertyType().getCode());
+            idToEtptMap.put(new PropertyAssignmentPermId(entityTypeId, propertyTypeId), etpt);
+        }
+
+        PropertyAssignmentSearchCriteria criteria = new PropertyAssignmentSearchCriteria();
+        criteria.withIds().thatIn(idToEtptMap.keySet());
+
+        PropertyAssignmentFetchOptions fo = new PropertyAssignmentFetchOptions();
+        fo.withSemanticAnnotations();
+
+        SearchResult<PropertyAssignment> result = applicationServerApi.searchPropertyAssignments(sessionToken, criteria, fo);
+        Map<EntityTypePropertyType<?>, PropertyAssignment> map =
+                new ReferenceIdentityMap<EntityTypePropertyType<?>, PropertyAssignment>();
+
+        for (PropertyAssignment assignment : result.getObjects())
+        {
+            EntityTypePropertyType<?> etpt = idToEtptMap.get(assignment.getPermId());
+            map.put(etpt, assignment);
+        }
+
+        return map;
     }
 
 }

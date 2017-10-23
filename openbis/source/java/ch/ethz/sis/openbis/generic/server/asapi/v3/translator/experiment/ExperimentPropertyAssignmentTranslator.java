@@ -57,7 +57,7 @@ public class ExperimentPropertyAssignmentTranslator extends ObjectToManyRelation
             Collection<Long> experimentTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        return assignmentTranslator.getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(experimentTypePropertyTypeIds)),
+        return assignmentTranslator.getIdToAssignmentMap(context, query.getPropertyAssignments(new LongOpenHashSet(experimentTypePropertyTypeIds)),
                 relatedFetchOptions);
     }
 

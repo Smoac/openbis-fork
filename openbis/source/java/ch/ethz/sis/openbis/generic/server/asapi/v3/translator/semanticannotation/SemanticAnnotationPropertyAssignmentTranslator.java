@@ -57,7 +57,7 @@ public class SemanticAnnotationPropertyAssignmentTranslator extends ObjectToOneR
             PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return assignmentTranslator.getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(relatedIds)), relatedFetchOptions);
+        return assignmentTranslator.getIdToAssignmentMap(context, query.getPropertyAssignments(new LongOpenHashSet(relatedIds)), relatedFetchOptions);
     }
 
 }

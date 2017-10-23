@@ -112,6 +112,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators.DtoGenerator.DTOField;
 
 public class Generator extends AbstractGenerator
 {
@@ -686,6 +687,9 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("showInEditView");
         gen.addBooleanField("showRawValueInForms");
         addSemanticAnnotations(gen);
+        DTOField inherited = gen.addFetchedField(Boolean.class, "semanticAnnotationsInherited", "Semantic annotations",
+                SemanticAnnotationFetchOptions.class, "semanticAnnotations");
+        inherited.plural = true;
         addRegistrator(gen);
         addRegistrationDate(gen);
         gen.setToStringMethod(
@@ -794,7 +798,7 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(String.class, "descriptorOntologyVersion");
         gen.addSimpleField(String.class, "descriptorAccessionId");
         gen.addSimpleField(Date.class, "creationDate");
-        gen.setToStringMethod("\"SemanticAnnotation\"");
+        gen.setToStringMethod("\"SemanticAnnotation \" + permId");
 
         return gen;
     }

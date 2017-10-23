@@ -1023,6 +1023,29 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualSet, expectedPermIds);
     }
 
+    protected static void assertPropertyTypeCodes(Collection<PropertyType> propertyTypes, String... expectedCodes)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (PropertyType propertyType : propertyTypes)
+        {
+            actualSet.add(propertyType.getCode());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedCodes);
+    }
+
+    protected static void assertPropertyAssignments(Collection<PropertyAssignment> propertyAssignments,
+            String... expectedEntityTypeAndPropertyTypeCodes)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            actualSet.add(propertyAssignment.getEntityType().getCode() + "." + propertyAssignment.getPropertyType().getCode());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedEntityTypeAndPropertyTypeCodes);
+    }
+
     protected void assertExperimentsReindexed(ReindexingState previousState, String... permIds)
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByPermID(Arrays.asList(permIds));

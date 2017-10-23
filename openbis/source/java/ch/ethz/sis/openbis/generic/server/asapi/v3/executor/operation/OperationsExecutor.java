@@ -74,6 +74,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IDeleteProje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSampleTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IDeleteSamplesOperationExecutor;
@@ -334,6 +336,12 @@ public class OperationsExecutor implements IOperationsExecutor
     private ISearchSemanticAnnotationsOperationExecutor searchSemanticAnnotationsExecutor;
 
     @Autowired
+    private ISearchPropertyTypesOperationExecutor searchPropertyTypesExecutor;
+
+    @Autowired
+    private ISearchPropertyAssignmentsOperationExecutor searchPropertyAssignmentsExecutor;
+
+    @Autowired
     private IExecuteCustomASServiceOperationExecutor executeCustomASServiceExecutor;
 
     @Autowired
@@ -422,6 +430,8 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(searchDataStoresExecutionsExecutor.execute(context, operations));
         resultMap.putAll(searchSemanticAnnotationsExecutor.execute(context, operations));
+        resultMap.putAll(searchPropertyTypesExecutor.execute(context, operations));
+        resultMap.putAll(searchPropertyAssignmentsExecutor.execute(context, operations));
     }
 
     private void executeGets(List<? extends IOperation> operations,

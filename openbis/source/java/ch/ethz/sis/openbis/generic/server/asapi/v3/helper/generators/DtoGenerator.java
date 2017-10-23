@@ -71,9 +71,9 @@ public class DtoGenerator
         return className;
     }
 
-    private DTOField create(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
+    private DTOField create(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, String fetchOptionsFieldName)
     {
-        return new DTOField(fieldName, fieldClass, description, fetchOptions, false);
+        return new DTOField(fieldName, fieldClass, description, fetchOptions, fetchOptionsFieldName, false);
     }
 
     private DTOField createPlural(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions)
@@ -98,11 +98,14 @@ public class DtoGenerator
 
         Class<?> fetchOptions;
 
+        String fetchOptionsFieldName;
+
         boolean plural;
 
         Class<?> interfaceClass;
 
-        private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, boolean plural)
+        private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, String fetchOptionsFieldName,
+                boolean plural)
         {
             this.fieldName = fieldName;
             this.definitionClassName = fieldClass.getSimpleName();
@@ -112,6 +115,7 @@ public class DtoGenerator
             }
             this.description = description;
             this.fetchOptions = fetchOptions;
+            this.fetchOptionsFieldName = fetchOptionsFieldName;
             this.plural = plural;
         }
 
@@ -133,6 +137,17 @@ public class DtoGenerator
         String getCapitalizedName()
         {
             return fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        }
+
+        String getFetchOptionsFieldName()
+        {
+            if (fetchOptionsFieldName == null)
+            {
+                return getCapitalizedName();
+            } else
+            {
+                return fetchOptionsFieldName.substring(0, 1).toUpperCase() + fetchOptionsFieldName.substring(1);
+            }
         }
 
         void withInterface(Class<?> i)
@@ -158,7 +173,7 @@ public class DtoGenerator
      */
     public DTOField addSimpleField(Class<?> c, String name)
     {
-        DTOField field = create(name, c, null, null);
+        DTOField field = create(name, c, null, null, null);
         fields.add(field);
         return field;
     }
@@ -192,14 +207,21 @@ public class DtoGenerator
      */
     public void addSimpleField(Class<?> c, String name, String persistentFieldName)
     {
-        DTOField dtoField = create(name, c, null, null);
+        DTOField dtoField = create(name, c, null, null, null);
         dtoField.persistentFieldName = persistentFieldName;
         fields.add(dtoField);
     }
 
     public DTOField addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
     {
-        DTOField field = create(name, c, description, fetchOptionsClass);
+        DTOField field = create(name, c, description, fetchOptionsClass, null);
+        fields.add(field);
+        return field;
+    }
+
+    public DTOField addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass, String fetchOptionsFieldName)
+    {
+        DTOField field = create(name, c, description, fetchOptionsClass, fetchOptionsFieldName);
         fields.add(field);
         return field;
     }
@@ -455,7 +477,7 @@ public class DtoGenerator
     {
         for (DTOField field : fields)
         {
-            if (field.fetchOptions != null)
+            if (field.fetchOptions != null && field.fetchOptionsFieldName == null)
             {
                 printFetchOptionsAccessors(field);
             }
@@ -485,7 +507,7 @@ public class DtoGenerator
     {
         for (DTOField field : fields)
         {
-            if (field.fetchOptions != null)
+            if (field.fetchOptions != null && field.fetchOptionsFieldName == null)
             {
                 printFetchOptionsAccessorsJS(field);
             }
@@ -553,9 +575,15 @@ public class DtoGenerator
     {
         printMethodJavaDoc();
         printGetterAnnotation(field);
-        print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
+        if (field.definitionClassName.equals("Boolean"))
+        {
+            print("public %s is%s()", field.definitionClassName, field.getCapitalizedName());
+        } else
+        {
+            print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
+        }
         startBlock();
-        print("if (getFetchOptions() != null && getFetchOptions().has%s())", field.getCapitalizedName());
+        print("if (getFetchOptions() != null && getFetchOptions().has%s())", field.getFetchOptionsFieldName());
         startBlock();
         print("return %s;", field.getPersistentName());
         endBlock();
@@ -571,14 +599,13 @@ public class DtoGenerator
         endBlock();
         endBlock();
         print("");
-
     }
 
     private void printGetterWithFetchOptionsJS(DTOField field)
     {
         print("this.get%s = function()", field.getCapitalizedName());
         startBlock();
-        print("if (getFetchOptions() != null && this.getFetchOptions().has%s())", field.getCapitalizedName());
+        print("if (getFetchOptions() != null && this.getFetchOptions().has%s())", field.getFetchOptionsFieldName());
         startBlock();
         print("return %s;", field.getPersistentName());
         endBlock();
@@ -740,7 +767,7 @@ public class DtoGenerator
         print("");
         for (DTOField field : fields)
         {
-            if (field.fetchOptions != null)
+            if (field.fetchOptions != null && field.fetchOptionsFieldName == null)
             {
                 printFetchOptionField(field);
             }
@@ -766,7 +793,7 @@ public class DtoGenerator
         print("FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder(\"" + this.className + "\", this);");
         for (DTOField field : fields)
         {
-            if (field.fetchOptions != null)
+            if (field.fetchOptions != null && field.fetchOptionsFieldName == null)
             {
                 print("f.addFetchOption(\"" + field.getCapitalizedName() + "\", " + field.fieldName + ");");
             }
@@ -824,7 +851,7 @@ public class DtoGenerator
 
         for (DTOField field : fields)
         {
-            if (field.fetchOptions != null)
+            if (field.fetchOptions != null && field.fetchOptionsFieldName == null)
             {
                 imports.add(field.fetchOptions.getName());
             }

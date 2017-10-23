@@ -239,6 +239,7 @@ public class SemanticAnnotationPE implements IIdHolder, IIdentityHolder, Seriali
 
         final SemanticAnnotationPE that = (SemanticAnnotationPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(getPermId(), that.getPermId());
         builder.append(getPredicateOntologyId(), that.getPredicateOntologyId());
         builder.append(getPredicateOntologyVersion(), that.getPredicateOntologyVersion());
         builder.append(getPredicateAccessionId(), that.getPredicateAccessionId());
@@ -252,6 +253,7 @@ public class SemanticAnnotationPE implements IIdHolder, IIdentityHolder, Seriali
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(getPermId());
         builder.append(getPredicateOntologyId());
         builder.append(getPredicateOntologyVersion());
         builder.append(getPredicateAccessionId());

@@ -24,8 +24,17 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeG
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeGridColumnIDs.SHOW_PARENT_METADATA_LABEL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeGridColumnIDs.SUBCODE_UNIQUE_LABEL;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -39,15 +48,25 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class SampleTypeProvider extends EntityTypeProvider<SampleType>
 {
-    public SampleTypeProvider(ICommonServer commonServer, String sessionToken)
+
+    private IApplicationServerApi applicationServerApi;
+
+    private Map<String, List<SemanticAnnotation>> annotationsMap;
+
+    public SampleTypeProvider(ICommonServer commonServer, IApplicationServerApi applicationServerApi, String sessionToken)
     {
         super(commonServer, sessionToken);
+        this.applicationServerApi = applicationServerApi;
     }
 
     @Override
     protected List<SampleType> listTypes()
     {
-        return commonServer.listSampleTypes(sessionToken);
+        List<SampleType> sampleTypes = commonServer.listSampleTypes(sessionToken);
+
+        annotationsMap = createAnnotationsMap(sampleTypes);
+
+        return sampleTypes;
     }
 
     @Override
@@ -60,6 +79,8 @@ public class SampleTypeProvider extends EntityTypeProvider<SampleType>
         builder.addColumn(AUTO_GENERATE_CODES_LABEL).hideByDefault();
         builder.addColumn(SHOW_PARENT_METADATA_LABEL).hideByDefault();
         builder.addColumn(GENERATED_CODE_PREFIX).hideByDefault();
+
+        new SemanticAnnotationProvider().addMoreColumns(builder, false);
     }
 
     @Override
@@ -76,6 +97,36 @@ public class SampleTypeProvider extends EntityTypeProvider<SampleType>
         builder.column(SHOW_PARENT_METADATA_LABEL).addString(
                 SimpleYesNoRenderer.render(type.isShowParentMetadata()));
         builder.column(GENERATED_CODE_PREFIX).addString(type.getGeneratedCodePrefix());
+
+        List<SemanticAnnotation> annotations = annotationsMap.get(type.getCode());
+        new SemanticAnnotationProvider().addMoreCells(builder, annotations, null);
+    }
+
+    private Map<String, List<SemanticAnnotation>> createAnnotationsMap(Collection<SampleType> sampleTypes)
+    {
+        Collection<String> codes = new HashSet<String>();
+
+        for (SampleType sampleType : sampleTypes)
+        {
+            codes.add(sampleType.getCode());
+        }
+
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCodes().thatIn(codes);
+
+        SampleTypeFetchOptions fo = new SampleTypeFetchOptions();
+        fo.withSemanticAnnotations();
+
+        SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType> result =
+                applicationServerApi.searchSampleTypes(sessionToken, criteria, fo);
+        Map<String, List<SemanticAnnotation>> map = new HashMap<String, List<SemanticAnnotation>>();
+
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType sampleType : result.getObjects())
+        {
+            map.put(sampleType.getCode(), sampleType.getSemanticAnnotations());
+        }
+
+        return map;
     }
 
 }

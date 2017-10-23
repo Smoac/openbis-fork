@@ -300,6 +300,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		this.searchDataStores = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchDataStoresOperation(criteria, fetchOptions));
 		}
+
+		this.searchPropertyTypes = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchPropertyTypesOperation(criteria, fetchOptions));
+		}
+		
+		this.searchPropertyAssignments = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchPropertyAssignmentsOperation(criteria, fetchOptions));
+		}
 		
 		this.searchSemanticAnnotations = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchSemanticAnnotationsOperation(criteria, fetchOptions));

@@ -1460,6 +1460,41 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchPropertyTypes() withPermId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.PropertyTypeSearchCriteria();
+				criteria.withId().thatEquals(new c.PropertyTypePermId("TOTAL_READS"));
+				return facade.searchPropertyTypes(criteria, c.createPropertyTypeFetchOptions());
+			}
+
+			var fCheck = function(facade, types) {
+				c.assertEqual(types.length, 1);
+				c.assertEqual(types[0].label, "Total reads", "Label");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+		
+		QUnit.test("searchPropertyAssignments() withPermId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.PropertyAssignmentSearchCriteria();
+				criteria.withId().thatEquals(new c.PropertyAssignmentPermId(new c.EntityTypePermId("LIBRARY","SAMPLE"), new c.PropertyTypePermId("EXTERNAL_SAMPLE_NAME")));
+				return facade.searchPropertyAssignments(criteria, c.createPropertyAssignmentFetchOptions());
+			}
+
+			var fCheck = function(facade, types) {
+				c.assertEqual(types.length, 1);
+				c.assertEqual(types[0].getEntityType().getCode(), "LIBRARY", "Entity type code");
+				c.assertEqual(types[0].getPropertyType().getCode(), "EXTERNAL_SAMPLE_NAME", "Property type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 	}
 
 	return function() {

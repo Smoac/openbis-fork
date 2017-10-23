@@ -73,6 +73,9 @@ public class PropertyAssignment implements Serializable, IPermIdHolder, IPropert
     private List<SemanticAnnotation> semanticAnnotations;
 
     @JsonProperty
+    private Boolean semanticAnnotationsInherited;
+
+    @JsonProperty
     private Person registrator;
 
     @JsonProperty
@@ -230,6 +233,26 @@ public class PropertyAssignment implements Serializable, IPermIdHolder, IPropert
     public void setSemanticAnnotations(List<SemanticAnnotation> semanticAnnotations)
     {
         this.semanticAnnotations = semanticAnnotations;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isSemanticAnnotationsInherited()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSemanticAnnotations())
+        {
+            return semanticAnnotationsInherited;
+        }
+        else
+        {
+            throw new NotFetchedException("Semantic annotations have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSemanticAnnotationsInherited(Boolean semanticAnnotationsInherited)
+    {
+        this.semanticAnnotationsInherited = semanticAnnotationsInherited;
     }
 
     // Method automatically generated with DtoGenerator

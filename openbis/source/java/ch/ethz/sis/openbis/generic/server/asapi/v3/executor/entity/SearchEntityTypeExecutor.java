@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityKindSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -37,6 +38,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IExperime
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMaterialTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISampleTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -86,7 +88,7 @@ public class SearchEntityTypeExecutor extends AbstractSearchObjectManuallyExecut
     {
         if (criteria instanceof IdSearchCriteria<?>)
         {
-            return new EntityTypeIdMatcher();
+            return new IdMatcher();
         } else if (criteria instanceof CodeSearchCriteria)
         {
             return new CodeMatcher<EntityTypePE>();
@@ -97,6 +99,40 @@ public class SearchEntityTypeExecutor extends AbstractSearchObjectManuallyExecut
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
+    }
+
+    private class IdMatcher extends SimpleFieldMatcher<EntityTypePE>
+    {
+
+        @Override
+        protected boolean isMatching(IOperationContext context, EntityTypePE object, ISearchCriteria criteria)
+        {
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
+
+            if (id == null)
+            {
+                return true;
+            } else if (id instanceof EntityTypePermId)
+            {
+                EntityTypePermId permId = (EntityTypePermId) id;
+
+                if (permId.getPermId() == null)
+                {
+                    throw new UserFailureException("Entity type perm id cannot be null");
+                }
+                if (permId.getEntityKind() == null)
+                {
+                    throw new UserFailureException("Entity type entity kind cannot be null");
+                }
+
+                return permId.getPermId().equals(object.getPermId())
+                        && permId.getEntityKind().equals(EntityKindConverter.convert(object.getEntityKind()));
+            } else
+            {
+                throw new IllegalArgumentException("Unknown id: " + id.getClass());
+            }
+        }
+
     }
 
     private class EntityKindMatcher extends SimpleFieldMatcher<EntityTypePE>

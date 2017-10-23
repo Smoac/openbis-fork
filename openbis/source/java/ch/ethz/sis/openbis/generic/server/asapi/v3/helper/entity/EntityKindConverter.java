@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+
 /**
  * @author pkupczyk
  */
@@ -43,6 +45,17 @@ public class EntityKindConverter
         } else
         {
             return ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.valueOf(entityKind.name());
+        }
+    }
+
+    public static EntityKind convert(ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
+    {
+        if (entityKind == null)
+        {
+            return null;
+        } else
+        {
+            return ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.valueOf(entityKind.name());
         }
     }
 

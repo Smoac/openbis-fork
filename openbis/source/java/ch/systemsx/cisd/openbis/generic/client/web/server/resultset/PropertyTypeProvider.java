@@ -31,8 +31,17 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs.XML_SCHEMA;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs.XSLT;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -48,15 +57,22 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 public class PropertyTypeProvider extends AbstractCommonTableModelProvider<PropertyType>
 {
 
-    public PropertyTypeProvider(ICommonServer commonServer, String sessionToken)
+    private IApplicationServerApi applicationServerApi;
+
+    public PropertyTypeProvider(ICommonServer commonServer, IApplicationServerApi applicationServerApi, String sessionToken)
     {
         super(commonServer, sessionToken);
+        this.applicationServerApi = applicationServerApi;
     }
 
     @Override
     protected TypedTableModel<PropertyType> createTableModel()
     {
         List<PropertyType> propertyTypes = commonServer.listPropertyTypes(sessionToken, true);
+
+        Map<String, List<SemanticAnnotation>> annotationsMap = createAnnotationsMap(propertyTypes);
+        SemanticAnnotationProvider annotationProvider = new SemanticAnnotationProvider();
+
         TypedTableModelBuilder<PropertyType> builder = new TypedTableModelBuilder<PropertyType>();
         builder.addColumn(LABEL);
         builder.addColumn(CODE);
@@ -72,6 +88,9 @@ public class PropertyTypeProvider extends AbstractCommonTableModelProvider<Prope
         builder.addColumn(EXPERIMENT_TYPES);
         builder.addColumn(MATERIAL_TYPES);
         builder.addColumn(DATA_SET_TYPES);
+
+        annotationProvider.addMoreColumns(builder, false);
+
         for (PropertyType propertyType : propertyTypes)
         {
             builder.addRow(propertyType);
@@ -96,7 +115,11 @@ public class PropertyTypeProvider extends AbstractCommonTableModelProvider<Prope
                     render(propertyType.getMaterialTypePropertyTypes()));
             builder.column(DATA_SET_TYPES).addString(
                     render(propertyType.getDataSetTypePropertyTypes()));
+
+            List<SemanticAnnotation> annotations = annotationsMap.get(propertyType.getCode());
+            annotationProvider.addMoreCells(builder, annotations, null);
         }
+
         return builder.getModel();
     }
 
@@ -171,6 +194,33 @@ public class PropertyTypeProvider extends AbstractCommonTableModelProvider<Prope
     {
         MaterialType materialType = entity.getMaterialType();
         return materialType != null ? materialType.getCode() : null;
+    }
+
+    private Map<String, List<SemanticAnnotation>> createAnnotationsMap(Collection<PropertyType> propertyTypes)
+    {
+        Collection<String> codes = new HashSet<String>();
+
+        for (PropertyType propertyType : propertyTypes)
+        {
+            codes.add(propertyType.getCode());
+        }
+
+        PropertyTypeSearchCriteria criteria = new PropertyTypeSearchCriteria();
+        criteria.withCodes().thatIn(codes);
+
+        PropertyTypeFetchOptions fo = new PropertyTypeFetchOptions();
+        fo.withSemanticAnnotations();
+
+        SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType> result =
+                applicationServerApi.searchPropertyTypes(sessionToken, criteria, fo);
+        Map<String, List<SemanticAnnotation>> map = new HashMap<String, List<SemanticAnnotation>>();
+
+        for (ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType propertyType : result.getObjects())
+        {
+            map.put(propertyType.getCode(), propertyType.getSemanticAnnotations());
+        }
+
+        return map;
     }
 
 }

@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
@@ -91,7 +92,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     @Override
     public AddEntityTypeDialog<SampleType> getNewDialog(SampleType newType)
     {
-        return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New " + viewContext.getMessage(Dict.SAMPLE), 
+        return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New " + viewContext.getMessage(Dict.SAMPLE),
                 newType, newType.getEntityKind());
     }
 
@@ -130,12 +131,23 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     }
 
     @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<SampleType>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<SampleType>> schema =
+                super.createColumnsDefinition();
+
+        new SemanticAnnotationGridColumns().setRenderers(schema);
+
+        return schema;
+    }
+
+    @Override
     protected Window createEditEntityTypeDialog(final EntityKind entityKind,
             final SampleType sampleType)
     {
         final String code = sampleType.getCode();
         String title =
-                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE, 
+                viewContext.getMessage(Dict.EDIT_TYPE_TITLE_TEMPLATE,
                         EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind), code);
         return new AbstractEditEntityTypeDialog<SampleType>(viewContext, title,
                 postRegistrationCallback,

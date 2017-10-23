@@ -378,6 +378,15 @@ var common = {
   is_show_parents: "Show Parents?",
   is_show_parent_metadata: "Show Parent Metadata?",
   validation_script: "Validation Plugin",
+  semantic_annotation_perm_id: "Annotation Perm Id",
+  semantic_annotation_predicate_ontology_id: "Predicate Ontology Id",
+  semantic_annotation_predicate_ontology_version: "Predicate Ontology Version",
+  semantic_annotation_predicate_accession_id: "Predicate Accession Id",
+  semantic_annotation_descriptor_ontology_id: "Descriptor Ontology Id",
+  semantic_annotation_descriptor_ontology_version: "Descriptor Ontology Version",
+  semantic_annotation_descriptor_accession_id: "Descriptor Accession Id",
+  semantic_annotation_inherited: "Annotation Inherited",
+  
   //
   // Property Type Browser
   //

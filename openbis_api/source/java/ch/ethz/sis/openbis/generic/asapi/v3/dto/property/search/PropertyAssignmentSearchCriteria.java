@@ -17,7 +17,9 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
@@ -32,6 +34,11 @@ public class PropertyAssignmentSearchCriteria extends AbstractObjectSearchCriter
 
     private static final long serialVersionUID = 1L;
 
+    public IdsSearchCriteria<IPropertyAssignmentId> withIds()
+    {
+        return with(new IdsSearchCriteria<IPropertyAssignmentId>());
+    }
+
     public EntityTypeSearchCriteria withEntityType()
     {
         return with(new EntityTypeSearchCriteria());
@@ -45,6 +52,16 @@ public class PropertyAssignmentSearchCriteria extends AbstractObjectSearchCriter
     public SemanticAnnotationSearchCriteria withSemanticAnnotations()
     {
         return with(new SemanticAnnotationSearchCriteria());
+    }
+
+    public PropertyAssignmentSearchCriteria withOrOperator()
+    {
+        return (PropertyAssignmentSearchCriteria) withOperator(SearchOperator.OR);
+    }
+
+    public PropertyAssignmentSearchCriteria withAndOperator()
+    {
+        return (PropertyAssignmentSearchCriteria) withOperator(SearchOperator.AND);
     }
 
     @Override

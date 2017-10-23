@@ -57,7 +57,7 @@ public class DataSetPropertyAssignmentTranslator extends ObjectToManyRelationTra
             Collection<Long> dataSetTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return assignmentTranslator.getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(dataSetTypePropertyTypeIds)),
+        return assignmentTranslator.getIdToAssignmentMap(context, query.getPropertyAssignments(new LongOpenHashSet(dataSetTypePropertyTypeIds)),
                 relatedFetchOptions);
     }
 

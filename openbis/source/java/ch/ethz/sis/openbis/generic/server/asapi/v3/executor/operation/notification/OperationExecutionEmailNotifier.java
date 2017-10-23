@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * @author pkupczyk
@@ -42,6 +45,9 @@ public class OperationExecutionEmailNotifier implements IOperationExecutionEmail
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, OperationExecutionEmailNotifier.class);
+
+    @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
+    private MailClientParameters mailClientParameters;
 
     private IMailClient mailClient;
 
@@ -57,7 +63,7 @@ public class OperationExecutionEmailNotifier implements IOperationExecutionEmail
     @PostConstruct
     private void init()
     {
-        this.mailClient = CommonServiceProvider.createEMailClient();
+        this.mailClient = new MailClient(mailClientParameters);
     }
 
     @Override

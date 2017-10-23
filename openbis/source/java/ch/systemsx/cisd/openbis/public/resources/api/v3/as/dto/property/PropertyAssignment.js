@@ -14,6 +14,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.showInEditView = null;
 		prototype.showRawValueInForms = null;
 		prototype.semanticAnnotations = null;
+		prototype.semanticAnnotationsInherited = null;
 		prototype.registrator = null;
 		prototype.registrationDate = null;
 
@@ -89,6 +90,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setSemanticAnnotations = function(semanticAnnotations) {
 			this.semanticAnnotations = semanticAnnotations;
 		};
+		prototype.isSemanticAnnotationsInherited = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSemanticAnnotations()) {
+				return this.semanticAnnotationsInherited;
+			} else {
+				throw new exceptions.NotFetchedException("Semantic annotations have not been fetched.");
+			}
+		};
+		prototype.setSemanticAnnotationsInherited = function(semanticAnnotationsInherited) {
+			this.semanticAnnotationsInherited = semanticAnnotationsInherited;
+		};
 		prototype.getRegistrator = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
@@ -109,6 +120,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		fetchOptions : "PropertyAssignmentFetchOptions",
 		entityType : "IEntityType",
 		propertyType : "PropertyType",
+		semanticAnnotations : {
+			name : "List",
+			arguments : [ "SemanticAnnotation" ]
+		},
+		semanticAnnotationsInherited : "Boolean",
 		registrator : "Person",
 		registrationDate : "Date"
 	});

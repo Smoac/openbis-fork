@@ -57,7 +57,7 @@ public class SamplePropertyAssignmentTranslator extends ObjectToManyRelationTran
             Collection<Long> sampleTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return assignmentTranslator.getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(sampleTypePropertyTypeIds)),
+        return assignmentTranslator.getIdToAssignmentMap(context, query.getPropertyAssignments(new LongOpenHashSet(sampleTypePropertyTypeIds)),
                 relatedFetchOptions);
     }
 

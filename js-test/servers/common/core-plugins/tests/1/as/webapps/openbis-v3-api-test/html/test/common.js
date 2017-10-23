@@ -94,6 +94,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
 		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
+		this.PropertyTypeSearchCriteria = dtos.PropertyTypeSearchCriteria;
+		this.PropertyAssignmentSearchCriteria = dtos.PropertyAssignmentSearchCriteria;
 		this.SemanticAnnotationSearchCriteria = dtos.SemanticAnnotationSearchCriteria;
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
@@ -108,6 +110,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsFetchOptions = dtos.ExternalDmsFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.TagFetchOptions = dtos.TagFetchOptions;
+		this.PropertyTypeFetchOptions = dtos.PropertyTypeFetchOptions;
+		this.PropertyAssignmentFetchOptions = dtos.PropertyAssignmentFetchOptions;
 		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
@@ -202,6 +206,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchOperationExecutionsOperation = dtos.SearchOperationExecutionsOperation;
 		this.SearchDeletionsOperation = dtos.SearchDeletionsOperation;
 		this.SearchDataStoresOperation = dtos.SearchDataStoresOperation;
+		this.SearchPropertyTypesOperation = dtos.SearchPropertyTypesOperation;
+		this.SearchPropertyAssignmentsOperation = dtos.SearchPropertyAssignmentsOperation;
 		this.SearchSemanticAnnotationsOperation = dtos.SearchSemanticAnnotationsOperation;
 
 		this.DeleteSpacesOperation = dtos.DeleteSpacesOperation;
@@ -781,6 +787,24 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withSamples();
 			fo.withDataSets();
 			fo.withMaterials();
+			return fo;
+		};
+
+		this.createPropertyTypeFetchOptions = function() {
+			var fo = new dtos.PropertyTypeFetchOptions();
+			fo.withVocabulary();
+			fo.withMaterialType();
+			fo.withSemanticAnnotations();
+			fo.withRegistrator();
+			return fo;
+		};
+
+		this.createPropertyAssignmentFetchOptions = function() {
+			var fo = new dtos.PropertyAssignmentFetchOptions();
+			fo.withEntityType();
+			fo.withPropertyType();
+			fo.withSemanticAnnotations();
+			fo.withRegistrator();
 			return fo;
 		};
 

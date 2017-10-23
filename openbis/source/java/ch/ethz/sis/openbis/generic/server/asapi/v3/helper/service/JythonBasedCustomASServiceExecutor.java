@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service;
 
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
@@ -33,21 +32,28 @@ public class JythonBasedCustomASServiceExecutor implements ICustomASServiceExecu
 {
     private static final String SCRIPT_PATH = "script-path";
 
-    private final CustomASServiceScriptRunnerFactory factory;
+    private String scriptPath;
+
+    private CustomASServiceScriptRunnerFactory factory;
 
     public JythonBasedCustomASServiceExecutor(Properties properties)
     {
-        this(PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH), CommonServiceProvider.getApplicationServerApi());
-    }
-
-    JythonBasedCustomASServiceExecutor(String scriptPath, IApplicationServerApi applicationService)
-    {
-        factory = new CustomASServiceScriptRunnerFactory(scriptPath, applicationService);
+        scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
     }
 
     @Override
     public Object executeService(CustomASServiceContext context, CustomASServiceExecutionOptions options)
     {
-        return factory.createServiceRunner(context).process(options);
+        return getFactory().createServiceRunner(context).process(options);
     }
+
+    private synchronized CustomASServiceScriptRunnerFactory getFactory()
+    {
+        if (factory == null)
+        {
+            factory = new CustomASServiceScriptRunnerFactory(scriptPath, CommonServiceProvider.getApplicationServerApi());
+        }
+        return factory;
+    }
+
 }

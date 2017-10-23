@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SemanticAnnotationGridColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
@@ -533,7 +534,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     // Script Field
                     scriptChooser = createScriptChooserField(viewContext, script != null ? script.getName()
                             : null, script != null, script != null ? script.getScriptType()
-                            : null,
+                                    : null,
                             entityKind);
                     addField(scriptChooser);
 
@@ -818,6 +819,9 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(PropertyTypeAssignmentGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
+
+        new SemanticAnnotationGridColumns().setRenderers(schema);
+
         return schema;
     }
 

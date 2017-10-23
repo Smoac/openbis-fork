@@ -400,6 +400,15 @@ td.properties-sub-section {
 }
 
 /*************************
+ * Semantic Annotations
+ *************************/
+
+.semanticAnnotationInherited {
+	color: #999999;
+	font-style: italic;
+}
+
+/*************************
  * Welcome Page
  *************************/
 

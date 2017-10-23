@@ -254,7 +254,7 @@ public class SemanticAnnotation implements Serializable, IPermIdHolder
     @Override
     public String toString()
     {
-        return "SemanticAnnotation";
+        return "SemanticAnnotation " + permId;
     }
 
 }

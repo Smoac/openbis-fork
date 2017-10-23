@@ -25,7 +25,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -47,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.X
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SemanticAnnotationGridColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -257,11 +257,15 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<PropertyType>> schema =
                 super.createColumnsDefinition();
+
         GridCellRenderer<BaseEntityModel<?>> multilineCellRenderer =
                 createMultilineStringCellRenderer();
         schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.DESCRIPTION, multilineCellRenderer);
         schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.XML_SCHEMA, multilineCellRenderer);
         schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.XSLT, multilineCellRenderer);
+
+        new SemanticAnnotationGridColumns().setRenderers(schema);
+
         return schema;
     }
 
@@ -284,8 +288,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-        { createOrDelete(ObjectKind.PROPERTY_TYPE), edit(ObjectKind.PROPERTY_TYPE),
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.PROPERTY_TYPE), edit(ObjectKind.PROPERTY_TYPE),
                 createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                 edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }

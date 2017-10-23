@@ -32,9 +32,11 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -244,6 +246,9 @@ public final class CommonClientService extends AbstractClientService implements
     private ConsumerQueue asyncRegistrationQueue;
 
     private final ICommonServer commonServer;
+
+    @Autowired
+    private IApplicationServerApi applicationServerApi;
 
     public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
@@ -681,7 +686,7 @@ public final class CommonClientService extends AbstractClientService implements
     public TypedTableResultSet<PropertyType> listPropertyTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> criteria)
     {
-        return listEntities(new PropertyTypeProvider(commonServer, getSessionToken()), criteria);
+        return listEntities(new PropertyTypeProvider(commonServer, applicationServerApi, getSessionToken()), criteria);
     }
 
     @Override
@@ -723,7 +728,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
             EntityType entity, List<NewPTNewAssigment> propertyTypesAsgs)
     {
-        return listEntities(new EntityTypePropertyTypeBrowserProvider(entity, propertyTypesAsgs),
+        return listEntities(new EntityTypePropertyTypeBrowserProvider(applicationServerApi, getSessionToken(), entity, propertyTypesAsgs),
                 criteria);
     }
 
@@ -732,7 +737,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
             EntityType entity)
     {
-        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken(), entity),
+        return listEntities(new EntityTypePropertyTypeProvider(commonServer, applicationServerApi, getSessionToken(), entity),
                 criteria);
     }
 
@@ -926,7 +931,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(new SampleTypeProvider(commonServer, getSessionToken()), criteria);
+        return listEntities(new SampleTypeProvider(commonServer, applicationServerApi, getSessionToken()), criteria);
     }
 
     @Override
@@ -1050,9 +1055,9 @@ public final class CommonClientService extends AbstractClientService implements
             // This also refreshes the session.
             String sessionToken = getSessionToken();
             final List<SearchableEntity> searchableEntities = new ArrayList<>();
-                    BeanUtils.createBeanList(SearchableEntity.class, Arrays
-                            .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
-                                    .values()));
+            BeanUtils.createBeanList(SearchableEntity.class, Arrays
+                    .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
+                            .values()));
             for (ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity entity : ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                     .values())
             {
@@ -1274,8 +1279,8 @@ public final class CommonClientService extends AbstractClientService implements
                 session = getHttpSession();
                 assert session.getAttribute(sessionKey) != null
                         && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
-                        .format("No UploadedFilesBean object as session attribute '%s' found.",
-                                sessionKey);
+                                .format("No UploadedFilesBean object as session attribute '%s' found.",
+                                        sessionKey);
                 uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
                 final BisTabFileLoader<VocabularyTerm> tabFileLoader = createTermsLoader();
                 terms = loadTermsFromFiles(uploadedFiles, tabFileLoader);
@@ -1316,7 +1321,8 @@ public final class CommonClientService extends AbstractClientService implements
                                         throw new UnsupportedOperationException(operationKind
                                                 + " is not supported");
                                     }
-                                }, false);
+                                },
+                            false);
             return tabFileLoader;
         }
 
@@ -3064,8 +3070,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             TechId sampleId = sampleIds.get(0);
             list.add(getSampleChildInfo(sampleId, showOnlyDirectlyConnected, true));
-        }
-        else
+        } else
         {
             // if we need info for multiple samples, send back the
             // children and data set count for the first MAX_INFO_SIZE

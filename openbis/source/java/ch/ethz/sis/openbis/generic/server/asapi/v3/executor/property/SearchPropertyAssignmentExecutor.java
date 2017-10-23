@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,18 +28,23 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdsSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.EntityTypeIdMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISearchEntityTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ISearchSemanticAnnotationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -79,6 +86,9 @@ public class SearchPropertyAssignmentExecutor extends AbstractSearchObjectManual
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
+        } else if (criteria instanceof IdsSearchCriteria<?>)
+        {
+            return new IdsMatcher();
         } else if (criteria instanceof EntityTypeSearchCriteria)
         {
             return new EntityTypeMatcher();
@@ -94,35 +104,72 @@ public class SearchPropertyAssignmentExecutor extends AbstractSearchObjectManual
         }
     }
 
-    private class IdMatcher extends SimpleFieldMatcher<EntityTypePropertyTypePE>
+    private class IdMatcher extends Matcher<EntityTypePropertyTypePE>
     {
 
+        @SuppressWarnings("unchecked")
         @Override
-        protected boolean isMatching(IOperationContext context, EntityTypePropertyTypePE object, ISearchCriteria criteria)
+        public List<EntityTypePropertyTypePE> getMatching(IOperationContext context, List<EntityTypePropertyTypePE> objects, ISearchCriteria criteria)
         {
-            Object id = ((IdSearchCriteria<?>) criteria).getId();
+            IPropertyAssignmentId id = ((IdSearchCriteria<IPropertyAssignmentId>) criteria).getId();
 
             if (id == null)
             {
-                return true;
-            } else if (id instanceof PropertyAssignmentPermId)
-            {
-                PropertyAssignmentPermId permId = (PropertyAssignmentPermId) id;
-
-                if (permId.getEntityTypeId() == null)
-                {
-                    throw new UserFailureException("Property assignment entity type id cannot be null");
-                }
-                if (permId.getPropertyTypeId() == null)
-                {
-                    throw new UserFailureException("Property assignment property type id cannot be null");
-                }
-
-                return EntityTypeIdMatcher.isMatching(permId.getEntityTypeId(), object.getEntityType())
-                        && PropertyTypeIdMatcher.isMatching(permId.getPropertyTypeId(), object.getPropertyType());
+                return objects;
             } else
             {
-                throw new IllegalArgumentException("Unknown id: " + id.getClass());
+                IdsSearchCriteria<IPropertyAssignmentId> idsCriteria = new IdsSearchCriteria<IPropertyAssignmentId>();
+                idsCriteria.thatIn(Arrays.asList(id));
+                return new IdsMatcher().getMatching(context, objects, idsCriteria);
+            }
+        }
+
+    }
+
+    private class IdsMatcher extends Matcher<EntityTypePropertyTypePE>
+    {
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<EntityTypePropertyTypePE> getMatching(IOperationContext context, List<EntityTypePropertyTypePE> objects, ISearchCriteria criteria)
+        {
+            Collection<IPropertyAssignmentId> ids = ((IdsSearchCriteria<IPropertyAssignmentId>) criteria).getFieldValue();
+
+            if (ids != null && false == ids.isEmpty())
+            {
+                for (IPropertyAssignmentId id : ids)
+                {
+                    if (id instanceof PropertyAssignmentPermId)
+                    {
+                        PropertyAssignmentPermId permId = (PropertyAssignmentPermId) id;
+                        checkEntityTypeId(permId.getEntityTypeId());
+                        checkPropertyTypeId(permId.getPropertyTypeId());
+                    } else
+                    {
+                        throw new IllegalArgumentException("Unknown id: " + id.getClass());
+                    }
+                }
+
+                Set<IPropertyAssignmentId> idsSet = new HashSet<IPropertyAssignmentId>(ids);
+                List<EntityTypePropertyTypePE> matches = new ArrayList<EntityTypePropertyTypePE>();
+
+                for (EntityTypePropertyTypePE object : objects)
+                {
+                    IEntityTypeId entityTypeId = new EntityTypePermId(object.getEntityType().getCode(),
+                            EntityKindConverter.convert(object.getEntityType().getEntityKind()));
+                    IPropertyTypeId propertyTypeId = new PropertyTypePermId(object.getPropertyType().getCode());
+                    IPropertyAssignmentId propertyAssignmentId = new PropertyAssignmentPermId(entityTypeId, propertyTypeId);
+
+                    if (idsSet.contains(propertyAssignmentId))
+                    {
+                        matches.add(object);
+                    }
+                }
+
+                return matches;
+            } else
+            {
+                return new ArrayList<EntityTypePropertyTypePE>();
             }
         }
 
@@ -275,6 +322,51 @@ public class SearchPropertyAssignmentExecutor extends AbstractSearchObjectManual
             }
 
             return assignmentsWithoutAnyAnnotations;
+        }
+    }
+
+    private void checkEntityTypeId(IEntityTypeId entityTypeId)
+    {
+        if (entityTypeId == null)
+        {
+            throw new UserFailureException("Property assignment entity type id cannot be null");
+        }
+
+        if (false == entityTypeId instanceof EntityTypePermId)
+        {
+            throw new IllegalArgumentException("Unknown id: " + entityTypeId.getClass());
+        }
+
+        EntityTypePermId entityTypePermId = (EntityTypePermId) entityTypeId;
+
+        if (entityTypePermId.getPermId() == null)
+        {
+            throw new UserFailureException("Entity type perm id cannot be null");
+        }
+
+        if (entityTypePermId.getEntityKind() == null)
+        {
+            throw new UserFailureException("Entity type entity kind cannot be null");
+        }
+    }
+
+    private void checkPropertyTypeId(IPropertyTypeId propertyTypeId)
+    {
+        if (propertyTypeId == null)
+        {
+            throw new UserFailureException("Property assignment property type id cannot be null");
+        }
+
+        if (false == propertyTypeId instanceof PropertyTypePermId)
+        {
+            throw new IllegalArgumentException("Unknown id: " + propertyTypeId.getClass());
+        }
+
+        PropertyTypePermId propertyTypePermId = (PropertyTypePermId) propertyTypeId;
+
+        if (propertyTypePermId.getPermId() == null)
+        {
+            throw new UserFailureException("Property type perm id cannot be null");
         }
     }
 

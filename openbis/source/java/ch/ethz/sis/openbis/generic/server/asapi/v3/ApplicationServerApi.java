@@ -179,6 +179,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.SearchProjectsOpe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.SearchProjectsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.UpdateProjectsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAssignmentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAssignmentsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSampleTypesOperation;
@@ -746,6 +756,26 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public SearchResult<PropertyType> searchPropertyTypes(String sessionToken, PropertyTypeSearchCriteria searchCriteria,
+            PropertyTypeFetchOptions fetchOptions)
+    {
+        SearchPropertyTypesOperationResult result =
+                executeOperation(sessionToken, new SearchPropertyTypesOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SearchResult<PropertyAssignment> searchPropertyAssignments(String sessionToken, PropertyAssignmentSearchCriteria searchCriteria,
+            PropertyAssignmentFetchOptions fetchOptions)
+    {
+        SearchPropertyAssignmentsOperationResult result =
+                executeOperation(sessionToken, new SearchPropertyAssignmentsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
     @Transactional
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
     {
@@ -999,7 +1029,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             {
                 synchronized (displaySettingsProvider)
                 {
-                    displaySettingsProvider.replaceWebAppSettings(person, 
+                    displaySettingsProvider.replaceWebAppSettings(person,
                             new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings(
                                     webAppSettings.getWebAppId(), webAppSettings.getSettings()));
                     getDAOFactory().getPersonDAO().updatePerson(person);
@@ -1016,8 +1046,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
         Session session = getSession(sessionToken);
-        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings settings 
-                = displaySettingsProvider.getWebAppSettings(session.tryGetPerson(), webAppId);
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings settings =
+                displaySettingsProvider.getWebAppSettings(session.tryGetPerson(), webAppId);
         WebAppSettings webAppSettings = new WebAppSettings();
         webAppSettings.setWebAppId(webAppId);
         webAppSettings.setSettings(settings.getSettings());

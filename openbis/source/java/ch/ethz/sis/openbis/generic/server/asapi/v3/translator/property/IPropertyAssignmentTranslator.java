@@ -29,7 +29,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext
 public interface IPropertyAssignmentTranslator
 {
 
-    public Map<Long, PropertyAssignment> getAssignments(TranslationContext context,
+    public Map<Long, PropertyAssignment> getIdToAssignmentMap(TranslationContext context,
+            Collection<PropertyAssignmentRecord> assignmentRecords,
+            PropertyAssignmentFetchOptions assignmentFetchOptions);
+
+    public Map<PropertyAssignmentKey, PropertyAssignment> getKeyToAssignmentMap(TranslationContext context,
             Collection<PropertyAssignmentRecord> assignmentRecords,
             PropertyAssignmentFetchOptions assignmentFetchOptions);
 

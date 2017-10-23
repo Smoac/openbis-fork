@@ -85,15 +85,31 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
     private IPersonTranslator personTranslator;
 
     @Override
-    public Map<Long, PropertyAssignment> getAssignments(TranslationContext context,
+    public Map<Long, PropertyAssignment> getIdToAssignmentMap(TranslationContext context, Collection<PropertyAssignmentRecord> assignmentRecords,
+            PropertyAssignmentFetchOptions assignmentFetchOptions)
+    {
+        Map<PropertyAssignmentKey, PropertyAssignment> keyToAssignmentMap = getKeyToAssignmentMap(context, assignmentRecords, assignmentFetchOptions);
+        Map<Long, PropertyAssignment> idToAssignmentMap = new HashMap<Long, PropertyAssignment>();
+
+        for (Map.Entry<PropertyAssignmentKey, PropertyAssignment> entry : keyToAssignmentMap.entrySet())
+        {
+            idToAssignmentMap.put(entry.getKey().getId(), entry.getValue());
+        }
+
+        return idToAssignmentMap;
+    }
+
+    @Override
+    public Map<PropertyAssignmentKey, PropertyAssignment> getKeyToAssignmentMap(TranslationContext context,
             Collection<PropertyAssignmentRecord> assignmentRecords,
             PropertyAssignmentFetchOptions assignmentFetchOptions)
     {
-        Map<Long, PropertyAssignment> assignments = new HashMap<>();
+        Map<PropertyAssignmentKey, PropertyAssignment> assignments = new HashMap<>();
 
         for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
         {
-            IEntityTypeId entityTypeId = new EntityTypePermId(assignmentRecord.type_code, EntityKind.valueOf(assignmentRecord.kind_code));
+            EntityKind entityKind = EntityKind.valueOf(assignmentRecord.kind_code);
+            IEntityTypeId entityTypeId = new EntityTypePermId(assignmentRecord.type_code, entityKind);
             IPropertyTypeId propertyTypeId = new PropertyTypePermId(assignmentRecord.prty_code);
 
             PropertyAssignment assignment = new PropertyAssignment();
@@ -103,9 +119,12 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
             assignment.setMandatory(assignmentRecord.is_mandatory);
             assignment.setShowInEditView(assignmentRecord.is_shown_edit);
             assignment.setShowRawValueInForms(assignmentRecord.show_raw_value);
+            assignment.setSemanticAnnotationsInherited(false);
             assignment.setRegistrationDate(assignmentRecord.registration_timestamp);
             assignment.setFetchOptions(assignmentFetchOptions);
-            assignments.put(assignmentRecord.id, assignment);
+
+            PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
+            assignments.put(key, assignment);
         }
 
         if (assignmentFetchOptions.getSortBy() != null && (assignmentFetchOptions.getSortBy().getCode() != null
@@ -163,14 +182,16 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         return assignments;
     }
 
-    private Map<Long, List<PropertyAssignment>> getAssignmentsByPropertyTypeId(Map<Long, PropertyAssignment> assignments,
+    private Map<Long, List<PropertyAssignment>> getAssignmentsByPropertyTypeId(Map<PropertyAssignmentKey, PropertyAssignment> assignments,
             Collection<PropertyAssignmentRecord> assignmentRecords)
     {
         Map<Long, List<PropertyAssignment>> map = new HashMap<Long, List<PropertyAssignment>>();
 
         for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
         {
-            PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+            EntityKind entityKind = EntityKind.valueOf(assignmentRecord.kind_code);
+            PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
+            PropertyAssignment assignment = assignments.get(key);
             List<PropertyAssignment> list = map.get(assignmentRecord.prty_id);
 
             if (list == null)
@@ -185,14 +206,16 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         return map;
     }
 
-    private Map<Long, List<PropertyAssignment>> getAssignmentsByRegistratorId(Map<Long, PropertyAssignment> assignments,
+    private Map<Long, List<PropertyAssignment>> getAssignmentsByRegistratorId(Map<PropertyAssignmentKey, PropertyAssignment> assignments,
             Collection<PropertyAssignmentRecord> assignmentRecords)
     {
         Map<Long, List<PropertyAssignment>> map = new HashMap<Long, List<PropertyAssignment>>();
 
         for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
         {
-            PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+            EntityKind entityKind = EntityKind.valueOf(assignmentRecord.kind_code);
+            PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
+            PropertyAssignment assignment = assignments.get(key);
             List<PropertyAssignment> list = map.get(assignmentRecord.pers_id_registerer);
 
             if (list == null)
@@ -207,7 +230,7 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         return map;
     }
 
-    private void setEntityTypes(TranslationContext context, Map<Long, PropertyAssignment> assignments,
+    private void setEntityTypes(TranslationContext context, Map<PropertyAssignmentKey, PropertyAssignment> assignments,
             Collection<PropertyAssignmentRecord> assignmentRecords, PropertyAssignmentFetchOptions assignmentFetchOptions, EntityKind entityKind)
     {
         Map<Long, List<PropertyAssignment>> assignmentsByEntityTypeId = new HashMap<Long, List<PropertyAssignment>>();
@@ -216,7 +239,8 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         {
             if (entityKind.equals(EntityKind.valueOf(assignmentRecord.kind_code)))
             {
-                PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+                PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
+                PropertyAssignment assignment = assignments.get(key);
                 List<PropertyAssignment> list = assignmentsByEntityTypeId.get(assignmentRecord.type_id);
 
                 if (list == null)
@@ -278,7 +302,7 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         }
     }
 
-    private void setSemanticAnnotations(TranslationContext context, Map<Long, PropertyAssignment> assignments,
+    private void setSemanticAnnotations(TranslationContext context, Map<PropertyAssignmentKey, PropertyAssignment> assignments,
             Collection<PropertyAssignmentRecord> assignmentRecords, PropertyAssignmentFetchOptions assignmentFetchOptions, EntityKind entityKind)
     {
         Collection<Long> propertyAssignmentIds = new HashSet<Long>();
@@ -313,7 +337,8 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
 
             for (ObjectRelationRecord assignmentToAnnotationRecord : assignmentToAnnotationRecords)
             {
-                PropertyAssignment assignment = assignments.get(assignmentToAnnotationRecord.objectId);
+                PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentToAnnotationRecord.objectId, entityKind);
+                PropertyAssignment assignment = assignments.get(key);
                 SemanticAnnotation annotation = annotations.get(assignmentToAnnotationRecord.relatedId);
 
                 List<SemanticAnnotation> assignmentAnnotations = assignment.getSemanticAnnotations();
@@ -329,7 +354,8 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         setSemanticAnnotationsFromPropertyTypeIfMissing(context, assignments, assignmentRecords, assignmentFetchOptions, EntityKind.SAMPLE);
     }
 
-    private void setSemanticAnnotationsFromPropertyTypeIfMissing(TranslationContext context, Map<Long, PropertyAssignment> assignments,
+    private void setSemanticAnnotationsFromPropertyTypeIfMissing(TranslationContext context,
+            Map<PropertyAssignmentKey, PropertyAssignment> assignments,
             Collection<PropertyAssignmentRecord> assignmentRecords, PropertyAssignmentFetchOptions assignmentFetchOptions, EntityKind entityKind)
     {
         Collection<Long> propertyTypeIds = new HashSet<Long>();
@@ -351,12 +377,14 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
         {
             if (entityKind.equals(EntityKind.valueOf(assignmentRecord.kind_code)))
             {
-                PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+                PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
+                PropertyAssignment assignment = assignments.get(key);
 
                 if (assignment.getSemanticAnnotations() == null || assignment.getSemanticAnnotations().isEmpty())
                 {
                     PropertyType propertyType = propertyTypes.get(assignmentRecord.prty_id);
                     assignment.setSemanticAnnotations(propertyType.getSemanticAnnotations());
+                    assignment.setSemanticAnnotationsInherited(true);
                 }
             }
         }
