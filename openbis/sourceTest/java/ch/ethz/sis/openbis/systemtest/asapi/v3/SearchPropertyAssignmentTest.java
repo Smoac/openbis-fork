@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * @author pkupczyk
@@ -41,7 +42,15 @@ public class SearchPropertyAssignmentTest extends AbstractTest
     @Test
     public void testSearchWithEmptyCriteria()
     {
-        testSearch(TEST_SPACE_USER, new PropertyAssignmentSearchCriteria(), 62);
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SearchResult<PropertyAssignment> searchResult =
+                v3api.searchPropertyAssignments(sessionToken, new PropertyAssignmentSearchCriteria(), new PropertyAssignmentFetchOptions());
+        List<PropertyAssignment> propertyAssignments = searchResult.getObjects();
+
+        List<EntityTypePropertyType<?>> etpts = commonServer.listEntityTypePropertyTypes(sessionToken);
+
+        Assert.assertEquals(propertyAssignments.size(), etpts.size());
     }
 
     @Test
@@ -142,22 +151,53 @@ public class SearchPropertyAssignmentTest extends AbstractTest
     @Test
     public void testSearchWithAndOperator()
     {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentFetchOptions fo = new PropertyAssignmentFetchOptions();
+        fo.withEntityType();
+        fo.withPropertyType();
+
         PropertyAssignmentSearchCriteria criteria = new PropertyAssignmentSearchCriteria();
         criteria.withAndOperator();
         criteria.withEntityType().withId().thatEquals(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
         criteria.withPropertyType().withId().thatEquals(new PropertyTypePermId("BACTERIUM"));
-        testSearch(TEST_USER, criteria, "CELL_PLATE.BACTERIUM");
+
+        SearchResult<PropertyAssignment> searchResult =
+                v3api.searchPropertyAssignments(sessionToken, criteria, fo);
+
+        List<PropertyAssignment> propertyAssignments = searchResult.getObjects();
+
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            Assert.assertTrue(propertyAssignment.getEntityType().getCode().equals("CELL_PLATE")
+                    && propertyAssignment.getPropertyType().getCode().equals("BACTERIUM"));
+        }
     }
 
     @Test
     public void testSearchWithOrOperator()
     {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentFetchOptions fo = new PropertyAssignmentFetchOptions();
+        fo.withEntityType();
+        fo.withPropertyType();
+
         PropertyAssignmentSearchCriteria criteria = new PropertyAssignmentSearchCriteria();
         criteria.withOrOperator();
         criteria.withEntityType().withId().thatEquals(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
         criteria.withPropertyType().withId().thatEquals(new PropertyTypePermId("BACTERIUM"));
-        testSearch(TEST_USER, criteria, "CELL_PLATE.SIZE", "CELL_PLATE.COMMENT", "CELL_PLATE.ORGANISM", "CELL_PLATE.BACTERIUM",
-                "CELL_PLATE.ANY_MATERIAL", "DELETION_TEST.BACTERIUM", "HCS_IMAGE.BACTERIUM", "DELETION_TEST_CONTAINER.BACTERIUM");
+
+        SearchResult<PropertyAssignment> searchResult =
+                v3api.searchPropertyAssignments(sessionToken, criteria, fo);
+
+        List<PropertyAssignment> propertyAssignments = searchResult.getObjects();
+
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            Assert.assertTrue(propertyAssignment.getEntityType().getCode().equals("CELL_PLATE")
+                    || propertyAssignment.getPropertyType().getCode().equals("BACTERIUM"));
+        }
     }
 
     private void testSearch(String user, PropertyAssignmentSearchCriteria criteria, String... expectedEntityTypeAndPropertyTypeCodes)
@@ -173,18 +213,6 @@ public class SearchPropertyAssignmentTest extends AbstractTest
         List<PropertyAssignment> propertyAssignments = searchResult.getObjects();
 
         assertPropertyAssignments(propertyAssignments, expectedEntityTypeAndPropertyTypeCodes);
-        v3api.logout(sessionToken);
-    }
-
-    private void testSearch(String user, PropertyAssignmentSearchCriteria criteria, int expectedCount)
-    {
-        String sessionToken = v3api.login(user, PASSWORD);
-
-        SearchResult<PropertyAssignment> searchResult =
-                v3api.searchPropertyAssignments(sessionToken, criteria, new PropertyAssignmentFetchOptions());
-        List<PropertyAssignment> propertyAssignments = searchResult.getObjects();
-
-        Assert.assertEquals(propertyAssignments.size(), expectedCount);
         v3api.logout(sessionToken);
     }
 
