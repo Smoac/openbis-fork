@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTech
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -111,10 +112,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     {
         Experiment experiment =
                 openBISService.tryGetExperiment(new ExperimentIdentifier("CISD", "NEMO", "EXP1"));
-
-        IEntityProperty property = experiment.getProperties().get(0);
-        assertEquals("DESCRIPTION", property.getPropertyType().getCode());
-        assertEquals("modified experiment description", property.getValue());
+        assertEquals("modified experiment description", getProperty(experiment, "DESCRIPTION").getValue());
     }
 
     private void assertEmailHasBeenSentFromHook()
@@ -190,17 +188,14 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         {
             String code = m.getCode();
             String expectedGeneSymbol = code + "_S";
-            IEntityProperty property = m.getProperties().get(0);
-            assertEquals("GENE_SYMBOL", property.getPropertyType().getCode());
-            assertEquals(expectedGeneSymbol, property.getValue());
+            assertEquals(expectedGeneSymbol, getProperty(m, "GENE_SYMBOL").getValue());
         }
 
     }
 
     private void assertVocabularyMaterialsCreated()
     {
-        String[] items = new String[]
-        { "RAT", "DOG", "HUMAN", "GORILLA", "FLY" };
+        String[] items = new String[] { "RAT", "DOG", "HUMAN", "GORILLA", "FLY" };
 
         LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
 
@@ -291,6 +286,18 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         exampleDataSet.mkdirs();
         FileUtilities.writeToFile(new File(exampleDataSet, "set1.txt"), "hello world");
         FileUtilities.writeToFile(new File(exampleDataSet, "set1.txt"), "hello world");
+    }
+
+    private IEntityProperty getProperty(IEntityPropertiesHolder holder, String propertyCode)
+    {
+        for (IEntityProperty property : holder.getProperties())
+        {
+            if (property.getPropertyType().getCode().equals(propertyCode))
+            {
+                return property;
+            }
+        }
+        return null;
     }
 
 }
