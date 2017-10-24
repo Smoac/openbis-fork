@@ -20,8 +20,6 @@ fi
 cd "$(dirname "$0")/../../../.."
 
 # create branch in git from master
-git checkout master
-git pull
 git checkout -b $1
 git push -u origin $1
 
@@ -56,7 +54,9 @@ for project in $GRADLE_PROJECTS; do
 	for file in build.gradle javaproject.gradle gwtdev.gradle query-api.gradle proteomics-api.gradle screening-api.gradle admin-console.gradle clients.gradle; do
 		if [ -s $file ]; then
 			sed -f sed_commands $file > $file.tmp;
-			mv $file.tmp $file;	
+			mv $file.tmp $file;
+			# add to git
+			git add $file
 		fi;
 	done
 	
@@ -65,6 +65,5 @@ for project in $GRADLE_PROJECTS; do
 done
 
 # commit dependency versions
-git add --all
 git commit -m "fixed dependencies of $1";
 git push
