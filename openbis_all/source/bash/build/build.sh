@@ -2,9 +2,9 @@
 usage()
 {
   echo ""
-  echo "Usage: ./build.sh version branch/tag"
+  echo "Usage: ./build.sh branch tag"
   echo ""
-  echo "Example: ./build.sh sprint S175.x/S175.0"
+  echo "Example: ./build.sh S175.x S175.0"
   exit 1
 }
 
@@ -12,50 +12,53 @@ function move_to_file_server {
   echo "Moving new openBIS components to file server"
   
   OPENBIS_PATH=~openbis/fileserver/sprint_builds/openBIS
-  SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
+  SPRINT_DIR=$OPENBIS_PATH/$TODAY-$tag
   mkdir -p $SPRINT_DIR
-  mv *$FULL_VER*.{zip,gz} $SPRINT_DIR/
+  mv *$tag*.{zip,gz} $SPRINT_DIR/
   chmod g+w -R $SPRINT_DIR
 }
 
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
 	usage
 fi
 
 TODAY=`date "+%Y-%m-%d"`
-FULL_VER=$2
 
-rm -rf tmp
-mkdir -p tmp
-svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2 tmp;
-if [ $? -ne 0 ]
-then
-	exit
-fi
+branch = $1
+tag = $2
 
-cd tmp/openbis_standard_technologies
+# cd to repository root directory
+cd "$(dirname "$0")/../../../.."
+
+# checkout tag
+git checkout $tag
+if [ $? -ne 0 ]; then echo "Tag does not exist!"; exit 1; fi
+
+# build
+cd openbis_standard_technologies
 ./gradlew :clientsAndApis -x test
 ./gradlew :generateJavadoc
 cd ../installation
 ./gradlew :build -x test
 cd ../plasmid
 ./gradlew :build -x test
+
+# collect files
 cd ../..
-mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
-mv tmp/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
-mv tmp/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
-cp -r tmp/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$FULL_VER
+mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
+mv openbis/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
+mv openbis/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
+cp -r openbis/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$tag
 cd ~openbis/fileserver/doc/openbis
-if [ ${FULL_VER:0:1} == "S" ]; then
+if [ ${tag:0:1} == "S" ]; then
   rm current
-  ln -s $FULL_VER current
+  ln -s $tag current
 else
-  dir=${FULL_VER%.*}
+  dir=${tag%.*}
   rm $dir
-  ln -s $FULL_VER $dir
+  ln -s $tag $dir
 fi
 cd -
 
 move_to_file_server
-
