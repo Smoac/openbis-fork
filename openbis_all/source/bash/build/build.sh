@@ -44,11 +44,9 @@ cd ../installation
 cd ../plasmid
 ./gradlew :build -x test
 
-# collect files
 cd ../..
-mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
-mv openbis/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
-mv openbis/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
+
+# move documentation to fileserver
 cp -r openbis/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$tag
 cd ~openbis/fileserver/doc/openbis
 if [ ${tag:0:1} == "S" ]; then
@@ -60,5 +58,10 @@ else
   ln -s $tag $dir
 fi
 cd -
+
+# move components to fileserver
+mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
+mv openbis/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
+mv openbis/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
 
 move_to_file_server
