@@ -18,15 +18,15 @@ function move_to_file_server {
   chmod g+w -R $SPRINT_DIR
 }
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
 	usage
 fi
 
 TODAY=`date "+%Y-%m-%d"`
 
-branch = $1
-tag = $2
+branch=$1
+tag=$2
 
 # cd to repository root directory
 cd "$(dirname "$0")/../../../.."
