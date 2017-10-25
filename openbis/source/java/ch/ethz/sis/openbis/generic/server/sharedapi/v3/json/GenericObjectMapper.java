@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.sharedapi.v3.json;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
@@ -42,6 +43,7 @@ public class GenericObjectMapper extends ObjectMapper
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(
                 new JsonBaseTypeToSubTypesMapping()));
         setSerializerFactory(new JsonSerializerFactory());
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
 }

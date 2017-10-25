@@ -450,6 +450,7 @@ class ResultDataSetUploader extends AbstractHandler
                         double probability = proteinSummaryDataFilter.getMinProbability();
                         double fdr = proteinSummaryDataFilter.getFalsePositiveErrorRate();
                         calculator.add(probability, fdr);
+                        calculator.init();
                         dao.createProbabilityToFDRMapping(dataSetID, probability, fdr);
                     }
                     return calculator;
