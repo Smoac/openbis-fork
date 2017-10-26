@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -411,6 +414,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "get-tags", "TAG_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(tagIds), fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-authorization-groups", "GROUP_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(groupIds), fetchOptions);
         return null;
     }
 

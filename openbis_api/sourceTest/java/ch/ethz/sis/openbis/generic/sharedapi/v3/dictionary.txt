@@ -1698,3 +1698,16 @@ SearchPropertyTypesOperation
 SearchPropertyTypesOperationResult
 setSemanticAnnotationsInherited
 withIds
+Authorization Group
+Authorization Group Fetch Options
+Authorization Group PermId
+Authorization Group Sort Options
+getAuthorization Groups
+GetAuthorization Groups Operation
+GetAuthorization Groups Operation Result
+get Users
+has Users
+IAuthorizationGroupId
+set Users
+with Users
+with Users Using

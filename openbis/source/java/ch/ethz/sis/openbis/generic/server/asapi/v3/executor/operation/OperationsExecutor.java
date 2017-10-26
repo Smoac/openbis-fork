@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IGetAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IArchiveDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetsOperationExecutor;
@@ -264,6 +265,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IGetTagsOperationExecutor getTagsExecutor;
 
     @Autowired
+    private IGetAuthorizationGroupsOperationExecutor getAuthorizationGroupsExecutor;
+    
+    @Autowired
     private IGetVocabularyTermsOperationExecutor getVocabularyTermsExecutor;
 
     @Autowired
@@ -444,6 +448,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getDataSetsExecutor.execute(context, operations));
         resultMap.putAll(getMaterialsExecutor.execute(context, operations));
         resultMap.putAll(getTagsExecutor.execute(context, operations));
+        resultMap.putAll(getAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(getExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));

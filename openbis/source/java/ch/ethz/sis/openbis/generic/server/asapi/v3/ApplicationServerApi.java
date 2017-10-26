@@ -26,6 +26,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.get.GetAuthorizationGroupsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.get.GetAuthorizationGroupsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -611,6 +616,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
     {
         GetTagsOperationResult result = executeOperation(sessionToken, new GetTagsOperation(tagIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
+        GetAuthorizationGroupsOperationResult result = executeOperation(sessionToken, new GetAuthorizationGroupsOperation(groupIds, fetchOptions));
         return result.getObjectMap();
     }
 
