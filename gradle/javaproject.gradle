@@ -143,6 +143,14 @@ def calculateBuildInfo() {
     } else {
         def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at'], '../' + project.name)
         project.ext.revisionNumber = Integer.parseInt(gitlogoutput[0])
+        def tag = 'git describe --tags'.execute().text.trim()
+        if (tag == null || tag.isEmpty()) {
+            project.ext.versionNumber = 'SNAPSHOT'
+        } else {
+            project.ext.versionNumber = tag
+        }
+    } else {
+        project.ext.revisionNumber = 1
         project.ext.versionNumber = 'SNAPSHOT'
     }
 
