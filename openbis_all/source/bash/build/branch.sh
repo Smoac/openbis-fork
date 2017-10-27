@@ -5,7 +5,7 @@ if [ $# -ne 1 ]
 then
   echo "Usage: ./branch.sh [branch]"
   echo ""
-  echo "Example: ./branch.sh release/13.04.x"
+  echo "Example: ./branch.sh 13.04.x"
   exit 1
 fi
 
