@@ -545,6 +545,70 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithRegistratorWithUserIdThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrator().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithFirstNameThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrator().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithLastNameThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrator().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithEmailThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrator().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithModifierWithUserIdThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withModifier().withUserId().thatEquals("test_role");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10");
+    }
+
+    @Test
+    public void testSearchWithModifierWithFirstNameThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withModifier().withFirstName().thatEquals("John 3");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10");
+    }
+
+    @Test
+    public void testSearchWithModifierWithLastNameThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withModifier().withLastName().thatEquals("Doe test role");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10");
+    }
+
+    @Test
+    public void testSearchWithModifierWithEmailThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withModifier().withEmail().thatEquals("test_role@in.active");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10");
+    }
+
+    @Test
     public void testSearchWithRegistrationDateThatEquals()
     {
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();

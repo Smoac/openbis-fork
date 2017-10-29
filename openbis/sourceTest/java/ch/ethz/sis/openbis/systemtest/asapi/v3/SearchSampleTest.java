@@ -599,6 +599,70 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithRegistratorWithUserIdThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withRegistrator().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithFirstNameThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withRegistrator().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithLastNameThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withRegistrator().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithEmailThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withRegistrator().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithModifierWithUserIdThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withModifier().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+    }
+
+    @Test
+    public void testSearchWithModifierWithFirstNameThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withModifier().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+    }
+
+    @Test
+    public void testSearchWithModifierWithLastNameThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withModifier().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+    }
+
+    @Test
+    public void testSearchWithModifierWithEmailThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withModifier().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+    }
+
+    @Test
     public void testSearchWithRegistrationDateThatEquals()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();

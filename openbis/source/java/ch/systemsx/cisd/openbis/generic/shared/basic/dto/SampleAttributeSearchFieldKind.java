@@ -61,7 +61,23 @@ public enum SampleAttributeSearchFieldKind implements Serializable, IAttributeSe
 
     MODIFICATION_DATE_UNTIL(
             CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_UNTIL_DESCRIPTION, null,
-            new SearchFieldDateCriterionFactory());
+            new SearchFieldDateCriterionFactory()),
+
+    REGISTRATOR_USER_ID("Registrator User Id"),
+
+    REGISTRATOR_FIRST_NAME("Registrator First Name"),
+
+    REGISTRATOR_LAST_NAME("Registrator Last Name"),
+
+    REGISTRATOR_EMAIL("Registrator Email"),
+
+    MODIFIER_USER_ID("Modifier User Id"),
+
+    MODIFIER_FIRST_NAME("Modifier First Name"),
+
+    MODIFIER_LAST_NAME("Modifier Last Name"),
+
+    MODIFIER_EMAIL("Modifier Email");
 
     private final String description;
 

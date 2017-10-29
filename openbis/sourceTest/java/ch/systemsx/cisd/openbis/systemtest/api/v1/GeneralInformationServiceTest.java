@@ -33,7 +33,6 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
@@ -296,6 +295,94 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByRegistratorUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_USER_ID, "etlserver"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByRegistratorFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_FIRST_NAME, "\"John 2\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByRegistratorLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_LAST_NAME, "\"ETL Server\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByRegistratorEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByModifierUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_USER_ID, "etlserver"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-B1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByModifierFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_FIRST_NAME, "\"John 2\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-B1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByModifierLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_LAST_NAME, "\"ETL Server\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-B1X]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByModifierEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/RP1-B1X]", samples);
     }
 
     @Test
@@ -1015,7 +1102,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     @Test
     public void testListDataSetsWithPhysicalKind()
     {
-    	// given
+        // given
         Sample s1 = getSample();
 
         // when
@@ -1031,7 +1118,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     @Test
     public void testListDataSetsWithLinkKind()
     {
-    	// given
+        // given
         Sample s1 = getSample(325L, "MP002-1", "200811050917877-331", "MASTER_PLATE");
 
         // when
@@ -1046,23 +1133,23 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
     private Sample getSample(Long id, String code, String permId, String sampleTypeCode)
     {
-    	SampleInitializer sampleIdentifier = getSampleIdentifier();
-    	sampleIdentifier.setId(id);
-    	sampleIdentifier.setCode(code);
-    	sampleIdentifier.setPermId(permId);
-    	sampleIdentifier.setSampleTypeCode(sampleTypeCode);
-    	return new Sample(sampleIdentifier);
+        SampleInitializer sampleIdentifier = getSampleIdentifier();
+        sampleIdentifier.setId(id);
+        sampleIdentifier.setCode(code);
+        sampleIdentifier.setPermId(permId);
+        sampleIdentifier.setSampleTypeCode(sampleTypeCode);
+        return new Sample(sampleIdentifier);
     }
 
     private Sample getSample()
-	{
-		SampleInitializer s1 = getSampleIdentifier();
-		return new Sample(s1);
-	}
+    {
+        SampleInitializer s1 = getSampleIdentifier();
+        return new Sample(s1);
+    }
 
-	private SampleInitializer getSampleIdentifier()
-	{
-		SampleInitializer s1 = new SampleInitializer();
+    private SampleInitializer getSampleIdentifier()
+    {
+        SampleInitializer s1 = new SampleInitializer();
         s1.setId(1042L);
         s1.setCode("CP-TEST-1");
         s1.setIdentifier("/CISD/CP-TEST-1");
@@ -1071,16 +1158,16 @@ public class GeneralInformationServiceTest extends SystemTestCase
         s1.setSampleTypeId(3L);
         s1.setRegistrationDetails(new EntityRegistrationDetails(
                 new EntityRegistrationDetailsInitializer()));
-		return s1;
-	}
+        return s1;
+    }
 
-	private DataSet getDataSet(List<DataSet> dataSets, String code)
-	{
-		return dataSets.stream()
-    			.filter(ds -> ds.getCode().equals(code))
-    			.findFirst()
-    			.orElseThrow( (() -> new RuntimeException("DataSet with code " + code + " missing.")));
-	}
+    private DataSet getDataSet(List<DataSet> dataSets, String code)
+    {
+        return dataSets.stream()
+                .filter(ds -> ds.getCode().equals(code))
+                .findFirst()
+                .orElseThrow((() -> new RuntimeException("DataSet with code " + code + " missing.")));
+    }
 
     public void testGetPostregistrationStatusTrueByDefaultForContainerDataSets()
     {
@@ -1603,6 +1690,94 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForDataSetsByRegistratorUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_USER_ID, "etlserver"));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20081105092259900-1, 20081105092359990-2]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByRegistratorFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_FIRST_NAME, "\"John 2\""));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20081105092259900-1, 20081105092359990-2]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByRegistratorLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_LAST_NAME, "\"ETL Server\""));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20081105092259900-1, 20081105092359990-2]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByRegistratorEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20081105092259900-1, 20081105092359990-2]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByModifierUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_USER_ID, "etlserver"));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20110509092359990-11, 20110509092359990-12]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByModifierFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_FIRST_NAME, "\"John 2\""));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20110509092359990-11, 20110509092359990-12]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByModifierLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_LAST_NAME, "\"ETL Server\""));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20110509092359990-11, 20110509092359990-12]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByModifierEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertDataSets("[20110509092359990-11, 20110509092359990-12]", dataSets);
+    }
+
+    @Test
     public void testSearchForExperimentsByCode()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -1652,6 +1827,94 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("[DESCRIPTION=very important expertiment, GENDER=FEMALE, "
                 + "PURCHASE_DATE=2009-02-09 10:00:00 +0100]", list.toString());
         assertEquals(1, experiments.size());
+    }
+
+    @Test
+    public void testSearchForExperimentsByRegistratorUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_USER_ID, "etlserver"));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP-TEST-1, /CISD/NEMO/EXP-TEST-2]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByRegistratorFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_FIRST_NAME, "\"John 2\""));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP-TEST-1, /CISD/NEMO/EXP-TEST-2]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByRegistratorLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_LAST_NAME, "\"ETL Server\""));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP-TEST-1, /CISD/NEMO/EXP-TEST-2]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByRegistratorEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP-TEST-1, /CISD/NEMO/EXP-TEST-2]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByModifierUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_USER_ID, "test_role"));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP1, /CISD/NEMO/EXP10]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByModifierFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_FIRST_NAME, "\"John 3\""));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP1, /CISD/NEMO/EXP10]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByModifierLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_LAST_NAME, "\"Doe test role\""));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP1, /CISD/NEMO/EXP10]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByModifierEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_EMAIL, "\"test_role@in.active\""));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+        assertEntities("[/CISD/NEMO/EXP1, /CISD/NEMO/EXP10]", experiments);
     }
 
     @Test
@@ -2265,6 +2528,17 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(expectedDataSets, codes.toString());
     }
 
+    private void assertMaterials(String expectedMaterials, List<Material> materials)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (Material material : materials)
+        {
+            codes.add(material.getAugmentedCode());
+        }
+        Collections.sort(codes);
+        assertEquals(expectedMaterials, codes.toString());
+    }
+
     @Test
     public void testSearchForMaterialsReferencing() throws java.text.ParseException
     {
@@ -2291,7 +2565,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchMaterialsByCode() throws java.text.ParseException
+    public void testSearchForMaterialsByCode() throws java.text.ParseException
     {
         List<MaterialIdentifier> materialIdentifiers = new LinkedList<MaterialIdentifier>();
 
@@ -2445,7 +2719,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchMaterialsByModificationDate()
+    public void testSearchForMaterialsByModificationDate()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(MatchClause.createTimeAttributeMatch(
@@ -2463,6 +2737,98 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         materials = generalInformationService.searchForMaterials(sessionToken, searchCriteria);
         assertEquals(2, materials.size());
+    }
+
+    @Test
+    public void testSearchForMaterialsByRegistratorUserId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_USER_ID, "etlserver"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[BACTERIUM1 (BACTERIUM), BACTERIUM2 (BACTERIUM)]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByRegistratorFirstName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_FIRST_NAME, "\"John 2\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[BACTERIUM1 (BACTERIUM), BACTERIUM2 (BACTERIUM)]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByRegistratorLastName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_LAST_NAME, "\"ETL Server\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[BACTERIUM1 (BACTERIUM), BACTERIUM2 (BACTERIUM)]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByRegistratorEmail()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATOR_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[BACTERIUM1 (BACTERIUM), BACTERIUM2 (BACTERIUM)]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByModifierUserId()
+    {
+        // search by a modifier not supported yet
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_USER_ID, "etlserver"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByModifierFirstName()
+    {
+        // search by a modifier not supported yet
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_FIRST_NAME, "\"John 2\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByModifierLastName()
+    {
+        // search by a modifier not supported yet
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_LAST_NAME, "\"ETL Server\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[]", materials);
+    }
+
+    @Test
+    public void testSearchForMaterialsByModifierEmail()
+    {
+        // search by a modifier not supported yet
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFIER_EMAIL, "\"etlserver@systemsx.ch\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertMaterials("[]", materials);
     }
 
     @Test

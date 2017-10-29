@@ -162,8 +162,7 @@ var isHtml = function(page) {
 
 var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataStoreCode, action) {
 	facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode, function(dataStoreUrl) {
-		var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" + "?filename=" + fileName + "&id=0" + "&startByte=0" + "&endByte=0"
-				+ "&sessionID=" + facade.getSession();
+		var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" + "?filename=" + fileName + "&id=0" + "&startByte=0" + "&endByte=0" + "&sessionID=" + facade.getSession();
 
 		$.ajax({
 			url : uploadUrl,
@@ -178,10 +177,9 @@ var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataS
 
 var uploadGraphToSessionWorkspace = function(facade, dataStoreCodeOrNull, action) {
 	var fileName = generateRandomString();
-	var fileContent = ""
-			+
+	var fileContent = "" +
 
-			"row	col	col1	col2	col3\n\
+	"row	col	col1	col2	col3\n\
 1	A	0	1	2\n\
 1	B	3	4	5\n\
 2	A	6	7	8\n\
@@ -328,7 +326,7 @@ test("cookies", function() {
 
 test("deleteProjects()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.deleteProjects([-1], "some reason", function(response) {
+		facade.deleteProjects([ -1 ], "some reason", function(response) {
 			equal(response.error.message, "Project with ID -1 does not exist. Maybe someone has just deleted it.");
 			facade.close();
 		});
@@ -337,7 +335,7 @@ test("deleteProjects()", function() {
 
 test("deleteExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.deleteExperiments([2], "some reason", "PERMANENT", function(response) {
+		facade.deleteExperiments([ 2 ], "some reason", "PERMANENT", function(response) {
 			ok(response.error.message.indexOf("Experiment is being used") == 0, "Cannot delete an experiment with dependencies.");
 			facade.close();
 		});
@@ -346,7 +344,7 @@ test("deleteExperiments()", function() {
 
 test("deleteSamples()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.deleteSamples([2], "some reason", "PERMANENT", function(response) {
+		facade.deleteSamples([ 2 ], "some reason", "PERMANENT", function(response) {
 			ok(response.error.message.indexOf("Sample is being used") == 0, "Cannot delete a sample with dependencies.");
 			facade.close();
 		});
@@ -355,8 +353,9 @@ test("deleteSamples()", function() {
 
 test("deleteDataSets()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.deleteDataSets(["20130415093804724-403"], "some reason", "PERMANENT", function(response) {
-			ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0, "Cannot delete a data set with deletion_disallow flag set to true.");
+		facade.deleteDataSets([ "20130415093804724-403" ], "some reason", "PERMANENT", function(response) {
+			ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0,
+					"Cannot delete a data set with deletion_disallow flag set to true.");
 			facade.close();
 		});
 	});
@@ -364,7 +363,7 @@ test("deleteDataSets()", function() {
 
 test("deleteDataSetsForced()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.deleteDataSetsForced(["20130415093804724-403"], "some reason", "PERMANENT", function(response) {
+		facade.deleteDataSetsForced([ "20130415093804724-403" ], "some reason", "PERMANENT", function(response) {
 			ok(response.error.message.indexOf("Authorization failure") == 0, "Don't have enough privileges to use a forced version of deleting data sets.");
 			facade.close();
 		});
@@ -373,36 +372,37 @@ test("deleteDataSetsForced()", function() {
 
 test("deleteDataSets() listDeletions() deletePermanently() deletePermanentlyForced() revertDeletion()", function() {
 	createFacadeAndLogin(function(facade) {
-		
-		facade.listDeletions([], function(response){
+
+		facade.listDeletions([], function(response) {
 			ok(response.error == null, "Could list deletions.");
 			var beforeDeletions = response.result || [];
-			
-			facade.deleteDataSets(["20130415093804724-403"], "some reason", "TRASH", function(response) {
+
+			facade.deleteDataSets([ "20130415093804724-403" ], "some reason", "TRASH", function(response) {
 				ok(response.error == null, "Could move a data set to trash.");
-				
-				facade.listDeletions(["ORIGINAL_ENTITIES"], function(response){
+
+				facade.listDeletions([ "ORIGINAL_ENTITIES" ], function(response) {
 					var afterDeletions = response.result;
 					equal(beforeDeletions.length + 1, afterDeletions.length, "Moving the data set to trash created a new deletion.");
 					var dataSetDeletion = null;
-					
-					afterDeletions.forEach(function(deletion){
-						if(dataSetDeletion == null){
-							deletion.deletedEntities.forEach(function(entity){
-								if(entity.code == "20130415093804724-403"){
+
+					afterDeletions.forEach(function(deletion) {
+						if (dataSetDeletion == null) {
+							deletion.deletedEntities.forEach(function(entity) {
+								if (entity.code == "20130415093804724-403") {
 									dataSetDeletion = deletion;
 								}
 							});
 						}
 					});
-					
-					facade.deletePermanently([dataSetDeletion.id], function(response){
-						ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0, "Cannot delete a data set with deletion_disallow flag set to true.");
 
-						facade.deletePermanentlyForced([dataSetDeletion.id], function(response){
+					facade.deletePermanently([ dataSetDeletion.id ], function(response) {
+						ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0,
+								"Cannot delete a data set with deletion_disallow flag set to true.");
+
+						facade.deletePermanentlyForced([ dataSetDeletion.id ], function(response) {
 							ok(response.error.message.indexOf("Authorization failure") == 0, "Don't have enough privileges to use a forced version of deleting data sets.");
-							
-							facade.revertDeletions([dataSetDeletion.id], function(response){
+
+							facade.revertDeletions([ dataSetDeletion.id ], function(response) {
 								ok(response.error == null, "Reverted deletion.");
 								facade.close();
 							})
@@ -442,6 +442,50 @@ test("searchForSamples()", function() {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, sampleCodes);
 			assertObjectsWithProperties(response.result);
+			facade.close();
+		});
+	});
+});
+
+test("searchForSamples() withRegistratorUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "REGISTRATOR_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "etlserver"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForSamples(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, [ "TEST-SAMPLE-1", "TEST-SAMPLE-2" ]);
+			facade.close();
+		});
+	});
+});
+
+test("searchForSamples() withModifierUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "MODIFIER_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "etlserver"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForSamples(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, [ "PLATE-1A", "SERIES-1" ]);
 			facade.close();
 		});
 	});
@@ -869,6 +913,50 @@ test("searchForDataSets()", function() {
 	});
 });
 
+test("searchForDataSets() withRegistratorUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "REGISTRATOR_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "selenium"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForDataSets(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, [ "20130417094936021-428", "20130417094934693-427" ]);
+			facade.close();
+		});
+	});
+});
+
+test("searchForDataSets() withModifierUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "MODIFIER_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "selenium"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForDataSets(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, [ "20130412143121081-200", "20130412153119864-385" ]);
+			facade.close();
+		});
+	});
+});
+
 test("searchForDataSetsOnBehalfOfUser()", function() {
 	createFacadeAndLogin(function(facade) {
 
@@ -906,7 +994,7 @@ test("searchOnSearchDomain()", function() {
 				"positionInSequence" : "2"
 			})
 		}
-		
+
 		facade.searchOnSearchDomain(preferredSearchDomainOrNull, "SEQ-2", optionalParametersOrNull, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, 'searchDomain.name', [ "echo-database" ]);
@@ -935,7 +1023,7 @@ test("searchOnSearchDomain()", function() {
 
 test("listAvailableSearchDomains()", function() {
 	createFacadeAndLogin(function(facade) {
-		
+
 		facade.listAvailableSearchDomains(function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, 'name', [ "echo-database" ]);
@@ -990,6 +1078,50 @@ test("searchForExperiments()", function() {
 	});
 });
 
+test("searchForExperiments() withRegistratorUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "REGISTRATOR_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "etlserver"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForExperiments(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, [ "TEST-EXPERIMENT" ]);
+			facade.close();
+		});
+	});
+});
+
+test("searchForExperiments() withModifierUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "MODIFIER_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "etlserver"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForExperiments(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, [ "EXP-2", "TEST-EXPERIMENT-3" ]);
+			facade.close();
+		});
+	});
+});
+
 test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
@@ -1032,6 +1164,50 @@ test("searchForMaterials()", function() {
 		facade.searchForMaterials(searchCriteria, function(response) {
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithValues(response.result, 'materialCode', [ "G1" ]);
+			facade.close();
+		});
+	});
+});
+
+test("searchForMaterials() withRegistratorUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "REGISTRATOR_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "etlserver"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForMaterials(searchCriteria, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, "materialCode", [ "SIRNA-3", "SIRNA-4" ]);
+			facade.close();
+		});
+	});
+});
+
+test("searchForMaterials() withModifierUserId", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var searchCriteria = {
+			"@type" : "SearchCriteria",
+			matchClauses : [ {
+				"@type" : "AttributeMatchClause",
+				attribute : "MODIFIER_USER_ID",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "etlserver"
+			} ],
+			operator : "MATCH_ANY_CLAUSES"
+		};
+
+		facade.searchForMaterials(searchCriteria, function(response) {
+			// search by a modifier not supported yet
+			assertObjectsCount(response.result, 0);
 			facade.close();
 		});
 	});

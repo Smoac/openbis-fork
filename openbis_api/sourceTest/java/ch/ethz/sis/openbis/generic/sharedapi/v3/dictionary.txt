@@ -1711,3 +1711,16 @@ IAuthorizationGroupId
 set Users
 with Users
 with Users Using
+EmailSearchCriteria
+FirstNameSearchCriteria
+LastNameSearchCriteria
+ModifierSearchCriteria
+PersonSearchCriteria
+RegistratorSearchCriteria
+UserIdSearchCriteria
+UserIdsSearchCriteria
+withEmail
+withFirstName
+withLastName
+withUserId
+withUserIds

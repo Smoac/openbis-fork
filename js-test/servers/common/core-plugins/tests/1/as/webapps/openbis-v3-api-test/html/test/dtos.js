@@ -350,6 +350,13 @@ var sources = [
 	'as/dto/person/fetchoptions/PersonFetchOptions',
 	'as/dto/person/fetchoptions/PersonSortOptions',
 	'as/dto/person/id/PersonPermId',
+	'as/dto/person/search/EmailSearchCriteria',
+	'as/dto/person/search/FirstNameSearchCriteria',
+	'as/dto/person/search/LastNameSearchCriteria',
+	'as/dto/person/search/ModifierSearchCriteria',
+	'as/dto/person/search/RegistratorSearchCriteria',
+	'as/dto/person/search/UserIdSearchCriteria',
+	'as/dto/person/search/UserIdsSearchCriteria',
 	'as/dto/person/Person',
 	
 	'as/dto/project/create/ProjectCreation',

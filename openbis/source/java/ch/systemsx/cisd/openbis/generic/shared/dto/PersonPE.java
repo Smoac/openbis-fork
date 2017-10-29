@@ -134,7 +134,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Email(message = ValidationMessages.EMAIL_EMAIL_MESSAGE)
     @Length(max = 50, message = ValidationMessages.EMAIL_LENGTH_MESSAGE)
-    @Field(index = Index.NO, name = SearchFieldConstants.PERSON_EMAIL, store = Store.YES)
+    @Field(index = Index.YES, name = SearchFieldConstants.PERSON_EMAIL, store = Store.YES)
     public final String getEmail()
     {
         return email;

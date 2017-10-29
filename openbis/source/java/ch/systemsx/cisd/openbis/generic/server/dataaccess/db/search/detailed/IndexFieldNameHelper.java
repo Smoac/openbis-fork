@@ -168,30 +168,38 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.STORAGE_CONFIRMATION;
             case SPEED_HINT:
                 return SearchFieldConstants.SPEED_HINT;
-
             case EXTERNAL_DMS_CODE:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + CODE;
-
             case EXTERNAL_DMS_LABEL:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.LABEL;
-
             case EXTERNAL_DMS_ADDRESS:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.ADDRESS;
-
             case EXTERNAL_DMS_TYPE:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PREFIX_EXTERNAL_DMS + SearchFieldConstants.ADDRESS_TYPE;
-
             case EXTERNAL_CODE:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.EXTERNAL_CODE;
-
             case PATH:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.PATH;
-
             case COMMIT_HASH:
                 return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.GIT_COMMIT_HASH;
-
             case COMMIT_REPOSITORY_ID:
-            	return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.GIT_REPOSITORY_ID;
+                return SearchFieldConstants.PREFIX_CONTENT_COPY + SearchFieldConstants.GIT_REPOSITORY_ID;
+            case REGISTRATOR_USER_ID:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_USER_ID;
+            case REGISTRATOR_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_FIRST_NAME;
+            case REGISTRATOR_LAST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_LAST_NAME;
+            case REGISTRATOR_EMAIL:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_EMAIL;
+            case MODIFIER_USER_ID:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_USER_ID;
+            case MODIFIER_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_FIRST_NAME;
+            case MODIFIER_LAST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_LAST_NAME;
+            case MODIFIER_EMAIL:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_EMAIL;
         }
         throw new IllegalArgumentException(attributeKind.toString());
     }
@@ -224,6 +232,22 @@ class IndexFieldNameHelper
             case MODIFICATION_DATE_FROM:
             case MODIFICATION_DATE_UNTIL:
                 return SearchFieldConstants.MODIFICATION_DATE;
+            case REGISTRATOR_USER_ID:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_USER_ID;
+            case REGISTRATOR_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_FIRST_NAME;
+            case REGISTRATOR_LAST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_LAST_NAME;
+            case REGISTRATOR_EMAIL:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_EMAIL;
+            case MODIFIER_USER_ID:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_USER_ID;
+            case MODIFIER_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_FIRST_NAME;
+            case MODIFIER_LAST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_LAST_NAME;
+            case MODIFIER_EMAIL:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_EMAIL;
         }
         return null; // cannot happen
     }
@@ -251,6 +275,22 @@ class IndexFieldNameHelper
             case MODIFICATION_DATE_FROM:
             case MODIFICATION_DATE_UNTIL:
                 return SearchFieldConstants.MODIFICATION_DATE;
+            case REGISTRATOR_USER_ID:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_USER_ID;
+            case REGISTRATOR_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_FIRST_NAME;
+            case REGISTRATOR_LAST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_LAST_NAME;
+            case REGISTRATOR_EMAIL:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_EMAIL;
+            case MODIFIER_USER_ID:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_USER_ID;
+            case MODIFIER_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_FIRST_NAME;
+            case MODIFIER_LAST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_LAST_NAME;
+            case MODIFIER_EMAIL:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_EMAIL;
         }
         return null; // cannot happen
     }
@@ -283,6 +323,22 @@ class IndexFieldNameHelper
             case MODIFICATION_DATE_FROM:
             case MODIFICATION_DATE_UNTIL:
                 return SearchFieldConstants.MODIFICATION_DATE;
+            case REGISTRATOR_USER_ID:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_USER_ID;
+            case REGISTRATOR_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_FIRST_NAME;
+            case REGISTRATOR_LAST_NAME:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_LAST_NAME;
+            case REGISTRATOR_EMAIL:
+                return SearchFieldConstants.PREFIX_REGISTRATOR + SearchFieldConstants.PERSON_EMAIL;
+            case MODIFIER_USER_ID:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_USER_ID;
+            case MODIFIER_FIRST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_FIRST_NAME;
+            case MODIFIER_LAST_NAME:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_LAST_NAME;
+            case MODIFIER_EMAIL:
+                return SearchFieldConstants.PREFIX_MODIFIER + SearchFieldConstants.PERSON_EMAIL;
         }
         throw new IllegalArgumentException(attributeKind.toString());
     }

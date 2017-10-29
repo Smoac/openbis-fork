@@ -47,6 +47,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.RegistratorSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
@@ -59,6 +62,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IMapExper
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialTypeExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleTypeExecutor;
@@ -78,6 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -121,6 +126,9 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
 
     @Autowired
     private ISearchDataSetTypeExecutor searchDataSetTypeExecutor;
+
+    @Autowired
+    private ISearchPersonExecutor searchPersonExecutor;
 
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     protected ICommonBusinessObjectFactory businessObjectFactory;
@@ -167,6 +175,8 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
         replacers.add(new MaterialIdCriteriaReplacer());
         replacers.add(new MaterialPermIdCriteriaReplacer());
         replacers.add(new MaterialTypeCriteriaReplacer());
+        replacers.add(new RegistratorCriteriaReplacer());
+        replacers.add(new ModifierCriteriaReplacer());
         replacers.add(new TagIdCriteriaReplacer());
 
         Map<ICriteriaReplacer, Set<ISearchCriteria>> toReplaceMap = new HashMap<ICriteriaReplacer, Set<ISearchCriteria>>();
@@ -696,6 +706,107 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
         {
             MaterialTypeSearchCriteria criteria = new MaterialTypeSearchCriteria();
             criteria.withCodes().thatIn(entityTypeCodes);
+            return criteria;
+        }
+
+    }
+
+    private abstract class AbstractPersonCriteriaReplacer implements ICriteriaReplacer
+    {
+
+        @Override
+        public boolean canReplace(IOperationContext context, Stack<ISearchCriteria> parentCriteria, ISearchCriteria criteria)
+        {
+            if (criteria instanceof PersonSearchCriteria)
+            {
+                return getPersonCriteriaClass().isAssignableFrom(criteria.getClass());
+            } else
+            {
+                return false;
+            }
+        }
+
+        @Override
+        public Map<ISearchCriteria, ISearchCriteria> replace(IOperationContext context, Collection<ISearchCriteria> criteria)
+        {
+            Map<ISearchCriteria, ISearchCriteria> replacementMap = new ReferenceIdentityMap<ISearchCriteria, ISearchCriteria>();
+
+            for (ISearchCriteria criterion : criteria)
+            {
+                PersonSearchCriteria personCriterion = (PersonSearchCriteria) criterion;
+                List<? extends PersonPE> persons = searchPersons(context, personCriterion);
+                List<String> personUserIds = new ArrayList<String>();
+
+                if (persons == null || persons.isEmpty())
+                {
+                    personUserIds.add("#");
+                } else
+                {
+                    for (PersonPE person : persons)
+                    {
+                        personUserIds.add(person.getUserId());
+                    }
+                }
+
+                replacementMap.put(personCriterion, createNewPersonCriteria(personUserIds));
+            }
+
+            return replacementMap;
+        }
+
+        protected abstract Class<? extends PersonSearchCriteria> getPersonCriteriaClass();
+
+        protected abstract List<? extends PersonPE> searchPersons(IOperationContext context, PersonSearchCriteria criteria);
+
+        protected abstract PersonSearchCriteria createNewPersonCriteria(List<String> personUserIds);
+
+    }
+
+    private class RegistratorCriteriaReplacer extends AbstractPersonCriteriaReplacer
+    {
+
+        @Override
+        protected Class<? extends PersonSearchCriteria> getPersonCriteriaClass()
+        {
+            return RegistratorSearchCriteria.class;
+        }
+
+        @Override
+        protected List<? extends PersonPE> searchPersons(IOperationContext context, PersonSearchCriteria criteria)
+        {
+            return searchPersonExecutor.search(context, criteria);
+        }
+
+        @Override
+        protected PersonSearchCriteria createNewPersonCriteria(List<String> personUserIds)
+        {
+            RegistratorSearchCriteria criteria = new RegistratorSearchCriteria();
+            criteria.withUserIds().thatIn(personUserIds);
+            return criteria;
+        }
+
+    }
+
+    private class ModifierCriteriaReplacer extends AbstractPersonCriteriaReplacer
+    {
+
+        @Override
+        protected Class<? extends PersonSearchCriteria> getPersonCriteriaClass()
+        {
+            return ModifierSearchCriteria.class;
+        }
+
+        @Override
+        protected List<? extends PersonPE> searchPersons(IOperationContext context, PersonSearchCriteria criteria)
+        {
+            return searchPersonExecutor.search(context, criteria);
+        }
+
+        @Override
+        protected PersonSearchCriteria createNewPersonCriteria(List<String> personUserIds)
+        {
+            ModifierSearchCriteria criteria = new ModifierSearchCriteria();
+            criteria.withUserIds().thatIn(personUserIds);
             return criteria;
         }
 

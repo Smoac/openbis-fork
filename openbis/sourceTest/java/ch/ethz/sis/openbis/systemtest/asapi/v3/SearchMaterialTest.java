@@ -227,6 +227,74 @@ public class SearchMaterialTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithRegistratorWithUserIdThatEquals()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withRegistrator().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM1", "BACTERIUM"), new MaterialPermId("BACTERIUM2", "BACTERIUM"));
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithFirstNameThatEquals()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withRegistrator().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM1", "BACTERIUM"), new MaterialPermId("BACTERIUM2", "BACTERIUM"));
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithLastNameThatEquals()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withRegistrator().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM1", "BACTERIUM"), new MaterialPermId("BACTERIUM2", "BACTERIUM"));
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithEmailThatEquals()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withRegistrator().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM1", "BACTERIUM"), new MaterialPermId("BACTERIUM2", "BACTERIUM"));
+    }
+
+    @Test
+    public void testSearchWithModifierWithUserIdThatEquals()
+    {
+        // search by a modifier not supported yet
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withModifier().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria);
+    }
+
+    @Test
+    public void testSearchWithModifierWithFirstNameThatEquals()
+    {
+        // search by a modifier not supported yet
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withModifier().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria);
+    }
+
+    @Test
+    public void testSearchWithModifierWithLastNameThatEquals()
+    {
+        // search by a modifier not supported yet
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withModifier().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria);
+    }
+
+    @Test
+    public void testSearchWithModifierWithEmailThatEquals()
+    {
+        // search by a modifier not supported yet
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withModifier().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria);
+    }
+
+    @Test
     public void testSearchWithRegistrationDate()
     {
         MaterialSearchCriteria criteria = new MaterialSearchCriteria();

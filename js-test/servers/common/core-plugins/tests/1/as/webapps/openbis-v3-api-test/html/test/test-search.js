@@ -260,6 +260,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}, fo, "type");
 		});
 
+		QUnit.test("searchExperiments() withRegistrator withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.ExperimentSearchCriteria();
+				criteria.withRegistrator().withUserId().thatEquals("etlserver");
+				return facade.searchExperiments(criteria, c.createExperimentFetchOptions());
+			}
+
+			var fCheck = function(facade, experiments) {
+				c.assertObjectsWithValues(experiments, "code", [ "TEST-EXPERIMENT" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchExperiments() withModifier withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.ExperimentSearchCriteria();
+				criteria.withModifier().withUserId().thatEquals("etlserver");
+				return facade.searchExperiments(criteria, c.createExperimentFetchOptions());
+			}
+
+			var fCheck = function(facade, experiments) {
+				c.assertObjectsWithValues(experiments, "code", [ "EXP-2", "TEST-EXPERIMENT-3" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchExperimentTypes()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -519,6 +551,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchSamples(criteria, fo);
 			}, fo, "type");
+		});
+
+		QUnit.test("searchSamples() withRegistrator withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withRegistrator().withUserId().thatEquals("etlserver");
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-1", "TEST-SAMPLE-2" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSamples() withModifier withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withModifier().withUserId().thatEquals("etlserver");
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "code", [ "PLATE-1A", "SERIES-1" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
 		});
 
 		QUnit.test("searchSampleTypes()", function(assert) {
@@ -824,6 +888,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchDataSets() withRegistrator withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withRegistrator().withUserId().thatEquals("selenium");
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130417094936021-428", "20130417094934693-427" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchDataSets() withModifier withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withModifier().withUserId().thatEquals("selenium");
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130412143121081-200", "20130412153119864-385" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchDataSetTypes()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -905,6 +1001,39 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchMaterials(criteria, fo);
 			}, fo, "type");
+		});
+
+		QUnit.test("searchMaterials() withRegistrator withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.MaterialSearchCriteria();
+				criteria.withRegistrator().withUserId().thatEquals("etlserver");
+				return facade.searchMaterials(criteria, c.createMaterialFetchOptions());
+			}
+
+			var fCheck = function(facade, materials) {
+				c.assertObjectsWithValues(materials, "code", [ "SIRNA-3", "SIRNA-4" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchMaterials() withModifier withUserId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.MaterialSearchCriteria();
+				criteria.withModifier().withUserId().thatEquals("etlserver");
+				return facade.searchMaterials(criteria, c.createMaterialFetchOptions());
+			}
+
+			var fCheck = function(facade, materials) {
+				// search by a modifier not supported yet
+				c.assertObjectsWithValues(materials, "code", []);
+			}
+
+			testSearch(c, fSearch, fCheck);
 		});
 
 		QUnit.test("searchMaterialTypes()", function(assert) {
@@ -1476,13 +1605,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchPropertyAssignments() withPermId", function(assert) {
 			var c = new common(assert, openbis);
 
 			var fSearch = function(facade) {
 				var criteria = new c.PropertyAssignmentSearchCriteria();
-				criteria.withId().thatEquals(new c.PropertyAssignmentPermId(new c.EntityTypePermId("LIBRARY","SAMPLE"), new c.PropertyTypePermId("EXTERNAL_SAMPLE_NAME")));
+				criteria.withId().thatEquals(new c.PropertyAssignmentPermId(new c.EntityTypePermId("LIBRARY", "SAMPLE"), new c.PropertyTypePermId("EXTERNAL_SAMPLE_NAME")));
 				return facade.searchPropertyAssignments(criteria, c.createPropertyAssignmentFetchOptions());
 			}
 
