@@ -24,12 +24,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.Authorization
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
+@JsonObject("as.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions")
 public class AuthorizationGroupFetchOptions extends FetchOptions<AuthorizationGroup> implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -102,6 +104,7 @@ public class AuthorizationGroupFetchOptions extends FetchOptions<AuthorizationGr
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("AuthorizationGroup", this);
         f.addFetchOption("Registrator", registrator);
+        f.addFetchOption("Users", users);
         return f;
     }
 
