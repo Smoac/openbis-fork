@@ -73,6 +73,9 @@ def process(tr):
     print "REPORT START"
     printNotMigratedEntities()
     definitionsVoc.printCreatedTerms()
+    print "INVESTIGATORS MISSING"
+    global investigatorsMissing
+    print str(investigatorsMissing)
     print "REPORT FINISH"
     print "FINISH!"
 
@@ -321,15 +324,39 @@ class CellBoxPositionAdaptor(FileMakerEntityAdaptor):
         
         
 racks = {
-         u"N2" : "N2",
-         u"-140°C R5.38" : "MINUS140_R5.38"
+             u"N2" : "N2",
+             u"-140°C R5.38" : "MINUS140_R5.38"
          }
-                                    
+
+investigators = {
+            u"Timm_Schroeder" : "timmsc",
+            u"Martin_Etzrodt" : "etzromar",
+            u"Simon_Hastreiter" : "hassimon",
+            u"Laura_Skylaki" : "skylakis",
+            u"Dirk_Löffler" : "ldirk",
+            u"Konstantinos_Kokkaliaris" : "kokkalik",
+            u"Oliver_Hilsenbeck" : "hilsenbo",
+            u"Philip_Dettinger" : "philipd",
+            u"Andreas_Reimann" : "anreiman",
+            u"Leo_Kunz" : "kunzl",
+            u"Nouraiz_Ahmed" : "noahmed",
+            u"Ren_Shimamoto" : "rens",
+            u"Weijia_Wang" : "wwang",
+            u"Geethika_Arekatla" : "garekatl",
+            u"Tobias_Kull" : "tkull",
+            u"Arne_Wehling" : "awehling",
+            u"Yang_Zhang" : "yangzhan",
+            u"Jeffrey_Bernitz" : "jbernitz"
+        }
+
+investigatorsMissing = {}
 class CellBoxPositionOpenBISDTO(FMSchroederOpenBISDTO):
     def write(self, tr):
         code = self.values["*CODE"]
         if code is not None:
             sample = getSampleForUpdate("/STORAGE/"+code,"STORAGE_POSITION", tr)
+            sampleParent = sampleID2Sample[self.values["*CELL_ID"]];
+            
             setEntityProperties(tr, self.definition, sample, self.values);
             drawer = self.values["*DRAWER"];
             row = None
@@ -352,9 +379,20 @@ class CellBoxPositionOpenBISDTO(FMSchroederOpenBISDTO):
             sample.setPropertyValue("STORAGE_BOX_NAME", self.values["*BOX_NAME"])
             sample.setPropertyValue("STORAGE_BOX_SIZE", self.values["*BOX_SIZE"])
             sample.setPropertyValue("STORAGE_BOX_POSITION", self.values["*POSITION"])
-            sample.setPropertyValue("STORAGE_USER", self.values["*OWNER"])
             
-            sampleParent = sampleID2Sample[self.values["*CELL_ID"]];
+            boxOwner = None
+            if sampleParent.getPropertyValue("INVESTIGATOR") != None and sampleParent.getPropertyValue("INVESTIGATOR") not in investigators:
+                global investigatorsMissing
+                investigatorsMissing[sampleParent.getPropertyValue("INVESTIGATOR")] = True
+            if sampleParent.getPropertyValue("INVESTIGATOR") in investigators:
+                boxOwner = investigators[sampleParent.getPropertyValue("INVESTIGATOR")]
+            elif self.values["*FROZEN_BY"] != None:
+                boxOwner = self.values["*FROZEN_BY"]
+            else:
+                boxOwner = self.values["*OWNER"]
+            sample.setPropertyValue("STORAGE_USER", boxOwner)
+            
+            # Set parent
             sample.setParentSampleIdentifiers([sampleParent.getSampleIdentifier()]);
         
     def getIdentifier(self, tr):
