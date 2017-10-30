@@ -948,6 +948,18 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				returnType : "SearchResult"
 			});
 		}
+		
+		this.searchAuthorizationGroups = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchAuthorizationGroups",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
 
 		this.searchCustomASServices = function(criteria, fetchOptions) {
 			var thisFacade = this;

@@ -39,7 +39,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup
  * @author Franz-Josef Elmer
  */
 @Component
-public class GroupTranslator extends AbstractCachingTranslator<Long, AuthorizationGroup, AuthorizationGroupFetchOptions>  implements IGroupTranslator
+public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long, AuthorizationGroup, AuthorizationGroupFetchOptions>  implements IAuthorizationGroupTranslator
 {
     @Autowired
     private IAuthorizationGroupBaseTranslator baseTranslator;

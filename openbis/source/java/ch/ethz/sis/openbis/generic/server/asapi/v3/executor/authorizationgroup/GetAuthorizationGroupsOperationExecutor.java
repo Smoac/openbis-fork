@@ -47,7 +47,7 @@ public class GetAuthorizationGroupsOperationExecutor
     private IMapGroupTechIdByIdExecutor mapExecutor;
     
     @Autowired
-    private IGroupTranslator translator;
+    private IAuthorizationGroupTranslator translator;
     
     @Override
     protected Class<? extends GetObjectsOperation<IAuthorizationGroupId, AuthorizationGroupFetchOptions>> getOperationClass()

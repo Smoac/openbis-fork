@@ -16,16 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectsOperationExecutor;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IGroupTranslator extends ITranslator<Long, AuthorizationGroup, AuthorizationGroupFetchOptions>
+public interface ISearchAuthorizationGroupsOperationExecutor extends ISearchObjectsOperationExecutor
 {
 
 }

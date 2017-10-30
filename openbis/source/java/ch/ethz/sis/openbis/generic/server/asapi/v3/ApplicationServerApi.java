@@ -31,6 +31,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.get.GetAuthorizationGroupsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.get.GetAuthorizationGroupsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.SearchAuthorizationGroupsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.SearchAuthorizationGroupsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -747,6 +750,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public SearchResult<Tag> searchTags(String sessionToken, TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions)
     {
         SearchTagsOperationResult result = executeOperation(sessionToken, new SearchTagsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    public SearchResult<AuthorizationGroup> searchAuthorizationGroups(String sessionToken, AuthorizationGroupSearchCriteria searchCriteria,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
+        SearchAuthorizationGroupsOperationResult result = executeOperation(sessionToken, new SearchAuthorizationGroupsOperation(searchCriteria, fetchOptions));
         return result.getSearchResult();
     }
 

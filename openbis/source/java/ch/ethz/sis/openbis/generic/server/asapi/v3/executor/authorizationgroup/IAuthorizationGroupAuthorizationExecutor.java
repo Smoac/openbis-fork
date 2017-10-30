@@ -27,4 +27,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthor
 public interface IAuthorizationGroupAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
     public void canGet(IOperationContext context);
+    
+    public void canSearch(IOperationContext context);
 }

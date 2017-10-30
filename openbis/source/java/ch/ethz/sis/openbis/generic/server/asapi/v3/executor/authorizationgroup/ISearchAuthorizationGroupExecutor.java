@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-@JsonObject("as.dto.common.search.RegistrationDateSearchCriteria")
-public class RegistrationDateSearchCriteria extends DateFieldSearchCriteria
+public interface ISearchAuthorizationGroupExecutor extends ISearchObjectExecutor<AuthorizationGroupSearchCriteria, AuthorizationGroupPE>
 {
-
-    private static final long serialVersionUID = 1L;
-
-    public RegistrationDateSearchCriteria()
-    {
-        super("registration_date", SearchFieldType.ATTRIBUTE);
-    }
 
 }

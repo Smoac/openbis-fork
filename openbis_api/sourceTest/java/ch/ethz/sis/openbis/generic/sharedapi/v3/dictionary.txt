@@ -1724,3 +1724,9 @@ withFirstName
 withLastName
 withUserId
 withUserIds
+
+Authorization Group Search Criteria
+search Authorization Groups
+Search Authorization Groups Operation
+Search Authorization Groups Operation Result
+]
