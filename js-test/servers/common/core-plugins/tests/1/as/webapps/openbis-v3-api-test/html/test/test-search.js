@@ -1302,6 +1302,31 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchAuthorizationGroups()", function(assert) {
+			var c = new common(assert, openbis);
+			var code;
+			
+			var fSearch = function(facade) {
+				return c.createAuthorizationGroup(facade).then(function(permId) {
+					var criteria = new c.AuthorizationGroupSearchCriteria();
+					code = permId.getPermId();
+					criteria.withCode().thatEquals(code);
+					return facade.searchAuthorizationGroups(criteria, c.createAuthorizationGroupFetchOptions());
+				});
+			}
+			
+			var fCheck = function(facade, groups) {
+				c.assertEqual(groups.length, 1);
+				var group = groups[0];
+				c.assertEqual(group.getCode(), code, "Code");
+				var users = group.getUsers();
+				c.assertEqual(users[0].getUserId(), "power_user", "User");
+				c.assertEqual(users.length, 1, "# Users");
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 

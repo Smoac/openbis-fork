@@ -29,6 +29,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.AttachmentCreation = dtos.AttachmentCreation;
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
+		this.AuthorizationGroupCreation = dtos.AuthorizationGroupCreation;
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation = dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
@@ -61,6 +62,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
 		this.TagDeletionOptions = dtos.TagDeletionOptions;
 		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
+		this.PersonPermId = dtos.PersonPermId;
 		this.EntityTypePermId = dtos.EntityTypePermId;
 		this.SpacePermId = dtos.SpacePermId;
 		this.ProjectPermId = dtos.ProjectPermId;
@@ -93,6 +95,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
 		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
+		this.AuthorizationGroupSearchCriteria = dtos.AuthorizationGroupSearchCriteria;
 		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
 		this.PropertyTypeSearchCriteria = dtos.PropertyTypeSearchCriteria;
 		this.PropertyAssignmentSearchCriteria = dtos.PropertyAssignmentSearchCriteria;
@@ -110,6 +113,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsFetchOptions = dtos.ExternalDmsFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.TagFetchOptions = dtos.TagFetchOptions;
+		this.AuthorizationGroupFetchOptions = dtos.AuthorizationGroupFetchOptions;
 		this.PropertyTypeFetchOptions = dtos.PropertyTypeFetchOptions;
 		this.PropertyAssignmentFetchOptions = dtos.PropertyAssignmentFetchOptions;
 		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
@@ -146,6 +150,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
+		this.GetAuthorizationGroupsOperation = dtos.GetAuthorizationGroupsOperation;
 		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
 		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
 
@@ -161,6 +166,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
+		this.CreateAuthorizationGroupsOperation = dtos.CreateAuthorizationGroupsOperation;
 		this.CreateSemanticAnnotationsOperation = dtos.CreateSemanticAnnotationsOperation;
 		this.CreateExternalDmsOperation = dtos.CreateExternalDmsOperation;
 
@@ -200,6 +206,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
 		this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
 		this.SearchTagsOperation = dtos.SearchTagsOperation;
+		this.SearchAuthorizationGroupsOperation = dtos.SearchAuthorizationGroupsOperation;
 		this.SearchCustomASServicesOperation = dtos.SearchCustomASServicesOperation;
 		this.SearchObjectKindModificationsOperation = dtos.SearchObjectKindModificationsOperation;
 		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
@@ -392,6 +399,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.createAuthorizationGroup = function(facade) {
+			var c = this;
+			var creation = new dtos.AuthorizationGroupCreation();
+			creation.setCode(c.generateId("AUTHORIZATION_GROUP"));
+			creation.setUsers([new c.PersonPermId("power_user")]);
+			return facade.createAuthorizationGroups([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+		
 		this.createSemanticAnnotation = function(facade) {
 			var c = this;
 			var creation = new dtos.SemanticAnnotationCreation();
@@ -790,6 +807,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return fo;
 		};
 
+		this.createAuthorizationGroupFetchOptions = function() {
+			var fo = new dtos.AuthorizationGroupFetchOptions();
+			fo.withRegistrator();
+			fo.withUsers();
+			return fo;
+		};
+		
 		this.createPropertyTypeFetchOptions = function() {
 			var fo = new dtos.PropertyTypeFetchOptions();
 			fo.withVocabulary();

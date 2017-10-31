@@ -137,6 +137,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateTagsOperation(creations));
 		}
 		
+		this.createAuthorizationGroups = function(creations) {
+			return this._executeCreateOperation(new c.CreateAuthorizationGroupsOperation(creations));
+		}
+		
 		this.createSemanticAnnotations = function(creations) {
 			return this._executeCreateOperation(new c.CreateSemanticAnnotationsOperation(creations));
 		}
@@ -217,6 +221,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeGetOperation(new c.GetTagsOperation(ids, fetchOptions));
 		}
 		
+		this.getAuthorizationGroups = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetAuthorizationGroupsOperation(ids, fetchOptions));
+		}
+		
 		this.getSemanticAnnotations = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetSemanticAnnotationsOperation(ids, fetchOptions));
 		}
@@ -281,6 +289,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchTagsOperation(criteria, fetchOptions));
 		}
 
+		this.searchAuthorizationGroups = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchAuthorizationGroupsOperation(criteria, fetchOptions));
+		}
+		
 		this.searchCustomASServices = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchCustomASServicesOperation(criteria, fetchOptions));
 		}
