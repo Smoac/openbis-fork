@@ -160,6 +160,7 @@ public class AuthorizationGroup implements Serializable, IPermIdHolder, ICodeHol
         this.modificationDate = modificationDate;
     }
 
+    @JsonIgnore
     public List<Person> getUsers()
     {
         if (getFetchOptions() != null && getFetchOptions().hasUsers())

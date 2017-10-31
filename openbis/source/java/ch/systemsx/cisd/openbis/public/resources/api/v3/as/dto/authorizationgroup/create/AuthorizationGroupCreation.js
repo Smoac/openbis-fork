@@ -2,11 +2,10 @@ define([ "stjs" ], function(stjs) {
 	var AuthorizationGroupCreation = function() {
 	};
 	stjs.extend(AuthorizationGroupCreation, null, [], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.authorizationGroup.create.AuthorizationGroupCreation';
+		prototype['@type'] = 'as.dto.authorizationgroup.create.AuthorizationGroupCreation';
 		constructor.serialVersionUID = 1;
 		prototype.code = null;
 		prototype.description = null;
-		prototype.experimentIds = null;
 		prototype.users = null;
 
 		prototype.getCode = function() {

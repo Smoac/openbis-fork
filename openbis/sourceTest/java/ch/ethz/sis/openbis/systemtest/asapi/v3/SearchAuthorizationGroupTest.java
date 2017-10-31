@@ -106,6 +106,7 @@ public class SearchAuthorizationGroupTest extends AbstractTest
         // Then
         
         AuthorizationGroup authorizationGroup = result.getObjects().get(0);
+        assertEquals(authorizationGroup.getPermId().getPermId(), "AGROUP");
         assertEquals(authorizationGroup.getCode(), "AGROUP");
         assertEquals(authorizationGroup.getDescription(), "myDescription");
         assertEquals(authorizationGroup.getFetchOptions().hasRegistrator(), true);

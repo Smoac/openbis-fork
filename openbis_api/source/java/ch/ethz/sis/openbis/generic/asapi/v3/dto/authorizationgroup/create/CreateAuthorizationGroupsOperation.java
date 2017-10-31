@@ -21,7 +21,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.v3.dto.authorizationgroup.create.CreateAuthorizationGroupsOperation")
+@JsonObject("as.dto.authorizationgroup.create.CreateAuthorizationGroupsOperation")
 public class CreateAuthorizationGroupsOperation extends CreateObjectsOperation<AuthorizationGroupCreation>
 {
 

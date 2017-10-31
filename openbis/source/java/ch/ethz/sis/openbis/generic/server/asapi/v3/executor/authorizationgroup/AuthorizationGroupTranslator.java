@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -82,7 +83,7 @@ public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long
     {
         TranslationResults relations = (TranslationResults) objectRelations;
         AuthorizationGroupBaseRecord baseRecord = relations.get(IAuthorizationGroupBaseTranslator.class, id);
-        
+        group.setPermId(new AuthorizationGroupPermId(baseRecord.code));
         group.setCode(baseRecord.code);
         group.setDescription(baseRecord.description);
         group.setRegistrationDate(baseRecord.registrationDate);

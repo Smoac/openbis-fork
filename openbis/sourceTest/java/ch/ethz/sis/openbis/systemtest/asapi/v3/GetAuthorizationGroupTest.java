@@ -52,6 +52,7 @@ public class GetAuthorizationGroupTest extends AbstractTest
         
         // Then
         AuthorizationGroup authorizationGroup = map.get(permId1);
+        assertEquals(authorizationGroup.getPermId().getPermId(), "AGROUP");
         assertEquals(authorizationGroup.getCode(), "AGROUP");
         assertEquals(authorizationGroup.getDescription(), "myDescription");
         assertEquals(authorizationGroup.getFetchOptions().hasRegistrator(), false);

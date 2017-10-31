@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.authorizationgroup.AuthorizationGroupComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.dataset.DataSetComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.experiment.ExperimentComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSearchObjectComparatorFactory;
@@ -44,6 +45,7 @@ public abstract class ComparatorFactory
     {
         factories.add(new GlobalSearchObjectComparatorFactory());
         factories.add(new TagComparatorFactory());
+        factories.add(new AuthorizationGroupComparatorFactory());
         factories.add(new VocabularyTermComparatorFactory());
         factories.add(new SpaceComparatorFactory());
         factories.add(new ProjectComparatorFactory());

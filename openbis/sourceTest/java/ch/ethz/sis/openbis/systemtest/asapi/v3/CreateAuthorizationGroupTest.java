@@ -98,6 +98,7 @@ public class CreateAuthorizationGroupTest extends AbstractTest
         fetchOptions.withRegistrator();
         fetchOptions.withUsers();
         AuthorizationGroup group = v3api.getAuthorizationGroups(sessionToken, groups, fetchOptions).get(groups.get(0));
+        assertEquals(group.getPermId().getPermId(), newGroup.getCode());
         assertEquals(group.getCode(), newGroup.getCode());
         assertEquals(group.getDescription(), newGroup.getDescription());
         assertEquals(group.getRegistrator().getUserId(), TEST_USER);
