@@ -477,6 +477,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.createAuthorizationGroups = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createAuthorizationGroups",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "AuthorizationGroupPermId" ]
+				}
+			});
+		}
+		
 		this.createSemanticAnnotations = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

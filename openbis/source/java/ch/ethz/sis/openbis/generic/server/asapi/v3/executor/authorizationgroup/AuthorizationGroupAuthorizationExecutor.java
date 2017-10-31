@@ -32,6 +32,12 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
 {
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void canCreate(IOperationContext context)
+    {
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public void canGet(IOperationContext context)
     {

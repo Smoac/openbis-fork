@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -119,6 +121,25 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
                     .getName(), techId, result));
         }
         return result;
+    }
+
+    protected <T> List<T> listByIDsOfName(Class<T> clazz, String idName, Collection<?> ids)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return new ArrayList<T>();
+        }
+        final List<T> list = DAOUtils.listByCollection(getHibernateTemplate(), clazz, idName, ids);
+        if (operationLog.isDebugEnabled())
+        {
+            String name = clazz.getSimpleName();
+            if (name.endsWith("PE"))
+            {
+                name = name.substring(0, name.length() - 2);
+            }
+            operationLog.debug(String.format("%d " + name.toLowerCase() + "(s) have been found.", list.size()));
+        }
+        return list;
     }
 
     @Override

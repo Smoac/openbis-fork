@@ -21,7 +21,9 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
@@ -287,6 +289,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<TagPermId> createTags(String sessionToken, List<TagCreation> newTags)
     {
         logAccess(sessionToken, "create-tags", "NEW_TAGS(%s)", abbreviate(newTags));
+        return null;
+    }
+
+    @Override
+    public List<AuthorizationGroupPermId> createAuthorizationGroups(String sessionToken, List<AuthorizationGroupCreation> newAuthorizationGroups)
+    {
+        logAccess(sessionToken, "create-authorization-groups", "NEW_AUTHORIZATION_GROUPS(%s)", abbreviate(newAuthorizationGroups));
         return null;
     }
 

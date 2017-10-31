@@ -49,6 +49,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -60,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 @Table(name = TableNames.AUTHORIZATION_GROUPS_TABLE)
 @Friend(toClasses = RoleAssignmentPE.class)
 public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder implements
-        Comparable<AuthorizationGroupPE>, IIdAndCodeHolder, Serializable
+        Comparable<AuthorizationGroupPE>, IIdAndCodeHolder, IIdentityHolder, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -109,6 +110,20 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
         this.code = code;
     }
 
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return code;
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return code;
+    }
+    
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getDescription()

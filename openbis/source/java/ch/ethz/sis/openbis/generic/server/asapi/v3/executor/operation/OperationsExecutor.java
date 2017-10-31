@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.ICreateAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IGetAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.ISearchAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IArchiveDataSetsOperationExecutor;
@@ -175,6 +176,9 @@ public class OperationsExecutor implements IOperationsExecutor
     @Autowired
     private ICreateTagsOperationExecutor createTagsExecutor;
 
+    @Autowired
+    private ICreateAuthorizationGroupsOperationExecutor createAuthorizationGroupsExecutor;
+    
     @Autowired
     private ICreateSemanticAnnotationsOperationExecutor createSemanticAnnotationsExecutor;
 
@@ -502,6 +506,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createDataSetsExecutor.execute(context, operations));
         resultMap.putAll(createSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(createTagsExecutor.execute(context, operations));
+        resultMap.putAll(createAuthorizationGroupsExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations,

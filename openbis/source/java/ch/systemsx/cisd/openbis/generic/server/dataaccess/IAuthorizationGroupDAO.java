@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -31,6 +32,8 @@ public interface IAuthorizationGroupDAO extends IGenericDAO<AuthorizationGroupPE
      * Lists all authorization groups.
      */
     public List<AuthorizationGroupPE> list();
+    
+    public List<AuthorizationGroupPE> listByIds(Collection<Long> ids);
 
     /**
      * Creates a new authorization group.

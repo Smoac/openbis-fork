@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -64,6 +65,12 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
                     MethodUtils.getCurrentMethod().getName(), list.size()));
         }
         return list;
+    }
+
+    @Override
+    public List<AuthorizationGroupPE> listByIds(Collection<Long> ids)
+    {
+        return listByIDsOfName(AuthorizationGroupPE.class, "id", ids);
     }
 
     @Override

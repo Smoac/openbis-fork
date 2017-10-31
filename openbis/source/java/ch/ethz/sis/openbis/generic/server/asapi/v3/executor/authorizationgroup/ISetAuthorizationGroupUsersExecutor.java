@@ -16,19 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IAuthorizationGroupAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface ISetAuthorizationGroupUsersExecutor extends ISetEntityRelationsExecutor<AuthorizationGroupCreation, AuthorizationGroupPE>
 {
-    public void canCreate(IOperationContext context);
-    
-    public void canGet(IOperationContext context);
-    
-    public void canSearch(IOperationContext context);
+
 }

@@ -1729,4 +1729,8 @@ Authorization Group Search Criteria
 search Authorization Groups
 Search Authorization Groups Operation
 Search Authorization Groups Operation Result
-]
+Authorization Group Creation
+create Authorization Groups
+Create Authorization Groups Operation
+Create Authorization Groups Operation Result
+
