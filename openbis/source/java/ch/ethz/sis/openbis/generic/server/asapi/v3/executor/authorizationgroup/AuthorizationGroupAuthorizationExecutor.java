@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
@@ -33,12 +34,14 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("CREATE_AUTHORIZATION_GROUP")
     public void canCreate(IOperationContext context)
     {
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("GET_AUTHORIZATION_GROUP")
     public void canGet(IOperationContext context)
     {
     }
@@ -46,6 +49,7 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
     
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("SEARCH_AUTHORIZATION_GROUP")
     public void canSearch(IOperationContext context)
     {
     }

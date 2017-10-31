@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
@@ -29,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * 
@@ -86,18 +88,18 @@ public class GetAuthorizationGroupTest extends AbstractTest
         v3api.logout(sessionToken);
     }
     
-    @Test
-    public void testGetFetchingUsers()
+    @Test(dataProvider = "usersAllowedToGetAuthorizationGroups")
+    public void testCreateWithUser(String user, boolean spaceOfTestUserVisible)
     {
         // Given
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken = v3api.login(user, PASSWORD);
         AuthorizationGroupPermId permId1 = new AuthorizationGroupPermId("AGROUP");
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers().withSpace();
         
         // When
         Map<IAuthorizationGroupId, AuthorizationGroup> map 
-        = v3api.getAuthorizationGroups(sessionToken, Arrays.asList(permId1), fetchOptions);
+                = v3api.getAuthorizationGroups(sessionToken, Arrays.asList(permId1), fetchOptions);
         
         // Then
         AuthorizationGroup authorizationGroup = map.get(permId1);
@@ -108,9 +110,53 @@ public class GetAuthorizationGroupTest extends AbstractTest
         List<Person> users = authorizationGroup.getUsers();
         assertEquals(users.get(0).getUserId(), "test");
         assertEquals(users.get(0).getEmail(), "franz-josef.elmer@systemsx.ch");
-        assertEquals(users.get(0).getSpace().getCode(), "CISD");
+        if (spaceOfTestUserVisible)
+        {
+            assertEquals(users.get(0).getSpace().getCode(), "CISD");
+        }
         assertEquals(users.size(), 1);
         
         v3api.logout(sessionToken);
+    }
+
+    @DataProvider
+    Object[][] usersAllowedToGetAuthorizationGroups()
+    {
+        String[] users = {TEST_GROUP_ADMIN, TEST_OBSERVER_CISD, TEST_SPACE_USER, TEST_USER};
+        boolean[] visible = {false, true, false, true};
+        Object[][] objects = new Object[users.length][];
+        for (int i = 0; i < users.length; i++)
+        {
+            objects[i] = new Object[] {users[i], visible[i]};
+        }
+        return objects;
+    }
+    
+    @Test(dataProvider = "usersNotAllowedToGetAuthorizationGroups")
+    public void testCreateWithUserCausingAuthorizationFailure(final String user)
+    {
+        assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                String sessionToken = v3api.login(user, PASSWORD);
+                AuthorizationGroupPermId permId1 = new AuthorizationGroupPermId("AGROUP");
+                AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+                v3api.getAuthorizationGroups(sessionToken, Arrays.asList(permId1), fetchOptions);
+            }
+        });
+    }
+    
+    @DataProvider
+    Object[][] usersNotAllowedToGetAuthorizationGroups()
+    {
+        String[] users = {TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER, TEST_INSTANCE_OBSERVER, TEST_POWER_USER_CISD};
+        Object[][] objects = new Object[users.length][];
+        for (int i = 0; i < users.length; i++)
+        {
+            objects[i] = new Object[] {users[i]};
+        }
+        return objects;
     }
 }

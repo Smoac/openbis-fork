@@ -18,15 +18,19 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * 
@@ -35,29 +39,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
  */
 public class SearchAuthorizationGroupTest extends AbstractTest
 {
-    @Test
-    public void testSearchAllFetchingOnlyBasic()
-    {
-        // Given
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
-        AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
-        
-        // When
-        SearchResult<AuthorizationGroup> result = v3api.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions);
-        
-        // Then
-        
-        AuthorizationGroup authorizationGroup = result.getObjects().get(0);
-        assertEquals(authorizationGroup.getCode(), "AGROUP");
-        assertEquals(authorizationGroup.getDescription(), "myDescription");
-        assertEquals(authorizationGroup.getFetchOptions().hasRegistrator(), false);
-        assertEquals(authorizationGroup.getFetchOptions().hasUsers(), false);
-        assertEquals(result.getTotalCount(), 1);
-
-        v3api.logout(sessionToken);
-    }
-
     @Test
     public void testSearchWithCodeFetchingRegistratorAndUsers()
     {
@@ -136,5 +117,69 @@ public class SearchAuthorizationGroupTest extends AbstractTest
         assertEquals(result.getObjects().size(), 0);
         
         v3api.logout(sessionToken);
+    }
+
+    @Test(dataProvider = "usersAllowedToSearchAuthorizationGroups")
+    public void testSearchWithUser(String user)
+    {
+        // Given
+        String sessionToken = v3api.login(user, PASSWORD);
+        AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
+        AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        
+        // When
+        SearchResult<AuthorizationGroup> result = v3api.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions);
+        
+        // Then
+        
+        AuthorizationGroup authorizationGroup = result.getObjects().get(0);
+        assertEquals(authorizationGroup.getCode(), "AGROUP");
+        assertEquals(authorizationGroup.getDescription(), "myDescription");
+        assertEquals(authorizationGroup.getFetchOptions().hasRegistrator(), false);
+        assertEquals(authorizationGroup.getFetchOptions().hasUsers(), false);
+        assertEquals(result.getTotalCount(), 1);
+
+        v3api.logout(sessionToken);
+    }
+
+    @DataProvider
+    Object[][] usersAllowedToSearchAuthorizationGroups()
+    {
+        String[] users = {TEST_GROUP_ADMIN, TEST_OBSERVER_CISD, TEST_SPACE_USER, TEST_USER};
+        Object[][] objects = new Object[users.length][];
+        for (int i = 0; i < users.length; i++)
+        {
+            objects[i] = new Object[] {users[i]};
+        }
+        return objects;
+    }
+    
+
+    @Test(dataProvider = "usersNotAllowedToSearchAuthorizationGroups")
+    public void testSearchWithUserCausingAuthorizationFailure(final String user)
+    {
+        assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                String sessionToken = v3api.login(user, PASSWORD);
+                AuthorizationGroupPermId permId1 = new AuthorizationGroupPermId("AGROUP");
+                AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+                v3api.getAuthorizationGroups(sessionToken, Arrays.asList(permId1), fetchOptions);
+            }
+        });
+    }
+    
+    @DataProvider
+    Object[][] usersNotAllowedToSearchAuthorizationGroups()
+    {
+        String[] users = {TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER, TEST_INSTANCE_OBSERVER, TEST_POWER_USER_CISD};
+        Object[][] objects = new Object[users.length][];
+        for (int i = 0; i < users.length; i++)
+        {
+            objects[i] = new Object[] {users[i]};
+        }
+        return objects;
     }
 }

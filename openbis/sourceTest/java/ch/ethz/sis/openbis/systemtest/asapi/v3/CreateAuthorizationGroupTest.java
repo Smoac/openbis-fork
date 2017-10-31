@@ -110,7 +110,7 @@ public class CreateAuthorizationGroupTest extends AbstractTest
     }
     
     @Test(dataProvider = "usersNotAllowedToCreateAuthorizationGroups")
-    public void testCreateWithSpaceAdmin(final String user)
+    public void testCreateWithUserCausingAuthorizationFailure(final String user)
     {
         assertAuthorizationFailureException(new IDelegatedAction()
             {
