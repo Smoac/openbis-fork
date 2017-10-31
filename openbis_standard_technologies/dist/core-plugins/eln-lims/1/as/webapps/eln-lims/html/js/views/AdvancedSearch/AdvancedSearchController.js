@@ -125,6 +125,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
+				fetchOptions.minTableInfo = true;
 			}
 			
 			if(!criteria.cached) {
