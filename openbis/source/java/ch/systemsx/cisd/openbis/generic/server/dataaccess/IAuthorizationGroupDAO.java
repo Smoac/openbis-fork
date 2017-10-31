@@ -35,6 +35,8 @@ public interface IAuthorizationGroupDAO extends IGenericDAO<AuthorizationGroupPE
     
     public List<AuthorizationGroupPE> listByIds(Collection<Long> ids);
 
+    public List<AuthorizationGroupPE> listByCodes(Collection<String> codes);
+
     /**
      * Creates a new authorization group.
      */

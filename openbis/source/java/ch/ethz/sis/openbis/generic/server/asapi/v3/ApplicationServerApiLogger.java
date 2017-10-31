@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -361,6 +362,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void updateTags(String sessionToken, List<TagUpdate> tagUpdates)
     {
         logAccess(sessionToken, "update-tags", "TAG_UPDATES(%s)", abbreviate(tagUpdates));
+    }
+
+    @Override
+    public void updateAuthorizationGroups(String sessionToken, List<AuthorizationGroupUpdate> authorizationGroupUpdates)
+    {
+        logAccess(sessionToken, "update-authorization-groups", "AUTHORIZATION_GROUP_UPDATES(%s)", abbreviate(authorizationGroupUpdates));
     }
 
     @Override

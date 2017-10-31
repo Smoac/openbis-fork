@@ -74,6 +74,12 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
     }
 
     @Override
+    public List<AuthorizationGroupPE> listByCodes(Collection<String> ids)
+    {
+        return listByIDsOfName(AuthorizationGroupPE.class, "code", ids);
+    }
+    
+    @Override
     public void create(AuthorizationGroupPE authorizationGroup)
     {
         assert authorizationGroup != null : "Missing authorization group.";

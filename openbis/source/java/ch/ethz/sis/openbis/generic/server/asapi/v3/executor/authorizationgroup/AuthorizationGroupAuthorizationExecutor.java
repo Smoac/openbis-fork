@@ -53,5 +53,12 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
     public void canSearch(IOperationContext context)
     {
     }
-    
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("UPDATE_AUTHORIZATION_GROUP")
+    public void canUpdate(IOperationContext context)
+    {
+    }
+
 }

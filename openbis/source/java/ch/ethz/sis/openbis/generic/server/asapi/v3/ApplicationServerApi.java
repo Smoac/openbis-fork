@@ -38,6 +38,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthoriza
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.SearchAuthorizationGroupsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.SearchAuthorizationGroupsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.UpdateAuthorizationGroupsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -474,6 +476,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<AuthorizationGroupPermId> createAuthorizationGroups(String sessionToken, List<AuthorizationGroupCreation> creations)
     {
         CreateAuthorizationGroupsOperationResult result = executeOperation(sessionToken, new CreateAuthorizationGroupsOperation(creations));
@@ -550,6 +553,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updateTags(String sessionToken, List<TagUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateTagsOperation(updates));
+    }
+
+    @Override
+    @Transactional
+    public void updateAuthorizationGroups(String sessionToken, List<AuthorizationGroupUpdate> authorizationGroupUpdates)
+    {
+        executeOperation(sessionToken, new UpdateAuthorizationGroupsOperation(authorizationGroupUpdates));
     }
 
     @Override
@@ -634,6 +644,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
             AuthorizationGroupFetchOptions fetchOptions)
     {
@@ -765,6 +776,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SearchResult<AuthorizationGroup> searchAuthorizationGroups(String sessionToken, AuthorizationGroupSearchCriteria searchCriteria,
             AuthorizationGroupFetchOptions fetchOptions)
     {

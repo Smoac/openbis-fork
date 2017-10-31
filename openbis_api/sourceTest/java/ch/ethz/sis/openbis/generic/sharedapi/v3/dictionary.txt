@@ -1734,3 +1734,12 @@ create Authorization Groups
 Create Authorization Groups Operation
 Create Authorization Groups Operation Result
 
+Authorization Group Update
+get Authorization Group Id
+set Authorization Group Id
+get User Ids
+set User Ids Actions
+update Authorization Groups
+Update Authorization Groups Operation
+Update Authorization Groups Operation Result
+

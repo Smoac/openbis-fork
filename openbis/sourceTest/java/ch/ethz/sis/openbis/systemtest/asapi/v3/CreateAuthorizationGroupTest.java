@@ -42,7 +42,7 @@ import ch.systemsx.cisd.common.collection.SimpleComparator;
  */
 public class CreateAuthorizationGroupTest extends AbstractTest
 {
-    private static final Comparator<Person> PERSON_COMPARATOR = new SimpleComparator<Person, String>()
+    static final Comparator<Person> PERSON_COMPARATOR = new SimpleComparator<Person, String>()
         {
             @Override
             public String evaluate(Person item)
