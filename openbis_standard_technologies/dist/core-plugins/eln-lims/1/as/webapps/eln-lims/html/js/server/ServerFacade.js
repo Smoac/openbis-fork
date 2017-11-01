@@ -884,6 +884,9 @@ function ServerFacade(openbisServer) {
 					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
 					}
+					if(advancedFetchOptions.withSample && fetchOptions.withSample) {
+						fetchOptions.withSample();
+					}
 					if(fetchOptions.withParents) {
 						fetchOptions.withParents();
 					}

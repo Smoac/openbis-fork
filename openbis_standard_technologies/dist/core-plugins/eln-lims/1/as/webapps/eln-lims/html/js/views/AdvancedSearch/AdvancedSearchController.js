@@ -126,6 +126,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
 				fetchOptions.minTableInfo = true;
+				fetchOptions.withExperiment = true;
+				// TODO : Unused on the UI, should be added for DataSets
+				// fetchOptions.withSample = true;
 			}
 			
 			if(!criteria.cached) {
