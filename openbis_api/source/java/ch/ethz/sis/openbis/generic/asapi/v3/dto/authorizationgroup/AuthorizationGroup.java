@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -69,6 +70,9 @@ public class AuthorizationGroup implements Serializable, IPermIdHolder, ICodeHol
 
     @JsonProperty
     private List<Person> users;
+
+    @JsonProperty
+    private List<RoleAssignment> roleAssignments;
 
     @JsonIgnore
     public AuthorizationGroupFetchOptions getFetchOptions()
@@ -176,5 +180,23 @@ public class AuthorizationGroup implements Serializable, IPermIdHolder, ICodeHol
     public void setUsers(List<Person> users)
     {
         this.users = users;
+    }
+    
+    @JsonIgnore
+    public List<RoleAssignment> getRoleAssignments()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasRoleAssignments())
+        {
+            return roleAssignments;
+        }
+        else
+        {
+            throw new NotFetchedException("Role assignments have not been fetched.");
+        }
+    }
+    
+    public void setRoleAssignments(List<RoleAssignment> roleAssignments)
+    {
+        this.roleAssignments = roleAssignments;
     }
 }

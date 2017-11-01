@@ -40,10 +40,14 @@ public interface AuthorizationGroupQuery extends ObjectQuery
     
     @Select(sql = "select id as objectId, pers_id_registerer as relatedId from authorization_groups where id = any(?{1})", 
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ObjectRelationRecord> getRegistratorIds(LongSet groupIds);
+    public List<ObjectRelationRecord> getRegistratorIds(LongSet authorizationGroupIds);
     
     @Select(sql = "select ag_id as objectId, pers_id as relatedId from authorization_group_persons where ag_id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getUserIds(LongSet authorizationGroupIds);
 
+    @Select(sql = "select ag_id_grantee as objectId, id as relatedId from role_assignments where ag_id_grantee = any(?{1})",
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getRoleAssignmentIds(LongSet authorizationGroupIds);
+    
 }

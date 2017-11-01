@@ -7,6 +7,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
     constructor.serialVersionUID = 1;
     prototype.registrator = null;
     prototype.users = null;
+    prototype.roleAssignments = null;
     prototype.sort = null;
 
     prototype.withRegistrator = function() {
@@ -22,7 +23,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
     prototype.hasRegistrator = function() {
       return this.registrator != null;
     };
-
     prototype.withUsers = function() {
       if (this.users == null) {
         var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
@@ -35,6 +35,19 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
     };
     prototype.hasUsers = function() {
       return this.users != null;
+    };
+    prototype.withRoleAssignments = function() {
+    	if (this.roleAssignments == null) {
+    		var RoleAssignmentsFetchOptions = require("as/dto/roleassignments/fetchoptions/RoleAssignmentsFetchOptions");
+    		this.roleAssignments = new RoleAssignmentsFetchOptions();
+    	}
+    	return this.roleAssignments;
+    };
+    prototype.withRoleAssignmentsUsing = function(fetchOptions) {
+    	return this.roleAssignments = fetchOptions;
+    };
+    prototype.hasRoleAssignments = function() {
+    	return this.roleAssignments != null;
     };
     prototype.sortBy = function() {
       if (this.sort == null) {
@@ -49,6 +62,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
   }, {
     registrator : "PersonFetchOptions",
     useres : "PersonFetchOptions",
+    roleAssignments : "RoleAssignmentsFetchOptions",
     sort : "AuthorizationGroupSortOptions"
   });
   return AuthorizationGroupFetchOptions;

@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.Authorization
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -41,6 +42,9 @@ public class AuthorizationGroupFetchOptions extends FetchOptions<AuthorizationGr
 
     @JsonProperty
     private PersonFetchOptions users;
+
+    @JsonProperty
+    private RoleAssignmentFetchOptions roleAssignments;
     
     @JsonProperty
     private AuthorizationGroupSortOptions sort;
@@ -81,6 +85,25 @@ public class AuthorizationGroupFetchOptions extends FetchOptions<AuthorizationGr
     public boolean hasUsers()
     {
         return users != null;
+    }
+    
+    public RoleAssignmentFetchOptions withRoleAssignments()
+    {
+        if (roleAssignments == null)
+        {
+            roleAssignments = new RoleAssignmentFetchOptions();
+        }
+        return roleAssignments;
+    }
+    
+    public RoleAssignmentFetchOptions withRoleAssignmentsUsing(RoleAssignmentFetchOptions fetchOptions)
+    {
+        return roleAssignments = fetchOptions;
+    }
+    
+    public boolean hasRoleAssignments()
+    {
+        return roleAssignments != null;
     }
     
     @Override

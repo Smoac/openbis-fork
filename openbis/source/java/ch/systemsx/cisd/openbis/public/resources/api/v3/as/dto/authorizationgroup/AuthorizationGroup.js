@@ -9,6 +9,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.code = null;
 		prototype.description = null;
 		prototype.users = null;
+		prototype.roleAssignments = null;
 		prototype.registrationDate = null;
 		prototype.modificationDate = null;
 		prototype.registrator = null;
@@ -46,6 +47,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setUsers = function(users) {
 			this.users = users;
 		};
+		prototype.getRoleAssignments = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRoleAssignments()) {
+				return this.roleAssignments;
+			} else {
+				throw new exceptions.NotFetchedException("RoleAssignments have not been fetched.");
+			}
+		};
+		prototype.setRoleAssignments = function(roleAssignments) {
+			this.roleAssignments = roleAssignments;
+		};
 		prototype.getRegistrationDate = function() {
 			return this.registrationDate;
 		};
@@ -74,6 +85,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		users : {
 			name : "List",
 			arguments : [ "Person" ]
+		},
+		roleAssignments : {
+			name : "List",
+			arguments : [ "RoleAssignment" ]
 		},
 		registrationDate : "Date",
 		modificationDate : "Date",

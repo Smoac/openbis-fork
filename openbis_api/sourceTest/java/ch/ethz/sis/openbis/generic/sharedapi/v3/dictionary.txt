@@ -1746,3 +1746,27 @@ delete Authorization Groups
 Delete Authorization Groups Operation
 Delete Authorization Groups Operation Result
 
+ADMIN
+DISABLED
+ETL_SERVER
+get Role
+get Role Assignments
+get Role Level
+has Role Assignments
+INSTANCE
+I Role Assignment Id
+OBSERVER
+POWER_USER
+Role
+Role Assignment
+Role Assignment Fetch Options
+Role Assignment Sort Options
+Role Assignment Tech Id
+Role Level
+set Role
+set Role Assignments
+set Role Level
+USER
+with Role Assignments
+with Role Assignments Using
+

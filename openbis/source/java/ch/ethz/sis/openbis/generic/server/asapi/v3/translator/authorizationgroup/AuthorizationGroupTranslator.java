@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,13 +26,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.Authorization
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IAuthorizationGroupTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup.AuthorizationGroupBaseRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup.IAuthorizationGroupBaseTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup.IAuthorizationGroupRegistratorTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup.IAuthorizationGroupUserTranslator;
 
 /**
  * 
@@ -50,6 +48,9 @@ public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long
     
     @Autowired
     private IAuthorizationGroupUserTranslator userTranslator;
+
+    @Autowired
+    private IAuthorizationGroupRoleAssignmentTranslator roleAssignmentTranslator;
 
     @Override
     protected AuthorizationGroup createObject(TranslationContext context, Long input, AuthorizationGroupFetchOptions fetchOptions)
@@ -72,6 +73,10 @@ public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long
         if (fetchOptions.hasUsers())
         {
             relations.put(IAuthorizationGroupUserTranslator.class, userTranslator.translate(context, ids, fetchOptions.withUsers()));
+        }
+        if (fetchOptions.hasRoleAssignments())
+        {
+            relations.put(IAuthorizationGroupRoleAssignmentTranslator.class, roleAssignmentTranslator.translate(context, ids, fetchOptions.withRoleAssignments()));
         }
         
         return relations;
@@ -98,6 +103,11 @@ public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long
         {
             group.setUsers((List<Person>) relations.get(IAuthorizationGroupUserTranslator.class, id));
             group.getFetchOptions().withUsersUsing(fetchOptions.withUsers());
+        }
+        if (fetchOptions.hasRoleAssignments())
+        {
+            group.setRoleAssignments((List<RoleAssignment>) relations.get(IAuthorizationGroupRoleAssignmentTranslator.class, id));
+            group.getFetchOptions().withRoleAssignmentsUsing(fetchOptions.withRoleAssignments());
         }
     }
 
