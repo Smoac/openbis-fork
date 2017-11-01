@@ -62,6 +62,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
 		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
 		this.TagDeletionOptions = dtos.TagDeletionOptions;
+		this.AuthorizationGroupDeletionOptions = dtos.AuthorizationGroupDeletionOptions;
 		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
 		this.PersonPermId = dtos.PersonPermId;
 		this.EntityTypePermId = dtos.EntityTypePermId;
@@ -228,6 +229,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
 		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
 		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
+		this.DeleteAuthorizationGroupsOperation = dtos.DeleteAuthorizationGroupsOperation;
 		this.DeleteOperationExecutionsOperation = dtos.DeleteOperationExecutionsOperation;
 		this.DeleteSemanticAnnotationsOperation = dtos.DeleteSemanticAnnotationsOperation;
 
@@ -627,6 +629,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return facade.deleteTags([ id ], options);
 		}.bind(this);
 
+		this.deleteAuthorizationGroup = function(facade, id) {
+			var c = this;
+			var options = new dtos.AuthorizationGroupDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteAuthorizationGroups([ id ], options);
+		}.bind(this);
+		
 		this.deleteOperationExecution = function(facade, id) {
 			var c = this;
 			var options = new dtos.OperationExecutionDeletionOptions();

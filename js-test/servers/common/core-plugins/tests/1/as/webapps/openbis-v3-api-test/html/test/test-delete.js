@@ -189,6 +189,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testDeleteWithoutTrash(c, c.createTag, c.findTag, c.deleteTag);
 		});
 
+		QUnit.test("deleteAuthorizationGroups()", function(assert) {
+			var c = new common(assert, openbis);
+			testDeleteWithoutTrash(c, c.createAuthorizationGroup, c.findAuthorizationGroup, c.deleteAuthorizationGroup);
+		});
+		
 		QUnit.test("deleteOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 
