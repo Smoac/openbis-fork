@@ -524,6 +524,35 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testUpdate(c, fCreate, fUpdate, c.findTag, fCheck);
 		});
+		
+		QUnit.test("updateAuthorizationGroups()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("AUTHORIZATION_GROUP");
+			var description = "Description of " + code;
+			
+			var fCreate = function(facade) {
+				var creation = new c.AuthorizationGroupCreation();
+				creation.setCode(code);
+				creation.setUsers([new c.PersonPermId("power_user")]);
+				return facade.createAuthorizationGroups([ creation ]);
+			}
+			
+			var fUpdate = function(facade, permId) {
+				var update = new c.AuthorizationGroupUpdate();
+				update.setAuthorizationGroupId(permId);
+				update.setDescription(description);
+				update.getUserIds().remove([new c.PersonPermId("power_user")]);
+				update.getUserIds().add([new c.PersonPermId("admin")]);
+				return facade.updateAuthorizationGroups([ update ]);
+			}
+			
+			var fCheck = function(group) {
+				c.assertEqual(group.getCode(), code, "Code");
+				c.assertEqual(group.getDescription(), description, "Description");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findAuthorizationGroup, fCheck);
+		});
 
 		QUnit.test("updateOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);

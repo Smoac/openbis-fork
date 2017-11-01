@@ -52,6 +52,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermUpdate = dtos.VocabularyTermUpdate;
 		this.ExternalDmsUpdate = dtos.ExternalDmsUpdate;
 		this.TagUpdate = dtos.TagUpdate;
+		this.AuthorizationGroupUpdate = dtos.AuthorizationGroupUpdate;
 		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
 		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
 		this.ExperimentDeletionOptions = dtos.ExperimentDeletionOptions;
@@ -179,6 +180,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
 		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
 		this.UpdateTagsOperation = dtos.UpdateTagsOperation;
+		this.UpdateAuthorizationGroupsOperation = dtos.UpdateAuthorizationGroupsOperation;
 		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
 		this.UpdateSemanticAnnotationsOperation = dtos.UpdateSemanticAnnotationsOperation;
 
@@ -526,6 +528,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.findAuthorizationGroup = function(facade, id) {
+			var c = this;
+			return facade.getAuthorizationGroups([ id ], c.createAuthorizationGroupFetchOptions()).then(function(tags) {
+				return tags[id];
+			});
+		}.bind(this);
+		
 		this.findSemanticAnnotation = function(facade, id) {
 			var c = this;
 			return facade.getSemanticAnnotations([ id ], c.createSemanticAnnotationFetchOptions()).then(function(annotations) {

@@ -98,6 +98,9 @@ var sources = [
 	'as/dto/authorizationgroup/search/AuthorizationGroupSearchCriteria',
 	'as/dto/authorizationgroup/search/SearchAuthorizationGroupsOperation',
 	'as/dto/authorizationgroup/search/SearchAuthorizationGroupsOperationResult',
+	'as/dto/authorizationgroup/update/AuthorizationGroupUpdate',
+	'as/dto/authorizationgroup/update/UpdateAuthorizationGroupsOperation',
+	'as/dto/authorizationgroup/update/UpdateAuthorizationGroupsOperationResult',
 	'as/dto/authorizationgroup/AuthorizationGroup',
 	
 	'as/dto/common/Enum',
