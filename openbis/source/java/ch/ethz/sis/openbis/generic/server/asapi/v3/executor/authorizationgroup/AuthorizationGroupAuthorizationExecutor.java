@@ -60,5 +60,12 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
     public void canUpdate(IOperationContext context)
     {
     }
+    
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("DELETE_AUTHORIZATION_GROUP")
+    public void canDelete(IOperationContext context)
+    {
+    }
 
 }

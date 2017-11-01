@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
@@ -360,6 +361,8 @@ public interface IApplicationServerApi extends IRpcService
             ExternalDmsDeletionOptions deletionOptions);
 
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions);
+
+    public void deleteAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupDeletionOptions deletionOptions);
 
     public void deleteOperationExecutions(String sessionToken, List<? extends IOperationExecutionId> executionIds,
             OperationExecutionDeletionOptions deletionOptions);

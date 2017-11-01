@@ -663,6 +663,25 @@ public class AbstractTest extends SystemTestCase
             assertExceptionContext(e, expectedContextPattern);
         }
     }
+    
+    protected void assertAnyAuthorizationException(IDelegatedAction action)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected an exception to be thrown");
+        } catch (Exception e)
+        {
+            // Then
+            Throwable cause = e.getCause();
+            if (cause instanceof AuthorizationFailureException == false 
+                    && cause instanceof UnauthorizedObjectAccessException == false)
+            {
+                throw e;
+            }
+        }
+
+    }
 
     protected void assertAuthorizationFailureException(IDelegatedAction action)
     {

@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete.DeleteObjectsWithoutTrashOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IAuthorizationGroupAuthorizationExecutor extends IObjectAuthorizationExecutor
+@JsonObject("as.dto.authorizationgroup.delete.DeleteAuthorizationGroupsOperationResult")
+public class DeleteAuthorizationGroupsOperationResult extends DeleteObjectsWithoutTrashOperationResult
 {
-    public void canCreate(IOperationContext context);
-    
-    public void canGet(IOperationContext context);
-    
-    public void canSearch(IOperationContext context);
 
-    public void canUpdate(IOperationContext context);
-    
-    public void canDelete(IOperationContext context);
+    private static final long serialVersionUID = 1L;
+
+    public DeleteAuthorizationGroupsOperationResult()
+    {
+    }
+
 }

@@ -16,23 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IDeleteEntityExecutor;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IAuthorizationGroupAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface IDeleteAuthorizationGroupExecutor extends IDeleteEntityExecutor<Void, IAuthorizationGroupId, AuthorizationGroupDeletionOptions>
 {
-    public void canCreate(IOperationContext context);
-    
-    public void canGet(IOperationContext context);
-    
-    public void canSearch(IOperationContext context);
 
-    public void canUpdate(IOperationContext context);
-    
-    public void canDelete(IOperationContext context);
 }

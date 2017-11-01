@@ -30,6 +30,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.Authorization
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.CreateAuthorizationGroupsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.CreateAuthorizationGroupsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.DeleteAuthorizationGroupsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.get.GetAuthorizationGroupsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.get.GetAuthorizationGroupsOperationResult;
@@ -879,6 +881,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteTagsOperation(tagIds, deletionOptions));
+    }
+
+    @Override
+    public void deleteAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
+            AuthorizationGroupDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeleteAuthorizationGroupsOperation(groupIds, deletionOptions));
     }
 
     @Override

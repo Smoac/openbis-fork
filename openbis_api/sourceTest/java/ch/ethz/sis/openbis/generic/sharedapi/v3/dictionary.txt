@@ -1733,7 +1733,6 @@ Authorization Group Creation
 create Authorization Groups
 Create Authorization Groups Operation
 Create Authorization Groups Operation Result
-
 Authorization Group Update
 get Authorization Group Id
 set Authorization Group Id
@@ -1742,4 +1741,8 @@ set User Id Actions
 update Authorization Groups
 Update Authorization Groups Operation
 Update Authorization Groups Operation Result
+Authorization Group Deletion Options
+delete Authorization Groups
+Delete Authorization Groups Operation
+Delete Authorization Groups Operation Result
 

@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.ICreateAuthorizationGroupsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IDeleteAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IGetAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.ISearchAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IUpdateAuthorizationGroupsOperationExecutor;
@@ -146,6 +147,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IDeleteTagsOperationExecutor deleteTagsExecutor;
+
+    @Autowired
+    private IDeleteAuthorizationGroupsOperationExecutor deleteAuthorizationGroupsExecutor;
 
     @Autowired
     private IDeleteVocabularyTermsOperationExecutor deleteVocabularyTermsExecutor;
@@ -526,6 +530,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(deleteMaterialsExecutor.execute(context, operations));
         resultMap.putAll(deleteExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(deleteTagsExecutor.execute(context, operations));
+        resultMap.putAll(deleteAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));
     }

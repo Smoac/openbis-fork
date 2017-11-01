@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
@@ -613,6 +614,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
     {
         logAccess(sessionToken, "delete-tags", "TAG_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(tagIds), deletionOptions);
+    }
+
+    @Override
+    public void deleteAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
+            AuthorizationGroupDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-authorization-groups", "AUTHORIZATION_GROUP_IDS(%s) DELETION_OPTIONS(%s)", 
+                abbreviate(groupIds), deletionOptions);
     }
 
     @Override

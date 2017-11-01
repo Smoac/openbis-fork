@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,8 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.Authorizat
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * 
@@ -122,28 +120,22 @@ public class UpdateAuthorizationGroupTest extends AbstractTest
     @Test(dataProvider = "usersNotAllowedToUpdateAuthorizationGroups")
     public void testUpdateWithUserCausingAuthorizationFailure(final String user)
     {
-        // Given
-        String sessionToken = v3api.login(user, PASSWORD);
-        AuthorizationGroupUpdate update = new AuthorizationGroupUpdate();
-        AuthorizationGroupPermId id = new AuthorizationGroupPermId("AGROUP");
-        update.setAuthorizationGroupId(id);
-        update.setDescription("a new description");
-        
-        try
-        {
-            // When
-            v3api.updateAuthorizationGroups(sessionToken, Arrays.asList(update));
-            fail("Exception expected");
-        } catch (Exception e)
-        {
-            // Then
-            Throwable cause = e.getCause();
-            if (cause instanceof AuthorizationFailureException == false 
-                    && cause instanceof UnauthorizedObjectAccessException == false)
+        assertAnyAuthorizationException(new IDelegatedAction()
             {
-                throw e;
-            }
-        }
+                @Override
+                public void execute()
+                {
+                    // Given
+                    String sessionToken = v3api.login(user, PASSWORD);
+                    AuthorizationGroupUpdate update = new AuthorizationGroupUpdate();
+                    AuthorizationGroupPermId id = new AuthorizationGroupPermId("AGROUP");
+                    update.setAuthorizationGroupId(id);
+                    update.setDescription("a new description");
+                    
+                    // When
+                    v3api.updateAuthorizationGroups(sessionToken, Arrays.asList(update));
+                }
+            });
     }
 
     @DataProvider
