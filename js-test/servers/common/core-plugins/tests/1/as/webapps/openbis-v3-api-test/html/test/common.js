@@ -80,6 +80,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsPermId = dtos.ExternalDmsPermId;
 		this.VocabularyPermId = dtos.VocabularyPermId;
 		this.VocabularyTermPermId = dtos.VocabularyTermPermId;
+		this.AuthorizationGroupPermId = dtos.AuthorizationGroupPermId;
 		this.TagPermId = dtos.TagPermId;
 		this.TagCode = dtos.TagCode;
 		this.SemanticAnnotationsPermId = dtos.SemanticAnnotationsPermId;
@@ -829,6 +830,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.AuthorizationGroupFetchOptions();
 			fo.withRegistrator();
 			fo.withUsers();
+			var rafo = fo.withRoleAssignments();
+			rafo.withSpace();
+			rafo.withProject().withSpace();
 			return fo;
 		};
 		

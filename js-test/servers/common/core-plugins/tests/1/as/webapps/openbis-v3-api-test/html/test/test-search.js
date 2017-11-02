@@ -1327,6 +1327,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 		
+		QUnit.test("searchAuthorizationGroups() existing with role assigments", function(assert) {
+			var c = new common(assert, openbis);
+			var code;
+			
+			var fSearch = function(facade) {
+				var criteria = new c.AuthorizationGroupSearchCriteria();
+				criteria.withCode().thatEquals("TEST-GROUP");
+				return facade.searchAuthorizationGroups(criteria, c.createAuthorizationGroupFetchOptions());
+			}
+			
+			var fCheck = function(facade, groups) {
+				c.assertEqual(groups.length, 1);
+				var group = groups[0];
+				c.assertEqual(group.getCode(), "TEST-GROUP", "Code");
+				var users = group.getUsers();
+				c.assertEqual(users.length, 0, "# Users");
+				var roleAssignments = group.getRoleAssignments();
+				c.assertEqual(roleAssignments[0].getRole(), "OBSERVER", "Role of 1. role assignment");
+				c.assertEqual(roleAssignments[0].getSpace().getCode(), "TEST", "Space of 1. role assignment");
+				c.assertEqual(roleAssignments[1].getRole(), "ADMIN", "Role of 2. role assignment");
+				c.assertEqual(roleAssignments[1].getProject().getCode(), "TEST-PROJECT", "Project code of 2. role assignment");
+				c.assertEqual(roleAssignments[1].getProject().getSpace().getCode(), "TEST", "Project space of 2. role assignment");
+				c.assertEqual(roleAssignments.length, 2, "# Role assignments");
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 
