@@ -20,7 +20,7 @@ def create_space(tr):
 def assign_roles_to_space(tr, space):
   """Give the users authorization groups power user privileges on the space"""
   service = tr.getAuthorizationService()
-  groups = service.listAuthorizationGroupsForUser("test")
+  groups = service.listAuthorizationGroupsForUser("agroup_member")
   group_codes = [group.getCode() for group in groups]
   tr.assignRoleToSpace(RoleCode.POWER_USER, space, None, group_codes)
 
@@ -28,7 +28,7 @@ def assign_users_to_groups(tr, space):
   """Give the users authorization groups power user privileges on the space"""
   service = tr.getAuthorizationService()
   userId = tr.getUserId()
-  groups = service.listAuthorizationGroupsForUser("test")
+  groups = service.listAuthorizationGroupsForUser("agroup_member")
   group_codes = [group.getCode() for group in groups]
   tr.assignRoleToSpace(RoleCode.POWER_USER, space, None, group_codes)
 
