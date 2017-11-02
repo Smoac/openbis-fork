@@ -67,6 +67,9 @@ public final class RoleAssignmentTranslator
         if (role.getSpace() != null)
         {
             roleLevel = RoleLevel.SPACE;
+        } else if (role.getProject() != null)
+        {
+            roleLevel = RoleLevel.PROJECT;
         } else
         {
             roleLevel = RoleLevel.INSTANCE;
