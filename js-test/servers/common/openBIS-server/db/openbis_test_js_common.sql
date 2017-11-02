@@ -3058,7 +3058,7 @@ COPY attachments (id, expe_id, samp_id, proj_id, exac_id, file_name, registratio
 -- Name: authorization_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('authorization_group_id_seq', 1, false);
+SELECT pg_catalog.setval('authorization_group_id_seq', 2, false);
 
 
 --
@@ -3074,6 +3074,7 @@ COPY authorization_group_persons (ag_id, pers_id) FROM stdin;
 --
 
 COPY authorization_groups (id, code, description, registration_timestamp, pers_id_registerer, modification_timestamp) FROM stdin;
+1	TEST-GROUP	myDescription	2008-11-05 09:18:10.893+01	2	2008-11-05 09:18:10.893+01
 \.
 
 
@@ -5179,7 +5180,7 @@ COPY relationship_types (id, code, label, parent_label, child_label, description
 -- Name: role_assignment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('role_assignment_id_seq', 8, true);
+SELECT pg_catalog.setval('role_assignment_id_seq', 10, true);
 
 
 --
@@ -5194,6 +5195,8 @@ COPY role_assignments (id, role_code, space_id, pers_id_grantee, ag_id_grantee, 
 6	ADMIN	3	7	\N	3	2013-04-12 15:22:02.603332+02	\N
 7	ADMIN	\N	9	\N	3	2013-04-23 15:15:09.53293+02	\N
 8	OBSERVER	3	10	\N	3	2013-04-23 15:15:09.53293+02	\N
+9	OBSERVER	3	\N	1	3	2013-04-23 15:15:09.53293+02	\N
+10	ADMIN	\N	\N	1	3	2013-04-23 15:15:09.53293+02	4
 \.
 
 
