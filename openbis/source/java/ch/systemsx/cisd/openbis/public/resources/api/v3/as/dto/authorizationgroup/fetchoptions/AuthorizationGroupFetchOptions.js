@@ -1,4 +1,5 @@
-define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/person/fetchoptions/PersonFetchOptions", 
+define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/person/fetchoptions/PersonFetchOptions",
+         "as/dto/roleassignment/fetchoptions/RoleAssignmentFetchOptions",
          "as/dto/authorizationgroup/fetchoptions/AuthorizationGroupSortOptions"], function(require, stjs, FetchOptions) {
   var AuthorizationGroupFetchOptions = function() {
   };
@@ -38,7 +39,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
     };
     prototype.withRoleAssignments = function() {
     	if (this.roleAssignments == null) {
-    		var RoleAssignmentsFetchOptions = require("as/dto/roleassignments/fetchoptions/RoleAssignmentsFetchOptions");
+    		var RoleAssignmentsFetchOptions = require("as/dto/roleassignment/fetchoptions/RoleAssignmentFetchOptions");
     		this.roleAssignments = new RoleAssignmentsFetchOptions();
     	}
     	return this.roleAssignments;
@@ -62,7 +63,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
   }, {
     registrator : "PersonFetchOptions",
     useres : "PersonFetchOptions",
-    roleAssignments : "RoleAssignmentsFetchOptions",
+    roleAssignments : "RoleAssignmentFetchOptions",
     sort : "AuthorizationGroupSortOptions"
   });
   return AuthorizationGroupFetchOptions;
