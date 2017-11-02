@@ -87,7 +87,7 @@ public class UpdateAuthorizationGroupTest extends AbstractTest
         AuthorizationGroup group = v3api.getAuthorizationGroups(sessionToken, Arrays.asList(id), fetchOptions).get(id);
         List<Person> users = group.getUsers();
         Collections.sort(users, CreateAuthorizationGroupTest.PERSON_COMPARATOR);
-        assertEquals(users.toString(), "[Person admin, Person poweruser, Person test]");
+        assertEquals(users.toString(), "[Person admin, Person agroup_member, Person poweruser]");
         
         v3api.logout(sessionToken);
     }
@@ -100,7 +100,7 @@ public class UpdateAuthorizationGroupTest extends AbstractTest
         AuthorizationGroupUpdate update = new AuthorizationGroupUpdate();
         AuthorizationGroupPermId id = new AuthorizationGroupPermId("AGROUP");
         update.setAuthorizationGroupId(id);
-        update.getUserIds().remove(new PersonPermId(TEST_USER));
+        update.getUserIds().remove(new PersonPermId("agroup_member"));
         update.getUserIds().remove(new PersonPermId(TEST_NO_HOME_SPACE));
         
         // When

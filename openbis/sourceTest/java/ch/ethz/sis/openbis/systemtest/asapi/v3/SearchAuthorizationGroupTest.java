@@ -62,9 +62,9 @@ public class SearchAuthorizationGroupTest extends AbstractTest
         assertEquals(authorizationGroup.getRegistrator().getUserId(), "test");
         assertEquals(authorizationGroup.getFetchOptions().hasUsers(), true);
         List<Person> users = authorizationGroup.getUsers();
-        assertEquals(users.get(0).getUserId(), "test");
+        assertEquals(users.get(0).getUserId(), "agroup_member");
         assertEquals(users.get(0).getEmail(), "franz-josef.elmer@systemsx.ch");
-        assertEquals(users.get(0).getSpace().getCode(), "CISD");
+        assertEquals(users.get(0).getSpace().getCode(), "TESTGROUP");
         assertEquals(users.size(), 1);
         assertEquals(result.getTotalCount(), 1);
         
