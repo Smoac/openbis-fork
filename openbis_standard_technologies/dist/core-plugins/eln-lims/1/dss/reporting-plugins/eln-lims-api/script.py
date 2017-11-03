@@ -146,6 +146,8 @@ def isPropertyRichText(properties, propertyCode):
 def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
 	if isPropertyRichText(properties, propertyCode):
 		if propertyValue is not None:
+			if re.search( r'src=\"data:image\/([a-zA-Z]*);base64,([^\"]*)\"', propertyValue) is not None:
+				raise UserFailureException("Base64 Image detected, please upload images using the upload form.")
 			cleanerProperties = CleanerProperties();
 			cleanerProperties.setPruneTags("meta, link, script");
 			cleaner = HtmlCleaner(cleanerProperties);
