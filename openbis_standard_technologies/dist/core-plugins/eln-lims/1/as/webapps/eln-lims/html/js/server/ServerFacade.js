@@ -1011,6 +1011,20 @@ function ServerFacade(openbisServer) {
 							case "METAPROJECT":
 								criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
 								break;
+							case "REGISTRATOR":
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsUserId":
+											criteria.withRegistrator().withUserId().thatEquals(attributeValue);
+										case "thatContainsFirstName":
+											criteria.withRegistrator().withFirstName().thatContains(attributeValue);
+											break;
+										case "thatContainsLastName":
+											criteria.withRegistrator().withLastName().thatContains(attributeValue);
+											break;
+									}
+								}
+								break;
 							case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
 								if(comparisonOperator) {
 									switch(comparisonOperator) {
@@ -1025,6 +1039,20 @@ function ServerFacade(openbisServer) {
 									}
 								} else {
 									criteria.withRegistrationDate().thatEquals(attributeValue);
+								}
+								break;
+							case "MODIFIER":
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsUserId":
+											criteria.withModifier().withUserId().thatEquals(attributeValue);
+										case "thatContainsFirstName":
+											criteria.withModifier().withFirstName().thatContains(attributeValue);
+											break;
+										case "thatContainsLastName":
+											criteria.withModifier().withLastName().thatContains(attributeValue);
+											break;
+									}
 								}
 								break;
 							case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
