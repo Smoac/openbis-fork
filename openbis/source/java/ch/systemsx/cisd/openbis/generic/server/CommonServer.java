@@ -137,6 +137,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelatedEntityFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
@@ -852,7 +853,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 entityPropertyHistoryDAO.getPropertyHistory(
                         DtoConverters.convertEntityKind(entityKind), entityID);
         return EntityHistoryTranslator.translate(result, session.getBaseIndexURL(),
-                managedPropertyEvaluatorFactory, getDAOFactory());
+                managedPropertyEvaluatorFactory, new RelatedEntityFinder(getDAOFactory()));
     }
 
     private static List<EntityTypePropertyType<?>> extractAssignments(EntityType entityTypeOrNull,

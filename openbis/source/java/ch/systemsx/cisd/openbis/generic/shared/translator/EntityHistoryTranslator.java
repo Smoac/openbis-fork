@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
@@ -36,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IRelatedEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IRelatedEntityFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MatchingContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -70,7 +69,7 @@ public class EntityHistoryTranslator
     }
 
     public static List<EntityHistory> translate(List<AbstractEntityPropertyHistoryPE> history,
-            String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IDAOFactory daoFactory)
+            String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IRelatedEntityFinder finder)
     {
         List<EntityHistory> result = new ArrayList<EntityHistory>();
         HashMap<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
@@ -78,7 +77,7 @@ public class EntityHistoryTranslator
         for (AbstractEntityPropertyHistoryPE entityPropertyHistory : history)
         {
             result.add(translate(entityPropertyHistory, materialTypesCache, cache, baseIndexURL,
-                    managedPropertyEvaluatorFactory, daoFactory));
+                    managedPropertyEvaluatorFactory, finder));
         }
         return result;
     }
@@ -86,7 +85,7 @@ public class EntityHistoryTranslator
     private static EntityHistory translate(AbstractEntityPropertyHistoryPE entityPropertyHistory,
             Map<MaterialTypePE, MaterialType> materialTypeCache,
             Map<PropertyTypePE, PropertyType> cache, String baseIndexURL,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IDAOFactory daoFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IRelatedEntityFinder finder)
     {
         EntityHistory result = new EntityHistory();
         result.setAuthor(PersonTranslator.translate(entityPropertyHistory.getAuthor()));
@@ -120,7 +119,7 @@ public class EntityHistoryTranslator
                     throw new RuntimeException("Unknown related entity: " + entityHistory.getRelatedEntity().getClass());
                 }
 
-                relatedTranslator.translate(entityHistory, result, daoFactory, managedPropertyEvaluatorFactory, baseIndexURL);
+                relatedTranslator.translate(entityHistory, result, finder, managedPropertyEvaluatorFactory, baseIndexURL);
             }
         }
 
@@ -130,7 +129,7 @@ public class EntityHistoryTranslator
     private static interface IRelatedEntityTranslator
     {
 
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL);
 
     }
@@ -139,11 +138,11 @@ public class EntityHistoryTranslator
     {
 
         @Override
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
         {
             RelatedSpace related = (RelatedSpace) historyPE.getRelatedEntity();
-            SpacePE relatedPE = daoFactory.getSpaceDAO().tryGetByTechId(new TechId(related.getEntityId()));
+            SpacePE relatedPE = finder.findById(SpacePE.class, related.getEntityId());
 
             if (relatedPE != null)
             {
@@ -162,11 +161,11 @@ public class EntityHistoryTranslator
     {
 
         @Override
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
         {
             RelatedProject related = (RelatedProject) historyPE.getRelatedEntity();
-            ProjectPE relatedPE = daoFactory.getProjectDAO().tryGetByTechId(new TechId(related.getEntityId()));
+            ProjectPE relatedPE = finder.findById(ProjectPE.class, related.getEntityId());
 
             if (relatedPE != null)
             {
@@ -185,11 +184,11 @@ public class EntityHistoryTranslator
     {
 
         @Override
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
         {
             RelatedExperiment related = (RelatedExperiment) historyPE.getRelatedEntity();
-            ExperimentPE relatedPE = daoFactory.getExperimentDAO().tryGetByTechId(new TechId(related.getEntityId()));
+            ExperimentPE relatedPE = finder.findById(ExperimentPE.class, related.getEntityId());
 
             if (relatedPE != null)
             {
@@ -208,11 +207,11 @@ public class EntityHistoryTranslator
     {
 
         @Override
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
         {
             RelatedSample related = (RelatedSample) historyPE.getRelatedEntity();
-            SamplePE relatedPE = daoFactory.getSampleDAO().tryGetByTechId(new TechId(related.getEntityId()));
+            SamplePE relatedPE = finder.findById(SamplePE.class, related.getEntityId());
 
             if (relatedPE != null)
             {
@@ -231,11 +230,11 @@ public class EntityHistoryTranslator
     {
 
         @Override
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
         {
             RelatedDataSet related = (RelatedDataSet) historyPE.getRelatedEntity();
-            DataPE relatedPE = daoFactory.getDataDAO().tryGetByTechId(new TechId(related.getEntityId()));
+            DataPE relatedPE = finder.findById(DataPE.class, related.getEntityId());
 
             if (relatedPE != null)
             {
@@ -254,12 +253,12 @@ public class EntityHistoryTranslator
     {
 
         @Override
-        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IRelatedEntityFinder finder,
                 IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
         {
             RelatedExternalDms related = (RelatedExternalDms) historyPE.getRelatedEntity();
             ExternalDataManagementSystemPE relatedPE =
-                    daoFactory.getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemById(related.getEntityId());
+                    finder.findById(ExternalDataManagementSystemPE.class, related.getEntityId());
 
             if (relatedPE != null)
             {
