@@ -9,6 +9,8 @@ import java.util.Objects;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ContentCopyPermId;
@@ -16,6 +18,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDmsAddressType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetHistoryPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
 {
@@ -127,7 +130,7 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
                 .append("path", entry.getPath())
                 .append("git commit hash", entry.getGitCommitHash())
                 .append("git repository id", entry.getGitRepositoryId())
-                .append("external dms id", entry.getExternalDms().getPermId())
+                .append("external dms id", entry.getExternalDmsId())
                 .append("valid from", entry.getValidFromDate())
                 .append("valid until", entry.getValidUntilDate())
                 .toString();
@@ -135,6 +138,11 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
 
     private TypeSafeDiagnosingMatcher<DataSetHistoryPE> representing(final ContentCopyCreationBuilder copy)
     {
+        Session dbSession = daoFactory.getSessionFactory().openSession();
+        Query query = dbSession.createQuery("FROM ExternalDataManagementSystemPE as edms WHERE edms.code = :code").setParameter("code",
+                copy.getEdmsId().getPermId());
+        ExternalDataManagementSystemPE edmsPE = (ExternalDataManagementSystemPE) query.uniqueResult();
+
         return new TypeSafeDiagnosingMatcher<DataSetHistoryPE>()
             {
 
@@ -146,7 +154,7 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
                             .append("path", copy.getPath())
                             .append("git commit hash", copy.getGitCommitHash())
                             .append("git repository id", copy.getGitRepositoryId())
-                            .append("external dms id", copy.getEdmsId().getPermId())
+                            .append("external dms id", edmsPE.getId())
                             .toString();
                     desc.appendText(description);
                 }
@@ -159,7 +167,7 @@ public class ContentCopyHistoryTest extends AbstractLinkDataSetTest
                             Objects.equals(copy.getPath(), entry.getPath()) &&
                             Objects.equals(copy.getGitCommitHash(), entry.getGitCommitHash()) &&
                             Objects.equals(copy.getGitRepositoryId(), entry.getGitRepositoryId()) &&
-                            Objects.equals(copy.getEdmsId().getPermId(), entry.getExternalDms().getPermId());
+                            Objects.equals(edmsPE.getId(), entry.getExternalDmsId());
                 }
             };
     }

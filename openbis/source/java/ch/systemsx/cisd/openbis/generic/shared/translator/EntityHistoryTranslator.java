@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
@@ -30,11 +32,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IRelatedEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MatchingContentCopy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelatedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelatedExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelatedExternalDms;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelatedProject;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelatedSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelatedSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
@@ -42,8 +55,22 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
  */
 public class EntityHistoryTranslator
 {
+
+    private static Map<Class<? extends IRelatedEntity>, IRelatedEntityTranslator> RELATED_TRANSLATORS =
+            new HashMap<Class<? extends IRelatedEntity>, IRelatedEntityTranslator>();
+
+    static
+    {
+        RELATED_TRANSLATORS.put(RelatedSpace.class, new RelatedSpaceTranslator());
+        RELATED_TRANSLATORS.put(RelatedProject.class, new RelatedProjectTranslator());
+        RELATED_TRANSLATORS.put(RelatedExperiment.class, new RelatedExperimentTranslator());
+        RELATED_TRANSLATORS.put(RelatedSample.class, new RelatedSampleTranslator());
+        RELATED_TRANSLATORS.put(RelatedDataSet.class, new RelatedDataSetTranslator());
+        RELATED_TRANSLATORS.put(RelatedExternalDms.class, new RelatedExternalDmsTranslator());
+    }
+
     public static List<EntityHistory> translate(List<AbstractEntityPropertyHistoryPE> history,
-            String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IDAOFactory daoFactory)
     {
         List<EntityHistory> result = new ArrayList<EntityHistory>();
         HashMap<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
@@ -51,7 +78,7 @@ public class EntityHistoryTranslator
         for (AbstractEntityPropertyHistoryPE entityPropertyHistory : history)
         {
             result.add(translate(entityPropertyHistory, materialTypesCache, cache, baseIndexURL,
-                    managedPropertyEvaluatorFactory));
+                    managedPropertyEvaluatorFactory, daoFactory));
         }
         return result;
     }
@@ -59,7 +86,7 @@ public class EntityHistoryTranslator
     private static EntityHistory translate(AbstractEntityPropertyHistoryPE entityPropertyHistory,
             Map<MaterialTypePE, MaterialType> materialTypeCache,
             Map<PropertyTypePE, PropertyType> cache, String baseIndexURL,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IDAOFactory daoFactory)
     {
         EntityHistory result = new EntityHistory();
         result.setAuthor(PersonTranslator.translate(entityPropertyHistory.getAuthor()));
@@ -78,57 +105,178 @@ public class EntityHistoryTranslator
         {
             AbstractEntityHistoryPE entityHistory = (AbstractEntityHistoryPE) entityPropertyHistory;
             result.setRelatedEntityPermId(entityHistory.getEntityPermId());
-            String entityType = null;
-            if (entityHistory.getRelatedEntity() != null)
-            {
-                if (entityHistory.getRelatedEntity() instanceof MatchingContentCopy)
-                {
-                    result.setValue(entityHistory.getRelatedEntity().toString());
-                    PropertyType pt = new PropertyType();
-                    pt.setCode("Content copy");
-                    pt.setLabel("Content copy");
-                    pt.setDataType(new DataType(DataTypeCode.VARCHAR));
-                    result.setPropertyType(pt);
-                } else
-                {
-                    switch (entityHistory.getRelatedEntity().getEntityKind())
-                    {
-                        case DATA_SET:
-                            entityType = EntityKind.DATA_SET.getDescription();
-                            result.setRelatedEntity(DataSetTranslator
-                                    .translateBasicProperties((DataPE) entityHistory.getRelatedEntity()));
-                            break;
-                        case EXPERIMENT:
-                            entityType = EntityKind.EXPERIMENT.getDescription();
-                            result.setRelatedEntity(ExperimentTranslator.translate(
-                                    (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL,
-                                    null, managedPropertyEvaluatorFactory));
-                            break;
-                        case SAMPLE:
-                            entityType = EntityKind.SAMPLE.getDescription();
-                            result.setRelatedEntity(SampleTranslator.translate(
-                                    (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL, null,
-                                    managedPropertyEvaluatorFactory));
-                            break;
-                        case MATERIAL:
-                    }
-                }
-            }
-            if (entityHistory.getSpace() != null)
-            {
-                entityType = "Space";
-                result.setRelatedSpace(SpaceTranslator.translate(entityHistory.getSpace()));
-            }
-            if (entityHistory.getProject() != null)
-            {
-                entityType = "Project";
-                result.setRelatedProject(ProjectTranslator.translate(entityHistory.getProject()));
-            }
+
             if (entityHistory.getRelationType() != null)
             {
-                result.setRelationType(entityHistory.getRelationType().getDescrption(entityType));
+                result.setRelationType(entityHistory.getRelationType().getDescription(null));
+            }
+
+            if (entityHistory.getRelatedEntity() != null)
+            {
+                IRelatedEntityTranslator relatedTranslator = RELATED_TRANSLATORS.get(entityHistory.getRelatedEntity().getClass());
+
+                if (relatedTranslator == null)
+                {
+                    throw new RuntimeException("Unknown related entity: " + entityHistory.getRelatedEntity().getClass());
+                }
+
+                relatedTranslator.translate(entityHistory, result, daoFactory, managedPropertyEvaluatorFactory, baseIndexURL);
             }
         }
+
         return result;
     }
+
+    private static interface IRelatedEntityTranslator
+    {
+
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL);
+
+    }
+
+    private static class RelatedSpaceTranslator implements IRelatedEntityTranslator
+    {
+
+        @Override
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
+        {
+            RelatedSpace related = (RelatedSpace) historyPE.getRelatedEntity();
+            SpacePE relatedPE = daoFactory.getSpaceDAO().tryGetByTechId(new TechId(related.getEntityId()));
+
+            if (relatedPE != null)
+            {
+                history.setRelatedSpace(SpaceTranslator.translate(relatedPE));
+            }
+
+            if (historyPE.getRelationType() != null)
+            {
+                history.setRelationType(historyPE.getRelationType().getDescription("Space"));
+            }
+        }
+
+    }
+
+    private static class RelatedProjectTranslator implements IRelatedEntityTranslator
+    {
+
+        @Override
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
+        {
+            RelatedProject related = (RelatedProject) historyPE.getRelatedEntity();
+            ProjectPE relatedPE = daoFactory.getProjectDAO().tryGetByTechId(new TechId(related.getEntityId()));
+
+            if (relatedPE != null)
+            {
+                history.setRelatedProject(ProjectTranslator.translate(relatedPE));
+            }
+
+            if (historyPE.getRelationType() != null)
+            {
+                history.setRelationType(historyPE.getRelationType().getDescription("Project"));
+            }
+        }
+
+    }
+
+    private static class RelatedExperimentTranslator implements IRelatedEntityTranslator
+    {
+
+        @Override
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
+        {
+            RelatedExperiment related = (RelatedExperiment) historyPE.getRelatedEntity();
+            ExperimentPE relatedPE = daoFactory.getExperimentDAO().tryGetByTechId(new TechId(related.getEntityId()));
+
+            if (relatedPE != null)
+            {
+                history.setRelatedEntity(ExperimentTranslator.translate(relatedPE, baseIndexURL, null, managedPropertyEvaluatorFactory));
+            }
+
+            if (historyPE.getRelationType() != null)
+            {
+                history.setRelationType(historyPE.getRelationType().getDescription(EntityKind.EXPERIMENT.getDescription()));
+            }
+        }
+
+    }
+
+    private static class RelatedSampleTranslator implements IRelatedEntityTranslator
+    {
+
+        @Override
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
+        {
+            RelatedSample related = (RelatedSample) historyPE.getRelatedEntity();
+            SamplePE relatedPE = daoFactory.getSampleDAO().tryGetByTechId(new TechId(related.getEntityId()));
+
+            if (relatedPE != null)
+            {
+                history.setRelatedEntity(SampleTranslator.translate(relatedPE, baseIndexURL, null, managedPropertyEvaluatorFactory));
+            }
+
+            if (historyPE.getRelationType() != null)
+            {
+                history.setRelationType(historyPE.getRelationType().getDescription(EntityKind.SAMPLE.getDescription()));
+            }
+        }
+
+    }
+
+    private static class RelatedDataSetTranslator implements IRelatedEntityTranslator
+    {
+
+        @Override
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
+        {
+            RelatedDataSet related = (RelatedDataSet) historyPE.getRelatedEntity();
+            DataPE relatedPE = daoFactory.getDataDAO().tryGetByTechId(new TechId(related.getEntityId()));
+
+            if (relatedPE != null)
+            {
+                history.setRelatedEntity(DataSetTranslator.translateBasicProperties(relatedPE));
+            }
+
+            if (historyPE.getRelationType() != null)
+            {
+                history.setRelationType(historyPE.getRelationType().getDescription(EntityKind.DATA_SET.getDescription()));
+            }
+        }
+
+    }
+
+    private static class RelatedExternalDmsTranslator implements IRelatedEntityTranslator
+    {
+
+        @Override
+        public void translate(AbstractEntityHistoryPE historyPE, EntityHistory history, IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String baseIndexURL)
+        {
+            RelatedExternalDms related = (RelatedExternalDms) historyPE.getRelatedEntity();
+            ExternalDataManagementSystemPE relatedPE =
+                    daoFactory.getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemById(related.getEntityId());
+
+            if (relatedPE != null)
+            {
+                DataSetHistoryPE dsHistoryPE = (DataSetHistoryPE) historyPE;
+
+                MatchingContentCopy contentCopy = new MatchingContentCopy(dsHistoryPE.getExternalCode(), dsHistoryPE.getPath(),
+                        dsHistoryPE.getGitCommitHash(), dsHistoryPE.getGitRepositoryId(), relatedPE);
+
+                history.setValue(contentCopy.toString());
+                PropertyType pt = new PropertyType();
+                pt.setCode("Content copy");
+                pt.setLabel("Content copy");
+                pt.setDataType(new DataType(DataTypeCode.VARCHAR));
+                history.setPropertyType(pt);
+            }
+        }
+
+    }
+
 }

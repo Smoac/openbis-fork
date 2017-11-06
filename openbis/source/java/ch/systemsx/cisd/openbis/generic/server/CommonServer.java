@@ -852,7 +852,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 entityPropertyHistoryDAO.getPropertyHistory(
                         DtoConverters.convertEntityKind(entityKind), entityID);
         return EntityHistoryTranslator.translate(result, session.getBaseIndexURL(),
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, getDAOFactory());
     }
 
     private static List<EntityTypePropertyType<?>> extractAssignments(EntityType entityTypeOrNull,

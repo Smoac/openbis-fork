@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -36,11 +37,11 @@ public class ExperimentHistoryPE extends AbstractEntityHistoryPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private ProjectPE project;
+    private Long projectId;
 
-    private DataPE dataSet;
+    private Long dataSetId;
 
-    private SamplePE sample;
+    private Long sampleId;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
     @JoinColumn(name = ColumnNames.MAIN_EXPERIMENT_COLUMN)
@@ -69,60 +70,52 @@ public class ExperimentHistoryPE extends AbstractEntityHistoryPE
         entityTypePropertyType = experimentTypePropertyType;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
-    public SamplePE getSample()
+    @Column(name = ColumnNames.SAMPLE_COLUMN)
+    public Long getSampleId()
     {
-        return sample;
+        return sampleId;
     }
 
-    public void setSample(SamplePE sample)
+    public void setSampleId(Long sampleId)
     {
-        this.sample = sample;
+        this.sampleId = sampleId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN)
-    public DataPE getDataSet()
+    @Column(name = ColumnNames.DATA_ID_COLUMN)
+    public Long getDataSetId()
     {
-        return dataSet;
+        return dataSetId;
     }
 
-    public void setDataSet(DataPE dataSet)
+    public void setDataSetId(Long dataSetId)
     {
-        this.dataSet = dataSet;
+        this.dataSetId = dataSetId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ProjectPE.class)
-    @JoinColumn(name = ColumnNames.PROJECT_COLUMN)
-    private ProjectPE getProjectInternal()
+    @Column(name = ColumnNames.PROJECT_COLUMN)
+    public Long getProjectId()
     {
-        return project;
+        return projectId;
     }
 
-    @Override
-    @Transient
-    public ProjectPE getProject()
+    public void setProjectId(Long projectId)
     {
-        return getProjectInternal();
-    }
-
-    @SuppressWarnings("unused")
-    private void setProjectInternal(ProjectPE project)
-    {
-        this.project = project;
+        this.projectId = projectId;
     }
 
     @Override
     @Transient
-    public IMatchingEntity getRelatedEntity()
+    public IRelatedEntity getRelatedEntity()
     {
-        if (sample != null)
+        if (sampleId != null)
         {
-            return sample;
-        } else if (dataSet != null)
+            return new RelatedSample(sampleId);
+        } else if (dataSetId != null)
         {
-            return dataSet;
+            return new RelatedDataSet(dataSetId);
+        } else if (projectId != null)
+        {
+            return new RelatedProject(projectId);
         }
         return null;
     }

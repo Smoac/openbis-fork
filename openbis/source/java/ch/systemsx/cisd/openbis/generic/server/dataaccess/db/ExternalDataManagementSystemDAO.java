@@ -70,6 +70,16 @@ public class ExternalDataManagementSystemDAO extends AbstractDAO implements
     }
 
     @Override
+    public ExternalDataManagementSystemPE tryToFindExternalDataManagementSystemById(Long id)
+    {
+        assert id != null : "Unspecified external data management system id.";
+
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("id", id));
+        return (ExternalDataManagementSystemPE) criteria.uniqueResult();
+    }
+
+    @Override
     public ExternalDataManagementSystemPE tryToFindExternalDataManagementSystemByCode(
             String externalDataManagementSystemCode)
     {

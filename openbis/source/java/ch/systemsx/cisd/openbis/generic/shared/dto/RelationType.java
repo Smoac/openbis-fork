@@ -36,7 +36,7 @@ public enum RelationType
         this.connectingWord = word;
     }
 
-    public String getDescrption(String entityKind)
+    public String getDescription(String entityKind)
     {
         return StringUtils.isBlank(entityKind) ? description : description + " " + connectingWord + " "
                 + entityKind;

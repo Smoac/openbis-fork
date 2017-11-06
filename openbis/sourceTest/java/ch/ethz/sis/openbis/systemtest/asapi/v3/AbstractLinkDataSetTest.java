@@ -440,7 +440,6 @@ public abstract class AbstractLinkDataSetTest extends AbstractExternalDmsTest
         Query query = session.createQuery(
                 "FROM DataSetHistoryPE as entry "
                         + "LEFT JOIN FETCH entry.entityInternal "
-                        + "LEFT JOIN FETCH entry.externalDms "
                         + "WHERE entry.entityInternal.code = :code")
                 .setParameter("code", id.getPermId());
 

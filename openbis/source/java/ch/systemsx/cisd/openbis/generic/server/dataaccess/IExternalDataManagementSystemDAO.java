@@ -37,6 +37,11 @@ public interface IExternalDataManagementSystemDAO
     /**
      * Tries to returns specified external data management system or <code>null</code> if not found.
      */
+    public ExternalDataManagementSystemPE tryToFindExternalDataManagementSystemById(Long id);
+
+    /**
+     * Tries to returns specified external data management system or <code>null</code> if not found.
+     */
     public ExternalDataManagementSystemPE tryToFindExternalDataManagementSystemByCode(
             String externalDataManagementSystemCode);
 

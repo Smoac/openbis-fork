@@ -37,13 +37,13 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private SamplePE sample;
+    private Long sampleId;
 
-    private DataPE dataSet;
+    private Long dataSetId;
 
-    private ExperimentPE experiment;
+    private Long experimentId;
 
-    private ExternalDataManagementSystemPE externalDms;
+    private Long externalDmsId;
 
     private String externalCode;
 
@@ -79,52 +79,48 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
         entityTypePropertyType = dataSetTypePropertyType;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
-    public SamplePE getSample()
+    @Column(name = ColumnNames.SAMPLE_COLUMN)
+    public Long getSampleId()
     {
-        return sample;
+        return sampleId;
     }
 
-    public void setSample(SamplePE sample)
+    public void setSampleId(Long sampleId)
     {
-        this.sample = sample;
+        this.sampleId = sampleId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN)
-    public DataPE getDataSet()
+    @Column(name = ColumnNames.DATA_ID_COLUMN)
+    public Long getDataSetId()
     {
-        return dataSet;
+        return dataSetId;
     }
 
-    public void setDataSet(DataPE dataSet)
+    public void setDataSetId(Long dataSetId)
     {
-        this.dataSet = dataSet;
+        this.dataSetId = dataSetId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
-    public ExperimentPE getExperiment()
+    @Column(name = ColumnNames.EXPERIMENT_COLUMN)
+    public Long getExperimentId()
     {
-        return experiment;
+        return experimentId;
     }
 
-    public void setExperiment(ExperimentPE experiment)
+    public void setExperimentId(Long experimentId)
     {
-        this.experiment = experiment;
+        this.experimentId = experimentId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExternalDataManagementSystemPE.class)
-    @JoinColumn(name = ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN)
-    public ExternalDataManagementSystemPE getExternalDms()
+    @Column(name = ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN)
+    public Long getExternalDmsId()
     {
-        return externalDms;
+        return externalDmsId;
     }
 
-    public void setExternalDms(ExternalDataManagementSystemPE externalDms)
+    public void setExternalDmsId(Long externalDmsId)
     {
-        this.externalDms = externalDms;
+        this.externalDmsId = externalDmsId;
     }
 
     @Column(name = ColumnNames.EXTERNAL_CODE_COLUMN)
@@ -161,30 +157,32 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
     }
 
     @Column(name = ColumnNames.GIT_REPOSITORY_ID_COLUMN)
-    public String getGitRepositoryId() {
-		return gitRepositoryId;
-	}
-
-	public void setGitRepositoryId(String gitRepositoryId) {
-		this.gitRepositoryId = gitRepositoryId;
-	}
-
-	@Override
-    @Transient
-    public IMatchingEntity getRelatedEntity()
+    public String getGitRepositoryId()
     {
-        if (experiment != null)
+        return gitRepositoryId;
+    }
+
+    public void setGitRepositoryId(String gitRepositoryId)
+    {
+        this.gitRepositoryId = gitRepositoryId;
+    }
+
+    @Override
+    @Transient
+    public IRelatedEntity getRelatedEntity()
+    {
+        if (sampleId != null)
         {
-            return experiment;
-        } else if (sample != null)
+            return new RelatedSample(sampleId);
+        } else if (dataSetId != null)
         {
-            return sample;
-        } else if (dataSet != null)
+            return new RelatedDataSet(dataSetId);
+        } else if (experimentId != null)
         {
-            return dataSet;
-        } else if (externalDms != null)
+            return new RelatedExperiment(experimentId);
+        } else if (externalDmsId != null)
         {
-            return new MatchingContentCopy(externalCode, path, gitCommitHash, gitRepositoryId, externalDms);
+            return new RelatedExternalDms(externalDmsId);
         }
         return null;
     }

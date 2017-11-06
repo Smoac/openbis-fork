@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -36,15 +37,15 @@ public class SampleHistoryPE extends AbstractEntityHistoryPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private SamplePE sample;
+    private Long sampleId;
 
-    private DataPE dataSet;
+    private Long dataSetId;
 
-    private SpacePE space;
+    private Long spaceId;
 
-    private ExperimentPE experiment;
+    private Long experimentId;
 
-    private ProjectPE project;
+    private Long projectId;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
     @JoinColumn(name = ColumnNames.MAIN_SAMPLE_COLUMN)
@@ -72,87 +73,80 @@ public class SampleHistoryPE extends AbstractEntityHistoryPE
         entityTypePropertyType = sampleTypePropertyType;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
-    public SamplePE getSample()
+    @Column(name = ColumnNames.SAMPLE_COLUMN)
+    public Long getSampleId()
     {
-        return sample;
+        return sampleId;
     }
 
-    public void setSample(SamplePE sample)
+    public void setSampleId(Long sampleId)
     {
-        this.sample = sample;
+        this.sampleId = sampleId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN)
-    public DataPE getDataSet()
+    @Column(name = ColumnNames.DATA_ID_COLUMN)
+    public Long getDataSetId()
     {
-        return dataSet;
+        return dataSetId;
     }
 
-    public void setDataSet(DataPE dataSet)
+    public void setDataSetId(Long dataSetId)
     {
-        this.dataSet = dataSet;
+        this.dataSetId = dataSetId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SpacePE.class)
-    @JoinColumn(name = ColumnNames.SPACE_COLUMN)
-    private SpacePE getSpaceInternal()
+    @Column(name = ColumnNames.SPACE_COLUMN)
+    public Long getSpaceId()
     {
-        return space;
+        return spaceId;
     }
 
-    @Override
-    @Transient
-    public SpacePE getSpace()
+    public void setSpaceId(Long spaceId)
     {
-        return getSpaceInternal();
+        this.spaceId = spaceId;
     }
 
-    @SuppressWarnings("unused")
-    private void setSpaceInternal(SpacePE space)
+    @Column(name = ColumnNames.EXPERIMENT_COLUMN)
+    public Long getExperimentId()
     {
-        this.space = space;
+        return experimentId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
-    public ExperimentPE getExperiment()
+    public void setExperimentId(Long experimentId)
     {
-        return experiment;
+        this.experimentId = experimentId;
     }
 
-    public void setExperiment(ExperimentPE experiment)
+    @Column(name = ColumnNames.PROJECT_COLUMN)
+    public Long getProjectId()
     {
-        this.experiment = experiment;
+        return projectId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ProjectPE.class)
-    @JoinColumn(name = ColumnNames.PROJECT_COLUMN)
-    public ProjectPE getProject()
+    public void setProjectId(Long projectId)
     {
-        return project;
-    }
-
-    public void setProject(ProjectPE project)
-    {
-        this.project = project;
+        this.projectId = projectId;
     }
 
     @Override
     @Transient
-    public IMatchingEntity getRelatedEntity()
+    public IRelatedEntity getRelatedEntity()
     {
-        if (experiment != null)
+        if (sampleId != null)
         {
-            return experiment;
-        } else if (sample != null)
+            return new RelatedSample(sampleId);
+        } else if (dataSetId != null)
         {
-            return sample;
-        } else if (dataSet != null)
+            return new RelatedDataSet(dataSetId);
+        } else if (spaceId != null)
         {
-            return dataSet;
+            return new RelatedSpace(spaceId);
+        } else if (experimentId != null)
+        {
+            return new RelatedExperiment(experimentId);
+        } else if (projectId != null)
+        {
+            return new RelatedProject(projectId);
         }
         return null;
     }
