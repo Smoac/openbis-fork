@@ -890,6 +890,9 @@ function ServerFacade(openbisServer) {
 					if(fetchOptions.withParents) {
 						fetchOptions.withParents();
 					}
+					if(fetchOptions.withChildren) {
+						fetchOptions.withChildren();
+					}
 				}
 				
 				
