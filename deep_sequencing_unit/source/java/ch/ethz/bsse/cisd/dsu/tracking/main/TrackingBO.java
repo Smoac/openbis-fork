@@ -65,7 +65,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 
 public class TrackingBO
 {
-    private static final String ORIGINAL_PATH = "/original/";
+    private static final String HIGH_PRIORITY_DATA_SET_TYPE = "FASTQ_GZ";
+
+	private static final String ORIGINAL_PATH = "/original/";
 
     private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
 
@@ -381,6 +383,8 @@ public class TrackingBO
         ArrayList<SampleIdentifier> filterList = new ArrayList<SampleIdentifier>();
         ArrayList<AbstractExternalData> filteredDataSets = new ArrayList<AbstractExternalData>();
         ArrayList<AbstractExternalData> toTransferDataSets = new ArrayList<AbstractExternalData>();
+        ArrayList<AbstractExternalData> toTransferDataSetsHighPriority = new ArrayList<AbstractExternalData>();
+
 
         // changedTrackingMap is used to report back which lanes are written back to the DB which have changed
         HashMap<String, ArrayList<Long>> changedTrackingMap = new HashMap<String, ArrayList<Long>>();
@@ -413,8 +417,15 @@ public class TrackingBO
                     {
                         if (d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.AVAILABLE)
                                 || d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.LOCKED))
-                        {
-                            toTransferDataSets.add(d);
+                        {                            
+                        	// Here we distinguish between data sets types of low and high priority
+                            if (d.getDataSetType().getCode().equals(HIGH_PRIORITY_DATA_SET_TYPE)) {
+                                toTransferDataSetsHighPriority.add(d);                            	
+                            }
+                            else {
+                                toTransferDataSets.add(d);
+                            }
+                            
                         } else
                         {
                             LogUtils.error("Data set " + d.getCode() + " eventually archived!");
@@ -429,6 +440,8 @@ public class TrackingBO
 
         if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_COPY_DATA_SETS))
         {
+        	// Data Sets with higher priority get transferred first 
+            extraDataSetCopy(params, toTransferDataSetsHighPriority);
             extraDataSetCopy(params, toTransferDataSets);
         }
 
@@ -528,7 +541,7 @@ public class TrackingBO
 
                     EnvironmentFailureException ret =
                             LogUtils.environmentError(
-                                    "Data trasnfer failed for %s. %s",
+                                    "Data transfer failed for %s. %s",
                                     ds.getCode(), exceptionMsg);
                     
                     IMailClient emailClient = params.getMailClient();
