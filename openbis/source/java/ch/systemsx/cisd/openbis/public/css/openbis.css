@@ -355,7 +355,7 @@ td.properties-sub-section {
 /************************
  * Confirmtion dialogs
  ************************/
-.emptyTrashConfirmationDialog .message,.permanentDeletionConfirmationDialog .message
+.emptyTrashConfirmationDialog .message,.permanentDeletionConfirmationDialog .message, .revertDeletionConfirmationDialog .message
 	{
 	margin: 10px;
 	margin-bottom: 0px;

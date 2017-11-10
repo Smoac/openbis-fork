@@ -2774,7 +2774,20 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes)
+    public void revertDeletions(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        revertDeletions(extractTechIds(criteria));
+    }
+
+    @Override
+    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, boolean forceDisallowedTypes)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        deletePermanently(extractTechIds(criteria), forceDisallowedTypes);
+    }
+
+    private void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         if (forceDisallowedTypes)

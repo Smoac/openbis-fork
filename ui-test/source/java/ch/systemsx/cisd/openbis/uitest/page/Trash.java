@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 public class Trash
 {
 
-    @Locate("empty-trash-button")
-    private Button empty;
+    @Locate("delete-permanently-button")
+    private Button deletePermanently;
 
     @Lazy
     @Locate("deletion-confirmation-dialog")
@@ -33,7 +33,7 @@ public class Trash
 
     public void empty()
     {
-        empty.click();
+        deletePermanently.click();
         deletionDialog.confirm();
     }
 
