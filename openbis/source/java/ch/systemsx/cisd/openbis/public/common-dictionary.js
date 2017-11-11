@@ -116,10 +116,6 @@ var common = {
   deletion_radio_group_label: "Deletions",
   button_revert_deletion: "Revert",
   button_revert_deletion_all: "Revert All",
-  button_empty_trash: "Empty Trash",
-  button_force_empty_trash: "Force Empty Trash",
-  tooltip_empty_trash: "Deletes permanently all the entities in trashcan.",
-  tooltip_force_empty_trash: "Forces permanent deletion of all the entities in trashcan.",
   button_delete_permanently: "Delete Permanently",
   button_delete_permanently_all: "Delete Permanently All",
   revert_deletions_confirmation_title: "Confirm Revert",
@@ -133,9 +129,6 @@ var common = {
   permanent_deletions_all_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash in <b>ALL</b> displayed deletion(s)?</br></br>You cannot undo this action.",
   use_trash_browser: "Use trash browser (click on the trash button in top menu) to delete entities permanently.",
   trash_button_tooltip: "Displays browser of deletions, allows to revert them or confirm (delete permanently).",
-  empty_trash_confirmation_title: "Confirm Empty Trash",
-  empty_trash_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash?</br></br>You cannot undo this action.",
-  empty_trash_progress: "Emptying trash...",
 	 
   //
   // Table Modifications

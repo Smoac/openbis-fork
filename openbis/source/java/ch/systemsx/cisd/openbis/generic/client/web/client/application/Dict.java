@@ -599,14 +599,6 @@ public abstract class Dict
     
     public static final String BUTTON_REVERT_DELETION_ALL = "button_revert_deletion_all";
 
-    public static final String BUTTON_EMPTY_TRASH = "button_empty_trash";
-
-    public static final String BUTTON_FORCE_EMPTY_TRASH = "button_force_empty_trash";
-
-    public static final String TOOLTIP_EMPTY_TRASH = "tooltip_empty_trash";
-
-    public static final String TOOLTIP_FORCE_EMPTY_TRASH = "tooltip_force_empty_trash";
-
     public static final String BUTTON_DELETE_PERMANENTLY = "button_delete_permanently";
     
     public static final String BUTTON_DELETE_PERMANENTLY_ALL = "button_delete_permanently_all";
@@ -632,12 +624,6 @@ public abstract class Dict
     public static final String USE_TRASH_BROWSER = "use_trash_browser";
 
     public static final String TRASH_BUTTON_TOOLTIP = "trash_button_tooltip";
-
-    public static final String EMPTY_TRASH_CONFIRMATION_TITLE = "empty_trash_confirmation_title";
-
-    public static final String EMPTY_TRASH_CONFIRMATION_MSG = "empty_trash_confirmation_msg";
-
-    public static final String EMPTY_TRASH_PROGRESS = "empty_trash_progress";
 
     //
     // Sample Viewer
