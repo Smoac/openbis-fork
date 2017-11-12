@@ -20,17 +20,11 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticAnnotationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
@@ -171,20 +165,17 @@ public class GetSemanticAnnotationTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
-        creation.setEntityTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
-
-        List<SemanticAnnotationPermId> permIds = v3api.createSemanticAnnotations(sessionToken, Arrays.asList(creation));
+        SemanticAnnotationPermId permId = new SemanticAnnotationPermId("ST_MASTER_PLATE");
 
         SemanticAnnotationFetchOptions fetchOptions = new SemanticAnnotationFetchOptions();
         fetchOptions.withEntityType();
 
-        Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken, permIds, fetchOptions);
-        SemanticAnnotation annotation = map.get(permIds.get(0));
+        Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId), fetchOptions);
+        SemanticAnnotation annotation = map.get(permId);
 
-        assertEquals(annotation.getPermId(), permIds.get(0));
-        assertEquals(annotation.getEntityType().getCode(), "CELL_PLATE");
-        assertEquals(annotation.getEntityType().getDescription(), "Cell Plate");
+        assertEquals(annotation.getPermId(), permId);
+        assertEquals(annotation.getEntityType().getCode(), "MASTER_PLATE");
+        assertEquals(annotation.getEntityType().getDescription(), "Master Plate");
 
         assertPropertyTypeNotFetched(annotation);
         assertPropertyAssignmentNotFetched(annotation);
@@ -195,20 +186,17 @@ public class GetSemanticAnnotationTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
-        creation.setPropertyTypeId(new PropertyTypePermId("COMMENT"));
-
-        List<SemanticAnnotationPermId> permIds = v3api.createSemanticAnnotations(sessionToken, Arrays.asList(creation));
+        SemanticAnnotationPermId permId = new SemanticAnnotationPermId("PT_DESCRIPTION");
 
         SemanticAnnotationFetchOptions fetchOptions = new SemanticAnnotationFetchOptions();
         fetchOptions.withPropertyType();
 
-        Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken, permIds, fetchOptions);
-        SemanticAnnotation annotation = map.get(permIds.get(0));
+        Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId), fetchOptions);
+        SemanticAnnotation annotation = map.get(permId);
 
-        assertEquals(annotation.getPermId(), permIds.get(0));
-        assertEquals(annotation.getPropertyType().getCode(), "COMMENT");
-        assertEquals(annotation.getPropertyType().getDescription(), "Any other comments");
+        assertEquals(annotation.getPermId(), permId);
+        assertEquals(annotation.getPropertyType().getCode(), "DESCRIPTION");
+        assertEquals(annotation.getPropertyType().getDescription(), "A Description");
 
         assertEntityTypeNotFetched(annotation);
         assertPropertyAssignmentNotFetched(annotation);
@@ -219,24 +207,20 @@ public class GetSemanticAnnotationTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
-        creation.setPropertyAssignmentId(
-                new PropertyAssignmentPermId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE), new PropertyTypePermId("COMMENT")));
-
-        List<SemanticAnnotationPermId> permIds = v3api.createSemanticAnnotations(sessionToken, Arrays.asList(creation));
+        SemanticAnnotationPermId permId = new SemanticAnnotationPermId("ST_CELL_PLATE_PT_ORGANISM");
 
         SemanticAnnotationFetchOptions fetchOptions = new SemanticAnnotationFetchOptions();
         fetchOptions.withPropertyAssignment().withEntityType();
         fetchOptions.withPropertyAssignment().withPropertyType();
 
-        Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken, permIds, fetchOptions);
-        SemanticAnnotation annotation = map.get(permIds.get(0));
+        Map<ISemanticAnnotationId, SemanticAnnotation> map = v3api.getSemanticAnnotations(sessionToken, Arrays.asList(permId), fetchOptions);
+        SemanticAnnotation annotation = map.get(permId);
 
-        assertEquals(annotation.getPermId(), permIds.get(0));
+        assertEquals(annotation.getPermId(), permId);
         assertEquals(annotation.getPropertyAssignment().getEntityType().getCode(), "CELL_PLATE");
         assertEquals(annotation.getPropertyAssignment().getEntityType().getDescription(), "Cell Plate");
-        assertEquals(annotation.getPropertyAssignment().getPropertyType().getCode(), "COMMENT");
-        assertEquals(annotation.getPropertyAssignment().getPropertyType().getDescription(), "Any other comments");
+        assertEquals(annotation.getPropertyAssignment().getPropertyType().getCode(), "ORGANISM");
+        assertEquals(annotation.getPropertyAssignment().getPropertyType().getDescription(), "The organism from which cells come");
 
         assertEntityTypeNotFetched(annotation);
         assertPropertyTypeNotFetched(annotation);
