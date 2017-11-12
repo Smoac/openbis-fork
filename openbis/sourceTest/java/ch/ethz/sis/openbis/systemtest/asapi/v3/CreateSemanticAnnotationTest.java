@@ -17,11 +17,14 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -34,12 +37,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticAnnotationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SemanticAnnotationDAO;
 
 /**
  * @author pkupczyk
  */
 public class CreateSemanticAnnotationTest extends AbstractTest
 {
+
+    private static final String PROVIDE_CREATIONS_FOR_SAMPLE_TYPE = "provide_creations_for_sample_type";
+
+    private static final String PROVIDE_CREATIONS_FOR_NON_SAMPLE_TYPE = "provide_creations_for_non_sample_type";
 
     @Test
     public void testCreateWithInstanceAdmin()
@@ -76,16 +85,16 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithAllFields()
     {
+        String hash = UUID.randomUUID().toString();
+
         SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
         creation.setEntityTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
-
-        creation.setPredicateOntologyId("a predicateOntologyId");
-        creation.setPredicateOntologyVersion("a predicateOntologyVersion");
-        creation.setPredicateAccessionId("a predicateAccessionId");
-
-        creation.setDescriptorOntologyId("a descriptorOntologyId");
-        creation.setDescriptorOntologyVersion("a descriptorOntologyVersion");
-        creation.setDescriptorAccessionId("a descriptorAccessionId");
+        creation.setPredicateOntologyId("predicate_ontology_id_" + hash);
+        creation.setPredicateOntologyVersion("predicate_ontology_version_" + hash);
+        creation.setPredicateAccessionId("predicate_accession_id_" + hash);
+        creation.setDescriptorOntologyId("descriptor_ontology_id_" + hash);
+        creation.setDescriptorOntologyVersion("descriptor_ontology_version_" + hash);
+        creation.setDescriptorAccessionId("descriptor_accession_id_" + hash);
 
         SemanticAnnotationFetchOptions fo = new SemanticAnnotationFetchOptions();
         fo.withEntityType();
@@ -101,10 +110,54 @@ public class CreateSemanticAnnotationTest extends AbstractTest
         assertEquals(annotation.getDescriptorAccessionId(), creation.getDescriptorAccessionId());
     }
 
+    @Test(dataProvider = PROVIDE_CREATIONS_FOR_SAMPLE_TYPE)
+    public void testCreateWithFieldsForSampleType(SemanticAnnotationCreation creation, String expectedError)
+    {
+        creation.setEntityTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
+        testCreateWithFields(creation, expectedError);
+    }
+
+    @Test(dataProvider = PROVIDE_CREATIONS_FOR_NON_SAMPLE_TYPE)
+    public void testCreateWithFieldsForPropertyType(SemanticAnnotationCreation creation, String expectedError)
+    {
+        creation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        testCreateWithFields(creation, expectedError);
+    }
+
+    @Test(dataProvider = PROVIDE_CREATIONS_FOR_NON_SAMPLE_TYPE)
+    public void testCreateWithFieldsForSampleTypePropertyType(SemanticAnnotationCreation creation, String expectedError)
+    {
+        creation.setPropertyAssignmentId(
+                new PropertyAssignmentPermId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE), new PropertyTypePermId("COMMENT")));
+        testCreateWithFields(creation, expectedError);
+    }
+
+    @SuppressWarnings("null")
+    private void testCreateWithFields(SemanticAnnotationCreation creation, String expectedError)
+    {
+        Exception exception = null;
+
+        try
+        {
+            testCreate(TEST_USER, creation, new SemanticAnnotationFetchOptions());
+        } catch (Exception e)
+        {
+            exception = e;
+        }
+
+        if (expectedError == null)
+        {
+            assertNull(exception);
+        } else
+        {
+            AssertionUtil.assertStarts(expectedError, exception.getMessage());
+        }
+    }
+
     @Test
     public void testCreateWithNoOwner()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -113,13 +166,13 @@ public class CreateSemanticAnnotationTest extends AbstractTest
                 {
                     testCreate(TEST_USER, creation, new SemanticAnnotationFetchOptions());
                 }
-            }, "Exactly one of the following fields has be set: entityTypeId, propertyTypeId or propertyAssignmentId");
+            }, SemanticAnnotationDAO.ERROR_OWNER_CANNOT_BE_NULL_OR_MORE_THAN_ONE);
     }
 
     @Test
     public void testCreateWithMultipleOwners()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setEntityTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
         creation.setPropertyTypeId(new PropertyTypePermId("COMMENT"));
         creation.setPropertyAssignmentId(
@@ -132,13 +185,13 @@ public class CreateSemanticAnnotationTest extends AbstractTest
                 {
                     testCreate(TEST_USER, creation, new SemanticAnnotationFetchOptions());
                 }
-            }, "Exactly one of the following fields has be set: entityTypeId, propertyTypeId or propertyAssignmentId");
+            }, SemanticAnnotationDAO.ERROR_OWNER_CANNOT_BE_NULL_OR_MORE_THAN_ONE);
     }
 
     @Test
     public void testCreateWithSampleType()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setEntityTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
 
         SemanticAnnotationFetchOptions fo = new SemanticAnnotationFetchOptions();
@@ -151,7 +204,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithSampleTypeNonexistent()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setEntityTypeId(new EntityTypePermId("I_DONT_EXIST", EntityKind.SAMPLE));
 
         assertObjectNotFoundException(new IDelegatedAction()
@@ -167,7 +220,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithNonSampleType()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setEntityTypeId(new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT));
 
         SemanticAnnotationFetchOptions fo = new SemanticAnnotationFetchOptions();
@@ -186,7 +239,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithPropertyType()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
 
         SemanticAnnotationFetchOptions fo = new SemanticAnnotationFetchOptions();
@@ -199,7 +252,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithPropertyTypeNonexistent()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setPropertyTypeId(new PropertyTypePermId("I_DONT_EXIST"));
 
         assertObjectNotFoundException(new IDelegatedAction()
@@ -215,7 +268,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithSampleTypePropertyType()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setPropertyAssignmentId(
                 new PropertyAssignmentPermId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE), new PropertyTypePermId("COMMENT")));
 
@@ -229,7 +282,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithSampleTypePropertyTypeNonexistent()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setPropertyAssignmentId(
                 new PropertyAssignmentPermId(new EntityTypePermId("I_DONT_EXIST", EntityKind.SAMPLE), new PropertyTypePermId("I_DONT_EXIST")));
 
@@ -246,7 +299,7 @@ public class CreateSemanticAnnotationTest extends AbstractTest
     @Test
     public void testCreateWithNonSampleTypePropertyType()
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setPropertyAssignmentId(
                 new PropertyAssignmentPermId(new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT), new PropertyTypePermId("DESCRIPTION")));
 
@@ -265,9 +318,8 @@ public class CreateSemanticAnnotationTest extends AbstractTest
 
     private void testCreateWithUser(String userId)
     {
-        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        SemanticAnnotationCreation creation = creationWithPredicateWithDescriptor();
         creation.setEntityTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
-        creation.setPredicateOntologyId(userId + "_ontology_id");
 
         SemanticAnnotation annotation = testCreate(userId, creation, new SemanticAnnotationFetchOptions());
 
@@ -286,6 +338,99 @@ public class CreateSemanticAnnotationTest extends AbstractTest
         assertEquals(map.size(), 1);
 
         return map.values().iterator().next();
+    }
+
+    private static SemanticAnnotationCreation creationWithPredicateWithDescriptor()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        creation.setPredicateOntologyId("predicate_ontology_id_" + hash);
+        creation.setPredicateOntologyVersion("");
+        creation.setPredicateAccessionId("predicate_accession_id_" + hash);
+        creation.setDescriptorOntologyId("descriptor_ontology_id_" + hash);
+        creation.setDescriptorOntologyVersion("");
+        creation.setDescriptorAccessionId("descriptor_accession_id_" + hash);
+
+        return creation;
+    }
+
+    private static SemanticAnnotationCreation creationWithNullPredicate()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        creation.setDescriptorOntologyId("descriptor_ontology_id_" + hash);
+        creation.setDescriptorOntologyVersion("");
+        creation.setDescriptorAccessionId("descriptor_accession_id_" + hash);
+
+        return creation;
+    }
+
+    private static SemanticAnnotationCreation creationWithNullDescriptor()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        creation.setPredicateOntologyId("predicate_ontology_id_" + hash);
+        creation.setPredicateOntologyVersion("");
+        creation.setPredicateAccessionId("predicate_accession_id_" + hash);
+
+        return creation;
+    }
+
+    private static SemanticAnnotationCreation creationWithEmptyPredicate()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        creation.setPredicateOntologyId("");
+        creation.setPredicateOntologyVersion("");
+        creation.setPredicateAccessionId("");
+        creation.setDescriptorOntologyId("descriptor_ontology_id_" + hash);
+        creation.setDescriptorOntologyVersion("");
+        creation.setDescriptorAccessionId("descriptor_accession_id_" + hash);
+
+        return creation;
+    }
+
+    private static SemanticAnnotationCreation creationWithEmptyDescriptor()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationCreation creation = new SemanticAnnotationCreation();
+        creation.setPredicateOntologyId("predicate_ontology_id_" + hash);
+        creation.setPredicateOntologyVersion("");
+        creation.setPredicateAccessionId("predicate_accession_id_" + hash);
+        creation.setDescriptorOntologyId("");
+        creation.setDescriptorOntologyVersion("");
+        creation.setDescriptorAccessionId("");
+
+        return creation;
+    }
+
+    @DataProvider(name = PROVIDE_CREATIONS_FOR_SAMPLE_TYPE)
+    public static Object[][] provideCreationsForSampleType()
+    {
+        return new Object[][] {
+                { creationWithPredicateWithDescriptor(), null },
+                { creationWithNullPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { creationWithNullDescriptor(), SemanticAnnotationDAO.ERROR_DESCRIPTOR_CANNOT_BE_NULL_OR_EMPTY },
+                { creationWithEmptyPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { creationWithEmptyDescriptor(), SemanticAnnotationDAO.ERROR_DESCRIPTOR_CANNOT_BE_NULL_OR_EMPTY },
+        };
+    }
+
+    @DataProvider(name = PROVIDE_CREATIONS_FOR_NON_SAMPLE_TYPE)
+    public static Object[][] provideCreationsForNonSampleType()
+    {
+        return new Object[][] {
+                { creationWithPredicateWithDescriptor(), null },
+                { creationWithNullPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { creationWithNullDescriptor(), null },
+                { creationWithEmptyPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { creationWithEmptyDescriptor(), SemanticAnnotationDAO.ERROR_DESCRIPTOR_CAN_BE_NULL_OR_NON_EMPTY },
+        };
     }
 
 }

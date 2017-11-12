@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SemanticAnnotationPE;
@@ -104,26 +103,7 @@ public class CreateSemanticAnnotationExecutor
     @Override
     protected void checkData(IOperationContext context, SemanticAnnotationCreation creation)
     {
-        int notNullCount = 0;
-
-        if (creation.getEntityTypeId() != null)
-        {
-            notNullCount++;
-        }
-        if (creation.getPropertyTypeId() != null)
-        {
-            notNullCount++;
-        }
-        if (creation.getPropertyAssignmentId() != null)
-        {
-            notNullCount++;
-        }
-
-        if (notNullCount != 1)
-        {
-            throw new UserFailureException(
-                    "Exactly one of the following fields has be set: entityTypeId, propertyTypeId or propertyAssignmentId.");
-        }
+        // data is checked in SemanticAnnotationDAO
     }
 
     @Override

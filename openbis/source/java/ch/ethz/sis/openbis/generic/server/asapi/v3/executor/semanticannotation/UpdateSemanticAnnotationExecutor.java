@@ -72,6 +72,8 @@ public class UpdateSemanticAnnotationExecutor extends
         {
             throw new UserFailureException("Semantic annotation id cannot be null.");
         }
+
+        // data is checked in SemanticAnnotationDAO
     }
 
     @Override
@@ -138,7 +140,7 @@ public class UpdateSemanticAnnotationExecutor extends
     {
         for (SemanticAnnotationPE entity : entities)
         {
-            daoFactory.getSemanticAnnotationDAO().validateAndSaveUpdatedEntity(entity);
+            daoFactory.getSemanticAnnotationDAO().createOrUpdate(entity);
         }
     }
 

@@ -17,10 +17,13 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.UUID;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
@@ -29,12 +32,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticA
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SemanticAnnotationDAO;
 
 /**
  * @author pkupczyk
  */
 public class UpdateSemanticAnnotationTest extends AbstractTest
 {
+
+    private static final String PROVIDE_UPDATES_FOR_SAMPLE_TYPE = "provide_updates_for_sample_type";
+
+    private static final String PROVIDE_UPDATES_FOR_NON_SAMPLE_TYPE = "provide_updates_for_non_sample_type";
 
     @Test
     public void testUpdateWithInstanceAdmin()
@@ -85,6 +94,80 @@ public class UpdateSemanticAnnotationTest extends AbstractTest
                     v3api.updateSemanticAnnotations(sessionToken, Arrays.asList(update));
                 }
             }, annotationId);
+    }
+
+    @Test
+    public void testUpdateWithAllFields()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
+        update.setSemanticAnnotationId(new SemanticAnnotationPermId("ST_MASTER_PLATE"));
+        update.setPredicateOntologyId("predicate_ontology_id_" + hash);
+        update.setPredicateOntologyVersion("predicate_ontology_version_" + hash);
+        update.setPredicateAccessionId("predicate_accession_id_" + hash);
+        update.setDescriptorOntologyId("descriptor_ontology_id_" + hash);
+        update.setDescriptorOntologyVersion("descriptor_ontology_version_" + hash);
+        update.setDescriptorAccessionId("descriptor_accession_id_" + hash);
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        v3api.updateSemanticAnnotations(sessionToken, Arrays.asList(update));
+
+        Map<ISemanticAnnotationId, SemanticAnnotation> annotations =
+                v3api.getSemanticAnnotations(sessionToken, Arrays.asList(update.getSemanticAnnotationId()), new SemanticAnnotationFetchOptions());
+
+        SemanticAnnotation annotation = annotations.get(update.getSemanticAnnotationId());
+
+        assertEquals(annotation.getPredicateOntologyId(), update.getPredicateOntologyId().getValue());
+        assertEquals(annotation.getPredicateOntologyVersion(), update.getPredicateOntologyVersion().getValue());
+        assertEquals(annotation.getPredicateAccessionId(), update.getPredicateAccessionId().getValue());
+        assertEquals(annotation.getDescriptorOntologyId(), update.getDescriptorOntologyId().getValue());
+        assertEquals(annotation.getDescriptorOntologyVersion(), update.getDescriptorOntologyVersion().getValue());
+        assertEquals(annotation.getDescriptorAccessionId(), update.getDescriptorAccessionId().getValue());
+    }
+
+    @Test(dataProvider = PROVIDE_UPDATES_FOR_SAMPLE_TYPE)
+    public void testUpdateWithFieldsForSampleType(SemanticAnnotationUpdate update, String expectedError)
+    {
+        update.setSemanticAnnotationId(new SemanticAnnotationPermId("ST_MASTER_PLATE"));
+        testUpdateWithFields(update, expectedError);
+    }
+
+    @Test(dataProvider = PROVIDE_UPDATES_FOR_NON_SAMPLE_TYPE)
+    public void testUpdateWithFieldsForPropertyType(SemanticAnnotationUpdate update, String expectedError)
+    {
+        update.setSemanticAnnotationId(new SemanticAnnotationPermId("PT_DESCRIPTION"));
+        testUpdateWithFields(update, expectedError);
+    }
+
+    @Test(dataProvider = PROVIDE_UPDATES_FOR_NON_SAMPLE_TYPE)
+    public void testUpdateWithFieldsForSampleTypePropertyType(SemanticAnnotationUpdate update, String expectedError)
+    {
+        update.setSemanticAnnotationId(new SemanticAnnotationPermId("ST_CELL_PLATE_PT_ORGANISM"));
+        testUpdateWithFields(update, expectedError);
+    }
+
+    @SuppressWarnings("null")
+    private void testUpdateWithFields(SemanticAnnotationUpdate update, String expectedError)
+    {
+        Exception exception = null;
+
+        try
+        {
+            final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+            v3api.updateSemanticAnnotations(sessionToken, Arrays.asList(update));
+        } catch (Exception e)
+        {
+            exception = e;
+        }
+
+        if (expectedError == null)
+        {
+            assertNull(exception);
+        } else
+        {
+            AssertionUtil.assertStarts(expectedError, exception.getMessage());
+        }
     }
 
     @Test
@@ -163,6 +246,81 @@ public class UpdateSemanticAnnotationTest extends AbstractTest
         update.setPredicateOntologyId("testPredicateOntologyId1Updated");
 
         v3api.updateSemanticAnnotations(sessionToken, Arrays.asList(update));
+    }
+
+    private static SemanticAnnotationUpdate updateWithPredicateWithDescriptor()
+    {
+        String hash = UUID.randomUUID().toString();
+
+        SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
+        update.setPredicateOntologyId("predicate_ontology_id_" + hash);
+        update.setPredicateOntologyVersion("");
+        update.setPredicateAccessionId("predicate_accession_id_" + hash);
+        update.setDescriptorOntologyId("descriptor_ontology_id_" + hash);
+        update.setDescriptorOntologyVersion("");
+        update.setDescriptorAccessionId("descriptor_accession_id_" + hash);
+
+        return update;
+    }
+
+    private static SemanticAnnotationUpdate updateWithNullPredicate()
+    {
+        SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
+        update.setPredicateOntologyId(null);
+        update.setPredicateOntologyVersion(null);
+        update.setPredicateAccessionId(null);
+        return update;
+    }
+
+    private static SemanticAnnotationUpdate updateWithNullDescriptor()
+    {
+        SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
+        update.setDescriptorOntologyId(null);
+        update.setDescriptorOntologyVersion(null);
+        update.setDescriptorAccessionId(null);
+        return update;
+    }
+
+    private static SemanticAnnotationUpdate updateWithEmptyPredicate()
+    {
+        SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
+        update.setPredicateOntologyId("");
+        update.setPredicateOntologyVersion("");
+        update.setPredicateAccessionId("");
+        return update;
+    }
+
+    private static SemanticAnnotationUpdate updateWithEmptyDescriptor()
+    {
+        SemanticAnnotationUpdate update = new SemanticAnnotationUpdate();
+        update.setDescriptorOntologyId("");
+        update.setDescriptorOntologyVersion("");
+        update.setDescriptorAccessionId("");
+        return update;
+    }
+
+    @DataProvider(name = PROVIDE_UPDATES_FOR_SAMPLE_TYPE)
+    public static Object[][] provideUpdatesForSampleType()
+    {
+        return new Object[][] {
+                { updateWithPredicateWithDescriptor(), null },
+                { updateWithNullPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { updateWithNullDescriptor(), SemanticAnnotationDAO.ERROR_DESCRIPTOR_CANNOT_BE_NULL_OR_EMPTY },
+                { updateWithEmptyPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { updateWithEmptyDescriptor(), SemanticAnnotationDAO.ERROR_DESCRIPTOR_CANNOT_BE_NULL_OR_EMPTY },
+        };
+    }
+
+    @DataProvider(name = PROVIDE_UPDATES_FOR_NON_SAMPLE_TYPE)
+    public static Object[][] provideUpdatesForNonSampleType()
+    {
+        return new Object[][] {
+                { updateWithPredicateWithDescriptor(), null },
+                { updateWithNullPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { updateWithNullDescriptor(), null },
+                { updateWithEmptyPredicate(), SemanticAnnotationDAO.ERROR_PREDICATE_CANNOT_BE_NULL_OR_EMPTY },
+                { updateWithEmptyDescriptor(), SemanticAnnotationDAO.ERROR_DESCRIPTOR_CAN_BE_NULL_OR_NON_EMPTY },
+        };
     }
 
 }
