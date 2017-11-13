@@ -45,7 +45,32 @@ def process(tr, parameters, tableBuilder):
 	tr.setUserId(userId);
 	
 	if method == "insertDataSet":
-		isOk, result = insertDataSet(tr, parameters, tableBuilder);
+		sampleIdentifier = parameters.get("sampleIdentifier"); #String
+		experimentIdentifier = parameters.get("experimentIdentifier"); #String
+		dataSetType = parameters.get("dataSetType"); #String
+		folderName = parameters.get("folderName"); #String
+		fileNames = parameters.get("filenames"); #List<String>
+		isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
+		metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
+	
+		isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, isZipDirectoryUpload, metadata, []);
+	else: #pybis don't set the method, so we guess is a call from pybis
+		sampleIdentifier = parameters.get("sampleId"); #String
+		experimentIdentifier = parameters.get("experimentId"); #String
+		parentIds = []
+		if parameters.get('parentIds') is not None:
+			for parentId in parameters.get('parentIds'):
+				parentIds.append(parentId)
+
+		if parameters.get("dataSets") is not None:
+			for ds in parameters.get("dataSets"):
+				dataSetType = ds.get("dataSetType"); #String
+				metadata = ds.get("properties"); #java.util.LinkedHashMap<String, String> where the key is the name
+				folderName = ds.get("folder"); #String
+				if folderName is None:
+					folderName = "default"
+				fileNames = ds.get("fileNames"); #List<String>
+				isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, False, metadata, parentIds);
 	
 	if isOk:
 		tableBuilder.addHeader("STATUS");
@@ -72,18 +97,11 @@ def getThreadProperties(transaction):
       pass
   return threadPropertyDict
 
-def insertDataSet(tr, parameters, tableBuilder):
-	#Mandatory parameters
-	sampleIdentifier = parameters.get("sampleIdentifier"); #String
-	experimentIdentifier = parameters.get("experimentIdentifier"); #String
-	dataSetType = parameters.get("dataSetType"); #String
-	folderName = parameters.get("folderName"); #String
-	fileNames = parameters.get("filenames"); #List<String>
-	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
-	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
+def insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, isZipDirectoryUpload, metadata, parentIds):
 		
 	#Create Dataset
 	dataSet = tr.createNewDataSet(dataSetType);
+	dataSet.setParentDatasets(parentIds);
 	if sampleIdentifier is not None:
 		dataSetSample = tr.getSampleForUpdate(sampleIdentifier);
 		dataSet.setSample(dataSetSample);
