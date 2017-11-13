@@ -49,6 +49,8 @@ def process(tr, parameters, tableBuilder):
 		experimentIdentifier = parameters.get("experimentIdentifier"); #String
 		dataSetType = parameters.get("dataSetType"); #String
 		folderName = parameters.get("folderName"); #String
+		if folderName is None or folderName == "":
+			folderName = "DEFAULT"
 		fileNames = parameters.get("fileNames"); #List<String>
 		isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 		metadata = parameters.get("properties"); #java.util.LinkedHashMap<String, String> where the key is the name
