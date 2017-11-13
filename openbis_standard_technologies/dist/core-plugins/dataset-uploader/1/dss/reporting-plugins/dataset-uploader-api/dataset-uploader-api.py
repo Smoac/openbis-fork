@@ -41,15 +41,8 @@ def process(tr, parameters, tableBuilder):
 
 	isOk = False;
 	result = None;
-	# Obtain the user using the dropbox
-	sessionToken = parameters.get("sessionToken"); #String
-	sessionId = username(sessionToken); #String
-	if sessionId == userId:
-		tr.setUserId(userId);
-	else:
-		errorMessage = "[SECURITY] User " + userId + " tried to use " + sessionId + " account, this will be communicated to the admin.";
-		print errorMessage;
-		raise UserFailureException(errorMessage);
+	# Obtain the user using the service
+	tr.setUserId(userId);
 	
 	if method == "insertDataSet":
 		isOk, result = insertDataSet(tr, parameters, tableBuilder);
@@ -112,14 +105,13 @@ def insertDataSet(tr, parameters, tableBuilder):
 	tempDirFile.mkdirs();
 	
 	#tempDir = System.getProperty("java.io.tmpdir");
-	session_token = parameters.get("sessionID");
 	dss_service = ServiceProvider.getDssServiceRpcGeneric().getService();
 
 	for fileName in fileNames:
 		folderFile = File(tempDir + "/" + folderName);
 		folderFile.mkdir();
 		temFile = File(tempDir + "/" + folderName + "/" + fileName);
-		inputStream = dss_service.getFileFromSessionWorkspace(session_token, fileName);
+		inputStream = dss_service.getFileFromSessionWorkspace(userSessionToken, fileName);
 		outputStream = FileOutputStream(temFile);
 		IOUtils.copyLarge(inputStream, outputStream);
 		IOUtils.closeQuietly(inputStream);
@@ -142,7 +134,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 	#Clean Files from workspace
 	for fileName in fileNames:
-		dss_service.deleteSessionWorkspaceFile(session_token, fileName);
+		dss_service.deleteSessionWorkspaceFile(userSessionToken, fileName);
 	
 	#Return from the call
 	return True, dataSet.getDataSetCode()
