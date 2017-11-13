@@ -52,8 +52,11 @@ def process(tr, parameters, tableBuilder):
 		fileNames = parameters.get("filenames"); #List<String>
 		isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 		metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
-	
-		isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, isZipDirectoryUpload, metadata, []);
+		parentIds = []
+		if parameters.get('parentIds') is not None:
+			for parentId in parameters.get('parentIds'):
+				parentIds.append(parentId)
+		isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, isZipDirectoryUpload, metadata, parentIds);
 	else: #pybis don't set the method, so we guess is a call from pybis
 		sampleIdentifier = parameters.get("sampleId"); #String
 		experimentIdentifier = parameters.get("experimentId"); #String
