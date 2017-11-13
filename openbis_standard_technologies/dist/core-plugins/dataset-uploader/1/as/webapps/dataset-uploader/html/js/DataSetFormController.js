@@ -84,7 +84,7 @@ function DataSetFormController() {
 		
 		Util.blockUI();
 		var _this = this;
-		var metadata = dataSetFormModel.dataSet.properties;
+		var properties = dataSetFormModel.dataSet.properties;
 			
 		var isZipDirectoryUpload = $("#isZipDirectoryUpload"+":checked").val() === "on";
 		
@@ -99,18 +99,15 @@ function DataSetFormController() {
 		
 		var parameters = {
 				//API Method
-				"sessionToken" : openBIS.getSession(),
 				"method" : method,
 				//Identification Info
 				"dataSetType" : dataSetTypeCode,
-				"filenames" : dataSetFormModel.files,
+				"fileNames" : dataSetFormModel.files,
 				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,
+				"parentIdentifiers" : [],
 				//Metadata
-				"metadata" : metadata,
-				//For Moving files
-				"sessionID" : openBIS.getSession(),
-				"openBISURL" : openBIS._internal.openbisUrl
+				"properties" : properties
 		};
 		
 		var sampleOrExperimentIdentifier = dataSetFormModel.sampleOrExperiment.identifier;

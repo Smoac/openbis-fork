@@ -49,27 +49,11 @@ def process(tr, parameters, tableBuilder):
 		experimentIdentifier = parameters.get("experimentIdentifier"); #String
 		dataSetType = parameters.get("dataSetType"); #String
 		folderName = parameters.get("folderName"); #String
-		fileNames = parameters.get("filenames"); #List<String>
+		fileNames = parameters.get("fileNames"); #List<String>
 		isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
-		metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
-		isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, isZipDirectoryUpload, metadata, []);
-	else: #pybis don't set the method, so we guess is a call from pybis
-		sampleIdentifier = parameters.get("sampleId"); #String
-		experimentIdentifier = parameters.get("experimentId"); #String
-		parentIds = []
-		if parameters.get('parentIds') is not None:
-			for parentId in parameters.get('parentIds'):
-				parentIds.append(parentId)
-
-		if parameters.get("dataSets") is not None:
-			for ds in parameters.get("dataSets"):
-				dataSetType = ds.get("dataSetType"); #String
-				metadata = ds.get("properties"); #java.util.LinkedHashMap<String, String> where the key is the name
-				folderName = ds.get("folder"); #String
-				if folderName is None:
-					folderName = "default"
-				fileNames = ds.get("fileNames"); #List<String>
-				isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, False, metadata, parentIds);
+		metadata = parameters.get("properties"); #java.util.LinkedHashMap<String, String> where the key is the name
+		parentIdentifiers = parameters.get('parentIdentifiers');
+		isOk, result = insertDataSet(tr, sampleIdentifier, experimentIdentifier, dataSetType, folderName, fileNames, isZipDirectoryUpload, metadata, parentIdentifiers);
 	
 	if isOk:
 		tableBuilder.addHeader("STATUS");
