@@ -35,16 +35,67 @@ public class FastaUtilities
      */
     public static final List<Character> NUCLEIC_ACID_CODES = Arrays.asList('A', 'C', 'G', 'T', 'U', 'R', 'Y',
             'K', 'M', 'S', 'W', 'B', 'D', 'H', 'V', 'N', 'X', '-');
-
+    
+    public static final List<Character> STRICT_NUCLEIC_ACID_CODES = Arrays.asList('A', 'T', 'U', 'C', 'G');
+    
     /**
      * Amino acid codes as used in FASTA files (see https://en.wikipedia.org/wiki/FASTA_format).
      */
     public static final List<Character> AMINO_ACID_CODES = Arrays.asList('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y', 'Z', 'X', '*', '-');
+    
+    public static final List<Character> STRICT_AMINO_ACID_CODES = Arrays.asList('A', 'R', 'N', 'D', 'C', 'E', 
+            'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V');
 
     private static final Set<Character> NUCLEIC_ACID_CODES_SET = new HashSet<Character>(NUCLEIC_ACID_CODES);
 
+    private static final Set<Character> STRICT_NUCLEIC_ACID_CODES_SET = new HashSet<Character>(STRICT_NUCLEIC_ACID_CODES);
+
     private static final Set<Character> AMINO_ACID_CODES_SET = new HashSet<Character>(AMINO_ACID_CODES);
+
+    private static final Set<Character> STRICT_AMINO_ACID_CODES_SET = new HashSet<Character>(STRICT_AMINO_ACID_CODES);
+    
+    /**
+     * Returns the sequenceType of the specified string or <code>null</code> if undetermined.
+     * 
+     * @return {@link SequenceType#PROT} if all characters are from the set STRICT_AMINO_ACID_CODES 
+     *      and at least one character is not in the set STRICT_NUCLEIC_ACID_CODES. Otherwise 
+     *      {@link SequenceType#NUCL} is returned if all characters are from the set STRICT_NUCLEIC_ACID_CODES.
+     *      If non of these two cases are fulfilled <code>null</code> is returned.
+     */
+    public static SequenceType determineSequenceTypeOrNull(String line)
+    {
+        boolean isAminoAcidSequence = false;
+        int nuclCounter = 0;
+        int aminoCounter = 0;
+        for (char c : line.toUpperCase().toCharArray())
+        {
+            boolean isNucleicAcidCode = STRICT_NUCLEIC_ACID_CODES_SET.contains(c);
+            boolean isAmoniAcidCode = STRICT_AMINO_ACID_CODES_SET.contains(c);
+            if (isNucleicAcidCode == false && isAmoniAcidCode == false)
+            {
+                return null;
+            }
+            if (isNucleicAcidCode)
+            {
+                nuclCounter++;
+            }
+            if (isAmoniAcidCode)
+            {
+                aminoCounter++;
+                if (isNucleicAcidCode == false)
+                {
+                    isAminoAcidSequence = true;
+                }
+            }
+        }
+        if (aminoCounter == line.length() && isAminoAcidSequence)
+        {
+            return SequenceType.PROT;
+        }
+        return nuclCounter == line.length() ? SequenceType.NUCL : null;
+    }
+    
 
     /**
      * Determines the sequence type from the specified line of a FASTA file.

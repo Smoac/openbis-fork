@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -566,17 +565,21 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 {
                     if (property.getPropertyType().getCode().equals(propertyType))
                     {
-                        String sequence = property.tryGetAsString();
+                        String sequence = normalize(property.tryGetAsString());
                         if (sequence != null)
                         {
-                            Sequence seq = new Sequence(entity, propertyType, sequence);
-                            Sequences sequences = map.get(seq.getSequenceType());
-                            if (sequences == null)
+                            SequenceType sequenceType = FastaUtilities.determineSequenceTypeOrNull(sequence);
+                            if (sequenceType != null)
                             {
-                                sequences = new Sequences();
-                                map.put(seq.getSequenceType(), sequences);
+                                Sequence seq = new Sequence(entity, propertyType, sequenceType, sequence);
+                                Sequences sequences = map.get(seq.getSequenceType());
+                                if (sequences == null)
+                                {
+                                    sequences = new Sequences();
+                                    map.put(seq.getSequenceType(), sequences);
+                                }
+                                sequences.addSequence(seq);
                             }
-                            sequences.addSequence(seq);
                         }
                         break;
                     }
@@ -611,6 +614,24 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             return latestModificationDate;
         }
     }
+    
+    private static String normalize(String sequence)
+    {
+        if (sequence == null)
+        {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < sequence.length(); i++)
+        {
+            char c = sequence.charAt(i);
+            if (Character.isWhitespace(c) == false)
+            {
+                builder.append(Character.toUpperCase(c));
+            }
+        }
+        return builder.toString();
+    }
 
     private static final class Sequence
     {
@@ -625,10 +646,12 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         private final SequenceType sequenceType;
 
         @SuppressWarnings("rawtypes")
-        Sequence(IEntityInformationHolderWithProperties entity, String propertyType, String sequence)
+        Sequence(IEntityInformationHolderWithProperties entity, String propertyType, 
+                SequenceType sequenceType, String sequence)
         {
             this.propertyType = propertyType;
-            this.sequence = removeWhiteSpaces(sequence);
+            this.sequenceType = sequenceType;
+            this.sequence = sequence;
             permId = entity.getPermId();
             Date date = null;
             if (entity instanceof CodeWithRegistrationAndModificationDate)
@@ -636,22 +659,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 date = ((CodeWithRegistrationAndModificationDate) entity).getModificationDate();
             }
             modificationDate = date == null ? new Date() : date;
-            sequenceType = FastaUtilities.determineSequenceType(this.sequence);
-        }
-
-        private static String removeWhiteSpaces(String sequence)
-        {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < sequence.length(); i++)
-            {
-                char c = sequence.charAt(i);
-                if (Character.isWhitespace(c) == false)
-                {
-                    builder.append(c);
-                }
-            }
-            String string = builder.toString();
-            return string;
         }
 
         String getPermId()

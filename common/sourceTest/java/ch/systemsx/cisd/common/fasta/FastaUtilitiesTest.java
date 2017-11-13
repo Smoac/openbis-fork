@@ -78,5 +78,35 @@ public class FastaUtilitiesTest extends AssertJUnit
     {
         assertEquals(SequenceType.PROT, FastaUtilities.determineSequenceType("TLI IGGBC"));
     }
+    
+    @Test
+    public void testDetermineSequenceTypeOrNullForPureU()
+    {
+        assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceTypeOrNull("UUU"));
+    }
+    
+    @Test
+    public void testDetermineSequenceTypeOrNullForPureNuclSequence()
+    {
+        assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceTypeOrNull("GATTACA"));
+    }
+    
+    @Test
+    public void testDetermineSequenceTypeOrNullForProtSequence()
+    {
+        assertEquals(SequenceType.PROT, FastaUtilities.determineSequenceTypeOrNull("ACE"));
+    }
+    
+    @Test
+    public void testDetermineSequenceTypeOrNullForMixOfPureNuclCharactersAndPureAminoCharacters()
+    {
+        assertEquals(null, FastaUtilities.determineSequenceTypeOrNull("UV"));
+    }
+    
+    @Test
+    public void testDetermineSequenceTypeOrNullForUnknownCharacter()
+    {
+        assertEquals(null, FastaUtilities.determineSequenceTypeOrNull("ABCZ"));
+    }
 
 }
