@@ -6,7 +6,6 @@ apply from: '../gradle/javaproject.gradle'
 dependencies {
     compile project(':common'),
         'imagej:ij:+',
-        'sun:jai:+',
         'bioformats:bioformats:+',
         'slf4j:slf4j:+',
         'slf4j:slf4j-log4j12:+'
