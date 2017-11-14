@@ -131,7 +131,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
         {
-            assertEquals(lastName, matchingEntity.getRegistrator().getFirstName());
+            AssertionUtil.assertContains(lastName, matchingEntity.getRegistrator().getFirstName());
 
             for (PropertyMatch match : matchingEntity.getMatches())
             {

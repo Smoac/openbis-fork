@@ -330,7 +330,7 @@ public class GetExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getIdentifier().toString(), "/CISD/NEMO/EXP1");
 
         ExperimentType type = experiment.getType();
-        assertEquals(type.getPermId().toString(), "SIRNA_HCS");
+        assertEquals(type.getPermId().getPermId(), "SIRNA_HCS");
         assertEquals(type.getCode(), "SIRNA_HCS");
         assertEquals(type.getDescription(), "Small Interfering RNA High Content Screening");
         assertNotNull(type.getModificationDate());
