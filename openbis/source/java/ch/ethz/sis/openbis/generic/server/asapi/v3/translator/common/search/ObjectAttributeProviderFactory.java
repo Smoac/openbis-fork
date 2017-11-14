@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
+
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.DataSetAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ExperimentAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ExternalDmsAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.FileFormatTypeAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.IObjectAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.IObjectAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.LinkedDataAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.LocatorTypeAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.MaterialAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.PhysicalDataAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SampleAttributeProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchObjectKind;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.StorageFormatAttributeProvider;
 
 /**
  * @author pkupczyk

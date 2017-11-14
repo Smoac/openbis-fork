@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
 
 import java.util.Arrays;
 import java.util.Collection;

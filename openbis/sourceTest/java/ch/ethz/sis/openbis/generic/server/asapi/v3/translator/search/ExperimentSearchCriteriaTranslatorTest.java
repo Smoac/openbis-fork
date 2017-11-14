@@ -21,9 +21,9 @@ import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ObjectAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.ObjectAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ExperimentSearchCriteriaTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.CompareMode;

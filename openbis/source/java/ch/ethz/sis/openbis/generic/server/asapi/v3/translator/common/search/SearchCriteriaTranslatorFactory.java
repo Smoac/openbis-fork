@@ -14,13 +14,37 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.search.ModifierSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.search.RegistratorSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.AbstractSearchCriteriaTranslatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.BooleanFieldSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.CompleteSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.DataSetSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.DateFieldSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.EntityTypeSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.EnumFieldSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ExperimentSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ExternalDmsSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.FileFormatTypeSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.IObjectAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.LinkedDataSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.LocatorTypeSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.MaterialSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.NumberFieldSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.PhysicalDataSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ProjectSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SampleSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SampleTypeSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SpaceSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.StatusSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.StorageFormatSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.StringFieldSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.TagSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
@@ -67,6 +91,7 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         translators.add(new BooleanFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new EnumFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new EntityTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new CollectionSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         return translators;
     }
 

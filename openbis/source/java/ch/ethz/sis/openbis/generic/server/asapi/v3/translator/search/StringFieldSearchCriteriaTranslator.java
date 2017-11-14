@@ -24,6 +24,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringEndsWithValu
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringEqualToValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringStartsWithValue;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 

@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -32,9 +34,19 @@ public abstract class AbstractEntityTypeSearchCriteria extends AbstractObjectSea
 
     private static final long serialVersionUID = 1L;
 
+    public IdsSearchCriteria<IEntityTypeId> withIds()
+    {
+        return with(new IdsSearchCriteria<IEntityTypeId>());
+    }
+
     public CodeSearchCriteria withCode()
     {
         return with(new CodeSearchCriteria());
+    }
+
+    public CodesSearchCriteria withCodes()
+    {
+        return with(new CodesSearchCriteria());
     }
 
     public PermIdSearchCriteria withPermId()

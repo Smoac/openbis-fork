@@ -17,6 +17,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.ISearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 
 /**
  * @author pkupczyk

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search;
 
 import java.util.Stack;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Context;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**

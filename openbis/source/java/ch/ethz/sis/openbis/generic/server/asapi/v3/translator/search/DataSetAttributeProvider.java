@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ModificationDateSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
@@ -33,10 +34,7 @@ public class DataSetAttributeProvider extends AbstractEntityAttributeProvider
     @Override
     public IAttributeSearchFieldKind getAttribute(ISearchCriteria criteria)
     {
-        if (criteria instanceof CodeSearchCriteria)
-        {
-            return DataSetAttributeSearchFieldKind.CODE;
-        } else if (criteria instanceof PermIdSearchCriteria)
+        if (criteria instanceof CodeSearchCriteria || criteria instanceof CodesSearchCriteria || criteria instanceof PermIdSearchCriteria)
         {
             return DataSetAttributeSearchFieldKind.CODE;
         } else if (criteria instanceof RegistrationDateSearchCriteria)

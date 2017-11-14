@@ -23,6 +23,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleChildrenSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
@@ -33,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriter
 public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected SampleSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
+    public SampleSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }

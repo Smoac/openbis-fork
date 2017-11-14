@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import java.util.Stack;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections4.map.ReferenceIdentityMap;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
@@ -38,32 +40,39 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.TechIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.RegistratorSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IMapDataSetByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IMapEntityTypeByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMapMaterialByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialTypeExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IMapTagByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ObjectAttributeProviderFactory;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ISearchCriteriaTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchCriteriaTranslationResult;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchCriteriaTranslatorFactory;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchTranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.ISearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.ObjectAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -73,10 +82,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author pkupczyk
@@ -104,10 +113,22 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
     private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Autowired
-    private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
+    private IMapTagByIdExecutor mapTagByIdExecutor;
 
     @Autowired
-    private IMapTagByIdExecutor mapTagByIdExecutor;
+    private ISearchMaterialTypeExecutor searchMaterialTypeExecutor;
+
+    @Autowired
+    private ISearchExperimentTypeExecutor searchExperimentTypeExecutor;
+
+    @Autowired
+    private ISearchSampleTypeExecutor searchSampleTypeExecutor;
+
+    @Autowired
+    private ISearchDataSetTypeExecutor searchDataSetTypeExecutor;
+
+    @Autowired
+    private ISearchPersonExecutor searchPersonExecutor;
 
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     protected ICommonBusinessObjectFactory businessObjectFactory;
@@ -118,40 +139,44 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
     protected abstract List<OBJECT> doSearch(IOperationContext context, DetailedSearchCriteria criteria);
 
     @Override
-    public List<OBJECT> search(IOperationContext context, CRITERIA critera)
+    public List<OBJECT> search(IOperationContext context, CRITERIA criteria)
     {
         if (context == null)
         {
             throw new IllegalArgumentException("Context cannot be null");
         }
-        if (critera == null)
+        if (criteria == null)
         {
             throw new IllegalArgumentException("Criteria cannot be null");
         }
 
-        replaceCriteria(context, critera);
+        ISearchCriteria replacedCriteria = replaceCriteria(context, criteria);
 
         ISearchCriteriaTranslator translator =
-                new SearchCriteriaTranslatorFactory(daoFactory, new ObjectAttributeProviderFactory()).getTranslator(critera);
-        SearchCriteriaTranslationResult translationResult = translator.translate(new SearchTranslationContext(context.getSession()), critera);
+                new SearchCriteriaTranslatorFactory(daoFactory, new ObjectAttributeProviderFactory()).getTranslator(replacedCriteria);
+
+        SearchCriteriaTranslationResult translationResult =
+                translator.translate(new SearchTranslationContext(context.getSession()), replacedCriteria);
 
         return doSearch(context, translationResult.getCriteria());
     }
 
-    private void replaceCriteria(IOperationContext context, AbstractCompositeSearchCriteria criteria)
+    private ISearchCriteria replaceCriteria(IOperationContext context, AbstractCompositeSearchCriteria criteria)
     {
         List<ICriteriaReplacer> replacers = new LinkedList<ICriteriaReplacer>();
         replacers.add(new SpaceIdCriteriaReplacer());
         replacers.add(new ProjectIdCriteriaReplacer());
         replacers.add(new ExperimentIdCriteriaReplacer());
-        replacers.add(new ExperimentTypeIdCriteriaReplacer());
+        replacers.add(new ExperimentTypeCriteriaReplacer());
         replacers.add(new SampleIdCriteriaReplacer());
-        replacers.add(new SampleTypeIdCriteriaReplacer());
+        replacers.add(new SampleTypeCriteriaReplacer());
         replacers.add(new DataSetIdCriteriaReplacer());
-        replacers.add(new DataSetTypeIdCriteriaReplacer());
+        replacers.add(new DataSetTypeCriteriaReplacer());
         replacers.add(new MaterialIdCriteriaReplacer());
         replacers.add(new MaterialPermIdCriteriaReplacer());
-        replacers.add(new MaterialTypeIdCriteriaReplacer());
+        replacers.add(new MaterialTypeCriteriaReplacer());
+        replacers.add(new RegistratorCriteriaReplacer());
+        replacers.add(new ModifierCriteriaReplacer());
         replacers.add(new TagIdCriteriaReplacer());
 
         Map<ICriteriaReplacer, Set<ISearchCriteria>> toReplaceMap = new HashMap<ICriteriaReplacer, Set<ISearchCriteria>>();
@@ -160,41 +185,44 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
         if (false == toReplaceMap.isEmpty())
         {
             Map<ISearchCriteria, ISearchCriteria> replacementMap = createCriteriaReplacements(context, toReplaceMap);
-            replaceCriteria(criteria, replacementMap);
+            return replaceCriteria(criteria, replacementMap);
+        } else
+        {
+            return criteria;
         }
     }
 
     private void collectCriteriaToReplace(IOperationContext context, Stack<ISearchCriteria> parentCriteria,
-            AbstractCompositeSearchCriteria criteria,
-            List<ICriteriaReplacer> replacers, Map<ICriteriaReplacer, Set<ISearchCriteria>> toReplaceMap)
+            ISearchCriteria criteria, List<ICriteriaReplacer> replacers, Map<ICriteriaReplacer, Set<ISearchCriteria>> toReplaceMap)
     {
-        parentCriteria.push(criteria);
-
-        for (ISearchCriteria subCriterion : criteria.getCriteria())
+        for (ICriteriaReplacer replacer : replacers)
         {
-            if (subCriterion instanceof AbstractCompositeSearchCriteria)
+            if (replacer.canReplace(context, parentCriteria, criteria))
             {
-                collectCriteriaToReplace(context, parentCriteria, (AbstractCompositeSearchCriteria) subCriterion, replacers, toReplaceMap);
-            } else
-            {
-                for (ICriteriaReplacer replacer : replacers)
+                Set<ISearchCriteria> toReplace = toReplaceMap.get(replacer);
+                if (toReplace == null)
                 {
-                    if (replacer.canReplace(context, parentCriteria, subCriterion))
-                    {
-                        Set<ISearchCriteria> toReplace = toReplaceMap.get(replacer);
-                        if (toReplace == null)
-                        {
-                            toReplace = new HashSet<ISearchCriteria>();
-                            toReplaceMap.put(replacer, toReplace);
-                        }
-                        toReplace.add(subCriterion);
-                        break;
-                    }
+                    toReplace = new HashSet<ISearchCriteria>();
+                    toReplaceMap.put(replacer, toReplace);
                 }
+                toReplace.add(criteria);
+                return;
             }
         }
 
-        parentCriteria.pop();
+        if (criteria instanceof AbstractCompositeSearchCriteria)
+        {
+            parentCriteria.push(criteria);
+
+            AbstractCompositeSearchCriteria compositeCriteria = (AbstractCompositeSearchCriteria) criteria;
+
+            for (ISearchCriteria subCriterion : compositeCriteria.getCriteria())
+            {
+                collectCriteriaToReplace(context, parentCriteria, subCriterion, replacers, toReplaceMap);
+            }
+
+            parentCriteria.pop();
+        }
     }
 
     private Map<ISearchCriteria, ISearchCriteria> createCriteriaReplacements(IOperationContext context,
@@ -212,26 +240,31 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
         return result;
     }
 
-    private void replaceCriteria(AbstractCompositeSearchCriteria criteria, Map<ISearchCriteria, ISearchCriteria> replacementMap)
+    private ISearchCriteria replaceCriteria(ISearchCriteria criteria, Map<ISearchCriteria, ISearchCriteria> replacementMap)
     {
-        List<ISearchCriteria> newSubCriteria = new LinkedList<ISearchCriteria>();
-
-        for (ISearchCriteria subCriterion : criteria.getCriteria())
+        if (replacementMap.containsKey(criteria))
         {
-            ISearchCriteria newSubCriterion = subCriterion;
-
-            if (subCriterion instanceof AbstractCompositeSearchCriteria)
-            {
-                replaceCriteria((AbstractCompositeSearchCriteria) subCriterion, replacementMap);
-            } else if (replacementMap.containsKey(subCriterion))
-            {
-                newSubCriterion = replacementMap.get(subCriterion);
-            }
-
-            newSubCriteria.add(newSubCriterion);
+            return replacementMap.get(criteria);
         }
 
-        criteria.setCriteria(newSubCriteria);
+        if (criteria instanceof AbstractCompositeSearchCriteria)
+        {
+            AbstractCompositeSearchCriteria compositeCriteria = (AbstractCompositeSearchCriteria) criteria;
+            List<ISearchCriteria> newSubCriteria = new LinkedList<ISearchCriteria>();
+
+            for (ISearchCriteria subCriterion : compositeCriteria.getCriteria())
+            {
+                ISearchCriteria newSubCriterion = replaceCriteria(subCriterion, replacementMap);
+                if (newSubCriterion != null)
+                {
+                    newSubCriteria.add(newSubCriterion);
+                }
+            }
+
+            compositeCriteria.setCriteria(newSubCriteria);
+        }
+
+        return criteria;
     }
 
     private interface ICriteriaReplacer
@@ -527,123 +560,254 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
 
     }
 
-    private abstract class AbstractEntityTypeIdCriteriaReplacer extends AbstractIdCriteriaReplacer<IEntityTypeId, EntityTypePE>
+    private abstract class AbstractEntityTypeCriteriaReplacer implements ICriteriaReplacer
     {
-
-        @Override
-        protected Class<IEntityTypeId> getIdClass()
-        {
-            return IEntityTypeId.class;
-        }
 
         @Override
         public boolean canReplace(IOperationContext context, Stack<ISearchCriteria> parentCriteria, ISearchCriteria criteria)
         {
-            if (false == super.canReplace(context, parentCriteria, criteria))
+            if (criteria instanceof AbstractEntityTypeSearchCriteria)
+            {
+                return getEntityTypeCriteriaClass().isAssignableFrom(criteria.getClass());
+            } else
             {
                 return false;
             }
-
-            Stack<ISearchCriteria> parentCriteriaCopy = new Stack<ISearchCriteria>();
-            parentCriteriaCopy.addAll(parentCriteria);
-
-            ISearchCriteria parentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
-            ISearchCriteria grandParentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
-
-            return parentCriterion instanceof AbstractEntityTypeSearchCriteria && grandParentCriterion != null
-                    && getEntityCriteriaClass().isAssignableFrom(grandParentCriterion.getClass());
         }
 
         @Override
-        protected Map<IEntityTypeId, EntityTypePE> getObjectMap(IOperationContext context, Collection<IEntityTypeId> typeIds)
+        public Map<ISearchCriteria, ISearchCriteria> replace(IOperationContext context, Collection<ISearchCriteria> criteria)
         {
-            return mapEntityTypeByIdExecutor.map(context, getEntityKind(), typeIds);
-        }
+            Map<ISearchCriteria, ISearchCriteria> replacementMap = new ReferenceIdentityMap<ISearchCriteria, ISearchCriteria>();
 
-        @Override
-        protected ISearchCriteria createReplacement(IOperationContext context, ISearchCriteria criteria, EntityTypePE type)
-        {
-            CodeSearchCriteria replacement = new CodeSearchCriteria();
-            if (type == null)
+            for (ISearchCriteria criterion : criteria)
             {
-                replacement.thatEquals("#");
+                AbstractEntityTypeSearchCriteria entityTypeCriterion = (AbstractEntityTypeSearchCriteria) criterion;
+                List<? extends EntityTypePE> entityTypes = searchEntityTypes(context, entityTypeCriterion);
+                List<String> entityTypeCodes = new ArrayList<String>();
+
+                if (entityTypes == null || entityTypes.isEmpty())
+                {
+                    entityTypeCodes.add("#");
+                } else
+                {
+                    for (EntityTypePE entityType : entityTypes)
+                    {
+                        entityTypeCodes.add(entityType.getCode());
+                    }
+                }
+
+                replacementMap.put(entityTypeCriterion, createNewEntityTypeCriteria(entityTypeCodes));
+            }
+
+            return replacementMap;
+        }
+
+        protected abstract Class<? extends AbstractEntityTypeSearchCriteria> getEntityTypeCriteriaClass();
+
+        protected abstract List<? extends EntityTypePE> searchEntityTypes(IOperationContext context, AbstractEntityTypeSearchCriteria criteria);
+
+        protected abstract AbstractEntityTypeSearchCriteria createNewEntityTypeCriteria(List<String> entityTypeCodes);
+
+    }
+
+    private class ExperimentTypeCriteriaReplacer extends AbstractEntityTypeCriteriaReplacer
+    {
+
+        @Override
+        protected Class<? extends AbstractEntityTypeSearchCriteria> getEntityTypeCriteriaClass()
+        {
+            return ExperimentTypeSearchCriteria.class;
+        }
+
+        @Override
+        protected List<? extends EntityTypePE> searchEntityTypes(IOperationContext context, AbstractEntityTypeSearchCriteria criteria)
+        {
+            return searchExperimentTypeExecutor.search(context, (ExperimentTypeSearchCriteria) criteria);
+        }
+
+        @Override
+        protected AbstractEntityTypeSearchCriteria createNewEntityTypeCriteria(List<String> entityTypeCodes)
+        {
+            ExperimentTypeSearchCriteria criteria = new ExperimentTypeSearchCriteria();
+            criteria.withCodes().thatIn(entityTypeCodes);
+            return criteria;
+        }
+
+    }
+
+    private class SampleTypeCriteriaReplacer extends AbstractEntityTypeCriteriaReplacer
+    {
+
+        @Override
+        protected Class<? extends AbstractEntityTypeSearchCriteria> getEntityTypeCriteriaClass()
+        {
+            return SampleTypeSearchCriteria.class;
+        }
+
+        @Override
+        protected List<? extends EntityTypePE> searchEntityTypes(IOperationContext context, AbstractEntityTypeSearchCriteria criteria)
+        {
+            return searchSampleTypeExecutor.search(context, (SampleTypeSearchCriteria) criteria);
+        }
+
+        @Override
+        protected AbstractEntityTypeSearchCriteria createNewEntityTypeCriteria(List<String> entityTypeCodes)
+        {
+            SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+            criteria.withCodes().thatIn(entityTypeCodes);
+            return criteria;
+        }
+
+    }
+
+    private class DataSetTypeCriteriaReplacer extends AbstractEntityTypeCriteriaReplacer
+    {
+
+        @Override
+        protected Class<? extends AbstractEntityTypeSearchCriteria> getEntityTypeCriteriaClass()
+        {
+            return DataSetTypeSearchCriteria.class;
+        }
+
+        @Override
+        protected List<? extends EntityTypePE> searchEntityTypes(IOperationContext context, AbstractEntityTypeSearchCriteria criteria)
+        {
+            return searchDataSetTypeExecutor.search(context, (DataSetTypeSearchCriteria) criteria);
+        }
+
+        @Override
+        protected AbstractEntityTypeSearchCriteria createNewEntityTypeCriteria(List<String> entityTypeCodes)
+        {
+            DataSetTypeSearchCriteria criteria = new DataSetTypeSearchCriteria();
+            criteria.withCodes().thatIn(entityTypeCodes);
+            return criteria;
+        }
+
+    }
+
+    private class MaterialTypeCriteriaReplacer extends AbstractEntityTypeCriteriaReplacer
+    {
+
+        @Override
+        protected Class<? extends AbstractEntityTypeSearchCriteria> getEntityTypeCriteriaClass()
+        {
+            return MaterialTypeSearchCriteria.class;
+        }
+
+        @Override
+        protected List<? extends EntityTypePE> searchEntityTypes(IOperationContext context, AbstractEntityTypeSearchCriteria criteria)
+        {
+            return searchMaterialTypeExecutor.search(context, (MaterialTypeSearchCriteria) criteria);
+        }
+
+        @Override
+        protected AbstractEntityTypeSearchCriteria createNewEntityTypeCriteria(List<String> entityTypeCodes)
+        {
+            MaterialTypeSearchCriteria criteria = new MaterialTypeSearchCriteria();
+            criteria.withCodes().thatIn(entityTypeCodes);
+            return criteria;
+        }
+
+    }
+
+    private abstract class AbstractPersonCriteriaReplacer implements ICriteriaReplacer
+    {
+
+        @Override
+        public boolean canReplace(IOperationContext context, Stack<ISearchCriteria> parentCriteria, ISearchCriteria criteria)
+        {
+            if (criteria instanceof PersonSearchCriteria)
+            {
+                return getPersonCriteriaClass().isAssignableFrom(criteria.getClass());
             } else
             {
-                replacement.thatEquals(type.getCode());
+                return false;
             }
-            return replacement;
         }
 
-        protected abstract EntityKind getEntityKind();
+        @Override
+        public Map<ISearchCriteria, ISearchCriteria> replace(IOperationContext context, Collection<ISearchCriteria> criteria)
+        {
+            Map<ISearchCriteria, ISearchCriteria> replacementMap = new ReferenceIdentityMap<ISearchCriteria, ISearchCriteria>();
 
-        protected abstract Class<?> getEntityCriteriaClass();
+            for (ISearchCriteria criterion : criteria)
+            {
+                PersonSearchCriteria personCriterion = (PersonSearchCriteria) criterion;
+                List<? extends PersonPE> persons = searchPersons(context, personCriterion);
+                List<String> personUserIds = new ArrayList<String>();
+
+                if (persons == null || persons.isEmpty())
+                {
+                    personUserIds.add("#");
+                } else
+                {
+                    for (PersonPE person : persons)
+                    {
+                        personUserIds.add(person.getUserId());
+                    }
+                }
+
+                replacementMap.put(personCriterion, createNewPersonCriteria(personUserIds));
+            }
+
+            return replacementMap;
+        }
+
+        protected abstract Class<? extends PersonSearchCriteria> getPersonCriteriaClass();
+
+        protected abstract List<? extends PersonPE> searchPersons(IOperationContext context, PersonSearchCriteria criteria);
+
+        protected abstract PersonSearchCriteria createNewPersonCriteria(List<String> personUserIds);
 
     }
 
-    private class ExperimentTypeIdCriteriaReplacer extends AbstractEntityTypeIdCriteriaReplacer
+    private class RegistratorCriteriaReplacer extends AbstractPersonCriteriaReplacer
     {
 
         @Override
-        protected EntityKind getEntityKind()
+        protected Class<? extends PersonSearchCriteria> getPersonCriteriaClass()
         {
-            return EntityKind.EXPERIMENT;
+            return RegistratorSearchCriteria.class;
         }
 
         @Override
-        protected Class<?> getEntityCriteriaClass()
+        protected List<? extends PersonPE> searchPersons(IOperationContext context, PersonSearchCriteria criteria)
         {
-            return ExperimentSearchCriteria.class;
+            return searchPersonExecutor.search(context, criteria);
+        }
+
+        @Override
+        protected PersonSearchCriteria createNewPersonCriteria(List<String> personUserIds)
+        {
+            RegistratorSearchCriteria criteria = new RegistratorSearchCriteria();
+            criteria.withUserIds().thatIn(personUserIds);
+            return criteria;
         }
 
     }
 
-    private class SampleTypeIdCriteriaReplacer extends AbstractEntityTypeIdCriteriaReplacer
+    private class ModifierCriteriaReplacer extends AbstractPersonCriteriaReplacer
     {
 
         @Override
-        protected EntityKind getEntityKind()
+        protected Class<? extends PersonSearchCriteria> getPersonCriteriaClass()
         {
-            return EntityKind.SAMPLE;
+            return ModifierSearchCriteria.class;
         }
 
         @Override
-        protected Class<?> getEntityCriteriaClass()
+        protected List<? extends PersonPE> searchPersons(IOperationContext context, PersonSearchCriteria criteria)
         {
-            return SampleSearchCriteria.class;
-        }
-
-    }
-
-    private class DataSetTypeIdCriteriaReplacer extends AbstractEntityTypeIdCriteriaReplacer
-    {
-
-        @Override
-        protected EntityKind getEntityKind()
-        {
-            return EntityKind.DATA_SET;
+            return searchPersonExecutor.search(context, criteria);
         }
 
         @Override
-        protected Class<?> getEntityCriteriaClass()
+        protected PersonSearchCriteria createNewPersonCriteria(List<String> personUserIds)
         {
-            return DataSetSearchCriteria.class;
-        }
-
-    }
-
-    private class MaterialTypeIdCriteriaReplacer extends AbstractEntityTypeIdCriteriaReplacer
-    {
-
-        @Override
-        protected EntityKind getEntityKind()
-        {
-            return EntityKind.MATERIAL;
-        }
-
-        @Override
-        protected Class<?> getEntityCriteriaClass()
-        {
-            return MaterialSearchCriteria.class;
+            ModifierSearchCriteria criteria = new ModifierSearchCriteria();
+            criteria.withUserIds().thatIn(personUserIds);
+            return criteria;
         }
 
     }

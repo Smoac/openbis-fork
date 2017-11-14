@@ -19,6 +19,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
@@ -29,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriter
 public class ExperimentSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected ExperimentSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
+    public ExperimentSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }

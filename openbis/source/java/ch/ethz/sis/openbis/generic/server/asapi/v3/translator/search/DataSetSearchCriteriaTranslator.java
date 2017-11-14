@@ -21,6 +21,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetChildrenSe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
@@ -31,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriter
 public class DataSetSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected DataSetSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
+    public DataSetSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }

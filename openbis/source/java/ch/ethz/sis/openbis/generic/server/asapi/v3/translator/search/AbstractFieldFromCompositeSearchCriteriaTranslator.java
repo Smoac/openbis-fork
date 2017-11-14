@@ -22,6 +22,10 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.ISearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -67,9 +71,9 @@ public abstract class AbstractFieldFromCompositeSearchCriteriaTranslator extends
                         .getTranslator(subCriteria);
 
         SearchCriteriaTranslationResult translationResult = subTranslator.translate(context, subCriteria);
-        String value = translationResult.getCriterion().getValue();
+        Collection<String> values = translationResult.getCriterion().getValues();
         DetailedSearchField searchField = doTranslateSearchField(context, criteria, subCriteria);
-        DetailedSearchCriterion detailedSearchCriterion = new DetailedSearchCriterion(searchField, value);
+        DetailedSearchCriterion detailedSearchCriterion = new DetailedSearchCriterion(searchField, values);
         return detailedSearchCriterion;
     }
 

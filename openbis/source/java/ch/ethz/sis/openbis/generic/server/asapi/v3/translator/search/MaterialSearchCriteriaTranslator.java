@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchCriteriaTranslationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
@@ -26,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 public class MaterialSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected MaterialSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
+    public MaterialSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }
