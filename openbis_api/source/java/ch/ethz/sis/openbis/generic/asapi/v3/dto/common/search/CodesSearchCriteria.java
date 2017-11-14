@@ -29,7 +29,7 @@ public class CodesSearchCriteria extends CollectionFieldSearchCriteria<String>
 
     public CodesSearchCriteria()
     {
-        super("code", SearchFieldType.ATTRIBUTE);
+        super("codes", SearchFieldType.ATTRIBUTE);
     }
 
 }

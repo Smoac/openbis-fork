@@ -30,7 +30,7 @@ public class IdsSearchCriteria<T extends IObjectId> extends CollectionFieldSearc
 
     public IdsSearchCriteria()
     {
-        super("id", SearchFieldType.ATTRIBUTE);
+        super("ids", SearchFieldType.ATTRIBUTE);
     }
 
 }
