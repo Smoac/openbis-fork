@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.server.business.search.ExperimentSearchManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;

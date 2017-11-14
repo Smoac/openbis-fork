@@ -18,6 +18,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @author Izabela Adamczyk
@@ -33,7 +35,7 @@ public class DetailedSearchCriterion implements Serializable
 
     private CompareType type;
 
-    private String value;
+    private Collection<String> values;
 
     private String timezone;
 
@@ -47,7 +49,14 @@ public class DetailedSearchCriterion implements Serializable
     public DetailedSearchCriterion(DetailedSearchField field, String value)
     {
         this.field = field;
-        this.value = value;
+        this.values = Arrays.asList(value);
+        this.type = CompareType.EQUALS;
+    }
+
+    public DetailedSearchCriterion(DetailedSearchField field, Collection<String> values)
+    {
+        this.field = field;
+        this.values = values;
         this.type = CompareType.EQUALS;
     }
 
@@ -59,14 +68,14 @@ public class DetailedSearchCriterion implements Serializable
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, Number value)
     {
         this.field = field;
-        this.value = value.toString();
+        this.values = Arrays.asList(value.toString());
         this.type = type;
     }
 
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, String value, String timezoneOrNull)
     {
         this.field = field;
-        this.value = value;
+        this.values = Arrays.asList(value);
         this.type = type;
         this.timezone = timezoneOrNull;
     }
@@ -83,12 +92,22 @@ public class DetailedSearchCriterion implements Serializable
 
     public String getValue()
     {
-        return value;
+        return values != null && values.size() > 0 ? values.iterator().next() : null;
     }
 
     public void setValue(String value)
     {
-        this.value = value;
+        this.values = Arrays.asList(value);
+    }
+
+    public Collection<String> getValues()
+    {
+        return values;
+    }
+
+    public void setValues(Collection<String> values)
+    {
+        this.values = values;
     }
 
     public CompareType getType()

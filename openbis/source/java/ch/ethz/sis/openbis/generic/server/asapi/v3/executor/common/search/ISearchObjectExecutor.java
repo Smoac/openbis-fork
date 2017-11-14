@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, SIS
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public class CodeMatcher<OBJECT extends ICodeHolder> extends StringFieldMatcher<OBJECT>
+public interface ISearchObjectExecutor<CRITERIA extends AbstractSearchCriteria, OBJECT>
 {
 
-    @Override
-    protected String getFieldValue(OBJECT object)
-    {
-        return object.getCode();
-    }
+    public List<OBJECT> search(IOperationContext context, CRITERIA criteria);
 
 }

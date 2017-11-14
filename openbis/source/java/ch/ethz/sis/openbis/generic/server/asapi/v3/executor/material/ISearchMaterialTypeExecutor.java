@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**

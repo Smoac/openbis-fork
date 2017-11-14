@@ -829,7 +829,7 @@ public class GetDataSetTest extends AbstractDataSetTest
 
         Material bacterium = materialProperties.get("BACTERIUM");
         assertEquals(bacterium.getPermId(), new MaterialPermId("BACTERIUM1", "BACTERIUM"));
-        assertEquals(bacterium.getRegistrator().getUserId(), "test");
+        assertEquals(bacterium.getRegistrator().getUserId(), "etlserver");
         assertTagsNotFetched(bacterium);
     }
 

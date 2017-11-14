@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchObjectExecutor<CRITERIA extends AbstractSearchCriteria, OBJECT>
+public interface ISearchPersonExecutor extends ISearchObjectExecutor<PersonSearchCriteria, PersonPE>
 {
-
-    public List<OBJECT> search(IOperationContext context, CRITERIA criteria);
 
 }

@@ -173,6 +173,30 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case METAPROJECT:
                     ans = SampleAttributeSearchFieldKind.METAPROJECT;
                     break;
+                case REGISTRATOR_USER_ID:
+                    ans = SampleAttributeSearchFieldKind.REGISTRATOR_USER_ID;
+                    break;
+                case REGISTRATOR_FIRST_NAME:
+                    ans = SampleAttributeSearchFieldKind.REGISTRATOR_FIRST_NAME;
+                    break;
+                case REGISTRATOR_LAST_NAME:
+                    ans = SampleAttributeSearchFieldKind.REGISTRATOR_LAST_NAME;
+                    break;
+                case REGISTRATOR_EMAIL:
+                    ans = SampleAttributeSearchFieldKind.REGISTRATOR_EMAIL;
+                    break;
+                case MODIFIER_USER_ID:
+                    ans = SampleAttributeSearchFieldKind.MODIFIER_USER_ID;
+                    break;
+                case MODIFIER_FIRST_NAME:
+                    ans = SampleAttributeSearchFieldKind.MODIFIER_FIRST_NAME;
+                    break;
+                case MODIFIER_LAST_NAME:
+                    ans = SampleAttributeSearchFieldKind.MODIFIER_LAST_NAME;
+                    break;
+                case MODIFIER_EMAIL:
+                    ans = SampleAttributeSearchFieldKind.MODIFIER_EMAIL;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
                     ans = null; // for Eclipse
@@ -232,6 +256,30 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case METAPROJECT:
                     ans = ExperimentAttributeSearchFieldKind.METAPROJECT;
                     break;
+                case REGISTRATOR_USER_ID:
+                    ans = ExperimentAttributeSearchFieldKind.REGISTRATOR_USER_ID;
+                    break;
+                case REGISTRATOR_FIRST_NAME:
+                    ans = ExperimentAttributeSearchFieldKind.REGISTRATOR_FIRST_NAME;
+                    break;
+                case REGISTRATOR_LAST_NAME:
+                    ans = ExperimentAttributeSearchFieldKind.REGISTRATOR_LAST_NAME;
+                    break;
+                case REGISTRATOR_EMAIL:
+                    ans = ExperimentAttributeSearchFieldKind.REGISTRATOR_EMAIL;
+                    break;
+                case MODIFIER_USER_ID:
+                    ans = ExperimentAttributeSearchFieldKind.MODIFIER_USER_ID;
+                    break;
+                case MODIFIER_FIRST_NAME:
+                    ans = ExperimentAttributeSearchFieldKind.MODIFIER_FIRST_NAME;
+                    break;
+                case MODIFIER_LAST_NAME:
+                    ans = ExperimentAttributeSearchFieldKind.MODIFIER_LAST_NAME;
+                    break;
+                case MODIFIER_EMAIL:
+                    ans = ExperimentAttributeSearchFieldKind.MODIFIER_EMAIL;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.EXPERIMENT);
             }
@@ -277,6 +325,30 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case METAPROJECT:
                     ans = MaterialAttributeSearchFieldKind.METAPROJECT;
                     break;
+                case REGISTRATOR_USER_ID:
+                    ans = MaterialAttributeSearchFieldKind.REGISTRATOR_USER_ID;
+                    break;
+                case REGISTRATOR_FIRST_NAME:
+                    ans = MaterialAttributeSearchFieldKind.REGISTRATOR_FIRST_NAME;
+                    break;
+                case REGISTRATOR_LAST_NAME:
+                    ans = MaterialAttributeSearchFieldKind.REGISTRATOR_LAST_NAME;
+                    break;
+                case REGISTRATOR_EMAIL:
+                    ans = MaterialAttributeSearchFieldKind.REGISTRATOR_EMAIL;
+                    break;
+                case MODIFIER_USER_ID:
+                    ans = MaterialAttributeSearchFieldKind.MODIFIER_USER_ID;
+                    break;
+                case MODIFIER_FIRST_NAME:
+                    ans = MaterialAttributeSearchFieldKind.MODIFIER_FIRST_NAME;
+                    break;
+                case MODIFIER_LAST_NAME:
+                    ans = MaterialAttributeSearchFieldKind.MODIFIER_LAST_NAME;
+                    break;
+                case MODIFIER_EMAIL:
+                    ans = MaterialAttributeSearchFieldKind.MODIFIER_EMAIL;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.MATERIAL);
             }
@@ -321,6 +393,30 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     break;
                 case METAPROJECT:
                     ans = DataSetAttributeSearchFieldKind.METAPROJECT;
+                    break;
+                case REGISTRATOR_USER_ID:
+                    ans = DataSetAttributeSearchFieldKind.REGISTRATOR_USER_ID;
+                    break;
+                case REGISTRATOR_FIRST_NAME:
+                    ans = DataSetAttributeSearchFieldKind.REGISTRATOR_FIRST_NAME;
+                    break;
+                case REGISTRATOR_LAST_NAME:
+                    ans = DataSetAttributeSearchFieldKind.REGISTRATOR_LAST_NAME;
+                    break;
+                case REGISTRATOR_EMAIL:
+                    ans = DataSetAttributeSearchFieldKind.REGISTRATOR_EMAIL;
+                    break;
+                case MODIFIER_USER_ID:
+                    ans = DataSetAttributeSearchFieldKind.MODIFIER_USER_ID;
+                    break;
+                case MODIFIER_FIRST_NAME:
+                    ans = DataSetAttributeSearchFieldKind.MODIFIER_FIRST_NAME;
+                    break;
+                case MODIFIER_LAST_NAME:
+                    ans = DataSetAttributeSearchFieldKind.MODIFIER_LAST_NAME;
+                    break;
+                case MODIFIER_EMAIL:
+                    ans = DataSetAttributeSearchFieldKind.MODIFIER_EMAIL;
                     break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.DATA_SET);

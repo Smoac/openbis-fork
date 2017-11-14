@@ -14,33 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
-public abstract class SimpleFieldMatcher<OBJECT> extends Matcher<OBJECT>
+public abstract class Matcher<OBJECT>
 {
 
-    @Override
-    public List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria)
-    {
-        List<OBJECT> matches = new ArrayList<OBJECT>();
-
-        for (OBJECT object : objects)
-        {
-            if (isMatching(context, object, criteria))
-            {
-                matches.add(object);
-            }
-        }
-
-        return matches;
-    }
-
-    protected abstract boolean isMatching(IOperationContext context, OBJECT object, ISearchCriteria criteria);
+    public abstract List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria);
 
 }

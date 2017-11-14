@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 
 /**
  * @author pkupczyk

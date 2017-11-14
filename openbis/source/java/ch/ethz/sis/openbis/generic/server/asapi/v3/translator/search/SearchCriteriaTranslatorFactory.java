@@ -19,6 +19,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.search.ModifierSearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.search.RegistratorSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
@@ -43,6 +45,8 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         List<ISearchCriteriaTranslator> translators = new LinkedList<ISearchCriteriaTranslator>();
         translators.add(new SampleTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new TagSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new RegistratorSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new ModifierSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SpaceSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new ProjectSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new ExperimentSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));

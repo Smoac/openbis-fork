@@ -25,10 +25,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 

@@ -620,6 +620,70 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testSearchWithRegistratorWithUserIdThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withRegistrator().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "20081105092259900-1", "20081105092359990-2");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithFirstNameThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withRegistrator().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria, "20081105092259900-1", "20081105092359990-2");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithLastNameThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withRegistrator().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria, "20081105092259900-1", "20081105092359990-2");
+    }
+
+    @Test
+    public void testSearchWithRegistratorWithEmailThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withRegistrator().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria, "20081105092259900-1", "20081105092359990-2");
+    }
+
+    @Test
+    public void testSearchWithModifierWithUserIdThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withModifier().withUserId().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
+    }
+
+    @Test
+    public void testSearchWithModifierWithFirstNameThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withModifier().withFirstName().thatEquals("John 2");
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
+    }
+
+    @Test
+    public void testSearchWithModifierWithLastNameThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withModifier().withLastName().thatEquals("ETL Server");
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
+    }
+
+    @Test
+    public void testSearchWithModifierWithEmailThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withModifier().withEmail().thatEquals("etlserver@systemsx.ch");
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
+    }
+
+    @Test
     public void testSearchWithRegistrationDate()
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();

@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.RegistratorSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -37,6 +39,16 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     public PermIdSearchCriteria withPermId()
     {
         return with(new PermIdSearchCriteria());
+    }
+
+    public RegistratorSearchCriteria withRegistrator()
+    {
+        return with(new RegistratorSearchCriteria());
+    }
+
+    public ModifierSearchCriteria withModifier()
+    {
+        return with(new ModifierSearchCriteria());
     }
 
     public RegistrationDateSearchCriteria withRegistrationDate()

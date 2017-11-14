@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
-import java.util.List;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-
-public abstract class Matcher<OBJECT>
+/**
+ * @author Franz-Josef Elmer
+ */
+public class CodeMatcher<OBJECT extends ICodeHolder> extends StringFieldMatcher<OBJECT>
 {
 
-    public abstract List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria);
+    @Override
+    protected String getFieldValue(OBJECT object)
+    {
+        return object.getCode();
+    }
 
 }

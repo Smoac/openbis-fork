@@ -93,7 +93,17 @@ public class SearchCriteria implements Serializable
         // for experiment
         PROJECT, PROJECT_PERM_ID,
         // for all types of entities
-        METAPROJECT
+        METAPROJECT,
+
+        // for material, experiment, sample, data set
+        REGISTRATOR_USER_ID,
+        REGISTRATOR_FIRST_NAME,
+        REGISTRATOR_LAST_NAME,
+        REGISTRATOR_EMAIL,
+        MODIFIER_USER_ID,
+        MODIFIER_FIRST_NAME,
+        MODIFIER_LAST_NAME,
+        MODIFIER_EMAIL,
     }
 
     /**

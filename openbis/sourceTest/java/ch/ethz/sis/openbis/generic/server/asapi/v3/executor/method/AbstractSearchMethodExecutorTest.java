@@ -38,7 +38,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.ISearchCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheEntry;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
