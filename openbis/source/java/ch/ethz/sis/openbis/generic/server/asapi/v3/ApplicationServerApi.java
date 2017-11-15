@@ -205,6 +205,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAssignmentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyTypesOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.get.GetRoleAssignmentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.get.GetRoleAssignmentsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSampleTypesOperation;
@@ -651,6 +656,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             AuthorizationGroupFetchOptions fetchOptions)
     {
         GetAuthorizationGroupsOperationResult result = executeOperation(sessionToken, new GetAuthorizationGroupsOperation(groupIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> ids,
+            RoleAssignmentFetchOptions fetchOptions)
+    {
+        GetRoleAssignmentsOperationResult result = executeOperation(sessionToken, new GetRoleAssignmentsOperation(ids, fetchOptions));
         return result.getObjectMap();
     }
 

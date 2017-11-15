@@ -81,6 +81,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IGetRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSampleTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IDeleteSamplesOperationExecutor;
@@ -281,6 +282,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IGetAuthorizationGroupsOperationExecutor getAuthorizationGroupsExecutor;
     
     @Autowired
+    private IGetRoleAssignmentsOperationExecutor getRoleAssignmentsExecutor;
+    
+    @Autowired
     private IGetVocabularyTermsOperationExecutor getVocabularyTermsExecutor;
 
     @Autowired
@@ -466,6 +470,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getMaterialsExecutor.execute(context, operations));
         resultMap.putAll(getTagsExecutor.execute(context, operations));
         resultMap.putAll(getAuthorizationGroupsExecutor.execute(context, operations));
+        resultMap.putAll(getRoleAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(getExternalDmsExecutor.execute(context, operations));
         resultMap.putAll(getOperationExecutionsExecutor.execute(context, operations));

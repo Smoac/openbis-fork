@@ -112,6 +112,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -440,6 +443,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
             AuthorizationGroupFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "get-authorization-groups", "GROUP_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(groupIds), fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> ids,
+            RoleAssignmentFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-role-assignments", "IDS(%s) FETCH_OPTIONS(%s)", abbreviate(ids), fetchOptions);
         return null;
     }
 

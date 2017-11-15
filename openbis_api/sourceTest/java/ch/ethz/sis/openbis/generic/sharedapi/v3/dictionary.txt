@@ -1770,3 +1770,5 @@ USER
 with Role Assignments
 with Role Assignments Using
 
+Get Role Assignments Operation
+Get Role Assignments Operation Result
