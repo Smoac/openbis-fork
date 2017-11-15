@@ -194,7 +194,7 @@ var JupyterUtil = new function() {
 					      "outputs": [],
 					      "source": [
 					        "# Dataset " + dataSetIds[cIdx] + " Owner:\n",
-					        "s" + cIdx + " = o.get_sample('" + dataSets[cIdx].sample.permId.permId + "')\n",
+					        "s" + cIdx + " = o.get_object('" + dataSets[cIdx].sample.permId.permId + "')\n",
 					        "s" + cIdx
 					      ]
 				};
@@ -293,8 +293,8 @@ var JupyterUtil = new function() {
 					ownerSettings = "experiment= o.get_experiment('"+ ownerEntity.identifier.identifier +"'),\n";
 					break;
 				case "as.dto.sample.Sample":
-					owner = "owner= o.get_sample('"+ ownerEntity.identifier.identifier +"'),\n";
-					ownerSettings = "sample= o.get_sample('"+ ownerEntity.identifier.identifier +"'),\n";
+					owner = "owner= o.get_object('"+ ownerEntity.identifier.identifier +"'),\n";
+					ownerSettings = "sample= o.get_object('"+ ownerEntity.identifier.identifier +"'),\n";
 					break;
 		}
 		
