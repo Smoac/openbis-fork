@@ -1111,9 +1111,14 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatStartsWith("CL1");
         List<Sample> samples = search(sessionToken, criteria, fo);
+        for (Sample sample : samples)
+        {
+            System.out.println(sample.getIdentifier() + " IS LISTABLE: " + sample.getType().isListable());
+        }
         List<String> identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
         assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
