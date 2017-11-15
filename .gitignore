@@ -4,3 +4,5 @@
 */.settings
 */targets
 */.gradle
+datastore_server/source/core-plugins
+openbis/source/core-plugins
