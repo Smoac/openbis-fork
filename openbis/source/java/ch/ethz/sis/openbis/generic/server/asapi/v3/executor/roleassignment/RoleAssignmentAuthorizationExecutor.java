@@ -19,9 +19,14 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPEPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * 
@@ -36,6 +41,29 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("GET_ROLE_ASSIGNMENT")
     public void canGet(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("CREATE_INSTANCE_ROLE")
+    public void canCreateInstanceRole(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("CREATE_SPACE_ROLE")
+    public void canCreateSpaceRole(IOperationContext context, 
+            @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE space)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
+    @Capability("CREATE_PROJECT_ROLE")
+    public void canCreateProjectRole(IOperationContext context, 
+            @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
     }
 

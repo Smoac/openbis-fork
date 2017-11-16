@@ -81,6 +81,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.ICreateRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IGetRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSampleTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ICreateSamplesOperationExecutor;
@@ -184,6 +185,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ICreateAuthorizationGroupsOperationExecutor createAuthorizationGroupsExecutor;
+    
+    @Autowired
+    private ICreateRoleAssignmentsOperationExecutor createRoleAssignmentsExecutor;
     
     @Autowired
     private ICreateSemanticAnnotationsOperationExecutor createSemanticAnnotationsExecutor;
@@ -521,6 +525,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(createTagsExecutor.execute(context, operations));
         resultMap.putAll(createAuthorizationGroupsExecutor.execute(context, operations));
+        resultMap.putAll(createRoleAssignmentsExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations,

@@ -19,7 +19,9 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressDetails;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
  * @author pkupczyk
@@ -29,9 +31,9 @@ public abstract class EntityProgress extends Progress
 
     private static final long serialVersionUID = 1L;
 
-    private IIdentityHolder entity;
+    private IIdHolder entity;
 
-    public EntityProgress(String label, IIdentityHolder entity, int numItemsProcessed, int totalItemsToProcess)
+    public EntityProgress(String label, IIdHolder entity, int numItemsProcessed, int totalItemsToProcess)
     {
         super(label, numItemsProcessed, totalItemsToProcess);
         this.entity = entity;
@@ -61,7 +63,10 @@ public abstract class EntityProgress extends Progress
                     @Override
                     public void execute()
                     {
-                        entityDetails.set("permId", entity.getPermId());
+                        if (entity instanceof IPermIdHolder)
+                        {
+                            entityDetails.set("permId", ((IPermIdHolder) entity).getPermId());
+                        }
                     }
                 });
 
@@ -70,7 +75,10 @@ public abstract class EntityProgress extends Progress
                     @Override
                     public void execute()
                     {
-                        entityDetails.set("identifier", entity.getIdentifier());
+                        if (entity instanceof IIdentityHolder)
+                        {
+                            entityDetails.set("identifier", ((IIdentityHolder) entity).getIdentifier());
+                        }
                     }
                 });
 

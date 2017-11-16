@@ -16,24 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.create.ICreateObjectsOperationExecutor;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IRoleAssignmentAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface ICreateRoleAssignmentsOperationExecutor extends ICreateObjectsOperationExecutor
 {
-    public void canGet(IOperationContext context);
-    
-    public void canCreateInstanceRole(IOperationContext context);
-    
-    public void canCreateSpaceRole(IOperationContext context, SpacePE space);
-    
-    public void canCreateProjectRole(IOperationContext context, ProjectPE project);
-    
+
 }

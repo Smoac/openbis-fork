@@ -492,6 +492,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.createRoleAssignments = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createRoleAssignments",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "RoleAssignmentTechId" ]
+				}
+			});
+		}
+		
 		this.createSemanticAnnotations = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

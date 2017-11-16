@@ -1772,3 +1772,9 @@ with Role Assignments Using
 
 Get Role Assignments Operation
 Get Role Assignments Operation Result
+
+create Role Assignments
+Create Role Assignments Operation
+Create Role Assignments Operation Result
+Role Assignment Creation
+

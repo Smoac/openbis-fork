@@ -32,13 +32,13 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author pkupczyk
  */
 @Component
-public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
+public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdHolder, RELATED_ID, RELATED_PE>
         implements ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
 

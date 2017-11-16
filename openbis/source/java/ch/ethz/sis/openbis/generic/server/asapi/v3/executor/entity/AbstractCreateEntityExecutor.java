@@ -45,12 +45,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckA
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, PE extends IIdentityHolder, PERM_ID extends IObjectId>
+public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, PE extends IIdHolder, PERM_ID extends IObjectId>
         implements ICreateEntityExecutor<CREATION, PERM_ID>
 {
 
@@ -123,7 +123,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
                         checkAccess(context, entity);
                     } catch (AuthorizationFailureException ex)
                     {
-                        throw new UnauthorizedObjectAccessException((IObjectId) getId(entity));
+                        throw new UnauthorizedObjectAccessException(getId(entity));
                     }
                 }
 
