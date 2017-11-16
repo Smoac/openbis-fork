@@ -19,12 +19,14 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperation;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
+@JsonObject("as.dto.roleassignment.create.CreateRoleAssignmentsOperation")
 public class CreateRoleAssignmentsOperation extends CreateObjectsOperation<RoleAssignmentCreation>
 {
     private static final long serialVersionUID = 1L;

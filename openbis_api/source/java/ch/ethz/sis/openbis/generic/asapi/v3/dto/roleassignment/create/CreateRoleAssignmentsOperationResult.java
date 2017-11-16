@@ -20,12 +20,14 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.CreateObjectsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
+@JsonObject("as.dto.roleassignment.create.CreateRoleAssignmentsOperationResult")
 public class CreateRoleAssignmentsOperationResult extends CreateObjectsOperationResult<RoleAssignmentTechId>
 {
 
