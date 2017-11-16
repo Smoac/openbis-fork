@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
@@ -384,7 +385,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample, sessionProvider.getSession());
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp1), dp1.getValue());
+        assertCyclicDependencyErrorMessage(dp1.getValue(), dp1, dp1);
 
         // dp1 -> dp2 -> dp1
         properties = new LinkedHashSet<SamplePropertyPE>();
@@ -396,8 +397,8 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample, sessionProvider.getSession());
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp2.getValue());
+        assertCyclicDependencyErrorMessage(dp1.getValue(), dp1, dp2, dp1);
+        assertCyclicDependencyErrorMessage(dp2.getValue(), dp1, dp2, dp1);
 
         // dp1 -> dp2 -> dp3 -> dp1
         properties = new LinkedHashSet<SamplePropertyPE>();
@@ -411,9 +412,9 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample, sessionProvider.getSession());
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp2.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp3.getValue());
+        assertCyclicDependencyErrorMessage(dp1.getValue(), dp1, dp2, dp3, dp1);
+        assertCyclicDependencyErrorMessage(dp2.getValue(), dp1, dp2, dp3, dp1);
+        assertCyclicDependencyErrorMessage(dp3.getValue(), dp1, dp2, dp3, dp1);
     }
 
     //
@@ -425,18 +426,29 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         return String.format("%sERROR: %s", BasicConstant.ERROR_PROPERTY_PREFIX, message);
     }
 
-    private static String expectedCyclicDependencyErrorMessage(EntityPropertyPE... properties)
+    private static void assertCyclicDependencyErrorMessage(String actualMessage, EntityPropertyPE... properties)
     {
-        StringBuilder path = new StringBuilder();
-        for (EntityPropertyPE property : properties)
+        Collection<String> possibleExpectedMessages = new HashSet<String>();
+
+        for (int i = 0; i < properties.length; i++)
         {
-            path.append(property.getEntityTypePropertyType().getPropertyType().getCode()
-                    .toUpperCase());
-            path.append(" -> ");
+            StringBuilder path = new StringBuilder();
+
+            for (int j = 0; j < properties.length; j++)
+            {
+                EntityPropertyPE property = properties[(i + j) % (properties.length - 1)];
+                path.append(property.getEntityTypePropertyType().getPropertyType().getCode()
+                        .toUpperCase());
+                path.append(" -> ");
+            }
+
+            path.delete(path.length() - 4, path.length());
+
+            possibleExpectedMessages.add(expectedErrorMessage(String.format(
+                    "cycle of dependencies found between dynamic properties: %s", path.toString())));
         }
-        path.delete(path.length() - 4, path.length());
-        return expectedErrorMessage(String.format(
-                "cycle of dependencies found between dynamic properties: %s", path.toString()));
+
+        AssertionUtil.assertCollectionContains(possibleExpectedMessages, actualMessage);
     }
 
     private static SamplePE createSample(String code, Set<SamplePropertyPE> properties)
