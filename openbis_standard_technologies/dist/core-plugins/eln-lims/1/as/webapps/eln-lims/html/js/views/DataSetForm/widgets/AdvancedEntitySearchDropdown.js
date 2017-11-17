@@ -131,6 +131,16 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 		} else {
 			text = entity.code;
 		}
+		
+		if(entity["@type"] === "as.dto.dataset.DataSet") {
+			if(entity.sample) {
+				text += " " + ELNDictionary.Sample + " [" + getDisplayName(entity.sample) + "]";
+			}
+			
+			if(entity.experiment) {
+				text += " " + ELNDictionary.getExperimentDualName() + " [" + getDisplayName(entity.experiment) + "]";
+			}
+		}
 		return text;
 	}
 	
@@ -172,7 +182,7 @@ function AdvancedEntitySearchDropdown(	isMultiple,
 						}
 					};
 		
-		mainController.serverFacade.searchForDataSetsAdvanced(criteria, null, function(results) { results.type = "DataSets"; action(results) });
+		mainController.serverFacade.searchForDataSetsAdvanced(criteria, { withSampleProperties : true, withExperimentProperties : true }, function(results) { results.type = "DataSets"; action(results) });
 	}
 	
 	//
