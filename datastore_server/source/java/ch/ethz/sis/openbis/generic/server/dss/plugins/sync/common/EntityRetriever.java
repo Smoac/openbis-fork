@@ -32,10 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
@@ -76,7 +74,7 @@ public class EntityRetriever implements IEntityRetriever
         this.sessionToken = sessionToken;
         this.masterDataRegistrationTransaction = masterDataRegistrationTransaction;
     }
-    
+
     public static EntityRetriever createWithMasterDataRegistationTransaction(IApplicationServerApi v3Api, String sessionToken,
             IMasterDataRegistrationTransaction masterDataRegistrationTransaction)
     {
@@ -123,266 +121,184 @@ public class EntityRetriever implements IEntityRetriever
          * will have the shared entity. When we add them to the RL (Resource List) in the data source servlet, any duplicate will throw an error when
          * using the Resync library. To work around this we catch the duplicate exceptions where a shared sample is involved.
          */
-        findSharedSamples();
+        addSharedSamples();
 
-        // build the graph for the space from top-down starting from projects
-        ProjectSearchCriteria prjCriteria = new ProjectSearchCriteria();
-        prjCriteria.withSpace().withCode().thatEquals(spaceId);
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withSpace().withCode().thatEquals(spaceId);
 
-        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
-        projectFetchOptions.withSpace();
-        projectFetchOptions.withAttachments();
+        List<Project> projects = v3Api.searchProjects(sessionToken, criteria, createProjectFetchOptions()).getObjects();
 
-        List<Project> projects = v3Api.searchProjects(sessionToken, prjCriteria, projectFetchOptions).getObjects();
         for (Project project : projects)
         {
             Node<Project> prjNode = new Node<Project>(project);
             graph.addNode(prjNode);
-            findExperiments(prjNode);
+            addExperiments(prjNode);
         }
 
         // add space samples
-        findSpaceSamples(spaceId);
-
+        addSpaceSamples(spaceId);
 
         // TODO logout?
         // v3.logout(sessionToken);
     }
 
-    // TODO temporary solution until V3 API SampleSearchCriteria.withoutSpace() is implemented
-    private void findSharedSamples()
+    private void addSharedSamples()
     {
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withType();
-        fetchOptions.withExperiment();
-        fetchOptions.withSpace();
-        fetchOptions.withAttachments();
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withoutSpace();
 
-        List<Sample> samples = v3Api.searchSamples(sessionToken, new SampleSearchCriteria(), fetchOptions).getObjects();
+        List<Sample> samples = v3Api.searchSamples(sessionToken, criteria, createSampleFetchOptions()).getObjects();
+
         for (Sample sample : samples)
         {
-            if (sample.getSpace() == null)
+            if (sample.getSpace() != null)
             {
-                Node<Sample> sampleNode = new Node<Sample>(sample);
-                graph.addNode(sampleNode);
-                findChildAndComponentSamples(sampleNode);
-                findAndAttachDataSets(sampleNode);
+                throw new RuntimeException("Expected a shared sample but got " + sample);
             }
+            Node<Sample> sampleNode = new Node<Sample>(sample);
+            graph.addNode(sampleNode);
+            addChildAndComponentSamples(sampleNode);
+            addDataSetsForSample(sampleNode);
         }
     }
 
-    private void findExperiments(Node<Project> prjNode)
-    {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withProject().withCode().thatEquals(prjNode.getCode());
-        criteria.withProject().withSpace().withCode().thatEquals(prjNode.getEntity().getSpace().getCode());
-        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withProject().withSpace();
-        fetchOptions.withType();
-        fetchOptions.withAttachments();
-
-        List<Experiment> experiments = v3Api.searchExperiments(sessionToken, criteria, fetchOptions).getObjects();
-        for (Experiment exp : experiments)
-        {
-            Node<Experiment> expNode = new Node<Experiment>(exp);
-            graph.addEdge(prjNode, expNode, new Edge(CONNECTION));
-            findSamplesForExperiment(expNode);
-            findAndAttachDataSetsForExperiment(expNode);
-        }
-    }
-
-    private void findSpaceSamples(String spaceCode)
+    private void addSpaceSamples(String spaceCode)
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withSpace().withCode().thatEquals(spaceCode);
         criteria.withoutExperiment();
         criteria.withAndOperator();
 
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withType();
-        fetchOptions.withExperiment();
-        fetchOptions.withSpace();
-        fetchOptions.withAttachments();
+        List<Sample> samples = v3Api.searchSamples(sessionToken, criteria, createSampleFetchOptions()).getObjects();
 
-        List<Sample> samples = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
         for (Sample sample : samples)
         {
             Node<Sample> sampleNode = new Node<Sample>(sample);
             graph.addNode(sampleNode);
-            findChildAndComponentSamples(sampleNode);
-            findAndAttachDataSets(sampleNode);
+            addChildAndComponentSamples(sampleNode);
+            addDataSetsForSample(sampleNode);
         }
     }
 
-    private void findSamplesForExperiment(Node<Experiment> expNode)
+    private void addExperiments(Node<Project> prjNode)
     {
-        SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withExperiment().withId().thatEquals(expNode.getEntity().getPermId());
+        for (Experiment exp : prjNode.getEntity().getExperiments())
+        {
+            Node<Experiment> expNode = new Node<Experiment>(exp);
+            graph.addEdge(prjNode, expNode, new Edge(CONNECTION));
+            addSamplesForExperiment(expNode);
+            addDataSetsForExperiment(expNode);
+        }
+    }
 
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withDataSets();
-        fetchOptions.withType();
-        fetchOptions.withExperiment();
-        fetchOptions.withSpace();
-        fetchOptions.withAttachments();
-
-        List<Sample> samples = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
-        for (Sample sample : samples)
+    private void addSamplesForExperiment(Node<Experiment> expNode)
+    {
+        for (Sample sample : expNode.getEntity().getSamples())
         {
             Node<Sample> sampleNode = new Node<Sample>(sample);
             graph.addEdge(expNode, sampleNode, new Edge(CONNECTION));
 
-            findAndAttachDataSets(sampleNode);
-            findChildAndComponentSamples(sampleNode);
+            addDataSetsForSample(sampleNode);
+            addChildAndComponentSamples(sampleNode);
         }
     }
 
-    private void findAndAttachDataSetsForExperiment(Node<Experiment> expNode)
+    private void addDataSetsForExperiment(Node<Experiment> expNode)
     {
-        DataSetSearchCriteria dsCriteria = new DataSetSearchCriteria();
-        dsCriteria.withExperiment().withId().thatEquals(expNode.getEntity().getIdentifier());
-
-        DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
-        dsFetchOptions.withType();
-        dsFetchOptions.withSample();
-        dsFetchOptions.withExperiment();
-        dsFetchOptions.withProperties();
-
-        List<DataSet> dataSets = v3Api.searchDataSets(sessionToken, dsCriteria, dsFetchOptions).getObjects();
-        for (DataSet dataSet : dataSets)
+        for (DataSet dataSet : expNode.getEntity().getDataSets())
         {
             Node<DataSet> dataSetNode = new Node<DataSet>(dataSet);
             graph.addEdge(expNode, dataSetNode, new Edge(CONNECTION));
-            findChildAndContainedDataSets(dataSetNode);
+            addChildAndContainedDataSets(dataSetNode);
         }
     }
 
-    private void findAndAttachDataSets(Node<Sample> sampleNode)
+    private void addDataSetsForSample(Node<Sample> sampleNode)
     {
-        DataSetSearchCriteria dsCriteria = new DataSetSearchCriteria();
-        dsCriteria.withSample().withId().thatEquals(sampleNode.getEntity().getIdentifier());
-
-        DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
-        dsFetchOptions.withType();
-        dsFetchOptions.withSample();
-        dsFetchOptions.withExperiment();
-        dsFetchOptions.withProperties();
-
-        List<DataSet> dataSets = v3Api.searchDataSets(sessionToken, dsCriteria, dsFetchOptions).getObjects();
-        for (DataSet dataSet : dataSets)
+        for (DataSet dataSet : sampleNode.getEntity().getDataSets())
         {
             Node<DataSet> dataSetNode = new Node<DataSet>(dataSet);
             graph.addEdge(sampleNode, dataSetNode, new Edge(CONNECTION));
-            findChildAndContainedDataSets(dataSetNode);
+            addChildAndContainedDataSets(dataSetNode);
         }
     }
 
-    private void findChildAndComponentSamples(Node<Sample> sampleNode)
+    private void addChildAndComponentSamples(Node<Sample> sampleNode)
     {
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withType();
-        fetchOptions.withDataSets();
-        fetchOptions.withExperiment();
-        fetchOptions.withSpace();
-        fetchOptions.withAttachments();
-
-        // first find the children
+        // first add the children
         if (graph.isVisitedAsParent(sampleNode.getIdentifier()) == false)
         {
             graph.markAsVisitedAsParent(sampleNode.getIdentifier());
-            findChildSamples(sampleNode, fetchOptions);
+            addChildSamples(sampleNode);
         }
 
-        // then find contained samples
+        // then add contained samples
         if (graph.isVisitedAsContainer(sampleNode.getIdentifier()) == false)
         {
             graph.markAsVisitedAsContainer(sampleNode.getIdentifier());
-            findComponentSamples(sampleNode, fetchOptions);
+            addComponentSamples(sampleNode);
         }
     }
 
-    private void findComponentSamples(Node<Sample> sampleNode, SampleFetchOptions fetchOptions)
+    private void addComponentSamples(Node<Sample> sampleNode)
     {
-        SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withContainer().withId().thatEquals(sampleNode.getEntity().getPermId());
-        List<Sample> components = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
-        for (Sample sample : components)
+        for (Sample sample : sampleNode.getEntity().getComponents())
         {
             Node<Sample> subSampleNode = new Node<Sample>(sample);
             graph.addEdge(sampleNode, subSampleNode, new Edge(COMPONENT));
 
-            findAndAttachDataSets(subSampleNode);
-            findChildAndComponentSamples(subSampleNode);
+            addDataSetsForSample(subSampleNode);
+            addChildAndComponentSamples(subSampleNode);
         }
     }
 
-    private void findChildSamples(Node<Sample> sampleNode, SampleFetchOptions fetchOptions)
+    private void addChildSamples(Node<Sample> sampleNode)
     {
-        SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withParents().withId().thatEquals(sampleNode.getEntity().getPermId());
-        List<Sample> children = v3Api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
-        for (Sample sample : children)
+        for (Sample sample : sampleNode.getEntity().getChildren())
         {
             Node<Sample> subSampleNode = new Node<Sample>(sample);
             graph.addEdge(sampleNode, subSampleNode, new Edge(CHILD));
-   
-            findAndAttachDataSets(subSampleNode);
-            findChildAndComponentSamples(subSampleNode);
+
+            addDataSetsForSample(subSampleNode);
+            addChildAndComponentSamples(subSampleNode);
         }
     }
 
-    private void findChildAndContainedDataSets(Node<DataSet> dsNode)
+    private void addChildAndContainedDataSets(Node<DataSet> dsNode)
     {
-        DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
-        dsFetchOptions.withType();
-        dsFetchOptions.withSample();
-        dsFetchOptions.withExperiment();
-        dsFetchOptions.withProperties();
-
-        // first find the children
+        // first add the children
         if (graph.isVisitedAsParent(dsNode.getIdentifier()) == false)
         {
             graph.markAsVisitedAsParent(dsNode.getIdentifier());
-            findChildDataSets(dsNode, dsFetchOptions);
+            addChildDataSets(dsNode);
         }
 
-        // then find contained data sets
+        // then add contained data sets
         if (graph.isVisitedAsContainer(dsNode.getIdentifier()) == false)
         {
             graph.markAsVisitedAsContainer(dsNode.getIdentifier());
-            findComponentDataSets(dsNode, dsFetchOptions);
+            addComponentDataSets(dsNode);
         }
     }
 
-    private void findComponentDataSets(Node<DataSet> dsNode, DataSetFetchOptions dsFetchOptions)
+    private void addComponentDataSets(Node<DataSet> dsNode)
     {
-        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        criteria.withContainer().withId().thatEquals(dsNode.getEntity().getPermId());
-        List<DataSet> components = v3Api.searchDataSets(sessionToken, criteria, dsFetchOptions).getObjects();
-        for (DataSet ds : components)
+        for (DataSet ds : dsNode.getEntity().getComponents())
         {
             Node<DataSet> containedDsNode = new Node<DataSet>(ds);
             graph.addEdge(dsNode, containedDsNode, new Edge(COMPONENT));
-            findChildAndContainedDataSets(containedDsNode);
+            addChildAndContainedDataSets(containedDsNode);
         }
     }
 
-    private void findChildDataSets(Node<DataSet> dsNode, DataSetFetchOptions dsFetchOptions)
+    private void addChildDataSets(Node<DataSet> dsNode)
     {
-        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        criteria.withParents().withId().thatEquals(dsNode.getEntity().getPermId());
-        List<DataSet> children = v3Api.searchDataSets(sessionToken, criteria, dsFetchOptions).getObjects();
-        for (DataSet ds : children)
+        for (DataSet ds : dsNode.getEntity().getChildren())
         {
             Node<DataSet> childDsNode = new Node<DataSet>(ds);
             graph.addEdge(dsNode, childDsNode, new Edge(CHILD));
 
-            findChildAndContainedDataSets(childDsNode);
+            addChildAndContainedDataSets(childDsNode);
         }
     }
 
@@ -394,7 +310,7 @@ public class EntityRetriever implements IEntityRetriever
         final MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withType();
         fetchOptions.withProperties();
-        
+
         SearchResult<Material> searchResult =
                 v3Api.searchMaterials(sessionToken, criteria, fetchOptions);
 
@@ -416,4 +332,53 @@ public class EntityRetriever implements IEntityRetriever
         }
         return codes;
     }
+
+    private ProjectFetchOptions createProjectFetchOptions()
+    {
+        ProjectFetchOptions fo = new ProjectFetchOptions();
+        fo.withSpace();
+        fo.withAttachments();
+        fo.withExperimentsUsing(createExperimentFetchOptions());
+        return fo;
+    }
+
+    private ExperimentFetchOptions createExperimentFetchOptions()
+    {
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+        fo.withProperties();
+        fo.withProject().withSpace();
+        fo.withType();
+        fo.withAttachments();
+        fo.withSamplesUsing(createSampleFetchOptions());
+        fo.withDataSetsUsing(createDataSetFetchOptions());
+        return fo;
+    }
+
+    private SampleFetchOptions createSampleFetchOptions()
+    {
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withProperties();
+        fo.withDataSets();
+        fo.withType();
+        fo.withExperiment();
+        fo.withSpace();
+        fo.withAttachments();
+        fo.withChildrenUsing(fo);
+        fo.withComponentsUsing(fo);
+        fo.withDataSetsUsing(createDataSetFetchOptions());
+        return fo;
+    }
+
+    private DataSetFetchOptions createDataSetFetchOptions()
+    {
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withType();
+        fo.withSample();
+        fo.withExperiment();
+        fo.withProperties();
+        fo.withChildrenUsing(fo);
+        fo.withComponentsUsing(fo);
+        return fo;
+    }
+
 }
