@@ -20,6 +20,7 @@
 	// 'as/dto/dataset/history/DataSetRelationType',
 	// 'as/dto/dataset/search/DataSetSearchRelation',
 	// 'as/dto/deletion/AbstractObjectDeletionOptions',
+	// 'as/dto/deletion/id/DeletionTechId',
 	// 'as/dto/experiment/history/ExperimentRelationType',
 	// 'as/dto/global/search/GlobalSearchObjectKind',
 	// 'as/dto/objectkindmodification/ObjectKind',
@@ -35,6 +36,7 @@
 	// 'as/dto/history/IRelationType',
 	// 'as/dto/attachment/id/IAttachmentId',
 	// 'as/dto/common/id/IObjectId',
+	// 'as/dto/common/id/ObjectTechId',
 	// 'as/dto/common/interfaces/IAttachmentsHolder',
 	// 'as/dto/common/interfaces/ICodeHolder',
 	// 'as/dto/common/interfaces/ICreationIdHolder',
@@ -76,6 +78,7 @@
 	// 'as/dto/common/search/TimeZone',
 	// 'as/dto/vocabulary/id/IVocabularyId',
 	// 'as/dto/vocabulary/id/IVocabularyTermId',
+	// 'as/dto/roleassignment/id/RoleAssignmentTechId',
 
 
 // these are the DTOs that can be "manually" created on the client
@@ -113,7 +116,6 @@ var sources = [
 	'as/dto/common/fetchoptions/Sorting',
 	'as/dto/common/fetchoptions/SortOrder',
 	'as/dto/common/id/CreationId',
-	'as/dto/common/id/ObjectTechId',
 	'as/dto/common/search/AnyFieldSearchCriteria',
 	'as/dto/common/search/AnyPropertySearchCriteria',
 	'as/dto/common/search/AnyStringValue',
@@ -249,7 +251,6 @@ var sources = [
 	'as/dto/deletion/fetchoptions/DeletedObjectFetchOptions',
 	'as/dto/deletion/fetchoptions/DeletionFetchOptions',
 	'as/dto/deletion/fetchoptions/DeletionSortOptions',
-	'as/dto/deletion/id/DeletionTechId',
 	'as/dto/deletion/revert/RevertDeletionsOperation',
 	'as/dto/deletion/revert/RevertDeletionsOperationResult',
 	'as/dto/deletion/search/DeletionSearchCriteria',
@@ -425,7 +426,6 @@ var sources = [
 	'as/dto/roleassignment/get/GetRoleAssignmentsOperation',
 	'as/dto/roleassignment/get/GetRoleAssignmentsOperationResult',
 	'as/dto/roleassignment/id/IRoleAssignmentId',
-	'as/dto/roleassignment/id/RoleAssignmentTechId',
 	'as/dto/roleassignment/Role',
 	'as/dto/roleassignment/RoleLevel',
 	'as/dto/roleassignment/RoleAssignment',
