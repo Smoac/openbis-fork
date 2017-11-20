@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -37,7 +36,6 @@ public class ObjectTechId implements IObjectId
         setTechId(techId);
     }
 
-    @JsonIgnore
     public Long getTechId()
     {
         return techId;
@@ -51,7 +49,6 @@ public class ObjectTechId implements IObjectId
     {
     }
 
-    @JsonIgnore
     private void setTechId(Long techId)
     {
         if (techId == null)

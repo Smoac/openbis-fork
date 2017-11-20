@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
@@ -35,14 +37,19 @@ public class RoleAssignmentCreation implements ICreation, IObjectCreation
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private IPersonId userId;
     
+    @JsonProperty
     private IAuthorizationGroupId authorizationGroupId;
     
+    @JsonProperty
     private Role role;
     
+    @JsonProperty
     private ISpaceId spaceId;
     
+    @JsonProperty
     private IProjectId projectId;
     
     public IPersonId getUserId()
