@@ -159,7 +159,7 @@ public class ImageUtilTest extends AssertJUnit
     {
         dir = new File("../datastore_server/resource/test-data/ImageUtilTest");
         ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.IMAGEIO_LIBRARY,
-                ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
+                ImageReaderConstants.BIOFORMATS_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
 
     }
 

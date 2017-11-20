@@ -102,7 +102,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     public void setUp() throws Exception
     {
         ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.IMAGEIO_LIBRARY,
-                ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
+                ImageReaderConstants.BIOFORMATS_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
         context = new Mockery();
         loader = context.mock(IImagingDatasetLoader.class);
         transformerFactory = context.mock(IImageTransformerFactory.class);
