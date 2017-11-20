@@ -1025,6 +1025,7 @@ function ServerFacade(openbisServer) {
 									switch(comparisonOperator) {
 										case "thatEqualsUserId":
 											criteria.withRegistrator().withUserId().thatEquals(attributeValue);
+											break;
 										case "thatContainsFirstName":
 											criteria.withRegistrator().withFirstName().thatContains(attributeValue);
 											break;
@@ -1039,6 +1040,7 @@ function ServerFacade(openbisServer) {
 									switch(comparisonOperator) {
 										case "thatEqualsDate":
 											criteria.withRegistrationDate().thatEquals(attributeValue);
+											break;
 										case "thatIsLaterThanOrEqualToDate":
 											criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(attributeValue);
 											break;
@@ -1055,6 +1057,7 @@ function ServerFacade(openbisServer) {
 									switch(comparisonOperator) {
 										case "thatEqualsUserId":
 											criteria.withModifier().withUserId().thatEquals(attributeValue);
+											break;
 										case "thatContainsFirstName":
 											criteria.withModifier().withFirstName().thatContains(attributeValue);
 											break;
@@ -1069,6 +1072,7 @@ function ServerFacade(openbisServer) {
 									switch(comparisonOperator) {
 										case "thatEqualsDate":
 											criteria.withModificationDate().thatEquals(attributeValue);
+											break;
 										case "thatIsLaterThanOrEqualToDate":
 											criteria.withModificationDate().thatIsLaterThanOrEqualTo(attributeValue);
 											break;

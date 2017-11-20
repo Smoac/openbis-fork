@@ -384,6 +384,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var selectedValue = $thisComponent.val();
 					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
 				});
+				comparisonDropdown.trigger("change");
 				
 				$newFieldOperatorContainer.append(comparisonDropdown);
 				
