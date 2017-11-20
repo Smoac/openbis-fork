@@ -1226,18 +1226,20 @@ public class SearchSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fo = new SampleFetchOptions();
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withCode().thatStartsWith("CL1");
+        criteria.withCode().thatStartsWith("EV");
         List<Sample> samples = search(sessionToken, criteria, fo);
         List<String> identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, "
+                + "/TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST]");
         criteria.withType().withListable().thatEquals(true);
 
         samples = search(sessionToken, criteria, fo);
 
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/CISD/CL1]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, "
+                + "/TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST]");
     }
 
     @Test
@@ -1246,18 +1248,19 @@ public class SearchSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fo = new SampleFetchOptions();
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withCode().thatStartsWith("CL1");
+        criteria.withCode().thatStartsWith("EV");
         List<Sample> samples = search(sessionToken, criteria, fo);
         List<String> identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, "
+                + "/TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST]");
         criteria.withType().withListable().thatEquals(false);
 
         samples = search(sessionToken, criteria, fo);
 
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/CISD/CL1:A01, /CISD/CL1:A03]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-NOT_INVALID]");
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
