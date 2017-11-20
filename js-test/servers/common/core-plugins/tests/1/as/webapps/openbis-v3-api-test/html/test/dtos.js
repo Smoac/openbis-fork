@@ -417,8 +417,13 @@ var sources = [
 	'as/dto/property/PropertyAssignment',
 	'as/dto/property/PropertyType',
 	
+	'as/dto/roleassignment/create/RoleAssignmentCreation',
+	'as/dto/roleassignment/create/CreateRoleAssignmentsOperation',
+	'as/dto/roleassignment/create/CreateRoleAssignmentsOperationResult',
 	'as/dto/roleassignment/fetchoptions/RoleAssignmentFetchOptions',
 	'as/dto/roleassignment/fetchoptions/RoleAssignmentSortOptions',
+	'as/dto/roleassignment/get/GetRoleAssignmentsOperation',
+	'as/dto/roleassignment/get/GetRoleAssignmentsOperationResult',
 	'as/dto/roleassignment/id/IRoleAssignmentId',
 	'as/dto/roleassignment/id/RoleAssignmentTechId',
 	'as/dto/roleassignment/Role',

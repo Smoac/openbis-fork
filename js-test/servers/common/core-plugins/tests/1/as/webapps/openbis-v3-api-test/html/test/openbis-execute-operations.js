@@ -141,6 +141,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateAuthorizationGroupsOperation(creations));
 		}
 		
+		this.createRoleAssignments = function(creations) {
+			return this._executeCreateOperation(new c.CreateRoleAssignmentsOperation(creations));
+		}
+		
 		this.createSemanticAnnotations = function(creations) {
 			return this._executeCreateOperation(new c.CreateSemanticAnnotationsOperation(creations));
 		}
@@ -227,6 +231,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		
 		this.getAuthorizationGroups = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetAuthorizationGroupsOperation(ids, fetchOptions));
+		}
+		
+		this.getRoleAssignments = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetRoleAssignmentsOperation(ids, fetchOptions));
 		}
 		
 		this.getSemanticAnnotations = function(ids, fetchOptions) {

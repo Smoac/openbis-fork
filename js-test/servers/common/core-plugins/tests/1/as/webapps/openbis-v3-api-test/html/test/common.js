@@ -30,6 +30,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
 		this.AuthorizationGroupCreation = dtos.AuthorizationGroupCreation;
+		this.RoleAssignmentCreation = dtos.RoleAssignmentCreation;
+		this.Role = require('as/dto/roleassignment/Role');
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation = dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
@@ -81,6 +83,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyPermId = dtos.VocabularyPermId;
 		this.VocabularyTermPermId = dtos.VocabularyTermPermId;
 		this.AuthorizationGroupPermId = dtos.AuthorizationGroupPermId;
+		this.RoleAssignmentTechId = dtos.RoleAssignmentTechId;
 		this.TagPermId = dtos.TagPermId;
 		this.TagCode = dtos.TagCode;
 		this.SemanticAnnotationsPermId = dtos.SemanticAnnotationsPermId;
@@ -117,6 +120,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.TagFetchOptions = dtos.TagFetchOptions;
 		this.AuthorizationGroupFetchOptions = dtos.AuthorizationGroupFetchOptions;
+		this.RoleAssignmentFetchOptions = dtos.RoleAssignmentFetchOptions;
 		this.PropertyTypeFetchOptions = dtos.PropertyTypeFetchOptions;
 		this.PropertyAssignmentFetchOptions = dtos.PropertyAssignmentFetchOptions;
 		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
@@ -154,6 +158,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
 		this.GetAuthorizationGroupsOperation = dtos.GetAuthorizationGroupsOperation;
+		this.GetRoleAssignmentsOperation = dtos.GetRoleAssignmentsOperation;
 		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
 		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
 
@@ -170,6 +175,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
 		this.CreateAuthorizationGroupsOperation = dtos.CreateAuthorizationGroupsOperation;
+		this.CreateRoleAssignmentsOperation = dtos.CreateRoleAssignmentsOperation;
 		this.CreateSemanticAnnotationsOperation = dtos.CreateSemanticAnnotationsOperation;
 		this.CreateExternalDmsOperation = dtos.CreateExternalDmsOperation;
 
@@ -250,6 +256,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.getDtos = function() {
 			return dtos;
+		}
+		
+		this.getId = function(entity) {
+			if (typeof entity["getPermId"] === 'function') {
+				return entity.getPermId();
+			}
+			if (typeof entity["getId"] === 'function') {
+				return entity.getId();
+			}
+			this.fail("Neither 'getPermId()' nor 'getId()' are functions of entity " + entity);
 		}
 
 		this.generateId = function(base) {
@@ -411,6 +427,19 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			creation.setUsers([new c.PersonPermId("power_user")]);
 			return facade.createAuthorizationGroups([ creation ]).then(function(permIds) {
 				return permIds[0];
+			});
+		}.bind(this);
+		
+		this.createRoleAssignment = function(facade, space) {
+			var c = this;
+			return c.createSpace(facade).then(function(spaceId) {
+				var creation = new dtos.RoleAssignmentCreation();
+				creation.setRole(c.Role.ADMIN);
+				creation.setUserId(new c.PersonPermId("power_user"));
+				creation.setSpaceId(spaceId);
+				return facade.createRoleAssignments([ creation ]).then(function(permIds) {
+					return permIds[0];
+				});
 			});
 		}.bind(this);
 		
@@ -833,6 +862,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var rafo = fo.withRoleAssignments();
 			rafo.withSpace();
 			rafo.withProject().withSpace();
+			return fo;
+		};
+		
+		this.createRoleAssignmentFetchOptions = function() {
+			var fo = new dtos.RoleAssignmentFetchOptions();
+			fo.withProject();
+			fo.withSpace();
 			return fo;
 		};
 		

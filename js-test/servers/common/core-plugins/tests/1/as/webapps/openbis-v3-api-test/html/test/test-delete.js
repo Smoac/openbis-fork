@@ -44,6 +44,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 							c.ok("Got before deletions");
 							return fDelete(facade, permId).then(function(deletionId) {
 								c.ok("Entity was deleted");
+								c.assertNotEqual(deletionId.getTechId(), "", "Deletion tech id not an empty string");
 								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(afterDeletions) {
 									c.ok("Got after deletions");
 									c.assertEqual(afterDeletions.getObjects().length, beforeDeletions.getObjects().length + 1, "One new deletion");

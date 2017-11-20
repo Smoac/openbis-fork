@@ -12,14 +12,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						permIds.forEach(function(permId) {
 							var entity = map[permId];
 							testFetchOptionsResults(c, fechOptionsTestConfig, true, entity);
-							c.assertEqual(entity.getPermId().toString(), permId.toString(), "Entity perm id matches");
+							c.assertEqual(c.getId(entity).toString(), permId.toString(), "Entity perm id matches");
 						});
 						return fGetEmptyFetchOptions(facade, permIds).then(function(map) {
 							c.assertEqual(Object.keys(map).length, permIds.length, "Entity map size is correct");
 							permIds.forEach(function(permId) {
 								var entity = map[permId];
 								testFetchOptionsResults(c, fechOptionsTestConfig, false, entity);
-								c.assertEqual(entity.getPermId().toString(), permId.toString(), "Entity perm id matches");
+								c.assertEqual(c.getId(entity).toString(), permId.toString(), "Entity perm id matches");
 							});
 							c.finish();
 						});
@@ -363,6 +363,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			
 			var fGetEmptyFetchOptions = function(facade, permIds) {
 				return facade.getAuthorizationGroups(permIds, new c.AuthorizationGroupFetchOptions());
+			}
+			
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
+		QUnit.test("getRoleAssignments()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.RoleAssignmentFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			
+			var fCreate = function(facade) {
+				return $.when(c.createRoleAssignment(facade)).then(function(id) {
+					return [ id ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getRoleAssignments(permIds, fo);
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getRoleAssignments(permIds, new c.RoleAssignmentFetchOptions());
 			}
 			
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
