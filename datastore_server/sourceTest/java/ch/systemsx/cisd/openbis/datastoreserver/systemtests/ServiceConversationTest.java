@@ -515,15 +515,19 @@ public class ServiceConversationTest
     @Test(retryAnalyzer = RetryTen.class)
     public void testMultipleClientsWithSameService()
     {
+        logger.info("testMultipleClientsWithSameService");
         testMultipleClients(TestService2.class, serviceOnServerSideWrapper2.getService(),
                 TestService2.class, serviceOnServerSideWrapper2.getService());
+        logger.info("testMultipleClientsWithSameService done");
     }
 
     @Test(retryAnalyzer = RetryTen.class)
     public void testMultipleClientsWithDifferentService()
     {
+        logger.info("testMultipleClientsWithDifferentService");
         testMultipleClients(TestService1.class, serviceOnServerSideWrapper1.getService(),
                 TestService2.class, serviceOnServerSideWrapper2.getService());
+        logger.info("testMultipleClientsWithDifferentService done");
     }
 
     private void testMultipleClients(final Class<? extends TestService> serviceAInterface,
@@ -531,7 +535,7 @@ public class ServiceConversationTest
             final TestService serviceB)
     {
         final int NUMBER_OF_CALLS = 10;
-        final MessageChannel channel = new MessageChannel(5000);
+        final MessageChannel channel = new MessageChannel(2000);
 
         context.checking(new Expectations()
             {
@@ -556,10 +560,12 @@ public class ServiceConversationTest
                 {
                     for (int i = 0; i < NUMBER_OF_CALLS; i++)
                     {
+                        logger.info("CLIENT 1 THREAD: SERVICE A ECHO " + i);
                         Assert.assertEquals(getServiceOnClientSide1(serviceAInterface).echo(i), i);
                         ConcurrencyUtilities.sleep(TIMEOUT / NUMBER_OF_CALLS);
                     }
                     channel.send("finished");
+                    logger.info("CLIENT 1 THREAD: SENT FINISHED");
                 }
             });
 
@@ -570,12 +576,14 @@ public class ServiceConversationTest
                 {
                     for (int i = 0; i < NUMBER_OF_CALLS; i++)
                     {
+                        logger.info("CLIENT 2 THREAD: SERVICE B ECHO " + i);
                         Assert.assertEquals(
                                 getServiceOnClientSide2(serviceBInterface)
                                         .echo(NUMBER_OF_CALLS + i), NUMBER_OF_CALLS + i);
                         ConcurrencyUtilities.sleep(TIMEOUT / NUMBER_OF_CALLS);
                     }
                     channel.send("finished");
+                    logger.info("CLIENT 2 THREAD: SENT FINISHED");
                 }
             });
 
