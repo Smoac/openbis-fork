@@ -531,7 +531,7 @@ public class ServiceConversationTest
             final TestService serviceB)
     {
         final int NUMBER_OF_CALLS = 10;
-        final MessageChannel channel = new MessageChannel(2000);
+        final MessageChannel channel = new MessageChannel(5000);
 
         context.checking(new Expectations()
             {
