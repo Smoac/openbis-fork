@@ -368,20 +368,59 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("getRoleAssignments()", function(assert) {
+		QUnit.test("getRoleAssignments() with user", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.RoleAssignmentFetchOptions();
+			fo.withUser();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			
 			var fCreate = function(facade) {
-				return $.when(c.createRoleAssignment(facade)).then(function(id) {
+				return $.when(c.createRoleAssignment(facade, true)).then(function(id) {
 					return [ id ];
 				});
 			}
 			
 			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.getRoleAssignments(permIds, fo);
+				var result = facade.getRoleAssignments(permIds, fo);
+				result.then(function(map) {
+					permIds.forEach(function(permId) {
+						var entity = map[permId];
+						c.assertEqual(entity.getUser().getUserId(), "power_user", "User");
+					});
+				});
+				return result;
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getRoleAssignments(permIds, new c.RoleAssignmentFetchOptions());
+			}
+			
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
+		QUnit.test("getRoleAssignments() with authorization group", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.RoleAssignmentFetchOptions();
+			fo.withAuthorizationGroup();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			
+			var fCreate = function(facade) {
+				return $.when(c.createRoleAssignment(facade, false)).then(function(id) {
+					return [ id ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				var result = facade.getRoleAssignments(permIds, fo);
+				result.then(function(map) {
+					permIds.forEach(function(permId) {
+						var entity = map[permId];
+						c.assertEqual(entity.getAuthorizationGroup().getCode(), "TEST-GROUP", "Authorization group");
+					});
+				});
+				return result;
 			}
 			
 			var fGetEmptyFetchOptions = function(facade, permIds) {

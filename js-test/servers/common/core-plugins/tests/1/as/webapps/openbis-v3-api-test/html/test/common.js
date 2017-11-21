@@ -430,12 +430,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 		
-		this.createRoleAssignment = function(facade, space) {
+		this.createRoleAssignment = function(facade, isUser) {
 			var c = this;
 			return c.createSpace(facade).then(function(spaceId) {
 				var creation = new dtos.RoleAssignmentCreation();
 				creation.setRole(c.Role.ADMIN);
-				creation.setUserId(new c.PersonPermId("power_user"));
+				if (isUser) {
+					creation.setUserId(new c.PersonPermId("power_user"));
+				} else {
+					creation.setAuthorizationGroupId(new c.AuthorizationGroupPermId("TEST-GROUP"));
+				}
 				creation.setSpaceId(spaceId);
 				return facade.createRoleAssignments([ creation ]).then(function(permIds) {
 					return permIds[0];
