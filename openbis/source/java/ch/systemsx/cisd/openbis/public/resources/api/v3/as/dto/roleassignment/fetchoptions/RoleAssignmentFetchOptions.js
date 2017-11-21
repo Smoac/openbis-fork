@@ -19,13 +19,13 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
 			}
 			return this.user;
 		}
-		prototype withUserUsing = function(fetchOptions) {
+		prototype.withUserUsing = function(fetchOptions) {
 			return this.user = fetchOptions;
 		}
-		prototype hasUser = function() {
+		prototype.hasUser = function() {
 			return this.user != null;
 		}
-		prototype withAuthorizationGroup = function() {
+		prototype.withAuthorizationGroup = function() {
 			if (this.authorizationGroup == null) {
 				var AuthorizationGroupFetchOptions = require("as/dto/authorizationgroup/fetchoptions/AuthorizationGroupFetchOptions");
 				this.authorizationGroup = new AuthorizationGroupFetchOptions();

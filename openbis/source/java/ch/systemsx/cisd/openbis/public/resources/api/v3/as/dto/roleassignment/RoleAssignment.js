@@ -77,6 +77,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	}, {
 		fetchOptions : "RoleAssignmentFetchOptions",
 		id : "IRoleAssignmentId",
+		user : "Person",
+		authorizationGroup : "AuthorizationGroup",
 		role : "Role",
 		roleLevel : "RoleLevel",
 		space : "Space",
