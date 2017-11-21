@@ -1778,3 +1778,14 @@ Create Role Assignments Operation
 Create Role Assignments Operation Result
 Role Assignment Creation
 
+get Authorization Group
+get User
+has Authorization Group
+has User
+set Authorization Group
+set User
+with Authorization Group
+with Authorization Group Using
+with User
+with User Using
+

@@ -141,7 +141,13 @@ public class DetailedSearchCriterion implements Serializable
         }
         sb.append(getField());
         sb.append(": ");
-        sb.append(getValue());
+        if (values == null || values.size() == 1)
+        {
+            sb.append(getValue());
+        } else
+        {
+            sb.append(getValues().toString());
+        }
         return sb.toString();
     }
 }

@@ -21,7 +21,9 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
@@ -44,6 +46,12 @@ public class RoleAssignment implements Serializable, ISpaceHolder
 
     @JsonProperty
     private IRoleAssignmentId id;
+    
+    @JsonProperty
+    private Person user;
+    
+    @JsonProperty
+    private AuthorizationGroup authorizationGroup;
 
     @JsonProperty
     private Role role;
@@ -77,6 +85,34 @@ public class RoleAssignment implements Serializable, ISpaceHolder
     public void setId(IRoleAssignmentId id)
     {
         this.id = id;
+    }
+
+    public Person getUser()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasUser())
+        {
+            return user;
+        }
+        throw new NotFetchedException("User has not been fetched.");
+    }
+
+    public void setUser(Person user)
+    {
+        this.user = user;
+    }
+
+    public AuthorizationGroup getAuthorizationGroup()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasAuthorizationGroup())
+        {
+            return authorizationGroup;
+        }
+        throw new NotFetchedException("Authorization group has not been fetched.");
+    }
+
+    public void setAuthorizationGroup(AuthorizationGroup authorizationGroup)
+    {
+        this.authorizationGroup = authorizationGroup;
     }
 
     @JsonIgnore

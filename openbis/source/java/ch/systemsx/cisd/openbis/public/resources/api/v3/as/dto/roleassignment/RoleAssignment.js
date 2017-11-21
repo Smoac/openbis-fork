@@ -5,6 +5,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'as.dto.roleassignment.RoleAssignment';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
+		prototype.user = null;
+		prototype.authorizationGroup = null;
 		prototype.id = null;
 		prototype.role = null;
 		prototype.roleLevel = null;
@@ -16,6 +18,24 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setFetchOptions = function(fetchOptions) {
 			this.fetchOptions = fetchOptions;
 		};
+		prototype.getUser = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasUser()) {
+				return this.user;
+			}
+			throw new exceptions.NotFetchedException("User has not been fetched.");
+		}
+		prototype.setUser = function(user) {
+			this.user = user;
+		}
+		prototype.getAuthorizationGroup = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasAuthorizationGroup()) {
+				return this.authorizationGroup;
+			}
+			throw new exceptions.NotFetchedException("Authorization group has not been fetched.");
+		}
+		prototype.setAuthorizationGroup = function(authorizationGroup) {
+			this.authorizationGroup = authorizationGroup;
+		}
 		prototype.getId = function() {
 			return this.id;
 		};

@@ -44,4 +44,12 @@ public interface RoleAssignmentQuery extends ObjectQuery
             + " from role_assignments where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getProjectIds(LongSet roleAssignmentIds);
 
+    @Select(sql = "select id as objectId, pers_id_grantee as relatedId"
+            + " from role_assignments where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getUserIds(LongSet roleAssignmentIds);
+    
+    @Select(sql = "select id as objectId, ag_id_grantee as relatedId"
+            + " from role_assignments where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getAuthorizationGroupIds(LongSet roleAssignmentIds);
+
 }

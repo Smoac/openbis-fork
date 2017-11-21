@@ -20,8 +20,10 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -38,6 +40,12 @@ public class RoleAssignmentFetchOptions extends FetchOptions<RoleAssignment> imp
     private static final long serialVersionUID = 1L;
     
     @JsonProperty
+    private PersonFetchOptions user;
+    
+    @JsonProperty
+    private AuthorizationGroupFetchOptions authorizationGroup;
+    
+    @JsonProperty
     private SpaceFetchOptions space;
 
     @JsonProperty
@@ -45,6 +53,44 @@ public class RoleAssignmentFetchOptions extends FetchOptions<RoleAssignment> imp
     
     @JsonProperty
     private RoleAssignmentSortOptions sort;
+    
+    public PersonFetchOptions withUser()
+    {
+        if (user == null)
+        {
+            user = new PersonFetchOptions();
+        }
+        return user;
+    }
+    
+    public PersonFetchOptions withUserUsing(PersonFetchOptions fetchOptions)
+    {
+        return user = fetchOptions;
+    }
+    
+    public boolean hasUser()
+    {
+        return user != null;
+    }
+    
+    public AuthorizationGroupFetchOptions withAuthorizationGroup()
+    {
+        if (authorizationGroup == null)
+        {
+            authorizationGroup = new AuthorizationGroupFetchOptions();
+        }
+        return authorizationGroup;
+    }
+    
+    public AuthorizationGroupFetchOptions withAuthorizationGroupUsing(AuthorizationGroupFetchOptions fetchOptions)
+    {
+        return authorizationGroup = fetchOptions;
+    }
+    
+    public boolean hasAuthorizationGroup()
+    {
+        return authorizationGroup != null;
+    }
 
     public SpaceFetchOptions withSpace()
     {

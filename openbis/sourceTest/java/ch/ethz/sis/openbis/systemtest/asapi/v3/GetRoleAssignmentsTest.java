@@ -58,6 +58,39 @@ public class GetRoleAssignmentsTest extends AbstractTest
     }
     
     @Test
+    public void testWithUserAndGroup()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        RoleAssignmentTechId id1 = new RoleAssignmentTechId(29L);
+        RoleAssignmentTechId id2 = new RoleAssignmentTechId(6L);
+        RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withUser();
+        fetchOptions.withAuthorizationGroup().withUsers();
+        
+        // When
+        Map<IRoleAssignmentId, RoleAssignment> map = v3api.getRoleAssignments(sessionToken, Arrays.asList(id1, id2), fetchOptions);
+        
+        // Then
+        assertEquals(map.get(id1).getRole(), Role.USER);
+        assertEquals(map.get(id1).getRoleLevel(), RoleLevel.PROJECT);
+        assertEquals(map.get(id1).getUser(), null);
+        assertEquals(map.get(id1).getAuthorizationGroup().getCode(), "AGROUP");
+        assertEquals(map.get(id1).getFetchOptions().hasUser(), true);
+        assertEquals(map.get(id1).getFetchOptions().hasAuthorizationGroup(), true);
+        assertEquals(map.get(id1).getFetchOptions().hasProject(), false);
+        assertEquals(map.get(id1).getFetchOptions().hasSpace(), false);
+        assertEquals(map.get(id2).getRole(), Role.OBSERVER);
+        assertEquals(map.get(id2).getRoleLevel(), RoleLevel.SPACE);
+        assertEquals(map.get(id2).getUser().getUserId(), "observer");
+        assertEquals(map.get(id2).getAuthorizationGroup(), null);
+        assertEquals(map.get(id2).getFetchOptions().hasUser(), true);
+        assertEquals(map.get(id2).getFetchOptions().hasAuthorizationGroup(), true);
+        assertEquals(map.get(id2).getFetchOptions().hasProject(), false);
+        assertEquals(map.get(id2).getFetchOptions().hasSpace(), false);
+    }
+    
+    @Test
     public void testWithSpaceAndProject()
     {
         // Given
@@ -74,11 +107,21 @@ public class GetRoleAssignmentsTest extends AbstractTest
         // Then
         assertEquals(map.get(id1).getRole(), Role.ADMIN);
         assertEquals(map.get(id1).getRoleLevel(), RoleLevel.PROJECT);
+        assertEquals(map.get(id1).getSpace(), null);
         assertEquals(map.get(id1).getProject().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
         assertEquals(map.get(id1).getProject().getCode(), "TEST-PROJECT");
         assertEquals(map.get(id1).getProject().getSpace().getCode(), "TEST-SPACE");
+        assertEquals(map.get(id1).getFetchOptions().hasUser(), false);
+        assertEquals(map.get(id1).getFetchOptions().hasAuthorizationGroup(), false);
+        assertEquals(map.get(id1).getFetchOptions().hasProject(), true);
+        assertEquals(map.get(id1).getFetchOptions().hasSpace(), true);
         assertEquals(map.get(id2).getRole(), Role.OBSERVER);
         assertEquals(map.get(id2).getRoleLevel(), RoleLevel.SPACE);
         assertEquals(map.get(id2).getSpace().getCode(), "TESTGROUP");
+        assertEquals(map.get(id2).getProject(), null);
+        assertEquals(map.get(id2).getFetchOptions().hasUser(), false);
+        assertEquals(map.get(id2).getFetchOptions().hasAuthorizationGroup(), false);
+        assertEquals(map.get(id2).getFetchOptions().hasProject(), true);
+        assertEquals(map.get(id2).getFetchOptions().hasSpace(), true);
     }
 }

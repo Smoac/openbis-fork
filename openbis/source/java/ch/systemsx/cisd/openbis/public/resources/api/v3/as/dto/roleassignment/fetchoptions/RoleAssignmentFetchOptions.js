@@ -1,4 +1,5 @@
-define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/space/fetchoptions/SpaceFetchOptions", 
+define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/person/fetchoptions/PersonFetchOptions", 
+         "as/dto/authorizationgroup/fetchoptions/AuthorizationGroupFetchOptions", "as/dto/space/fetchoptions/SpaceFetchOptions", 
          "as/dto/project/fetchoptions/ProjectFetchOptions", "as/dto/roleassignment/fetchoptions/RoleAssignmentSortOptions" ], function(require, stjs,
 		FetchOptions) {
 	var RoleAssignmentFetchOptions = function() {
@@ -6,9 +7,37 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/s
 	stjs.extend(RoleAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions';
 		constructor.serialVersionUID = 1;
+		prototype.user = null;
+		prototype.authorizationGroup = null;
 		prototype.space = null;
 		prototype.sort = null;
 		prototype.project = null;
+		prototype.withUser = function() {
+			if (this.user == null) {
+				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
+				this.user = new PersonFetchOptions();
+			}
+			return this.user;
+		}
+		prototype withUserUsing = function(fetchOptions) {
+			return this.user = fetchOptions;
+		}
+		prototype hasUser = function() {
+			return this.user != null;
+		}
+		prototype withAuthorizationGroup = function() {
+			if (this.authorizationGroup == null) {
+				var AuthorizationGroupFetchOptions = require("as/dto/authorizationgroup/fetchoptions/AuthorizationGroupFetchOptions");
+				this.authorizationGroup = new AuthorizationGroupFetchOptions();
+			}
+			return this.authorizationGroup;
+		}
+		prototype.withAuthorizationGroupUsing = function(fetchOptions) {
+			return this.authorizationGroup = fetchOptions;
+		}
+		prototype.hasAuthorizationGroup = function() {
+			return this.authorizationGroup != null;
+		}
 		prototype.withSpace = function() {
 			if (this.space == null) {
 				var SpaceFetchOptions = require("as/dto/space/fetchoptions/SpaceFetchOptions");
@@ -46,6 +75,8 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/s
 			return this.sort;
 		};
 	}, {
+		user : "PersonFetchOptions",
+		authorizationGroup : "AuthorizationGroupFetchOptions",
 		space : "SpaceFetchOptions",
 		project : "ProjectFetchOptions",
 		sort : "RoleAssignmentSortOptions"

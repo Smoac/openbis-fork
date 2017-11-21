@@ -44,6 +44,12 @@ public class RoleAssignmentTranslator
     private IRoleAssignmentBaseTranslator baseTranslator;
     
     @Autowired
+    private IRoleAssignmentPersonTranslator userTranslator;
+    
+    @Autowired
+    private IRoleAssignmentAuthorizationGroupTranslator authorizationGroupTranslator;
+    
+    @Autowired
     private IRoleAssignmentSpaceTranslator spaceTranslator;
     
     @Autowired
@@ -63,6 +69,14 @@ public class RoleAssignmentTranslator
         TranslationResults relations = new TranslationResults();
         
         relations.put(IRoleAssignmentBaseTranslator.class, baseTranslator.translate(context, inputs, null));
+        if (fetchOptions.hasUser())
+        {
+            relations.put(IRoleAssignmentPersonTranslator.class, userTranslator.translate(context, inputs, fetchOptions.withUser()));
+        }
+        if (fetchOptions.hasAuthorizationGroup())
+        {
+            relations.put(IRoleAssignmentAuthorizationGroupTranslator.class, authorizationGroupTranslator.translate(context, inputs, fetchOptions.withAuthorizationGroup()));
+        }
         if (fetchOptions.hasSpace())
         {
             relations.put(IRoleAssignmentSpaceTranslator.class, spaceTranslator.translate(context, inputs, fetchOptions.withSpace()));
@@ -85,6 +99,16 @@ public class RoleAssignmentTranslator
         output.setRole(Role.valueOf(baseRecord.role_code));
         output.setRoleLevel(extractRoleLevel(baseRecord));
         
+        if (fetchOptions.hasUser())
+        {
+            output.setUser(relations.get(IRoleAssignmentPersonTranslator.class, input));
+            output.getFetchOptions().withUserUsing(fetchOptions.withUser());
+        }
+        if (fetchOptions.hasAuthorizationGroup())
+        {
+            output.setAuthorizationGroup(relations.get(IRoleAssignmentAuthorizationGroupTranslator.class, input));
+            output.getFetchOptions().withAuthorizationGroupUsing(fetchOptions.withAuthorizationGroup());
+        }
         if (fetchOptions.hasSpace())
         {
             output.setSpace(relations.get(IRoleAssignmentSpaceTranslator.class, input));
