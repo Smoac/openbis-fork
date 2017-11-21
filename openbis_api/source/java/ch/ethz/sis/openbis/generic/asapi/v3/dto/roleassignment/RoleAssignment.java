@@ -87,6 +87,7 @@ public class RoleAssignment implements Serializable, ISpaceHolder
         this.id = id;
     }
 
+    @JsonIgnore
     public Person getUser()
     {
         if (getFetchOptions() != null && getFetchOptions().hasUser())
@@ -101,6 +102,7 @@ public class RoleAssignment implements Serializable, ISpaceHolder
         this.user = user;
     }
 
+    @JsonIgnore
     public AuthorizationGroup getAuthorizationGroup()
     {
         if (getFetchOptions() != null && getFetchOptions().hasAuthorizationGroup())
