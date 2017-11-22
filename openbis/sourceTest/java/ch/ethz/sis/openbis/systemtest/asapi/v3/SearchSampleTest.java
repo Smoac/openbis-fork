@@ -188,6 +188,14 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withType().withCode().thatEquals("REINFECT_PLATE");
         testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
     }
+    
+    @Test
+    public void testSearchWithTypeWithCodeWithWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withCode().thatEquals("REINFECT_PLAT*");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+    }
 
     @Test
     public void testSearchWithTypeWithSemanticAnnotationsWithIdThatEquals()
