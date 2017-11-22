@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -240,7 +241,7 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByTrackingCriteriaWithSampleType()
     {
-    	// when
+        // when
         List<AbstractExternalData> dataSets =
                 lister.listByTrackingCriteria(new TrackingDataSetCriteria("CELL_PLATE", 6));
         Collections.sort(dataSets, (o1, o2) -> (int) (o1.getId() - o2.getId()));
@@ -372,6 +373,17 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20110509092359990-12", containedDataSets.get(1).getCode());
     }
 
+    private void assertProperty(AbstractExternalData dataset, String propertyCode, String propertyAsString)
+    {
+        for (IEntityProperty property : dataset.getProperties())
+        {
+            if (property.getPropertyType().getCode().equals(propertyCode))
+            {
+                assertEquals(propertyAsString, property.tryGetAsString());
+            }
+        }
+    }
+
     @Test
     public void testListByDataStore()
     {
@@ -398,9 +410,10 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getCode());
         assertEquals("CP-TEST-1", dataSet.getSample().getCode());
         assertEquals("CISD", dataSet.getSample().getSpace().getCode());
-        assertEquals(
-                "[COMMENT: no comment, GENDER: FEMALE, BACTERIUM: BACTERIUM1 (BACTERIUM), ANY_MATERIAL: 1000_C (SIRNA)]",
-                dataSet.getProperties().toString());
+        assertProperty(dataSet, "COMMENT", "no comment");
+        assertProperty(dataSet, "GENDER", "FEMALE");
+        assertProperty(dataSet, "BACTERIUM", "BACTERIUM1 (BACTERIUM)");
+        assertProperty(dataSet, "ANY_MATERIAL", "1000_C (SIRNA)");
         assertEquals("a/1", ((PhysicalDataSet) dataSet).getLocation());
         assertEquals("42", ((PhysicalDataSet) dataSet).getShareId());
         assertEquals(4711L, ((PhysicalDataSet) dataSet).getSize().longValue());
