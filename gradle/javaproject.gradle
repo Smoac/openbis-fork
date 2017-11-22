@@ -99,6 +99,10 @@ def isSvnProject() {
    return new java.io.File(projectDir, ".svn").isDirectory() || new java.io.File(projectDir, "../.svn").isDirectory() 
 }
 
+def isGitProject() {
+   return new java.io.File(projectDir, ".git").isDirectory() || new java.io.File(projectDir, "../.git").isDirectory() 
+}
+
 def executeSVN(arguments) {
     arguments.add(0, '--non-interactive')
     return execute(svnCommand, arguments)
@@ -140,7 +144,7 @@ def calculateBuildInfo() {
             def pathElements = url.split('/')
             project.ext.versionNumber = 'libraries' == pathElements[-2] ? pathElements[-3] : pathElements[-2]
         }
-    } else {
+    } else if (isGitProject()) {
         def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at'], '../' + project.name)
         project.ext.revisionNumber = Integer.parseInt(gitlogoutput[0])
         def tag = 'git describe --tags'.execute().text.trim()
