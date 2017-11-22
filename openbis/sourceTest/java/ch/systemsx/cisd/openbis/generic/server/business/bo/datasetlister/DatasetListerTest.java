@@ -380,8 +380,10 @@ public class DatasetListerTest extends AbstractDAOTest
             if (property.getPropertyType().getCode().equals(propertyCode))
             {
                 assertEquals(propertyAsString, property.tryGetAsString());
+                return;
             }
         }
+        throw new RuntimeException("Property not found");
     }
 
     @Test
