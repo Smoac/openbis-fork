@@ -562,7 +562,9 @@ public class ServiceConversationTest
                     {
                         logger.info("CLIENT 1 THREAD: SERVICE A ECHO " + i);
                         Assert.assertEquals(getServiceOnClientSide1(serviceAInterface).echo(i), i);
+                        logger.info("CLIENT 1 THREAD: SERVICE A ECHO " + i + " asserted");
                         ConcurrencyUtilities.sleep(TIMEOUT / NUMBER_OF_CALLS);
+                        logger.info("CLIENT 1 THREAD: SERVICE A ECHO " + i + " slept");
                     }
                     channel.send("finished");
                     logger.info("CLIENT 1 THREAD: SENT FINISHED");
@@ -580,7 +582,9 @@ public class ServiceConversationTest
                         Assert.assertEquals(
                                 getServiceOnClientSide2(serviceBInterface)
                                         .echo(NUMBER_OF_CALLS + i), NUMBER_OF_CALLS + i);
+                        logger.info("CLIENT 2 THREAD: SERVICE B ECHO " + i + " asserted");
                         ConcurrencyUtilities.sleep(TIMEOUT / NUMBER_OF_CALLS);
+                        logger.info("CLIENT 2 THREAD: SERVICE B ECHO " + i + " slept");
                     }
                     channel.send("finished");
                     logger.info("CLIENT 2 THREAD: SENT FINISHED");
