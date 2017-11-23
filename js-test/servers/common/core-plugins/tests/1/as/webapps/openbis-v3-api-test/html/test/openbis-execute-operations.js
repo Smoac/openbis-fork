@@ -305,6 +305,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchAuthorizationGroupsOperation(criteria, fetchOptions));
 		}
 		
+		this.searchRoleAssignments = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchRoleAssignmentsOperation(criteria, fetchOptions));
+		}
+		
 		this.searchCustomASServices = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchCustomASServicesOperation(criteria, fetchOptions));
 		}

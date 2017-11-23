@@ -1344,12 +1344,45 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				var users = group.getUsers();
 				c.assertEqual(users.length, 0, "# Users");
 				var roleAssignments = group.getRoleAssignments();
-				c.assertEqual(roleAssignments[0].getRole(), "OBSERVER", "Role of 1. role assignment");
-				c.assertEqual(roleAssignments[0].getSpace().getCode(), "TEST", "Space of 1. role assignment");
-				c.assertEqual(roleAssignments[1].getRole(), "ADMIN", "Role of 2. role assignment");
-				c.assertEqual(roleAssignments[1].getProject().getCode(), "TEST-PROJECT", "Project code of 2. role assignment");
-				c.assertEqual(roleAssignments[1].getProject().getSpace().getCode(), "TEST", "Project space of 2. role assignment");
-				c.assertEqual(roleAssignments.length, 2, "# Role assignments");
+				var numberOfTestSpaceAssignments = 0;
+				var numberOfProjectAssignments = 0;
+				for (var i = 0; i < roleAssignments.length; i++) {
+					var ra = roleAssignments[i];
+					if (ra.getSpace() && ra.getSpace().getCode() === "TEST") {
+						c.assertEqual(ra.getRole(), "OBSERVER", "Role of assignment for space TEST");
+						numberOfTestSpaceAssignments++;
+					}
+					if (ra.getProject()) {
+						c.assertEqual(ra.getRole(), "ADMIN", "Role of assignment for project");
+						c.assertEqual(ra.getProject().getCode(), "TEST-PROJECT", "Project code of assignment for project");
+						c.assertEqual(ra.getProject().getSpace().getCode(), "TEST", "Project space of assignment for project");
+						numberOfProjectAssignments++;
+					}
+				}
+				c.assertEqual(numberOfTestSpaceAssignments, 1, "Number of TEST space assignments");
+				c.assertEqual(numberOfProjectAssignments, 1, "Number of project assignments");
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
+		QUnit.test("searchRoleAssignments()", function(assert) {
+			var c = new common(assert, openbis);
+			var code;
+			
+			var fSearch = function(facade) {
+				var criteria = new c.RoleAssignmentSearchCriteria();
+				criteria.withSpace().withCode().thatEquals("TEST");
+				criteria.withUser().withUserId().thatEquals("observer");
+				return facade.searchRoleAssignments(criteria, c.createRoleAssignmentFetchOptions());
+			}
+			
+			var fCheck = function(facade, assignments) {
+				c.assertEqual(assignments.length, 1, "# Role Assignments");
+				var assignment = assignments[0];
+				c.assertEqual(assignment.getRole(), "OBSERVER", "Role");
+				c.assertEqual(assignment.getRoleLevel(), "SPACE", "Role level");
+				c.assertEqual(assignment.getSpace().getCode(), "TEST", "Space");
 			}
 			
 			testSearch(c, fSearch, fCheck);

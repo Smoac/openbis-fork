@@ -102,6 +102,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
 		this.AuthorizationGroupSearchCriteria = dtos.AuthorizationGroupSearchCriteria;
+		this.RoleAssignmentSearchCriteria = dtos.RoleAssignmentSearchCriteria;
 		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
 		this.PropertyTypeSearchCriteria = dtos.PropertyTypeSearchCriteria;
 		this.PropertyAssignmentSearchCriteria = dtos.PropertyAssignmentSearchCriteria;
@@ -217,6 +218,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
 		this.SearchTagsOperation = dtos.SearchTagsOperation;
 		this.SearchAuthorizationGroupsOperation = dtos.SearchAuthorizationGroupsOperation;
+		this.SearchRoleAssignmentsOperation = dtos.SearchRoleAssignmentsOperation;
 		this.SearchCustomASServicesOperation = dtos.SearchCustomASServicesOperation;
 		this.SearchObjectKindModificationsOperation = dtos.SearchObjectKindModificationsOperation;
 		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
@@ -873,6 +875,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.RoleAssignmentFetchOptions();
 			fo.withProject();
 			fo.withSpace();
+			fo.withUser();
+			fo.withAuthorizationGroup();
 			return fo;
 		};
 		
