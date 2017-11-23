@@ -5,7 +5,7 @@ define([ "stjs", "as/dto/common/search/SearchObjectsOperation" ], function(stjs,
 	stjs.extend(SearchAuthorizationGroupsOperation, SearchObjectsOperation, [ SearchObjectsOperation ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.authorizationgroup.search.SearchAuthorizationGroupsOperation';
 		prototype.getMessage = function() {
-			return "SearchDataStoresOperation";
+			return "SearchAuthorizationGroupsOperation";
 		};
 	}, {});
 	return SearchAuthorizationGroupsOperation;

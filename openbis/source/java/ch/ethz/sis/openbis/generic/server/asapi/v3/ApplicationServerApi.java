@@ -214,6 +214,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.get.GetRoleAssign
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.get.GetRoleAssignmentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.SearchRoleAssignmentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.SearchRoleAssignmentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSampleTypesOperation;
@@ -807,6 +810,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             AuthorizationGroupFetchOptions fetchOptions)
     {
         SearchAuthorizationGroupsOperationResult result = executeOperation(sessionToken, new SearchAuthorizationGroupsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    public SearchResult<RoleAssignment> searchRoleAssignments(String sessionToken, RoleAssignmentSearchCriteria searchCriteria,
+            RoleAssignmentFetchOptions fetchOptions)
+    {
+        SearchRoleAssignmentsOperationResult result = executeOperation(sessionToken, new SearchRoleAssignmentsOperation(searchCriteria, fetchOptions));
         return result.getSearchResult();
     }
 

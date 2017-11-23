@@ -31,7 +31,7 @@ public class UserIdsSearchCriteria extends CollectionFieldSearchCriteria<String>
 
     public UserIdsSearchCriteria()
     {
-        super("userId", SearchFieldType.ATTRIBUTE);
+        super("userIds", SearchFieldType.ATTRIBUTE);
     }
 
 }

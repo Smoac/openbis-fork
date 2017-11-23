@@ -35,5 +35,7 @@ public interface IRoleAssignmentAuthorizationExecutor extends IObjectAuthorizati
     public void canCreateSpaceRole(IOperationContext context, SpacePE space);
     
     public void canCreateProjectRole(IOperationContext context, ProjectPE project);
+
+    public void canSearch(IOperationContext context);
     
 }

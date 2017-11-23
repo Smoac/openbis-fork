@@ -1769,15 +1769,12 @@ set Role Level
 USER
 with Role Assignments
 with Role Assignments Using
-
 Get Role Assignments Operation
 Get Role Assignments Operation Result
-
 create Role Assignments
 Create Role Assignments Operation
 Create Role Assignments Operation Result
 Role Assignment Creation
-
 get Authorization Group
 get User
 has Authorization Group
@@ -1788,4 +1785,8 @@ with Authorization Group
 with Authorization Group Using
 with User
 with User Using
+RoleAssignmentSearchCriteria
+search Role Assignments
+Search Role Assignments Operation
+Search Role Assignments Operation Result
 
