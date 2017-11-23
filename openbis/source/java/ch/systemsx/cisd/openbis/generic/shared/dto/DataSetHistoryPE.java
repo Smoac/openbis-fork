@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -36,11 +37,11 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private SamplePE sample;
+    private Long sampleId;
 
-    private DataPE dataSet;
+    private Long dataSetId;
 
-    private ExperimentPE experiment;
+    private Long experimentId;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
     @JoinColumn(name = ColumnNames.MAIN_DATA_SET_COLUMN)
@@ -68,55 +69,52 @@ public class DataSetHistoryPE extends AbstractEntityHistoryPE
         entityTypePropertyType = dataSetTypePropertyType;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
-    public SamplePE getSample()
+    @Column(name = ColumnNames.SAMPLE_COLUMN)
+    public Long getSampleId()
     {
-        return sample;
+        return sampleId;
     }
 
-    public void setSample(SamplePE sample)
+    public void setSampleId(Long sampleId)
     {
-        this.sample = sample;
+        this.sampleId = sampleId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN)
-    public DataPE getDataSet()
+    @Column(name = ColumnNames.DATA_ID_COLUMN)
+    public Long getDataSetId()
     {
-        return dataSet;
+        return dataSetId;
     }
 
-    public void setDataSet(DataPE dataSet)
+    public void setDataSetId(Long dataSetId)
     {
-        this.dataSet = dataSet;
+        this.dataSetId = dataSetId;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
-    public ExperimentPE getExperiment()
+    @Column(name = ColumnNames.EXPERIMENT_COLUMN)
+    public Long getExperimentId()
     {
-        return experiment;
+        return experimentId;
     }
 
-    public void setExperiment(ExperimentPE experiment)
+    public void setExperimentId(Long experimentId)
     {
-        this.experiment = experiment;
+        this.experimentId = experimentId;
     }
 
     @Override
     @Transient
-    public IMatchingEntity getRelatedEntity()
+    public IRelatedEntity getRelatedEntity()
     {
-        if (experiment != null)
+        if (sampleId != null)
         {
-            return experiment;
-        } else if (sample != null)
+            return new RelatedSample(sampleId);
+        } else if (dataSetId != null)
         {
-            return sample;
-        } else if (dataSet != null)
+            return new RelatedDataSet(dataSetId);
+        } else if (experimentId != null)
         {
-            return dataSet;
+            return new RelatedExperiment(experimentId);
         }
         return null;
     }

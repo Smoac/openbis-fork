@@ -60,17 +60,6 @@ public abstract class AbstractEntityHistoryPE extends AbstractEntityPropertyHist
     }
 
     @Transient
-    public abstract IMatchingEntity getRelatedEntity();
+    public abstract IRelatedEntity getRelatedEntity();
 
-    @Transient
-    public SpacePE getSpace()
-    {
-        return null;
-    }
-
-    @Transient
-    public ProjectPE getProject()
-    {
-        return null;
-    }
 }
