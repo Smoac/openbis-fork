@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -26,8 +27,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.FirstNameSearchCri
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.LastNameSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.UserIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.UserIdsSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -51,6 +55,9 @@ public class SearchPersonExecutor extends AbstractSearchObjectManuallyExecutor<P
         if (criteria instanceof UserIdSearchCriteria)
         {
             return new UserIdMatcher();
+        } else if (criteria instanceof UserIdsSearchCriteria)
+        {
+            return new UserIdsMatcher();
         } else if (criteria instanceof FirstNameSearchCriteria)
         {
             return new FirstNameMatcher();
@@ -65,16 +72,38 @@ public class SearchPersonExecutor extends AbstractSearchObjectManuallyExecutor<P
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
     }
-
+    
     private class UserIdMatcher extends StringFieldMatcher<PersonPE>
     {
-
+        
         @Override
         protected String getFieldValue(PersonPE object)
         {
             return object.getUserId();
         }
-
+        
+    }
+    
+    private class UserIdsMatcher extends SimpleFieldMatcher<PersonPE>
+    {
+        @Override
+        protected boolean isMatching(IOperationContext context, PersonPE person, ISearchCriteria criteria)
+        {
+            Collection<String> userIds = ((UserIdsSearchCriteria) criteria).getFieldValue();
+            if (userIds == null || userIds.isEmpty())
+            {
+                return true;
+            }
+            
+            for (String userId : userIds)
+            {
+                if (person.getUserId().equals(userId))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private class FirstNameMatcher extends StringFieldMatcher<PersonPE>
