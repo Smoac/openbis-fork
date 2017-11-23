@@ -18,8 +18,7 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -28,25 +27,34 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.AuthenticationStore;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BasicAuthentication;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.util.B64Code;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.BasicAuthCredentials;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * 
- *
  * @author Ganime Betul Akin
  */
 public class DataSourceConnector implements IDataSourceConnector
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSourceConnector.class);
+
+    final String ENTRY_START_TAG = "<url>";
+
+    final String ENTRY_FINISH_TAG = "</url>";
+
     private final String dataSourceUrl;
 
     private final BasicAuthCredentials authCredentials;
@@ -57,20 +65,113 @@ public class DataSourceConnector implements IDataSourceConnector
         this.authCredentials = authCredentials;
     }
 
+    @Override
     public Document getResourceListAsXMLDoc(List<String> spaceBlackList) throws Exception
     {
         HttpClient client = JettyHttpClientFactory.getHttpClient();
-        addAuthenticationCredentials(client);
-        Request requestEntity = createNewHttpRequest(client, spaceBlackList);
+        Request requestEntity = createResourceListRequest(client, spaceBlackList);
+
+        operationLog.info("Start loading a resource list from " + requestEntity.getURI());
+
         ContentResponse contentResponse = getResponse(requestEntity);
-        return parseResponse(contentResponse);
+        Document document = parse(contentResponse.getContent());
+
+        if (isResourceListIndex(document))
+        {
+            operationLog.info("Received a resource list index (the resource list was too big and was split into parts).");
+            List<String> locations = getResourceListPartLocations(document);
+            List<String> parts = loadResourceListParts(client, locations);
+            return mergeResourceListParts(parts);
+        } else
+        {
+            operationLog.info("Received the resource list.");
+            return document;
+        }
     }
 
-    private Document parseResponse(ContentResponse contentResponse) throws ParserConfigurationException, SAXException, IOException
+    private boolean isResourceListIndex(Document document)
+    {
+        return document != null && document.hasChildNodes() && document.getFirstChild().getNodeName().equals("sitemapindex");
+    }
+
+    private List<String> getResourceListPartLocations(Document document)
+    {
+        Node sitemapindex = document.getFirstChild();
+        List<String> locations = new ArrayList<String>();
+
+        for (int i = 0; i < sitemapindex.getChildNodes().getLength(); i++)
+        {
+            Node child = sitemapindex.getChildNodes().item(i);
+            if (child.getNodeName().equals("sitemap"))
+            {
+                for (int j = 0; j < child.getChildNodes().getLength(); j++)
+                {
+                    Node grandChild = child.getChildNodes().item(j);
+                    if (grandChild.getNodeName().equals("loc"))
+                    {
+                        String location = grandChild.getTextContent().trim();
+                        operationLog.info("Resource list part location: " + location);
+                        locations.add(location);
+                    }
+                }
+            }
+        }
+
+        if (locations.isEmpty())
+        {
+            operationLog.info("No locations of the resource list parts were found in the index.");
+        }
+
+        return locations;
+    }
+
+    private List<String> loadResourceListParts(HttpClient client, List<String> locations) throws Exception
+    {
+        List<String> parts = new ArrayList<String>();
+
+        for (String location : locations)
+        {
+            Request request = createRequest(client, location);
+            operationLog.info("Start loading a resource list part from " + location);
+            ContentResponse response = getResponse(request);
+            operationLog.info("Received the resource list part.");
+            parts.add(response.getContentAsString());
+        }
+
+        return parts;
+    }
+
+    private Document mergeResourceListParts(List<String> parts) throws Exception
+    {
+        StringBuilder merged = new StringBuilder();
+
+        if (parts.size() > 0)
+        {
+            merged.append(parts.get(0).substring(0, parts.get(0).indexOf(ENTRY_START_TAG)));
+
+            for (String part : parts)
+            {
+                int firstEntryIndex = part.indexOf(ENTRY_START_TAG);
+                int lastEntryIndex = part.lastIndexOf(ENTRY_FINISH_TAG);
+
+                if (firstEntryIndex != -1 && lastEntryIndex != -1 && firstEntryIndex < lastEntryIndex)
+                {
+                    merged.append(part.substring(firstEntryIndex, lastEntryIndex + ENTRY_FINISH_TAG.length()));
+                }
+            }
+
+            merged.append("</urlset>");
+        }
+
+        operationLog.info("Merged the resource list parts.");
+
+        return parse(merged.toString().getBytes());
+    }
+
+    private Document parse(byte[] content) throws ParserConfigurationException, SAXException, IOException
     {
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(true);
-        byte[] content = contentResponse.getContent();
         ByteArrayInputStream bis = new ByteArrayInputStream(content);
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document doc = builder.parse(bis);
@@ -90,28 +191,32 @@ public class DataSourceConnector implements IDataSourceConnector
         return contentResponse;
     }
 
-    private Request createNewHttpRequest(HttpClient client, List<String> spaceBlackList)
+    private Request createResourceListRequest(HttpClient client, List<String> spaceBlackList)
     {
         StringBuffer sb = new StringBuffer();
+
         for (String dataSourceSpace : spaceBlackList)
         {
             sb.append(dataSourceSpace + ",");
         }
-        String req = dataSourceUrl + "?verb=resourcelist.xml";
+
+        String url = dataSourceUrl + "?verb=resourcelist.xml";
+
         if (sb.length() != 0)
         {
             String str = sb.toString();
             str = str.substring(0, str.length() - 1);
-            req += "&black_list=" + str;
+            url += "&black_list=" + str;
         }
-        Request requestEntity = client.newRequest(req).method("GET");
+
+        return createRequest(client, url);
+    }
+
+    private Request createRequest(HttpClient client, String url)
+    {
+        Request requestEntity = client.newRequest(url).method("GET");
+        requestEntity.header(HttpHeader.AUTHORIZATION, "Basic " + B64Code.encode(authCredentials.getUser() + ":" + authCredentials.getPassword()));
         return requestEntity;
     }
 
-    private void addAuthenticationCredentials(HttpClient client) throws URISyntaxException
-    {
-        AuthenticationStore auth = client.getAuthenticationStore();
-        auth.addAuthentication(new BasicAuthentication(new URI(dataSourceUrl), authCredentials.getRealm(), authCredentials.getUser(), authCredentials
-                .getPassword()));
-    }
 }
