@@ -292,7 +292,11 @@ public class SearchRoleAssignmentsTest extends AbstractTest
         List<String> assignmentsAsStrings = new ArrayList<>();
         for (RoleAssignment roleAssignment : assignments)
         {
-            assignmentsAsStrings.add(asString(roleAssignment));
+            String asString = asString(roleAssignment);
+            if (asString.contains("EO_") == false) // other tests create new role assignments
+            {
+                assignmentsAsStrings.add(asString);
+            }
         }
         Collections.sort(assignmentsAsStrings);
         StringBuilder builder = new StringBuilder();
