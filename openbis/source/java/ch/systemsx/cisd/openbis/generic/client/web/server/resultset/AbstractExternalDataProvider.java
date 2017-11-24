@@ -132,6 +132,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(EXTERNAL_DMS_ADDRESS).withDefaultWidth(150).hideByDefault();
         builder.addColumn(LINK_PATH).withDefaultWidth(150).hideByDefault();
         builder.addColumn(LINK_HASH).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(LINK_REPOSITORY).withDefaultWidth(150).hideByDefault();
 
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
@@ -244,7 +245,10 @@ public abstract class AbstractExternalDataProvider extends
                 CommaSeparatedListBuilder externalCodes = new CommaSeparatedListBuilder();
                 CommaSeparatedListBuilder paths = new CommaSeparatedListBuilder();
                 CommaSeparatedListBuilder hashes = new CommaSeparatedListBuilder();
-                CommaSeparatedListBuilder repos = new CommaSeparatedListBuilder();
+
+                // repository ids of content copies are the same for one data set,
+                // so we have only one string
+                String repositoryId = "";
 
                 for (IContentCopy copy : linkDataSet.getCopies())
                 {
@@ -254,7 +258,7 @@ public abstract class AbstractExternalDataProvider extends
                     externalCodes.append(emptyOnNull(copy.getExternalCode()));
                     paths.append(emptyOnNull(copy.getPath()));
                     hashes.append(emptyOnNull(copy.getCommitHash()));
-                    repos.append(emptyOnNull(copy.getRespitoryId()));
+                    repositoryId = emptyOnNull(copy.getRespitoryId());
                 }
 
                 builder.column(EXTERNAL_DMS_CODE).addString(dmsCodes.toString());
@@ -264,7 +268,7 @@ public abstract class AbstractExternalDataProvider extends
                 builder.column(EXTERNAL_CODE).addString(externalCodes.toString());
                 builder.column(LINK_PATH).addString(paths.toString());
                 builder.column(LINK_HASH).addString(hashes.toString());
-                builder.column(LINK_REPOSITORY).addString(repos.toString());
+                builder.column(LINK_REPOSITORY).addString(repositoryId);
             }
         }
     }
