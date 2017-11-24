@@ -350,7 +350,7 @@ public class TrackingBO
                 }
                 String laneString = currentLaneId.toString().split(":")[1];
                 changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace + " " + lane.getCode());
-                LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
+                LogUtils.debug("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
             }
         }
 
@@ -509,10 +509,12 @@ public class TrackingBO
         {
             File source = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH);
             File targetName = new File(ds.tryGetAsDataSet().getFullLocation());
+            
+            String datasetTypCode = ds.getDataSetType().getCode();
 
             File omittedSource = new File(base_path_string, ds.tryGetAsDataSet().getFullLocation() + ORIGINAL_PATH + source.list()[0]);
 
-            File destination = new File(params.getDestinationFolder(), targetName.getName());
+            File destination = new File(params.getDestinationFolderMap().get(datasetTypCode), targetName.getName());
 
             if (!destination.exists())
             {

@@ -18,6 +18,8 @@ package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import static ch.systemsx.cisd.common.properties.PropertyUtils.getMandatoryProperty;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -54,6 +56,8 @@ public class Parameters
     private static final String DATA_SET_TYPE_LIST = "dataset-type-list";
 
     private static final String DESTINATION_FOLDER = "destination-folder";
+
+    private static final String DESTINATION_FOLDER_SUFFIX = "destination-folder";
     
     private static final String RSYNC_BINARY = "rsync-binary";
 
@@ -92,6 +96,8 @@ public class Parameters
     private final String rsyncFlags;
     
     private final String dssRootDir;
+    
+    private final Map<String, String> destinationFolderMap;
 
     public Parameters(Properties props)
     {
@@ -111,6 +117,8 @@ public class Parameters
         this.rsyncBinary = PropertyUtils.getProperty(props, RSYNC_BINARY);
         this.rsyncFlags = PropertyUtils.getProperty(props, RSYNC_FLAGS);
         this.dssRootDir = PropertyUtils.getProperty(props, DSS_ROOT_DIR);
+        
+        this.destinationFolderMap = this.setDataDestinationFolder(props);
     }
 
     public String getOpenbisUser()
@@ -192,4 +200,25 @@ public class Parameters
     {
     	return dssRootDir;
     }
+    
+    public Map<String, String> getDestinationFolderMap() {
+    	return destinationFolderMap;
+    }
+    
+    private Map<String, String> setDataDestinationFolder(Properties properties) {
+        
+    	final Map<String, String> destinationFolderMap = new HashMap<String, String>();
+    	
+    	for (Object key : properties.keySet())
+        {
+            final String propertyKey = (String) key;
+
+            if (propertyKey.endsWith(DESTINATION_FOLDER_SUFFIX))
+            {
+            	String datasetTypePrefix = propertyKey.split("-")[0];
+            	destinationFolderMap.put(datasetTypePrefix, PropertyUtils.getMandatoryProperty(properties, propertyKey));
+            }
+        }
+    	return destinationFolderMap;
+   }
 }
