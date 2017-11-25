@@ -186,7 +186,7 @@ public class EntitySynchronizer
 
     public Date syncronizeEntities() throws Exception
     {
-        DataSourceConnector dataSourceConnector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials());
+        DataSourceConnector dataSourceConnector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials(), operationLog);
         return syncronizeEntities(dataSourceConnector);
     }
 

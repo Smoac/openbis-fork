@@ -40,8 +40,6 @@ import org.xml.sax.SAXException;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.BasicAuthCredentials;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * @author Ganime Betul Akin
@@ -49,20 +47,17 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class DataSourceConnector implements IDataSourceConnector
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSourceConnector.class);
-
-    final String ENTRY_START_TAG = "<url>";
-
-    final String ENTRY_FINISH_TAG = "</url>";
-
     private final String dataSourceUrl;
 
     private final BasicAuthCredentials authCredentials;
 
-    public DataSourceConnector(String url, BasicAuthCredentials authCredentials)
+    private Logger operationLog;
+
+    public DataSourceConnector(String url, BasicAuthCredentials authCredentials, Logger operationLog)
     {
         this.dataSourceUrl = url;
         this.authCredentials = authCredentials;
+        this.operationLog = operationLog;
     }
 
     @Override
@@ -80,7 +75,7 @@ public class DataSourceConnector implements IDataSourceConnector
         {
             operationLog.info("Received a resource list index (the resource list was too big and was split into parts).");
             List<String> locations = getResourceListPartLocations(document);
-            List<String> parts = loadResourceListParts(client, locations);
+            List<Document> parts = loadResourceListParts(client, locations);
             return mergeResourceListParts(parts);
         } else
         {
@@ -125,9 +120,9 @@ public class DataSourceConnector implements IDataSourceConnector
         return locations;
     }
 
-    private List<String> loadResourceListParts(HttpClient client, List<String> locations) throws Exception
+    private List<Document> loadResourceListParts(HttpClient client, List<String> locations) throws Exception
     {
-        List<String> parts = new ArrayList<String>();
+        List<Document> parts = new ArrayList<Document>();
 
         for (String location : locations)
         {
@@ -135,37 +130,35 @@ public class DataSourceConnector implements IDataSourceConnector
             operationLog.info("Start loading a resource list part from " + location);
             ContentResponse response = getResponse(request);
             operationLog.info("Received the resource list part.");
-            parts.add(response.getContentAsString());
+            parts.add(parse(response.getContent()));
         }
 
         return parts;
     }
 
-    private Document mergeResourceListParts(List<String> parts) throws Exception
+    private Document mergeResourceListParts(List<Document> parts) throws Exception
     {
-        StringBuilder merged = new StringBuilder();
+        Document mergedDocument = parts.get(0);
+        Node mergedUrlset = mergedDocument.getFirstChild();
 
-        if (parts.size() > 0)
+        for (int i = 1; i < parts.size(); i++)
         {
-            merged.append(parts.get(0).substring(0, parts.get(0).indexOf(ENTRY_START_TAG)));
+            Document part = parts.get(i);
+            Node urlset = part.getFirstChild();
 
-            for (String part : parts)
+            for (int j = 0; j < urlset.getChildNodes().getLength(); j++)
             {
-                int firstEntryIndex = part.indexOf(ENTRY_START_TAG);
-                int lastEntryIndex = part.lastIndexOf(ENTRY_FINISH_TAG);
-
-                if (firstEntryIndex != -1 && lastEntryIndex != -1 && firstEntryIndex < lastEntryIndex)
+                Node child = urlset.getChildNodes().item(j);
+                if (child.getNodeName().equals("url"))
                 {
-                    merged.append(part.substring(firstEntryIndex, lastEntryIndex + ENTRY_FINISH_TAG.length()));
+                    mergedUrlset.appendChild(mergedDocument.importNode(child, true));
                 }
             }
-
-            merged.append("</urlset>");
         }
 
         operationLog.info("Merged the resource list parts.");
 
-        return parse(merged.toString().getBytes());
+        return mergedDocument;
     }
 
     private Document parse(byte[] content) throws ParserConfigurationException, SAXException, IOException
