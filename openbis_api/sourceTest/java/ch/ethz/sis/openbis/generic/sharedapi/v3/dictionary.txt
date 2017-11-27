@@ -1794,3 +1794,7 @@ Delete Role Assignments Operation
 Delete Role Assignments Operation Result
 Role Assignment Deletion Options
 
+search Persons
+Search Persons Operation
+Search Persons Operation Result
+

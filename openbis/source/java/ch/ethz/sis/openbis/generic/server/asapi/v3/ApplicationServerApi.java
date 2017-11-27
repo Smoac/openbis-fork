@@ -179,6 +179,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.SearchOperation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.SearchOperationExecutionsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.UpdateOperationExecutionsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperationResult;
@@ -820,6 +825,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             RoleAssignmentFetchOptions fetchOptions)
     {
         SearchRoleAssignmentsOperationResult result = executeOperation(sessionToken, new SearchRoleAssignmentsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    public SearchResult<Person> searchPersons(String sessionToken, PersonSearchCriteria searchCriteria, PersonFetchOptions fetchOptions)
+    {
+        SearchPersonsOperationResult result = executeOperation(sessionToken, new SearchPersonsOperation(searchCriteria, fetchOptions));
         return result.getSearchResult();
     }
 
