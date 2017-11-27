@@ -72,6 +72,21 @@ public interface IGenericClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Registers new samples from files which have been previously uploaded forcing the experimentIdentifier
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     * 
+     * @param updateExisting if true and some entities already exist, they will be updated (instead of throwing the exception and breaking the whole
+     *            operation).
+     */
+    public List<BatchRegistrationResult> registerSamplesWithSilentOverrides(final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier, boolean updateExisting)
+            throws UserFailureException;
+
+    /**
      * Registers new samples from files which have been previously uploaded.
      * <p>
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
@@ -92,6 +107,17 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> registerExperiments(final ExperimentType experimentType,
             String sessionKey, boolean async, String userEmail) throws UserFailureException;
+
+    /**
+     * Updates samples from files which have been previously uploaded.
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     */
+    public List<BatchRegistrationResult> updateSamplesWithSilentOverrides(final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier) throws UserFailureException;
 
     /**
      * Updates samples from files which have been previously uploaded.
@@ -192,4 +218,5 @@ public interface IGenericClientService extends IClientService
     public Map<String, Object> uploadedSamplesInfo(
             final SampleType sampleType,
             final String sessionKey);
+
 }

@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.parser.ExcelFileLoader;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
@@ -84,6 +86,8 @@ public class SampleUploadSectionsParser
     }
 
     public static BatchSamplesOperation prepareSamples(final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
             final Collection<NamedInputStream> files, String defaultGroupIdentifier,
             final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
             String excelSheetName, BatchOperationKind operationKind)
@@ -91,7 +95,9 @@ public class SampleUploadSectionsParser
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
         final List<BatchRegistrationResult> results =
-                loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
+                loadSamplesFromFiles(files, sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull,
+                        isAutoGenerateCodes,
+                        newSamples,
                         allowExperiments, excelSheetName, operationKind);
 
         if (defaultGroupIdentifier != null)
@@ -184,8 +190,46 @@ public class SampleUploadSectionsParser
         return tabFileLoader;
     }
 
+    public static String getIdentifierOrNull(String identifierOrNullOrDelete)
+    {
+        switch (identifierOrNullOrDelete)
+        {
+            case "--DELETE--":
+                return null;
+            case "__DELETE__":
+                return null;
+            default:
+                return identifierOrNullOrDelete;
+        }
+    }
+
+    private static void setSilentOverrides(String spaceIdentifierSilentOverrideOrNull,
+            String experimentIdentifierSilentOverrideOrNull, List<NewSample> newSamples)
+    {
+        for (NewSample newSample : newSamples)
+        {
+            if (spaceIdentifierSilentOverrideOrNull != null)
+            {
+                if (newSample.getIdentifier() != null)
+                {
+                    int endOfSpaceIdentfier = StringUtils.ordinalIndexOf(newSample.getIdentifier(), "/", 2);
+                    String sampleIdentifierSilentOverrideOrNull =
+                            spaceIdentifierSilentOverrideOrNull + newSample.getIdentifier().substring(endOfSpaceIdentfier);
+                    newSample.setIdentifier(sampleIdentifierSilentOverrideOrNull);
+                }
+                newSample.setDefaultSpaceIdentifier(getIdentifierOrNull(spaceIdentifierSilentOverrideOrNull));
+            }
+            if (experimentIdentifierSilentOverrideOrNull != null)
+            {
+                newSample.setExperimentIdentifier(getIdentifierOrNull(experimentIdentifierSilentOverrideOrNull));
+            }
+        }
+    }
+
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
+            String spaceIdentifierSilentOverrideOrNull,
+            String experimentIdentifierSilentOverrideOrNull,
             boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
             boolean allowExperiments, String excelSheetName, BatchOperationKind operationKind)
     {
@@ -228,6 +272,7 @@ public class SampleUploadSectionsParser
                         final List<NewSample> loadedSamples =
                                 excelFileLoader.load(fs.getSheet(), fs.getBegin(), fs.getEnd(),
                                         fileName + sectionInFile, defaults);
+                        setSilentOverrides(spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull, loadedSamples);
                         if (loadedSamples.size() > 0)
                         {
                             newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
@@ -271,6 +316,7 @@ public class SampleUploadSectionsParser
                         final List<NewSample> loadedSamples =
                                 tabFileLoader.load(new DelegatedReader(reader, fileName
                                         + sectionInFile), defaults);
+                        setSilentOverrides(spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull, loadedSamples);
                         if (loadedSamples.size() > 0)
                         {
                             newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));

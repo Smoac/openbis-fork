@@ -187,8 +187,10 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public final List<BatchRegistrationResult> registerSamples(
+    public final List<BatchRegistrationResult> registerSamplesWithSilentOverrides(
             final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
             final String sessionKey,
             final boolean async,
             final String userEmail,
@@ -207,7 +209,10 @@ public class GenericClientService extends AbstractClientService implements IGene
             final BatchOperationKind operationKind = updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
             BatchSamplesOperation info =
-                    parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
+                    parseSamples(sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull, uploadedFiles,
+                            defaultGroupIdentifier, isAutoGenerateCodes,
+                            true, null,
+                            operationKind, sessionToken);
 
             if (async)
             {
@@ -230,7 +235,9 @@ public class GenericClientService extends AbstractClientService implements IGene
                         {
                             // Some stuff is repeated on the async executor, this is expected
                             BatchSamplesOperation asyncInfo =
-                                    parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, isAutoGenerateCodes, true, null,
+                                    parseSamples(sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull,
+                                            this.getFilesForTask(), defaultGroupIdentifier,
+                                            isAutoGenerateCodes, true, null,
                                             operationKind, sessionToken);
                             // Execute task
                             genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
@@ -287,6 +294,18 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
+    public final List<BatchRegistrationResult> registerSamples(
+            final SampleType sampleType,
+            final String sessionKey,
+            final boolean async,
+            final String userEmail,
+            final String defaultGroupIdentifier,
+            final boolean updateExisting)
+    {
+        return registerSamplesWithSilentOverrides(sampleType, null, null, sessionKey, async, userEmail, defaultGroupIdentifier, updateExisting);
+    }
+
     private boolean shouldContinuousSampleCodesCreated()
     {
         return PropertyUtils.getBoolean(this.getServiceProperties(), Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY, false);
@@ -334,8 +353,10 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public final List<BatchRegistrationResult> updateSamples(
+    public final List<BatchRegistrationResult> updateSamplesWithSilentOverrides(
             final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
             final String sessionKey,
             boolean async,
             final String userEmail,
@@ -349,7 +370,9 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
             BatchSamplesOperation info =
-                    parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
+                    parseSamples(sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull, uploadedFiles,
+                            defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE,
+                            sessionToken);
 
             if (async)
             {
@@ -372,7 +395,8 @@ public class GenericClientService extends AbstractClientService implements IGene
                         {
                             // Some stuff is repeated on the async executor, this is expected
                             BatchSamplesOperation asyncInfo =
-                                    parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, false, true, null,
+                                    parseSamples(sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull,
+                                            this.getFilesForTask(), defaultGroupIdentifier, false, true, null,
                                             BatchOperationKind.UPDATE, sessionToken);
                             // Execute task
                             genericServer.updateSamples(sessionToken, asyncInfo.getSamples());
@@ -402,6 +426,17 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
+    public final List<BatchRegistrationResult> updateSamples(
+            final SampleType sampleType,
+            final String sessionKey,
+            boolean async,
+            final String userEmail,
+            final String defaultGroupIdentifier)
+    {
+        return updateSamplesWithSilentOverrides(sampleType, null, null, sessionKey, async, userEmail, defaultGroupIdentifier);
+    }
+
+    @Override
     public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
             final String sessionKey,
             final String defaultGroupIdentifier,
@@ -422,7 +457,8 @@ public class GenericClientService extends AbstractClientService implements IGene
             uploadedFiles = getUploadedFiles(sessionKey, session);
 
             BatchSamplesOperation samplesInfo =
-                    parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind,
+                    parseSamples(sampleType, null, null, uploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES",
+                            operationKind,
                             sessionToken);
 
             final MaterialType materialType = new MaterialType();
@@ -450,7 +486,9 @@ public class GenericClientService extends AbstractClientService implements IGene
                         {
                             // Some stuff is repeated on the async executor, this is expected
                             BatchSamplesOperation asyncSamplesInfo =
-                                    parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, defaultGroupIdentifier != null, true,
+                                    parseSamples(sampleType, null, null, this.getFilesForTask(), defaultGroupIdentifier,
+                                            defaultGroupIdentifier != null,
+                                            true,
                                             "SAMPLES", operationKind, sessionToken);
                             BatchMaterialsOperation asyncMaterialsInfo =
                                     parseMaterials(session, this.getFilesForTask(), materialType, "MATERIALS", updateExisting);
@@ -538,7 +576,9 @@ public class GenericClientService extends AbstractClientService implements IGene
         return helper.exp;
     }
 
-    private BatchSamplesOperation parseSamples(final SampleType sampleType, UploadedFilesBean uploadedFiles,
+    private BatchSamplesOperation parseSamples(final SampleType sampleType, String spaceIdentifierSilentOverrideOrNull,
+            String experimentIdentifierSilentOverrideOrNull,
+            UploadedFilesBean uploadedFiles,
             String defaultGroupIdentifier, final boolean isAutoGenerateCodes,
             final boolean allowExperiments, String excelSheetName, BatchOperationKind operationKind, String sessionToken)
     {
@@ -553,7 +593,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
 
         BatchSamplesOperation batchSamplesOperation =
-                SampleUploadSectionsParser.prepareSamples(sampleType, files,
+                SampleUploadSectionsParser.prepareSamples(sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull,
+                        files,
                         defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
                         excelSheetName, operationKind);
 
@@ -619,7 +660,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            return parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, allowExperiments, excelSheetName,
+            return parseSamples(sampleType, null, null, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, allowExperiments, excelSheetName,
                     operationKind, sessionToken);
         } finally
         {
@@ -1117,11 +1158,11 @@ public class GenericClientService extends AbstractClientService implements IGene
             convExperimentIdentifierOrNull =
                     new ExperimentIdentifierFactory(updates
                             .getExperimentIdentifierOrNull().getIdentifier())
-                    .createIdentifier();
+                                    .createIdentifier();
         }
         return convExperimentIdentifierOrNull;
     }
-    
+
     private ProjectIdentifier getProjectIdentifier(SampleUpdates updates)
     {
         String identifier = updates.getProjectIdentifierOrNull();
@@ -1131,6 +1172,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
         return new ProjectIdentifierFactory(identifier).createIdentifier();
     }
+
     @Override
     public Date updateMaterial(TechId materialId, List<IEntityProperty> properties,
             String[] metaprojects, Date version)
@@ -1331,6 +1373,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             BatchSamplesOperation batchSamplesOperation = SampleUploadSectionsParser.prepareSamples(
                     sampleType,
+                    null,
+                    null,
                     files,
                     null,
                     null,
@@ -1340,7 +1384,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             info.put("identifiersPressent", Boolean.TRUE);
         } catch (Exception ex)
         {
-            if (ex.getMessage().contains("Mandatory column 'identifier' is missing."))
+            if (ex.getMessage() != null && ex.getMessage().contains("Mandatory column 'identifier' is missing."))
             {
                 info.put("identifiersPressent", Boolean.FALSE);
             }
