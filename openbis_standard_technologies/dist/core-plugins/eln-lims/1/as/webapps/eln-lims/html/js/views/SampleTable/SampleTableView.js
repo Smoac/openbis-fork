@@ -206,7 +206,6 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	}
 	
 	this.registerSamples = function(experimentIdentifier) {
-		var _this = this;
 		var allowedSampleTypes = null;
 		var forcedSpace = null;
 		if(this._sampleTableModel.sampleTypeCodeToUse) {
@@ -235,42 +234,16 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 						}
 					};
 					
-					if(infoData.result.identifiersPressent) {
-						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null, finalCallback);
-					} else if(forcedSpace || typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
-						if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
-							forcedSpace = "STORAGE";
-						}
-						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + forcedSpace, finalCallback);
-					} else {
-						mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + space, finalCallback);
-						
-						mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
-							var spaces = [];
-							for(var i = 0; i < data.result.length; i++) {
-								spaces.push(data.result[i].code);
-							}
-							
-							var component = "<select id='sampleSpaceSelector' class='form-control' required>";
-							component += "<option disabled=\"disabled\" selected></option>";
-							for(var i = 0; i < spaces.length; i++) {
-								component += "<option value='"+spaces[i]+"'>"+Util.getDisplayNameFromCode(spaces[i])+"</option>";
-							}
-							component += "</select>";
-							
-							Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn btn-default' id='spaceSelectionCancel'>Cancel</a>");
-							
-							$("#sampleSpaceSelector").on("change", function(event) {
-								var space = $("#sampleSpaceSelector")[0].value;
-								Util.blockUI();
-								mainController.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + space, finalCallback);
-							});
-							
-							$("#spaceSelectionCancel").on("click", function(event) { 
-								Util.unblockUI();
-							});
-							
-						});
+					var experimentIdentifierOrDelete = experimentIdentifier;
+					if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+						experimentIdentifierOrDelete = "__DELETE__";
+						forcedSpace = "STORAGE";
+					}
+					
+					if(infoData.result.identifiersPressent) { //If identifiers are present they should match the space of the experiment
+						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), '/' + forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null, finalCallback);
+					} else { // If identifiers are not present the defaultGroup/forcedSpace should be set for auto generation
+						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), '/' + forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", '/' + forcedSpace, finalCallback);
 					}
 				}
 			);
@@ -280,8 +253,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	}
 	
 	this.updateSamples = function(experimentIdentifier) {
+		var allowedSampleTypes = null;
+		var forcedSpace = null;
 		if(this._sampleTableModel.sampleTypeCodeToUse) {
 			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+			if(experimentIdentifier) {
+				forcedSpace = experimentIdentifier.split("/")[1];
+			}
 		}
 		var typeAndFileController = new TypeAndFileController('Update ' + ELNDictionary.Samples + '', "UPDATE", function(type, file) {
 			Util.blockUI();
@@ -298,9 +276,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				}
 			};
 			
+			var experimentIdentifierOrDelete = experimentIdentifier;
+			if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+				experimentIdentifierOrDelete = "__DELETE__";
+				forcedSpace = "STORAGE";
+			}
+			
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
 				//Code After the upload
-				mainController.serverFacade.updateSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null,finalCallback);
+				mainController.serverFacade.updateSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), '/' + forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null,finalCallback);
 			});
 		}, allowedSampleTypes);
 		typeAndFileController.init();

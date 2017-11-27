@@ -462,12 +462,12 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.uploadedSamplesInfo(sampleTypeCode, fileKeyAtHTTPSession, callbackFunction);
 	}
 
-	this.registerSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
-		this.openbisServer.registerSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
+	this.registerSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
+		this.openbisServer.registerSamplesWithSilentOverrides(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
 
-	this.updateSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
-		this.openbisServer.updateSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
+	this.updateSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
+		this.openbisServer.updateSamplesWithSilentOverrides(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
 	
 	this.fileUpload = function(file, callbackFunction) {
