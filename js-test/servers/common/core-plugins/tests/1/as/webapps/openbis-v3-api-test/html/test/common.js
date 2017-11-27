@@ -65,6 +65,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
 		this.TagDeletionOptions = dtos.TagDeletionOptions;
 		this.AuthorizationGroupDeletionOptions = dtos.AuthorizationGroupDeletionOptions;
+		this.RoleAssignmentDeletionOptions = dtos.RoleAssignmentDeletionOptions;
 		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
 		this.PersonPermId = dtos.PersonPermId;
 		this.EntityTypePermId = dtos.EntityTypePermId;
@@ -239,6 +240,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
 		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
 		this.DeleteAuthorizationGroupsOperation = dtos.DeleteAuthorizationGroupsOperation;
+		this.DeleteRoleAssignmentsOperation = dtos.DeleteRoleAssignmentsOperation;
 		this.DeleteOperationExecutionsOperation = dtos.DeleteOperationExecutionsOperation;
 		this.DeleteSemanticAnnotationsOperation = dtos.DeleteSemanticAnnotationsOperation;
 
@@ -573,6 +575,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 		
+		this.findRoleAssignment = function(facade, id) {
+			var c = this;
+			return facade.getRoleAssignments([ id ], c.createRoleAssignmentFetchOptions()).then(function(tags) {
+				return tags[id];
+			});
+		}.bind(this);
+		
 		this.findSemanticAnnotation = function(facade, id) {
 			var c = this;
 			return facade.getSemanticAnnotations([ id ], c.createSemanticAnnotationFetchOptions()).then(function(annotations) {
@@ -670,6 +679,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var options = new dtos.AuthorizationGroupDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteAuthorizationGroups([ id ], options);
+		}.bind(this);
+		
+		this.deleteRoleAssignment = function(facade, id) {
+			var c = this;
+			var options = new dtos.RoleAssignmentDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteRoleAssignments([ id ], options);
 		}.bind(this);
 		
 		this.deleteOperationExecution = function(facade, id) {

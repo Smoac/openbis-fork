@@ -381,6 +381,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteAuthorizationGroupsOperation(ids, deletionOptions));
 		}
 		
+		this.deleteRoleAssignments = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeleteRoleAssignmentsOperation(ids, deletionOptions));
+		}
+		
 		this.deleteOperationExecutions = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteOperationExecutionsOperation(ids, deletionOptions));
 		}
