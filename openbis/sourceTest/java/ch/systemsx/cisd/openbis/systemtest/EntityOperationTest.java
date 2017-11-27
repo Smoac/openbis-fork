@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -86,7 +87,7 @@ public class EntityOperationTest extends SystemTestCase
 
     private static final SpaceIdentifier SPACE_B = new SpaceIdentifier("TESTGROUP");
 
-    @BeforeClass
+    @BeforeMethod
     public void createTestUsers()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
