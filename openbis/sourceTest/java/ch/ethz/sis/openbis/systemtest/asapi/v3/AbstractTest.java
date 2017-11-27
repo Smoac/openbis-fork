@@ -1177,6 +1177,16 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualIds, expectedIds.toArray(new Long[] {}));
     }
 
+    protected Object[][] createTestUsersProvider(String... users)
+    {
+        Object[][] objects = new Object[users.length][];
+        for (int i = 0; i < users.length; i++)
+        {
+            objects[i] = new Object[] {users[i]};
+        }
+        return objects;
+    }
+
     protected static String patternContains(String... parts)
     {
         StringBuilder pattern = new StringBuilder();

@@ -95,6 +95,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
     protected static final String TEST_POWER_USER_CISD = "test_role";
 
+    protected static final String TEST_INSTANCE_ETLSERVER = "etlserver";
+    
     protected static final String TEST_GROUP_OBSERVER = "observer";
 
     protected static final String TEST_INSTANCE_OBSERVER = "instance_observer";

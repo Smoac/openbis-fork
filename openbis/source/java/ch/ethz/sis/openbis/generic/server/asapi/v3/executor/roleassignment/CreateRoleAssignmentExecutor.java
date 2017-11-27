@@ -28,6 +28,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
@@ -41,6 +42,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -76,7 +79,46 @@ public class CreateRoleAssignmentExecutor
     @Override
     protected IObjectId getId(RoleAssignmentPE entity)
     {
-        return new RoleAssignmentTechId(entity.getId());
+        // Note, we can not return an instance of RoleAssignmentId because entity.getId() == null
+        return new ObjectIdentifier(renderAssignment(entity))
+            {
+                private static final long serialVersionUID = 1L;
+            };
+    }
+
+    private String renderAssignment(RoleAssignmentPE entity)
+    {
+        StringBuilder builder = new StringBuilder();
+        SpacePE space = entity.getSpace();
+        ProjectPE project = entity.getProject();
+        if (space != null)
+        {
+            builder.append("SPACE_");
+        } else
+        {
+            builder.append(project != null ? "PROJECT_" : "INSTANCE_");
+        }
+        builder.append(entity.getRole());
+        if (space != null)
+        {
+            builder.append(" [Space: ").append(space.getCode()).append("]");
+        } else if (project != null)
+        {
+            builder.append(" [Project: ").append(project.getIdentifier()).append("]");
+        }
+        PersonPE user = entity.getPerson();
+        if (user != null)
+        {
+            builder.append(" for user ").append(user.getUserId());
+        } else
+        {
+            AuthorizationGroupPE group = entity.getAuthorizationGroup();
+            if (group != null)
+            {
+                builder.append(" for authorization group ").append(group.getCode());
+            }
+        }
+        return builder.toString();
     }
 
     @Override
