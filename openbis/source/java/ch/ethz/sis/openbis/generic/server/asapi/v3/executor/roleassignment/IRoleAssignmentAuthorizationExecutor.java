@@ -37,5 +37,11 @@ public interface IRoleAssignmentAuthorizationExecutor extends IObjectAuthorizati
     public void canCreateProjectRole(IOperationContext context, ProjectPE project);
 
     public void canSearch(IOperationContext context);
+
+    public void canDeleteInstanceRole(IOperationContext context);
     
+    public void canDeleteSpaceRole(IOperationContext context, SpacePE space);
+    
+    public void canDeleteProjectRole(IOperationContext context, ProjectPE project);
+
 }

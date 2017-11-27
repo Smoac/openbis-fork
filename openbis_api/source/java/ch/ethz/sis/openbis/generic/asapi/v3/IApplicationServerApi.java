@@ -113,6 +113,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
@@ -376,6 +377,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public void deleteAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupDeletionOptions deletionOptions);
 
+    public void deleteRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> assignmentIds, RoleAssignmentDeletionOptions deletionOptions);
+    
     public void deleteOperationExecutions(String sessionToken, List<? extends IOperationExecutionId> executionIds,
             OperationExecutionDeletionOptions deletionOptions);
 

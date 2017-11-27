@@ -74,4 +74,27 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     {
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("DELETE_INSTANCE_ROLE")
+    public void canDeleteInstanceRole(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("DELETE_SPACE_ROLE")
+    public void canDeleteSpaceRole(IOperationContext context, 
+            @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE space)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
+    @Capability("DELETE_PROJECT_ROLE")
+    public void canDeleteProjectRole(IOperationContext context, 
+            @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
+    {
+    }
+
 }

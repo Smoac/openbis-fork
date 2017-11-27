@@ -209,6 +209,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRoleAssignmentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.DeleteRoleAssignmentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.get.GetRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.get.GetRoleAssignmentsOperationResult;
@@ -923,6 +925,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             AuthorizationGroupDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteAuthorizationGroupsOperation(groupIds, deletionOptions));
+    }
+
+    @Override
+    public void deleteRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> assignmentIds,
+            RoleAssignmentDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeleteRoleAssignmentsOperation(assignmentIds, deletionOptions));
     }
 
     @Override

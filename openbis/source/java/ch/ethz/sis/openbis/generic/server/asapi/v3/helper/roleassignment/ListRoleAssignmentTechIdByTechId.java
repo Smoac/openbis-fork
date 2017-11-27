@@ -24,6 +24,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignment
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTechIdById;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.QueryTool;
+
 /**
  * 
  *
@@ -41,10 +45,17 @@ public class ListRoleAssignmentTechIdByTechId extends AbstractListTechIdById<Rol
     @Override
     protected Map<Long, RoleAssignmentTechId> createIdsByTechIdsMap(IOperationContext context, List<RoleAssignmentTechId> ids)
     {
-        Map<Long, RoleAssignmentTechId> map = new HashMap<Long, RoleAssignmentTechId>();
-        for (RoleAssignmentTechId id : ids)
+        LongSet longs = new LongOpenHashSet();
+        for (RoleAssignmentTechId techId : ids)
         {
-            map.put(id.getTechId(), id);
+            longs.add(techId.getTechId());
+        }
+        RoleAssignmentQuery query = QueryTool.getManagedQuery(RoleAssignmentQuery.class);
+        List<Long> idsOfExistingRoleAssigments = query.listRoleAssignmentTechIdsByTechIds(longs);
+        Map<Long, RoleAssignmentTechId> map = new HashMap<Long, RoleAssignmentTechId>();
+        for (Long id : idsOfExistingRoleAssigments)
+        {
+            map.put(id, new RoleAssignmentTechId(id));
         }
         return map;
     }

@@ -1789,4 +1789,8 @@ RoleAssignmentSearchCriteria
 search Role Assignments
 Search Role Assignments Operation
 Search Role Assignments Operation Result
+delete Role Assignments
+Delete Role Assignments Operation
+Delete Role Assignments Operation Result
+Role Assignment Deletion Options
 

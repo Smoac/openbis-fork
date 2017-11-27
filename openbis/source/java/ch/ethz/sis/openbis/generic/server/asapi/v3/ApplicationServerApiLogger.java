@@ -114,6 +114,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
@@ -651,6 +652,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "delete-authorization-groups", "AUTHORIZATION_GROUP_IDS(%s) DELETION_OPTIONS(%s)", 
                 abbreviate(groupIds), deletionOptions);
+    }
+
+    @Override
+    public void deleteRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> assignmentIds,
+            RoleAssignmentDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-role-assignments", "ROLE_ASSIGNMENT_IDS(%s) DELETION_OPTIONS(%s)", 
+                abbreviate(assignmentIds), deletionOptions);
     }
 
     @Override
