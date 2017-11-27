@@ -99,6 +99,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 
 		} else {
 			var $allSampleTypes = this._getAllSampleTypesDropdown();
+			var $options = this._getOptionsMenu();
+			tableToolbarModel.push({ component : $options, tooltip: null });
 			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 		}
 		
@@ -130,11 +132,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
 		
-		var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + ''}).append('Create ' + ELNDictionary.Sample + ''));
-		$createSampleOption.click(function() {
-			_this.createNewSample(_this._sampleTableModel.experimentIdentifier);
-		});
-		$list.append($createSampleOption);
+		if(_this._sampleTableModel.experimentIdentifier) {
+			var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + ''}).append('Create ' + ELNDictionary.Sample + ''));
+			$createSampleOption.click(function() {
+				_this.createNewSample(_this._sampleTableModel.experimentIdentifier);
+			});
+			$list.append($createSampleOption);
+		}
+		
 		
 		var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Register ' + ELNDictionary.Sample + 's'}).append("Batch Register " + ELNDictionary.Sample + "s"));
 		$batchRegisterOption.click(function() {
@@ -148,16 +153,18 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		});
 		$list.append($batchUpdateOption);
 		
-		var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
-		var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName  }).append('Search in ' + expKindName));
-		$searchCollectionOption.click(function() {
-			
-			var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : _this._sampleTableModel.experiment.permId } };
-			var rules = { entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules };
-			
-			mainController.changeView("showAdvancedSearchPage", JSON.stringify(rules));
-		});
-		$list.append($searchCollectionOption);
+		if(_this._sampleTableModel.experimentIdentifier) {
+			var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
+			var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName  }).append('Search in ' + expKindName));
+			$searchCollectionOption.click(function() {
+				
+				var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : _this._sampleTableModel.experiment.permId } };
+				var rules = { entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules };
+				
+				mainController.changeView("showAdvancedSearchPage", JSON.stringify(rules));
+			});
+			$list.append($searchCollectionOption);
+		}
 		
 		return $dropDownMenu;
 	}
@@ -210,10 +217,11 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var forcedSpace = null;
 		if(this._sampleTableModel.sampleTypeCodeToUse) {
 			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
-			if(experimentIdentifier) {
-				forcedSpace = experimentIdentifier.split("/")[1];
-			}
 		}
+		if(experimentIdentifier) {
+			forcedSpace = "/" + experimentIdentifier.split("/")[1];
+		}
+		
 		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
 			Util.blockUI();
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
@@ -235,15 +243,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					};
 					
 					var experimentIdentifierOrDelete = experimentIdentifier;
-					if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+					if(experimentIdentifierOrDelete && typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
 						experimentIdentifierOrDelete = "__DELETE__";
-						forcedSpace = "STORAGE";
+						forcedSpace = "/STORAGE";
 					}
-					
 					if(infoData.result.identifiersPressent) { //If identifiers are present they should match the space of the experiment
-						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), '/' + forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null, finalCallback);
+						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null, finalCallback);
 					} else { // If identifiers are not present the defaultGroup/forcedSpace should be set for auto generation
-						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), '/' + forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", '/' + forcedSpace, finalCallback);
+						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", forcedSpace, finalCallback);
 					}
 				}
 			);
@@ -257,9 +264,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var forcedSpace = null;
 		if(this._sampleTableModel.sampleTypeCodeToUse) {
 			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
-			if(experimentIdentifier) {
-				forcedSpace = experimentIdentifier.split("/")[1];
-			}
+		}
+		if(experimentIdentifier) {
+			forcedSpace = "/" + experimentIdentifier.split("/")[1];
 		}
 		var typeAndFileController = new TypeAndFileController('Update ' + ELNDictionary.Samples + '', "UPDATE", function(type, file) {
 			Util.blockUI();
@@ -277,14 +284,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			};
 			
 			var experimentIdentifierOrDelete = experimentIdentifier;
-			if(typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
+			if(experimentIdentifierOrDelete && typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
 				experimentIdentifierOrDelete = "__DELETE__";
-				forcedSpace = "STORAGE";
+				forcedSpace = "/STORAGE";
 			}
 			
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
 				//Code After the upload
-				mainController.serverFacade.updateSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), '/' + forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null,finalCallback);
+				mainController.serverFacade.updateSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null,finalCallback);
 			});
 		}, allowedSampleTypes);
 		typeAndFileController.init();
