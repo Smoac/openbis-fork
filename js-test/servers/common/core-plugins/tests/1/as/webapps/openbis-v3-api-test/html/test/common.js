@@ -104,6 +104,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
 		this.AuthorizationGroupSearchCriteria = dtos.AuthorizationGroupSearchCriteria;
 		this.RoleAssignmentSearchCriteria = dtos.RoleAssignmentSearchCriteria;
+		this.PersonSearchCriteria = dtos.PersonSearchCriteria;
 		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
 		this.PropertyTypeSearchCriteria = dtos.PropertyTypeSearchCriteria;
 		this.PropertyAssignmentSearchCriteria = dtos.PropertyAssignmentSearchCriteria;
@@ -123,6 +124,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.TagFetchOptions = dtos.TagFetchOptions;
 		this.AuthorizationGroupFetchOptions = dtos.AuthorizationGroupFetchOptions;
 		this.RoleAssignmentFetchOptions = dtos.RoleAssignmentFetchOptions;
+		this.PersonFetchOptions = dtos.PersonFetchOptions;
 		this.PropertyTypeFetchOptions = dtos.PropertyTypeFetchOptions;
 		this.PropertyAssignmentFetchOptions = dtos.PropertyAssignmentFetchOptions;
 		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
@@ -161,6 +163,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetTagsOperation = dtos.GetTagsOperation;
 		this.GetAuthorizationGroupsOperation = dtos.GetAuthorizationGroupsOperation;
 		this.GetRoleAssignmentsOperation = dtos.GetRoleAssignmentsOperation;
+		this.GetPersonsOperation = dtos.GetPersonsOperation;
 		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
 		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
 
@@ -220,6 +223,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchTagsOperation = dtos.SearchTagsOperation;
 		this.SearchAuthorizationGroupsOperation = dtos.SearchAuthorizationGroupsOperation;
 		this.SearchRoleAssignmentsOperation = dtos.SearchRoleAssignmentsOperation;
+		this.SearchPersonsOperation = dtos.SearchPersonsOperation;
 		this.SearchCustomASServicesOperation = dtos.SearchCustomASServicesOperation;
 		this.SearchObjectKindModificationsOperation = dtos.SearchObjectKindModificationsOperation;
 		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
@@ -893,6 +897,14 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withSpace();
 			fo.withUser();
 			fo.withAuthorizationGroup();
+			return fo;
+		};
+		
+		this.createPersonFetchOptions = function() {
+			var fo = new dtos.PersonFetchOptions();
+			fo.withSpace();
+			fo.withRoleAssignments().withSpace();
+			fo.withRegistrator();
 			return fo;
 		};
 		

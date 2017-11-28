@@ -1388,6 +1388,32 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 		
+		QUnit.test("searchPersons()", function(assert) {
+			var c = new common(assert, openbis);
+			var code;
+			
+			var fSearch = function(facade) {
+				var criteria = new c.PersonSearchCriteria();
+				criteria.withUserId().thatContains("bser");
+				return facade.searchPersons(criteria, c.createPersonFetchOptions());
+			}
+			
+			var fCheck = function(facade, persons) {
+				c.assertEqual(persons.length, 1, "# persons");
+				var person = persons[0];
+				c.assertEqual(person.getUserId(), "observer", "User id");
+				c.assertEqual(person.getRegistrator().getUserId(), "system", "Registrator");
+				var assignments = person.getRoleAssignments();
+				c.assertEqual(assignments.length, 1, "# Role Assignments");
+				var assignment = assignments[0];
+				c.assertEqual(assignment.getRole(), "OBSERVER", "Role");
+				c.assertEqual(assignment.getRoleLevel(), "SPACE", "Role level");
+				c.assertEqual(assignment.getSpace().getCode(), "TEST", "Space");
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 

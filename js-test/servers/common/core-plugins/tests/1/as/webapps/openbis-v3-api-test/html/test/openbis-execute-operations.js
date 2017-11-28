@@ -237,6 +237,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeGetOperation(new c.GetRoleAssignmentsOperation(ids, fetchOptions));
 		}
 		
+		this.getPersons = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetPersonsOperation(ids, fetchOptions));
+		}
+		
 		this.getSemanticAnnotations = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetSemanticAnnotationsOperation(ids, fetchOptions));
 		}
@@ -307,6 +311,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		
 		this.searchRoleAssignments = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchRoleAssignmentsOperation(criteria, fetchOptions));
+		}
+		
+		this.searchPersons = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchPersonsOperation(criteria, fetchOptions));
 		}
 		
 		this.searchCustomASServices = function(criteria, fetchOptions) {
