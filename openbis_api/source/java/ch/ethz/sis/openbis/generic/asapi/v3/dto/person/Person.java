@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -67,6 +69,9 @@ public class Person implements Serializable, IPermIdHolder, IRegistrationDateHol
 
     @JsonProperty
     private Person registrator;
+
+    @JsonProperty
+    private List<RoleAssignment> roleAssignments;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -216,6 +221,24 @@ public class Person implements Serializable, IPermIdHolder, IRegistrationDateHol
         this.registrator = registrator;
     }
 
+    
+    @JsonIgnore
+    public List<RoleAssignment> getRoleAssignments()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasRoleAssignments())
+        {
+            return roleAssignments;
+        }
+        else
+        {
+            throw new NotFetchedException("Role assignments have not been fetched.");
+        }
+    }
+    
+    public void setRoleAssignments(List<RoleAssignment> roleAssignments)
+    {
+        this.roleAssignments = roleAssignments;
+    }
     // Method automatically generated with DtoGenerator
     @Override
     public String toString()

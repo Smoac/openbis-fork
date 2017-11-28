@@ -42,4 +42,8 @@ public interface PersonQuery extends ObjectQuery
     @Select(sql = "select id as objectId, pers_id_registerer as relatedId from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet personIds);
 
+    @Select(sql = "select pers_id_grantee as objectId, id as relatedId from role_assignments where pers_id_grantee = any(?{1})",
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getRoleAssignmentIds(LongSet personIds);
+
 }

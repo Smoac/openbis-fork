@@ -17,12 +17,14 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -42,6 +44,9 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
 
     @Autowired
     private IPersonRegistratorTranslator registratorTranslator;
+
+    @Autowired
+    private IPersonRoleAssignmentTranslator roleAssignmentTranslator;
 
     @Override
     protected Person createObject(TranslationContext context, Long personId, PersonFetchOptions fetchOptions)
@@ -66,6 +71,11 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
         if (fetchOptions.hasRegistrator())
         {
             relations.put(IPersonRegistratorTranslator.class, registratorTranslator.translate(context, personIds, fetchOptions.withRegistrator()));
+        }
+
+        if (fetchOptions.hasRoleAssignments())
+        {
+            relations.put(IPersonRoleAssignmentTranslator.class, roleAssignmentTranslator.translate(context, personIds, fetchOptions.withRoleAssignments()));
         }
 
         return relations;
@@ -96,5 +106,11 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
             result.setRegistrator(relations.get(IPersonRegistratorTranslator.class, personId));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
-    }
+
+        if (fetchOptions.hasRoleAssignments())
+        {
+            result.setRoleAssignments((List<RoleAssignment>) relations.get(IPersonRoleAssignmentTranslator.class, personId));
+            result.getFetchOptions().withRoleAssignmentsUsing(fetchOptions.withRoleAssignments());
+        }
+}
 }

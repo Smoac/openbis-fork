@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,6 +39,9 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
     @JsonProperty
     private PersonFetchOptions registrator;
 
+    @JsonProperty
+    private RoleAssignmentFetchOptions roleAssignments;
+    
     @JsonProperty
     private PersonSortOptions sort;
 
@@ -85,6 +89,25 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
         return registrator != null;
     }
 
+    public RoleAssignmentFetchOptions withRoleAssignments()
+    {
+        if (roleAssignments == null)
+        {
+            roleAssignments = new RoleAssignmentFetchOptions();
+        }
+        return roleAssignments;
+    }
+    
+    public RoleAssignmentFetchOptions withRoleAssignmentsUsing(RoleAssignmentFetchOptions fetchOptions)
+    {
+        return roleAssignments = fetchOptions;
+    }
+    
+    public boolean hasRoleAssignments()
+    {
+        return roleAssignments != null;
+    }
+    
     // Method automatically generated with DtoGenerator
     @Override
     public PersonSortOptions sortBy()

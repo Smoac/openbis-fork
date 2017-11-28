@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 
 /**
@@ -40,18 +41,21 @@ public class SearchPersonTest extends AbstractTest
     public void testSearchPersonByUserId()
     {
         // Given
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
         searchCriteria.withUserId().thatStartsWith("observer");
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withSpace();
+        fetchOptions.withRoleAssignments().withSpace();
         
         // Then
         List<Person> persons = v3api.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
         
         // When
-        assertEquals(render(persons), "observer: John Observer observer@o.o\n"
-                + "observer_cisd: John ObserverCISD observer_cisd@o.o\n");
+        assertEquals(render(persons), "observer: John Observer observer@o.o, home space:CISD, "
+                + "[SPACE_OBSERVER Space TESTGROUP]\n"
+                + "observer_cisd: John ObserverCISD observer_cisd@o.o, home space:CISD, "
+                + "[SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n");
     }
     
     private String render(List<Person> persons)
@@ -80,9 +84,23 @@ public class SearchPersonTest extends AbstractTest
         Space space = person.getSpace();
         if (space != null)
         {
-            builder.append(" home space:").append(space.getCode());
+            builder.append(", home space:").append(space.getCode());
         }
+        List<RoleAssignment> roleAssignments = person.getRoleAssignments();
+        String string = renderAssignments(roleAssignments);
+        builder.append(", ").append(string);
         return builder.toString();
+    }
+
+    private String renderAssignments(List<RoleAssignment> roleAssignments)
+    {
+        List<String> renderedAssignments = new ArrayList<>();
+        for (RoleAssignment roleAssignment : roleAssignments)
+        {
+            renderedAssignments.add(roleAssignment.getRoleLevel() + "_" + roleAssignment.getRole() + " " + roleAssignment.getSpace());
+        }
+        Collections.sort(renderedAssignments);
+        return renderedAssignments.toString();
     }
     
     private void appendTo(StringBuilder builder, String stringOrNull)
