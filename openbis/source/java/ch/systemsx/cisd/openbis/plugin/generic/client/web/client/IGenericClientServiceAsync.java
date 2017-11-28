@@ -71,7 +71,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#registerSamplesWithSilentOverrides(SampleType, String, String, String, boolean, String, String, boolean)
      */
-    public List<BatchRegistrationResult> registerSamplesWithSilentOverrides(final SampleType sampleType,
+    public void registerSamplesWithSilentOverrides(final SampleType sampleType,
             final String spaceIdentifierSilentOverrideOrNull,
             final String experimentIdentifierSilentOverrideOrNull,
             String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier, boolean updateExisting,
@@ -89,7 +89,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#updateSamplesWithSilentOverrides(SampleType, String, String, String, boolean, String, String)
      */
-    public List<BatchRegistrationResult> updateSamplesWithSilentOverrides(final SampleType sampleType,
+    public void updateSamplesWithSilentOverrides(final SampleType sampleType,
             final String spaceIdentifierSilentOverrideOrNull,
             final String experimentIdentifierSilentOverrideOrNull,
             String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier,
