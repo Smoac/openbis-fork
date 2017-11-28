@@ -69,12 +69,31 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Sample> asyncCallback) throws UserFailureException;
 
     /**
+     * @see IGenericClientService#registerSamplesWithSilentOverrides(SampleType, String, String, String, boolean, String, String, boolean)
+     */
+    public List<BatchRegistrationResult> registerSamplesWithSilentOverrides(final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier, boolean updateExisting,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
+            throws UserFailureException;
+
+    /**
      * @see IGenericClientService#registerSamples(SampleType, String, boolean, String, String, boolean)
      */
     public void registerSamples(final SampleType sampleType, String sessionKey, boolean async, String userEmail,
             String defaultGroupIdentifier, boolean updateExisting,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#updateSamplesWithSilentOverrides(SampleType, String, String, String, boolean, String, String)
+     */
+    public List<BatchRegistrationResult> updateSamplesWithSilentOverrides(final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateSamples(SampleType, String, boolean, String, String)
