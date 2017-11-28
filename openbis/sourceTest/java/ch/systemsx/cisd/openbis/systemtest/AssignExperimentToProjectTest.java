@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.hamcrest.CoreMatchers.is;
 
+import java.util.List;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -68,6 +70,9 @@ public class AssignExperimentToProjectTest extends BaseTest
 
         perform(anUpdateOf(experiment).toProject(destinationProject));
 
+        List<Space> listSpaces = commonServer.listSpaces(systemSessionToken);
+        System.out.println("ASSIGN EXPERIMENT TO PROJECT: spaces: " + listSpaces);
+        
         assertThat(sample, is(inSpace(destinationSpace)));
     }
 
@@ -115,6 +120,7 @@ public class AssignExperimentToProjectTest extends BaseTest
     {
         sourceSpace = create(aSpace());
         destinationSpace = create(aSpace());
+        System.out.println("ASSIGN EXPERIMENT TO PROJECT: destination space: " + destinationSpace);
         sourceProject = create(aProject().inSpace(sourceSpace));
         destinationProject = create(aProject().inSpace(destinationSpace));
 
