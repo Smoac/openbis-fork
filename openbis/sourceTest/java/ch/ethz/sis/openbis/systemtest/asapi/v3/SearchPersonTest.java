@@ -43,19 +43,26 @@ public class SearchPersonTest extends AbstractTest
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
+        searchCriteria.withOrOperator();
         searchCriteria.withUserId().thatStartsWith("observer");
+        searchCriteria.withUserId().thatContains("role");
+        searchCriteria.withLastName().thatContains("active");
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRegistrator();
         
         // Then
         List<Person> persons = v3api.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
         
         // When
-        assertEquals(render(persons), "observer: John Observer observer@o.o, home space:CISD, "
+        assertEquals(render(persons), "[inactive] inactive: John Inactive inactive@in.active, home space:CISD, []\n"
+                + "observer: John Observer observer@o.o, home space:CISD, "
                 + "[SPACE_OBSERVER Space TESTGROUP]\n"
                 + "observer_cisd: John ObserverCISD observer_cisd@o.o, home space:CISD, "
-                + "[SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n");
+                + "[SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n"
+                + "test_role: John 3 Doe test role test_role@in.active, home space:CISD, "
+                + "[SPACE_POWER_USER Space CISD], registrator: test\n");
     }
     
     private String render(List<Person> persons)
@@ -77,6 +84,10 @@ public class SearchPersonTest extends AbstractTest
     private String render(Person person)
     {
         StringBuilder builder = new StringBuilder();
+        if (person.isActive() == false)
+        {
+            builder.append("[inactive] ");
+        }
         builder.append(person.getUserId()).append(":");
         appendTo(builder, person.getFirstName());
         appendTo(builder, person.getLastName());
@@ -89,6 +100,11 @@ public class SearchPersonTest extends AbstractTest
         List<RoleAssignment> roleAssignments = person.getRoleAssignments();
         String string = renderAssignments(roleAssignments);
         builder.append(", ").append(string);
+        Person registrator = person.getRegistrator();
+        if (registrator != null)
+        {
+            builder.append(", registrator: ").append(registrator.getUserId());
+        }
         return builder.toString();
     }
 
