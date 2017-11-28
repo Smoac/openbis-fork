@@ -1212,10 +1212,7 @@ public class AbstractTest extends SystemTestCase
         {
             builder.append("[inactive] ");
         }
-        builder.append(person.getUserId()).append(":");
-        appendTo(builder, person.getFirstName());
-        appendTo(builder, person.getLastName());
-        appendTo(builder, person.getEmail());
+        builder.append(person.getUserId());
         Space space = person.getSpace();
         if (space != null)
         {
@@ -1241,14 +1238,6 @@ public class AbstractTest extends SystemTestCase
         }
         Collections.sort(renderedAssignments);
         return renderedAssignments.toString();
-    }
-
-    private void appendTo(StringBuilder builder, String stringOrNull)
-    {
-        if (stringOrNull != null)
-        {
-            builder.append(" ").append(stringOrNull);
-        }
     }
 
     protected static String patternContains(String... parts)

@@ -42,7 +42,7 @@ public class SearchPersonTest extends AbstractTest
         searchCriteria.withOrOperator();
         searchCriteria.withUserId().thatStartsWith("observer");
         searchCriteria.withUserId().thatContains("role");
-        searchCriteria.withLastName().thatContains("active");
+        searchCriteria.withUserId().thatEndsWith("active");
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withRoleAssignments().withSpace();
@@ -52,12 +52,9 @@ public class SearchPersonTest extends AbstractTest
         List<Person> persons = v3api.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
         
         // When
-        assertEquals(renderPersons(persons), "[inactive] inactive: John Inactive inactive@in.active, home space:CISD, []\n"
-                + "observer: John Observer observer@o.o, home space:CISD, "
-                + "[SPACE_OBSERVER Space TESTGROUP]\n"
-                + "observer_cisd: John ObserverCISD observer_cisd@o.o, home space:CISD, "
-                + "[SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n"
-                + "test_role: John 3 Doe test role test_role@in.active, home space:CISD, "
-                + "[SPACE_POWER_USER Space CISD], registrator: test\n");
+        assertEquals(renderPersons(persons), "[inactive] inactive, home space:CISD, []\n"
+                + "observer, home space:CISD, [SPACE_OBSERVER Space TESTGROUP]\n"
+                + "observer_cisd, home space:CISD, [SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n"
+                + "test_role, home space:CISD, [SPACE_POWER_USER Space CISD], registrator: test\n");
     }
 }

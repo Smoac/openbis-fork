@@ -51,9 +51,7 @@ public class GetPersonTest extends AbstractTest
         Map<IPersonId, Person> persons = v3api.getPersons(sessionToken, Arrays.asList(id1, id2), fetchOptions);
         
         // Then
-        assertEquals(renderPerson(persons.get(id1)), "observer: John Observer observer@o.o, home space:CISD, "
-                + "[SPACE_OBSERVER Space TESTGROUP]");
-        assertEquals(renderPerson(persons.get(id2)), "test_role: John 3 Doe test role test_role@in.active, home space:CISD, "
-                + "[SPACE_POWER_USER Space CISD], registrator: test");
+        assertEquals(renderPerson(persons.get(id1)), "observer, home space:CISD, [SPACE_OBSERVER Space TESTGROUP]");
+        assertEquals(renderPerson(persons.get(id2)), "test_role, home space:CISD, [SPACE_POWER_USER Space CISD], registrator: test");
     }
 }
