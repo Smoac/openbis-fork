@@ -44,12 +44,24 @@
 			
 			<div class="repeater-search">
 				<div class="search input-group">
-					<input type="search" class="form-control" placeholder="Filter" /> <span class="input-group-btn">
+					<input type="search" class="form-control" placeholder="Filter" /> 
+					<span class="input-group-btn">
 						<button class="btn btn-default" type="button">
 							<span class="glyphicon glyphicon-search"></span> <span class="sr-only">Search</span>
 						</button>
 					</span>
 				</div>
+			</div>
+			
+			<div class="repeater-search" style = "display: inline; padding-left: 10px; padding-top: 3px; width: 200px;">
+				<label class="switch-light" onclick="">
+							<input class="repeater-search-operator" type="checkbox">
+							<span>
+								<span class="repeater-search-operator-and">AND</span>
+								<span class="repeater-search-operator-or">OR</span>
+							    <a class="btn btn-primary"></a>
+							</span>
+				</label>
 			</div>
 			
 			<div class="dropdown optionsDropdown" class="dropdown" style = "display: inline; padding-left: 10px;">

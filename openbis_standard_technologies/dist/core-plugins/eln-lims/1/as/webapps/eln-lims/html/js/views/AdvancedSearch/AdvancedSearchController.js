@@ -190,9 +190,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 				}
 			}
 			
+			$(".repeater-search").remove();
+			
 			switch(criteriaToSend.entityKind) {
 				case "ALL":
-					$(".repeater-search").empty();
 					var freeText = "";
 					for(var ruleId in criteriaToSend.rules) {
 						if(criteriaToSend.rules[ruleId].value) {

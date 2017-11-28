@@ -359,6 +359,13 @@ var SampleDataGridUtil = new function() {
 				
 			var criteriaToSend = $.extend(true, {}, criteria);
 			
+			if(options && options.searchOperator && options.search) {
+				criteriaToSend.logicalOperator = options.searchOperator;
+				if(criteriaToSend.logicalOperator === "OR") {
+					criteriaToSend.rules = {};
+				}
+			}
+			
 			if(options && options.search) {
 				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
 				for(var fIdx = 0; fIdx < filter.length; fIdx++) {
