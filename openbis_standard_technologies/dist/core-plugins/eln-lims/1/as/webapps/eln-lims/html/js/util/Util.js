@@ -466,7 +466,7 @@ var Util = new function() {
 			var yearTimeAndOffset = dateAsString.split(" ");
 			var yearParts = yearTimeAndOffset[0].split("-");
 			var timeParts = yearTimeAndOffset[1].split(":");
-			return new Date(yearParts[0],yearParts[1],yearParts[2], timeParts[0], timeParts[1], timeParts[2]);
+			return new Date(yearParts[0],parseInt(yearParts[1])-1,yearParts[2], timeParts[0], timeParts[1], timeParts[2]);
 		}
 		return null;
 	}
