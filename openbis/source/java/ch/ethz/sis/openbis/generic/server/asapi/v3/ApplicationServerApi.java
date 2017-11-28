@@ -181,6 +181,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecut
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.UpdateOperationExecutionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.get.GetPersonsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.get.GetPersonsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperationResult;
@@ -685,6 +688,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             RoleAssignmentFetchOptions fetchOptions)
     {
         GetRoleAssignmentsOperationResult result = executeOperation(sessionToken, new GetRoleAssignmentsOperation(ids, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    public Map<IPersonId, Person> getPersons(String sessionToken, List<? extends IPersonId> ids, PersonFetchOptions fetchOptions)
+    {
+        GetPersonsOperationResult result = executeOperation(sessionToken, new GetPersonsOperation(ids, fetchOptions));
         return result.getObjectMap();
     }
 

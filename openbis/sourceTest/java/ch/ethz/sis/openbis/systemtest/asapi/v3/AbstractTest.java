@@ -77,10 +77,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
@@ -1185,6 +1187,68 @@ public class AbstractTest extends SystemTestCase
             objects[i] = new Object[] {users[i]};
         }
         return objects;
+    }
+
+    protected String renderPersons(List<Person> persons)
+    {
+        List<String> renderedPersons = new ArrayList<>();
+        for (Person person : persons)
+        {
+            renderedPersons.add(renderPerson(person));
+        }
+        Collections.sort(renderedPersons);
+        StringBuilder builder = new StringBuilder();
+        for (String renderedPerson : renderedPersons)
+        {
+            builder.append(renderedPerson).append('\n');
+        }
+        return builder.toString();
+    }
+
+    protected String renderPerson(Person person)
+    {
+        StringBuilder builder = new StringBuilder();
+        if (person.isActive() == false)
+        {
+            builder.append("[inactive] ");
+        }
+        builder.append(person.getUserId()).append(":");
+        appendTo(builder, person.getFirstName());
+        appendTo(builder, person.getLastName());
+        appendTo(builder, person.getEmail());
+        Space space = person.getSpace();
+        if (space != null)
+        {
+            builder.append(", home space:").append(space.getCode());
+        }
+        List<RoleAssignment> roleAssignments = person.getRoleAssignments();
+        String string = renderAssignments(roleAssignments);
+        builder.append(", ").append(string);
+        Person registrator = person.getRegistrator();
+        if (registrator != null)
+        {
+            builder.append(", registrator: ").append(registrator.getUserId());
+        }
+        return builder.toString();
+    }
+
+    protected String renderAssignments(List<RoleAssignment> roleAssignments)
+    {
+        List<String> renderedAssignments = new ArrayList<>();
+        for (RoleAssignment roleAssignment : roleAssignments)
+        {
+            renderedAssignments.add(roleAssignment.getRoleLevel() + "_" + roleAssignment.getRole() + " " + roleAssignment.getSpace());
+        }
+        Collections.sort(renderedAssignments);
+        return renderedAssignments.toString();
+    }
+
+    private void appendTo(StringBuilder builder, String stringOrNull)
+    {
+        if (stringOrNull != null)
+        {
+            builder.append(" ").append(stringOrNull);
+        }
     }
 
     protected static String patternContains(String... parts)

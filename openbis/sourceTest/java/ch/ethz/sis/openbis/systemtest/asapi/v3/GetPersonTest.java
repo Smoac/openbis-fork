@@ -18,46 +18,42 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class SearchPersonTest extends AbstractTest
+public class GetPersonTest extends AbstractTest
 {
     @Test
-    public void testSearchPersonByUserId()
+    public void testGetPersons()
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
-        searchCriteria.withOrOperator();
-        searchCriteria.withUserId().thatStartsWith("observer");
-        searchCriteria.withUserId().thatContains("role");
-        searchCriteria.withLastName().thatContains("active");
+        IPersonId id1 = new PersonPermId("observer");
+        IPersonId id2 = new PersonPermId("test_role");
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withRoleAssignments().withSpace();
         fetchOptions.withRegistrator();
         
-        // Then
-        List<Person> persons = v3api.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
-        
         // When
-        assertEquals(renderPersons(persons), "[inactive] inactive: John Inactive inactive@in.active, home space:CISD, []\n"
-                + "observer: John Observer observer@o.o, home space:CISD, "
-                + "[SPACE_OBSERVER Space TESTGROUP]\n"
-                + "observer_cisd: John ObserverCISD observer_cisd@o.o, home space:CISD, "
-                + "[SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n"
-                + "test_role: John 3 Doe test role test_role@in.active, home space:CISD, "
-                + "[SPACE_POWER_USER Space CISD], registrator: test\n");
+        Map<IPersonId, Person> persons = v3api.getPersons(sessionToken, Arrays.asList(id1, id2), fetchOptions);
+        
+        // Then
+        assertEquals(renderPerson(persons.get(id1)), "observer: John Observer observer@o.o, home space:CISD, "
+                + "[SPACE_OBSERVER Space TESTGROUP]");
+        assertEquals(renderPerson(persons.get(id2)), "test_role: John 3 Doe test role test_role@in.active, home space:CISD, "
+                + "[SPACE_POWER_USER Space CISD], registrator: test");
     }
 }

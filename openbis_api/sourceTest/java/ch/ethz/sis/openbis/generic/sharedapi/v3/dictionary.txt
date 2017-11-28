@@ -1797,4 +1797,7 @@ Role Assignment Deletion Options
 search Persons
 Search Persons Operation
 Search Persons Operation Result
+get Persons
+Get Persons Operation
+Get Persons Operation Result
 
