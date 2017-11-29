@@ -44,7 +44,13 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		if(!nameLabel) {
 			nameLabel = this._experimentFormModel.experiment.code;
 		}
-		var entityPath = null;
+		
+		
+		var spaceCode = this._experimentFormModel.experiment.identifier.split("/")[1];
+		var projectCode = this._experimentFormModel.experiment.identifier.split("/")[2];
+		var experimentCode = (this._experimentFormModel.mode !== FormMode.CREATE)?this._experimentFormModel.experiment.identifier.split("/")[3]:null;
+		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode);
+		
 		
 		var typeTitle = "" + ELNDictionary.getExperimentKindName(this._experimentFormModel.experiment.identifier) + ": ";
 		
@@ -52,15 +58,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		switch(this._experimentFormModel.mode) {
 	    	case FormMode.CREATE:
 	    		title = "Create " + typeTitle + this._experimentFormModel.experiment.experimentTypeCode;
-	    		entityPath = "";
 	    		break;
 	    	case FormMode.EDIT:
 	    		title = "Update " + typeTitle + nameLabel;
-	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 	    	case FormMode.VIEW:
 	    		title = typeTitle + nameLabel;
-	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 		}
 		
@@ -118,7 +121,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				];
 				FormUtil.showDropboxFolderNameDialog(nameElements);
 			}).bind(this));
-			toolbarModel.push({ component : $uploadBtn, tooltip: "Name generator for dataset upload with dropbox" });
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Helper tool for Dataset upload using eln-lims dropbox" });
 
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {

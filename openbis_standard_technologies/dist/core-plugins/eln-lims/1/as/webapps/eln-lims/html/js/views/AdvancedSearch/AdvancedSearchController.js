@@ -32,7 +32,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 		for(ruleKey in criteria.rules) {
 			var rule = criteria.rules[ruleKey];
 			numberOfRules++;
-			if(!rule.value || rule.value.trim() === "*") {
+			if(rule.value === null || rule.value === undefined || ("" + rule.value).trim() === "" || ("" + rule.value).trim() === "*") {
 				numberOfGeneralRules++;
 			}
 		}
@@ -125,6 +125,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
+				fetchOptions.minTableInfo = true;
+				fetchOptions.withExperiment = true;
+				// TODO : Unused on the UI, should be added for DataSets
+				// fetchOptions.withSample = true;
 			}
 			
 			if(!criteria.cached) {
@@ -186,9 +190,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 				}
 			}
 			
+			$(".repeater-search").remove();
+			
 			switch(criteriaToSend.entityKind) {
 				case "ALL":
-					$(".repeater-search").empty();
 					var freeText = "";
 					for(var ruleId in criteriaToSend.rules) {
 						if(criteriaToSend.rules[ruleId].value) {

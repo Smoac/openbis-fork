@@ -24,7 +24,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._forcedDisableRTFTableModel = null;
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
-	this._sampleTypeProtocolsTableModel = null;
+	this._sampleTypeDefinitionsMiscellaneousSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsHintsTableModels = {}; // key: sample type; value: table model
 
@@ -77,7 +77,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
 			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
-			this._paintSampleTypeProtocolsSection($formColumn, texts.sampleTypeProtocols);
 			this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
 			this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
 
@@ -96,7 +95,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
 			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
-			sampleTypeProtocols : this._sampleTypeProtocolsTableModel.getValues(),
 			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
 		};
 	}
@@ -116,7 +114,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			for (var key in settingsValues) {
 				sampleTypeSection[key] = settingsValues[key];
 			}
-
+			
+			var miscellaneousSettingsTableModel = this._sampleTypeDefinitionsMiscellaneousSettingsTableModels[sampleType];
+			var miscellaneousSettingsValues = miscellaneousSettingsTableModel.getValues();
+			for (var key in miscellaneousSettingsValues) {
+				sampleTypeSection[key] = miscellaneousSettingsValues[key];
+			}
+			
 			sampleTypeDefinitionsSettings[sampleType] = sampleTypeSection;
 		}
 		return sampleTypeDefinitionsSettings;
@@ -179,13 +183,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
 		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
-	}
-
-	this._paintSampleTypeProtocolsSection = function($container, text) {
-		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-protocols");
-		$fieldset.append(FormUtil.getInfoText(text.info));
-		this._sampleTypeProtocolsTableModel = this._getSampleTypeProtocolsTableModel();
-		$fieldset.append(this._getTable(this._sampleTypeProtocolsTableModel));
 	}
 
 	this._getMainMenuItemsTableModel = function() {
@@ -252,15 +249,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		});
 	}
 
-	this._getSampleTypeProtocolsTableModel = function() {
-		return this._getSingleColumnDropdownTableModel({
-			columnName : "Sample Type",
-			placeholder : "select protocol",
-			options : this._settingsFormController.getSampleTypeProtocolsOptions(),
-			initialValues : this._profileToEdit.sampleTypeProtocols,
-		});
-	}
-
 	//
 	// dataset types for filenames
 	//
@@ -322,6 +310,15 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
 
+			// Checkboxes for miscellaneous options
+			// isProtocol
+			// isStorage
+			var miscellaneousSettingsTableModel = this._getSampleTypesDefinitionMiscellaneousSettingsTableModel(sampleTypeSettings);
+			var miscellaneousSettingsTable = this._getTable(miscellaneousSettingsTableModel);
+			miscellaneousSettingsTable.css( { "margin-left" : "30px" } );
+			$sampleTypeFieldset.append(miscellaneousSettingsTable);
+			this._sampleTypeDefinitionsMiscellaneousSettingsTableModels[sampleType.code] = miscellaneousSettingsTableModel;
+			
 			// table for parents / children settings:
 			// SAMPLE_PARENTS_TITLE, SAMPLE_PARENTS_DISABLED, SAMPLE_PARENTS_ANY_TYPE_DISABLED, 
 			// SAMPLE_CHILDREN_TITLE, SAMPLE_CHILDREN_DISABLED, SAMPLE_CHILDREN_ANY_TYPE_DISABLED
@@ -338,6 +335,61 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 	}
 
+	this._getSampleTypesDefinitionMiscellaneousSettingsTableModel = function(sampleTypeSettings) {
+		var tableModel = this._getTableModel();
+		tableModel.fullWidth = false;
+		// define columns
+		tableModel.columns = [
+			{ label : "Options" },
+			{ label : "enabled" }
+		];
+		tableModel.rowBuilders = {
+			"Options" : function(rowData) {
+				return $("<span>").text(rowData.name);
+			},
+			"enabled" : function(rowData) {
+				var $checkbox = $("<input>", { type : "checkbox" });
+				if (rowData.enabled) {
+					$checkbox.attr("checked", true);
+				}
+				return $checkbox;
+			}
+		};
+		// add data
+		if (sampleTypeSettings) { // values from profile
+			tableModel.addRow({
+				name : "Use as Protocol",
+				enabled : sampleTypeSettings["USE_AS_PROTOCOL"]
+			});
+			tableModel.addRow({
+				name : "Enable Storage",
+				enabled : sampleTypeSettings["ENABLE_STORAGE"]
+			});
+		} else { // default values
+			tableModel.addRow({
+				name : "Use as Protocol",
+				enabled : false
+			});
+			tableModel.addRow({
+				name : "Enable Storage",
+				enabled : false
+			});
+		}
+		// transform output
+		tableModel.valuesTransformer = function(values) {
+			var settings = {};
+			for (var rowValues of values) {
+				if (rowValues["Options"] === "Use as Protocol") {
+					settings["USE_AS_PROTOCOL"] = rowValues["enabled"];
+				} else if (rowValues["Options"] === "Enable Storage") {
+					settings["ENABLE_STORAGE"] = rowValues["enabled"];
+				}
+			}
+			return settings;
+		}
+		return tableModel;
+	}
+	
 	this._getSampleTypesDefinitionSettingsTableModel = function(sampleTypeSettings) {
 		var tableModel = this._getTableModel();
 		// define columns

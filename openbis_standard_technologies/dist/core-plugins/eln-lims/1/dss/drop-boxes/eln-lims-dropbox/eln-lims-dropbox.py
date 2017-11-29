@@ -84,7 +84,10 @@ def process(transaction):
 		itemsInFolder = 0;
 		datasetItem = None;
 		for item in filesInFolder:
-			if not item.getName().startswith('.'):
+			#Exclude files starting with .
+			#Exclude Mac .DS_Store
+			#Exclude Windows Thumbs.db
+			if (not item.getName().startswith('.')) and (not item.getName() == ".DS_Store") and (not item.getName() == "Thumbs.db"):
 				itemsInFolder = itemsInFolder + 1;
 				datasetItem = item;
 		

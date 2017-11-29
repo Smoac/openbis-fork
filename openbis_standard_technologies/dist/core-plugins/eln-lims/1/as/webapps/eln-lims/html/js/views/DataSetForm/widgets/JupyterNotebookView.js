@@ -25,30 +25,66 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		
 		$window.append($('<legend>').append("Create Jupyter Notebook"));
-		var tree = null;
 		
-		switch(entity["@type"]) {
-			case "DataSet":
-				$window.append(FormUtil.getFieldForLabelWithText("Dataset", entity.code));
-				break;
-			default:
-				var $treeContainer = $('<div>', { style : "height: 200px; overflow:auto;" });
-				$window.append(FormUtil.getFieldForLabelWithText("Included Datasets (*) ", ""));
-				$window.append($treeContainer);
-				tree = TreeUtil.getTreeForEntity($treeContainer, entity);
-				
-				var expandDeep = null;
-					expandDeep = function(node) {
-					var _this = this;
-					node.setExpanded(true).done(function() {
-						node.visit(function(n) { expandDeep(n);});
-					})
-				}
-				
-				expandDeep($(tree).fancytree('getTree').getRootNode());
-					
-				break;
+		var $datasetsContainer = $("<div>", { style : "width: 100%;" });
+		$window.append(FormUtil.getInfoText("Please enter the names/codes of the datasets you want to download, or the names/codes of the experiments/objects which contain those datasets. "));
+		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets"));
+		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, false, "Select as many datasets as you need", false, false, true);
+		datasetsSearchDropdown.init($datasetsContainer);
+		
+		if(entity) {
+			switch(entity["@type"]) {
+				case "DataSet":
+					datasetsSearchDropdown.addSelectedDataSets([entity.code]);
+					break;
+				case "Sample":
+					if(mainController.currentView._sampleFormModel.datasets) {
+						var datasetCodes = [];
+						for(var eIdx = 0; eIdx < mainController.currentView._sampleFormModel.datasets.length; eIdx++) {
+							datasetCodes.push(mainController.currentView._sampleFormModel.datasets[eIdx].code);
+						}
+						datasetsSearchDropdown.addSelectedDataSets(datasetCodes);
+					}
+					break;
+				case "Experiment":
+					if(mainController.currentView._experimentFormModel.dataSetViewer && 
+							mainController.currentView._experimentFormModel.dataSetViewer._datasetViewerModel.entityDataSets) {
+						var datasetCodes = [];
+						for(datasetCode in mainController.currentView._experimentFormModel.dataSetViewer._datasetViewerModel.entityDataSets) {
+							datasetCodes.push(datasetCode);
+						}
+						datasetsSearchDropdown.addSelectedDataSets(datasetCodes);
+					}
+					break;
+			}
 		}
+		
+		
+		var $ownerContainer = $("<div>", { style : "width: 100%;" });
+		$window.append("</br>");
+		$window.append(FormUtil.getInfoText("Please enter the name/code of the experiment/object where you want to save the Jupiter notebook."));
+		$window.append(FormUtil.getFieldForComponentWithLabel($ownerContainer, "Owner (*)"));
+		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, true, "Select one owner " + ELNDictionary.sample, true, true, false);
+		ownerSearchDropdown.init($ownerContainer);
+		
+		if(entity) {
+			switch(entity["@type"]) {
+				case "DataSet":
+					if(entity.sampleIdentifierOrNull) {
+						ownerSearchDropdown.addSelectedSample(entity.sampleIdentifierOrNull);
+					} else if(entity.experimentIdentifier) {
+						ownerSearchDropdown.addSelectedExperiment(entity.experimentIdentifier);
+					}
+					break;
+				case "Sample":
+					ownerSearchDropdown.addSelectedSample(entity.identifier);
+					break;
+				case "Experiment":
+					ownerSearchDropdown.addSelectedExperiment(entity.identifier);
+					break;
+			}
+		}
+		
 		
 		var $workspace = FormUtil._getInputField('text', null, 'workspace Name', null, true);
 		var $notebookName = FormUtil._getInputField('text', null, 'notebook Name', null, true);
@@ -57,26 +93,10 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		$window.submit(function() {
-			
-			var notebookDatasets = [];
-			if(tree) {
-				var selectedNodes = $(tree).fancytree('getTree').getSelectedNodes();
-				for(var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
-					var node = selectedNodes[eIdx];
-					if(node.data.entityType === "DATASET") {
-						notebookDatasets.push(node.key);
-					}
-				}
-			} else {
-				notebookDatasets.push(entity.code);
-			}
-			
-			if(notebookDatasets.length > 0) {
-				_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), notebookDatasets);
-			} else {
-				Util.showError("Select at least one dataset.", function() {}, true);
-			}
-			
+			var selectedDatasets = datasetsSearchDropdown.getSelected();
+			var selectedOwner = ownerSearchDropdown.getSelected();
+			var notebookOwner = selectedOwner[0];
+			_this._jupyterNotebookController.create($workspace.val(), $notebookName.val(), selectedDatasets, notebookOwner);
 		});
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {

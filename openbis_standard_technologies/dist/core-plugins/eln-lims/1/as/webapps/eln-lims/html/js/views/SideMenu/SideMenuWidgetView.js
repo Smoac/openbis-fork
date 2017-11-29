@@ -169,11 +169,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var treeModelUtils = [];
         
         if(profile.jupyterEndpoint) {
-        	var settingsLink = _this.getLinkForNode("Jupyter", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null);
-        	treeModelUtils.push({ title : settingsLink, entityType: "JUPYTER_WORKSPACE", key : "JUPYTER_WORKSPACE", folder : false, lazy : false, view : "showJupyterWorkspace", icon : "glyphicon glyphicon-log-in" });
+        	var jupyterLink = _this.getLinkForNode("Jupyter Workspace", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null);
+        	treeModelUtils.push({ title : jupyterLink, entityType: "JUPYTER_WORKSPACE", key : "JUPYTER_WORKSPACE", folder : false, lazy : false, view : "showJupyterWorkspace", icon : "glyphicon glyphicon-log-in" });
+        	
+        	var jupyterNotebook = _this.getLinkForNode("New Jupyter Notebook", "NEW_JUPYTER_NOTEBOOK", "showNewJupyterWorkspaceCreator", null);
+        	treeModelUtils.push({ title : jupyterNotebook, entityType: "NEW_JUPYTER_NOTEBOOK", key : "NEW_JUPYTER_NOTEBOOK", folder : false, lazy : false, view : "showNewJupyterNotebookCreator", icon : "glyphicon glyphicon-log-in" });
         }
         
-        if(profile.mainMenu.showUserProfile) {
+        if(profile.mainMenu.showUserProfile && profile.isFileAuthenticationService && profile.isFileAuthenticationUser) {
         	var settingsLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null);
         	treeModelUtils.push({ title : settingsLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
         }

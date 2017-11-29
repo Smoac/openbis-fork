@@ -242,6 +242,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
+				                    {value : "Experiment", label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
 //				                    {value : "Children", label : "Children"}
@@ -334,6 +335,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							(selectedValue === "ATTR.REGISTRATION_DATE" || 
 							selectedValue === "ATTR.MODIFICATION_DATE")) {
 				dataType = "TIMESTAMP";
+			} else if(selectedValue && 
+						(selectedValue === "ATTR.REGISTRATOR" || 
+						selectedValue === "ATTR.MODIFIER")) {
+			dataType = "PERSON";
 			} else if(selectedValue && selectedValue.startsWith("PROP.")) {
 				var propertyTypeCode = selectedValue.substring(5);
 				var propertyType = profile.getPropertyType(propertyTypeCode);
@@ -357,6 +362,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
 					                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" }
 					                       ];
+				} else if(dataType === "PERSON") {
+					operatorOptions = [
+					                       { value : "thatEqualsUserId", 					label : "thatEqualsUserId (UserId)", selected : true },
+					                       { value : "thatContainsFirstName", 				label : "thatContainsFirstName (First Name)" },
+					                       { value : "thatContainsLastName", 				label : "thatContainsLastName (Last Name)" }
+					                       ];
 				} else {
 					operatorOptions = [
 					                   	   { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
@@ -373,6 +384,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var selectedValue = $thisComponent.val();
 					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
 				});
+				comparisonDropdown.trigger("change");
 				
 				$newFieldOperatorContainer.append(comparisonDropdown);
 				
@@ -440,8 +452,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
 				         { value : "ATTR.PROJECT_SPACE", label : "Project Space" }, 
 //				         { value : "ATTR.METAPROJECT", label : "Tag" }, TO-DO Not supported by ELN yet
+				         { value : "ATTR.REGISTRATOR", label : "Registrator" }, 
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
-				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
+				         { value : "ATTR.MODIFIER", label : "Modifier" },
+				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }
+				         ];
 				break;
 			case "SAMPLE":
 				model = [];
@@ -452,15 +467,20 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				model.push({ value : "ATTR.PERM_ID", label: "Perm Id" });
 				model.push({ value : "ATTR.SPACE", label: "Space" });
 //				model.push({ value : "ATTR.METAPROJECT", label: "Tag" }); //TO-DO Not supported by ELN yet
+				model.push({ value : "ATTR.REGISTRATOR", label: "Registrator" });
 				model.push({ value : "ATTR.REGISTRATION_DATE", label: "Registration Date" });
+				model.push({ value : "ATTR.MODIFIER", label: "Modifier" });
 				model.push({ value : "ATTR.MODIFICATION_DATE", label: "Modification Date" });
 				break;
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
 				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type" }, 
 //				         { value : "ATTR.METAPROJECT", label : "Tag" }, TO-DO Not supported by ELN yet
-				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" },
-				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
+				         { value : "ATTR.REGISTRATOR", label : "Registrator" }, 
+				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
+				         { value : "ATTR.MODIFIER", label : "Modifier" },
+				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" },
+				         ];
 				break;
 		}
 		return model;

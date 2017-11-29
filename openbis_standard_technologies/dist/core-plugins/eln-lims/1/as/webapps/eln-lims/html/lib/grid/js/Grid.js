@@ -33,6 +33,16 @@ $.extend(Grid.prototype, {
 		this.lastUsedColumns = [];
 		this.staticHeight;
 	},
+	getSearchOperator : function() {
+		var thisGrid = this;
+		var $filterOperatorCheckbox = $(thisGrid.panel).find(".repeater-search-operator");
+		var operator = "AND";
+		if($filterOperatorCheckbox.length > 0) {
+			var isOr = $filterOperatorCheckbox[0].checked;
+			operator = (isOr)?"OR":"AND";
+		}
+		return operator;
+	},
 	addMultiSelect : function(columns) {
 		var _this = this;
 		columns.unshift({
@@ -83,7 +93,6 @@ $.extend(Grid.prototype, {
 		thisGrid.panel = $("<div>").addClass("fuelux");
 
 		$.get("./lib/grid/js/Grid.html", function(template) {
-			
 			//Set default pageSize on template - there is no programming API and we don't want to modify the library
 			var templateToReplace = null;
 			var templateToReplaceFor = null;
@@ -95,6 +104,7 @@ $.extend(Grid.prototype, {
 				templateToReplaceFor = "<li data-value=\"10\" data-selected=\"true\">";
 			}
 			template = template.replace(templateToReplace, templateToReplaceFor);
+			
 			//
 			thisGrid.panel.html(template);
 			thisGrid.renderDropDownOptions();
@@ -143,7 +153,7 @@ $.extend(Grid.prototype, {
 				}
 			});
 		});
-
+		
 		return thisGrid.panel;
 	},
 
@@ -484,9 +494,19 @@ $.extend(Grid.prototype, {
 					}
 				}
 				
-				var isFinallyValid = true;
+				var filterOperator = thisGrid.getSearchOperator();
+				var isFinallyValid;
+				if(filterOperator === "AND") {
+					isFinallyValid = true;
+				} else if(filterOperator === "OR") {
+					isFinallyValid = false;
+				}
 				for(var fIdx = 0; fIdx < filterKeywords.length; fIdx++) {
-					isFinallyValid = isFinallyValid && isValid[fIdx];
+					if(filterOperator === "AND") {
+						isFinallyValid = isFinallyValid && isValid[fIdx];
+					} else if(filterOperator === "OR") {
+						isFinallyValid = isFinallyValid || isValid[fIdx];
+					}
 				}
 				
 				return isFinallyValid;
@@ -586,6 +606,7 @@ $.extend(Grid.prototype, {
 	},
 
 	list : function(options, callback) {
+		options.searchOperator = this.getSearchOperator();
 		var thisGrid = this;
 		
 		if(thisGrid.firstLoad) {
@@ -596,6 +617,16 @@ $.extend(Grid.prototype, {
 		thisGrid.getDataList(function(dataListResult) {
 			dataList = null;
 			var isDynamic = (dataListResult.totalCount != null && dataListResult.totalCount != undefined);
+			
+			if(isDynamic) {
+				var $and = $(thisGrid.panel).find(".repeater-search-operator-and");
+				$and.empty();
+				$and.append("Table AND");
+				
+				var $or = $(thisGrid.panel).find(".repeater-search-operator-or");
+				$or.empty();
+				$or.append("Global OR");
+			}
 			
 			if(isDynamic) {
 				dataList = dataListResult.objects;		

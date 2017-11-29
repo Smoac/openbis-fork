@@ -115,17 +115,11 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
-
-//		Jupyter initialization
-//		python /home/osboxes/installation/pybis/src/python/ELNJupyter/elnjupyter/server.py --port 8123 --cert /home/osboxes/installation/cert.pem --key /home/osboxes/installation/key.pem --openbis http://10.0.2.2:8888
-//		jupyterhub -f jupyterhub_config.py --no-ssl
 		
 //		Jupyter integration config
 //		this.jupyterOpenbisEndpoint = "http://10.0.2.2:8888"; //Should not end with slash
-// 		Fix server to support CORS https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
-//		https://127.0.0.1:8123?token=admin-170815142923676x523BF649D42CE3BDB8B52F7275874C89&folder=myFolder&filename=myFile.ipynb
-//		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8123";
-//		this.jupyterEndpoint = "http://127.0.0.1:8000/";
+//		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8002";
+//		this.jupyterEndpoint = "https://127.0.0.1:8000/";
 		
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
@@ -141,15 +135,12 @@ $.extend(DefaultProfile.prototype, {
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS", "STORAGE", "STOCK_CATALOG"];
 		this.inventorySpacesReadOnly = ["ELN_SETTINGS", "STOCK_ORDERS"];
-		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
-		this.sampleTypeStorageEnabled = ["ANTIBODY", "BACTERIA", "CHEMICAL", "ENZYME", "CELL_LINE", "FLY", "MEDIA", "OLIGO", "PLASMID", "YEAST", "SOLUTION_BUFFER", "RNA", 
-		                                 //Extension for ETHZ Costumers until this is configurable on the Settings
-		                                 "EBBACTERIA", "TBBACTERIA", "CELL", "STRAIN"];
+		
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 		
 		this.isSampleTypeWithStorage = function(sampleTypeCode) {
-			return $.inArray(sampleTypeCode, this.sampleTypeStorageEnabled) !== -1;
+			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["ENABLE_STORAGE"];
 		}
 		
 		this.isELNIdentifier = function(identifier) {
@@ -165,6 +156,8 @@ $.extend(DefaultProfile.prototype, {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1) || ($.inArray(spaceCode, this.inventorySpacesReadOnly) !== -1);
 		}
 		
+		this.isFileAuthenticationService = false;
+		this.isFileAuthenticationUser = false;
 		this.directLinkEnabled = true;
 		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.cifsFileServer = null;
@@ -181,7 +174,9 @@ $.extend(DefaultProfile.prototype, {
 		this.propertyReplacingCode = "NAME";
 		
 		this.sampleTypeDefinitionsExtension = {
+		
 		}
+		
 		this.searchType = {
 			"TYPE" : "SEARCH",
 			"DISPLAY_NAME" : "Search",
@@ -207,8 +202,9 @@ $.extend(DefaultProfile.prototype, {
 		this.isDatasetTypeCode = function(datasetTypeCode) {
 			return ($.inArray(datasetTypeCode, this.allDatasetTypeCodes) !== -1);
 		}
+		
 		this.isSampleTypeProtocol = function(sampleTypeCode) {
-			return ($.inArray(sampleTypeCode, this.sampleTypeProtocols) !== -1);
+			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["USE_AS_PROTOCOL"];
 		}
 		
 		this.isSampleTypeHidden = function(sampleTypeCode) {
@@ -796,6 +792,28 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			}));
 		}
+		
+		this.initAuth = function(callback) {
+			var _this = this;
+			this.serverFacade.getOpenbisV3(function(openbisV3) {
+				openbisV3._private.sessionToken = mainController.serverFacade.getSession();
+				openbisV3.getServerInformation().done(function(serverInformation) {
+	                var authSystem = serverInformation["authentication-service"];
+	                if (authSystem && authSystem.indexOf("file") !== -1) {
+	                	_this.isFileAuthenticationService = true;
+	                }
+	                callback();
+	            });
+			});
+		}
+		
+		this.isFileAuthUser = function(callback) {
+			var _this = this;
+			this.serverFacade.isFileAuthUser(function(error, result) {
+				_this.isFileAuthenticationUser = result && result.data === 1;
+				callback();
+			});
+		}
 
 		//
 		// Initializes
@@ -808,15 +826,19 @@ $.extend(DefaultProfile.prototype, {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
-									_this.initSettings(function() {
-										//Check if the new storage system can be enabled
-										var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-										var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
-										_this.storagesConfiguration = { 
-												"isEnabled" : storageRack && storagePositionType
-										};
-										
-										callbackWhenDone();
+									_this.initAuth(function() {
+										_this.isFileAuthUser(function() {
+											_this.initSettings(function() {
+												//Check if the new storage system can be enabled
+												var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+												var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");										
+												_this.storagesConfiguration = { 
+														"isEnabled" : storageRack && storagePositionType
+												};
+												
+												callbackWhenDone();
+											});
+										});
 									});
 								});
 							});

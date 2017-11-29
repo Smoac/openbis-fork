@@ -114,7 +114,8 @@ def createDataSetTypeWithProperties(tr, datasetDefinition):
         description = datasetDefinition[2];
         properties = datasetDefinition[3];
         newDataSet = tr.getOrCreateNewDataSetType(dataSetCode);
-        newDataSet.setDataSetKind(kind);
+        if "setDataSetKind" in dir(newDataSet):
+            newDataSet.setDataSetKind(kind);
         newDataSet.setDescription(description);
         addProperties(tr, newDataSet, properties);
     

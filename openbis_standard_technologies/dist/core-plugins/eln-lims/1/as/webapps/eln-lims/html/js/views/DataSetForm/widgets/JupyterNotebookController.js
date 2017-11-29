@@ -22,8 +22,8 @@ function JupyterNotebookController(entity) {
 		this._jupyterNotebookView.repaint();
 	}
 	
-	this.create = function(workspace, notebook, datasets) {
-		JupyterUtil.createJupyterNotebookAndOpen(workspace, notebook, datasets);
+	this.create = function(workspace, notebook, datasets, notebookOwner) {
+		JupyterUtil.createJupyterNotebookAndOpen(workspace, notebook, datasets, notebookOwner);
 		Util.unblockUI();
 	}
 }

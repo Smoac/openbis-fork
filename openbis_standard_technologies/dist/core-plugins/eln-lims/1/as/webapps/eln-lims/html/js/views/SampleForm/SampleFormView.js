@@ -49,35 +49,30 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// TITLE
 		//
-		
-		var entityPath = $("<span>");
-		var codeWithContainer = this._sampleFormModel.sample.code;
+		var spaceCode = this._sampleFormModel.sample.spaceCode;
+		var projectCode;
+		var experimentCode;
+		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {	
+			var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
+			projectCode = experimentIdentifier.split("/")[2];
+			experimentCode = experimentIdentifier.split("/")[3];
+		}
+		var containerSampleCode;
+		var containerSampleIdentifier;
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			var containerIdentifierEnd = this._sampleFormModel.sample.identifier.lastIndexOf(":");
 			if(containerIdentifierEnd !== -1) {
 				var containerCodeStart = this._sampleFormModel.sample.identifier.lastIndexOf("/") + 1;
 				var codeWithContainerParts = this._sampleFormModel.sample.identifier.substring(containerCodeStart).split(":");
-				var containerCode = codeWithContainerParts[0];
-				var containerCodeLink = $("<a>", { "class" : "browser-compatible-javascript-link" }).append(containerCode);
-				containerCodeLink.click(function() {
-					Util.blockUI();
-					var containerIdentifier = _this._sampleFormModel.sample.identifier.substring(0, containerIdentifierEnd);
-					mainController.serverFacade.searchWithIdentifiers([containerIdentifier], function(containerSample) {
-						mainController.changeView("showViewSamplePageFromPermId", containerSample[0].permId);
-					});
-				});
-				codeWithContainer = $("<span>").append(containerCodeLink).append(":").append(codeWithContainerParts[1]);
+				containerSampleCode = codeWithContainerParts[0];
+				containerSampleIdentifier = this._sampleFormModel.sample.identifier.substring(0, containerIdentifierEnd);
 			}
 		}
-		
-		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
-			entityPath.append(this._sampleFormModel.sample.experimentIdentifierOrNull).append("/").append(codeWithContainer);
-		} else {
-			entityPath.append("/").append(this._sampleFormModel.sample.spaceCode).append("/").append(codeWithContainer);
-		}
+		var sampleCode = this._sampleFormModel.sample.code;
+		var samplePermId = this._sampleFormModel.sample.permId;
+		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode, containerSampleCode, containerSampleIdentifier, sampleCode, samplePermId);
 		
 		var $formTitle = $("<div>");
-		
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
 		if(!nameLabel) {
 			nameLabel = this._sampleFormModel.sample.code;
@@ -231,7 +226,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				];
 				FormUtil.showDropboxFolderNameDialog(nameElements);
 			}).bind(this));
-			toolbarModel.push({ component : $uploadBtn, tooltip: "Name generator for dataset upload with dropbox" });
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Helper tool for Dataset upload using eln-lims dropbox" });
 			
 			//Export
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {

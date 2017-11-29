@@ -432,7 +432,16 @@ var FormUtil = new function() {
             				for(var eIdx = 0; eIdx < project.experiments.length; eIdx++) {
                     			var experiment = project.experiments[eIdx];
                     			if(withExperiments) {
-                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier));
+                    				var name = null;
+                    				if(profile.propertyReplacingCode) {
+                    					name = experiment.properties[profile.propertyReplacingCode];
+                    				}
+                    				if(name) {
+                    					name = " (" + name + ")";
+                    				} else {
+                    					name = "";
+                    				}
+                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier + name));
                     			}
                 			}
             			}
@@ -875,11 +884,21 @@ var FormUtil = new function() {
 	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier) {
 		var view = null;
 		switch(entityKind) {
-			case "Sample":
-				view = "showViewSamplePageFromPermId";
+			case "Space":
+				view = "showSpacePage";
+				break;
+			case "Project":
+				view = "showProjectPageFromIdentifier";
 				break;
 			case "Experiment":
 				view = "showExperimentPageFromIdentifier";
+				break;
+			case "Sample":
+				if(permIdOrIdentifier.lastIndexOf(displayName) !== -1) {
+					view = "showViewSamplePageFromIdentifier";
+				} else {
+					view = "showViewSamplePageFromPermId";
+				}
 				break;
 			case "DataSet":
 				view = "showViewDataSetPageFromPermId";
@@ -894,6 +913,30 @@ var FormUtil = new function() {
 		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(displayName);
 		link.click(click);
 		return link;
+	}
+	
+	this.getFormPath = function(spaceCode, projectCode, experimentCode, containerSampleCode, containerSampleIdentifierOrPermId, sampleCode, sampleIdentifierOrPermId, datasetCodeAndPermId) {
+		var entityPath = $("<span>");
+		if(spaceCode) {
+			entityPath.append("/").append(this.getFormLink(spaceCode, 'Space', spaceCode));
+		}
+		if(projectCode) {
+			entityPath.append("/").append(this.getFormLink(projectCode, 'Project', "/" + spaceCode + "/" + projectCode));
+		}
+		if(experimentCode) {
+			entityPath.append("/").append(this.getFormLink(experimentCode, 'Experiment', "/" + spaceCode + "/" + projectCode + "/"+ experimentCode));
+		}
+		if(sampleCode && sampleIdentifierOrPermId) {
+			entityPath.append("/");
+			if(containerSampleCode && containerSampleIdentifierOrPermId) {
+				entityPath.append(this.getFormLink(containerSampleCode, 'Sample', containerSampleIdentifierOrPermId)).append(":");;
+			}
+			entityPath.append(this.getFormLink(sampleCode, 'Sample', sampleIdentifierOrPermId));
+		}
+		if(datasetCodeAndPermId) {
+			entityPath.append("/").append(this.getFormLink(datasetCodeAndPermId, 'DataSet', datasetCodeAndPermId));
+		}
+		return entityPath;
 	}
 	
 	this.getBox = function() {
@@ -951,7 +994,7 @@ var FormUtil = new function() {
 		var $dialog = $("<div>");
 		$dialog
 			.append($("<div>")
-				.append($("<legend>").text("Name generator for dataset upload with dropbox")));
+				.append($("<legend>").text("Helper tool for Dataset upload using the eln-lims dropbox:")));
 
 		mainController.serverFacade.listDataSetTypes((function(data) {
 
@@ -961,9 +1004,14 @@ var FormUtil = new function() {
 			$dialog.append($formFieldContainer);
 
 			// info text
-			var infoText = "In your dropbox location, create a folder containing the data you want to upload. " + 
-							"Name this folder with the provided Dropbox Folder Name.";
-			$formFieldContainer.append(FormUtil.getInfoText(infoText));
+			$formFieldContainer.append(FormUtil.getInfoText("Example and usage instructions: "))
+								.append("<center><img src='./img/eln-lims-dropbox-example.png' width='80%' ></center>")
+								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized in the ELN after upload</b></center>")
+								.append("The eln-lims dropbox requires a root folder with a specific name. This name contains information on where the data should be uploaded.").append("<br>")
+								.append("1. Generate the name of the root folder with this helper tool using the form below.").append("<br>")
+								.append("2. The root folder should contain another folder, with a name of your choice, with the data to upload. This can have as many layers as needed.").append("<br>")
+								.append("3. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
+								
 
 			// dataset type dropdown
 			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
@@ -980,6 +1028,14 @@ var FormUtil = new function() {
 					.append($("<label>", { class : "control-label" }).text("Dataset name:")))
 					.append($nameInput);
 
+			var ownerHint = "to upload data to the current ";
+			if(nameElements[0] === "O") {
+				ownerHint += ELNDictionary.Sample;
+			} else if(nameElements[0] === "E") {
+				ownerHint += ELNDictionary.ExperimentELN;
+			}
+			ownerHint += " " + nameElements[nameElements.length-1];
+			
 			// dropbox folder name ouput
 			var $dropboxFolderName = $("<input>", {
 				class : "form-control",
@@ -995,7 +1051,7 @@ var FormUtil = new function() {
 			$formFieldContainer
 				.append($("<div>", { class : "form-group" })
 					.append($("<label>", { class : "control-label" })
-						.text("Dropbox Folder Name:"))
+						.text("Generated root folder name for the dropbox " + ownerHint + ":"))
 					.append($("<div>", { class : "input-group" })
 						.append($dropboxFolderName)
 						.append($("<span>", { class : "input-group-btn"})
@@ -1062,10 +1118,10 @@ var FormUtil = new function() {
 	this.getDialogCss = function() {
 		return {
 				'text-align' : 'left',
-				'top' : '15%',
-				'width' : '70%',
-				'left' : '15%',
-				'right' : '20%',
+				'top' : '5%',
+				'width' : '90%',
+				'left' : '5%',
+				'right' : '5%',
 				'overflow' : 'auto'
 		};
 	}

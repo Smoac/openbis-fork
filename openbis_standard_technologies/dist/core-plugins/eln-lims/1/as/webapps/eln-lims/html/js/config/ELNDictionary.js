@@ -44,17 +44,13 @@ ELNDictionary.settingsView = {
 			title : "Inventory Spaces",
 			info : "By default all new spaces created in openBIS are shown under the Lab Notebook in the main menu. Spaces listed here are shown under the Inventory.",
 		},
-		sampleTypeProtocols : {
-			title : ELNDictionary.Sample + " Type Protocols",
-			info : "When listing an " + ELNDictionary.Sample + " Type on this section, it will be treated as a Protocol Type. Protocols can be duplicated on the Parents/Children widget.",
-		},
 		dataSetTypeForFileName : {
 			title : "Dataset types for filenames",
 			info : "When listing a combination of file extension / " + ELNDictionary.Sample + " Type on this section the Dataset uploader will select a Dataset Type by default. This decision can be overridden by users afterwards but provides a nice default to avoid mistakes.",			
 		},
 		sampleTypeDefinitionsExtension : {
 			title : ELNDictionary.Sample +" Type definitions Extension",
-			info : "This section is used to extend the common openBIS definitions to give: 1. Intended parent/children hints. 2. Support annotations for these links using properties.",			
+			info : "This section is used to extend the common openBIS definitions to: 1. Enable the storage. 2. Specify if the object type is a protocol. 3. Add intended parent/children hints. 4. Support annotations for these links using properties.",			
 		},
 	}
 }

@@ -35,19 +35,19 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		// Title
 		//
 		var title = null;
-		var entityPath = null;
 		var isInventoryProject = this._projectFormModel.project && profile.isInventorySpace(this._projectFormModel.project.spaceCode);
 		var typeTitle = "Project: ";
 		
+		var spaceCode = this._projectFormModel.project.spaceCode;
+		var projectCode = (this._projectFormModel.mode !== FormMode.CREATE)?this._projectFormModel.project.code:null;
+		var entityPath = FormUtil.getFormPath(spaceCode, projectCode);
+		
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			title = "Create " + typeTitle;
-			entityPath = "";
 		} else if (this._projectFormModel.mode === FormMode.EDIT) {
 			title = "Update " + typeTitle + this._projectFormModel.project.code;
-			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		} else {
 			title = typeTitle + this._projectFormModel.project.code;
-			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		}
 		
 		var $formTitle = $("<div>");

@@ -132,6 +132,13 @@ function ServerFacade(openbisServer) {
 	//
 	// User Related Functions
 	//
+	this.isFileAuthUser = function(callbackFunction) {
+		this.customELNApi({
+			"method" : "isFileAuthUser",
+			"userId" : this.getUserId(),
+		}, callbackFunction, "eln-lims-api");
+	}
+	
 	this.listPersons = function(callbackFunction) {
 		this.openbisServer.listPersons(callbackFunction);
 	};
@@ -455,12 +462,12 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.uploadedSamplesInfo(sampleTypeCode, fileKeyAtHTTPSession, callbackFunction);
 	}
 
-	this.registerSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
-		this.openbisServer.registerSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
+	this.registerSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
+		this.openbisServer.registerSamplesWithSilentOverrides(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
 
-	this.updateSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
-		this.openbisServer.updateSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
+	this.updateSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
+		this.openbisServer.updateSamplesWithSilentOverrides(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
 	
 	this.fileUpload = function(file, callbackFunction) {
@@ -860,9 +867,15 @@ function ServerFacade(openbisServer) {
 					}
 					if(fetchOptions.withSample) {
 						fetchOptions.withSample();
+						if(advancedFetchOptions && advancedFetchOptions.withSampleProperties) {
+							fetchOptions.withSample().withProperties();
+						}
 					}
 					if(fetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
+						if(advancedFetchOptions && advancedFetchOptions.withExperimentProperties) {
+							fetchOptions.withExperiment().withProperties();
+						}
 					}
 					if(fetchOptions.withTags) {
 						fetchOptions.withTags();
@@ -877,8 +890,14 @@ function ServerFacade(openbisServer) {
 					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
 					}
+					if(advancedFetchOptions.withSample && fetchOptions.withSample) {
+						fetchOptions.withSample();
+					}
 					if(fetchOptions.withParents) {
 						fetchOptions.withParents();
+					}
+					if(fetchOptions.withChildren) {
+						fetchOptions.withChildren();
 					}
 				}
 				
@@ -1001,11 +1020,27 @@ function ServerFacade(openbisServer) {
 							case "METAPROJECT":
 								criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
 								break;
+							case "REGISTRATOR":
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsUserId":
+											criteria.withRegistrator().withUserId().thatEquals(attributeValue);
+											break;
+										case "thatContainsFirstName":
+											criteria.withRegistrator().withFirstName().thatContains(attributeValue);
+											break;
+										case "thatContainsLastName":
+											criteria.withRegistrator().withLastName().thatContains(attributeValue);
+											break;
+									}
+								}
+								break;
 							case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
 								if(comparisonOperator) {
 									switch(comparisonOperator) {
 										case "thatEqualsDate":
 											criteria.withRegistrationDate().thatEquals(attributeValue);
+											break;
 										case "thatIsLaterThanOrEqualToDate":
 											criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(attributeValue);
 											break;
@@ -1017,11 +1052,27 @@ function ServerFacade(openbisServer) {
 									criteria.withRegistrationDate().thatEquals(attributeValue);
 								}
 								break;
+							case "MODIFIER":
+								if(comparisonOperator) {
+									switch(comparisonOperator) {
+										case "thatEqualsUserId":
+											criteria.withModifier().withUserId().thatEquals(attributeValue);
+											break;
+										case "thatContainsFirstName":
+											criteria.withModifier().withFirstName().thatContains(attributeValue);
+											break;
+										case "thatContainsLastName":
+											criteria.withModifier().withLastName().thatContains(attributeValue);
+											break;
+									}
+								}
+								break;
 							case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
 								if(comparisonOperator) {
 									switch(comparisonOperator) {
 										case "thatEqualsDate":
 											criteria.withModificationDate().thatEquals(attributeValue);
+											break;
 										case "thatIsLaterThanOrEqualToDate":
 											criteria.withModificationDate().thatIsLaterThanOrEqualTo(attributeValue);
 											break;

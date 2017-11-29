@@ -13,7 +13,28 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 	
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {
+				"ANTIBODY" : {
+					"ENABLE_STORAGE" : true,
+				},
+				
+				"CHEMICAL" : {
+					"ENABLE_STORAGE" : true,
+				},
+				
+				"ENZYME" : {
+					"ENABLE_STORAGE" : true,
+				},
+				
+				"OLIGO" : {
+					"ENABLE_STORAGE" : true,
+				},
+				
+				"RNA" : {
+					"ENABLE_STORAGE" : true,
+				},
+				
 				"MEDIA" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Chemical",
@@ -37,6 +58,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"SOLUTION_BUFFER" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Chemical",
@@ -60,6 +82,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"GENERAL_PROTOCOL" : {
+					"USE_AS_PROTOCOL" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Chemical",
@@ -95,6 +118,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"PCR_PROTOCOL" : {
+					"USE_AS_PROTOCOL" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Chemical",
@@ -118,6 +142,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"WESTERN_BLOTTING_PROTOCOL" : {
+					"USE_AS_PROTOCOL" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Chemical",
@@ -141,6 +166,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"PLASMID" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Plasmid",
@@ -152,6 +178,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"BACTERIA" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Bacteria parents",
@@ -169,6 +196,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"YEAST" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Yeast parents",
@@ -186,6 +214,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"CELL_LINE" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Parental cell line",
@@ -209,6 +238,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"FLY" : {
+					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Fly parents",

@@ -68,6 +68,13 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : false
 		});
+		
+		columnsFirst.push({
+			label : 'Children',
+			property : 'children',
+			isExportable: false,
+			sortable : false
+		});
 
 		if(withExperiment) {
 			columnsFirst.push({
@@ -312,6 +319,18 @@ var SampleDataGridUtil = new function() {
 					
 					sampleModel['parents'] = parents;
 					
+					var children = "";
+					if(sample.children) {
+						for (var caIdx = 0; caIdx < sample.children.length; caIdx++) {
+							if(caIdx !== 0) {
+								children += ", ";
+							}
+							children += sample.children[caIdx].identifier;
+						}
+					}
+					
+					sampleModel['children'] = children;
+					
 					dataList.push(sampleModel);
 				}
 				
@@ -339,6 +358,13 @@ var SampleDataGridUtil = new function() {
 			}
 				
 			var criteriaToSend = $.extend(true, {}, criteria);
+			
+			if(options && options.searchOperator && options.search) {
+				criteriaToSend.logicalOperator = options.searchOperator;
+				if(criteriaToSend.logicalOperator === "OR") {
+					criteriaToSend.rules = {};
+				}
+			}
 			
 			if(options && options.search) {
 				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma

@@ -19,7 +19,7 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataTypeCode;
- 
+
 from java.util import ArrayList
 from java.util import Date;
 from java.text import SimpleDateFormat;
@@ -146,6 +146,8 @@ def isPropertyRichText(properties, propertyCode):
 def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
 	if isPropertyRichText(properties, propertyCode):
 		if propertyValue is not None:
+			if re.search( r'src=\"data:image\/([a-zA-Z]*);base64,([^\"]*)\"', propertyValue) is not None:
+				raise UserFailureException("Base64 Image detected, please upload images using the upload form.")
 			cleanerProperties = CleanerProperties();
 			cleanerProperties.setPruneTags("meta, link, script");
 			cleaner = HtmlCleaner(cleanerProperties);
@@ -197,6 +199,9 @@ def process(tr, parameters, tableBuilder):
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
+	if method == "isFileAuthUser":
+		result = isFileAuthUser(tr, parameters, tableBuilder);
+		isOk = True;
 	if method == "searchSamples":
 		result = searchSamples(tr, parameters, tableBuilder, sessionId);
 		isOk = True;
@@ -504,6 +509,21 @@ def init(tr, parameters, tableBuilder):
 	
 	return True;
 
+def isFileAuthUser(tr, parameters, tableBuilder):
+	userId = parameters.get("userId"); #String
+	path = '../openBIS-server/jetty/bin/passwd.sh';
+	if os.path.isfile(path):
+		isFileAuthUser = False;
+		try:
+			result = subprocess.check_output([path, 'show', userId]) #Checks if the user is available on the file
+			resultLines = result.split("\n")
+			isFileAuthUser = (len(resultLines) == 3) and (resultLines[1].startswith(userId))
+		except:
+			pass
+		return isFileAuthUser
+	else:
+		return False;
+
 def registerUserPassword(tr, parameters, tableBuilder):
 	userId = parameters.get("userId"); #String
 	password = parameters.get("password"); #String
@@ -582,7 +602,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	properties = getProperties(tr, parameters);
-	
+
 	#Create Dataset
 	dataSet = tr.createNewDataSet(dataSetType);
 	if sampleIdentifier is not None:
