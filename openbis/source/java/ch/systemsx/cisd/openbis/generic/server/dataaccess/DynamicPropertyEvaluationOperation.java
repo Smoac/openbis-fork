@@ -41,6 +41,9 @@ public class DynamicPropertyEvaluationOperation implements Serializable
 
     private final boolean deletion;
 
+    // if the evaluation was taken, the information on the queue about this operation is old and a new operation could be scheduled
+    private boolean taken;
+
     public static DynamicPropertyEvaluationOperation evaluate(
             Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids)
     {
@@ -89,6 +92,16 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         return deletion;
     }
 
+    public boolean isTaken()
+    {
+        return taken;
+    }
+
+    public void setTaken(boolean taken)
+    {
+        this.taken = taken;
+    }
+
     @Override
     public String toString()
     {
@@ -103,6 +116,7 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         result = prime * result + ((className == null) ? 0 : className.hashCode());
         result = prime * result + ((ids == null) ? 0 : ids.hashCode());
         result = prime * result + (deletion ? 0 : 1);
+        result = prime * result + (taken ? 0 : 1);
         return result;
     }
 
@@ -136,6 +150,11 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         }
 
         if (other.deletion != deletion)
+        {
+            return false;
+        }
+
+        if (other.taken != taken)
         {
             return false;
         }

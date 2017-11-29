@@ -165,6 +165,7 @@ public class DynamicPropertyEvaluationScheduler implements
             }
         }
 
+        op.setTaken(true);
         return op;
     }
 
