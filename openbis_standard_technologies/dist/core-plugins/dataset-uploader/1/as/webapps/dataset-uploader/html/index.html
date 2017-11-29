@@ -66,12 +66,14 @@
         var context = new openbisWebAppContext();
         openBIS.useSession(context.getSessionId());
         
-        var isSharedSample = context.getEntityIdentifier().split("/").length === 2;
-        if(context.getEntityKind() === "SAMPLE" && isSharedSample) { //Is sample
+        var isSample = context.getEntityKind() === "SAMPLE";
+        var identifier = context.getEntityIdentifier();
+        var isSharedSample = identifier.split("/").length === 2;
+        if (isSample && isSharedSample) {
         	$("#dataset-uploader-form").append("This sample does not belong to a space and therefore cannot hold datasets.");
-        } else { //Is experiment
+        } else { 
         	var datasetFormController = new DataSetFormController();
-        	datasetFormController.init($("#dataset-uploader-form"), { identifier : context.getEntityIdentifier() });
+        	datasetFormController.init($("#dataset-uploader-form"), {identifier : identifier, isSample : isSample});
         }
 	});
 	</script>
