@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -75,6 +76,17 @@ public class UpdatePersonExecutor
     @Override
     protected void checkData(IOperationContext context, PersonUpdate update)
     {
+        if (update.getPersonId() == null)
+        {
+            PersonPE person = context.getSession().tryGetPerson();
+            if (person != null)
+            {
+                update.setPersonId(new PersonPermId(person.getUserId()));
+            } else
+            {
+                throw new UserFailureException("Person to be updated not specified.");
+            }
+        }
     }
 
     @Override

@@ -108,7 +108,7 @@ public class UpdatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId(TEST_GROUP_OBSERVER);
-        personUpdate.setPersonId(personId);
+//        personUpdate.setPersonId(personId);
         personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
