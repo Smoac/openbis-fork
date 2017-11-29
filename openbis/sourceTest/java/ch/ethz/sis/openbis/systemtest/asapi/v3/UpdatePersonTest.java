@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -102,13 +104,33 @@ public class UpdatePersonTest extends AbstractTest
     }
     
     @Test
-    public void testSpaceObserverUpdatesItselfToSameHomeSpace()
+    public void testSpaceObserverUpdatesItselfToSameHomeSpaceForNotSpecifiedPerson()
     {
         // Given
         String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
+        personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
+        
+        // When
+        v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
+        
+        // Then
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withSpace();
         PersonPermId personId = new PersonPermId(TEST_GROUP_OBSERVER);
-//        personUpdate.setPersonId(personId);
+        Person person = v3api.getPersons(sessionToken, Arrays.asList(personId), fetchOptions).get(personId);
+        assertEquals(person.getPermId().getPermId(), personId.getPermId());
+        assertEquals(person.getSpace().getCode(), "TESTGROUP");
+    }
+    
+    @Test
+    public void testSpaceObserverUpdatesItselfToSameHomeSpaceForMe()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+        PersonUpdate personUpdate = new PersonUpdate();
+        IPersonId personId = new Me();
+        personUpdate.setPersonId(personId);
         personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
@@ -118,7 +140,7 @@ public class UpdatePersonTest extends AbstractTest
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withSpace();
         Person person = v3api.getPersons(sessionToken, Arrays.asList(personId), fetchOptions).get(personId);
-        assertEquals(person.getPermId().getPermId(), personId.getPermId());
+        assertEquals(person.getPermId().getPermId(), TEST_GROUP_OBSERVER);
         assertEquals(person.getSpace().getCode(), "TESTGROUP");
     }
     

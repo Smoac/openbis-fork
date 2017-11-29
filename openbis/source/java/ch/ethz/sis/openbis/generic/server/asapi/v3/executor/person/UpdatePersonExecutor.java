@@ -28,6 +28,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -76,7 +77,8 @@ public class UpdatePersonExecutor
     @Override
     protected void checkData(IOperationContext context, PersonUpdate update)
     {
-        if (update.getPersonId() == null)
+        IPersonId personId = update.getPersonId();
+        if (personId == null || personId instanceof Me)
         {
             PersonPE person = context.getSession().tryGetPerson();
             if (person != null)

@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.Author
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
@@ -59,7 +60,7 @@ public class CreateAuthorizationGroupTest extends AbstractTest
         AuthorizationGroupCreation newGroup = new AuthorizationGroupCreation();
         newGroup.setCode("NEW_GROUP");
         newGroup.setDescription("Testing");
-        newGroup.setUsers(Arrays.asList(new PersonPermId(TEST_USER), new PersonPermId(TEST_OBSERVER_CISD)));
+        newGroup.setUsers(Arrays.asList(new PersonPermId(TEST_OBSERVER_CISD), new Me()));
         
         // When
         List<AuthorizationGroupPermId> groups = v3api.createAuthorizationGroups(sessionToken, Arrays.asList(newGroup));

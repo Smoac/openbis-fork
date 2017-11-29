@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
@@ -77,6 +78,7 @@ public class UpdateAuthorizationGroupTest extends AbstractTest
         update.setAuthorizationGroupId(id);
         update.getUserIds().add(new PersonPermId(TEST_GROUP_ADMIN));
         update.getUserIds().add(new PersonPermId(TEST_GROUP_POWERUSER));
+        update.getUserIds().add(new Me());
         
         // When
         v3api.updateAuthorizationGroups(sessionToken, Arrays.asList(update));
@@ -87,7 +89,7 @@ public class UpdateAuthorizationGroupTest extends AbstractTest
         AuthorizationGroup group = v3api.getAuthorizationGroups(sessionToken, Arrays.asList(id), fetchOptions).get(id);
         List<Person> users = group.getUsers();
         Collections.sort(users, CreateAuthorizationGroupTest.PERSON_COMPARATOR);
-        assertEquals(users.toString(), "[Person admin, Person agroup_member, Person poweruser]");
+        assertEquals(users.toString(), "[Person admin, Person agroup_member, Person poweruser, Person test]");
         
         v3api.logout(sessionToken);
     }

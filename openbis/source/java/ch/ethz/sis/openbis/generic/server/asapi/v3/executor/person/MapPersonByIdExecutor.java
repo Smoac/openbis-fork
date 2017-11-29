@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.person.ListPersonByMe;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.person.ListPersonByPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -52,6 +53,7 @@ public class MapPersonByIdExecutor extends AbstractMapObjectByIdExecutor<IPerson
     protected void addListers(IOperationContext context, List<IListObjectById<? extends IPersonId, PersonPE>> listers)
     {
         listers.add(new ListPersonByPermId(personDAO));
+        listers.add(new ListPersonByMe());
     }
 
     @Autowired

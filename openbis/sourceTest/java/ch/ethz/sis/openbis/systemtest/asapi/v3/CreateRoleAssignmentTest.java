@@ -24,6 +24,7 @@ import java.util.List;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -57,12 +58,41 @@ public class CreateRoleAssignmentTest extends AbstractTest
         // Then
         assertEquals(ids.size(), 1);
         RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withUser();
         fetchOptions.withSpace();
         fetchOptions.withProject();
         RoleAssignment roleAssignment = v3api.getRoleAssignments(sessionToken, ids, fetchOptions).get(ids.get(0));
+        assertEquals(roleAssignment.getUser().getUserId(), TEST_OBSERVER_CISD);
         assertEquals(roleAssignment.getRole(), Role.ETL_SERVER);
         assertEquals(roleAssignment.getRoleLevel(), RoleLevel.INSTANCE);
         assertEquals(roleAssignment.getSpace(), null);
+        assertEquals(roleAssignment.getProject(), null);
+    }
+    
+    @Test
+    public void testCreateRoleForMe()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        RoleAssignmentCreation creation = new RoleAssignmentCreation();
+        creation.setRole(Role.POWER_USER);
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setUserId(new Me());
+        
+        // When
+        List<RoleAssignmentTechId> ids = v3api.createRoleAssignments(sessionToken, Arrays.asList(creation));
+        
+        // Then
+        assertEquals(ids.size(), 1);
+        RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withUser();
+        fetchOptions.withSpace();
+        fetchOptions.withProject();
+        RoleAssignment roleAssignment = v3api.getRoleAssignments(sessionToken, ids, fetchOptions).get(ids.get(0));
+        assertEquals(roleAssignment.getUser().getUserId(), TEST_USER);
+        assertEquals(roleAssignment.getRole(), Role.POWER_USER);
+        assertEquals(roleAssignment.getRoleLevel(), RoleLevel.SPACE);
+        assertEquals(roleAssignment.getSpace().getCode(), "TEST-SPACE");
         assertEquals(roleAssignment.getProject(), null);
     }
     
