@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -129,7 +128,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     public void setUp(String pluginName, Properties properties)
     {
         blaster = getBlaster(properties);
-        dataSetTypePatterns = getDataSetTypePatterns(properties);
+        dataSetTypePatterns = PropertyUtils.getPatterns(properties, DATASET_TYPES_PROPERTY);
         fileTypes = Arrays.asList(properties.getProperty(FILE_TYPES_PROPERTY, DEFAULT_FILE_TYPES).split(" +"));
         operationLog.info("File types: " + fileTypes);
         lastSeenDataSetFile = getFile(properties, LAST_SEEN_DATA_SET_FILE_PROPERTY, DEFAULT_LAST_SEEN_DATA_SET_FILE);
@@ -154,27 +153,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     protected BlastUtils getBlaster(Properties properties)
     {
         return new BlastUtils(properties, getConfigProvider().getStoreRoot());
-    }
-
-    private List<Pattern> getDataSetTypePatterns(Properties properties)
-    {
-        List<Pattern> patterns = new ArrayList<Pattern>();
-        List<String> dataSetTypeRegexs = PropertyUtils.tryGetList(properties, DATASET_TYPES_PROPERTY);
-        if (dataSetTypeRegexs != null)
-        {
-            for (String regex : dataSetTypeRegexs)
-            {
-                try
-                {
-                    patterns.add(Pattern.compile(regex));
-                } catch (PatternSyntaxException ex)
-                {
-                    throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY
-                            + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
-                }
-            }
-        }
-        return patterns;
     }
 
     private List<Loader> createLoaders(Properties properties)
@@ -587,17 +565,21 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 {
                     if (property.getPropertyType().getCode().equals(propertyType))
                     {
-                        String sequence = property.tryGetAsString();
+                        String sequence = normalize(property.tryGetAsString());
                         if (sequence != null)
                         {
-                            Sequence seq = new Sequence(entity, propertyType, sequence);
-                            Sequences sequences = map.get(seq.getSequenceType());
-                            if (sequences == null)
+                            SequenceType sequenceType = FastaUtilities.determineSequenceTypeOrNull(sequence);
+                            if (sequenceType != null)
                             {
-                                sequences = new Sequences();
-                                map.put(seq.getSequenceType(), sequences);
+                                Sequence seq = new Sequence(entity, propertyType, sequenceType, sequence);
+                                Sequences sequences = map.get(seq.getSequenceType());
+                                if (sequences == null)
+                                {
+                                    sequences = new Sequences();
+                                    map.put(seq.getSequenceType(), sequences);
+                                }
+                                sequences.addSequence(seq);
                             }
-                            sequences.addSequence(seq);
                         }
                         break;
                     }
@@ -633,6 +615,24 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
     }
 
+    private static String normalize(String sequence)
+    {
+        if (sequence == null)
+        {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < sequence.length(); i++)
+        {
+            char c = sequence.charAt(i);
+            if (Character.isWhitespace(c) == false)
+            {
+                builder.append(Character.toUpperCase(c));
+            }
+        }
+        return builder.toString();
+    }
+
     private static final class Sequence
     {
         private final String permId;
@@ -646,10 +646,12 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         private final SequenceType sequenceType;
 
         @SuppressWarnings("rawtypes")
-        Sequence(IEntityInformationHolderWithProperties entity, String propertyType, String sequence)
+        Sequence(IEntityInformationHolderWithProperties entity, String propertyType,
+                SequenceType sequenceType, String sequence)
         {
             this.propertyType = propertyType;
-            this.sequence = removeWhiteSpaces(sequence);
+            this.sequenceType = sequenceType;
+            this.sequence = sequence;
             permId = entity.getPermId();
             Date date = null;
             if (entity instanceof CodeWithRegistrationAndModificationDate)
@@ -657,22 +659,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 date = ((CodeWithRegistrationAndModificationDate) entity).getModificationDate();
             }
             modificationDate = date == null ? new Date() : date;
-            sequenceType = FastaUtilities.determineSequenceType(this.sequence);
-        }
-
-        private static String removeWhiteSpaces(String sequence)
-        {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < sequence.length(); i++)
-            {
-                char c = sequence.charAt(i);
-                if (Character.isWhitespace(c) == false)
-                {
-                    builder.append(c);
-                }
-            }
-            String string = builder.toString();
-            return string;
         }
 
         String getPermId()

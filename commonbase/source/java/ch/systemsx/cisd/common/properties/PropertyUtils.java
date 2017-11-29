@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -167,6 +169,32 @@ public final class PropertyUtils
     {
         return ConfigurationFailureException.fromTemplate(NOT_FOUND_PROPERTY_FORMAT, propertyKey,
                 CollectionUtils.abbreviate(Collections.list(properties.propertyNames()), 10));
+    }
+
+    /**
+     * Returns a list of Pattern objects compiled from a comma-separated list of regular expressions.
+     * 
+     * @throws ConfigurationFailureException if a regular expression is invalid
+     */
+    public static List<Pattern> getPatterns(Properties properties, String key)
+    {
+        List<Pattern> patterns = new ArrayList<Pattern>();
+        List<String> dataSetTypeRegexs = tryGetList(properties, key);
+        if (dataSetTypeRegexs != null)
+        {
+            for (String regex : dataSetTypeRegexs)
+            {
+                try
+                {
+                    patterns.add(Pattern.compile(regex));
+                } catch (PatternSyntaxException ex)
+                {
+                    throw new ConfigurationFailureException("Property '" + key
+                            + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
+                }
+            }
+        }
+        return patterns;
     }
 
     /**
@@ -492,8 +520,7 @@ public final class PropertyUtils
         if (charOrNull.length() == 1)
         {
             return charOrNull.charAt(0);
-        }
-        else
+        } else
         {
             if (loggerOrNull != null)
             {
@@ -532,8 +559,7 @@ public final class PropertyUtils
         if (file.isDirectory())
         {
             return file;
-        }
-        else
+        } else
         {
             throw new ConfigurationFailureException("Property '" + propertyKey + "' is expected to be existing directory. " + propertyValue);
         }
@@ -556,8 +582,7 @@ public final class PropertyUtils
         if (file.isFile())
         {
             return file;
-        }
-        else
+        } else
         {
             throw new ConfigurationFailureException("Property '" + propertyKey + "' is expected to be existing normal file. " + propertyValue);
         }
