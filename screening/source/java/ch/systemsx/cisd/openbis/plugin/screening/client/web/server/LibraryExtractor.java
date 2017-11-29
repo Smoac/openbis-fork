@@ -108,9 +108,10 @@ class LibraryExtractor
         SampleType typeInFile = new SampleType();
         typeInFile.setCode(EntityType.DEFINED_IN_FILE);
         BatchSamplesOperation prepared =
-                SampleUploadSectionsParser.prepareSamples(typeInFile, Arrays
+                SampleUploadSectionsParser.prepareSamples(typeInFile, null, null, Arrays
                         .asList(new NamedInputStream(new FileInputStream(platesFile), platesFile
-                                .getName())), null, null, true, null,
+                                .getName())),
+                        null, null, true, null,
                         BatchOperationKind.REGISTRATION);
         List<NewSamplesWithTypes> samples = prepared.getSamples();
         setUpdatableTypes(samples);

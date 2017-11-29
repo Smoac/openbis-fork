@@ -1286,6 +1286,24 @@ openbis.prototype.removeFromMetaproject = function(metaprojectId, assignmentsToR
 }
 
 /**
+ * @see IGeneralInformationChangingService.registerSamplesWithSilentOverrides(String, String, String, String, String, String)
+ * @method
+ */
+openbis.prototype.registerSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull, sessionKey, defaultGroupIdentifier, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "registerSamplesWithSilentOverrides",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 spaceIdentifierSilentOverrideOrNull,
+							 experimentIdentifierSilentOverrideOrNull,
+							 sessionKey,
+							 defaultGroupIdentifier] },
+		success: action
+	});
+}
+
+/**
  * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
  * @method
  */
@@ -1295,6 +1313,24 @@ openbis.prototype.registerSamples = function(sampleTypeCode, sessionKey, default
 		data: { "method" : "registerSamples",
 				"params" : [ this.getSession(),
 							 sampleTypeCode,
+							 sessionKey,
+							 defaultGroupIdentifier] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.updateSamplesWithSilentOverrides(String, String, String, String, String, String)
+ * @method
+ */
+openbis.prototype.updateSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull, sessionKey, defaultGroupIdentifier, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "updateSamplesWithSilentOverrides",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 spaceIdentifierSilentOverrideOrNull,
+							 experimentIdentifierSilentOverrideOrNull,
 							 sessionKey,
 							 defaultGroupIdentifier] },
 		success: action

@@ -240,17 +240,52 @@ public class GeneralInformationChangingService extends
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final String registerSamplesWithSilentOverrides(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            final String sessionKey,
+            final String defaultGroupIdentifier)
+    {
+        List<BatchRegistrationResult> results = genericClientService.registerSamplesWithSilentOverrides(
+                getSampleType(sampleTypeCode, sessionToken),
+                spaceIdentifierSilentOverrideOrNull,
+                experimentIdentifierSilentOverrideOrNull,
+                sessionKey, false, null,
+                defaultGroupIdentifier,
+                false);
+
+        return results.get(0).getMessage();
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public final String registerSamples(
             final String sessionToken,
             final String sampleTypeCode,
             final String sessionKey,
             final String defaultGroupIdentifier)
     {
-        List<BatchRegistrationResult> results = genericClientService.registerSamples(
+        return registerSamplesWithSilentOverrides(sessionToken, sampleTypeCode, null, null, sessionKey, defaultGroupIdentifier);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final String updateSamplesWithSilentOverrides(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            final String sessionKey,
+            final String defaultGroupIdentifier)
+    {
+        List<BatchRegistrationResult> results = genericClientService.updateSamplesWithSilentOverrides(
                 getSampleType(sampleTypeCode, sessionToken),
+                spaceIdentifierSilentOverrideOrNull,
+                experimentIdentifierSilentOverrideOrNull,
                 sessionKey, false, null,
-                defaultGroupIdentifier,
-                false);
+                defaultGroupIdentifier);
 
         return results.get(0).getMessage();
     }
@@ -263,12 +298,7 @@ public class GeneralInformationChangingService extends
             final String sessionKey,
             final String defaultGroupIdentifier)
     {
-        List<BatchRegistrationResult> results = genericClientService.updateSamples(
-                getSampleType(sampleTypeCode, sessionToken),
-                sessionKey, false, null,
-                defaultGroupIdentifier);
-
-        return results.get(0).getMessage();
+        return updateSamplesWithSilentOverrides(sessionToken, sampleTypeCode, null, null, sessionKey, defaultGroupIdentifier);
     }
 
     @Override
@@ -278,11 +308,9 @@ public class GeneralInformationChangingService extends
             final String sampleTypeCode,
             final String sessionKey)
     {
-        Map<String, Object> info = genericClientService.uploadedSamplesInfo(
+        return genericClientService.uploadedSamplesInfo(
                 getSampleType(sampleTypeCode, sessionToken),
                 sessionKey);
-
-        return info;
     }
 
     @Override

@@ -144,8 +144,26 @@ public interface IGeneralInformationChangingService extends IRpcService
      * Registers samples parsing a file stored on the HTTP Session.
      * 
      * @param sampleTypeCode Sample type to parse
+     * @param spaceIdentifierSilentOverrideOrNull Silently overrides Space identifier if given
+     * @param experimentIdentifierSilentOverrideOrNull Silently overrides Experiment identifier if given
      * @param sessionKey key of the file stored on the HTTP Session
-     * @param defaultGroupIdentifier key of the file stored on the HTTP Session
+     * @param defaultGroupIdentifier
+     * @since 1.5
+     */
+    public String registerSamplesWithSilentOverrides(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            final String sessionKey,
+            final String defaultGroupIdentifier);
+
+    /**
+     * Registers samples parsing a file stored on the HTTP Session.
+     * 
+     * @param sampleTypeCode Sample type to parse
+     * @param sessionKey key of the file stored on the HTTP Session
+     * @param defaultGroupIdentifier
      * @since 1.5
      */
     public String registerSamples(
@@ -159,7 +177,23 @@ public interface IGeneralInformationChangingService extends IRpcService
      * 
      * @param sampleTypeCode Sample type to parse
      * @param sessionKey key of the file stored on the HTTP Session
-     * @param defaultGroupIdentifier key of the file stored on the HTTP Session
+     * @param defaultGroupIdentifier
+     * @since 1.5
+     */
+    public String updateSamplesWithSilentOverrides(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            final String sessionKey,
+            final String defaultGroupIdentifier);
+
+    /**
+     * Updates samples parsing a file stored on the HTTP Session.
+     * 
+     * @param sampleTypeCode Sample type to parse
+     * @param sessionKey key of the file stored on the HTTP Session
+     * @param defaultGroupIdentifier
      * @since 1.5
      */
     public String updateSamples(

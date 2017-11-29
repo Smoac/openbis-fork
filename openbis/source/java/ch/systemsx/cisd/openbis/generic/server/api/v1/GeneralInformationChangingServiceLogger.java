@@ -135,11 +135,43 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     }
 
     @Override
+    public String registerSamplesWithSilentOverrides(String sessionToken, String sampleTypeCode, String spaceIdentifierSilentOverrideOrNull,
+            String experimentIdentifierSilentOverrideOrNull, String sessionKey,
+            String defaultGroupIdentifier)
+    {
+        logAccess(sessionToken, "registerSamplesWithSilentOverrides",
+                "sampleTypeCode(%s), sessionKey(%s), spaceIdentifierSilentOverrideOrNull(%s), experimentIdentifierSilentOverrideOrNull(%s), defaultGroupIdentifier(%s)",
+                sampleTypeCode,
+                spaceIdentifierSilentOverrideOrNull,
+                experimentIdentifierSilentOverrideOrNull,
+                sessionKey,
+                defaultGroupIdentifier);
+
+        return null;
+    }
+
+    @Override
     public String registerSamples(String sessionToken, String sampleTypeCode, String sessionKey, String defaultGroupIdentifier)
     {
         logAccess(sessionToken, "registerSamples",
                 "sampleTypeCode(%s), sessionKey(%s), defaultGroupIdentifier(%s)",
                 sampleTypeCode,
+                sessionKey,
+                defaultGroupIdentifier);
+
+        return null;
+    }
+
+    @Override
+    public String updateSamplesWithSilentOverrides(String sessionToken, String sampleTypeCode, String spaceIdentifierSilentOverrideOrNull,
+            String experimentIdentifierSilentOverrideOrNull, String sessionKey,
+            String defaultGroupIdentifier)
+    {
+        logAccess(sessionToken, "updateSamplesWithSilentOverrides",
+                "sampleTypeCode(%s), sessionKey(%s), spaceIdentifierSilentOverrideOrNull(%s), experimentIdentifierSilentOverrideOrNull(%s), defaultGroupIdentifier(%s)",
+                sampleTypeCode,
+                spaceIdentifierSilentOverrideOrNull,
+                experimentIdentifierSilentOverrideOrNull,
                 sessionKey,
                 defaultGroupIdentifier);
 
