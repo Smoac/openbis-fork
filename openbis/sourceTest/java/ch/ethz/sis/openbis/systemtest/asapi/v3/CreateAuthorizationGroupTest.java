@@ -128,14 +128,8 @@ public class CreateAuthorizationGroupTest extends AbstractTest
     @DataProvider
     Object[][] usersNotAllowedToCreateAuthorizationGroups()
     {
-        String[] users = {TEST_GROUP_ADMIN, TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER, TEST_INSTANCE_OBSERVER, 
-                TEST_OBSERVER_CISD, TEST_POWER_USER_CISD, TEST_SPACE_USER};
-        Object[][] objects = new Object[users.length][];
-        for (int i = 0; i < users.length; i++)
-        {
-            objects[i] = new Object[] {users[i]};
-        }
-        return objects;
+        return createTestUsersProvider(TEST_GROUP_ADMIN, TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER,
+                TEST_INSTANCE_OBSERVER, TEST_OBSERVER_CISD, TEST_POWER_USER_CISD, TEST_SPACE_USER);
     }
     
 }

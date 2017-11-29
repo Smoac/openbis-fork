@@ -507,6 +507,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.createPersons = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createPersons",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "PersonPermId" ]
+				}
+			});
+		}
+		
 		this.createSemanticAnnotations = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

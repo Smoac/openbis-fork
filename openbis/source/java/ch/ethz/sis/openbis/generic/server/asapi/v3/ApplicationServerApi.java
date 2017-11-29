@@ -180,10 +180,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.SearchOperation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.UpdateOperationExecutionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.CreatePersonsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.CreatePersonsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.get.GetPersonsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.get.GetPersonsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperationResult;
@@ -511,6 +515,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<RoleAssignmentTechId> createRoleAssignments(String sessionToken, List<RoleAssignmentCreation> newRoleAssignments)
     {
         CreateRoleAssignmentsOperationResult result = executeOperation(sessionToken, new CreateRoleAssignmentsOperation(newRoleAssignments));
+        return result.getObjectIds();
+    }
+
+    @Override
+    public List<PersonPermId> createPersons(String sessionToken, List<PersonCreation> newPersons)
+    {
+        CreatePersonsOperationResult result = executeOperation(sessionToken, new CreatePersonsOperation(newPersons));
         return result.getObjectIds();
     }
 

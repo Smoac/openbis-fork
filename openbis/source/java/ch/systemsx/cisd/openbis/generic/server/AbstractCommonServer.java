@@ -91,7 +91,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         {
             throw UserFailureException.fromTemplate(
                     "Following persons unknown by the authentication service: [%s]",
-                    StringUtils.join(userIDs, ","));
+                    StringUtils.join(unknownUsers, ","));
         } else
         {
             return newPersons;

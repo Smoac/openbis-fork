@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -214,14 +213,7 @@ public class CreateRoleAssignmentExecutor
     @Override
     protected List<RoleAssignmentPE> list(IOperationContext context, Collection<Long> ids)
     {
-        Set<Long> idSet = null;
-        if (ids instanceof Set)
-        {
-            idSet = (Set<Long>) ids;
-        } else
-        {
-            idSet = new HashSet<>(ids);
-        }
+        Set<Long> idSet = asSet(ids);
         List<RoleAssignmentPE> result = new ArrayList<>();
         List<RoleAssignmentPE> entities = daoFactory.getRoleAssignmentDAO().listAllEntities();
         for (RoleAssignmentPE roleAssignment : entities)

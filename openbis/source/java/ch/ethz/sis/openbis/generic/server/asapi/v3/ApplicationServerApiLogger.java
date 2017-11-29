@@ -99,8 +99,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecution
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecutionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
@@ -316,6 +318,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<RoleAssignmentTechId> createRoleAssignments(String sessionToken, List<RoleAssignmentCreation> newRoleAssignments)
     {
         logAccess(sessionToken, "create-role-assignments", "NEW_ROLE_ASSIGNMENTS(%s)", abbreviate(newRoleAssignments));
+        return null;
+    }
+
+    @Override
+    public List<PersonPermId> createPersons(String sessionToken, List<PersonCreation> newPersons)
+    {
+        logAccess(sessionToken, "create-persons", "NEW_PERSONS(%s)", abbreviate(newPersons));
         return null;
     }
 

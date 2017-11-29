@@ -36,5 +36,12 @@ public class PersonAuthorizationExecutor implements IPersonAuthorizationExecutor
     public void canGet(IOperationContext context)
     {
     }
+    
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("CREATE_PERSON")
+    public void canCreate(IOperationContext context)
+    {
+    }
 
 }

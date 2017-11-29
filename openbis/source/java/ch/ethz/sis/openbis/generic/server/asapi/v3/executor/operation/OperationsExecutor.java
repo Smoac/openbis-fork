@@ -74,6 +74,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.get.IGetOp
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.internal.IInternalOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search.ISearchOperationExecutionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.update.IUpdateOperationExecutionsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ICreatePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IGetPersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ICreateProjectsOperationExecutor;
@@ -195,6 +196,9 @@ public class OperationsExecutor implements IOperationsExecutor
     
     @Autowired
     private ICreateRoleAssignmentsOperationExecutor createRoleAssignmentsExecutor;
+    
+    @Autowired
+    private ICreatePersonsOperationExecutor createPersonsExecutor;
     
     @Autowired
     private ICreateSemanticAnnotationsOperationExecutor createSemanticAnnotationsExecutor;
@@ -529,6 +533,7 @@ public class OperationsExecutor implements IOperationsExecutor
     private void executeCreations(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
+        resultMap.putAll(createPersonsExecutor.execute(context, operations));
         resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(createExperimentTypesExecutor.execute(context, operations));
         resultMap.putAll(createSampleTypesExecutor.execute(context, operations));
