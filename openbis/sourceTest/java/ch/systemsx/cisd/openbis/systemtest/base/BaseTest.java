@@ -498,7 +498,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         for (Space refreshed : commonServer.listSpaces(systemSessionToken))
         {
-            if (space.getId() == refreshed.getId())
+            if (space.getId().equals(refreshed.getId()))
             {
                 return space;
             }
