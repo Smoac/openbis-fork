@@ -99,9 +99,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 
 		} else {
 			var $allSampleTypes = this._getAllSampleTypesDropdown();
+			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 			var $options = this._getOptionsMenu();
 			tableToolbarModel.push({ component : $options, tooltip: null });
-			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 		}
 		
 		var $header = views.header;
