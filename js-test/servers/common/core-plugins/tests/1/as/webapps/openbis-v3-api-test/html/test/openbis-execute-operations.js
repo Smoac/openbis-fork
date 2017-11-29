@@ -193,6 +193,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeUpdateOperation(new c.UpdateAuthorizationGroupsOperation(updates));
 		}
 		
+		this.updatePersons = function(updates) {
+			return this._executeUpdateOperation(new c.UpdatePersonsOperation(updates));
+		}
+		
 		this.updateOperationExecutions = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateOperationExecutionsOperation(updates));
 		}

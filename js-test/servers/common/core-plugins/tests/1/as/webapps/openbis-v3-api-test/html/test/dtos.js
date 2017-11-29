@@ -385,6 +385,9 @@ var sources = [
 	'as/dto/person/search/UserIdsSearchCriteria',
 	'as/dto/person/search/SearchPersonsOperation',
 	'as/dto/person/search/SearchPersonsOperationResult',
+	'as/dto/person/update/PersonUpdate',
+	'as/dto/person/update/UpdatePersonsOperation',
+	'as/dto/person/update/UpdatePersonsOperationResult',
 	'as/dto/person/Person',
 	
 	'as/dto/project/create/ProjectCreation',

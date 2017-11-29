@@ -554,6 +554,64 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findAuthorizationGroup, fCheck);
 		});
 
+		QUnit.test("updatePersons()", function(assert) {
+			var c = new common(assert, openbis);
+			var userId = c.generateId("USER");
+			
+			var fCreate = function(facade) {
+				var creation = new c.PersonCreation();
+				creation.setUserId(userId);
+				return facade.createPersons([ creation ]).then(function(permIds) {
+					var creation = new c.RoleAssignmentCreation();
+					creation.setUserId(permIds[0]);
+					creation.setRole(c.Role.ADMIN);
+					return facade.createRoleAssignments([ creation ]).then(function(assignmentId) {
+						return permIds;
+					});
+				});
+			}
+
+			var fUpdate = function(facade, permId) {
+				var update = new c.PersonUpdate();
+				update.setPersonId(permId);
+				update.setHomeSpaceId(new c.SpacePermId("TEST"))
+				return facade.updatePersons([ update ]);
+			}
+			
+			var fCheck = function(person) {
+				c.assertEqual(person.getUserId(), userId, "User id");
+				c.assertEqual(person.getSpace().getCode(), "TEST", "Home space");
+				c.assertEqual(person.isActive(), true, "Active");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findPerson, fCheck);
+		});
+		
+		QUnit.test("updatePersons() deactivate", function(assert) {
+			var c = new common(assert, openbis);
+			var userId = c.generateId("USER");
+			
+			var fCreate = function(facade) {
+				var creation = new c.PersonCreation();
+				creation.setUserId(userId);
+				return facade.createPersons([ creation ]);
+			}
+			
+			var fUpdate = function(facade, permId) {
+				var update = new c.PersonUpdate();
+				update.setPersonId(permId);
+				update.deactivate();
+				return facade.updatePersons([ update ]);
+			}
+			
+			var fCheck = function(person) {
+				c.assertEqual(person.getUserId(), userId, "User id");
+				c.assertEqual(person.isActive(), false, "Active");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findPerson, fCheck);
+		});
+		
 		QUnit.test("updateOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 			var permId = null;

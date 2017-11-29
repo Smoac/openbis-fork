@@ -56,6 +56,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsUpdate = dtos.ExternalDmsUpdate;
 		this.TagUpdate = dtos.TagUpdate;
 		this.AuthorizationGroupUpdate = dtos.AuthorizationGroupUpdate;
+		this.PersonUpdate = dtos.PersonUpdate;
 		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
 		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
 		this.ExperimentDeletionOptions = dtos.ExperimentDeletionOptions;
@@ -196,6 +197,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
 		this.UpdateTagsOperation = dtos.UpdateTagsOperation;
 		this.UpdateAuthorizationGroupsOperation = dtos.UpdateAuthorizationGroupsOperation;
+		this.UpdatePersonsOperation = dtos.UpdatePersonsOperation;
 		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
 		this.UpdateSemanticAnnotationsOperation = dtos.UpdateSemanticAnnotationsOperation;
 
