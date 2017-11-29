@@ -77,6 +77,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.update.IUp
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ICreatePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IGetPersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IUpdatePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ICreateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IDeleteProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjectsOperationExecutor;
@@ -244,6 +245,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateAuthorizationGroupsOperationExecutor updateAuthorizationGroupsExecutor;
+    
+    @Autowired
+    private IUpdatePersonsOperationExecutor updatePersonsExecutor;
 
     @Autowired
     private IUpdateExternalDmsOperationExecutor updateExternalDmsExecutor;
@@ -520,6 +524,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(updateTagsExecutor.execute(context, operations));
+        resultMap.putAll(updatePersonsExecutor.execute(context, operations));
         resultMap.putAll(updateAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(updateMaterialsExecutor.execute(context, operations));
         resultMap.putAll(updateExternalDmsExecutor.execute(context, operations));

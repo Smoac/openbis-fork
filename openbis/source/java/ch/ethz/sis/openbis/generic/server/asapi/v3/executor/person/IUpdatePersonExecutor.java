@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-public interface IPersonAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface IUpdatePersonExecutor extends IUpdateEntityExecutor<PersonUpdate, PersonPermId>
 {
 
-    void canGet(IOperationContext context);
-
-    void canCreate(IOperationContext context);
-    
-    void canDeactivate(IOperationContext context);
-    
-    void canUpdateHomeSpace(IOperationContext context, SpacePE newHomeSpace);
 }

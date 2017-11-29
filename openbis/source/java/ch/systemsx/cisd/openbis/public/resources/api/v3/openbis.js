@@ -647,6 +647,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updatePersons = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updatePersons",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateOperationExecutions = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

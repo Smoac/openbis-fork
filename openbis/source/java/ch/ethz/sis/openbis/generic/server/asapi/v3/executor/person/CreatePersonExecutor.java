@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
@@ -162,17 +162,7 @@ public class CreatePersonExecutor
     @Override
     protected List<PersonPE> list(IOperationContext context, Collection<Long> ids)
     {
-        Set<Long> idSet = asSet(ids);
-        List<PersonPE> result = new ArrayList<>();
-        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
-        for (PersonPE person : persons)
-        {
-            if (idSet.contains(person.getId()))
-            {
-                result.add(person);
-            }
-        }
-        return result;
+        return CommonUtils.listPersons(daoFactory, ids);
     }
 
     @Override

@@ -33,6 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignment
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
@@ -213,7 +214,7 @@ public class CreateRoleAssignmentExecutor
     @Override
     protected List<RoleAssignmentPE> list(IOperationContext context, Collection<Long> ids)
     {
-        Set<Long> idSet = asSet(ids);
+        Set<Long> idSet = CommonUtils.asSet(ids);
         List<RoleAssignmentPE> result = new ArrayList<>();
         List<RoleAssignmentPE> entities = daoFactory.getRoleAssignmentDAO().listAllEntities();
         for (RoleAssignmentPE roleAssignment : entities)

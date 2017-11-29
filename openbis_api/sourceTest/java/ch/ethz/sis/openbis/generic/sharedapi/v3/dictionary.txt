@@ -1804,4 +1804,13 @@ create Persons
 Create Persons Operation
 Create Persons Operation Result
 Person Creation
+deactivate
+get Home Space Id
+get Person Id
+Person Update
+set Home Space Id
+set Person Id
+update Persons
+Update Persons Operation
+Update Persons Operation Result
 

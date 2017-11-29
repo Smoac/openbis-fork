@@ -52,7 +52,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 { ColumnNames.USER_COLUMN }) })
 @Friend(toClasses = RoleAssignmentPE.class)
 public final class PersonPE extends HibernateAbstractRegistrationHolder implements
-        Comparable<PersonPE>, IIdHolder, Serializable
+        Comparable<PersonPE>, IIdentityHolder, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -302,7 +302,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     //
-    // IIdHolder
+    // IIdentifierHolder
     //
     @Override
     @SequenceGenerator(name = SequenceNames.PERSON_SEQUENCE, sequenceName = SequenceNames.PERSON_SEQUENCE, allocationSize = 1)
@@ -313,6 +313,20 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         return id;
     }
 
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return getPermId();
+    }
+    
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return getUserId();
+    }
+    
     //
     // Object
     //

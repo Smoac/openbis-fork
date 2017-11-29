@@ -103,6 +103,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
@@ -263,6 +264,8 @@ public interface IApplicationServerApi extends IRpcService
     public void updateTags(String sessionToken, List<TagUpdate> tagUpdates);
 
     public void updateAuthorizationGroups(String sessionToken, List<AuthorizationGroupUpdate> authorizationGroupUpdates);
+    
+    public void updatePersons(String sessionToken, List<PersonUpdate> personUpdates);
 
     public void updateOperationExecutions(String sessionToken, List<OperationExecutionUpdate> executionUpdates);
 

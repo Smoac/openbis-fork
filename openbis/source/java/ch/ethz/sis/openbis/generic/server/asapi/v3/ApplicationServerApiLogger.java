@@ -104,6 +104,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
@@ -396,6 +397,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void updateAuthorizationGroups(String sessionToken, List<AuthorizationGroupUpdate> authorizationGroupUpdates)
     {
         logAccess(sessionToken, "update-authorization-groups", "AUTHORIZATION_GROUP_UPDATES(%s)", abbreviate(authorizationGroupUpdates));
+    }
+
+    @Override
+    public void updatePersons(String sessionToken, List<PersonUpdate> personUpdates)
+    {
+        logAccess(sessionToken, "update-persons", "PERSON_UPDATES(%s)", abbreviate(personUpdates));
     }
 
     @Override

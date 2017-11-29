@@ -19,9 +19,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
@@ -41,6 +44,21 @@ public class PersonAuthorizationExecutor implements IPersonAuthorizationExecutor
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("CREATE_PERSON")
     public void canCreate(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("DEACTIVATE_PERSON")
+    public void canDeactivate(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("UPDATE_HOME_SPACE")
+    public void canUpdateHomeSpace(IOperationContext context, 
+            @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE newHomeSpace)
     {
     }
 

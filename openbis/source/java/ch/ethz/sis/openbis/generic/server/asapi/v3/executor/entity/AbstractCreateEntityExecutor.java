@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -92,11 +91,6 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
             handleException(e);
             return null;
         }
-    }
-
-    protected Set<Long> asSet(Collection<Long> ids)
-    {
-        return ids instanceof Set ? (Set<Long>) ids : new HashSet<>(ids);
     }
 
     private void checkData(final IOperationContext context, CollectionBatch<CREATION> batch)

@@ -191,6 +191,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.UpdatePersonsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperationResult;
@@ -602,6 +604,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updateAuthorizationGroups(String sessionToken, List<AuthorizationGroupUpdate> authorizationGroupUpdates)
     {
         executeOperation(sessionToken, new UpdateAuthorizationGroupsOperation(authorizationGroupUpdates));
+    }
+
+    @Override
+    public void updatePersons(String sessionToken, List<PersonUpdate> personUpdates)
+    {
+        executeOperation(sessionToken, new UpdatePersonsOperation(personUpdates));
     }
 
     @Override
