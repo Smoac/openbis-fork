@@ -145,6 +145,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateRoleAssignmentsOperation(creations));
 		}
 		
+		this.createPersons = function(creations) {
+			return this._executeCreateOperation(new c.CreatePersonsOperation(creations));
+		}
+		
 		this.createSemanticAnnotations = function(creations) {
 			return this._executeCreateOperation(new c.CreateSemanticAnnotationsOperation(creations));
 		}

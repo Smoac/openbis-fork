@@ -430,6 +430,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
+		QUnit.test("getPersons()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.PersonFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			
+			var fCreate = function(facade) {
+				return $.when(c.createPerson(facade), c.createPerson(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getPersons(permIds, fo);
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getPersons(permIds, new c.PersonFetchOptions());
+			}
+			
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
 		QUnit.test("getOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.OperationExecutionFetchOptions();

@@ -31,6 +31,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.TagCreation = dtos.TagCreation;
 		this.AuthorizationGroupCreation = dtos.AuthorizationGroupCreation;
 		this.RoleAssignmentCreation = dtos.RoleAssignmentCreation;
+		this.PersonCreation = dtos.PersonCreation;
 		this.Role = require('as/dto/roleassignment/Role');
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation = dtos.DataSetCreation;
@@ -181,6 +182,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
 		this.CreateAuthorizationGroupsOperation = dtos.CreateAuthorizationGroupsOperation;
 		this.CreateRoleAssignmentsOperation = dtos.CreateRoleAssignmentsOperation;
+		this.CreatePersonsOperation = dtos.CreatePersonsOperation;
 		this.CreateSemanticAnnotationsOperation = dtos.CreateSemanticAnnotationsOperation;
 		this.CreateExternalDmsOperation = dtos.CreateExternalDmsOperation;
 
@@ -455,6 +457,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 		
+		this.createPerson = function(facade) {
+			var c = this;
+			var creation = new dtos.PersonCreation();
+			creation.setUserId(c.generateId("USER"));
+			return facade.createPersons([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+		
 		this.createSemanticAnnotation = function(facade) {
 			var c = this;
 			var creation = new dtos.SemanticAnnotationCreation();
@@ -586,6 +597,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 		
+		this.findPerson = function(facade, id) {
+			var c = this;
+			return facade.getPersons([ id ], c.createPersonFetchOptions()).then(function(persons) {
+				return persons[id];
+			});
+		}.bind(this);
+
 		this.findSemanticAnnotation = function(facade, id) {
 			var c = this;
 			return facade.getSemanticAnnotations([ id ], c.createSemanticAnnotationFetchOptions()).then(function(annotations) {

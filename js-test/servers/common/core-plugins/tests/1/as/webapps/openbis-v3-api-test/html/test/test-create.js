@@ -540,6 +540,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findTag, fCheck);
 		});
 
+		QUnit.test("createPersons()", function(assert) {
+			var c = new common(assert, openbis);
+			var userId = c.generateId("user");
+			
+			var fCreate = function(facade) {
+				var personCreation = new c.PersonCreation();
+				personCreation.setUserId(userId);
+				return facade.createPersons([ personCreation ]);
+			}
+			
+			var fCheck = function(person) {
+				c.assertEqual(person.getUserId(), userId, "User id");
+				c.assertEqual(person.getRegistrator().getUserId(), "openbis_test_js", "Registrator");
+				c.assertEqual(person.isActive(), true, "User active");
+			}
+			
+			testCreate(c, fCreate, c.findPerson, fCheck);
+		});
+		
 		var createSemanticAnnotationCreation = function(c) {
 			var creation = new c.SemanticAnnotationCreation();
 			creation.setPredicateOntologyId("jsPredicateOntologyId");

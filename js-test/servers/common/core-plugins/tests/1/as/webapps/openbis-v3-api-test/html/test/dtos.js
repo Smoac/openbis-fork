@@ -369,6 +369,9 @@ var sources = [
 	
 	'as/dto/person/fetchoptions/PersonFetchOptions',
 	'as/dto/person/fetchoptions/PersonSortOptions',
+	'as/dto/person/create/PersonCreation',
+	'as/dto/person/create/CreatePersonsOperation',
+	'as/dto/person/create/CreatePersonsOperationResult',
 	'as/dto/person/get/GetPersonsOperation',
 	'as/dto/person/get/GetPersonsOperationResult',
 	'as/dto/person/id/PersonPermId',
