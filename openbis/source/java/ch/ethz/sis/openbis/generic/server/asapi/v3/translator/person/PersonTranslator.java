@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -91,6 +92,7 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
         result.setFirstName(baseRecord.firstName);
         result.setLastName(baseRecord.lastName);
         result.setUserId(baseRecord.userId);
+        result.setPermId(new PersonPermId(baseRecord.userId));
         result.setEmail(baseRecord.email);
         result.setRegistrationDate(baseRecord.registrationDate);
         result.setActive(baseRecord.isActive);

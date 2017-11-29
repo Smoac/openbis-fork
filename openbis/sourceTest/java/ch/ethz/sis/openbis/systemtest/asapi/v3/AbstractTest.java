@@ -1213,6 +1213,7 @@ public class AbstractTest extends SystemTestCase
             builder.append("[inactive] ");
         }
         builder.append(person.getUserId());
+        assertEquals(person.getPermId().getPermId(), person.getUserId());
         Space space = person.getSpace();
         if (space != null)
         {
