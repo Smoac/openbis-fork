@@ -16,18 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion;
 
-import java.util.Collections;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionGrid.DisplayedAndSelectedDeletions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 public final class PermanentDeletionConfirmationDialog extends
         AbstractDataConfirmationDialog<List<Deletion>>
@@ -42,38 +46,46 @@ public final class PermanentDeletionConfirmationDialog extends
 
     private final DeletionForceOptions forceOptions;
 
+    private final DisplayedAndSelectedDeletions selectedAndDisplayedItems;
+
+    private Radio onlySelectedRadio;
+
+    private Radio allRadio;
+
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<Deletion> deletions, AsyncCallback<Void> callback)
+            DisplayedAndSelectedDeletions selectedAndDisplayedItems, AsyncCallback<Void> callback)
     {
-        super(viewContext, deletions, viewContext
+        super(viewContext, null, viewContext
                 .getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_TITLE));
         setStyleName("permanentDeletionConfirmationDialog");
         this.viewContext = viewContext;
         this.callback = callback;
         this.forceOptions = new DeletionForceOptions(viewContext);
+        this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         this.setId("deletion-confirmation-dialog");
-    }
-
-    public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            Deletion deletion, AsyncCallback<Void> callback)
-    {
-        this(viewContext, Collections.singletonList(deletion), callback);
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().deletePermanently(
-                TechId.createList(data),
-                forceOptions.getForceDisallowedTypesValue(),
-                AsyncCallbackWithProgressBar.decorate(callback,
-                        viewContext.getMessage(Dict.PREMANENT_DELETIONS_PROGRESS)));
+        DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria =
+                selectedAndDisplayedItems.createCriteria(WidgetUtils.isSelected(onlySelectedRadio));
+
+        viewContext.getCommonService().deletePermanently(criteria, forceOptions.getForceDisallowedTypesValue(),
+                AsyncCallbackWithProgressBar.decorate(callback, viewContext.getMessage(Dict.PERMANENT_DELETIONS_PROGRESS)));
     }
 
     @Override
     protected String createMessage()
     {
-        return viewContext.getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_MSG, data.size());
+        if (WidgetUtils.isSelected(onlySelectedRadio))
+        {
+            return viewContext.getMessage(Dict.PERMANENT_DELETIONS_SELECTED_CONFIRMATION_MSG,
+                    selectedAndDisplayedItems.getSelectedDeletions().size());
+        } else
+        {
+            return viewContext.getMessage(Dict.PERMANENT_DELETIONS_ALL_CONFIRMATION_MSG);
+        }
     }
 
     @Override
@@ -81,6 +93,17 @@ public final class PermanentDeletionConfirmationDialog extends
     {
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
+
+        onlySelectedRadio = WidgetUtils
+                .createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, selectedAndDisplayedItems.getSelectedDeletions().size()));
+        allRadio = WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO, selectedAndDisplayedItems.getDisplayedItemsCount()));
+
+        RadioGroup radioGroup = WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio, allRadio,
+                viewContext.getMessage(Dict.DELETION_RADIO_GROUP_LABEL), selectedAndDisplayedItems.getSelectedDeletions().size(),
+                createRefreshMessageAction());
+        radioGroup.setStyleName("gray-delete-radios");
+
+        formPanel.add(radioGroup);
         formPanel.add(forceOptions);
     }
 

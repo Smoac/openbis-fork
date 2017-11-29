@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion;
 
 import java.util.Collections;
-import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -26,66 +27,90 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallb
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionGrid.DisplayedAndSelectedDeletions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
-public final class RevertDeletionConfirmationDialog extends
-        AbstractDataConfirmationDialog<List<Deletion>>
+public final class RevertDeletionConfirmationDialog extends AbstractDataConfirmationDialog<Void>
 {
     private static final int LABEL_WIDTH = 60;
 
     private static final int FIELD_WIDTH = 180;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AsyncCallback<Void> callback;
+    private AsyncCallback<Void> callback;
 
-    private final IEntityWithDeletionInformation deletedEntityOrNull;
+    private IEntityWithDeletionInformation deletedEntityOrNull;
 
-    public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<Deletion> deletions, AsyncCallback<Void> callback)
-    {
-        super(viewContext, deletions, viewContext
-                .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
-        this.viewContext = viewContext;
-        this.callback = callback;
-        this.deletedEntityOrNull = null;
-    }
+    private DisplayedAndSelectedDeletions selectedAndDisplayedItemsOrNull;
+
+    private Radio onlySelectedRadio;
+
+    private Radio allRadio;
 
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            Deletion deletion, AsyncCallback<Void> callback)
+            DisplayedAndSelectedDeletions selectedAndDisplayedItems, AsyncCallback<Void> callback)
     {
-        this(viewContext, Collections.singletonList(deletion), callback);
+        this(viewContext, callback);
+        this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
 
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             IEntityWithDeletionInformation deletedEntity, AsyncCallback<Void> callback)
     {
-        super(viewContext, Collections.singletonList(deletedEntity.getDeletion()), viewContext
-                .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
+        this(viewContext, callback);
+        this.deletedEntityOrNull = deletedEntity;
+    }
+
+    private RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext, AsyncCallback<Void> callback)
+    {
+        super(viewContext, null, viewContext.getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
+        addStyleName("revertDeletionConfirmationDialog");
         this.viewContext = viewContext;
         this.callback = callback;
-        this.deletedEntityOrNull = deletedEntity;
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().revertDeletions(
-                TechId.createList(data),
-                AsyncCallbackWithProgressBar.decorate(callback,
-                        viewContext.getMessage(Dict.REVERT_DELETIONS_PROGRESS)));
+        AsyncCallbackWithProgressBar<Void> callbackWithProgress = AsyncCallbackWithProgressBar.decorate(callback,
+                viewContext.getMessage(Dict.REVERT_DELETIONS_PROGRESS));
+
+        if (selectedAndDisplayedItemsOrNull != null)
+        {
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria =
+                    selectedAndDisplayedItemsOrNull.createCriteria(WidgetUtils.isSelected(onlySelectedRadio));
+            viewContext.getCommonService().revertDeletions(criteria, callbackWithProgress);
+        } else if (deletedEntityOrNull != null)
+        {
+            TechId techId = TechId.create(deletedEntityOrNull.getDeletion());
+            viewContext.getCommonService().revertDeletions(Collections.singletonList(techId), callbackWithProgress);
+        }
     }
 
     @Override
     protected String createMessage()
     {
-        if (deletedEntityOrNull != null)
+        if (selectedAndDisplayedItemsOrNull != null)
+        {
+            if (WidgetUtils.isSelected(onlySelectedRadio))
+            {
+                return viewContext.getMessage(Dict.REVERT_DELETIONS_SELECTED_CONFIRMATION_MSG,
+                        selectedAndDisplayedItemsOrNull.getSelectedDeletions().size());
+            } else
+            {
+                return viewContext.getMessage(Dict.REVERT_DELETIONS_ALL_CONFIRMATION_MSG);
+            }
+        } else if (deletedEntityOrNull != null)
         {
             String deletedEntity =
                     EntityTypeUtils.translatedEntityKindForUI(viewContext, deletedEntityOrNull.getEntityKind()) + " '"
@@ -100,7 +125,7 @@ public final class RevertDeletionConfirmationDialog extends
                     deletedEntity, deletedBy, deletionDate, deletionReason);
         } else
         {
-            return viewContext.getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_MSG, data.size());
+            return null;
         }
     }
 
@@ -109,6 +134,19 @@ public final class RevertDeletionConfirmationDialog extends
     {
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
+
+        if (selectedAndDisplayedItemsOrNull != null)
+        {
+            onlySelectedRadio = WidgetUtils
+                    .createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, selectedAndDisplayedItemsOrNull.getSelectedDeletions().size()));
+            allRadio = WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount()));
+
+            RadioGroup radioGroup = WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio, allRadio,
+                    viewContext.getMessage(Dict.DELETION_RADIO_GROUP_LABEL), selectedAndDisplayedItemsOrNull.getSelectedDeletions().size(),
+                    createRefreshMessageAction());
+            radioGroup.setStyleName("gray-delete-radios");
+            formPanel.add(radioGroup);
+        }
     }
 
 }

@@ -1170,9 +1170,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void revertDeletions(List<TechId> deletionIds, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#deletePermanently(List, boolean)
+     * @see ICommonClientService#revertDeletions(DisplayedOrSelectedIdHolderCriteria)
      */
-    public void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes,
+    public void revertDeletions(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#deletePermanently(DisplayedOrSelectedIdHolderCriteria, boolean)
+     */
+    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, boolean forceDisallowedTypes,
             AsyncCallback<Void> callback);
 
     /**

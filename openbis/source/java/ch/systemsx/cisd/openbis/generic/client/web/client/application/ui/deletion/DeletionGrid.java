@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
@@ -33,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
@@ -75,61 +73,63 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
-        final Button revertButton =
-                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_REVERT_DELETION),
-                        new AbstractCreateDialogListener()
-                            {
-                                @Override
-                                protected Dialog createDialog(
-                                        List<TableModelRowWithObject<Deletion>> data,
-                                        IBrowserGridActionInvoker invoker)
-                                {
-                                    List<Deletion> deletions = new ArrayList<Deletion>();
-                                    for (TableModelRowWithObject<Deletion> row : data)
-                                    {
-                                        deletions.add(row.getObjectOrNull());
-                                    }
-                                    return new RevertDeletionConfirmationDialog(viewContext,
-                                            deletions, createRefreshCallback(invoker));
-                                }
-                            });
 
-        addButton(revertButton);
+        final String revertTitle = viewContext.getMessage(Dict.BUTTON_REVERT_DELETION);
+        final String revertAllTitle = viewContext.getMessage(Dict.BUTTON_REVERT_DELETION_ALL);
 
-        EmptyTrashButton emptyTrashButtonMenu =
-                new EmptyTrashButton(viewContext, createRefreshCallback(asActionInvoker()));
-        emptyTrashButtonMenu.setId("empty-trash-button");
-        addButton(emptyTrashButtonMenu);
-
-        final Button deletePermanentlyButton =
-                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),
-                        new AbstractCreateDialogListener()
-                            {
-                                @Override
-                                protected Dialog createDialog(
-                                        List<TableModelRowWithObject<Deletion>> data,
-                                        IBrowserGridActionInvoker invoker)
-                                {
-                                    List<Deletion> deletions = new ArrayList<Deletion>();
-                                    for (TableModelRowWithObject<Deletion> row : data)
-                                    {
-                                        deletions.add(row.getObjectOrNull());
-                                    }
-                                    return new PermanentDeletionConfirmationDialog(viewContext,
-                                            deletions, createRefreshCallback(invoker));
-                                }
-                            });
-
-        addButton(deletePermanentlyButton);
-        allowMultipleSelection(); // we allow revert of multiple deletions
-        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
+        final Button revertButton = new Button(revertAllTitle);
+        revertButton.setId("revert-deletion-button");
+        revertButton.addSelectionListener(new AbstractCreateDialogListener()
             {
                 @Override
-                public void handleEvent(SelectionChangedEvent<ModelData> be)
+                protected Dialog createDialog(
+                        List<TableModelRowWithObject<Deletion>> data,
+                        IBrowserGridActionInvoker invoker)
                 {
-                    deletePermanentlyButton.setEnabled(be.getSelection().size() == 1);
+                    DisplayedAndSelectedDeletions deletions = new DisplayedAndSelectedDeletions(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getTotalCount());
+
+                    return new RevertDeletionConfirmationDialog(viewContext, deletions, createRefreshCallback(invoker));
+                }
+
+                @Override
+                protected boolean validateSelectedData(List<TableModelRowWithObject<Deletion>> data)
+                {
+                    return getTotalCount() > 0;
                 }
             });
+        changeButtonTitleOnSelectedItems(revertButton, revertAllTitle, revertTitle);
+        addButton(revertButton);
+
+        final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY);
+        final String deleteAllTitle = viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY_ALL);
+
+        final Button deletePermanentlyButton = new Button(deleteAllTitle);
+        deletePermanentlyButton.setId("delete-permanently-button");
+        deletePermanentlyButton.addSelectionListener(new AbstractCreateDialogListener()
+            {
+                @Override
+                protected Dialog createDialog(
+                        List<TableModelRowWithObject<Deletion>> data,
+                        IBrowserGridActionInvoker invoker)
+                {
+                    DisplayedAndSelectedDeletions deletions = new DisplayedAndSelectedDeletions(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getTotalCount());
+
+                    return new PermanentDeletionConfirmationDialog(viewContext,
+                            deletions, createRefreshCallback(invoker));
+                }
+
+                @Override
+                protected boolean validateSelectedData(List<TableModelRowWithObject<Deletion>> data)
+                {
+                    return getTotalCount() > 0;
+                }
+            });
+        changeButtonTitleOnSelectedItems(deletePermanentlyButton, deleteAllTitle, deleteTitle);
+        addButton(deletePermanentlyButton);
+
+        allowMultipleSelection();
 
         addEntityOperationsSeparator();
     }
@@ -186,7 +186,32 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-        { DatabaseModificationKind.createOrDelete(ObjectKind.DELETION) };
+        return new DatabaseModificationKind[] { DatabaseModificationKind.createOrDelete(ObjectKind.DELETION) };
     }
+
+    public final class DisplayedAndSelectedDeletions extends
+            DisplayedAndSelectedEntities<TableModelRowWithObject<Deletion>>
+    {
+
+        public DisplayedAndSelectedDeletions(
+                List<TableModelRowWithObject<Deletion>> selectedItems,
+                TableExportCriteria<TableModelRowWithObject<Deletion>> displayedItemsConfig,
+                int displayedItemsCount)
+        {
+            super(selectedItems, displayedItemsConfig, displayedItemsCount);
+        }
+
+        public List<Deletion> getSelectedDeletions()
+        {
+            ArrayList<Deletion> deletions = new ArrayList<Deletion>();
+            List<TableModelRowWithObject<Deletion>> rows = getSelectedItems();
+            for (TableModelRowWithObject<Deletion> row : rows)
+            {
+                deletions.add(row.getObjectOrNull());
+            }
+            return deletions;
+        }
+
+    }
+
 }

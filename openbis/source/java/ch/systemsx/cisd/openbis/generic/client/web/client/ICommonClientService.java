@@ -1277,9 +1277,14 @@ public interface ICommonClientService extends IClientService
     public void revertDeletions(List<TechId> deletionIds) throws UserFailureException;
 
     /**
+     * Reverts specified deletions.
+     */
+    public void revertDeletions(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria) throws UserFailureException;
+
+    /**
      * Permanently deletes entities moved to trash with specified deletions.
      */
-    public void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes)
+    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, boolean forceDisallowedTypes)
             throws UserFailureException;
 
     /**
