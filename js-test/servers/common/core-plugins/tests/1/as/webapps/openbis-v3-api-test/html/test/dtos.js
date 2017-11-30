@@ -374,6 +374,7 @@ var sources = [
 	'as/dto/person/create/CreatePersonsOperationResult',
 	'as/dto/person/get/GetPersonsOperation',
 	'as/dto/person/get/GetPersonsOperationResult',
+	'as/dto/person/id/Me',
 	'as/dto/person/id/PersonPermId',
 	'as/dto/person/search/EmailSearchCriteria',
 	'as/dto/person/search/FirstNameSearchCriteria',

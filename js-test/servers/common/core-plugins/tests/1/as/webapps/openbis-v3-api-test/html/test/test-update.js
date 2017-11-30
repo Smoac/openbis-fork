@@ -542,13 +542,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.setAuthorizationGroupId(permId);
 				update.setDescription(description);
 				update.getUserIds().remove([new c.PersonPermId("power_user")]);
-				update.getUserIds().add([new c.PersonPermId("admin")]);
+				update.getUserIds().add([new c.PersonPermId("admin"), new c.Me()]);
 				return facade.updateAuthorizationGroups([ update ]);
 			}
 			
 			var fCheck = function(group) {
 				c.assertEqual(group.getCode(), code, "Code");
 				c.assertEqual(group.getDescription(), description, "Description");
+				var users = $.map(group.getUsers(), function(user) {
+					return user.getUserId();
+				});
+				users.sort();
+				c.assertEqual(users.toString(), "admin,openbis_test_js", "Users");
 			}
 			
 			testUpdate(c, fCreate, fUpdate, c.findAuthorizationGroup, fCheck);

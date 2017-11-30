@@ -70,6 +70,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.RoleAssignmentDeletionOptions = dtos.RoleAssignmentDeletionOptions;
 		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
 		this.PersonPermId = dtos.PersonPermId;
+		this.Me = dtos.Me;
 		this.EntityTypePermId = dtos.EntityTypePermId;
 		this.SpacePermId = dtos.SpacePermId;
 		this.ProjectPermId = dtos.ProjectPermId;
@@ -587,15 +588,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.findAuthorizationGroup = function(facade, id) {
 			var c = this;
-			return facade.getAuthorizationGroups([ id ], c.createAuthorizationGroupFetchOptions()).then(function(tags) {
-				return tags[id];
+			return facade.getAuthorizationGroups([ id ], c.createAuthorizationGroupFetchOptions()).then(function(groups) {
+				return groups[id];
 			});
 		}.bind(this);
 		
 		this.findRoleAssignment = function(facade, id) {
 			var c = this;
-			return facade.getRoleAssignments([ id ], c.createRoleAssignmentFetchOptions()).then(function(tags) {
-				return tags[id];
+			return facade.getRoleAssignments([ id ], c.createRoleAssignmentFetchOptions()).then(function(assignments) {
+				return assignments[id];
 			});
 		}.bind(this);
 		
