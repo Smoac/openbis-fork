@@ -36,25 +36,23 @@ public class FileSystemContentCopy implements IContentCopy
     @Override
     public String getLocation()
     {
-        String labelString;
-        if (label == null || label.length() == 0)
-        {
-            labelString = code;
-        } else
-        {
-            labelString = code + " (" + label + ")";
-        }
 
-        String location = "External DMS: " + labelString + "</br>Host: " + host + "<br/>Directory: " + directory + path;
+        String location = repr("External DMS", code) + repr("Host", host) + repr("Directory", path);
+        location += repr("Connect cmd", "ssh -t " + host + " \"cd " + path + "; bash\"");        	
+
         if (hash != null)
         {
-            location += "<br>Commit hash: " + hash;
+            location += repr("Commit hash", hash);
         }
         if (repositoryId != null)
         {
-            location += "<br>Repository id: " + repositoryId;
+            location += repr("Repository id", repositoryId);
         }
         return location;
+    }
+
+    private String repr(String label, String value) {
+    	return "<p><b>" + label + ":</b> " + value + "</p>";
     }
 
     @Override
