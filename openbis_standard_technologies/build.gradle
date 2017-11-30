@@ -257,8 +257,8 @@ def downloadFile(url, filename) {
 
 task zipCorePlugins(type: Zip) {
   archiveName 'core-plugins.zip'
-  downloadFile('https://github.com/aarpon/obit_flow_core_technology/archive/openBIS_16.06.x.zip', 'flow.zip')
-  downloadFile('https://github.com/aarpon/obit_microscopy_core_technology/archive/openBIS_16.06.x.zip', 'microscopy.zip')
+  downloadFile('https://github.com/aarpon/obit_flow_core_technology/archive/master.zip', 'flow.zip')
+  downloadFile('https://github.com/aarpon/obit_microscopy_core_technology/archive/master.zip', 'microscopy.zip')
   downloadFile('https://github.com/aarpon/obit_shared_core_technology/archive/master.zip', 'shared.zip')
   from project(':rtd_phosphonetx').fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
   from project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/dss/**', '**/package-to-dist'])
