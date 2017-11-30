@@ -53,7 +53,7 @@ public class MapPersonByIdExecutor extends AbstractMapObjectByIdExecutor<IPerson
     protected void addListers(IOperationContext context, List<IListObjectById<? extends IPersonId, PersonPE>> listers)
     {
         listers.add(new ListPersonByPermId(personDAO));
-        listers.add(new ListPersonByMe());
+        listers.add(new ListPersonByMe(personDAO));
     }
 
     @Autowired

@@ -23,6 +23,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -32,6 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public class ListPersonByMe extends AbstractListObjectById<Me, PersonPE>
 {
+
+    private IPersonDAO personDAO;
+
+    public ListPersonByMe(IPersonDAO personDAO)
+    {
+        this.personDAO = personDAO;
+    }
 
     @Override
     public Me createId(PersonPE entity)
@@ -47,7 +56,10 @@ public class ListPersonByMe extends AbstractListObjectById<Me, PersonPE>
         {
             throw new UserFailureException("Can not resolve 'Me' because there is no session user.");
         }
-        return Collections.nCopies(ids.size(), person);
+        // The session user has to be loaded from the database because it isn't in the Hibernate session.
+        // This is important for example when adding the session user to an authorization group.
+        PersonPE reloadedPerson = personDAO.getByTechId(TechId.create(person));
+        return Collections.nCopies(ids.size(), reloadedPerson);
     }
 
     @Override

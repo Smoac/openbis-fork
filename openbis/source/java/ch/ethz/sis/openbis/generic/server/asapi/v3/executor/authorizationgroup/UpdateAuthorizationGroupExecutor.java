@@ -90,10 +90,10 @@ public class UpdateAuthorizationGroupExecutor
         for (Map.Entry<AuthorizationGroupUpdate, AuthorizationGroupPE> entry : batch.getObjects().entrySet())
         {
             AuthorizationGroupUpdate update = entry.getKey();
-            AuthorizationGroupPE tag = entry.getValue();
+            AuthorizationGroupPE group = entry.getValue();
             if (update.getDescription() != null && update.getDescription().isModified())
             {
-                tag.setDescription(update.getDescription().getValue());
+                group.setDescription(update.getDescription().getValue());
             }
         }
     }
@@ -119,10 +119,7 @@ public class UpdateAuthorizationGroupExecutor
     @Override
     protected void save(IOperationContext context, List<AuthorizationGroupPE> entities, boolean clearCache)
     {
-        for (AuthorizationGroupPE group : entities)
-        {
-            daoFactory.getAuthorizationGroupDAO().persist(group);
-        }
+        // Entities updated by Hibernate at the end of the transaction
     }
 
     @Override

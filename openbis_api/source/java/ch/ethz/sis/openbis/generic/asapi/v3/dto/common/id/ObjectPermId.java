@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -31,6 +34,7 @@ public abstract class ObjectPermId implements IObjectId
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private String permId;
 
     public ObjectPermId(String permId)
@@ -51,6 +55,7 @@ public abstract class ObjectPermId implements IObjectId
     {
     }
 
+    @JsonIgnore
     private void setPermId(String permId)
     {
         if (permId == null)
