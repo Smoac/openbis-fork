@@ -123,6 +123,11 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
         nameMappings.add(new ExecutorNameMapping("", Pattern.compile(".*")));
         this.commandQueueDirPath = StringUtils.isBlank(commandQueueDir) || commandQueueDir.startsWith("${")
                 ? "" : commandQueueDir;
+        File commandQueueDirPathAsFile = new File(commandQueueDirPath);
+        if (commandQueueDirPathAsFile.exists() == false)
+        {
+            commandQueueDirPathAsFile.mkdirs();
+        }
     }
 
     @Override
@@ -159,7 +164,6 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
         }
         return defaultExecutor;
     }
-    
 
     @Override
     public List<IDataSetCommandExecutor> getAllExecutors()
