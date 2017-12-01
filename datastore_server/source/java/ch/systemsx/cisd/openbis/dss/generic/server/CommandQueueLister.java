@@ -31,6 +31,10 @@ public final class CommandQueueLister
     public static void listQueuedCommand()
     {
         final ConfigParameters configParams = DataStoreServer.getConfigParameters();
+        if (!configParams.getCommandQueueDir().exists())
+        {
+            configParams.getCommandQueueDir().mkdirs();
+        }
         DataSetCommandExecutor.listQueuedCommands(configParams.getCommandQueueDir());
     }
 }
