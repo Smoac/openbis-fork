@@ -314,7 +314,7 @@ public abstract class Dict
     public static final String EXPERIMENT = "experiment";
 
     public static final String EXPERIMENTS = "experiments";
-    
+
     public static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
 
     public static final String PART_OF = "part_of";
@@ -588,21 +588,21 @@ public abstract class Dict
     public static final String CANNOT_MODIFY_DELETED_ENTITY_MSG = "cannot_modify_deleted_entity_msg";
 
     public static final String DELETION_BROWSER = "deletion_browser";
-    
+
     public static final String DELETION_RADIO_GROUP_LABEL = "deletion_radio_group_label";
 
     public static final String BUTTON_REVERT_DELETION = "button_revert_deletion";
-    
+
     public static final String BUTTON_REVERT_DELETION_ALL = "button_revert_deletion_all";
 
     public static final String BUTTON_DELETE_PERMANENTLY = "button_delete_permanently";
-    
+
     public static final String BUTTON_DELETE_PERMANENTLY_ALL = "button_delete_permanently_all";
 
     public static final String REVERT_DELETIONS_CONFIRMATION_TITLE = "revert_deletions_confirmation_title";
 
     public static final String REVERT_DELETIONS_SELECTED_CONFIRMATION_MSG = "revert_deletions_selected_confirmation_msg";
-    
+
     public static final String REVERT_DELETIONS_ALL_CONFIRMATION_MSG = "revert_deletions_all_confirmation_msg";
 
     public static final String REVERT_DELETIONS_PROGRESS = "revert_deletions_progress";
@@ -612,7 +612,7 @@ public abstract class Dict
     public static final String PERMANENT_DELETIONS_CONFIRMATION_TITLE = "permanent_deletions_confirmation_title";
 
     public static final String PERMANENT_DELETIONS_SELECTED_CONFIRMATION_MSG = "permanent_deletions_selected_confirmation_msg";
-    
+
     public static final String PERMANENT_DELETIONS_ALL_CONFIRMATION_MSG = "permanent_deletions_all_confirmation_msg";
 
     public static final String PERMANENT_DELETIONS_PROGRESS = "permanent_deletions_progress";
