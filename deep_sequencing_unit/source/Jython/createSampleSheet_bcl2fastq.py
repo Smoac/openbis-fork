@@ -199,6 +199,7 @@ def readConfig(logger):
     config_dict['kit'] = configParameters.get(OPENBIS, 'kit')
     config_dict['10XSampleType'] = configParameters.get(OPENBIS, '10XSampleType')
     config_dict['10XIndexSet'] = configParameters.get(OPENBIS, '10XIndexSet')
+    config_dict['recovered_cells'] = configParameters.get(OPENBIS, 'recovered_cells')
     
     config_dict['headerSection'] = configParameters.get(ILLUMINA, 'headerSection')
     config_dict['readsSection'] = configParameters.get(ILLUMINA, 'readsSection')
@@ -446,8 +447,6 @@ def get_contained_sample_properties(contained_samples, service, config_dict):
                     barcodesPerLaneDict[plain_lane] = [propertyDict[config_dict['10XIndexSet']]]
             except:
                   pass
-              
-              
 
             myKey = sanitize_string(parentCode + '_' + lane.getCode())
             parentDict[myKey] = propertyDict
@@ -497,6 +496,12 @@ def write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDic
             logger.error('File error: ' + str(err))
             print ('File error: ' + str(err))
 
+def write_marker_file(flowCellDict, myoptions):
+    marker_file_path = myoptions.outdir + ".10x_run_" + flowCellDict['Name']
+    with open(marker_file_path, 'wb') as marker_file:
+        for flowcell_prop in flowCellDict:
+            marker_file.write(flowcell_prop)
+
 
 def create_header_section (model, config_dict, parentDict, flowCellDict, index_length_dict, lane):
 
@@ -528,7 +533,6 @@ def create_header_section (model, config_dict, parentDict, flowCellDict, index_l
     
     len_index1 = index_length_dict[int(lane)][0]
     len_index2 = index_length_dict[int(lane)][1]
-
     
     # here we take the first sample to determine the Sample Prep Kit 
     try:
@@ -550,6 +554,8 @@ def create_header_section (model, config_dict, parentDict, flowCellDict, index_l
     header_list.append(header_section.pop().strip() + separator + assay) 
     header_list.append(header_section.pop().strip() + separator + flowCellDict[config_dict['endType']] + '_' + flowCellDict[config_dict['cycles']])
     header_list.append(header_section.pop().strip() + separator + config_dict['chemistry'])
+#     if config_dict['10XIndexSet']:
+#         header_list.append(config_dict['recovered_cells'])
     header_list.append('')
 
     reads_section = config_dict['readsSection'].split(separator)
@@ -645,6 +651,7 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
                              config_dict, index1Vocabulary, index2Vocabulary, flowCellName, logger):
 
     sampleSheetDict = {}
+    _10_run = False
     separator = config_dict['separator']
     
     for lane in containedSamples: 
@@ -686,6 +693,7 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
                 index1 = lane_sample_properties[key][config_dict['10XIndexSet']]
                 # Do not modify the index length, as these are index sets provided by 10x 
                 len_index1 = len(index1)
+                _10_run = True
                                  
             if config_dict['index2Name'] in lane_sample_properties[key]:
                 index2 = lane_sample_properties[key][config_dict['index2Name']]
@@ -723,7 +731,7 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
     csv_file_name = config_dict['SampleSheetFileName'] + '_' + flowCellName
     ordered_sample_sheet_dict = OrderedDict(sorted(sampleSheetDict.items(), key=lambda t: t[0]))
     
-    return ordered_sample_sheet_dict, csv_file_name
+    return _10_run, ordered_sample_sheet_dict, csv_file_name
 
 '''
 Main script
@@ -756,7 +764,7 @@ def main ():
     index1Vocabulary = get_vocabulary(config_dict['index1Name'], service)
     index2Vocabulary = get_vocabulary(config_dict['index2Name'], service)
     index_length_dict = verify_index_length(parentDict, flowCellDict, config_dict, logger)
-    ordered_sample_sheet_dict, csv_file_name = create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples,
+    _10_run, ordered_sample_sheet_dict, csv_file_name = create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples,
                                                                         samplesPerLaneDict, model, parentDict, index_length_dict,
                                                                         flowCellDict, config_dict, index1Vocabulary, index2Vocabulary,
                                                                         flowCellName, logger)
@@ -769,6 +777,8 @@ def main ():
     else:
         write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDict, index_length_dict,
                                           parentDict, config_dict, myoptions, logger, csv_file_name)
+        if _10_run:
+            write_marker_file(flowCellDict, myoptions)
 
     logout(service, logger)
 
