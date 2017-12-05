@@ -170,10 +170,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         
         if(profile.jupyterEndpoint) {
         	var jupyterLink = _this.getLinkForNode("Jupyter Workspace", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null);
-        	treeModelUtils.push({ title : jupyterLink, entityType: "JUPYTER_WORKSPACE", key : "JUPYTER_WORKSPACE", folder : false, lazy : false, view : "showJupyterWorkspace", icon : "glyphicon glyphicon-log-in" });
+        	treeModelUtils.push({ title : jupyterLink, entityType: "JUPYTER_WORKSPACE", key : "JUPYTER_WORKSPACE", folder : false, lazy : false, view : "showJupyterWorkspace" });
         	
         	var jupyterNotebook = _this.getLinkForNode("New Jupyter Notebook", "NEW_JUPYTER_NOTEBOOK", "showNewJupyterWorkspaceCreator", null);
-        	treeModelUtils.push({ title : jupyterNotebook, entityType: "NEW_JUPYTER_NOTEBOOK", key : "NEW_JUPYTER_NOTEBOOK", folder : false, lazy : false, view : "showNewJupyterNotebookCreator", icon : "glyphicon glyphicon-log-in" });
+        	treeModelUtils.push({ title : jupyterNotebook, entityType: "NEW_JUPYTER_NOTEBOOK", key : "NEW_JUPYTER_NOTEBOOK", folder : false, lazy : false, view : "showNewJupyterNotebookCreator" });
         }
         
         if(profile.mainMenu.showUserProfile && profile.isFileAuthenticationService && profile.isFileAuthenticationUser) {
@@ -580,5 +580,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 		if (stock) {
 			stock.setExpanded(true);
 		}
+		
+		setCustomIcon($tree, "JUPYTER_WORKSPACE", "./img/jupyter-icon.png");
+		setCustomIcon($tree, "NEW_JUPYTER_NOTEBOOK", "./img/jupyter-icon.png");
+    }
+    
+    function setCustomIcon($tree, nodeKey, iconImage) {
+    	var $customIconNode = $("<span>", { class : "fancytree-custom-icon" }).append($("<img>", { "src" : iconImage, 'style' : 'width:16px; height:16px;'}));
+		var node = $tree.fancytree("getTree").getNodeByKey(nodeKey);
+		var $nodeSpan = $(node.span);
+		var $nodeSpanIcon = $nodeSpan.find(".fancytree-icon");
+		$customIconNode.insertAfter($nodeSpanIcon);
+		$nodeSpanIcon.remove();
     }
 }

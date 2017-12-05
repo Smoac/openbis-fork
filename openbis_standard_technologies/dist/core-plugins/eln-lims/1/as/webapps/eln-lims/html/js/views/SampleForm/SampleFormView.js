@@ -244,7 +244,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
-				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
+				var $jupyterBtn = FormUtil.getButtonWithImage("./img/jupyter-icon.png", function () {
 					var jupyterNotebook = new JupyterNotebookController(_this._sampleFormModel.sample);
 					jupyterNotebook.init();
 				});

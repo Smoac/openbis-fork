@@ -111,7 +111,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
-				var $jupyterBtn = FormUtil.getButtonWithIcon("glyphicon-log-in", function () {
+				var $jupyterBtn = FormUtil.getButtonWithImage("./img/jupyter-icon.png", function () {
 					var jupyterNotebook = new JupyterNotebookController(_this._dataSetFormModel.dataSet);
 					jupyterNotebook.init();
 				});

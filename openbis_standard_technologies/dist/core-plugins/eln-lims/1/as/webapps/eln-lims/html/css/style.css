@@ -731,3 +731,18 @@ table.downloads {
 #settings-slider-low-storage, #settings-slider-low-box {
 	width : 100% !important;
 }
+
+/*
+ * FancyTree custom icon
+ */
+ 
+span.fancytree-custom-icon {
+    margin-top: 2px;
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: top;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+     margin-left: .5em;
+}
