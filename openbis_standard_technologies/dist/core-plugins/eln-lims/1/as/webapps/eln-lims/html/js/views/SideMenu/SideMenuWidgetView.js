@@ -586,11 +586,13 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     }
     
     function setCustomIcon($tree, nodeKey, iconImage) {
-    	var $customIconNode = $("<span>", { class : "fancytree-custom-icon" }).append($("<img>", { "src" : iconImage, 'style' : 'width:16px; height:16px;'}));
 		var node = $tree.fancytree("getTree").getNodeByKey(nodeKey);
-		var $nodeSpan = $(node.span);
-		var $nodeSpanIcon = $nodeSpan.find(".fancytree-icon");
-		$customIconNode.insertAfter($nodeSpanIcon);
-		$nodeSpanIcon.remove();
+		if(node) {
+			var $customIconNode = $("<span>", { class : "fancytree-custom-icon" }).append($("<img>", { "src" : iconImage, 'style' : 'width:16px; height:16px;'}));
+			var $nodeSpan = $(node.span);
+			var $nodeSpanIcon = $nodeSpan.find(".fancytree-icon");
+			$customIconNode.insertAfter($nodeSpanIcon);
+			$nodeSpanIcon.remove();
+		}
     }
 }
