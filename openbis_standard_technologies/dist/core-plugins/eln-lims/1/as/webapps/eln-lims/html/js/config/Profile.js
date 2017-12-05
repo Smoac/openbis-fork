@@ -115,11 +115,18 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
+
+//		TO-DO Delete Jupyter developer initialization notes
+//		source ~/.bash_profile
+//		pyenv local miniconda3-latest
+//		/home/osboxes/installation
+//		python pybis/src/python/ELNJupyter/elnjupyter/server.py --port 8123 --cert cert.pem --key key.pem --openbis http://10.0.2.2:8888
+//		jupyterhub -f jupyterhub_config.py --no-ssl
 		
 //		Jupyter integration config
 //		this.jupyterOpenbisEndpoint = "http://10.0.2.2:8888"; //Should not end with slash
-//		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8002";
-//		this.jupyterEndpoint = "https://127.0.0.1:8000/";
+//		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8123";
+//		this.jupyterEndpoint = "http://127.0.0.1:8000/";
 		
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];

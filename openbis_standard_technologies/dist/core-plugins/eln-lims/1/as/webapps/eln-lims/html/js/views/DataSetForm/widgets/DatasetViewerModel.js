@@ -100,7 +100,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		if(this._isJupyterNotebook(datasetFile.pathInDataSet)) {
 	        var notebookURL = profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
 	        var onclick = "JupyterUtil.copyNotebook(\"" + datasetCode + "\",\"" + notebookURL + "\");"
-	        return "<span onclick='" + onclick + "' class='glyphicon glyphicon-log-in'></span>";
+	        return "<span onclick='" + onclick + "'><img src='./img/jupyter-icon.png' style='width:17px; height:17px;' /></span>";
 		}
 		return null;
 	}
