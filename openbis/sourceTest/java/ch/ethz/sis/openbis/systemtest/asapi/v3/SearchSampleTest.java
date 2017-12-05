@@ -99,6 +99,54 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithCodeThatEqualsWithStarWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEquals("RP1-*X");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X");
+    }
+
+    @Test
+    public void testSearchWithCodeThatEqualsWithQuestionMarkWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEquals("CP???1");
+        testSearch(TEST_USER, criteria, "/CISD/CP1-A1", "/CISD/CP1-B1", "/CISD/CP2-A1");
+    }
+
+    @Test
+    public void testSearchWithCodeThatStartsWithStarWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatStartsWith("PLATE_WELLSEARCH:W*L-");
+        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
+    }
+
+    @Test
+    public void testSearchWithCodeThatStartsWithQuestionMarkWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatStartsWith("CP?-");
+        testSearch(TEST_USER, criteria, "/CISD/CP1-A1", "/CISD/CP1-A2", "/CISD/CP1-B1", "/CISD/CP2-A1");
+    }
+
+    @Test
+    public void testSearchWithCodeThatEndsWithStarWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEndsWith("NOR*L");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-PARENT-NORMAL");
+    }
+
+    @Test
+    public void testSearchWithCodeThatEndsWithQuestionMarkWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEndsWith("-??2");
+        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A02");
+    }
+
+    @Test
     public void testSearchForAll()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
@@ -112,14 +160,14 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withSpace().withCode();
         testSearch(TEST_USER, criteria, 379);
     }
-    
+
     @Test
     public void testSearchForAllSharedSamples()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria().withoutSpace();
         testSearch(TEST_USER, criteria, 322);
     }
-    
+
     @Test
     public void testSearchWithSpaceWithIdSetToPermId()
     {
@@ -127,7 +175,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
         testSearch(TEST_USER, criteria, 8);
     }
-    
+
     @Test
     public void testSearchWithSpaceWithCode()
     {
@@ -181,6 +229,14 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withType().withCode().thatEquals("REINFECT_PLATE");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithTypeWithCodeWithWildcard()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withCode().thatEquals("REINFECT_PLAT*");
         testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
     }
 

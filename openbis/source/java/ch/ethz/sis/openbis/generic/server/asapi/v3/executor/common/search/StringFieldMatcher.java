@@ -16,6 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AnyStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
@@ -26,47 +30,114 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchC
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringStartsWithValue;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
-public abstract class StringFieldMatcher<OBJECT> extends SimpleFieldMatcher<OBJECT>
+public abstract class StringFieldMatcher<OBJECT> extends Matcher<OBJECT>
 {
 
     @Override
-    protected boolean isMatching(IOperationContext context, OBJECT object, ISearchCriteria criteria)
+    public List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria)
     {
-        AbstractStringValue fieldValue = ((StringFieldSearchCriteria) criteria).getFieldValue();
+        AbstractStringValue searchValueObject = ((StringFieldSearchCriteria) criteria).getFieldValue();
 
-        if (fieldValue == null || fieldValue.getValue() == null || fieldValue instanceof AnyStringValue)
+        if (searchValueObject == null || searchValueObject.getValue() == null || searchValueObject instanceof AnyStringValue)
         {
-            return true;
+            return objects;
         }
 
-        String actualValue = getFieldValue(object);
+        String searchValue = searchValueObject.getValue().toLowerCase();
+        Pattern equalsPattern = createPattern(searchValue);
+        Pattern startsPattern = createPattern(searchValue + "*");
+        Pattern endsPattern = createPattern("*" + searchValue);
+        Pattern containsPattern = createPattern("*" + searchValue + "*");
 
-        if (actualValue == null)
+        List<OBJECT> matches = new ArrayList<OBJECT>();
+
+        for (OBJECT object : objects)
         {
-            actualValue = "";
-        } else
-        {
-            actualValue = actualValue.toLowerCase();
+            String actualValue = getFieldValue(object);
+
+            if (actualValue == null)
+            {
+                actualValue = "";
+            } else
+            {
+                actualValue = actualValue.toLowerCase();
+            }
+
+            boolean match;
+
+            if (searchValueObject instanceof StringEqualToValue)
+            {
+                match = equalsPattern.matcher(actualValue).matches();
+            } else if (searchValueObject instanceof StringContainsValue)
+            {
+                match = containsPattern.matcher(actualValue).matches();
+            } else if (searchValueObject instanceof StringStartsWithValue)
+            {
+                match = startsPattern.matcher(actualValue).matches();
+            } else if (searchValueObject instanceof StringEndsWithValue)
+            {
+                match = endsPattern.matcher(actualValue).matches();
+            } else
+            {
+                throw new IllegalArgumentException("Unknown string value: " + criteria.getClass());
+            }
+
+            if (match)
+            {
+                matches.add(object);
+            }
         }
 
-        String searchedValue = fieldValue.getValue().toLowerCase();
+        return matches;
+    }
 
-        if (fieldValue instanceof StringEqualToValue)
+    // Logic:
+    //
+    // - replace '*' (matches any characters) and '?' (matches exactly one character) wild cards with appropriate regexp wild cards
+    // - quote all other characters from the searched value to be treated as a normal text (even if they are regarded special in regexp world)
+    //
+    // Examples:
+    //
+    // abc => \Qabc\E
+    // *abc => .*\Qabc\E
+    // ?abc => .\Qabc\E
+    // .abc => \Q.abc\E
+    // *ab?c?d => .*\Qab\E.\Qc\E.\Qd\E
+    //
+
+    private static Pattern createPattern(String searchValue)
+    {
+        StringBuilder pattern = new StringBuilder();
+        StringBuilder part = new StringBuilder();
+
+        for (char c : searchValue.toCharArray())
         {
-            return actualValue.equals(searchedValue);
-        } else if (fieldValue instanceof StringContainsValue)
-        {
-            return actualValue.contains(searchedValue);
-        } else if (fieldValue instanceof StringStartsWithValue)
-        {
-            return actualValue.startsWith(searchedValue);
-        } else if (fieldValue instanceof StringEndsWithValue)
-        {
-            return actualValue.endsWith(searchedValue);
-        } else
-        {
-            throw new IllegalArgumentException("Unknown string value: " + criteria.getClass());
+            if (c == '*' || c == '?')
+            {
+                if (part.length() > 0)
+                {
+                    pattern.append(Pattern.quote(part.toString()));
+                    part = new StringBuilder();
+                }
+                if (c == '*')
+                {
+                    pattern.append(".*");
+                } else
+                {
+                    pattern.append(".");
+                }
+            } else
+            {
+                part.append(c);
+            }
         }
+
+        if (part.length() > 0)
+        {
+            pattern.append(Pattern.quote(part.toString()));
+        }
+
+        return Pattern.compile(pattern.toString());
     }
 
     protected abstract String getFieldValue(OBJECT object);

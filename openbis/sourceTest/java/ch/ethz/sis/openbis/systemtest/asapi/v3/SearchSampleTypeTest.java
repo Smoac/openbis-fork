@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -86,6 +87,22 @@ public class SearchSampleTypeTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithCodeThatEqualsWithStarWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatEquals("*_PLATE");
+        testSearch(criteria, "CELL_PLATE", "DILUTION_PLATE", "DYNAMIC_PLATE", "MASTER_PLATE", "REINFECT_PLATE");
+    }
+
+    @Test
+    public void testSearchWithCodeThatEqualsWithQuestionMarkWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatEquals("????????_PLATE");
+        testSearch(criteria, "DILUTION_PLATE", "REINFECT_PLATE");
+    }
+
+    @Test
     public void testSearchWithCodeThatStartsWithD()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -104,7 +121,55 @@ public class SearchSampleTypeTest extends AbstractTest
     }
 
     @Test
-    public void testSearchWithPropertyAssignmentSortByLabelDesc()
+    public void testSearchWithCodeThatStartsWithStarWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatStartsWith("D*N_");
+        testSearch(criteria, "DELETION_TEST", "DILUTION_PLATE");
+    }
+
+    @Test
+    public void testSearchWithCodeThatStartsWithQuestionMarkWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatStartsWith("D??????_");
+        testSearch(criteria, "DYNAMIC_PLATE");
+    }
+
+    @Test
+    public void testSearchWithCodeThatEndsWithStarWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatEndsWith("_P*E");
+        testSearch(criteria, "CELL_PLATE", "DILUTION_PLATE", "DYNAMIC_PLATE", "MASTER_PLATE", "REINFECT_PLATE");
+    }
+
+    @Test
+    public void testSearchWithCodeThatEndsWithQuestionMarkWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatEndsWith("_???T");
+        testSearch(criteria, "DELETION_TEST");
+    }
+
+    @Test
+    public void testSearchWithCodeThatContainsWithStarWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatContains("POS*BLE");
+        testSearch(criteria, "IMPOSSIBLE", "IMPOSSIBLE_TO_UPDATE");
+    }
+
+    @Test
+    public void testSearchWithCodeThatContainsWithQuestionMarkWildcard()
+    {
+        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
+        criteria.withCode().thatContains("R??_");
+        testSearch(criteria, "CONTROL_LAYOUT");
+    }
+
+    @Test
+    public void testSearchWithCodesThatIn()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
@@ -175,6 +240,19 @@ public class SearchSampleTypeTest extends AbstractTest
         assertEquals(codes.toString(), "[CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
                 + "DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, "
                 + "VALIDATE_CHILDREN, WELL]");
+        v3api.logout(sessionToken);
+    }
+
+    private void testSearch(SampleTypeSearchCriteria criteria, String... expectedCodes)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, criteria, new SampleTypeFetchOptions());
+
+        List<SampleType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), Arrays.toString(expectedCodes));
         v3api.logout(sessionToken);
     }
 
