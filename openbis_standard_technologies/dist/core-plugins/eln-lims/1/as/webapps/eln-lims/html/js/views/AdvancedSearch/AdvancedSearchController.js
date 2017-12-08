@@ -131,8 +131,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 				// fetchOptions.withSample = true;
 			}
 			
-			if(!criteria.cached) {
+			if(!criteria.cached || (criteria.cachedSearch !== options.search)) {
 				fetchOptions.cache = "RELOAD_AND_CACHE";
+				criteria.cachedSearch = options.search;
 				criteria.cached = true;
 			} else {
 				fetchOptions.cache = "CACHE";

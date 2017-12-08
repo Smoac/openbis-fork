@@ -350,13 +350,14 @@ var SampleDataGridUtil = new function() {
 				fetchOptions.from = options.pageIndex * options.pageSize;
 			}
 			
-			if(!criteria.cached) {
+			if(!criteria.cached || (criteria.cachedSearch !== options.search)) {
 				fetchOptions.cache = "RELOAD_AND_CACHE";
+				criteria.cachedSearch = options.search;
 				criteria.cached = true;
 			} else {
 				fetchOptions.cache = "CACHE";
 			}
-				
+			
 			var criteriaToSend = $.extend(true, {}, criteria);
 			
 			if(options && options.searchOperator && options.search) {
