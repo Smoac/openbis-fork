@@ -3,6 +3,7 @@
 import os
 import re
 import shutil
+import time
 import settings
 import systemtest.testcase
 import systemtest.util as util
@@ -191,11 +192,13 @@ class TestCase(systemtest.testcase.TestCase):
         openbis2.dssDown()
         util.printAndFlush("Enabling harvester plugin for the dry run")
         os.remove(os.path.join(harvester_plugin_folder, 'disabled'))
+        monitoringStartTime = time.time()
         openbis2.dssUp()
         monitor = util.LogMonitor("%s synchronization.log" % openbis2.instanceName, 
             "%s/synchronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.HarvesterMaintenanceTask'))
-        monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Dry run finished'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Dry run finished'), 
+                               startTime = monitoringStartTime)
         '''read entity graph from harvester after dry run finished'''
         harvester_graph_lines_after_dry_run = self.getEntityGraph(openbis2_dss_port, openbis2, 'testuser1', '123')
         harvester_graph_lines_before_dry_run.sort()
@@ -208,6 +211,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbis2.dssDown()
         util.printAndFlush("Copying harvester configuration file from %s to %s" % (source, destination))
         util.copyFromTo(source, destination, harvester_config_file_name)
+        monitoringStartTime = time.time()
         openbis2.dssUp()
         '''read entity graph from datasource'''
         content1 = self.getEntityGraph('8444', openbis1, 'harvester1', '123')
@@ -218,7 +222,8 @@ class TestCase(systemtest.testcase.TestCase):
         monitor = util.LogMonitor("%s synchronization.log" % openbis2.instanceName, 
             "%s/synchronization.log" % openbis2.installPath) # "%s/servers/datastore_server/log/datastore_server_log.txt" % openbis2.installPath
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.HarvesterMaintenanceTask'))
-        monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Saving the timestamp of sync start to file'))
+        monitor.waitUntilEvent(util.RegexCondition('OPERATION.HarvesterMaintenanceTask - Saving the timestamp of sync start to file'), 
+                               startTime = monitoringStartTime)
         graph_lines = self.getEntityGraph(openbis2_dss_port, openbis2, 'testuser1', '123')
         content2 = self.removePrefixFromLines(graph_lines, data_source_alias)
         content2.sort()
