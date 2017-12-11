@@ -18,7 +18,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
 	
-	this.repaint = function(views) {
+	this.repaint = function(views, loadFromTemplate) {
 		var $container = views.content;
 		//
 		// Form setup
@@ -277,7 +277,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name === "General") {
-				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
 			}
 		}
 		
@@ -380,7 +380,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name !== "General") {
-				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
 			}
 		}
 		
@@ -501,7 +501,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		this._sampleFormModel.isFormLoaded = true;
 	}
 	
-	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i) {
+	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i, loadFromTemplate) {
 		var _this = this;
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
@@ -565,7 +565,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
 					//Update values if is into edit mode
-					if(this._sampleFormModel.mode === FormMode.EDIT) {
+					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
 							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {

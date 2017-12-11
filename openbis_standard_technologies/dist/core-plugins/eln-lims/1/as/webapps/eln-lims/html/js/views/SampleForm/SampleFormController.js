@@ -36,9 +36,22 @@ function SampleFormController(mainController, mode, sample) {
 				Util.unblockUI();
 			});
 		} else {
-			//Load view
-			_this._sampleFormView.repaint(views);
-			Util.unblockUI();
+			if(sample.sampleTypeCode === "ORDER") {
+				mainController.serverFacade.searchWithIdentifiers(["/ELN_SETTINGS/ORDER_TEMPLATE"], function(data) {
+					if(data[0]) { //Template found
+						sample.properties = data[0].properties;
+						sample.parents = data[0].parents;
+					}
+					//Load view
+					_this._sampleFormView.repaint(views, true);
+					Util.unblockUI();
+				});
+			} else {
+				//Load view
+				_this._sampleFormView.repaint(views);
+				Util.unblockUI();
+			}
+			
 		}
 		
 	}

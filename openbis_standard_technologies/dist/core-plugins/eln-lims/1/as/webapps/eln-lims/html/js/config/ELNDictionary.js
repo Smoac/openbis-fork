@@ -28,6 +28,10 @@ ELNDictionary.settingsView = {
 			title : "Storages",
 			info : "Create and browse storages.",
 		},
+		orders : {
+			title : "Orders",
+			info : "Here you can edit the template for orders.",
+		},
 		mainMenu : {
 			title : "Main Menu",
 			info : "These options give the opportunity to the administrator to show/hide different sections of the user interface from the main menu.",

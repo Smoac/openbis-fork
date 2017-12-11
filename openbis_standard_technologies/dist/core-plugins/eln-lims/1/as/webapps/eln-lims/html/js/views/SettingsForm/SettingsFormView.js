@@ -72,8 +72,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			var texts = ELNDictionary.settingsView.sections;
 
-			this._paintStoragesSection($formColumn, texts.storages);
 			this._paintMainMenuSection($formColumn, texts.mainMenu);
+			this._paintStoragesSection($formColumn, texts.storages);
+			this._paintOrdersSection($formColumn, texts.orders);
 			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
 			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
@@ -156,6 +157,24 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
+	
+	this._paintOrdersSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-orders");
+		$fieldset.append(FormUtil.getInfoText(text.info));
+
+		var $gridContainer = $("<div>");
+		$fieldset.append($gridContainer);
+
+		var advancedSampleSearchCriteria = {
+				entityKind : "SAMPLE",
+				logicalOperator : "AND",
+				rules : { "1" : { type : "Attribute", name : "CODE", value : "ORDER_TEMPLATE" } }
+		}
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, null, true, null, false);
+		var extraOptions = [];
+		dataGrid.init($gridContainer, extraOptions);
+	}
+	
 
 	this._paintMainMenuSection = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-main-menu");
