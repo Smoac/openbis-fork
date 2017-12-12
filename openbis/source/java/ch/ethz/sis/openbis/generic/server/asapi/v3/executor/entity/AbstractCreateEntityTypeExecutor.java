@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -82,6 +81,9 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
 
     @Autowired
     private IMapPluginByIdExecutor mapPluginByIdExecutor;
+    
+    @Autowired
+    private SetEntityTypeValidationScriptExecutor setEntityTypeValidationScriptExecutor;
 
     protected abstract ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind getPEEntityKind();
 
@@ -98,6 +100,7 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     @Override
     protected List<TYPE_PE> createEntities(final IOperationContext context, CollectionBatch<CREATION> typeCreations)
     {
+        System.err.println("AbstractCreateEntityTypeExecutor.createEntities()");
         final List<TYPE_PE> typePEs = new LinkedList<TYPE_PE>();
 
         new CollectionBatchProcessor<CREATION>(context, typeCreations)
@@ -149,29 +152,6 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
         type.setDescription(typeCreation.getDescription());
 
         fillTypeSpecificFields(type, typeCreation);
-
-        if (typeCreation.getValidationPluginId() != null)
-        {
-            ScriptPE pluginPE = findPlugin(context, typeCreation.getValidationPluginId());
-
-            if (false == ScriptType.ENTITY_VALIDATION.equals(pluginPE.getScriptType()))
-            {
-                throw new UserFailureException("Entity type validation plugin has to be of type '" + ScriptType.ENTITY_VALIDATION
-                        + "'. The specified plugin with id '" + typeCreation.getValidationPluginId() + "' is of type '" + pluginPE.getScriptType()
-                        + "'.");
-            }
-
-            if (pluginPE.getEntityKind() != null
-                    && false == pluginPE.getEntityKind().equals(getPEEntityKind()))
-            {
-                throw new UserFailureException("Entity type validation plugin has entity kind set to '" + pluginPE.getEntityKind()
-                        + "'. Expected a plugin where entity kind is either '" + getPEEntityKind() + "' or null.");
-            }
-
-            Script plugin = new Script();
-            plugin.setName(pluginPE.getName());
-            type.setValidationScript(plugin);
-        }
 
         defineType(context, type);
 
@@ -304,7 +284,15 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     @Override
     protected void updateBatch(IOperationContext context, MapBatch<CREATION, TYPE_PE> batch)
     {
-        // nothing to do
+        IPluginIdProvider<CREATION> pluginIdProvider = new IPluginIdProvider<CREATION>()
+            {
+                @Override
+                public IPluginId getPluginId(CREATION pluginIdHolder)
+                {
+                    return pluginIdHolder.getValidationPluginId();
+                }
+            };
+        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider, getDAOEntityKind());
     }
 
     @Override
