@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function SampleFormController(mainController, mode, sample) {
+function SampleFormController(mainController, mode, sample, paginationInfo) {
 	this._mainController = mainController;
-	this._sampleFormModel = new SampleFormModel(mode, sample);
+	this._sampleFormModel = new SampleFormModel(mode, sample, paginationInfo);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
 //	this._storageControllers = [];
 	this._plateController = null;

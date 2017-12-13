@@ -133,7 +133,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
 				var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
+					var args = {
+							permIdOrIdentifier : _this._sampleFormModel.sample.permId,
+							paginationInfo : _this._sampleFormModel.paginationInfo
+					}
+					
+					mainController.changeView('showEditSamplePageFromPermId', args);
 				});
 				toolbarModel.push({ component : $editButton, tooltip: "Edit" });
 			}
@@ -257,6 +262,19 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$saveBtn.removeClass("btn-default");
 			$saveBtn.addClass("btn-primary");
 			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+		}
+		
+		if(this._sampleFormModel.mode !== FormMode.CREATE && this._sampleFormModel.paginationInfo) {
+			var $backBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-left", function () {
+				
+			});
+			toolbarModel.push({ component : $backBtn, tooltip: "Go to previous Object from list" });
+			
+			var $nextBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-right", function () {
+				
+			});
+			toolbarModel.push({ component : $nextBtn, tooltip: "Go to next Object from list" });
+
 		}
 		
 		var $header = views.header;

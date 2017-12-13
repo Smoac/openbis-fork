@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function SampleFormModel(mode, sample) {
+function SampleFormModel(mode, sample, paginationInfo) {
 	this.mode = mode;
 	this.sample = sample;
 	this.datasets = [];
@@ -31,4 +31,5 @@ function SampleFormModel(mode, sample) {
 	this.sampleLinksParents = null;
 	this.sampleLinksChildren = null;
 	this.sampleLinksNone = null;
+	this.paginationInfo = paginationInfo;
 }
