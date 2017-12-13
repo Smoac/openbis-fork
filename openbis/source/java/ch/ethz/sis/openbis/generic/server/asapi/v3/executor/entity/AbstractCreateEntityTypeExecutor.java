@@ -16,14 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -37,29 +32,21 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCre
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IMapPluginByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropertyTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityTypeUtils;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -77,10 +64,7 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     protected ICommonBusinessObjectFactory businessObjectFactory;
 
     @Autowired
-    private IMapPropertyTypeByIdExecutor mapPropertyTypeByIdExecutor;
-
-    @Autowired
-    private IMapPluginByIdExecutor mapPluginByIdExecutor;
+    private CreatePropertyAssignmentsExecutor createPropertyAssignmentsExecutor;
     
     @Autowired
     private SetEntityTypeValidationScriptExecutor setEntityTypeValidationScriptExecutor;
@@ -100,7 +84,6 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     @Override
     protected List<TYPE_PE> createEntities(final IOperationContext context, CollectionBatch<CREATION> typeCreations)
     {
-        System.err.println("AbstractCreateEntityTypeExecutor.createEntities()");
         final List<TYPE_PE> typePEs = new LinkedList<TYPE_PE>();
 
         new CollectionBatchProcessor<CREATION>(context, typeCreations)
@@ -111,27 +94,10 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
                     TYPE_PE typePE = createType(context, typeCreation);
                     typePEs.add(typePE);
 
-                    if (typeCreation.getPropertyAssignments() != null)
-                    {
-                        List<PropertyAssignmentCreation> assignmentCreations = new ArrayList<PropertyAssignmentCreation>();
-                        assignmentCreations.addAll(typeCreation.getPropertyAssignments());
-
-                        Collections.sort(assignmentCreations, new Comparator<PropertyAssignmentCreation>()
-                            {
-                                @Override
-                                public int compare(PropertyAssignmentCreation o1, PropertyAssignmentCreation o2)
-                                {
-                                    int ordinal1 = o1.getOrdinal() != null ? o1.getOrdinal() : Integer.MAX_VALUE;
-                                    int ordinal2 = o2.getOrdinal() != null ? o2.getOrdinal() : Integer.MAX_VALUE;
-                                    return Integer.compare(ordinal1, ordinal2);
-                                }
-                            });
-
-                        for (PropertyAssignmentCreation assignmentCreation : assignmentCreations)
-                        {
-                            createPropertyAssignment(context, typeCreation, assignmentCreation);
-                        }
-                    }
+                    String entityTypeCode = typeCreation.getCode();
+                    List<PropertyAssignmentCreation> propertyAssignments = typeCreation.getPropertyAssignments();
+                    createPropertyAssignmentsExecutor.createPropertyAssignments(context, entityTypeCode, 
+                            propertyAssignments, getPEEntityKind());
                 }
 
                 @Override
@@ -158,84 +124,6 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
         return (TYPE_PE) daoFactory.getEntityTypeDAO(getDAOEntityKind()).tryToFindEntityTypeByCode(typeCreation.getCode());
     }
 
-    private void createPropertyAssignment(IOperationContext context, CREATION typeCreation, PropertyAssignmentCreation assignmentCreation)
-    {
-        NewETPTAssignment assignment = new NewETPTAssignment();
-        assignment.setEntityKind(getPEEntityKind());
-
-        PropertyTypePE propertyTypePE = findPropertyType(context, assignmentCreation.getPropertyTypeId());
-        assignment.setPropertyTypeCode(propertyTypePE.getCode());
-
-        assignment.setEntityTypeCode(typeCreation.getCode());
-        assignment.setMandatory(assignmentCreation.isMandatory());
-        assignment.setDefaultValue(assignmentCreation.getInitialValueForExistingEntities());
-        assignment.setSection(assignmentCreation.getSection());
-
-        if (assignmentCreation.getOrdinal() != null)
-        {
-            assignment.setOrdinal((long) assignmentCreation.getOrdinal() - 1);
-        }
-
-        if (assignmentCreation.getPluginId() != null)
-        {
-            ScriptPE pluginPE = findPlugin(context, assignmentCreation.getPluginId());
-
-            if (false == ScriptType.DYNAMIC_PROPERTY.equals(pluginPE.getScriptType())
-                    && false == ScriptType.MANAGED_PROPERTY.equals(pluginPE.getScriptType()))
-            {
-                throw new UserFailureException(
-                        "Property assignment plugin has to be of type '" + ScriptType.DYNAMIC_PROPERTY + "' or '" + ScriptType.MANAGED_PROPERTY
-                                + "'. The specified plugin with id '" + assignmentCreation.getPluginId() + "' is of type '" + pluginPE.getScriptType()
-                                + "'.");
-            }
-
-            if (pluginPE.getEntityKind() != null && false == pluginPE.getEntityKind().equals(getPEEntityKind()))
-            {
-                throw new UserFailureException("Property assignment plugin has entity kind set to '" + pluginPE.getEntityKind()
-                        + "'. Expected a plugin where entity kind is either '" + getPEEntityKind() + "' or null.");
-            }
-
-            assignment.setScriptName(pluginPE.getName());
-            assignment.setDynamic(ScriptType.DYNAMIC_PROPERTY.equals(pluginPE.getScriptType()));
-            assignment.setManaged(ScriptType.MANAGED_PROPERTY.equals(pluginPE.getScriptType()));
-        }
-
-        assignment.setShownInEditView(assignmentCreation.isShowInEditView());
-        assignment.setShowRawValue(assignmentCreation.isShowRawValueInForms());
-
-        IEntityTypePropertyTypeBO propertyBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(context.getSession(), getDAOEntityKind());
-        propertyBO.createAssignment(assignment);
-    }
-
-    private ScriptPE findPlugin(IOperationContext context, IPluginId pluginId)
-    {
-        Map<IPluginId, ScriptPE> pluginPEMap =
-                mapPluginByIdExecutor.map(context, Arrays.asList(pluginId));
-        ScriptPE pluginPE = pluginPEMap.get(pluginId);
-
-        if (pluginPE == null)
-        {
-            throw new ObjectNotFoundException(pluginId);
-        }
-
-        return pluginPE;
-    }
-
-    private PropertyTypePE findPropertyType(IOperationContext context, IPropertyTypeId propertyTypeId)
-    {
-        Map<IPropertyTypeId, PropertyTypePE> propertyTypePEMap =
-                mapPropertyTypeByIdExecutor.map(context, Arrays.asList(propertyTypeId));
-        PropertyTypePE propertyTypePE = propertyTypePEMap.get(propertyTypeId);
-
-        if (propertyTypePE == null)
-        {
-            throw new ObjectNotFoundException(propertyTypeId);
-        }
-
-        return propertyTypePE;
-    }
-
     @Override
     protected EntityTypePermId createPermId(IOperationContext context, TYPE_PE entity)
     {
@@ -252,20 +140,7 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
 
         checkTypeSpecificFields(creation);
 
-        if (creation.getPropertyAssignments() != null)
-        {
-            for (PropertyAssignmentCreation assignmentCreation : creation.getPropertyAssignments())
-            {
-                if (assignmentCreation.getPropertyTypeId() == null)
-                {
-                    throw new UserFailureException("PropertyTypeId cannot be null.");
-                }
-                if (assignmentCreation.getOrdinal() != null && assignmentCreation.getOrdinal() <= 0)
-                {
-                    throw new UserFailureException("Ordinal cannot be <= 0.");
-                }
-            }
-        }
+        EntityTypeUtils.checkPropertyAssignmentCreations(creation.getPropertyAssignments());
     }
 
     @Override
