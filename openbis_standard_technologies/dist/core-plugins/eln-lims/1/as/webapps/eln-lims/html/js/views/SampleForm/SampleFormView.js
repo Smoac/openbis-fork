@@ -265,16 +265,19 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		if(this._sampleFormModel.mode !== FormMode.CREATE && this._sampleFormModel.paginationInfo) {
-			var $backBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-left", function () {
-				
-			});
-			toolbarModel.push({ component : $backBtn, tooltip: "Go to previous Object from list" });
+			if(this._sampleFormModel.paginationInfo.currentIndex > 0) {
+				var $backBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-left", function () {
+					
+				});
+				toolbarModel.push({ component : $backBtn, tooltip: "Go to previous Object from list" });
+			}
 			
-			var $nextBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-right", function () {
-				
-			});
-			toolbarModel.push({ component : $nextBtn, tooltip: "Go to next Object from list" });
-
+			if(this._sampleFormModel.paginationInfo.currentIndex+1 < this._sampleFormModel.paginationInfo.totalCount) {
+				var $nextBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-right", function () {
+					
+				});
+				toolbarModel.push({ component : $nextBtn, tooltip: "Go to next Object from list" });
+			}
 		}
 		
 		var $header = views.header;

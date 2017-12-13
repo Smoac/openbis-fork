@@ -631,7 +631,7 @@ $.extend(Grid.prototype, {
 			
 			if(isDynamic) {
 				dataList = dataListResult.objects;		
-				
+				thisGrid.lastReceivedData = dataListResult;
 				if(thisGrid.onChangeState && thisGrid.tableSettings) {
 					thisGrid.tableSettings.sort = {
 							sortProperty : options.sortProperty,
