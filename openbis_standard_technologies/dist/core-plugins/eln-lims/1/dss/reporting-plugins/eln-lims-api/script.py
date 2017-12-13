@@ -378,12 +378,15 @@ def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experime
 		experiment.setPropertyValue("NAME", experimentName);
 	return experiment;
 
-def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType):
+def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType, properties):
 	sample = tr.getSample(sampleIdentifier);
 	if sample == None:
 		sample = tr.createNewSample(sampleIdentifier,	sampleType);
 		if experiment != None:
 			sample.setExperiment(experiment);
+		if properties != None:
+			for key in properties:
+				sample.setPropertyValue(key, properties[key]);
 	return sample;
 	
 def init(tr, parameters, tableBuilder):
@@ -411,6 +414,7 @@ def init(tr, parameters, tableBuilder):
 		insertSpaceIfMissing(tr, "STOCK_ORDERS");
 		insertProjectIfMissing(tr, "/STOCK_ORDERS/ORDERS", projectsCache);
 		insertExperimentIfMissing(tr, "/STOCK_ORDERS/ORDERS/ORDER_COLLECTION", "STOCK", "Order Collection");
+		insertSampleIfMissing(tr, "/ELN_SETTINGS/ORDER_TEMPLATE", None, "ORDER", { "ORDER_STATUS" : "NOT_YET_ORDERED" });
 	
 	## Default lab notebook only on new installations
 	if isNewInstallation:
@@ -424,7 +428,7 @@ def init(tr, parameters, tableBuilder):
 			if isFirstTimeInstallingStorage:
 				insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
 				storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
-				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE");
+				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE", None);
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
 				bench.setPropertyValue("COLUMN_NUM", "1");
@@ -433,7 +437,7 @@ def init(tr, parameters, tableBuilder):
 				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
 				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
 					
-				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE");
+				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE", None);
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
 				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
@@ -443,7 +447,7 @@ def init(tr, parameters, tableBuilder):
 				defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
 			
 	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
-			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS");
+			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS", None);
 	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:
