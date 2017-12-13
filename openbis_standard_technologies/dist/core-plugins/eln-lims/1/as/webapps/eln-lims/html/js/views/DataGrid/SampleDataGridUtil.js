@@ -1,5 +1,7 @@
 var SampleDataGridUtil = new function() {
 	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment) {
+		var _this = this;
+		var isDynamic = samplesOrCriteria.entityKind && samplesOrCriteria.rules;
 		
 		//Fill Columns model
 		var columnsFirst = [];
@@ -9,8 +11,15 @@ var SampleDataGridUtil = new function() {
 			property : 'identifier',
 			isExportable: true,
 			sortable : true,
-			render : function(data) {
-				return (isLinksDisabled)?data.identifier:FormUtil.getFormLink(data.identifier, "Sample", data.permId);
+			render : function(data, grid) {
+				var paginationInfo = null;
+				if(isDynamic) {
+					paginationInfo = {
+							pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
+							pagOptions : grid.lastUsedOptions
+					}
+				}
+				return (isLinksDisabled)?data.identifier:FormUtil.getFormLink(data.identifier, "Sample", data.permId, paginationInfo);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -243,7 +252,7 @@ var SampleDataGridUtil = new function() {
 		
 		//Fill data model
 		var getDataList = null;
-		if(samplesOrCriteria.entityKind && samplesOrCriteria.rules) {
+		if(isDynamic) {
 			getDataList = SampleDataGridUtil.getDataListDynamic(samplesOrCriteria, withExperiment); //Load on demand model
 		} else {
 			getDataList = SampleDataGridUtil.getDataList(samplesOrCriteria); //Static model

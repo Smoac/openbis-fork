@@ -881,7 +881,7 @@ var FormUtil = new function() {
 		return $dropDownMenu;
 	}
 	
-	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier) {
+	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier, paginationInfo) {
 		var view = null;
 		switch(entityKind) {
 			case "Space":
@@ -907,7 +907,16 @@ var FormUtil = new function() {
 		
 		var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), view, permIdOrIdentifier);
 		var click = function() {
-			mainController.changeView(view, permIdOrIdentifier, true);
+			var arg = null;
+			if(paginationInfo) {
+				arg = {
+						permIdOrIdentifier : permIdOrIdentifier,
+						paginationInfo : paginationInfo
+				}
+			} else {
+				arg = permIdOrIdentifier;
+			}
+			mainController.changeView(view, arg, true);
 		}
 		displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
 		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(displayName);

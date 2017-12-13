@@ -573,7 +573,7 @@ $.extend(Grid.prototype, {
 				//1. Render
 				var value = null;
 				if (column.render) {
-					value = column.render(data);
+					value = column.render(data, thisGrid);
 				} else {
 					value = data[column.property];
 				}
@@ -608,6 +608,7 @@ $.extend(Grid.prototype, {
 	list : function(options, callback) {
 		options.searchOperator = this.getSearchOperator();
 		var thisGrid = this;
+		thisGrid.lastUsedOptions = options;
 		
 		if(thisGrid.firstLoad) {
 			$(thisGrid.panel).hide();
