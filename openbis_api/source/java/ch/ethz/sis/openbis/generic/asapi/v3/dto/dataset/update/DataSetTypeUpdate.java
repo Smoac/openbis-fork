@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
@@ -48,7 +49,7 @@ public class DataSetTypeUpdate implements IEntityTypeUpdate
     private FieldUpdateValue<String> mainDataSetPath = new FieldUpdateValue<String>();
 
     @JsonProperty
-    private boolean disallowDeletion = false;
+    private FieldUpdateValue<Boolean>  disallowDeletion = new FieldUpdateValue<Boolean>();
 
     @JsonProperty
     private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
@@ -60,84 +61,99 @@ public class DataSetTypeUpdate implements IEntityTypeUpdate
     private PropertyAssignmentListUpdateValue propertyAssignments = new PropertyAssignmentListUpdateValue();
 
     @Override
+    @JsonIgnore
     public IEntityTypeId getObjectId()
     {
         return getTypeId();
     }
 
     @Override
+    @JsonIgnore
     public IEntityTypeId getTypeId()
     {
         return typeId;
     }
 
     @Override
+    @JsonIgnore
     public void setTypeId(IEntityTypeId typeId)
     {
         this.typeId = typeId;
     }
 
     @Override
+    @JsonIgnore
     public FieldUpdateValue<String> getDescription()
     {
         return description;
     }
 
     @Override
+    @JsonIgnore
     public void setDescription(String description)
     {
         this.description.setValue(description);
     }
 
+    @JsonIgnore
     public FieldUpdateValue<String> getMainDataSetPattern()
     {
         return mainDataSetPattern;
     }
     
+    @JsonIgnore
     public void setMainDataSetPattern(String mainDataSetPattern)
     {
         this.mainDataSetPattern.setValue(mainDataSetPattern);
     }
     
+    @JsonIgnore
     public FieldUpdateValue<String> getMainDataSetPath()
     {
         return mainDataSetPath;
     }
     
+    @JsonIgnore
     public void setMainDataSetPath(String mainDataSetPath)
     {
         this.mainDataSetPath.setValue(mainDataSetPath);
     }
     
-    public boolean isDisallowDeletion()
+    @JsonIgnore
+    public FieldUpdateValue<Boolean> isDisallowDeletion()
     {
         return disallowDeletion;
     }
 
+    @JsonIgnore
     public void setDisallowDeletion(boolean disallowDeletion)
     {
-        this.disallowDeletion = disallowDeletion;
+        this.disallowDeletion.setValue(disallowDeletion);
     }
 
     @Override
+    @JsonIgnore
     public FieldUpdateValue<IPluginId> getValidationPluginId()
     {
         return validationPluginId;
     }
 
     @Override
+    @JsonIgnore
     public void setValidationPluginId(IPluginId validationPluginId)
     {
         this.validationPluginId.setValue(validationPluginId);
     }
 
     @Override
+    @JsonIgnore
     public PropertyAssignmentListUpdateValue getPropertyAssignments()
     {
         return propertyAssignments;
     }
 
     @Override
+    @JsonIgnore
     public void setPropertyAssignmentActions(List<ListUpdateAction<Object>> actions)
     {
         propertyAssignments.setActions(actions);

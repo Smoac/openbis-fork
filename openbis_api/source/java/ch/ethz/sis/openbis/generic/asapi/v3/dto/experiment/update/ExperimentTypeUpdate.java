@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
@@ -38,64 +39,76 @@ public class ExperimentTypeUpdate implements IEntityTypeUpdate
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private IEntityTypeId typeId;
     
+    @JsonProperty
     private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
 
+    @JsonProperty
     private FieldUpdateValue<IPluginId> validationPluginId = new FieldUpdateValue<IPluginId>();
     
     @JsonProperty
     private PropertyAssignmentListUpdateValue propertyAssignments = new PropertyAssignmentListUpdateValue();
 
     @Override
+    @JsonIgnore
     public IEntityTypeId getObjectId()
     {
         return getTypeId();
     }
 
     @Override
+    @JsonIgnore
     public IEntityTypeId getTypeId()
     {
         return typeId;
     }
 
     @Override
+    @JsonIgnore
     public void setTypeId(IEntityTypeId typeId)
     {
         this.typeId = typeId;
     }
 
     @Override
+    @JsonIgnore
     public FieldUpdateValue<String> getDescription()
     {
         return description;
     }
 
     @Override
+    @JsonIgnore
     public void setDescription(String description)
     {
         this.description.setValue(description);
     }
 
     @Override
+    @JsonIgnore
     public FieldUpdateValue<IPluginId> getValidationPluginId()
     {
         return validationPluginId;
     }
 
     @Override
+    @JsonIgnore
     public void setValidationPluginId(IPluginId validationPluginId)
     {
         this.validationPluginId.setValue(validationPluginId);
     }
 
     @Override
+    @JsonIgnore
     public PropertyAssignmentListUpdateValue getPropertyAssignments()
     {
         return propertyAssignments;
     }
 
     @Override
+    @JsonIgnore
     public void setPropertyAssignmentActions(List<ListUpdateAction<Object>> actions)
     {
         propertyAssignments.setActions(actions);

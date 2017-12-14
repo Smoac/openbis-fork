@@ -50,7 +50,14 @@ public class UpdateDataSetTypeExecutor
     @Override
     protected void checkTypeSpecificFields(DataSetTypeUpdate update)
     {
-        // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected void updateSpecific(DataSetTypePE type, DataSetTypeUpdate update)
+    {
+        type.setMainDataSetPattern(getNewValue(update.getMainDataSetPattern(), type.getMainDataSetPattern()));
+        type.setMainDataSetPath(getNewValue(update.getMainDataSetPath(), type.getMainDataSetPath()));
+        type.setDeletionDisallow(getNewValue(update.isDisallowDeletion(), type.isDeletionDisallow()));
     }
 
     @Override

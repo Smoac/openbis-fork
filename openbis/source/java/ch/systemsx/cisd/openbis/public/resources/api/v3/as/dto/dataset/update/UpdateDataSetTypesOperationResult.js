@@ -1,6 +1,3 @@
-/**
- * @author pkupczyk
- */
 define([ "stjs", "as/dto/common/update/UpdateObjectsOperationResult" ], function(stjs, UpdateObjectsOperationResult) {
 	var UpdateDataSetTypesOperationResult = function(objectIds) {
 		UpdateObjectsOperationResult.call(this, objectIds);

@@ -4,6 +4,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		this.description = new FieldUpdateValue();
 		this.mainDataSetPattern = new FieldUpdateValue();
 		this.mainDataSetPath = new FieldUpdateValue();
+		this.disallowDeletion = new FieldUpdateValue();
 		this.validationPluginId = new FieldUpdateValue();
 		this.propertyAssignments = new PropertyAssignmentListUpdateValue();
 	};
@@ -14,7 +15,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		prototype.description = null;
 		prototype.mainDataSetPattern = null;
 		prototype.mainDataSetPath = null;
-		prototype.disallowDeletion = false;
+		prototype.disallowDeletion = null;
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
 
@@ -46,7 +47,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 			return this.mainDataSetPath;
 		};
 		prototype.setDisallowDeletion = function(disallowDeletion) {
-			this.disallowDeletion = disallowDeletion;
+			this.disallowDeletion.setValue(disallowDeletion);
 		};
 		prototype.isDisallowDeletion = function() {
 			return this.disallowDeletion;
@@ -74,6 +75,10 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 			arguments : [ null ]
 		},
 		mainDataSetPath : {
+			name : "FieldUpdateValue",
+			arguments : [ null ]
+		},
+		disallowDeletion : {
 			name : "FieldUpdateValue",
 			arguments : [ null ]
 		},

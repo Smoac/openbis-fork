@@ -234,7 +234,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             throwModifiedEntityException("Property type assignment");
         }
         // if ordinal was changed some etpts need to be shifted by 1
-        final Long currentOrdinal = assignmentUpdates.getOrdinal() + 1;
+        Long ordinal = assignmentUpdates.getOrdinal();
+        final Long currentOrdinal = (ordinal == null ? assignment.getOrdinal() : ordinal) + 1;
         if (assignment.getOrdinal().equals(currentOrdinal) == false)
         {
             increaseOrdinals(assignment.getEntityType(), currentOrdinal, 1);

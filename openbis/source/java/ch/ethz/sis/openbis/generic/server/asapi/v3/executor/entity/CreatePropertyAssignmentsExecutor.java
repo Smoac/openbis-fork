@@ -112,7 +112,6 @@ public class CreatePropertyAssignmentsExecutor
         assignment.setMandatory(assignmentCreation.isMandatory());
         assignment.setDefaultValue(assignmentCreation.getInitialValueForExistingEntities());
         assignment.setSection(assignmentCreation.getSection());
-        assignment.setOrdinal(0L);
         if (assignmentCreation.getOrdinal() != null)
         {
             assignment.setOrdinal((long) assignmentCreation.getOrdinal() - 1);

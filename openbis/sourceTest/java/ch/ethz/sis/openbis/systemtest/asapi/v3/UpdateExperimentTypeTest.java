@@ -77,6 +77,18 @@ public class UpdateExperimentTypeTest extends UpdateEntityTypeTest<ExperimentTyp
     }
 
     @Override
+    protected void updateTypeSpecificFields(ExperimentTypeUpdate update, int variant)
+    {
+        // No specific fields
+    }
+
+    @Override
+    protected void assertTypeSpecificFields(ExperimentType type, ExperimentTypeUpdate update, int variant)
+    {
+        // No specific fields
+    }
+
+    @Override
     protected String getValidationPluginOrNull(String sessionToken, EntityTypePermId typeId)
     {
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType entityType : commonServer.listExperimentTypes(sessionToken))

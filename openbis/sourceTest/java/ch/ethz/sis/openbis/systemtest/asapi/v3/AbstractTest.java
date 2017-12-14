@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,6 +98,7 @@ import ch.ethz.sis.openbis.systemtest.asapi.v3.index.IndexState;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -120,6 +122,14 @@ import junit.framework.Assert;
  */
 public class AbstractTest extends SystemTestCase
 {
+    private static final Comparator<PropertyAssignment> ASSIGNMENT_COMPARATOR = new SimpleComparator<PropertyAssignment, String>()
+        {
+            @Override
+            public String evaluate(PropertyAssignment item)
+            {
+                return item.getPermId().toString();
+            }
+        };
 
     private BufferedAppender logRecorder;
 
@@ -158,6 +168,11 @@ public class AbstractTest extends SystemTestCase
     {
         logRecorder.reset();
         System.out.println("<<<<<<<<< AFTER METHOD: " + method.getName());
+    }
+    
+    protected void sortPropertyAssignments(List<PropertyAssignment> assignments)
+    {
+        Collections.sort(assignments, ASSIGNMENT_COMPARATOR);
     }
 
     protected void assertTypeNotFetched(final Experiment experiment)

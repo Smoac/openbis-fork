@@ -21,7 +21,6 @@ import static org.testng.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.IEntityTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
@@ -40,7 +40,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -48,15 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYPE extends IEntityType> extends AbstractTest
 {
-    public static final Comparator<PropertyAssignment> ASSIGNMENT_COMPARATOR = new SimpleComparator<PropertyAssignment, String>()
-        {
-            @Override
-            public String evaluate(PropertyAssignment item)
-            {
-                return item.getPermId().toString();
-            }
-        };
-
     protected abstract EntityKind getEntityKind();
 
     protected abstract UPDATE newTypeUpdate();
@@ -66,6 +56,10 @@ public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYP
     protected abstract void updateTypes(String sessionToken, List<UPDATE> updates);
 
     protected abstract TYPE getType(String sessionToken, EntityTypePermId typeId);
+
+    protected abstract void updateTypeSpecificFields(UPDATE update, int variant);
+
+    protected abstract void assertTypeSpecificFields(TYPE type, UPDATE update, int variant);
 
     protected abstract String getValidationPluginOrNull(String sessionToken, EntityTypePermId typeId);
 
@@ -141,14 +135,16 @@ public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYP
         EntityTypePermId typeId = getTypeId();
         update.setTypeId(typeId);
         update.setDescription("new description " + System.currentTimeMillis());
+        updateTypeSpecificFields(update, 0);
         
         // When
         updateTypes(sessionToken, Arrays.asList(update));
         
         // Then
-        assertEquals(getType(sessionToken, typeId).getDescription(), update.getDescription().getValue());
+        TYPE type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), update.getDescription().getValue());
+        assertTypeSpecificFields(type, update, 0);
     }
-    
     @Test
     public void testUpdateWithValidationPlugin()
     {
@@ -158,12 +154,15 @@ public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYP
         EntityTypePermId typeId = getTypeId();
         update.setTypeId(typeId);
         update.setValidationPluginId(new PluginPermId("validateOK"));
+        updateTypeSpecificFields(update, 1);
         
         // When
         updateTypes(sessionToken, Arrays.asList(update));
         
         // Then
         assertEquals(getValidationPluginOrNull(sessionToken, typeId), "validateOK");
+        TYPE type = getType(sessionToken, typeId);
+        assertTypeSpecificFields(type, update, 1);
     }
     
     @Test
@@ -296,7 +295,7 @@ public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYP
         // Then
         TYPE type = getType(sessionToken, typeId);
         List<PropertyAssignment> assignments = type.getPropertyAssignments();
-        Collections.sort(assignments, ASSIGNMENT_COMPARATOR);
+        sortPropertyAssignments(assignments);
         assertEquals(assignments.toString(),
                 "[PropertyAssignment entity type: " + typeId.getPermId() + ", property type: PLATE_GEOMETRY, mandatory: false, "
                 + "PropertyAssignment entity type: " + typeId.getPermId() + ", property type: SIZE, mandatory: true]");
@@ -310,6 +309,11 @@ public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYP
         }
     }
 
+    protected <T> T getNewValue(FieldUpdateValue<T> fieldUpdateValue, T currentValue)
+    {
+        return fieldUpdateValue != null && fieldUpdateValue.isModified() ? fieldUpdateValue.getValue() : currentValue;
+    }
+    
     private EntityKind getIncorrectEntityKind()
     {
         if (EntityKind.EXPERIMENT.equals(getEntityKind()))

@@ -24,13 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.IEntityTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.PropertyAssignmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropertyTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityTypeUtils;
@@ -125,14 +125,22 @@ public abstract class AbstractUpdateEntityTypeExecutor<UPDATE extends IEntityTyp
         for (Map.Entry<UPDATE, TYPE_PE> entry : batch.getObjects().entrySet())
         {
             UPDATE update = entry.getKey();
-            TYPE_PE project = entry.getValue();
-            if (update.getDescription() != null && update.getDescription().isModified())
-            {
-                project.setDescription(update.getDescription().getValue());
-            }
+            TYPE_PE type = entry.getValue();
+            type.setDescription(getNewValue(update.getDescription(), type.getDescription()));
+            updateSpecific(type, update);
         }
     }
-
+    
+    protected void updateSpecific(TYPE_PE type, UPDATE update)
+    {
+        // To be overwritten in sub classes 
+    }
+    
+    protected <T> T getNewValue(FieldUpdateValue<T> fieldUpdateValue, T currentValue)
+    {
+        return fieldUpdateValue != null && fieldUpdateValue.isModified() ? fieldUpdateValue.getValue() : currentValue;
+    }
+    
     @Override
     protected void updateAll(IOperationContext context, MapBatch<UPDATE, TYPE_PE> batch)
     {

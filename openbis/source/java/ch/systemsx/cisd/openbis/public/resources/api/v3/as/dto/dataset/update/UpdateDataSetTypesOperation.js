@@ -1,15 +1,12 @@
-/**
- * @author pkupczyk
- */
 define([ "stjs", "as/dto/common/update/UpdateObjectsOperation" ], function(stjs, UpdateObjectsOperation) {
-	var UpdateExperimentTypesOperation = function(updates) {
+	var UpdateDataSetTypesOperation = function(updates) {
 		UpdateObjectsOperation.call(this, updates);
 	};
-	stjs.extend(UpdateExperimentTypesOperation, UpdateObjectsOperation, [ UpdateObjectsOperation ], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.experiment.update.UpdateExperimentTypesOperation';
+	stjs.extend(UpdateDataSetTypesOperation, UpdateObjectsOperation, [ UpdateObjectsOperation ], function(constructor, prototype) {
+		prototype['@type'] = 'as.dto.dataset.update.UpdateDataSetTypesOperation';
 		prototype.getMessage = function() {
-			return "UpdateExperimentTypesOperation";
+			return "UpdateDataSetTypesOperation";
 		};
 	}, {});
-	return UpdateExperimentTypesOperation;
+	return UpdateDataSetTypesOperation;
 })

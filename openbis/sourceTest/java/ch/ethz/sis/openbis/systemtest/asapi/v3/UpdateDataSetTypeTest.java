@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -75,6 +77,30 @@ public class UpdateDataSetTypeTest extends UpdateEntityTypeTest<DataSetTypeUpdat
         fetchOptions.withPropertyAssignments().withPropertyType();
         return v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions).getObjects().get(0);
     }
+
+    @Override
+    protected void updateTypeSpecificFields(DataSetTypeUpdate update, int variant)
+    {
+        switch (variant)
+        {
+            case 1:
+                update.getMainDataSetPattern().setValue("a*");
+                break;
+            default:
+                update.getMainDataSetPath().setValue("abc");
+                update.isDisallowDeletion().setValue(true);
+        }
+    }
+
+    @Override
+    protected void assertTypeSpecificFields(DataSetType type, DataSetTypeUpdate update, int variant)
+    {
+        assertEquals(type.getMainDataSetPattern(), getNewValue(update.getMainDataSetPattern(), type.getMainDataSetPattern()));
+        assertEquals(type.getMainDataSetPath(), getNewValue(update.getMainDataSetPath(), type.getMainDataSetPath()));
+        assertEquals(type.isDisallowDeletion(), getNewValue(update.isDisallowDeletion(), type.isDisallowDeletion()));
+    }
+    
+    
 
     @Override
     protected String getValidationPluginOrNull(String sessionToken, EntityTypePermId typeId)

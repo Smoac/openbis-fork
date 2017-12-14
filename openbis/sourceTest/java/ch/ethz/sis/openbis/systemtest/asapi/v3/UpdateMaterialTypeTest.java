@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
@@ -74,6 +76,18 @@ public class UpdateMaterialTypeTest extends UpdateEntityTypeTest<MaterialTypeUpd
         fetchOptions.withPropertyAssignments().withEntityType();
         fetchOptions.withPropertyAssignments().withPropertyType();
         return v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions).getObjects().get(0);
+    }
+
+    @Override
+    protected void updateTypeSpecificFields(MaterialTypeUpdate update, int variant)
+    {
+        // No specific fields
+    }
+
+    @Override
+    protected void assertTypeSpecificFields(MaterialType type, MaterialTypeUpdate update, int variant)
+    {
+        // No specific fields
     }
 
     @Override
