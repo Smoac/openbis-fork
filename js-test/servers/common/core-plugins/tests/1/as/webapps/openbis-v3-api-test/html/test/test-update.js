@@ -157,10 +157,71 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findProject, null, fCheckError);
 		});
 
+		QUnit.test("updateExperimentTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("EXPERIMENT_TYPE");
+
+			var fCreate = function(facade) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setInitialValueForExistingEntities("initial value");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+
+				var creation = new c.ExperimentTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("a new description");
+				creation.setPropertyAssignments([ assignmentCreation ]);
+
+				return facade.createExperimentTypes([ creation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section 2");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("1.0");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+				var update = new c.ExperimentTypeUpdate();
+				update.setTypeId(permId);
+				update.setDescription("another new description");
+				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.getPropertyAssignments().set([assignmentCreation]);
+				return facade.updateExperimentTypes([ update ]);
+			}
+
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getDescription(), "another new description", "Description");
+
+				c.assertEqual(type.getPropertyAssignments().length, 1, "Assignments count");
+
+				var assignment = type.getPropertyAssignments()[0];
+
+				c.assertEqual(assignment.getSection(), "test section 2", "Assignment section");
+				c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal");
+				c.assertEqual(assignment.getPropertyType().getCode(), "VERSION", "Assignment property type code");
+				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
+				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
+				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findExperimentType, fCheck);
+		});
+
+		
 		QUnit.test("updateExperiments() changed attributes + added tag + added attachment", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT");
-
+			
 			var fCreate = function(facade) {
 				var experimentCreation = new c.ExperimentCreation();
 				experimentCreation.setCode(code);
@@ -170,7 +231,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				return facade.createExperiments([ experimentCreation ]);
 			}
-
+			
 			var fUpdate = function(facade, permId) {
 				var experimentUpdate = new c.ExperimentUpdate();
 				experimentUpdate.setExperimentId(permId);
@@ -184,7 +245,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				experimentUpdate.getAttachments().add([ attachmentCreation ]);
 				return facade.updateExperiments([ experimentUpdate ]);
 			}
-
+			
 			var fCheck = function(experiment) {
 				c.assertEqual(experiment.getCode(), code, "Experiment code");
 				c.assertEqual(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
@@ -201,10 +262,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(atob(attachments[0].content), "hello world", "Attachment content");
 				c.assertEqual(attachments.length, 1, "Number of attachments");
 			}
-
+			
 			testUpdate(c, fCreate, fUpdate, c.findExperiment, fCheck);
 		});
-
+		
 		QUnit.test("updateExperiments() changed properties + removed tag", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("EXPERIMENT");
@@ -267,10 +328,87 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findExperiment, null, fCheckError);
 		});
 
+		QUnit.test("updateSampleTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("SAMPLE_TYPE");
+
+			var fCreate = function(facade) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("initial value");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+
+				var creation = new c.SampleTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("a new description");
+				creation.setGeneratedCodePrefix("TEST_PREFIX");
+				creation.setPropertyAssignments([ assignmentCreation ]);
+
+				return facade.createSampleTypes([ creation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section 2");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("1.0");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+				var update = new c.SampleTypeUpdate();
+				update.setTypeId(permId);
+				update.setAutoGeneratedCode(true);
+				update.setSubcodeUnique(true);
+				update.setDescription("another new description");
+				update.setGeneratedCodePrefix("TEST_PREFIX2");
+				update.setListable(true);
+				update.setShowContainer(true);
+				update.setShowParents(true);
+				update.setShowParentMetadata(true);
+				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.getPropertyAssignments().add([assignmentCreation]);
+				update.getPropertyAssignments().remove([new c.PropertyAssignmentPermId(permId, new c.PropertyTypePermId("DESCRIPTION"))]);
+				return facade.updateSampleTypes([ update ]);
+			}
+
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getDescription(), "another new description", "Description");
+				c.assertEqual(type.isAutoGeneratedCode(), true, "AutoGeneratedCode");
+				c.assertEqual(type.isSubcodeUnique(), true, "SubcodeUnique");
+				c.assertEqual(type.getGeneratedCodePrefix(), "TEST_PREFIX2", "GeneratedCodePrefix");
+				c.assertEqual(type.isListable(), true, "Listable");
+				c.assertEqual(type.isShowContainer(), true, "ShowContainer");
+				c.assertEqual(type.isShowParents(), true, "ShowParents");
+				c.assertEqual(type.isShowParentMetadata(), true, "ShowParentMetadata");
+
+				c.assertEqual(type.getPropertyAssignments().length, 1, "Assignments count");
+
+				var assignment = type.getPropertyAssignments()[0];
+
+				c.assertEqual(assignment.getSection(), "test section 2", "Assignment section");
+				c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal");
+				c.assertEqual(assignment.getPropertyType().getCode(), "VERSION", "Assignment property type code");
+				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
+				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
+				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findSampleType, fCheck);
+		});
+
 		QUnit.test("updateSamples()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("SAMPLE");
-
+			
 			var fCreate = function(facade) {
 				var creation = new c.SampleCreation();
 				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
@@ -279,7 +417,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				creation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
 				return facade.createSamples([ creation ]);
 			}
-
+			
 			var fUpdate = function(facade, permId) {
 				var update = new c.SampleUpdate();
 				update.setSampleId(permId);
@@ -288,7 +426,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_3"));
 				return facade.updateSamples([ update ]);
 			}
-
+			
 			var fCheck = function(sample) {
 				c.assertEqual(sample.getCode(), code, "Sample code");
 				c.assertEqual(sample.getType().getCode(), "UNKNOWN", "Type code");
@@ -296,42 +434,109 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertObjectsCount(sample.getTags(), 2);
 				c.assertObjectsWithValues(sample.getTags(), "code", [ "CREATE_JSON_TAG_2", "CREATE_JSON_TAG_3" ]);
 			}
-
+			
 			testUpdate(c, fCreate, fUpdate, c.findSample, fCheck);
+		});
+		
+		QUnit.test("updateDataSetTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("DATA_SET_TYPE");
+
+			var fCreate = function(facade) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("initial value");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+
+				var creation = new c.DataSetTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("a new description");
+				creation.setPropertyAssignments([ assignmentCreation ]);
+
+				return facade.createDataSetTypes([ creation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section 2");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("1.0");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+				var update = new c.DataSetTypeUpdate();
+				update.setTypeId(permId);
+				update.setDescription("another new description");
+				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.setMainDataSetPattern(".*\\.jpg");
+				update.setMainDataSetPath("original/images/");
+				update.setDisallowDeletion(true);
+				update.getPropertyAssignments().set([assignmentCreation]);
+				return facade.updateDataSetTypes([ update ]);
+			}
+
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getDescription(), "another new description", "Description");
+				c.assertEqual(type.getMainDataSetPattern(), ".*\\.jpg", "Main data set pattern");
+				c.assertEqual(type.getMainDataSetPath(), "original/images/", "Main data set path");
+				c.assertEqual(type.isDisallowDeletion(), true, "Disallow deletion");
+
+				c.assertEqual(type.getPropertyAssignments().length, 1, "Assignments count");
+
+				var assignment = type.getPropertyAssignments()[0];
+
+				c.assertEqual(assignment.getSection(), "test section 2", "Assignment section");
+				c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal");
+				c.assertEqual(assignment.getPropertyType().getCode(), "VERSION", "Assignment property type code");
+				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
+				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
+				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findDataSetType, fCheck);
 		});
 
 		QUnit.test("updateDataSets()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = null;
-
+			
 			var fCreate = function(facade) {
 				return c.createDataSet(facade).then(function(permId) {
 					code = permId.getPermId();
 					return [ permId ];
 				});
 			}
-
+			
 			var fUpdate = function(facade, permId) {
 				var physicalUpdate = new c.PhysicalDataUpdate();
 				physicalUpdate.setFileFormatTypeId(new c.FileFormatTypePermId("TIFF"));
-
+				
 				var update = new c.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setProperty("NOTES", "new 409 description");
 				update.setPhysicalData(physicalUpdate);
-
+				
 				return facade.updateDataSets([ update ]);
 			}
-
+			
 			var fCheck = function(dataSet) {
 				c.assertEqual(dataSet.getCode(), code, "Code");
 				c.assertEqual(dataSet.getProperties()["NOTES"], "new 409 description", "Property NOTES");
 				c.assertEqual(dataSet.getPhysicalData().getFileFormatType().getCode(), "TIFF", "File format type");
 			}
-
+			
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
 		});
-
+		
 		QUnit.test("updateDataSets() link data set", function(assert) {
 			var c = new common(assert, openbis);
 			var code = "20160613195437233-437";
@@ -409,10 +614,72 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
 		});
 
+		QUnit.test("updateMaterialTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("MATERIAL_TYPE");
+
+			var fCreate = function(facade) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("initial value");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+
+				var creation = new c.MaterialTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("a new description");
+				creation.setPropertyAssignments([ assignmentCreation ]);
+
+				return facade.createMaterialTypes([ creation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var assignmentCreation = new c.PropertyAssignmentCreation();
+				assignmentCreation.setSection("test section 2");
+				assignmentCreation.setOrdinal(10);
+				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setMandatory(true);
+				assignmentCreation.setInitialValueForExistingEntities("1.0");
+				assignmentCreation.setShowInEditView(true);
+				assignmentCreation.setShowRawValueInForms(true);
+				var update = new c.MaterialTypeUpdate();
+				update.setTypeId(permId);
+				update.setDescription("another new description");
+				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.getPropertyAssignments().add([assignmentCreation]);
+				update.getPropertyAssignments().remove([new c.PropertyAssignmentPermId(permId, new c.PropertyTypePermId("DESCRIPTION"))]);
+				return facade.updateMaterialTypes([ update ]);
+			}
+
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getDescription(), "another new description", "Description");
+
+				c.assertEqual(type.getPropertyAssignments().length, 1, "Assignments count");
+
+				var assignment = type.getPropertyAssignments()[0];
+
+				c.assertEqual(assignment.getSection(), "test section 2", "Assignment section");
+				c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal");
+				c.assertEqual(assignment.getPropertyType().getCode(), "VERSION", "Assignment property type code");
+				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
+				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
+				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findMaterialType, fCheck);
+		});
+
 		QUnit.test("updateMaterials()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("MATERIAL");
-
+			
 			var fCreate = function(facade) {
 				var materialCreation = new c.MaterialCreation();
 				materialCreation.setTypeId(new c.EntityTypePermId("COMPOUND"));
@@ -420,24 +687,24 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				materialCreation.setProperty("DESCRIPTION", "Metal");
 				return facade.createMaterials([ materialCreation ]);
 			}
-
+			
 			var fUpdate = function(facade, permId) {
 				var materialUpdate = new c.MaterialUpdate();
 				materialUpdate.setMaterialId(permId);
 				materialUpdate.setProperty("DESCRIPTION", "Alloy");
 				return facade.updateMaterials([ materialUpdate ]);
 			}
-
+			
 			var fCheck = function(material) {
 				c.assertEqual(material.getCode(), code, "Material code");
 				c.assertEqual(material.getType().getCode(), "COMPOUND", "Type code");
 				var properties = material.getProperties();
 				c.assertEqual(properties["DESCRIPTION"], "Alloy", "Property DESCRIPTION");
 			}
-
+			
 			testUpdate(c, fCreate, fUpdate, c.findMaterial, fCheck);
 		});
-
+		
 		QUnit.test("updateVocabularyTerms()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY_TERM");

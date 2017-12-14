@@ -165,18 +165,34 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeUpdateOperation(new c.UpdateExperimentsOperation(updates));
 		}
 
+		this.updateExperimentTypes = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateExperimentTypesOperation(updates));
+		}
+		
 		this.updateSamples = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateSamplesOperation(updates));
 		}
 
+		this.updateSampleTypes = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateSampleTypesOperation(updates));
+		}
+		
 		this.updateDataSets = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateDataSetsOperation(updates));
 		}
 
+		this.updateDataSetTypes = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateDataSetTypesOperation(updates));
+		}
+		
 		this.updateMaterials = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateMaterialsOperation(updates));
 		}
 
+		this.updateMaterialTypes = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateMaterialTypesOperation(updates));
+		}
+		
 		this.updateVocabularyTerms = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateVocabularyTermsOperation(updates));
 		}

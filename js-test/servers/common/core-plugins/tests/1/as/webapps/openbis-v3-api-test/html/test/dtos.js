@@ -230,11 +230,14 @@ var sources = [
 	'as/dto/dataset/search/SearchDataSetTypesOperationResult',
 	'as/dto/dataset/StorageFormat',
 	'as/dto/dataset/update/DataSetUpdate',
+	'as/dto/dataset/update/DataSetTypeUpdate',
 	'as/dto/dataset/update/ContentCopyListUpdateValue',
 	'as/dto/dataset/update/LinkedDataUpdate',
 	'as/dto/dataset/update/PhysicalDataUpdate',
 	'as/dto/dataset/update/UpdateDataSetsOperation',
 	'as/dto/dataset/update/UpdateDataSetsOperationResult',
+	'as/dto/dataset/update/UpdateDataSetTypesOperation',
+	'as/dto/dataset/update/UpdateDataSetTypesOperationResult',
 	
 	'as/dto/datastore/DataStore',
 	'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
@@ -263,6 +266,7 @@ var sources = [
 	'as/dto/entitytype/search/EntityKindSearchCriteria',
 	'as/dto/entitytype/search/EntityTypeSearchCriteria',
 	'as/dto/entitytype/EntityKind',
+	'as/dto/entitytype/update/PropertyAssignmentListUpdateValue',
 	
 	'as/dto/experiment/create/ExperimentCreation',
 	'as/dto/experiment/create/CreateExperimentsOperation',
@@ -293,6 +297,9 @@ var sources = [
 	'as/dto/experiment/update/ExperimentUpdate',
 	'as/dto/experiment/update/UpdateExperimentsOperation',
 	'as/dto/experiment/update/UpdateExperimentsOperationResult',
+	'as/dto/experiment/update/ExperimentTypeUpdate',
+	'as/dto/experiment/update/UpdateExperimentTypesOperation',
+	'as/dto/experiment/update/UpdateExperimentTypesOperationResult',
 	
 	'as/dto/externaldms/ExternalDms',
 	'as/dto/externaldms/delete/ExternalDmsDeletionOptions',
@@ -357,6 +364,9 @@ var sources = [
 	'as/dto/material/update/MaterialUpdate',
 	'as/dto/material/update/UpdateMaterialsOperation',
 	'as/dto/material/update/UpdateMaterialsOperationResult',
+	'as/dto/material/update/MaterialTypeUpdate',
+	'as/dto/material/update/UpdateMaterialTypesOperation',
+	'as/dto/material/update/UpdateMaterialTypesOperationResult',
 	
 	'as/dto/objectkindmodification/fetchoptions/ObjectKindModificationFetchOptions',
 	'as/dto/objectkindmodification/fetchoptions/ObjectKindModificationSortOptions',
@@ -482,6 +492,9 @@ var sources = [
 	'as/dto/sample/update/SampleUpdate',
 	'as/dto/sample/update/UpdateSamplesOperation',
 	'as/dto/sample/update/UpdateSamplesOperationResult',
+	'as/dto/sample/update/SampleTypeUpdate',
+	'as/dto/sample/update/UpdateSampleTypesOperation',
+	'as/dto/sample/update/UpdateSampleTypesOperationResult',
 	
 	'as/dto/service/CustomASService',
 	'as/dto/service/CustomASServiceExecutionOptions',
