@@ -570,6 +570,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updateExperimentTypes = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateExperimentTypes",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateSamples = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -581,6 +592,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updateSampleTypes = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateSampleTypes",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateDataSets = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -592,6 +614,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updateDataSetTypes = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateDataSetTypes",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateMaterials = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -603,6 +636,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updateMaterialTypes = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateMaterialTypes",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateExternalDataManagementSystems = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

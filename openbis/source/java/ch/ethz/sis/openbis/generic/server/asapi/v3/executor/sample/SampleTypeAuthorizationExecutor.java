@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
@@ -44,6 +45,14 @@ public class SampleTypeAuthorizationExecutor implements ISampleTypeAuthorization
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_SAMPLE_TYPE")
     public void canSearch(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("UPDATE_SAMPLE_TYPE")
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE_TYPE)
+    public void canUpdate(IOperationContext context)
     {
     }
 

@@ -42,6 +42,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
@@ -62,6 +63,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
@@ -85,6 +87,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKindModification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
@@ -136,6 +139,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
@@ -249,12 +253,20 @@ public interface IApplicationServerApi extends IRpcService
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates);
 
     public void updateExperiments(String sessionToken, List<ExperimentUpdate> experimentUpdates);
+    
+    public void updateExperimentTypes(String sessionToken, List<ExperimentTypeUpdate> experimentTypeUpdates);
 
     public void updateSamples(String sessionToken, List<SampleUpdate> sampleUpdates);
 
+    public void updateSampleTypes(String sessionToken, List<SampleTypeUpdate> sampleTypeUpdates);
+
     public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates);
+    
+    public void updateDataSetTypes(String sessionToken, List<DataSetTypeUpdate> dataSetTypeUpdates);
 
     public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
+    
+    public void updateMaterialTypes(String sessionToken, List<MaterialTypeUpdate> materialTypeUpdates);
 
     @TechPreview
     public void updateExternalDataManagementSystems(String sessionToken, List<ExternalDmsUpdate> externalDmsUpdates);

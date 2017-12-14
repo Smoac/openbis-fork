@@ -29,4 +29,6 @@ public interface ISampleTypeAuthorizationExecutor extends IObjectAuthorizationEx
 
     void canSearch(IOperationContext context);
 
+    void canUpdate(IOperationContext context);
+
 }

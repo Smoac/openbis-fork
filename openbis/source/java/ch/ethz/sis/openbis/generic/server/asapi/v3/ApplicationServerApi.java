@@ -72,7 +72,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOpe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.UnarchiveDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
@@ -111,7 +113,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.UpdateExperimentTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.UpdateExperimentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperation;
@@ -156,7 +160,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialTy
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.UpdateMaterialTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.UpdateMaterialsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKindModification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
@@ -256,7 +262,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSampleTypesO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSampleTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.UpdateSampleTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.UpdateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.CreateSemanticAnnotationsOperation;
@@ -565,10 +573,22 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public void updateExperimentTypes(String sessionToken, List<ExperimentTypeUpdate> experimentTypeUpdates)
+    {
+        executeOperation(sessionToken, new UpdateExperimentTypesOperation(experimentTypeUpdates));
+    }
+
+    @Override
     @Transactional
     public void updateSamples(String sessionToken, List<SampleUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateSamplesOperation(updates));
+    }
+
+    @Override
+    public void updateSampleTypes(String sessionToken, List<SampleTypeUpdate> sampleTypeUpdates)
+    {
+        executeOperation(sessionToken, new UpdateSampleTypesOperation(sampleTypeUpdates));
     }
 
     @Override
@@ -579,10 +599,22 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public void updateMaterialTypes(String sessionToken, List<MaterialTypeUpdate> materialTypeUpdates)
+    {
+        executeOperation(sessionToken, new UpdateMaterialTypesOperation(materialTypeUpdates));
+    }
+
+    @Override
     @Transactional
     public void updateDataSets(String sessionToken, List<DataSetUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateDataSetsOperation(updates));
+    }
+
+    @Override
+    public void updateDataSetTypes(String sessionToken, List<DataSetTypeUpdate> dataSetTypeUpdates)
+    {
+        executeOperation(sessionToken, new UpdateDataSetTypesOperation(dataSetTypeUpdates));
     }
 
     @Override

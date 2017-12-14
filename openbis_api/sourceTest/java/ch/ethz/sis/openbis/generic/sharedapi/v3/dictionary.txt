@@ -1814,3 +1814,23 @@ update Persons
 Update Persons Operation
 Update Persons Operation Result
 Me
+
+Data Set Type Update
+Experiment Type Update
+I Entity Type Update
+Material Type Update
+Property Assignment List Update Value
+Sample Type Update
+set Property Assignment Actions
+update Data Set Types
+Update Data Set Types Operation
+Update Data Set Types Operation Result
+update Experiment Types
+Update Experiment Types Operation
+Update Experiment Types Operation Result
+update Material Types
+Update Material Types Operation
+Update Material Types Operation Result
+update Sample Types
+Update Sample Types Operation
+Update Sample Types Operation Result

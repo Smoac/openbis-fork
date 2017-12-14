@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -63,7 +64,7 @@ public class CreatePropertyAssignmentsExecutor
     private IMapPluginByIdExecutor mapPluginByIdExecutor;
     
     public void createPropertyAssignments(final IOperationContext context, String entityTypeCode,
-            List<PropertyAssignmentCreation> propertyAssignments, ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
+            Collection<? extends PropertyAssignmentCreation> propertyAssignments, ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
     {
         if (propertyAssignments != null)
         {
@@ -91,6 +92,16 @@ public class CreatePropertyAssignmentsExecutor
     private void createPropertyAssignments(IOperationContext context, String entityTypeCode,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, PropertyAssignmentCreation assignmentCreation)
     {
+        NewETPTAssignment assignment = translateAssignment(context, entityTypeCode, entityKind, assignmentCreation);
+
+        IEntityTypePropertyTypeBO propertyBO =
+                businessObjectFactory.createEntityTypePropertyTypeBO(context.getSession(), DtoConverters.convertEntityKind(entityKind));
+        propertyBO.createAssignment(assignment);
+    }
+
+    public NewETPTAssignment translateAssignment(IOperationContext context, String entityTypeCode,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, PropertyAssignmentCreation assignmentCreation)
+    {
         NewETPTAssignment assignment = new NewETPTAssignment();
         assignment.setEntityKind(entityKind);
 
@@ -101,7 +112,7 @@ public class CreatePropertyAssignmentsExecutor
         assignment.setMandatory(assignmentCreation.isMandatory());
         assignment.setDefaultValue(assignmentCreation.getInitialValueForExistingEntities());
         assignment.setSection(assignmentCreation.getSection());
-
+        assignment.setOrdinal(0L);
         if (assignmentCreation.getOrdinal() != null)
         {
             assignment.setOrdinal((long) assignmentCreation.getOrdinal() - 1);
@@ -133,10 +144,7 @@ public class CreatePropertyAssignmentsExecutor
 
         assignment.setShownInEditView(assignmentCreation.isShowInEditView());
         assignment.setShowRawValue(assignmentCreation.isShowRawValueInForms());
-
-        IEntityTypePropertyTypeBO propertyBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(context.getSession(), DtoConverters.convertEntityKind(entityKind));
-        propertyBO.createAssignment(assignment);
+        return assignment;
     }
 
     private ScriptPE findPlugin(IOperationContext context, IPluginId pluginId)

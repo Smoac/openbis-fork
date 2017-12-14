@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IGetDataSets
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUnarchiveDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IVerifyDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore.ISearchDataStoresOperationExecutor;
@@ -52,6 +53,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IDeleteEx
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IGetExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IVerifyExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ICreateExternalDmsOperationExecutor;
@@ -66,6 +68,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IDeleteMate
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IGetMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IUpdateMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IUpdateMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IVerifyMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.objectkindmodification.ISearchObjectKindModificationsOperationExecutor;
@@ -95,6 +98,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IDeleteSample
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IGetSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSamplesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IUpdateSampleTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IUpdateSamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IVerifySamplesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.semanticannotation.ICreateSemanticAnnotationsOperationExecutor;
@@ -232,14 +236,26 @@ public class OperationsExecutor implements IOperationsExecutor
     private IUpdateExperimentsOperationExecutor updateExperimentsExecutor;
 
     @Autowired
+    private IUpdateExperimentTypesOperationExecutor updateExperimentTypesExecutor;
+
+    @Autowired
     private IUpdateSamplesOperationExecutor updateSamplesExecutor;
+    
+    @Autowired
+    private IUpdateSampleTypesOperationExecutor updateSampleTypesExecutor;
 
     @Autowired
     private IUpdateDataSetsOperationExecutor updateDataSetsExecutor;
 
     @Autowired
+    private IUpdateDataSetTypesOperationExecutor updateDataSetTypesExecutor;
+    
+    @Autowired
     private IUpdateMaterialsOperationExecutor updateMaterialsExecutor;
 
+    @Autowired
+    private IUpdateMaterialTypesOperationExecutor updateMaterialTypesExecutor;
+    
     @Autowired
     private IUpdateTagsOperationExecutor updateTagsExecutor;
 
@@ -523,6 +539,10 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(updateMaterialTypesExecutor.execute(context, operations));
+        resultMap.putAll(updateExperimentTypesExecutor.execute(context, operations));
+        resultMap.putAll(updateSampleTypesExecutor.execute(context, operations));
+        resultMap.putAll(updateDataSetTypesExecutor.execute(context, operations));
         resultMap.putAll(updateTagsExecutor.execute(context, operations));
         resultMap.putAll(updatePersonsExecutor.execute(context, operations));
         resultMap.putAll(updateAuthorizationGroupsExecutor.execute(context, operations));
