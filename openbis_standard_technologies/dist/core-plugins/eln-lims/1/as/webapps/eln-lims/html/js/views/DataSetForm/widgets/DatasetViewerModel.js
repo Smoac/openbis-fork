@@ -80,9 +80,20 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
         return false;	    
 	}
 
+	this.isLinkDataset = function(datasetCode) {
+		for(var idx = 0; idx < this.datasets.length; idx++) {
+			if(this.datasets[idx].code === datasetCode && this.datasets[idx].linkDataSet) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	this.getDirectDirectoryLink = function(datasetCode, pathInDataSet) {
 		var directLinkComponent = null;
-		if(profile.directLinkEnabled && (profile.cifsFileServer || profile.sftpFileServer)) {
+		if(this.isLinkDataset(datasetCode)) {
+			directLinkComponent = "<span class='glyphicon glyphicon-link'></span>";
+		} else if(profile.directLinkEnabled && (profile.cifsFileServer || profile.sftpFileServer)) {
 			var path = null;
 			
 			if(this.isExperiment()) {

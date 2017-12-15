@@ -202,6 +202,20 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		//
+		// Content copies info
+		//
+		if(this._dataSetFormModel.linkedData && this._dataSetFormModel.linkedData.contentCopies) {
+			var $ccn = FormUtil.getFieldForLabelWithText("Number of content copies", "" + this._dataSetFormModel.linkedData.contentCopies.length);
+			$dataSetTypeFieldSet.append($ccn);
+			for(var cIdx = 0; cIdx < this._dataSetFormModel.linkedData.contentCopies.length; cIdx++) {
+				var cc = this._dataSetFormModel.linkedData.contentCopies[cIdx];
+				var $cc = FormUtil.getFieldForLabelWithText("Content Copy", "" + "External DMS: " + cc.externalDms + " Path:" + cc.path);
+				$dataSetTypeFieldSet.append($cc);
+			}
+			
+		}
+		
+		//
 		// Registration and modification info
 		//
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
