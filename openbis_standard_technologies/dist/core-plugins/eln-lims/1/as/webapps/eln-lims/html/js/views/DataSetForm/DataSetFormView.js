@@ -209,8 +209,28 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($ccn);
 			for(var cIdx = 0; cIdx < this._dataSetFormModel.linkedData.contentCopies.length; cIdx++) {
 				var cc = this._dataSetFormModel.linkedData.contentCopies[cIdx];
-				var $cc = FormUtil.getFieldForLabelWithText("Content Copy", "" + "External DMS: " + cc.externalDms + " Path:" + cc.path);
-				$dataSetTypeFieldSet.append($cc);
+				
+				var externalDmsCode = null;
+				if(cc.externalDms && cc.externalDms.code) {
+					externalDmsCode = cc.externalDms.code;
+				}
+				
+				var host = null;
+				if(cc.externalDms && cc.externalDms.address) {
+					host = cc.externalDms.address.split(":")[0];
+				}
+				
+				if(cc) {
+					var $cc = FormUtil.getFieldForLabelWithText("Content Copy " + cIdx , 
+							"- <u>External DMS</u>: " + externalDmsCode + "</br>" + 
+							"- <u>Host</u>: " + host + "</br>" +
+							"- <u>Directory</u>: " + cc.path + "</br>" +
+							"- <u>Commit Hash</u>: " + cc.gitCommitHash + "</br>" + 
+							"- <u>Repository Id</u>: " + cc.gitRepositoryId + "</br>" +
+							"- <u>Connect cmd</u>: " +  "ssh -t " + host + " \"cd " + cc.path + "; bash\""
+							);
+					$dataSetTypeFieldSet.append($cc);
+				}
 			}
 			
 		}
