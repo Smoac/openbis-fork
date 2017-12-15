@@ -221,7 +221,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				}
 				
 				if(cc) {
-					var $cc = FormUtil.getFieldForLabelWithText("Content Copy " + cIdx , 
+					var $cc = FormUtil.getFieldForLabelWithText("Content Copy " + (cIdx+1) , 
 							"- <u>External DMS</u>: " + externalDmsCode + "</br>" + 
 							"- <u>Host</u>: " + host + "</br>" +
 							"- <u>Directory</u>: " + cc.path + "</br>" +
