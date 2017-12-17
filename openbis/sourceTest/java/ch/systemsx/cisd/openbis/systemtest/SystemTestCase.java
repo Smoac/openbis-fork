@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -82,7 +83,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringContextTests
 {
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
-    
+
     protected static final String SYSTEM_USER = "system";
 
     protected static final String NOT_EXISTING_USER = "notexistinguser";
@@ -112,6 +113,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     protected static final String PASSWORD = "password";
 
     protected static final String SESSION_KEY = "session-key";
+
+    protected IDAOFactory daoFactory;
 
     protected ICommonServerForInternalUse commonServer;
 
@@ -150,6 +153,18 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         request = new MockHttpServletRequest();
         contextProvider.setRequest(request);
+    }
+
+    /**
+     * Sets <code>daoFactory</code>.
+     * <p>
+     * Will be automatically dependency injected by type.
+     * </p>
+     */
+    @Autowired
+    public final void setDaoFactory(final IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
     }
 
     /**

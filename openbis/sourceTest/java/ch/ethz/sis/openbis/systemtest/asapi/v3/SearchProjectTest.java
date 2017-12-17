@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -220,18 +221,31 @@ public class SearchProjectTest extends AbstractTest
         criteria.withId().thatEquals(identifier1);
         criteria.withId().thatEquals(identifier2);
 
-        SearchResult<Project> result = v3api.searchProjects(sessionToken, criteria, projectFetchOptionsFull());
-
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEquals(result.getObjects().size(), 2);
-        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
-        {
-            assertEquals(result.getObjects().size(), 1);
-            assertEquals(result.getObjects().get(0).getIdentifier(), identifier2);
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.searchProjects(sessionToken, criteria, projectFetchOptionsFull());
+                    }
+                });
         } else
         {
-            assertEquals(result.getObjects().size(), 0);
+            SearchResult<Project> result = v3api.searchProjects(sessionToken, criteria, projectFetchOptionsFull());
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(result.getObjects().size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(result.getObjects().size(), 1);
+                assertEquals(result.getObjects().get(0).getIdentifier(), identifier2);
+            } else
+            {
+                assertEquals(result.getObjects().size(), 0);
+            }
         }
 
         v3api.logout(sessionToken);

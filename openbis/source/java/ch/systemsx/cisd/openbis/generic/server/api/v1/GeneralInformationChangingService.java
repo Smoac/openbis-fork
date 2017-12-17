@@ -107,7 +107,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
@@ -118,7 +118,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
             NewVocabularyTerm term)
@@ -130,7 +130,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @SuppressWarnings("deprecation")
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
@@ -141,7 +141,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
     {
         try
@@ -164,7 +164,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public Metaproject createMetaproject(String sessionToken, String name, String descriptionOrNull)
     {
         Metaproject registration = new Metaproject();
@@ -175,7 +175,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             String name, String descriptionOrNull)
     {
@@ -187,7 +187,7 @@ public class GeneralInformationChangingService extends
 
     @Override
     @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         server.deleteMetaproject(sessionToken, Translator.translate(metaprojectId), null);

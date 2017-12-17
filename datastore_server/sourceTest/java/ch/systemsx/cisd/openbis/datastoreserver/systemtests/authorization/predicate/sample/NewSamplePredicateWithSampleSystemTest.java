@@ -41,7 +41,10 @@ public abstract class NewSamplePredicateWithSampleSystemTest extends NewSamplePr
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (SampleKind.SHARED_READ_WRITE.equals(param) && false == user.isInstanceUser())
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (SampleKind.SHARED_READ_WRITE.equals(param) && false == user.isInstanceUser())
                     {
                         assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
                     } else

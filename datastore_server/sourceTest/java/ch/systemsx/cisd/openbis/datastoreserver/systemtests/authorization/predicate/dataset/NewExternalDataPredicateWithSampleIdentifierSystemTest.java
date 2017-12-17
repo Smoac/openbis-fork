@@ -74,7 +74,10 @@ public class NewExternalDataPredicateWithSampleIdentifierSystemTest extends NewE
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (SampleKind.SHARED_READ_WRITE.equals(param))
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (SampleKind.SHARED_READ_WRITE.equals(param))
                     {
                         if (user.isInstanceUser())
                         {

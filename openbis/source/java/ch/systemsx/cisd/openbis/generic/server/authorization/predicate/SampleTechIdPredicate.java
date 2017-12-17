@@ -69,7 +69,7 @@ public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<Tec
             final TechId techId)
     {
         Set<SampleAccessPE> samples =
-                authorizationDataProvider.getSampleCollectionAccessDataByTechIds(techId != null ? Arrays.asList(techId) : Arrays.asList());
+                authorizationDataProvider.getSampleCollectionAccessDataByTechIds(techId != null ? Arrays.asList(techId) : Arrays.asList(), true);
         return sampleAccessPECollectionPredicate.doEvaluation(person, allowedRoles, samples);
     }
 

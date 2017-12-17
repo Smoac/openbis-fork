@@ -68,13 +68,25 @@ public class WellIdentifierPredicateSystemTest extends CommonPredicateScreeningS
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No well identifier specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No well identifier specified.");
+                    }
                 }
 
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id 'IDONTEXIST'.*");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, AuthorizationFailureException.class, ".*There is no sample with perm id 'IDONTEXIST'.*");
+                    }
                 }
             };
     }

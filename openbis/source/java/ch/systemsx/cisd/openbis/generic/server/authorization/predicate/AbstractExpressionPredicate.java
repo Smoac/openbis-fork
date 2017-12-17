@@ -168,7 +168,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            if (roleAssignment.getSpace() == null)
+            if (roleAssignment.getRoleWithHierarchy().isInstanceLevel())
             {
                 return true;
             }

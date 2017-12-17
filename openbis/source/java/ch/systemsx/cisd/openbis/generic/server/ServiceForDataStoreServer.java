@@ -1572,7 +1572,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             for (final RoleAssignmentPE roleAssigment : person.getRoleAssignments())
             {
-                if (roleAssigment.getSpace() == null
+                if (roleAssigment.getRoleWithHierarchy().isInstanceLevel()
                         && roleAssigment.getRole().equals(RoleCode.ADMIN))
                 {
                     admins.add(person);
@@ -2167,7 +2167,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                     boolean isInstanceAdmin = false;
                     for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
                     {
-                        if (roleAssigment.getSpace() == null
+                        if (roleAssigment.getRoleWithHierarchy().isInstanceLevel()
                                 && roleAssigment.getRole().equals(RoleCode.ADMIN))
                         {
                             isInstanceAdmin = true;
@@ -2668,14 +2668,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     private DataSetKind map(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind dataSetKind)
-	{
-    	if (dataSetKind != null) {
-    		return DataSetKind.valueOf(dataSetKind.name());
-    	}
-		return null;
-	}
+    {
+        if (dataSetKind != null)
+        {
+            return DataSetKind.valueOf(dataSetKind.name());
+        }
+        return null;
+    }
 
-	private void injectSampleId(DataSetCreation creation, NewExternalData newData)
+    private void injectSampleId(DataSetCreation creation, NewExternalData newData)
     {
         SampleIdentifier sampleIdentifier = newData.getSampleIdentifierOrNull();
         String permId = newData.getSamplePermIdOrNull();
@@ -2936,7 +2937,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -3118,7 +3119,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
             String sessionToken, String code, EntityKind entityKind)
     {

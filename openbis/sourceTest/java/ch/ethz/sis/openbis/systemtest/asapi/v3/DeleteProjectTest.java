@@ -145,7 +145,17 @@ public class DeleteProjectTest extends AbstractDeletionTest
 
         assertProjectExists(permIds.get(0));
 
-        if (user.isInstanceUser() || user.isTestSpaceUser())
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteProjects(sessionToken, permIds, options);
+                    }
+                });
+        } else if (user.isInstanceUser() || user.isTestSpaceUser())
         {
             v3api.deleteProjects(sessionToken, permIds, options);
             assertProjectDoesNotExist(permIds.get(0));
@@ -153,6 +163,7 @@ public class DeleteProjectTest extends AbstractDeletionTest
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
                 {
+
                     @Override
                     public void execute()
                     {

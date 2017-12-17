@@ -50,37 +50,44 @@ public class CommonValidatorSystemTestDataSetAssertions<O> extends CommonValidat
 
     private void assertWithObject(ProjectAuthorizationUser user, O result, Throwable t, Object param, ProjectIdentifier project)
     {
-        CommonAuthorizationSystemTest.assertNoException(t);
-
-        if (DataSetKind.SPACE_SAMPLE.equals(param))
+        if (user.isDisabledProjectUser())
         {
-            if (user.isInstanceUser())
-            {
-                CommonAuthorizationSystemTest.assertNotNull(result);
-            } else
-            {
-                if (user.isSpaceUser(project.getSpaceCode()))
-                {
-                    CommonAuthorizationSystemTest.assertNotNull(result);
-                } else
-                {
-                    CommonAuthorizationSystemTest.assertNull(result);
-                }
-            }
+            CommonAuthorizationSystemTest.assertNull(result);
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            if (user.isInstanceUser())
+            CommonAuthorizationSystemTest.assertNoException(t);
+
+            if (DataSetKind.SPACE_SAMPLE.equals(param))
             {
-                CommonAuthorizationSystemTest.assertNotNull(result);
-            } else
-            {
-                if (user.isSpaceUser(project.getSpaceCode())
-                        || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()))
+                if (user.isInstanceUser())
                 {
                     CommonAuthorizationSystemTest.assertNotNull(result);
                 } else
                 {
-                    CommonAuthorizationSystemTest.assertNull(result);
+                    if (user.isSpaceUser(project.getSpaceCode()))
+                    {
+                        CommonAuthorizationSystemTest.assertNotNull(result);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertNull(result);
+                    }
+                }
+            } else
+            {
+                if (user.isInstanceUser())
+                {
+                    CommonAuthorizationSystemTest.assertNotNull(result);
+                } else
+                {
+                    if (user.isSpaceUser(project.getSpaceCode())
+                            || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()))
+                    {
+                        CommonAuthorizationSystemTest.assertNotNull(result);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertNull(result);
+                    }
                 }
             }
         }

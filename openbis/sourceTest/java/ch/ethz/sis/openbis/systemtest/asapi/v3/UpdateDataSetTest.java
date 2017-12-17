@@ -725,7 +725,17 @@ public class UpdateDataSetTest extends AbstractSampleTest
         update.setDataSetId(new DataSetPermId("20120619092259000-22"));
         update.setProperty("COMMENT", "updated comment");
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+                    }
+                });
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             v3api.updateDataSets(sessionToken, Arrays.asList(update));
         } else

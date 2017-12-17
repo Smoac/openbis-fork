@@ -162,25 +162,38 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        List<Project> projects = etlService.listProjects(session.getSessionToken());
-
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEntities(
-                    "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
-                    projects);
-        } else if (user.isTestSpaceUser())
-        {
-            assertEntities("[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
-        } else if (user.isTestGroupUser())
-        {
-            assertEntities("[/TESTGROUP/TESTPROJ]", projects);
-        } else if (user.isTestProjectUser() && user.hasPAEnabled())
-        {
-            assertEntities("[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+            try
+            {
+                etlService.listProjects(session.getSessionToken());
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         } else
         {
-            assertEntities("[]", projects);
+            List<Project> projects = etlService.listProjects(session.getSessionToken());
+
+            if (user.isInstanceUser())
+            {
+                assertEntities(
+                        "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                        projects);
+            } else if (user.isTestSpaceUser())
+            {
+                assertEntities("[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+            } else if (user.isTestGroupUser())
+            {
+                assertEntities("[/TESTGROUP/TESTPROJ]", projects);
+            } else if (user.isTestProjectUser())
+            {
+                assertEntities("[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+            } else
+            {
+                assertEntities("[]", projects);
+            }
         }
     }
 

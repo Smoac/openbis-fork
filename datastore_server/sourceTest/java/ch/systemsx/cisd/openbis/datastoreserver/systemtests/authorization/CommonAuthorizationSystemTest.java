@@ -593,7 +593,7 @@ public class CommonAuthorizationSystemTest extends SystemTestCase
 
     public static void assertAuthorizationFailureExceptionThatNoRoles(Throwable t)
     {
-        assertException(t, AuthorizationFailureException.class, ".*No role assignments could be found for user.*");
+        assertException(t, AuthorizationFailureException.class, ".*None of method roles.*could be found in roles of user.*");
     }
 
     public static void assertUserFailureExceptionThatProjectDoesNotExist(Throwable t)

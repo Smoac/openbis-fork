@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutab
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan

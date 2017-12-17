@@ -50,40 +50,47 @@ public class CommonValidatorSystemTestSampleAssertions<O> extends CommonValidato
 
     private void assertWithObject(ProjectAuthorizationUser user, O result, Throwable t, Object param, ProjectIdentifier project)
     {
-        CommonAuthorizationSystemTest.assertNoException(t);
-
-        if (SampleKind.SHARED_READ.equals(param) || SampleKind.SHARED_READ_WRITE.equals(param))
+        if (user.isDisabledProjectUser())
         {
-            CommonAuthorizationSystemTest.assertNotNull(result);
-        } else if (SampleKind.SPACE.equals(param) || SampleKind.SPACE_CONTAINED.equals(param))
-        {
-            if (user.isInstanceUser())
-            {
-                CommonAuthorizationSystemTest.assertNotNull(result);
-            } else
-            {
-                if (user.isSpaceUser(project.getSpaceCode()))
-                {
-                    CommonAuthorizationSystemTest.assertNotNull(result);
-                } else
-                {
-                    CommonAuthorizationSystemTest.assertNull(result);
-                }
-            }
+            CommonAuthorizationSystemTest.assertNull(result);
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            if (user.isInstanceUser())
+            CommonAuthorizationSystemTest.assertNoException(t);
+
+            if (SampleKind.SHARED_READ.equals(param) || SampleKind.SHARED_READ_WRITE.equals(param))
             {
                 CommonAuthorizationSystemTest.assertNotNull(result);
-            } else
+            } else if (SampleKind.SPACE.equals(param) || SampleKind.SPACE_CONTAINED.equals(param))
             {
-                if (user.isSpaceUser(project.getSpaceCode())
-                        || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()))
+                if (user.isInstanceUser())
                 {
                     CommonAuthorizationSystemTest.assertNotNull(result);
                 } else
                 {
-                    CommonAuthorizationSystemTest.assertNull(result);
+                    if (user.isSpaceUser(project.getSpaceCode()))
+                    {
+                        CommonAuthorizationSystemTest.assertNotNull(result);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertNull(result);
+                    }
+                }
+            } else
+            {
+                if (user.isInstanceUser())
+                {
+                    CommonAuthorizationSystemTest.assertNotNull(result);
+                } else
+                {
+                    if (user.isSpaceUser(project.getSpaceCode())
+                            || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()))
+                    {
+                        CommonAuthorizationSystemTest.assertNotNull(result);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertNull(result);
+                    }
                 }
             }
         }

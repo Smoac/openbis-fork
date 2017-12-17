@@ -22,8 +22,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRoles;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
@@ -64,18 +62,8 @@ public class PersonRolesTranslator
             return null;
         }
 
-        RoleWithHierarchy role;
-
-        if (roleAssignment.getSpace() == null)
-        {
-            role = RoleWithHierarchy.valueOf(RoleLevel.INSTANCE, roleAssignment.getRole());
-        } else
-        {
-            role = RoleWithHierarchy.valueOf(RoleLevel.SPACE, roleAssignment.getRole());
-        }
-
         Space space = SpaceTranslator.translate(roleAssignment.getSpace());
 
-        return new PersonRole(role, space);
+        return new PersonRole(roleAssignment.getRoleWithHierarchy(), space);
     }
 }

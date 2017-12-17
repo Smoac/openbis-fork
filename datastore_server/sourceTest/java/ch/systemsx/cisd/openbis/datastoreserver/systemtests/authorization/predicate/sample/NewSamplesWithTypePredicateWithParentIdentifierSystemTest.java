@@ -53,7 +53,13 @@ public class NewSamplesWithTypePredicateWithParentIdentifierSystemTest extends N
                 @Override
                 public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, NullPointerException.class, null);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, NullPointerException.class, null);
+                    }
                 }
             };
     }

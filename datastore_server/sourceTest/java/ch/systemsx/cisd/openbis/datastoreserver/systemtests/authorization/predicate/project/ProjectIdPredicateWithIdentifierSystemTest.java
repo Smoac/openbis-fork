@@ -60,13 +60,22 @@ public class ProjectIdPredicateWithIdentifierSystemTest extends CommonPredicateS
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No project id specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No project id specified.");
+                    }
                 }
 
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (user.isInstanceUser())
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (user.isInstanceUser())
                     {
                         assertNoException(t);
                     } else

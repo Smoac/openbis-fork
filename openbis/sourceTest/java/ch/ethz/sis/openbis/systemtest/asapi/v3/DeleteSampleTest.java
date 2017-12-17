@@ -232,7 +232,17 @@ public class DeleteSampleTest extends AbstractDeletionTest
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), options);
+                    }
+                });
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), options);
         } else

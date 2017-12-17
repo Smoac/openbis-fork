@@ -102,7 +102,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public int initDatabases(String sessionToken)
     {
         checkSession(sessionToken);
@@ -111,7 +111,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<QueryDatabase> listQueryDatabases(String sessionToken)
     {
         checkSession(sessionToken);

@@ -61,6 +61,11 @@ public class ProjectAuthorizationUser
         return hasInstanceRole();
     }
 
+    public boolean isSpaceUser()
+    {
+        return hasSpaceRole();
+    }
+
     public boolean isSpaceUser(String spaceCode)
     {
         return hasSpaceRole(spaceCode);
@@ -74,6 +79,16 @@ public class ProjectAuthorizationUser
     public boolean isSpace2User()
     {
         return isSpaceUser(AUTH_SPACE_2);
+    }
+
+    public boolean isDisabledProjectUser()
+    {
+        return isProjectUser() && false == hasPAEnabled();
+    }
+
+    public boolean isProjectUser()
+    {
+        return hasProjectRole();
     }
 
     public boolean isProjectUser(String spaceCode, String projectCode)
@@ -191,7 +206,7 @@ public class ProjectAuthorizationUser
     {
         for (RoleAssignmentPE role : person.getAllPersonRoles())
         {
-            if (role.getSpace() == null && role.getProject() == null)
+            if (role.getRoleWithHierarchy().isInstanceLevel())
             {
                 return true;
             }
@@ -211,11 +226,35 @@ public class ProjectAuthorizationUser
         return false;
     }
 
+    private boolean hasSpaceRole()
+    {
+        for (RoleAssignmentPE role : person.getAllPersonRoles())
+        {
+            if (role.getSpace() != null)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean hasSpaceRole(String spaceCode)
     {
         for (RoleAssignmentPE role : person.getAllPersonRoles())
         {
             if (role.getSpace() != null && role.getSpace().getCode().equals(spaceCode))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasProjectRole()
+    {
+        for (RoleAssignmentPE role : person.getAllPersonRoles())
+        {
+            if (role.getProject() != null)
             {
                 return true;
             }

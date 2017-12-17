@@ -36,19 +36,37 @@ public abstract class NewExternalDataPredicateSystemTest<O> extends CommonPredic
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No new data set specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No new data set specified.");
+                    }
                 }
 
                 @Override
                 public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertNoException(t);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertNoException(t);
+                    }
                 }
 
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertNoException(t);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertNoException(t);
+                    }
                 }
 
             };

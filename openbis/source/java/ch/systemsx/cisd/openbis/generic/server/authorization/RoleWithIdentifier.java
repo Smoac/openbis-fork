@@ -94,25 +94,11 @@ public final class RoleWithIdentifier
     public final static RoleWithIdentifier createRole(final RoleAssignmentPE roleAssignment)
     {
         assert roleAssignment != null : "Unspecified role assignment";
-        final RoleLevel roleLevel = figureRoleLevel(roleAssignment);
+        final RoleLevel roleLevel = roleAssignment.getRoleLevel();
         final RoleCode roleName = roleAssignment.getRole();
         final SpacePE space = roleAssignment.getSpace();
         final ProjectPE project = roleAssignment.getProject();
         return new RoleWithIdentifier(roleLevel, roleName, space, project);
-    }
-
-    private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)
-    {
-        if (roleAssignment.getProject() != null)
-        {
-            return RoleLevel.PROJECT;
-        } else if (roleAssignment.getSpace() != null)
-        {
-            return RoleLevel.SPACE;
-        } else
-        {
-            return RoleLevel.INSTANCE;
-        }
     }
 
     //

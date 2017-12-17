@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ICollectionValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -95,6 +97,12 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
     private final static <T> List<T> castToList(final Object value)
     {
         return (List<T>) value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private final static <T> Collection<T> castToCollection(final Object value)
+    {
+        return (Collection<T>) value;
     }
 
     @SuppressWarnings("unchecked")
@@ -195,7 +203,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
             {
                 throw new IllegalArgumentException(String.format("Given validator class '%s' "
                         + "and list type '%s' are not compatible.", validatorClassName, list.get(0)
-                        .getClass().getName()));
+                                .getClass().getName()));
             }
         } else if (returnValueClass.isArray())
         {
@@ -221,6 +229,19 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
                         + "and return value type '%s' are not compatible.", validatorClassName,
                         returnValueClass.getName()));
             }
+        }
+    }
+
+    private Object proceedCollection(PersonPE person, Method method, Object returnValue, ICollectionValidator<?> validator)
+    {
+        if (returnValue instanceof Collection<?>)
+        {
+            return validator.getValid(person, castToCollection(returnValue));
+        } else
+        {
+            throw new IllegalArgumentException(
+                    String.format("Returned value '%s' is not a collection and cannot be validated by a collection validator '%s'.",
+                            returnValue.getClass(), validator.getClass().getName()));
         }
     }
 
@@ -253,8 +274,16 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
                                 ReturnValueFilter.class.getSimpleName()));
                 return returnValueOrNull;
             }
+
             final IValidator<?> validator = getValidator(annotation);
-            return proceed(session.tryGetPerson(), method, returnValueOrNull, validator);
+
+            if (validator instanceof ICollectionValidator<?>)
+            {
+                return proceedCollection(session.tryGetPerson(), method, returnValueOrNull, (ICollectionValidator<?>) validator);
+            } else
+            {
+                return proceed(session.tryGetPerson(), method, returnValueOrNull, validator);
+            }
         } finally
         {
             logTimeTaken(stopWatch, method);

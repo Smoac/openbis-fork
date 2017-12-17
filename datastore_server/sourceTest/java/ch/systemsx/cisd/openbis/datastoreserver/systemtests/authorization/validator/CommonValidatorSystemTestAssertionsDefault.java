@@ -33,8 +33,15 @@ public class CommonValidatorSystemTestAssertionsDefault<O> extends CommonValidat
     @Override
     public void assertWithNullObject(ProjectAuthorizationUser user, O result, Throwable t, Object param)
     {
-        CommonAuthorizationSystemTest.assertNoException(t);
         CommonAuthorizationSystemTest.assertNull(result);
+
+        if (user.isDisabledProjectUser())
+        {
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
+        } else
+        {
+            CommonAuthorizationSystemTest.assertNoException(t);
+        }
     }
 
     @Override
@@ -51,20 +58,27 @@ public class CommonValidatorSystemTestAssertionsDefault<O> extends CommonValidat
 
     private void assertWithObject(ProjectAuthorizationUser user, O result, Throwable t, Object param, ProjectIdentifier project)
     {
-        CommonAuthorizationSystemTest.assertNoException(t);
-
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            CommonAuthorizationSystemTest.assertNotNull(result);
+            CommonAuthorizationSystemTest.assertNull(result);
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            if (user.isSpaceUser(project.getSpaceCode())
-                    || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()))
+            CommonAuthorizationSystemTest.assertNoException(t);
+
+            if (user.isInstanceUser())
             {
                 CommonAuthorizationSystemTest.assertNotNull(result);
             } else
             {
-                CommonAuthorizationSystemTest.assertNull(result);
+                if (user.isSpaceUser(project.getSpaceCode())
+                        || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()))
+                {
+                    CommonAuthorizationSystemTest.assertNotNull(result);
+                } else
+                {
+                    CommonAuthorizationSystemTest.assertNull(result);
+                }
             }
         }
     }

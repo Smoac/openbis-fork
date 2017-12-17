@@ -56,49 +56,55 @@ public class CommonPredicateSystemTestDataSetAssertions<O> extends CommonPredica
 
     private void assertWithObject(ProjectAuthorizationUser user, Throwable t, Object param, ProjectIdentifier... projects)
     {
-        if (DataSetKind.SPACE_SAMPLE.equals(param))
+        if (user.isDisabledProjectUser())
         {
-            if (user.isInstanceUser())
-            {
-                CommonAuthorizationSystemTest.assertNoException(t);
-            } else
-            {
-                boolean hasAccess = true;
-
-                for (ProjectIdentifier project : projects)
-                {
-                    hasAccess = hasAccess && user.isSpaceUser(project.getSpaceCode());
-                }
-
-                if (hasAccess)
-                {
-                    CommonAuthorizationSystemTest.assertNoException(t);
-                } else
-                {
-                    CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-                }
-            }
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            if (user.isInstanceUser())
+            if (DataSetKind.SPACE_SAMPLE.equals(param))
             {
-                CommonAuthorizationSystemTest.assertNoException(t);
-            } else
-            {
-                boolean hasAccess = true;
-
-                for (ProjectIdentifier project : projects)
-                {
-                    hasAccess = hasAccess && (user.isSpaceUser(project.getSpaceCode())
-                            || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()));
-                }
-
-                if (hasAccess)
+                if (user.isInstanceUser())
                 {
                     CommonAuthorizationSystemTest.assertNoException(t);
                 } else
                 {
-                    CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    boolean hasAccess = true;
+
+                    for (ProjectIdentifier project : projects)
+                    {
+                        hasAccess = hasAccess && user.isSpaceUser(project.getSpaceCode());
+                    }
+
+                    if (hasAccess)
+                    {
+                        CommonAuthorizationSystemTest.assertNoException(t);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            } else
+            {
+                if (user.isInstanceUser())
+                {
+                    CommonAuthorizationSystemTest.assertNoException(t);
+                } else
+                {
+                    boolean hasAccess = true;
+
+                    for (ProjectIdentifier project : projects)
+                    {
+                        hasAccess = hasAccess && (user.isSpaceUser(project.getSpaceCode())
+                                || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()));
+                    }
+
+                    if (hasAccess)
+                    {
+                        CommonAuthorizationSystemTest.assertNoException(t);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
                 }
             }
         }

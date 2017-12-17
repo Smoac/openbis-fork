@@ -208,7 +208,17 @@ public class DeleteExperimentTest extends AbstractDeletionTest
 
         assertExperimentExists(permIds.get(0));
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteExperiments(sessionToken, permIds, options);
+                    }
+                });
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             IDeletionId deletionId = v3api.deleteExperiments(sessionToken, permIds, options);
             Assert.assertNotNull(deletionId);

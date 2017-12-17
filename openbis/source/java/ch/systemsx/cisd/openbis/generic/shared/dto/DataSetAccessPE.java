@@ -45,7 +45,7 @@ public class DataSetAccessPE
 {
 
     private final static String DATASET_ACCESS_QUERY_PART_1 =
-            "SELECT d.code as dataSetCode, ep.code as experimentProjectCode, es.code as experimentSpaceCode, ss.code as sampleSpaceCode, "
+            "SELECT d.id as dataSetId, d.code as dataSetCode, ep.code as experimentProjectCode, es.code as experimentSpaceCode, ss.code as sampleSpaceCode, "
                     + "sep.code as sampleExperimentProjectCode, ses.code as sampleExperimentSpaceCode, "
                     + "sp.code as sampleProjectCode, sps.code as sampleProjectSpaceCode "
                     + "FROM ";
@@ -95,6 +95,8 @@ public class DataSetAccessPE
 
     public final static String RESULT_SET_MAPPING = "dataset_access_implicit";
 
+    private Long dataSetId;
+
     private String dataSetCode;
 
     private String experimentProjectCode;
@@ -110,6 +112,8 @@ public class DataSetAccessPE
     private String sampleProjectCode;
 
     private String sampleProjectSpaceCode;
+
+    private boolean group;
 
     /**
      * A factory method that should only be used for testing.
@@ -162,6 +166,16 @@ public class DataSetAccessPE
     }
 
     @Id
+    public Long getDataSetId()
+    {
+        return dataSetId;
+    }
+
+    public void setDataSetId(Long dataSetId)
+    {
+        this.dataSetId = dataSetId;
+    }
+
     public String getDataSetCode()
     {
         return dataSetCode;
@@ -242,6 +256,17 @@ public class DataSetAccessPE
         this.sampleProjectSpaceCode = sampleProjectSpaceCode;
     }
 
+    public void setGroup(boolean group)
+    {
+        this.group = group;
+    }
+
+    @Transient
+    public boolean isGroup()
+    {
+        return group;
+    }
+
     //
     // Object
     //
@@ -257,16 +282,25 @@ public class DataSetAccessPE
         {
             return false;
         }
+
         final DataSetAccessPE that = (DataSetAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getDataSetCode(), that.getDataSetCode());
-        builder.append(getExperimentProjectCode(), that.getExperimentProjectCode());
-        builder.append(getExperimentSpaceCode(), that.getExperimentSpaceCode());
-        builder.append(getSampleSpaceCode(), that.getSampleSpaceCode());
-        builder.append(getSampleExperimentProjectCode(), that.getSampleExperimentProjectCode());
-        builder.append(getSampleExperimentSpaceCode(), that.getSampleExperimentSpaceCode());
-        builder.append(getSampleProjectCode(), that.getSampleProjectCode());
-        builder.append(getSampleProjectSpaceCode(), that.getSampleProjectSpaceCode());
+
+        if (isGroup())
+        {
+            builder.append(getDataSetCode(), that.getDataSetCode());
+            builder.append(getExperimentProjectCode(), that.getExperimentProjectCode());
+            builder.append(getExperimentSpaceCode(), that.getExperimentSpaceCode());
+            builder.append(getSampleSpaceCode(), that.getSampleSpaceCode());
+            builder.append(getSampleExperimentProjectCode(), that.getSampleExperimentProjectCode());
+            builder.append(getSampleExperimentSpaceCode(), that.getSampleExperimentSpaceCode());
+            builder.append(getSampleProjectCode(), that.getSampleProjectCode());
+            builder.append(getSampleProjectSpaceCode(), that.getSampleProjectSpaceCode());
+        } else
+        {
+            builder.append(getDataSetId(), that.getDataSetId());
+        }
+
         return builder.isEquals();
     }
 
@@ -274,14 +308,23 @@ public class DataSetAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getDataSetCode());
-        builder.append(getExperimentProjectCode());
-        builder.append(getExperimentSpaceCode());
-        builder.append(getSampleSpaceCode());
-        builder.append(getSampleExperimentProjectCode());
-        builder.append(getSampleExperimentSpaceCode());
-        builder.append(getSampleProjectCode());
-        builder.append(getSampleProjectSpaceCode());
+
+        if (isGroup())
+        {
+            builder.append(getDataSetCode());
+            builder.append(getExperimentProjectCode());
+            builder.append(getExperimentSpaceCode());
+            builder.append(getSampleSpaceCode());
+            builder.append(getSampleExperimentProjectCode());
+            builder.append(getSampleExperimentSpaceCode());
+            builder.append(getSampleProjectCode());
+            builder.append(getSampleProjectSpaceCode());
+        } else
+        {
+            builder.append(getDataSetId());
+        }
+
         return builder.toHashCode();
     }
+
 }

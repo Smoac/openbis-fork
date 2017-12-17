@@ -55,7 +55,13 @@ public class ListSampleCriteriaPredicateWithSpaceSystemTest extends ListSampleCr
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertNoException(t);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertNoException(t);
+                    }
                 }
             };
     }

@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -27,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -153,17 +153,28 @@ public class SearchTagTest extends AbstractTest
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
     {
-        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
-
         TagCreation creation = new TagCreation();
         creation.setCode("TAG_TO_SEARCH");
 
-        List<TagPermId> permIds = v3api.createTags(sessionToken, Arrays.asList(creation));
+        TagPermId permId = createTag(user.getUserId(), creation);
 
         TagSearchCriteria criteria = new TagSearchCriteria();
-        criteria.withId().thatEquals(permIds.get(0));
+        criteria.withId().thatEquals(permId);
 
-        testSearch(user.getUserId(), criteria, permIds.get(0).getPermId());
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        testSearch(user.getUserId(), criteria, permId.getPermId());
+                    }
+                });
+        } else
+        {
+            testSearch(user.getUserId(), criteria, permId.getPermId());
+        }
     }
 
     private void testSearch(String user, TagSearchCriteria criteria, String... expectedPermIds)

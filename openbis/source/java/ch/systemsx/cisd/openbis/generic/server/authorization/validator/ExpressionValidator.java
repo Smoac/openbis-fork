@@ -56,7 +56,7 @@ public final class ExpressionValidator extends AbstractValidator<AbstractExpress
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            if (roleAssignment.getSpace() == null && roleAssignment.getRole().equals(RoleCode.ADMIN))
+            if (roleAssignment.getRoleWithHierarchy().isInstanceLevel() && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;
             }

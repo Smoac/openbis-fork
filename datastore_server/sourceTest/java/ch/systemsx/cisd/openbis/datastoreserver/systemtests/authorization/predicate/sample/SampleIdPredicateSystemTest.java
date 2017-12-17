@@ -52,7 +52,13 @@ public abstract class SampleIdPredicateSystemTest extends CommonPredicateSystemT
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No sample id specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No sample id specified.");
+                    }
                 }
 
             };

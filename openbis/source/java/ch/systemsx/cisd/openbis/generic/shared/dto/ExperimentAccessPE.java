@@ -22,9 +22,12 @@ import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * @author Pawel Glyzewski
@@ -39,7 +42,7 @@ public class ExperimentAccessPE
 {
 
     public final static String EXPERIMENT_ACCESS_QUERY =
-            "SELECT s.code as spaceCode, p.code as projectCode, e.code as experimentCode "
+            "SELECT s.code as spaceCode, p.code as projectCode, e.code as experimentCode, e.id as experimentId "
                     + "FROM "
                     + TableNames.EXPERIMENTS_VIEW
                     + " e inner join "
@@ -50,7 +53,7 @@ public class ExperimentAccessPE
                     + "WHERE e.id in (:ids)";
 
     public final static String DELETED_EXPERIMENT_ACCESS_QUERY =
-            "SELECT s.code as spaceCode, p.code as projectCode, e.code as experimentCode "
+            "SELECT s.code as spaceCode, p.code as projectCode, e.code as experimentCode, e.id as experimentId "
                     + "FROM "
                     + TableNames.DELETED_EXPERIMENTS_VIEW
                     + " e inner join "
@@ -65,6 +68,10 @@ public class ExperimentAccessPE
     private String projectCode;
 
     private String experimentCode;
+
+    private Long experimentId;
+
+    private boolean group;
 
     public final static String EXPERIMENT_ACCESS_QUERY_NAME = "experiment_access";
 
@@ -81,7 +88,6 @@ public class ExperimentAccessPE
         this.spaceCode = spaceCode;
     }
 
-    @Id
     public String getSpaceCode()
     {
         return spaceCode;
@@ -90,6 +96,18 @@ public class ExperimentAccessPE
     public void setProjectCode(String projectCode)
     {
         this.projectCode = projectCode;
+    }
+
+    @Transient
+    public ProjectIdentifier getProjectIdentifier()
+    {
+        if (getSpaceCode() != null && getProjectCode() != null)
+        {
+            return new ProjectIdentifier(getSpaceCode(), getProjectCode());
+        } else
+        {
+            return null;
+        }
     }
 
     public String getProjectCode()
@@ -107,6 +125,28 @@ public class ExperimentAccessPE
         return experimentCode;
     }
 
+    public void setExperimentId(Long experimentId)
+    {
+        this.experimentId = experimentId;
+    }
+
+    @Id
+    public Long getExperimentId()
+    {
+        return experimentId;
+    }
+
+    public void setGroup(boolean group)
+    {
+        this.group = group;
+    }
+
+    @Transient
+    public boolean isGroup()
+    {
+        return group;
+    }
+
     //
     // Object
     //
@@ -122,11 +162,20 @@ public class ExperimentAccessPE
         {
             return false;
         }
+
         final ExperimentAccessPE that = (ExperimentAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getSpaceCode(), that.getSpaceCode());
-        builder.append(getProjectCode(), that.getProjectCode());
-        builder.append(getExperimentCode(), that.getExperimentCode());
+
+        if (isGroup())
+        {
+            builder.append(getSpaceCode(), that.getSpaceCode());
+            builder.append(getProjectCode(), that.getProjectCode());
+            builder.append(getExperimentCode(), that.getExperimentCode());
+        } else
+        {
+            builder.append(getExperimentId(), that.getExperimentId());
+        }
+
         return builder.isEquals();
     }
 
@@ -134,9 +183,17 @@ public class ExperimentAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getSpaceCode());
-        builder.append(getProjectCode());
-        builder.append(getExperimentCode());
+
+        if (isGroup())
+        {
+            builder.append(getSpaceCode());
+            builder.append(getProjectCode());
+            builder.append(getExperimentCode());
+        } else
+        {
+            builder.append(getExperimentId());
+        }
+
         return builder.toHashCode();
     }
 }

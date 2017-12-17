@@ -54,7 +54,10 @@ public class SampleIdPredicateWithSampleIdentifierSystemTest extends SampleIdPre
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
                     {
                         assertNoException(t);
                     } else

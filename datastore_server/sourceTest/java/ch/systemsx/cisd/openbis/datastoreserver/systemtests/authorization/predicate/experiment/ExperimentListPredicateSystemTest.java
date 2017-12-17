@@ -86,13 +86,25 @@ public class ExperimentListPredicateSystemTest extends CommonPredicateSystemTest
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, NullPointerException.class, null);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, NullPointerException.class, null);
+                    }
                 }
 
                 @Override
                 public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No experiment specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No experiment specified.");
+                    }
                 }
             };
     }

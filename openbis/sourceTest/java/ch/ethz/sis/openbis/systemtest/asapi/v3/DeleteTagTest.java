@@ -178,12 +178,25 @@ public class DeleteTagTest extends AbstractDeletionTest
         TagCreation creation = new TagCreation();
         creation.setCode("TAG_TO_DELETE");
 
-        final Tag before = createTag(user.getUserId(), PASSWORD, creation);
+        final TagPermId tagId = createTag(user.getUserId(), creation);
 
         final TagDeletionOptions options = new TagDeletionOptions();
         options.setReason("It is just a test");
 
-        deleteTag(user.getUserId(), PASSWORD, before.getPermId(), options);
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        deleteTag(user.getUserId(), PASSWORD, tagId, options);
+                    }
+                });
+        } else
+        {
+            deleteTag(user.getUserId(), PASSWORD, tagId, options);
+        }
     }
 
     private Tag createTag(String user, String password, TagCreation creation)

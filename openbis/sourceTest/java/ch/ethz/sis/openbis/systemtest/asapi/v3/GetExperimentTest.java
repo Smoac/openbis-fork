@@ -69,6 +69,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
@@ -1146,18 +1147,32 @@ public class GetExperimentTest extends AbstractExperimentTest
                 new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
-        Map<IExperimentId, Experiment> result = v3api.getExperiments(sessionToken, ids, experimentFetchOptionsFull());
 
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEquals(result.size(), 2);
-        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
-        {
-            assertEquals(result.size(), 1);
-            assertEquals(result.values().iterator().next().getIdentifier(), new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.getExperiments(sessionToken, ids, experimentFetchOptionsFull());
+                    }
+                });
         } else
         {
-            assertEquals(result.size(), 0);
+            Map<IExperimentId, Experiment> result = v3api.getExperiments(sessionToken, ids, experimentFetchOptionsFull());
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(result.size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(result.size(), 1);
+                assertEquals(result.values().iterator().next().getIdentifier(), new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+            } else
+            {
+                assertEquals(result.size(), 0);
+            }
         }
 
         v3api.logout(sessionToken);

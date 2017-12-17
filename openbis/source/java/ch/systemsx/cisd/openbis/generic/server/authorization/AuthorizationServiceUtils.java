@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIden
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -224,6 +225,38 @@ public class AuthorizationServiceUtils
             throw new AuthorizationFailureException("User: "
                     + (user != null ? user.getUserId() : null)
                     + " doesn't have access to metaproject: " + metaprojectPE.getIdentifier());
+        }
+    }
+
+    public void checkAccessEntity(EntityKind entityKind, TechId entityId)
+    {
+        boolean canAccess;
+
+        if (EntityKind.EXPERIMENT.equals(entityKind))
+        {
+            ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(entityId);
+            canAccess = canAccessExperiment(experiment);
+        } else if (EntityKind.SAMPLE.equals(entityKind))
+        {
+            SamplePE sample = daoFactory.getSampleDAO().getByTechId(entityId);
+            canAccess = canAccessSample(sample);
+        } else if (EntityKind.DATA_SET.equals(entityKind))
+        {
+            DataPE dataSet = daoFactory.getDataDAO().getByTechId(entityId);
+            canAccess = canAccessDataSet(dataSet);
+        } else if (EntityKind.MATERIAL.equals(entityKind))
+        {
+            canAccess = true;
+        } else
+        {
+            throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
+        }
+
+        if (false == canAccess)
+        {
+            throw new AuthorizationFailureException("User: "
+                    + (user != null ? user.getUserId() : null)
+                    + " doesn't have access to entity: " + entityKind + " with id: " + entityId);
         }
     }
 

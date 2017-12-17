@@ -50,13 +50,22 @@ public class SamplePEOrNullPredicateSystemTest extends SamplePEPredicateSystemTe
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertNoException(t);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertNoException(t);
+                    }
                 }
 
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (user.isInstanceUser() || SampleKind.SHARED_READ.equals(param))
                     {
                         assertNoException(t);
                     } else

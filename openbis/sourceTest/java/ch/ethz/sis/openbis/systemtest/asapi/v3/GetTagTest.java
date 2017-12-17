@@ -33,6 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -366,10 +367,23 @@ public class GetTagTest extends AbstractTest
         TagCreation creation = new TagCreation();
         creation.setCode("TAG_TO_GET");
 
-        List<TagPermId> permIds = v3api.createTags(sessionToken, Arrays.asList(creation));
+        TagPermId permId = createTag(user.getUserId(), creation);
 
-        Map<ITagId, Tag> map = v3api.getTags(sessionToken, permIds, new TagFetchOptions());
-        assertEquals(map.size(), 1);
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.getTags(sessionToken, Arrays.asList(permId), new TagFetchOptions());
+                    }
+                });
+        } else
+        {
+            Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), new TagFetchOptions());
+            assertEquals(map.size(), 1);
+        }
     }
 
 }

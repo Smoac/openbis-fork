@@ -88,6 +88,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
@@ -103,7 +105,6 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -111,6 +112,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Id;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
@@ -138,9 +141,6 @@ public class AbstractTest extends SystemTestCase
 
     @Autowired
     protected IGeneralInformationService generalInformationService;
-
-    @Autowired
-    protected IDAOFactory daoFactory;
 
     @BeforeClass
     public void beforeClass()
@@ -680,7 +680,7 @@ public class AbstractTest extends SystemTestCase
             assertExceptionContext(e, expectedContextPattern);
         }
     }
-    
+
     protected void assertAnyAuthorizationException(IDelegatedAction action)
     {
         try
@@ -691,7 +691,7 @@ public class AbstractTest extends SystemTestCase
         {
             // Then
             Throwable cause = e.getCause();
-            if (cause instanceof AuthorizationFailureException == false 
+            if (cause instanceof AuthorizationFailureException == false
                     && cause instanceof UnauthorizedObjectAccessException == false)
             {
                 throw e;
@@ -1302,6 +1302,20 @@ public class AbstractTest extends SystemTestCase
         fo.withTags();
         fo.withType();
         return fo;
+    }
+
+    protected TagPermId createTag(String owner, TagCreation creation)
+    {
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(owner);
+
+        MetaprojectPE tag = new MetaprojectPE();
+        tag.setName(creation.getCode());
+        tag.setDescription(creation.getDescription());
+        tag.setOwner(person);
+
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(tag, person);
+
+        return new TagPermId(owner, creation.getCode());
     }
 
 }

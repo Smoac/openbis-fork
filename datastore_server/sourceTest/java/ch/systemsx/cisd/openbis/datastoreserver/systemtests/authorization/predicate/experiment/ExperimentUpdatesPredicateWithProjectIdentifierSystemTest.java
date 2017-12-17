@@ -62,14 +62,19 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends E
     @Override
     protected void evaluateObjects(ProjectAuthorizationUser user, List<ExperimentUpdatesDTO> objects, Object param)
     {
-        // we want to test projectIdentifier access only therefore here we add assignment to have access to experimentId
+        if (user.isDisabledProjectUser())
+        {
+            super.evaluateObjects(user, objects, param);
+        } else
+        {
+            // we want to test projectIdentifier access only therefore here we add assignment to have access to experimentId
 
-        Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
-        roleAssignments.addAll(user.getSessionProvider().getSession().tryGetPerson().getRoleAssignments());
-        roleAssignments.add(createSpaceRole(RoleCode.ADMIN, getCommonService().tryFindSpace("TEST-SPACE")));
-        user.getSessionProvider().getSession().tryGetPerson().setRoleAssignments(roleAssignments);
-
-        super.evaluateObjects(user, objects, param);
+            Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
+            roleAssignments.addAll(user.getSessionProvider().getSession().tryGetPerson().getRoleAssignments());
+            roleAssignments.add(createSpaceRole(RoleCode.ADMIN, getCommonService().tryFindSpace("TEST-SPACE")));
+            user.getSessionProvider().getSession().tryGetPerson().setRoleAssignments(roleAssignments);
+            super.evaluateObjects(user, objects, param);
+        }
     }
 
     @Override
@@ -80,7 +85,10 @@ public class ExperimentUpdatesPredicateWithProjectIdentifierSystemTest extends E
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (user.isInstanceUser())
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (user.isInstanceUser())
                     {
                         assertNoException(t);
                     } else

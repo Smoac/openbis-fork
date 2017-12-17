@@ -42,7 +42,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -76,8 +75,6 @@ public class DeletionTestCase extends SystemTestCase
 
     private static final String REASON = "REASON";
 
-    protected IDAOFactory daoFactory;
-
     protected IDeletionDAO deletionDAO;
 
     private String sessionToken;
@@ -96,12 +93,6 @@ public class DeletionTestCase extends SystemTestCase
     public final void setEtlService(IServiceForDataStoreServer etlService)
     {
         this.etlService = etlService;
-    }
-
-    @Autowired
-    public final void setDaoFactory(IDAOFactory daoFactory)
-    {
-        this.daoFactory = daoFactory;
     }
 
     @BeforeMethod
@@ -412,8 +403,7 @@ public class DeletionTestCase extends SystemTestCase
                 new ExperimentIdentifier("CISD", "DEFAULT", code);
         NewExperiment experiment = new NewExperiment(expIdentifier.toString(), "COMPOUND_HCS");
         final GenericEntityProperty property = createDescriptionProperty();
-        experiment.setProperties(new IEntityProperty[]
-        { property });
+        experiment.setProperties(new IEntityProperty[] { property });
         long id = etlService.registerExperiment(sessionToken, experiment);
 
         Experiment exp = commonServer.getExperimentInfo(sessionToken, new TechId(id));
@@ -453,8 +443,7 @@ public class DeletionTestCase extends SystemTestCase
             boolean shouldBeDeleted)
     {
         NewSample newSample = createNewSample(sampleCode);
-        newSample.setParentsOrNull(new String[]
-        { parentCode });
+        newSample.setParentsOrNull(new String[] { parentCode });
         createSample(experimentCode, newSample, shouldBeDeleted);
     }
 

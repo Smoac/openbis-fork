@@ -68,6 +68,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.systemtest.PropertyHistory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
@@ -136,6 +140,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 history.toString());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testVocabularyAdditionAndReplacement()
     {
@@ -748,9 +753,16 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
 
-        Metaproject metaproject = new Metaproject();
+        // intentionally create a metaproject bypassing authorization as we want to
+        // concentrate on addToMetaproject method authorization here
+
+        PersonPE owner = daoFactory.getPersonDAO().tryFindPersonByUserId(user.getUserId());
+
+        MetaprojectPE metaproject = new MetaprojectPE();
         metaproject.setName("TEST_ADD_TO_METAPROJECT");
-        metaproject = commonServer.registerMetaproject(session, metaproject);
+        metaproject.setOwner(owner);
+
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(metaproject, owner);
 
         IMetaprojectId metaprojectId = new MetaprojectTechIdId(metaproject.getId());
 
@@ -778,17 +790,41 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
 
-        Metaproject metaproject = new Metaproject();
+        // intentionally create a metaproject and an assignment bypassing authorization as we want to
+        // concentrate on removeFromMetaproject method authorization here
+
+        PersonPE owner = daoFactory.getPersonDAO().tryFindPersonByUserId(user.getUserId());
+        ExperimentPE experiment = daoFactory.getExperimentDAO().tryGetByPermID("201206190940555-1032"); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+
+        MetaprojectPE metaproject = new MetaprojectPE();
         metaproject.setName("TEST_REMOVE_FROM_METAPROJECT");
-        metaproject = commonServer.registerMetaproject(session, metaproject);
+        metaproject.setOwner(owner);
+
+        MetaprojectAssignmentPE assignment = new MetaprojectAssignmentPE();
+        assignment.setExperiment(experiment);
+        assignment.setMetaproject(metaproject);
+
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(metaproject, owner);
 
         IMetaprojectId metaprojectId = new MetaprojectTechIdId(metaproject.getId());
 
         MetaprojectAssignmentsIds assignments = new MetaprojectAssignmentsIds();
-        assignments.addMaterial(new MaterialCodeAndTypeCodeId("VIRUS1", "VIRUS"));
+        assignments.addExperiment(new ExperimentIdentifierId("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
-        generalInformationChangingService.addToMetaproject(session, metaprojectId, assignments);
-        generalInformationChangingService.removeFromMetaproject(session, metaprojectId, assignments);
+        if (user.isDisabledProjectUser())
+        {
+            try
+            {
+                generalInformationChangingService.removeFromMetaproject(session, metaprojectId, assignments);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        } else
+        {
+            generalInformationChangingService.removeFromMetaproject(session, metaprojectId, assignments);
+        }
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
@@ -802,7 +838,17 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 "identifier\texperiment\tCOMMENT\n"
                         + "/TEST-SPACE/PA_UPLOAD\t/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST\ttest comment\n");
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            try
+            {
+                generalInformationChangingService.registerSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             generalInformationChangingService.registerSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
         } else
@@ -829,7 +875,17 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 "identifier\tCOMMENT\n"
                         + "/TEST-SPACE/FV-TEST\tupdated comment\n");
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            try
+            {
+                generalInformationChangingService.updateSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             generalInformationChangingService.updateSamples(session.getSessionID(), sampleType, SESSION_KEY, null);
         } else
@@ -857,7 +913,21 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                         + "/TEST-SPACE/PA_UPLOAD\t/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST\ttest comment\n");
 
         // there are no checks on what has been uploaded before the uploaded data is actually used in the registration or update
-        generalInformationChangingService.uploadedSamplesInfo(session.getSessionID(), sampleType, SESSION_KEY);
+
+        if (user.isDisabledProjectUser())
+        {
+            try
+            {
+                generalInformationChangingService.uploadedSamplesInfo(session.getSessionID(), sampleType, SESSION_KEY);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        } else
+        {
+            generalInformationChangingService.uploadedSamplesInfo(session.getSessionID(), sampleType, SESSION_KEY);
+        }
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)

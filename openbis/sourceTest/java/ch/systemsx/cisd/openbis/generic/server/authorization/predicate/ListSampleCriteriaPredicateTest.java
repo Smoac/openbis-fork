@@ -179,7 +179,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getSampleCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    one(provider).getSampleCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)), true);
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
@@ -204,7 +204,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getSampleCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    one(provider).getSampleCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)), true);
                     will(returnValue(Collections.singleton(containerAccess)));
                 }
             });

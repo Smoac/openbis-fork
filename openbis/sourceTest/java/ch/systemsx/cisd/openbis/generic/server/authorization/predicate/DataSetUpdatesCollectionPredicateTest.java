@@ -57,7 +57,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                     allowing(provider).getAuthorizationConfig();
                     will(returnValue(new TestAuthorizationConfig(false, false)));
 
-                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)), true);
                     will(returnValue(new HashSet<DataSetAccessPE>(Arrays.asList(dataSet))));
                 }
             });
@@ -89,7 +89,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                     allowing(provider).getAuthorizationConfig();
                     will(returnValue(new TestAuthorizationConfig(false, false)));
 
-                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)), true);
                     will(returnValue(new HashSet<DataSetAccessPE>(Arrays.asList(dataSet))));
                 }
             });
@@ -152,7 +152,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                     allowing(provider).getAuthorizationConfig();
                     will(returnValue(new TestAuthorizationConfig(false, false)));
 
-                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)));
+                    one(provider).getDatasetCollectionAccessDataByTechIds(Arrays.asList(new TechId(42L)), true);
                     will(returnValue(new HashSet<DataSetAccessPE>(Arrays.asList(dataSet))));
                 }
             });

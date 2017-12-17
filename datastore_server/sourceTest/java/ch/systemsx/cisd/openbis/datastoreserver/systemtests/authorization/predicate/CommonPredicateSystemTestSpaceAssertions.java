@@ -55,24 +55,30 @@ public class CommonPredicateSystemTestSpaceAssertions<O> extends CommonPredicate
 
     private void assertWithObject(ProjectAuthorizationUser user, Throwable t, Object param, ProjectIdentifier... projects)
     {
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            CommonAuthorizationSystemTest.assertNoException(t);
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            boolean hasAccess = true;
-
-            for (ProjectIdentifier project : projects)
-            {
-                hasAccess = hasAccess && user.isSpaceUser(project.getSpaceCode());
-            }
-
-            if (hasAccess)
+            if (user.isInstanceUser())
             {
                 CommonAuthorizationSystemTest.assertNoException(t);
             } else
             {
-                CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                boolean hasAccess = true;
+
+                for (ProjectIdentifier project : projects)
+                {
+                    hasAccess = hasAccess && user.isSpaceUser(project.getSpaceCode());
+                }
+
+                if (hasAccess)
+                {
+                    CommonAuthorizationSystemTest.assertNoException(t);
+                } else
+                {
+                    CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                }
             }
         }
     }

@@ -46,7 +46,13 @@ public abstract class DataSetUpdatesPredicateSystemTest extends CommonPredicateS
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No data set updates specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No data set updates specified.");
+                    }
                 }
             };
     }

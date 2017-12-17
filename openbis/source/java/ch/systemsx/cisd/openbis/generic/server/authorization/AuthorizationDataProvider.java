@@ -53,6 +53,45 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         }
     }
 
+    private static final class GroupExperimentMapper implements IMapper<List<ExperimentAccessPE>, List<ExperimentAccessPE>>
+    {
+        @Override
+        public List<ExperimentAccessPE> map(List<ExperimentAccessPE> list)
+        {
+            for (ExperimentAccessPE item : list)
+            {
+                item.setGroup(true);
+            }
+            return list;
+        }
+    }
+
+    private static final class GroupSampleMapper implements IMapper<List<SampleAccessPE>, List<SampleAccessPE>>
+    {
+        @Override
+        public List<SampleAccessPE> map(List<SampleAccessPE> list)
+        {
+            for (SampleAccessPE item : list)
+            {
+                item.setGroup(true);
+            }
+            return list;
+        }
+    }
+
+    private static final class GroupDataSetMapper implements IMapper<List<DataSetAccessPE>, List<DataSetAccessPE>>
+    {
+        @Override
+        public List<DataSetAccessPE> map(List<DataSetAccessPE> list)
+        {
+            for (DataSetAccessPE item : list)
+            {
+                item.setGroup(true);
+            }
+            return list;
+        }
+    }
+
     private final IAuthorizationDAOFactory daoFactory;
 
     public AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
@@ -207,64 +246,64 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(final List<TechId> dataSetTechIds)
+    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(final List<TechId> dataSetTechIds, boolean grouped)
     {
         return getEntityCollectionAccessData("dataset", DataSetAccessPE.DATASET_ACCESS_BY_TECH_IDS_QUERY_NAME,
-                DataSetAccessPE.DATA_SET_IDS_PARAMETER_NAME, dataSetTechIds, new TechId2LongMapper());
+                DataSetAccessPE.DATA_SET_IDS_PARAMETER_NAME, dataSetTechIds, new TechId2LongMapper(), grouped ? new GroupDataSetMapper() : null);
     }
 
     @Override
     public Set<DataSetAccessPE> getDatasetCollectionAccessDataByCodes(final List<String> dataSetCodes)
     {
         return getEntityCollectionAccessData("dataset", DataSetAccessPE.DATASET_ACCESS_BY_CODES_QUERY_NAME,
-                DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, dataSetCodes, null);
+                DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, dataSetCodes, null, new GroupDataSetMapper());
     }
 
     @Override
     public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(final List<TechId> deletionIds)
     {
         return getEntityCollectionAccessData("deletion", DataSetAccessPE.DELETED_DATASET_ACCESS_QUERY_NAME,
-                DataSetAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper());
+                DataSetAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper(), new GroupDataSetMapper());
     }
 
     @Override
-    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleTechIds)
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleTechIds, boolean grouped)
     {
         return getEntityCollectionAccessData("sample", SampleAccessPE.SAMPLE_ACCESS_BY_TECH_IDS_QUERY_NAME,
-                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, sampleTechIds, new TechId2LongMapper());
+                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, sampleTechIds, new TechId2LongMapper(), grouped ? new GroupSampleMapper() : null);
     }
 
     @Override
     public Set<SampleAccessPE> getSampleCollectionAccessDataByPermIds(List<PermId> samplePermIds)
     {
         return getEntityCollectionAccessData("sample", SampleAccessPE.SAMPLE_ACCESS_BY_PERM_IDS_QUERY_NAME,
-                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, samplePermIds, new PermId2StringMapper());
+                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, samplePermIds, new PermId2StringMapper(), new GroupSampleMapper());
     }
 
     @Override
     public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(List<TechId> deletionIds)
     {
         return getEntityCollectionAccessData("deletion", SampleAccessPE.DELETED_SAMPLE_ACCESS_QUERY_NAME,
-                SampleAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper());
+                SampleAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper(), new GroupSampleMapper());
     }
 
     @Override
-    public Set<ExperimentAccessPE> getExperimentCollectionAccessData(final List<TechId> experimentIds)
+    public Set<ExperimentAccessPE> getExperimentCollectionAccessData(final List<TechId> experimentIds, boolean grouped)
     {
         return getEntityCollectionAccessData("experiment", ExperimentAccessPE.EXPERIMENT_ACCESS_QUERY_NAME,
-                ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME, experimentIds, new TechId2LongMapper());
+                ExperimentAccessPE.EXPERIMENT_IDS_PARAMETER_NAME, experimentIds, new TechId2LongMapper(),
+                grouped ? new GroupExperimentMapper() : null);
     }
 
     @Override
-    public Set<ExperimentAccessPE> getDeletedExperimentCollectionAccessData(
-            final List<TechId> deletionIds)
+    public Set<ExperimentAccessPE> getDeletedExperimentCollectionAccessData(final List<TechId> deletionIds)
     {
         return getEntityCollectionAccessData("deletion", ExperimentAccessPE.DELETED_EXPERIMENT_ACCESS_QUERY_NAME,
-                ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper());
+                ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME, deletionIds, new TechId2LongMapper(), new GroupExperimentMapper());
     }
 
     private <V, R> Set<R> getEntityCollectionAccessData(String entityName, String queryName, String parameterName, List<V> values,
-            IMapper<List<V>, List<?>> valuesMapperOrNull)
+            IMapper<List<V>, List<?>> valuesMapperOrNull, IMapper<List<R>, List<R>> resultMapperOrNull)
     {
         Session session = daoFactory.getSessionFactory().getCurrentSession();
         final Query query = session.getNamedQuery(queryName);
@@ -287,6 +326,12 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                     query.setParameterList(parameterName, mappedValues);
 
                     List<R> singleResults = cast(query.list());
+
+                    if (resultMapperOrNull != null)
+                    {
+                        singleResults = resultMapperOrNull.map(singleResults);
+                    }
+
                     fullResults.addAll(singleResults);
                 }
 

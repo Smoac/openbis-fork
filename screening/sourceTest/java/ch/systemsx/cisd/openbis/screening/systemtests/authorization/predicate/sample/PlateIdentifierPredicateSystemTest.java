@@ -51,7 +51,13 @@ public abstract class PlateIdentifierPredicateSystemTest extends CommonPredicate
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No plate identifier specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No plate identifier specified.");
+                    }
                 }
             };
     }

@@ -33,6 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -794,18 +795,32 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criteria.withId().thatEquals(new DataSetPermId("20081105092159188-3"));
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
-        SearchResult<DataSet> result = v3api.searchDataSets(sessionToken, criteria, new DataSetFetchOptions());
 
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEquals(result.getObjects().size(), 2);
-        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
-        {
-            assertEquals(result.getObjects().size(), 1);
-            assertEquals(result.getObjects().get(0).getCode(), "20120619092259000-22");
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.searchDataSets(sessionToken, criteria, new DataSetFetchOptions());
+                    }
+                });
         } else
         {
-            assertEquals(result.getObjects().size(), 0);
+            SearchResult<DataSet> result = v3api.searchDataSets(sessionToken, criteria, new DataSetFetchOptions());
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(result.getObjects().size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(result.getObjects().size(), 1);
+                assertEquals(result.getObjects().get(0).getCode(), "20120619092259000-22");
+            } else
+            {
+                assertEquals(result.getObjects().size(), 0);
+            }
         }
 
         v3api.logout(sessionToken);

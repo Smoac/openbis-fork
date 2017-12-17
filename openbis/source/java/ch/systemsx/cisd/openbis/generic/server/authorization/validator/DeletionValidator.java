@@ -184,7 +184,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            if (roleAssignment.getSpace() == null && roleAssignment.getProject() == null && roleAssignment.getRole().equals(RoleCode.ADMIN))
+            if (roleAssignment.getRoleWithHierarchy().isInstanceLevel() && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;
             }

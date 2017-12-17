@@ -20,7 +20,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -41,13 +40,12 @@ public class SimpleSpaceValidator extends AbstractValidator<ICodeHolder>
         }
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final SpacePE space = roleAssignment.getSpace();
-            final ProjectPE project = roleAssignment.getProject();
-
-            if (space == null && project == null)
+            if (roleAssignment.getRoleWithHierarchy().isInstanceLevel())
             {
                 return true;
             }
+
+            final SpacePE space = roleAssignment.getSpace();
 
             if (space != null && space.getCode().equals(spaceCode))
             {

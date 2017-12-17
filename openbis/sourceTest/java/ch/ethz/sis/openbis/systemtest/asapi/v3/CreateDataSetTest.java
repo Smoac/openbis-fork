@@ -83,7 +83,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     @Test
     public void testCreateLinkDataSetWithSpaceUser()
     {
-    	// given
+        // given
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
         String code = UUID.randomUUID().toString();
         LinkedDataCreation linkedData = new LinkedDataCreation();
@@ -107,17 +107,17 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertDataSetKind(sessionToken, dataSetIds, DataSetKind.LINK);
     }
 
-	private void assertDataSetKind(String sessionToken, List<DataSetPermId> dataSetIds, DataSetKind kind)
-	{
-		Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, dataSetIds, new DataSetFetchOptions());
+    private void assertDataSetKind(String sessionToken, List<DataSetPermId> dataSetIds, DataSetKind kind)
+    {
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, dataSetIds, new DataSetFetchOptions());
         assertEquals(dataSets.size(), 1);
         assertEquals(dataSets.get(dataSetIds.get(0)).getKind(), kind);
-	}
+    }
 
     @Test
     public void testCreateContainerDataSetWithSpaceUser()
     {
-    	// given
+        // given
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
         String code = UUID.randomUUID().toString();
         DataSetCreation creation = new DataSetCreation();
@@ -140,7 +140,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     @Test
     public void testDataSetWhichDefaultsToPhysical()
     {
-    	// given
+        // given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         DataSetCreation creation = physicalDataSetCreation();
         creation.setDataSetKind(null);
@@ -153,7 +153,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSetIds.get(0).getPermId(), creation.getCode().toUpperCase());
         assertDataSetKind(sessionToken, dataSetIds, DataSetKind.PHYSICAL);
     }
-    
+
     @Test
     public void testCreateDSWithAdminUserInBehalfOfASpaceObserver()
     {
@@ -1837,7 +1837,17 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+                    }
+                });
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
             assertEquals(permIds.size(), 1);

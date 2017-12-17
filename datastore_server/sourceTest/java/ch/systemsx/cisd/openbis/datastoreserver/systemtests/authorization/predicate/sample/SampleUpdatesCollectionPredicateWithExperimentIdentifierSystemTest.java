@@ -51,7 +51,10 @@ public class SampleUpdatesCollectionPredicateWithExperimentIdentifierSystemTest 
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    if (user.isInstanceUser())
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (user.isInstanceUser())
                     {
                         assertNoException(t);
                     } else
@@ -63,7 +66,13 @@ public class SampleUpdatesCollectionPredicateWithExperimentIdentifierSystemTest 
                 @Override
                 public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No sample updates collection specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No sample updates collection specified.");
+                    }
                 }
             };
     }

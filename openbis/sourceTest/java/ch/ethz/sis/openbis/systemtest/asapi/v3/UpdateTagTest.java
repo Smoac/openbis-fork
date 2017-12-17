@@ -498,18 +498,27 @@ public class UpdateTagTest extends AbstractTest
         creation.setCode("TEST_TAG");
         creation.setDescription("test description");
 
-        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
-
-        List<TagPermId> permIds = v3api.createTags(sessionToken, Arrays.asList(creation));
-        assertEquals(permIds.size(), 1);
+        TagPermId permId = createTag(user.getUserId(), creation);
 
         TagUpdate update = new TagUpdate();
-        update.setTagId(permIds.get(0));
+        update.setTagId(permId);
         update.setDescription("brand new description");
 
-        Tag after = updateTag(user.getUserId(), PASSWORD, update);
-
-        assertEquals(after.getDescription(), update.getDescription().getValue());
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        updateTag(user.getUserId(), PASSWORD, update);
+                    }
+                });
+        } else
+        {
+            Tag after = updateTag(user.getUserId(), PASSWORD, update);
+            assertEquals(after.getDescription(), update.getDescription().getValue());
+        }
     }
 
     private Tag getTag(String user, String password, ITagId tagId)

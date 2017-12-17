@@ -49,7 +49,13 @@ public class PlateIdentifierPredicateWithPermIdSystemTest extends PlateIdentifie
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
                 }
             };
     }

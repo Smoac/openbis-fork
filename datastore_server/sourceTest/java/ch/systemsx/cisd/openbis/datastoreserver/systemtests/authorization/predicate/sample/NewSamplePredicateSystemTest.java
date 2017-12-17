@@ -46,7 +46,13 @@ public abstract class NewSamplePredicateSystemTest extends CommonPredicateSystem
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No new sample specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No new sample specified.");
+                    }
                 }
             };
     }

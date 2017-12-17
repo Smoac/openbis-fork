@@ -153,7 +153,7 @@ public interface IAuthorizationDataProvider
     /**
      * Returns the information necessary to determine if a user is allowed to access the data sets.
      */
-    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(List<TechId> dataSetIds);
+    public Set<DataSetAccessPE> getDatasetCollectionAccessDataByTechIds(List<TechId> dataSetIds, boolean grouped);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access the data sets.
@@ -163,7 +163,7 @@ public interface IAuthorizationDataProvider
     /**
      * Returns the information necessary to determine if a user is allowed to access the samples.
      */
-    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleIds);
+    public Set<SampleAccessPE> getSampleCollectionAccessDataByTechIds(List<TechId> sampleIds, boolean grouped);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access the samples.
@@ -173,7 +173,7 @@ public interface IAuthorizationDataProvider
     /**
      * Returns the information necessary to determine if a user is allowed to access the experiments.
      */
-    public Set<ExperimentAccessPE> getExperimentCollectionAccessData(List<TechId> experimentIds);
+    public Set<ExperimentAccessPE> getExperimentCollectionAccessData(List<TechId> experimentIds, boolean grouped);
 
     /**
      * Returns the information necessary to determine if a user is allowed to delete/revert the data sets.

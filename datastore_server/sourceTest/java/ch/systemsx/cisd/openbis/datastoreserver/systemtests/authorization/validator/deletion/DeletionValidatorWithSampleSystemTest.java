@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.deletion;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSampleAssertions;
@@ -51,40 +52,54 @@ public class DeletionValidatorWithSampleSystemTest extends DeletionValidatorSyst
                 @Override
                 public void assertWithProject11Object(ProjectAuthorizationUser user, Deletion result, Throwable t, Object param)
                 {
-                    if (SampleKind.SHARED_READ.equals(param))
+                    if (user.isDisabledProjectUser())
                     {
-                        assertNoException(t);
-
-                        if (user.isInstanceUser())
-                        {
-                            assertNotNull(result);
-                        } else
-                        {
-                            assertNull(result);
-                        }
+                        CommonAuthorizationSystemTest.assertNull(result);
+                        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
                     } else
                     {
-                        super.assertWithProject11Object(user, result, t, param);
+                        if (SampleKind.SHARED_READ.equals(param))
+                        {
+                            assertNoException(t);
+
+                            if (user.isInstanceUser())
+                            {
+                                assertNotNull(result);
+                            } else
+                            {
+                                assertNull(result);
+                            }
+                        } else
+                        {
+                            super.assertWithProject11Object(user, result, t, param);
+                        }
                     }
                 }
 
                 @Override
                 public void assertWithProject21Object(ProjectAuthorizationUser user, Deletion result, Throwable t, Object param)
                 {
-                    if (SampleKind.SHARED_READ.equals(param))
+                    if (user.isDisabledProjectUser())
                     {
-                        assertNoException(t);
-
-                        if (user.isInstanceUser())
-                        {
-                            assertNotNull(result);
-                        } else
-                        {
-                            assertNull(result);
-                        }
+                        CommonAuthorizationSystemTest.assertNull(result);
+                        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
                     } else
                     {
-                        super.assertWithProject21Object(user, result, t, param);
+                        if (SampleKind.SHARED_READ.equals(param))
+                        {
+                            assertNoException(t);
+
+                            if (user.isInstanceUser())
+                            {
+                                assertNotNull(result);
+                            } else
+                            {
+                                assertNull(result);
+                            }
+                        } else
+                        {
+                            super.assertWithProject21Object(user, result, t, param);
+                        }
                     }
                 }
 

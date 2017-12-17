@@ -44,7 +44,7 @@ abstract class SpaceValidator<T> extends AbstractValidator<T>
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            if (roleAssignment.getSpace() == null && roleAssignment.getProject() == null)
+            if (roleAssignment.getRoleWithHierarchy().isInstanceLevel())
             {
                 // All roles on the db level allow full read access.
                 // Note: Here we assume that we operate on _the only_ db instance (the home db)!

@@ -112,7 +112,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId) throws UserFailureException
@@ -137,7 +137,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             final NewSample newSample, final Collection<NewAttachment> attachments)
@@ -146,7 +146,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public int getNumberOfExperiments(String sessionToken)
     {
         return getDAOFactory().getExperimentDAO().listExperiments().size();

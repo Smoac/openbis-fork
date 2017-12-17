@@ -34,19 +34,37 @@ public class CommonPredicateSystemTestAssertionsDefault<O> extends CommonPredica
     @Override
     public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
     {
-        CommonAuthorizationSystemTest.assertException(t, UserFailureException.class, "Unspecified value");
+        if (user.isDisabledProjectUser())
+        {
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
+        } else
+        {
+            CommonAuthorizationSystemTest.assertException(t, UserFailureException.class, "Unspecified value");
+        }
     }
 
     @Override
     public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
     {
-        CommonAuthorizationSystemTest.assertException(t, UserFailureException.class, "Unspecified value");
+        if (user.isDisabledProjectUser())
+        {
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
+        } else
+        {
+            CommonAuthorizationSystemTest.assertException(t, UserFailureException.class, "Unspecified value");
+        }
     }
 
     @Override
     public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
     {
-        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+        if (user.isDisabledProjectUser())
+        {
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
+        } else
+        {
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+        }
     }
 
     @Override
@@ -69,25 +87,31 @@ public class CommonPredicateSystemTestAssertionsDefault<O> extends CommonPredica
 
     private void assertWithObject(ProjectAuthorizationUser user, Throwable t, Object param, ProjectIdentifier... projects)
     {
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            CommonAuthorizationSystemTest.assertNoException(t);
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            boolean hasAccess = true;
-
-            for (ProjectIdentifier project : projects)
-            {
-                hasAccess = hasAccess && (user.isSpaceUser(project.getSpaceCode())
-                        || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()));
-            }
-
-            if (hasAccess)
+            if (user.isInstanceUser())
             {
                 CommonAuthorizationSystemTest.assertNoException(t);
             } else
             {
-                CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                boolean hasAccess = true;
+
+                for (ProjectIdentifier project : projects)
+                {
+                    hasAccess = hasAccess && (user.isSpaceUser(project.getSpaceCode())
+                            || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()));
+                }
+
+                if (hasAccess)
+                {
+                    CommonAuthorizationSystemTest.assertNoException(t);
+                } else
+                {
+                    CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                }
             }
         }
     }

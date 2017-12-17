@@ -41,7 +41,9 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -81,12 +83,15 @@ public final class DefaultAccessController implements IAccessController
 
     private PredicateExecutor predicateExecutor;
 
+    private IAuthorizationDAOFactory daoFactory;
+
     public DefaultAccessController(final IAuthorizationDAOFactory daoFactory)
     {
         capabilities = new CapabilityMap(new File("etc/capabilities"), daoFactory.getAuthorizationConfig());
         predicateExecutor = new PredicateExecutor();
         predicateExecutor.setPredicateFactory(new PredicateFactory());
         predicateExecutor.setDAOFactory(daoFactory);
+        this.daoFactory = daoFactory;
     }
 
     public final static List<RoleWithIdentifier> getUserRoles(final PersonPE person)
@@ -147,7 +152,9 @@ public final class DefaultAccessController implements IAccessController
                 {
                     Set<RoleWithHierarchy> argumentRoles = getArgumentRoles(method, argument, methodRoles);
                     List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, argumentRoles);
+                    relevantRoles = retainConfiguredRoles(person.getUserId(), relevantRoles);
                     status = checkNotEmpty(relevantRoles, argumentRoles, session);
+
                     if (status.isError())
                     {
                         break;
@@ -160,7 +167,9 @@ public final class DefaultAccessController implements IAccessController
                 }
             } else
             {
-                status = checkNotEmpty(getRelevantRoles(userRoles, methodRoles), methodRoles, session);
+                List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, methodRoles);
+                relevantRoles = retainConfiguredRoles(person.getUserId(), relevantRoles);
+                status = checkNotEmpty(relevantRoles, methodRoles, session);
             }
             return status;
         } finally
@@ -276,6 +285,29 @@ public final class DefaultAccessController implements IAccessController
             }
         }
         return result;
+    }
+
+    private List<RoleWithIdentifier> retainConfiguredRoles(String userId, List<RoleWithIdentifier> roles)
+    {
+        IAuthorizationConfig config = daoFactory.getAuthorizationConfig();
+
+        if (config.isProjectLevelEnabled() && config.isProjectLevelUser(userId))
+        {
+            return roles;
+        } else
+        {
+            List<RoleWithIdentifier> nonProjectRoles = new ArrayList<RoleWithIdentifier>();
+
+            for (RoleWithIdentifier role : roles)
+            {
+                if (false == RoleLevel.PROJECT.equals(role.getRoleLevel()))
+                {
+                    nonProjectRoles.add(role);
+                }
+            }
+
+            return nonProjectRoles;
+        }
     }
 
     /**

@@ -42,7 +42,9 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -170,6 +172,27 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
     public final Long getId()
     {
         return id;
+    }
+
+    @Transient
+    public RoleLevel getRoleLevel()
+    {
+        if (getProject() != null)
+        {
+            return RoleLevel.PROJECT;
+        } else if (getSpace() != null)
+        {
+            return RoleLevel.SPACE;
+        } else
+        {
+            return RoleLevel.INSTANCE;
+        }
+    }
+
+    @Transient
+    public RoleWithHierarchy getRoleWithHierarchy()
+    {
+        return RoleWithHierarchy.valueOf(getRoleLevel(), getRole());
     }
 
     //

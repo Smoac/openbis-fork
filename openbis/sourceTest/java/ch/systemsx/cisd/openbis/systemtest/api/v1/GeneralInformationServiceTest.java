@@ -1922,7 +1922,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         String url = generalInformationService.getDefaultPutDataStoreBaseURL(sessionToken);
 
-        assertEquals("", url);
+        assertEquals("http://localhost:8765", url);
     }
 
     @Test
@@ -1932,7 +1932,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.tryGetDataStoreBaseURL(sessionToken,
                         "20081105092159111-1");
 
-        assertEquals("", url);
+        assertEquals("http://localhost:8765", url);
     }
 
     @Test
@@ -2168,15 +2168,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT, "TEST-PROJECT"));
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
         {
-            List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
-            assertEquals(1, experiments.size());
-            assertEquals("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", experiments.get(0).getIdentifier());
+            try
+            {
+                generalInformationService.searchForExperiments(session, criteria);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         } else
         {
             List<Experiment> experiments = generalInformationService.searchForExperiments(session, criteria);
-            assertEquals(0, experiments.size());
+
+            if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+            {
+                assertEquals(1, experiments.size());
+                assertEquals("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", experiments.get(0).getIdentifier());
+            } else
+            {
+                assertEquals(0, experiments.size());
+            }
         }
     }
 
@@ -2190,17 +2203,30 @@ public class GeneralInformationServiceTest extends SystemTestCase
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "CELL_PLATE"));
 
-        List<Sample> samples = generalInformationService.searchForSamples(session, criteria);
-
-        if (user.isInstanceUser() || user.isTestSpaceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
-        } else if (user.isTestProjectUser() && user.hasPAEnabled())
-        {
-            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+            try
+            {
+                generalInformationService.searchForSamples(session, criteria);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         } else
         {
-            assertEntities("[]", samples);
+            List<Sample> samples = generalInformationService.searchForSamples(session, criteria);
+
+            if (user.isInstanceUser() || user.isTestSpaceUser())
+            {
+                assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+            } else if (user.isTestProjectUser())
+            {
+                assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+            } else
+            {
+                assertEntities("[]", samples);
+            }
         }
     }
 
@@ -2214,17 +2240,30 @@ public class GeneralInformationServiceTest extends SystemTestCase
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "TEST-SPACE"));
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "CELL_PLATE"));
 
-        List<Sample> samples = generalInformationService.searchForSamples(session, criteria, EnumSet.of(SampleFetchOption.BASIC));
-
-        if (user.isInstanceUser() || user.isTestSpaceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
-        } else if (user.isTestProjectUser() && user.hasPAEnabled())
-        {
-            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+            try
+            {
+                generalInformationService.searchForSamples(session, criteria, EnumSet.of(SampleFetchOption.BASIC));
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         } else
         {
-            assertEntities("[]", samples);
+            List<Sample> samples = generalInformationService.searchForSamples(session, criteria, EnumSet.of(SampleFetchOption.BASIC));
+
+            if (user.isInstanceUser() || user.isTestSpaceUser())
+            {
+                assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+            } else if (user.isTestProjectUser())
+            {
+                assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+            } else
+            {
+                assertEntities("[]", samples);
+            }
         }
     }
 
@@ -2310,29 +2349,38 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         String session = generalInformationService.tryToAuthenticateForAllServices(user.getUserId(), PASSWORD);
 
-        List<Project> projects = generalInformationService.listProjects(session);
-
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEntities(
-                    "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
-                    projects);
-        } else if (user.isTestSpaceUser())
-        {
-            assertEntities(
-                    "[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
-                    projects);
-        } else if (user.isTestProjectUser() && user.hasPAEnabled())
-        {
-            assertEntities(
-                    "[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
-                    projects);
-        } else if (user.isTestGroupUser())
-        {
-            assertEntities("[/TESTGROUP/TESTPROJ]", projects);
+            try
+            {
+                generalInformationService.listProjects(session);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         } else
         {
-            assertEntities("[]", projects);
+            List<Project> projects = generalInformationService.listProjects(session);
+
+            if (user.isInstanceUser())
+            {
+                assertEntities(
+                        "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                        projects);
+            } else if (user.isTestSpaceUser())
+            {
+                assertEntities("[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+            } else if (user.isTestProjectUser())
+            {
+                assertEntities("[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
+            } else if (user.isTestGroupUser())
+            {
+                assertEntities("[/TESTGROUP/TESTPROJ]", projects);
+            } else
+            {
+                assertEntities("[]", projects);
+            }
         }
     }
 
@@ -2350,14 +2398,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     projects);
         } else if (user.isTestSpaceUser())
         {
-            assertEntities(
-                    "[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
-                    projects);
+            assertEntities("[/TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
-            assertEntities(
-                    "[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]",
-                    projects);
+            assertEntities("[/TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT]", projects);
         } else if (user.isTestGroupUser())
         {
             assertEntities("[/TESTGROUP/TESTPROJ]", projects);
@@ -3346,15 +3390,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20120628092259000-41"));
 
-        List<DataSet> dataSets = generalInformationService.searchForDataSets(session, criteria);
-
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEquals(1, dataSets.size());
-            assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+            try
+            {
+                generalInformationService.searchForDataSets(session, criteria);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
         } else
         {
-            assertEquals(0, dataSets.size());
+            List<DataSet> dataSets = generalInformationService.searchForDataSets(session, criteria);
+
+            if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+            {
+                assertEquals(1, dataSets.size());
+                assertEquals("20120628092259000-41", dataSets.get(0).getCode());
+            } else
+            {
+                assertEquals(0, dataSets.size());
+            }
         }
     }
 

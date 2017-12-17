@@ -16,16 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import javax.persistence.Id;
 import javax.persistence.Entity;
 import javax.persistence.EntityResult;
+import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * A PE for retrieving only the information necessary to determine if a user/person can access a sample.
@@ -42,7 +45,7 @@ public class SampleAccessPE
 {
 
     private final static String SAMPLE_ACCESS_QUERY_PART_1 =
-            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, c.code as containerCode FROM ";
+            "SELECT g.code as spaceCode, p.code as projectCode, ep.code as experimentProjectCode, e.code as experimentCode, s.code as sampleCode, s.id as sampleId, c.code as containerCode FROM ";
 
     private final static String SAMPLE_ACCESS_QUERY_PART_2 = " s left outer join "
             + TableNames.SPACES_TABLE
@@ -85,9 +88,13 @@ public class SampleAccessPE
 
     private String experimentCode;
 
+    private Long sampleId;
+
     private String sampleCode;
 
     private String containerCode;
+
+    private boolean group;
 
     public String getSpaceCode()
     {
@@ -97,6 +104,23 @@ public class SampleAccessPE
     public void setSpaceCode(String spaceCode)
     {
         this.spaceCode = spaceCode;
+    }
+
+    @Transient
+    public ProjectIdentifier getProjectIdentifier()
+    {
+        if (getSpaceCode() != null)
+        {
+            if (getProjectCode() != null)
+            {
+                return new ProjectIdentifier(getSpaceCode(), getProjectCode());
+            } else if (getExperimentProjectCode() != null)
+            {
+                return new ProjectIdentifier(getSpaceCode(), getExperimentProjectCode());
+            }
+        }
+
+        return null;
     }
 
     public String getProjectCode()
@@ -129,7 +153,17 @@ public class SampleAccessPE
         this.experimentCode = experimentCode;
     }
 
+    public void setSampleId(Long sampleId)
+    {
+        this.sampleId = sampleId;
+    }
+
     @Id
+    public Long getSampleId()
+    {
+        return sampleId;
+    }
+
     public String getSampleCode()
     {
         return sampleCode;
@@ -150,6 +184,17 @@ public class SampleAccessPE
         this.containerCode = containerCode;
     }
 
+    public void setGroup(boolean group)
+    {
+        this.group = group;
+    }
+
+    @Transient
+    public boolean isGroup()
+    {
+        return group;
+    }
+
     //
     // Object
     //
@@ -165,14 +210,23 @@ public class SampleAccessPE
         {
             return false;
         }
+
         final SampleAccessPE that = (SampleAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getSpaceCode(), that.getSpaceCode());
-        builder.append(getProjectCode(), that.getProjectCode());
-        builder.append(getExperimentProjectCode(), that.getExperimentProjectCode());
-        builder.append(getExperimentCode(), that.getExperimentCode());
-        builder.append(getSampleCode(), that.getSampleCode());
-        builder.append(getContainerCode(), that.getContainerCode());
+
+        if (isGroup())
+        {
+            builder.append(getSpaceCode(), that.getSpaceCode());
+            builder.append(getProjectCode(), that.getProjectCode());
+            builder.append(getExperimentProjectCode(), that.getExperimentProjectCode());
+            builder.append(getExperimentCode(), that.getExperimentCode());
+            builder.append(getSampleCode(), that.getSampleCode());
+            builder.append(getContainerCode(), that.getContainerCode());
+        } else
+        {
+            builder.append(getSampleId(), that.getSampleId());
+        }
+
         return builder.isEquals();
     }
 
@@ -180,12 +234,20 @@ public class SampleAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getSpaceCode());
-        builder.append(getProjectCode());
-        builder.append(getExperimentProjectCode());
-        builder.append(getExperimentCode());
-        builder.append(getSampleCode());
-        builder.append(getContainerCode());
+
+        if (isGroup())
+        {
+            builder.append(getSpaceCode());
+            builder.append(getProjectCode());
+            builder.append(getExperimentProjectCode());
+            builder.append(getExperimentCode());
+            builder.append(getSampleCode());
+            builder.append(getContainerCode());
+        } else
+        {
+            builder.append(getSampleId());
+        }
+
         return builder.toHashCode();
     }
 

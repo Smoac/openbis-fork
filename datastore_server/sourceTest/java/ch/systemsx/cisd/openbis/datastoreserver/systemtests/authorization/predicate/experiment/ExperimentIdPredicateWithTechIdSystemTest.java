@@ -51,7 +51,13 @@ public class ExperimentIdPredicateWithTechIdSystemTest extends ExperimentIdPredi
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertUserFailureExceptionThatExperimentDoesNotExist(t);
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertUserFailureExceptionThatExperimentDoesNotExist(t);
+                    }
                 }
             };
     }

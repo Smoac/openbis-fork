@@ -56,61 +56,67 @@ public class CommonPredicateSystemTestSampleAssertions<O> extends CommonPredicat
 
     private void assertWithObject(ProjectAuthorizationUser user, Throwable t, Object param, ProjectIdentifier... projects)
     {
-        if (SampleKind.SHARED_READ.equals(param))
+        if (user.isDisabledProjectUser())
         {
-            CommonAuthorizationSystemTest.assertNoException(t);
-        } else if (SampleKind.SHARED_READ_WRITE.equals(param))
-        {
-            if (user.isInstanceUser())
-            {
-                CommonAuthorizationSystemTest.assertNoException(t);
-            } else
-            {
-                CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-            }
-        } else if (SampleKind.SPACE.equals(param) || SampleKind.SPACE_CONTAINED.equals(param))
-        {
-            if (user.isInstanceUser())
-            {
-                CommonAuthorizationSystemTest.assertNoException(t);
-            } else
-            {
-                boolean hasAccess = true;
-
-                for (ProjectIdentifier project : projects)
-                {
-                    hasAccess = hasAccess && user.isSpaceUser(project.getSpaceCode());
-                }
-
-                if (hasAccess)
-                {
-                    CommonAuthorizationSystemTest.assertNoException(t);
-                } else
-                {
-                    CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-                }
-            }
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            if (user.isInstanceUser())
+            if (SampleKind.SHARED_READ.equals(param))
             {
                 CommonAuthorizationSystemTest.assertNoException(t);
-            } else
+            } else if (SampleKind.SHARED_READ_WRITE.equals(param))
             {
-                boolean hasAccess = true;
-
-                for (ProjectIdentifier project : projects)
-                {
-                    hasAccess = hasAccess && (user.isSpaceUser(project.getSpaceCode())
-                            || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()));
-                }
-
-                if (hasAccess)
+                if (user.isInstanceUser())
                 {
                     CommonAuthorizationSystemTest.assertNoException(t);
                 } else
                 {
                     CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                }
+            } else if (SampleKind.SPACE.equals(param) || SampleKind.SPACE_CONTAINED.equals(param))
+            {
+                if (user.isInstanceUser())
+                {
+                    CommonAuthorizationSystemTest.assertNoException(t);
+                } else
+                {
+                    boolean hasAccess = true;
+
+                    for (ProjectIdentifier project : projects)
+                    {
+                        hasAccess = hasAccess && user.isSpaceUser(project.getSpaceCode());
+                    }
+
+                    if (hasAccess)
+                    {
+                        CommonAuthorizationSystemTest.assertNoException(t);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
+                }
+            } else
+            {
+                if (user.isInstanceUser())
+                {
+                    CommonAuthorizationSystemTest.assertNoException(t);
+                } else
+                {
+                    boolean hasAccess = true;
+
+                    for (ProjectIdentifier project : projects)
+                    {
+                        hasAccess = hasAccess && (user.isSpaceUser(project.getSpaceCode())
+                                || (user.isProjectUser(project.getSpaceCode(), project.getProjectCode()) && user.hasPAEnabled()));
+                    }
+
+                    if (hasAccess)
+                    {
+                        CommonAuthorizationSystemTest.assertNoException(t);
+                    } else
+                    {
+                        CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+                    }
                 }
             }
         }

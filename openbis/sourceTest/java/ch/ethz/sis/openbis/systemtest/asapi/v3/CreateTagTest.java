@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
@@ -329,8 +330,21 @@ public class CreateTagTest extends AbstractTest
         creation.setCode("TEST_TAG");
         creation.setDescription("test description");
 
-        Tag tag = createTag(user.getUserId(), PASSWORD, creation);
-        assertEquals(tag.getCode(), creation.getCode());
+        if (user.isDisabledProjectUser())
+        {
+            assertUnauthorizedObjectAccessException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        createTag(user.getUserId(), PASSWORD, creation);
+                    }
+                }, new TagCode(creation.getCode()));
+        } else
+        {
+            Tag tag = createTag(user.getUserId(), PASSWORD, creation);
+            assertEquals(tag.getCode(), creation.getCode());
+        }
     }
 
     private Tag createTag(String user, String password, TagCreation creation)

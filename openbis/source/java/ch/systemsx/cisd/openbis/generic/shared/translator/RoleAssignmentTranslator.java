@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
@@ -57,23 +55,8 @@ public final class RoleAssignmentTranslator
         result.setPerson(PersonTranslator.translate(role.getPerson()));
         result.setAuthorizationGroup(AuthorizationGroupTranslator.translate(role
                 .getAuthorizationGroup()));
-        result.setRoleSetCode(getRoleCode(role));
+        result.setRoleSetCode(role.getRoleWithHierarchy());
         return result;
     }
 
-    private final static RoleWithHierarchy getRoleCode(final RoleAssignmentPE role)
-    {
-        RoleLevel roleLevel = null;
-        if (role.getSpace() != null)
-        {
-            roleLevel = RoleLevel.SPACE;
-        } else if (role.getProject() != null)
-        {
-            roleLevel = RoleLevel.PROJECT;
-        } else
-        {
-            roleLevel = RoleLevel.INSTANCE;
-        }
-        return RoleWithHierarchy.valueOf(roleLevel, role.getRole());
-    }
 }

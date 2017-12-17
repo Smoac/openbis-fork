@@ -146,7 +146,17 @@ public class DeleteDataSetTest extends AbstractDeletionTest
 
         IDataSetId dataSetId = new DataSetPermId("20120628092259000-41");
 
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.deleteDataSets(sessionToken, Arrays.asList(dataSetId), getOptions());
+                    }
+                });
+        } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             v3api.deleteDataSets(sessionToken, Arrays.asList(dataSetId), getOptions());
         } else

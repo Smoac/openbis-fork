@@ -51,7 +51,13 @@ public class SampleIdentifierCollectionPredicateSystemTest extends SampleIdentif
                 @Override
                 public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No sample identifier specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No sample identifier specified.");
+                    }
                 }
             };
     }

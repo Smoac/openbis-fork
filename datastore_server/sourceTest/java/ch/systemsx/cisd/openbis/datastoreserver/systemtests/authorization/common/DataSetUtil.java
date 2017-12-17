@@ -37,6 +37,7 @@ public class DataSetUtil
         DataPE dataSetPE = test.getDataSet(spacePE, projectPE, (DataSetKind) param);
 
         DataSetInitializer initializer = new DataSetInitializer();
+        initializer.setId(dataSetPE.getId());
         initializer.setCode(dataSetPE.getCode());
         initializer.setDataSetTypeCode(dataSetPE.getDataSetType().getCode());
         initializer.setRegistrationDetails(new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer()));

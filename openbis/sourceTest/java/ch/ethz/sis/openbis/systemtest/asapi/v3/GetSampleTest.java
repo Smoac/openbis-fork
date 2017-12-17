@@ -64,6 +64,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -1601,14 +1602,27 @@ public class GetSampleTest extends AbstractSampleTest
         ISampleId id = new SampleIdentifier("/TEST-SPACE/EV-TEST");
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
-
-        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEquals(samples.size(), 1);
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
+                    }
+                });
         } else
         {
-            assertEquals(samples.size(), 0);
+            Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
+
+            if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+            {
+                assertEquals(samples.size(), 1);
+            } else
+            {
+                assertEquals(samples.size(), 0);
+            }
         }
     }
 

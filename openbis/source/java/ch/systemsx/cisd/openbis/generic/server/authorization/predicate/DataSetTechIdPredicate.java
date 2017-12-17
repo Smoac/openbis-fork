@@ -43,7 +43,7 @@ public class DataSetTechIdPredicate extends DelegatedPredicate<Collection<DataSe
             return Arrays.asList();
         } else
         {
-            return authorizationDataProvider.getDatasetCollectionAccessDataByTechIds(Arrays.asList(techId));
+            return authorizationDataProvider.getDatasetCollectionAccessDataByTechIds(Arrays.asList(techId), true);
         }
     }
 

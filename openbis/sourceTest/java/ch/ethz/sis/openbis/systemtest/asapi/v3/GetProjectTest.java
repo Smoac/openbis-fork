@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -492,18 +493,32 @@ public class GetProjectTest extends AbstractTest
         List<? extends IProjectId> ids = Arrays.asList(identifier1, identifier2);
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
-        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
 
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            assertEquals(map.size(), 2);
-        } else if (user.isTestSpaceUser() || (user.isTestProjectUser() && user.hasPAEnabled()))
-        {
-            assertEquals(map.size(), 1);
-            assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
+                    }
+                });
         } else
         {
-            assertEquals(map.size(), 0);
+            Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(map.size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(map.size(), 1);
+                assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+            } else
+            {
+                assertEquals(map.size(), 0);
+            }
         }
 
         v3api.logout(sessionToken);

@@ -46,7 +46,13 @@ public abstract class SampleUpdatesPredicateSystemTest extends CommonPredicateSy
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
-                    assertException(t, UserFailureException.class, "No sample updates specified.");
+                    if (user.isDisabledProjectUser())
+                    {
+                        assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else
+                    {
+                        assertException(t, UserFailureException.class, "No sample updates specified.");
+                    }
                 }
             };
     }

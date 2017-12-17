@@ -40,7 +40,7 @@ public class DataSetTechIdCollectionPredicate extends DelegatedPredicate<Collect
     @Override
     public Collection<DataSetAccessPE> tryConvert(List<TechId> techIds)
     {
-        return authorizationDataProvider.getDatasetCollectionAccessDataByTechIds(techIds);
+        return authorizationDataProvider.getDatasetCollectionAccessDataByTechIds(techIds, true);
     }
 
     @Override

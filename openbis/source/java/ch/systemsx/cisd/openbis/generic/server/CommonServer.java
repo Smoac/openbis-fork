@@ -81,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpd
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.EntityHistoryValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalDataValidator;
@@ -489,8 +490,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             boolean isInstanceAdmin = false;
             for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
             {
-                if (roleAssigment.getSpace() == null
-                        && roleAssigment.getRole().equals(RoleCode.ADMIN))
+                if (roleAssignment.getRoleWithHierarchy().isInstanceLevel() && roleAssigment.getRole().equals(RoleCode.ADMIN))
                 {
                     isInstanceAdmin = true;
                 }
@@ -520,7 +520,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (roleAssignment.getPerson() != null
                 && roleAssignment.getPerson().equals(session.tryGetPerson())
                 && roleAssignment.getRole().equals(RoleCode.ADMIN)
-                && roleAssignment.getSpace() == null)
+                && roleAssignment.getRoleWithHierarchy().isInstanceLevel())
         {
             throw new UserFailureException(
                     "For safety reason you cannot give away your own omnipotence. "
@@ -575,7 +575,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
             String sessionToken, EntityKind entityKind, String entityTypeCode)
     {
@@ -806,7 +806,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<PropertyType> listPropertyTypes(final String sessionToken, boolean withRelations)
     {
         final Session session = getSession(sessionToken);
@@ -826,7 +826,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken)
     {
         List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
@@ -834,7 +834,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken,
             final EntityType entityType)
     {
@@ -843,11 +843,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @ReturnValueFilter(validatorClass = EntityHistoryValidator.class)
     public List<EntityHistory> listEntityHistory(String sessionToken, EntityKind entityKind,
             TechId entityID)
     {
         Session session = getSession(sessionToken);
+
+        AuthorizationServiceUtils authorizationUtils =
+                new AuthorizationServiceUtils(getDAOFactory(), session.tryGetPerson().getUserId());
+        authorizationUtils.checkAccessEntity(entityKind, entityID);
+
         IEntityHistoryDAO entityPropertyHistoryDAO = getDAOFactory().getEntityPropertyHistoryDAO();
         List<AbstractEntityPropertyHistoryPE> result =
                 entityPropertyHistoryDAO.getPropertyHistory(
@@ -907,7 +913,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = MatchingEntityValidator.class)
     public List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
@@ -1092,7 +1098,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<MaterialType> listMaterialTypes(String sessionToken)
     {
         final List<MaterialTypePE> materialTypes =
@@ -1102,7 +1108,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public MaterialType getMaterialType(String sessionToken, String code)
     {
         final EntityTypePE materialType = findEntityType(EntityKind.MATERIAL, code);
@@ -1121,7 +1127,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<DataType> listDataTypes(final String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1140,7 +1146,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1160,7 +1166,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Vocabulary> listVocabularies(final String sessionToken, final boolean withTerms,
             boolean excludeInternal)
     {
@@ -1439,7 +1445,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
@@ -1505,7 +1511,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal,
@@ -1526,7 +1532,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @Capability("WRITE_UNOFFICIAL_VOCABULARY_TERM")
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
@@ -1544,7 +1550,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void updateVocabularyTerm(final String sessionToken, final IVocabularyTermUpdates updates)
     {
@@ -1558,7 +1564,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
@@ -1574,7 +1580,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_VOCABULARY")
     public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeOfficial)
@@ -1858,7 +1864,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -1868,7 +1874,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
     {
         final Session session = getSession(sessionToken);
@@ -1877,7 +1883,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Material> listMetaprojectMaterials(String sessionToken, IMetaprojectId metaprojectId)
     {
         final Session session = getSession(sessionToken);
@@ -2387,7 +2393,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary)
     {
@@ -2398,7 +2404,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
         final Session session = getSession(sessionToken);
@@ -2408,7 +2414,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         final List<DataSetTypePE> dataSetTypes = listEntityTypes(sessionToken, EntityKind.DATA_SET);
@@ -2417,7 +2423,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public LastModificationState getLastModificationState(String sessionToken)
     {
         checkSession(sessionToken);
@@ -2571,7 +2577,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Material getMaterialInfo(String sessionToken, MaterialIdentifier identifier)
     {
         Session session = getSession(sessionToken);
@@ -2588,7 +2594,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
         final Session session = getSession(sessionToken);
@@ -2604,7 +2610,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
             MaterialIdentifier identifier)
     {
@@ -2675,7 +2681,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public String generateCode(String sessionToken, String prefix, EntityKind entityKind)
     {
         checkSession(sessionToken);
@@ -2768,7 +2774,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
             boolean autoGenerate, boolean withExperiments, boolean withSpace,
             BatchOperationKind operationKind)
@@ -3029,7 +3035,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<DataStore> listDataStores(String sessionToken)
     {
         checkSession(sessionToken);
@@ -3037,7 +3043,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {
@@ -3208,7 +3214,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Script> listScripts(String sessionToken, ScriptType scriptTypeOrNull,
             EntityKind entityKindOrNull)
     {
@@ -3340,7 +3346,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
@@ -3352,7 +3358,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_FILTER")
     public void registerFilter(String sessionToken, NewColumnOrFilter filter)
     {
@@ -3361,7 +3367,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_FILTER")
     public void deleteFilters(String sessionToken,
             @AuthorizationGuard(guardClass = DeleteGridCustomFilterPredicate.class) List<TechId> filterIds)
@@ -3371,7 +3377,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_FILTER")
     public void updateFilter(String sessionToken,
             @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class) IExpressionUpdates updates)
@@ -3383,7 +3389,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // -- columns
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_CUSTOM_COLUMN")
     public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column)
     {
@@ -3392,7 +3398,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("DELETE_CUSTOM_COLUMN")
     public void deleteGridCustomColumns(String sessionToken,
             @AuthorizationGuard(guardClass = DeleteGridCustomColumnPredicate.class) List<TechId> columnIds)
@@ -3402,7 +3408,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("WRITE_CUSTOM_COLUMN")
     public void updateGridCustomColumn(String sessionToken,
             @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IExpressionUpdates updates)
@@ -3414,7 +3420,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // --
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void keepSessionAlive(String sessionToken)
     {
         checkSession(sessionToken);
@@ -3480,7 +3486,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Script getScriptInfo(String sessionToken, TechId scriptId)
     {
         getSession(sessionToken);
@@ -3692,7 +3698,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId materialId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -3748,7 +3754,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
         checkSession(sessionToken);
@@ -3898,7 +3904,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @ReturnValueFilter(validatorClass = DeletionValidator.class)
     public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities)
     {
@@ -3909,7 +3915,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @ReturnValueFilter(validatorClass = DeletionValidator.class)
     public List<Deletion> listOriginalDeletions(String sessionToken)
     {
@@ -4054,7 +4060,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -4173,7 +4179,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Metaproject> listMetaprojects(String sessionToken)
     {
         Session session = getSession(sessionToken);
@@ -4205,7 +4211,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken)
     {
         List<Metaproject> metaprojects = listMetaprojects(sessionToken);
@@ -4221,7 +4227,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -4230,7 +4236,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -4254,7 +4260,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions)
     {
@@ -4344,7 +4350,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId, String reason)
     {
         if (metaprojectId == null)
@@ -4363,7 +4369,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void deleteMetaprojects(String sessionToken, List<IMetaprojectId> metaprojectIds,
             String reason)
     {
@@ -4393,7 +4399,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             IMetaprojectUpdates updates)
     {
@@ -4411,7 +4417,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Metaproject getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         Session session = getSession(sessionToken);
@@ -4479,7 +4485,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType)
     {
         checkSession(sessionToken);

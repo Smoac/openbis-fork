@@ -922,7 +922,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {

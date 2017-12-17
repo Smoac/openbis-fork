@@ -45,7 +45,7 @@ public class SampleTechIdCollectionPredicate extends DelegatedPredicate<Collecti
     @Override
     public Collection<SampleAccessPE> tryConvert(List<TechId> techIds)
     {
-        return authorizationDataProvider.getSampleCollectionAccessDataByTechIds(techIds);
+        return authorizationDataProvider.getSampleCollectionAccessDataByTechIds(techIds, true);
     }
 
     @Override

@@ -61,7 +61,7 @@ public class InternalOperationExecutor implements IInternalOperationExecutor
 
         for (RoleAssignmentPE role : roles)
         {
-            if (RoleCode.ADMIN.equals(role.getRole()) && role.getSpace() == null)
+            if (RoleCode.ADMIN.equals(role.getRole()) && role.getRoleWithHierarchy().isInstanceLevel())
             {
                 return true;
             }

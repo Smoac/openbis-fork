@@ -179,7 +179,7 @@ public class CreateProjectTest extends AbstractTest
         {
             List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
             assertEquals(permIds.size(), 1);
-        } else if (user.isTestProjectUser())
+        } else if (user.isProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
                 {

@@ -61,7 +61,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                     allowing(provider).getAuthorizationConfig();
                     will(returnValue(new TestAuthorizationConfig(false, false)));
 
-                    one(provider).getSampleCollectionAccessDataByTechIds(TechId.createList(42L, 43L, 44L));
+                    one(provider).getSampleCollectionAccessDataByTechIds(TechId.createList(42L, 43L, 44L), true);
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
@@ -98,7 +98,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                     allowing(provider).getAuthorizationConfig();
                     will(returnValue(new TestAuthorizationConfig(false, false)));
 
-                    one(provider).getSampleCollectionAccessDataByTechIds(TechId.createList(42L, 43L, 44L));
+                    one(provider).getSampleCollectionAccessDataByTechIds(TechId.createList(42L, 43L, 44L), true);
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });
@@ -171,7 +171,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                     allowing(provider).getAuthorizationConfig();
                     will(returnValue(new TestAuthorizationConfig(false, false)));
 
-                    one(provider).getSampleCollectionAccessDataByTechIds(TechId.createList(42L, 43L, 44L));
+                    one(provider).getSampleCollectionAccessDataByTechIds(TechId.createList(42L, 43L, 44L), true);
                     will(returnValue(Collections.singleton(sampleAccess)));
                 }
             });

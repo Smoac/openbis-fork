@@ -20,7 +20,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -42,13 +41,12 @@ public final class SpaceValidator extends AbstractValidator<Space>
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final SpacePE group = roleAssignment.getSpace();
-            final ProjectPE project = roleAssignment.getProject();
-
-            if (group == null && project == null)
+            if (roleAssignment.getRoleWithHierarchy().isInstanceLevel())
             {
                 return true;
             }
+
+            final SpacePE group = roleAssignment.getSpace();
 
             if (group != null && group.getCode().equals(value.getCode()))
             {

@@ -81,7 +81,7 @@ public class GlobalSearchObjectTranslator extends AbstractCachingTranslator<Matc
     {
         MatchingEntityValidator validator = new MatchingEntityValidator();
         validator.init(new AuthorizationDataProvider(daoFactory));
-        return validator.doValidation(context.getSession().tryGetPerson(), input);
+        return validator.isValid(context.getSession().tryGetPerson(), input);
     }
 
     @Override

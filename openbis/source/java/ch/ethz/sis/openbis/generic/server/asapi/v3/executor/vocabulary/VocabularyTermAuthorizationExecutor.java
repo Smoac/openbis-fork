@@ -90,7 +90,8 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
 
         for (RoleAssignmentPE role : roles)
         {
-            if (RoleCode.ETL_SERVER.equals(role.getRole()) || (RoleCode.ADMIN.equals(role.getRole()) && role.getSpace() == null))
+            if (RoleCode.ETL_SERVER.equals(role.getRole())
+                    || (RoleCode.ADMIN.equals(role.getRole()) && role.getRoleWithHierarchy().isInstanceLevel()))
             {
                 return true;
             }
@@ -98,7 +99,6 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
 
         return false;
     }
-
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.VOCABULARY_TERM, ObjectKind.DELETION })

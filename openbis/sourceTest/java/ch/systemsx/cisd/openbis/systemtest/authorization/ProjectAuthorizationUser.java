@@ -76,6 +76,16 @@ public class ProjectAuthorizationUser
         this.isInstanceUser = isInstanceUser;
     }
 
+    public boolean isSpaceUser()
+    {
+        return isTestSpaceUser() || isTestGroupUser();
+    }
+
+    public boolean isProjectUser()
+    {
+        return isTestProjectUser();
+    }
+
     public boolean isTestGroupUser()
     {
         return isTestGroupUser;
@@ -115,10 +125,25 @@ public class ProjectAuthorizationUser
     {
         this.isTestProjectUser = isTestProjectUser;
     }
-    
+
+    public boolean isDisabledProjectUser()
+    {
+        return isProjectUser() && false == hasPAEnabled();
+    }
+
+    public boolean isEnabledProjectUser()
+    {
+        return isProjectUser() && hasPAEnabled();
+    }
+
     public boolean isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser()
     {
         return isInstanceUser() || isTestSpaceUser() || (isTestProjectUser() && hasPAEnabled());
+    }
+
+    public boolean isInstanceUserOrSpaceUserOrEnabledProjectUser()
+    {
+        return isInstanceUser() || isSpaceUser() || isEnabledProjectUser();
     }
 
     @DataProvider(name = PROVIDER)

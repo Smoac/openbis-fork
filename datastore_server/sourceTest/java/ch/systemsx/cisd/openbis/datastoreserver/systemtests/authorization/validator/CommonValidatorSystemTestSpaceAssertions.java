@@ -49,19 +49,26 @@ public class CommonValidatorSystemTestSpaceAssertions<O> extends CommonValidator
 
     private void assertWithObject(ProjectAuthorizationUser user, O result, Throwable t, Object param, ProjectIdentifier project)
     {
-        CommonAuthorizationSystemTest.assertNoException(t);
-
-        if (user.isInstanceUser())
+        if (user.isDisabledProjectUser())
         {
-            CommonAuthorizationSystemTest.assertNotNull(result);
+            CommonAuthorizationSystemTest.assertNull(result);
+            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            if (user.isSpaceUser(project.getSpaceCode()))
+            CommonAuthorizationSystemTest.assertNoException(t);
+
+            if (user.isInstanceUser())
             {
                 CommonAuthorizationSystemTest.assertNotNull(result);
             } else
             {
-                CommonAuthorizationSystemTest.assertNull(result);
+                if (user.isSpaceUser(project.getSpaceCode()))
+                {
+                    CommonAuthorizationSystemTest.assertNotNull(result);
+                } else
+                {
+                    CommonAuthorizationSystemTest.assertNull(result);
+                }
             }
         }
     }
