@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -105,6 +106,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         experimentType.setCode(EXPERIMENT_TYPE);
         PersonPE person = new PersonPE();
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
+        roleAssignment.setRole(RoleCode.ADMIN);
         SpacePE group = new SpacePE();
         group.setCode("Space-0");
         roleAssignment.setSpace(group);
@@ -254,6 +256,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
         SpacePE group = new SpacePE();
         group.setCode(spaceCode);
+        roleAssignmentPE.setRole(RoleCode.ADMIN);
         roleAssignmentPE.setSpace(group);
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignmentPE)));
         testSession.setPerson(person);

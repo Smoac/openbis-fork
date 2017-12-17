@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataPr
 import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -168,6 +169,8 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     private RoleAssignmentPE createRole(String groupCodeOrNull)
     {
         RoleAssignmentPE role = new RoleAssignmentPE();
+        role.setRole(RoleCode.ADMIN);
+        
         if (groupCodeOrNull != null)
         {
             SpacePE group = new SpacePE();
