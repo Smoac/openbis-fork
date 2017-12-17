@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -48,12 +49,13 @@ public final class GridCustomFilterDAOTest extends AbstractDAOTest
     @Test
     public void testCreateFilter() throws Exception
     {
-        AssertJUnit.assertEquals(0, daoFactory.getGridCustomFilterDAO().listAllEntities().size());
+        AssertJUnit.assertEquals(1, daoFactory.getGridCustomFilterDAO().listAllEntities().size());
         GridCustomFilterPE filter =
                 createFilter(NAME, GRID, DESCRIPTION, EXPRESSION, PUBLIC, getSystemPerson());
         daoFactory.getGridCustomFilterDAO().createFilter(filter);
         List<GridCustomFilterPE> filters = daoFactory.getGridCustomFilterDAO().listAllEntities();
-        AssertJUnit.assertEquals(1, filters.size());
+        Collections.sort(filters);
+        AssertJUnit.assertEquals(2, filters.size());
         AssertJUnit.assertEquals(filter, filters.get(0));
     }
 

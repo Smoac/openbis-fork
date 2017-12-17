@@ -40,6 +40,7 @@ public abstract class AbstractCollectionValidator<T> implements ICollectionValid
     @Override
     public boolean isValid(PersonPE person, T value)
     {
+        assert person != null;
         Collection<T> valid = getValid(person, Arrays.asList(value));
         return false == valid.isEmpty();
     }

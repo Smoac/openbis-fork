@@ -179,6 +179,7 @@ public class ProjectAuthorizationMigrationTest extends SystemTestCase
     private static IAuthSessionProvider createSessionWithRoles(RoleWithHierarchy... roles)
     {
         PersonPE person = new PersonPE();
+        person.setUserId("some_user_with_pa_on");
 
         for (RoleWithHierarchy role : roles)
         {

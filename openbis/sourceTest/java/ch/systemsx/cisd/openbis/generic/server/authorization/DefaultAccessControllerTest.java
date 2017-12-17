@@ -116,9 +116,12 @@ public final class DefaultAccessControllerTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(authorizationConfig).isProjectLevelEnabled();
+                    will(returnValue(false));
+                    
                     allowing(daoFactory).getAuthorizationConfig();
                     will(returnValue(authorizationConfig));
-
+                    
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
 
