@@ -21,8 +21,8 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetCodeUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -74,18 +74,6 @@ public class DataSetReferencePredicateSystemTest extends CommonPredicateScreenin
                     } else
                     {
                         assertException(t, UserFailureException.class, "No data set reference specified.");
-                    }
-                }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
                     }
                 }
             };

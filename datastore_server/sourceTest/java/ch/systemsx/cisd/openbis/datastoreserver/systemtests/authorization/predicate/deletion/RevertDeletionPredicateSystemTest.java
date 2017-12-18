@@ -98,17 +98,6 @@ public abstract class RevertDeletionPredicateSystemTest extends CommonPredicateS
                     }
                 }
 
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

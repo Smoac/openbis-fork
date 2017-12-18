@@ -56,19 +56,6 @@ public abstract class NewExternalDataPredicateSystemTest<O> extends CommonPredic
                         assertNoException(t);
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
-
             };
     }
 

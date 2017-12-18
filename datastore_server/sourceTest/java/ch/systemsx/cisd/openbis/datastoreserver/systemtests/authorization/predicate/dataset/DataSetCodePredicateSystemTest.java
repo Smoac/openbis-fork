@@ -74,18 +74,6 @@ public class DataSetCodePredicateSystemTest extends CommonPredicateSystemTest<St
                         assertException(t, UserFailureException.class, "No data set code specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

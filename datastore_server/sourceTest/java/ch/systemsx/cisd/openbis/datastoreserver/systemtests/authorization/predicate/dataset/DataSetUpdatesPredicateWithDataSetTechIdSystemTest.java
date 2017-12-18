@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.dataset;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.DataSetTechIdUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestDataSetAssertions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -55,20 +54,7 @@ public class DataSetUpdatesPredicateWithDataSetTechIdSystemTest extends DataSetU
     @Override
     protected CommonPredicateSystemTestAssertions<DataSetUpdatesDTO> getAssertions()
     {
-        return new CommonPredicateSystemTestDataSetAssertions<DataSetUpdatesDTO>(super.getAssertions())
-            {
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
-            };
+        return new CommonPredicateSystemTestDataSetAssertions<DataSetUpdatesDTO>(super.getAssertions());
     }
 
 }

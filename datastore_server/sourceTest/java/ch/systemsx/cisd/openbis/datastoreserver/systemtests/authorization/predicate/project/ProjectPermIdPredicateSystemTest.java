@@ -68,18 +68,6 @@ public class ProjectPermIdPredicateSystemTest extends CommonPredicateSystemTest<
                         assertException(t, UserFailureException.class, "No project perm id specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

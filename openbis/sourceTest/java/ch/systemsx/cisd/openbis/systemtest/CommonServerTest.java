@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -3047,7 +3048,7 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
-    public void testGetEntityInformationHolderWithProjectAuthorization(ProjectAuthorizationUser user)
+    public void testGetEntityInformationHolderByPermIdWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
@@ -3063,6 +3064,32 @@ public class CommonServerTest extends SystemTestCase
             try
             {
                 commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetEntityInformationHolderByDescriptionWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        BasicEntityDescription description = new BasicEntityDescription();
+        description.setEntityIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        description.setEntityKind(EntityKind.EXPERIMENT);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            IEntityInformationHolderWithPermId entity = commonServer.getEntityInformationHolder(session.getSessionToken(), description);
+            assertEquals(entity.getCode(), "EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.getEntityInformationHolder(session.getSessionToken(), description);
                 fail();
             } catch (AuthorizationFailureException e)
             {

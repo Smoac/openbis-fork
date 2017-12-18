@@ -3585,7 +3585,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             @AuthorizationGuard(guardClass = BasicEntityDescriptionPredicate.class) BasicEntityDescription info)
     {

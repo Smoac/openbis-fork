@@ -97,18 +97,6 @@ public abstract class NewDataSetsWithTypePredicateSystemTest<O> extends CommonPr
                         assertNoException(t);
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

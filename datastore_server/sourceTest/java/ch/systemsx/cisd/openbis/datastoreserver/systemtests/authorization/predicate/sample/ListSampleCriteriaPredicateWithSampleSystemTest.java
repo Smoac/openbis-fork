@@ -64,20 +64,7 @@ public abstract class ListSampleCriteriaPredicateWithSampleSystemTest extends Li
     @Override
     protected CommonPredicateSystemTestAssertions<ListSampleCriteria> getAssertions()
     {
-        return new CommonPredicateSystemTestSampleAssertions<ListSampleCriteria>(super.getAssertions())
-            {
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
-            };
+        return new CommonPredicateSystemTestSampleAssertions<ListSampleCriteria>(super.getAssertions());
     }
 
 }

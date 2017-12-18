@@ -88,18 +88,6 @@ public class ExperimentTechIdCollectionPredicateSystemTest extends CommonPredica
                         assertException(t, UserFailureException.class, "No EXPERIMENT technical id collection specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

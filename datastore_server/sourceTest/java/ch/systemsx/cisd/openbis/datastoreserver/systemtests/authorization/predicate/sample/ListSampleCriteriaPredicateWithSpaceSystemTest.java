@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -45,25 +42,6 @@ public class ListSampleCriteriaPredicateWithSpaceSystemTest extends ListSampleCr
         criteria.setSpaceCode(spacePE.getCode());
         criteria.setIncludeSpace(true);
         return criteria;
-    }
-
-    @Override
-    protected CommonPredicateSystemTestAssertions<ListSampleCriteria> getAssertions()
-    {
-        return new CommonPredicateSystemTestAssertionsDelegate<ListSampleCriteria>(super.getAssertions())
-            {
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
-            };
     }
 
 }

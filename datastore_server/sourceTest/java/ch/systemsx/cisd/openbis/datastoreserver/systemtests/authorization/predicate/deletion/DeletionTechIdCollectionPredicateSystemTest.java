@@ -94,18 +94,6 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
                         assertException(t, UserFailureException.class, "No deletion technical id specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

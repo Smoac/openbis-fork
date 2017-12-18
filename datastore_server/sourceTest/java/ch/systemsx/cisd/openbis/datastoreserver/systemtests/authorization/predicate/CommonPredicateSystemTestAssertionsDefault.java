@@ -63,7 +63,7 @@ public class CommonPredicateSystemTestAssertionsDefault<O> extends CommonPredica
             CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNoRoles(t);
         } else
         {
-            CommonAuthorizationSystemTest.assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
+            CommonAuthorizationSystemTest.assertNoException(t);
         }
     }
 

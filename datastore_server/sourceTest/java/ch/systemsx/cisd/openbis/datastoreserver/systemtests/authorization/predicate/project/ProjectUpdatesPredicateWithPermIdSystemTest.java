@@ -72,18 +72,6 @@ public class ProjectUpdatesPredicateWithPermIdSystemTest extends CommonPredicate
                         assertException(t, UserFailureException.class, "No project updates specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

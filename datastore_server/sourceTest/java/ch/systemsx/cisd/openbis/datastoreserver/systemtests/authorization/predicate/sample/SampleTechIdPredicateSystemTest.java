@@ -75,18 +75,6 @@ public class SampleTechIdPredicateSystemTest extends CommonPredicateSystemTest<T
                         assertException(t, UserFailureException.class, "No sample technical id specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

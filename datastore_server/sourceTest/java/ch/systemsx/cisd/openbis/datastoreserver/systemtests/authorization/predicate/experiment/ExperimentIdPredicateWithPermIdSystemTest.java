@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.experiment;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -41,25 +38,6 @@ public class ExperimentIdPredicateWithPermIdSystemTest extends ExperimentIdPredi
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
         return new ExperimentPermIdId(experimentPE.getPermId());
-    }
-
-    @Override
-    protected CommonPredicateSystemTestAssertions<ExperimentPermIdId> getAssertions()
-    {
-        return new CommonPredicateSystemTestAssertionsDelegate<ExperimentPermIdId>(super.getAssertions())
-            {
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
-            };
     }
 
 }

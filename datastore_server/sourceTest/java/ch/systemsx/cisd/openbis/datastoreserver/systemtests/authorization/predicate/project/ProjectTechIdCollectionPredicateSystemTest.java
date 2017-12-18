@@ -86,18 +86,6 @@ public class ProjectTechIdCollectionPredicateSystemTest extends CommonPredicateS
                         assertException(t, UserFailureException.class, "No PROJECT technical id collection specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

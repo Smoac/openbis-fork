@@ -75,18 +75,6 @@ public class DataSetTechIdPredicateSystemTest extends CommonPredicateSystemTest<
                         assertException(t, UserFailureException.class, "No data set technical id specified.");
                     }
                 }
-
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
             };
     }
 

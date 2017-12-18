@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.project;
+package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.entity;
 
 import java.util.List;
 
@@ -23,39 +23,25 @@ import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.Projec
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.project.ProjectPredicateTestService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
+import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.entity.EntityPredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public class NewProjectPredicateSystemTest extends CommonPredicateSystemTest<NewProject>
+public abstract class BasicEntityDescriptionPredicateSystemTest extends CommonPredicateSystemTest<BasicEntityDescription>
 {
 
     @Override
-    protected NewProject createNonexistentObject(Object param)
+    protected void evaluateObjects(ProjectAuthorizationUser user, List<BasicEntityDescription> objects, Object param)
     {
-        return new NewProject("/IDONTEXIST/IDONTEXIST", "idontexist");
+        getBean(EntityPredicateTestService.class).testBasicEntityDescriptionPredicate(user.getSessionProvider(), objects.get(0));
     }
 
     @Override
-    protected NewProject createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
+    protected CommonPredicateSystemTestAssertions<BasicEntityDescription> getAssertions()
     {
-        return new NewProject("/" + spacePE.getCode() + "/" + projectPE.getCode(), "description");
-    }
-
-    @Override
-    protected void evaluateObjects(ProjectAuthorizationUser user, List<NewProject> objects, Object param)
-    {
-        getBean(ProjectPredicateTestService.class).testNewProjectPredicate(user.getSessionProvider(), objects.get(0));
-    }
-
-    @Override
-    protected CommonPredicateSystemTestAssertions<NewProject> getAssertions()
-    {
-        return new CommonPredicateSystemTestAssertionsDelegate<NewProject>(super.getAssertions())
+        return new CommonPredicateSystemTestAssertionsDelegate<BasicEntityDescription>(super.getAssertions())
             {
                 @Override
                 public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
@@ -65,7 +51,7 @@ public class NewProjectPredicateSystemTest extends CommonPredicateSystemTest<New
                         assertAuthorizationFailureExceptionThatNoRoles(t);
                     } else
                     {
-                        assertException(t, UserFailureException.class, "No new project specified.");
+                        assertException(t, UserFailureException.class, "No basic entity description specified.");
                     }
                 }
             };

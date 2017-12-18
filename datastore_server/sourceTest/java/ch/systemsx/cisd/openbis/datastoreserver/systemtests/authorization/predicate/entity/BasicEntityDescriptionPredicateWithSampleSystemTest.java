@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
+package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.entity;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleIdentifierUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.sample.SamplePredicateTestService;
 
 /**
  * @author pkupczyk
  */
-public class SampleAugmentedCodePredicateSystemTest extends CommonPredicateSystemTest<String>
+public class BasicEntityDescriptionPredicateWithSampleSystemTest extends BasicEntityDescriptionPredicateSystemTest
 {
 
     @Override
@@ -42,42 +39,24 @@ public class SampleAugmentedCodePredicateSystemTest extends CommonPredicateSyste
     }
 
     @Override
-    protected String createNonexistentObject(Object param)
+    protected BasicEntityDescription createNonexistentObject(Object param)
     {
         SampleIdentifier identifier = SampleIdentifierUtil.createNonexistentObject(param);
-        return identifier.toString();
+        return new BasicEntityDescription(EntityKind.SAMPLE, identifier.toString());
     }
 
     @Override
-    protected String createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
+    protected BasicEntityDescription createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         SampleIdentifier identifier = SampleIdentifierUtil.createObject(this, spacePE, projectPE, param);
-        return identifier.toString();
+        return new BasicEntityDescription(EntityKind.SAMPLE, identifier.toString());
     }
 
     @Override
-    protected void evaluateObjects(ProjectAuthorizationUser user, List<String> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<BasicEntityDescription> getAssertions()
     {
-        getBean(SamplePredicateTestService.class).testSampleAugmentedCodePredicate(user.getSessionProvider(), objects.get(0));
-    }
-
-    @Override
-    protected CommonPredicateSystemTestAssertions<String> getAssertions()
-    {
-        return new CommonPredicateSystemTestSampleAssertions<String>(super.getAssertions())
+        return new CommonPredicateSystemTestSampleAssertions<BasicEntityDescription>(super.getAssertions())
             {
-                @Override
-                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertException(t, UserFailureException.class, "No sample specified.");
-                    }
-                }
-
                 @Override
                 public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {

@@ -975,7 +975,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     // There is no @ReturnValueFilter because commonServer.searchForDataSetsWithSequences() does already the filtering.
     public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, String preferredSearchDomainOrNull,
             String searchString, Map<String, String> optionalParametersOrNull)
@@ -994,7 +994,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
     {
         checkSession(sessionToken);

@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.sample;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleTechIdUtil;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -44,25 +41,6 @@ public class SampleIdPredicateWithSampleTechIdSystemTest extends SampleIdPredica
     {
         TechId techId = SampleTechIdUtil.createObject(this, spacePE, projectPE, param);
         return new SampleTechIdId(techId.getId());
-    }
-
-    @Override
-    protected CommonPredicateSystemTestAssertions<ISampleId> getAssertions()
-    {
-        return new CommonPredicateSystemTestAssertionsDelegate<ISampleId>(super.getAssertions())
-            {
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertNoException(t);
-                    }
-                }
-            };
     }
 
 }

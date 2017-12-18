@@ -14,60 +14,56 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.experiment;
+package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.entity;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.ExperimentIdentifierUtil;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertionsDelegate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.systemtest.authorization.predicate.experiment.ExperimentPredicateTestService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentPermIdPredicateSystemTest extends CommonPredicateSystemTest<PermId>
+public class BasicEntityDescriptionPredicateWithExperimentSystemTest extends BasicEntityDescriptionPredicateSystemTest
 {
 
     @Override
-    protected PermId createNonexistentObject(Object param)
+    protected BasicEntityDescription createNonexistentObject(Object param)
     {
-        return new PermId("IDONTEXIST");
+        ExperimentIdentifier identifier = ExperimentIdentifierUtil.createNonexistentObject(param);
+        return new BasicEntityDescription(EntityKind.EXPERIMENT, identifier.toString());
     }
 
     @Override
-    protected PermId createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
+    protected BasicEntityDescription createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         ExperimentPE experimentPE = getExperiment(spacePE, projectPE);
-        return new PermId(experimentPE.getPermId());
+        return new BasicEntityDescription(EntityKind.EXPERIMENT, experimentPE.getIdentifier());
     }
 
     @Override
-    protected void evaluateObjects(ProjectAuthorizationUser user, List<PermId> objects, Object param)
+    protected CommonPredicateSystemTestAssertions<BasicEntityDescription> getAssertions()
     {
-        getBean(ExperimentPredicateTestService.class).testExperimentPermIdPredicate(user.getSessionProvider(), objects.get(0));
-    }
-
-    @Override
-    protected CommonPredicateSystemTestAssertions<PermId> getAssertions()
-    {
-        return new CommonPredicateSystemTestAssertionsDelegate<PermId>(super.getAssertions())
+        return new CommonPredicateSystemTestAssertionsDelegate<BasicEntityDescription>(super.getAssertions())
             {
                 @Override
-                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
                 {
                     if (user.isDisabledProjectUser())
                     {
                         assertAuthorizationFailureExceptionThatNoRoles(t);
+                    } else if (user.isInstanceUser())
+                    {
+                        assertNoException(t);
                     } else
                     {
-                        assertException(t, UserFailureException.class, "No experiment perm id specified.");
+                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
                     }
                 }
             };
