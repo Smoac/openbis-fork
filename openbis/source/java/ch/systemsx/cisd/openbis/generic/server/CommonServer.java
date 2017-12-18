@@ -1632,7 +1632,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SearchDomainSearchResultValidator.class)
     public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken,
             String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull)
@@ -1644,7 +1644,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
     {
         Session session = getSession(sessionToken);
@@ -2633,11 +2633,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             EntityKind entityKind, String permId)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
+
+        AuthorizationServiceUtils authorizationUtils =
+                new AuthorizationServiceUtils(getDAOFactory(), session.tryGetPerson().getUserId());
+        authorizationUtils.checkAccessEntity(entityKind, permId);
+
         switch (entityKind)
         {
             case DATA_SET:
