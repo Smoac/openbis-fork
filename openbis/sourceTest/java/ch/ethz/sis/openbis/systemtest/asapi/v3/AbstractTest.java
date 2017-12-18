@@ -1250,7 +1250,9 @@ public class AbstractTest extends SystemTestCase
         List<String> renderedAssignments = new ArrayList<>();
         for (RoleAssignment roleAssignment : roleAssignments)
         {
-            renderedAssignments.add(roleAssignment.getRoleLevel() + "_" + roleAssignment.getRole() + " " + roleAssignment.getSpace());
+            Space space = roleAssignment.getSpace();
+            renderedAssignments.add(roleAssignment.getRoleLevel() + "_" + roleAssignment.getRole() + 
+                    (space == null ? "" : " " + space));
         }
         Collections.sort(renderedAssignments);
         return renderedAssignments.toString();

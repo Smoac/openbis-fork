@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -44,6 +45,7 @@ public class CreatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PersonCreation personCreation = new PersonCreation();
         personCreation.setUserId("user-" + System.currentTimeMillis());
+        personCreation.setHomeSpaceId(new SpacePermId("CISD"));
         
         // When
         List<PersonPermId> persons = v3api.createPersons(sessionToken, Arrays.asList(personCreation));
@@ -52,9 +54,11 @@ public class CreatePersonTest extends AbstractTest
         assertEquals(persons.toString(), "[" + personCreation.getUserId() + "]");
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRegistrator();
+        fetchOptions.withSpace();
         Person person = v3api.getPersons(sessionToken, persons, fetchOptions).get(persons.get(0));
         assertEquals(person.getUserId(), personCreation.getUserId());
         assertEquals(person.getRegistrator().getUserId(), TEST_USER);
+        assertEquals(person.getSpace().getCode(), "CISD");
     }
     
     @Test(dataProvider = "usersNotAllowedToCreatePersons")

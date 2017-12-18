@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -34,6 +35,9 @@ public class PersonCreation implements ICreation, IObjectCreation
 
     @JsonProperty
     private String userId;
+    
+    @JsonProperty
+    private ISpaceId homeSpaceId;
 
     public String getUserId()
     {
@@ -44,6 +48,15 @@ public class PersonCreation implements ICreation, IObjectCreation
     {
         this.userId = userId;
     }
-    
+
+    public ISpaceId getHomeSpaceId()
+    {
+        return homeSpaceId;
+    }
+
+    public void setHomeSpaceId(ISpaceId homeSpaceId)
+    {
+        this.homeSpaceId = homeSpaceId;
+    }
     
 }

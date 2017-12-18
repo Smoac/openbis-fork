@@ -46,7 +46,7 @@ public class UpdatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId("homeless");
-        personUpdate.setPersonId(personId);
+        personUpdate.setUserId(personId);
         personUpdate.setHomeSpaceId(new SpacePermId("TEST-SPACE"));
         
         assertUserFailureException(new IDelegatedAction()
@@ -68,7 +68,7 @@ public class UpdatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId("homeless");
-        personUpdate.setPersonId(personId);
+        personUpdate.setUserId(personId);
         personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
@@ -89,7 +89,7 @@ public class UpdatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId("homeless");
-        personUpdate.setPersonId(personId);
+        personUpdate.setUserId(personId);
         personUpdate.setHomeSpaceId(new SpacePermId("CISD"));
         
         assertAuthorizationFailureException(new IDelegatedAction()
@@ -130,7 +130,7 @@ public class UpdatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
         IPersonId personId = new Me();
-        personUpdate.setPersonId(personId);
+        personUpdate.setUserId(personId);
         personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
@@ -151,7 +151,7 @@ public class UpdatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId(TEST_GROUP_OBSERVER);
-        personUpdate.setPersonId(personId);
+        personUpdate.setUserId(personId);
         personUpdate.deactivate();
         
         // When
@@ -165,6 +165,28 @@ public class UpdatePersonTest extends AbstractTest
         assertEquals(person.isActive(), Boolean.FALSE);
     }
     
+    @Test
+    public void testDeactivateYourself()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PersonUpdate personUpdate = new PersonUpdate();
+        PersonPermId personId = new PersonPermId(TEST_USER);
+        personUpdate.setUserId(personId);
+        personUpdate.deactivate();
+        
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                // When
+                v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
+            }
+            // Then
+        }, "You can not deactivate yourself. Ask another instance admin to do that for you.");
+    }
+    
     @Test(dataProvider = "usersNotAllowedToDeactivateUsers")
     public void testDeactivateUserWithUserCausingAuthorizationFailure(final String user)
     {
@@ -176,7 +198,7 @@ public class UpdatePersonTest extends AbstractTest
                     // Given
                     String sessionToken = v3api.login(user, PASSWORD);
                     PersonUpdate personUpdate = new PersonUpdate();
-                    personUpdate.setPersonId(new PersonPermId(TEST_GROUP_OBSERVER));
+                    personUpdate.setUserId(new PersonPermId(TEST_GROUP_OBSERVER));
                     personUpdate.deactivate();
                     
                     // When

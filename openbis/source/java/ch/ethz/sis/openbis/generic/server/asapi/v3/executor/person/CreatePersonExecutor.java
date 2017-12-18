@@ -56,6 +56,9 @@ public class CreatePersonExecutor
 {
     @Autowired
     private IDAOFactory daoFactory;
+    
+    @Autowired
+    private ISetPersonSpaceExecutor setPersonSpaceExecutor;
 
     @Autowired
     private AuthenticationServiceHolder authenticationServiceHolder;
@@ -72,6 +75,10 @@ public class CreatePersonExecutor
     @Override
     protected void checkData(IOperationContext context, PersonCreation creation)
     {
+        if (StringUtils.isEmpty(creation.getUserId()))
+        {
+            throw new UserFailureException("Unspecified user id.");
+        }
     }
 
     @Override
@@ -152,6 +159,7 @@ public class CreatePersonExecutor
     @Override
     protected void updateBatch(IOperationContext context, MapBatch<PersonCreation, PersonPE> batch)
     {
+        setPersonSpaceExecutor.set(context, batch);
     }
 
     @Override

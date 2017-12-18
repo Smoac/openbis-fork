@@ -5,21 +5,21 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 	stjs.extend(PersonUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.person.update.PersonUpdate';
 		constructor.serialVersionUID = 1;
-		prototype.personId = null;
+		prototype.userId = null;
 		prototype.homeSpaceId = null;
 		prototype.active = true;
 
 		prototype.getObjectId = function() {
-			return this.getPersonId();
+			return this.getUserId();
 		};
-		prototype.getPersonId = function() {
-			return this.personId;
+		prototype.getUserId = function() {
+			return this.userId;
 		};
-		prototype.setPersonId = function(personId) {
-			this.personId = personId;
+		prototype.setUserId = function(userId) {
+			this.userId = userId;
 		};
 		prototype.getHomeSpaceId = function() {
-			return this.spaceId;
+			return this.homeSpaceId;
 		};
 		prototype.setHomeSpaceId = function(spaceId) {
 			this.homeSpaceId.setValue(spaceId);
@@ -31,8 +31,8 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 			this.active = false;
 		};
 	}, {
-		PersonId : "IPersonId",
-		spaceId : {
+		userId : "IPersonId",
+		homeSpaceId : {
 			name : "FieldUpdateValue",
 			arguments : [ "ISpaceId" ]
 		}

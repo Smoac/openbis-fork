@@ -22,6 +22,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.EmailSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.FirstNameSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.LastNameSearchCriteria;
@@ -52,7 +55,10 @@ public class SearchPersonExecutor extends AbstractSearchObjectManuallyExecutor<P
     @Override
     protected Matcher<PersonPE> getMatcher(ISearchCriteria criteria)
     {
-        if (criteria instanceof UserIdSearchCriteria)
+        if (criteria instanceof IdSearchCriteria<?>)
+        {
+            return new IdMatcher();
+        } else if (criteria instanceof UserIdSearchCriteria)
         {
             return new UserIdMatcher();
         } else if (criteria instanceof UserIdsSearchCriteria)
@@ -70,6 +76,35 @@ public class SearchPersonExecutor extends AbstractSearchObjectManuallyExecutor<P
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
+        }
+    }
+    
+    private class IdMatcher extends SimpleFieldMatcher<PersonPE>
+    {
+
+        @Override
+        protected boolean isMatching(IOperationContext context, PersonPE object, ISearchCriteria criteria)
+        {
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
+
+            if (id == null)
+            {
+                return true;
+            } else if (id instanceof PersonPermId)
+            {
+                return object.getUserId().equals(((PersonPermId) id).getPermId());
+            } else if (id instanceof Me)
+            {
+                PersonPE person = context.getSession().tryGetPerson();
+                if (person != null)
+                {
+                    return object.getUserId().equals(person.getUserId());
+                }
+                throw new IllegalArgumentException("Unspecified session user");
+            } else
+            {
+                throw new IllegalArgumentException("Unknown id: " + criteria.getClass());
+            }
         }
     }
     

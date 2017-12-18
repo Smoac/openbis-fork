@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 
 /**
@@ -56,5 +58,45 @@ public class SearchPersonTest extends AbstractTest
                 + "observer, home space:CISD, [SPACE_OBSERVER Space TESTGROUP]\n"
                 + "observer_cisd, home space:CISD, [SPACE_ADMIN Space TESTGROUP, SPACE_OBSERVER Space CISD]\n"
                 + "test_role, home space:CISD, [SPACE_POWER_USER Space CISD], registrator: test\n");
+    }
+    
+    @Test
+    public void testSearchPersonById()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
+        searchCriteria.withId().thatEquals(new PersonPermId(TEST_GROUP_OBSERVER));
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withSpace();
+        fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRegistrator();
+        
+        // Then
+        List<Person> persons = v3api.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
+        
+        // When
+        assertEquals(renderPersons(persons), "observer, home space:CISD, [SPACE_OBSERVER Space TESTGROUP]\n");
+    }
+    
+    @Test
+    public void testSearchPersonByMe()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
+        searchCriteria.withId().thatEquals(new Me());
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withSpace();
+        fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRegistrator();
+        
+        // Then
+        List<Person> persons = v3api.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
+        
+        // When
+        assertEquals(renderPersons(persons), "test, home space:CISD, [INSTANCE_ADMIN, INSTANCE_ETL_SERVER, "
+                + "SPACE_ADMIN Space CISD, SPACE_ADMIN Space TESTGROUP, SPACE_ETL_SERVER Space CISD], "
+                + "registrator: system\n");
     }
 }

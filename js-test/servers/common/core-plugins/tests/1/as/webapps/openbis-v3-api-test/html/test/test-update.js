@@ -845,7 +845,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fUpdate = function(facade, permId) {
 				var update = new c.PersonUpdate();
-				update.setPersonId(permId);
+				update.setUserId(permId);
 				update.setHomeSpaceId(new c.SpacePermId("TEST"))
 				return facade.updatePersons([ update ]);
 			}
@@ -871,7 +871,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			
 			var fUpdate = function(facade, permId) {
 				var update = new c.PersonUpdate();
-				update.setPersonId(permId);
+				update.setUserId(permId);
 				update.deactivate();
 				return facade.updatePersons([ update ]);
 			}

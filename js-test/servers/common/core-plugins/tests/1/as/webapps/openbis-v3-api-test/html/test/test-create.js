@@ -623,6 +623,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCreate = function(facade) {
 				var personCreation = new c.PersonCreation();
 				personCreation.setUserId(userId);
+				personCreation.setHomeSpaceId(new c.SpacePermId("TEST"))
 				return facade.createPersons([ personCreation ]);
 			}
 			
@@ -630,6 +631,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(person.getUserId(), userId, "User id");
 				c.assertEqual(person.getRegistrator().getUserId(), "openbis_test_js", "Registrator");
 				c.assertEqual(person.isActive(), true, "User active");
+				c.assertEqual(person.getSpace().getCode(), "TEST", "Home space");
 			}
 			
 			testCreate(c, fCreate, c.findPerson, fCheck);

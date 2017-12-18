@@ -65,7 +65,7 @@ public class UpdatePersonExecutor
     @Override
     protected IPersonId getId(PersonUpdate update)
     {
-        return update.getPersonId();
+        return update.getUserId();
     }
 
     @Override
@@ -77,13 +77,13 @@ public class UpdatePersonExecutor
     @Override
     protected void checkData(IOperationContext context, PersonUpdate update)
     {
-        IPersonId personId = update.getPersonId();
+        IPersonId personId = update.getUserId();
         if (personId == null || personId instanceof Me)
         {
             PersonPE person = context.getSession().tryGetPerson();
             if (person != null)
             {
-                update.setPersonId(new PersonPermId(person.getUserId()));
+                update.setUserId(new PersonPermId(person.getUserId()));
             } else
             {
                 throw new UserFailureException("Person to be updated not specified.");
@@ -119,6 +119,10 @@ public class UpdatePersonExecutor
     private void deactivate(IOperationContext context, PersonPE person)
     {
         authorizationExecutor.canDeactivate(context);
+        if (person.equals(context.getSession().tryGetPerson()))
+        {
+            throw new UserFailureException("You can not deactivate yourself. Ask another instance admin to do that for you.");
+        }
         IRoleAssignmentDAO roleAssignmenDAO = daoFactory.getRoleAssignmentDAO();
         person.setActive(false);
         person.clearAuthorizationGroups();

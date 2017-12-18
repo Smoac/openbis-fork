@@ -38,7 +38,7 @@ public class PersonUpdate implements IUpdate, IObjectUpdate<IPersonId>
     private static final long serialVersionUID = 1L;
     
     @JsonProperty
-    private IPersonId personId;
+    private IPersonId userId;
 
     @JsonProperty
     private FieldUpdateValue<ISpaceId> homeSpaceId = new FieldUpdateValue<ISpaceId>();
@@ -46,21 +46,21 @@ public class PersonUpdate implements IUpdate, IObjectUpdate<IPersonId>
     @JsonProperty
     private boolean active = true;
     
-    public IPersonId getPersonId()
+    public IPersonId getUserId()
     {
-        return personId;
+        return userId;
     }
 
-    public void setPersonId(IPersonId personId)
+    public void setUserId(IPersonId personId)
     {
-        this.personId = personId;
+        this.userId = personId;
     }
 
     @Override
     @JsonIgnore
     public IPersonId getObjectId()
     {
-        return getPersonId();
+        return getUserId();
     }
 
     @JsonIgnore
