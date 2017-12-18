@@ -68,7 +68,7 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("SEARCH_ROLE_ASSIGNMENT")
     public void canSearch(IOperationContext context)
     {

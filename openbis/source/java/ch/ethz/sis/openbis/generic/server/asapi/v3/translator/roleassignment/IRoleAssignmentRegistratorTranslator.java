@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.roleassignment;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectBaseRecord;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IObjectToPersonTranslator;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class RoleAssignmentBaseRecord extends ObjectBaseRecord
+public interface IRoleAssignmentRegistratorTranslator extends IObjectToPersonTranslator
 {
-    public String role_code;
-    public Long space_id;
-    public Long project_id;
-    public Date registrationDate;
+
 }

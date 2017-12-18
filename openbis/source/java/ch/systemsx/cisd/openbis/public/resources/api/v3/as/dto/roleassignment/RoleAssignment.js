@@ -12,6 +12,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.roleLevel = null;
 		prototype.space = null;
 		prototype.project = null;
+		prototype.registrationDate = null;
+		prototype.registrator = null;
+		
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -74,6 +77,22 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setProject = function(project) {
 			this.project = project;
 		};
+		prototype.getRegistrationDate = function() {
+			return this.registrationDate;
+		};
+		prototype.setRegistrationDate = function(registrationDate) {
+			this.registrationDate = registrationDate;
+		};
+		prototype.getRegistrator = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
+				return this.registrator;
+			} else {
+				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
+			}
+		};
+		prototype.setRegistrator = function(registrator) {
+			this.registrator = registrator;
+		};
 	}, {
 		fetchOptions : "RoleAssignmentFetchOptions",
 		id : "IRoleAssignmentId",
@@ -82,7 +101,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		role : "Role",
 		roleLevel : "RoleLevel",
 		space : "Space",
-		project : "Project"
+		project : "Project",
+		registrationDate : "Date",
+		registrator : "Person"
 	});
 	return RoleAssignment;
 })

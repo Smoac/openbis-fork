@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.Authorization
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleLevel;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 
 /**
@@ -209,6 +210,26 @@ public class SearchRoleAssignmentsTest extends AbstractTest
         // Then
         assertRoleAssignments(assignments, "ADMIN SPACE[CISD] for user test\n"
                 + "ETL_SERVER SPACE[CISD] for user test\n");
+    }
+    
+    @Test
+    public void testSearchForARoleAssignmentId()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        RoleAssignmentSearchCriteria searchCriteria = new RoleAssignmentSearchCriteria();
+        searchCriteria.withId().thatEquals(new RoleAssignmentTechId(2L));
+        RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withUser();
+        fetchOptions.withAuthorizationGroup();
+        fetchOptions.withSpace();
+        fetchOptions.withProject();
+        
+        // When
+        List<RoleAssignment> assignments = v3api.searchRoleAssignments(sessionToken, searchCriteria, fetchOptions).getObjects();
+        
+        // Then
+        assertRoleAssignments(assignments, "ADMIN SPACE[CISD] for user test\n");
     }
     
     private void assertMinimumNumbersOfRoleAssignments(List<RoleAssignment> assignments, int minSize)

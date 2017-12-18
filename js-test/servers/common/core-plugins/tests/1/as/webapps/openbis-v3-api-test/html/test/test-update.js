@@ -800,7 +800,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCreate = function(facade) {
 				var creation = new c.AuthorizationGroupCreation();
 				creation.setCode(code);
-				creation.setUsers([new c.PersonPermId("power_user")]);
+				creation.setUserIds([new c.PersonPermId("power_user")]);
 				return facade.createAuthorizationGroups([ creation ]);
 			}
 			

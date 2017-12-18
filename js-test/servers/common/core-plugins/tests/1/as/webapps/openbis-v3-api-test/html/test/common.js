@@ -33,6 +33,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.RoleAssignmentCreation = dtos.RoleAssignmentCreation;
 		this.PersonCreation = dtos.PersonCreation;
 		this.Role = require('as/dto/roleassignment/Role');
+		this.RoleLevel = require('as/dto/roleassignment/RoleLevel');
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation = dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
@@ -445,7 +446,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.AuthorizationGroupCreation();
 			creation.setCode(c.generateId("AUTHORIZATION_GROUP"));
-			creation.setUsers([new c.PersonPermId("power_user")]);
+			creation.setUserIds([new c.PersonPermId("power_user")]);
 			return facade.createAuthorizationGroups([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -926,6 +927,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withSpace();
 			fo.withUser();
 			fo.withAuthorizationGroup();
+			fo.withRegistrator();
 			return fo;
 		};
 		

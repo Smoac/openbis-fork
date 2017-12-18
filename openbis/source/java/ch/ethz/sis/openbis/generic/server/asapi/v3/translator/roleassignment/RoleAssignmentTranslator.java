@@ -44,6 +44,9 @@ public class RoleAssignmentTranslator
     private IRoleAssignmentBaseTranslator baseTranslator;
     
     @Autowired
+    private IRoleAssignmentRegistratorTranslator registratorTranslator;
+    
+    @Autowired
     private IRoleAssignmentPersonTranslator userTranslator;
     
     @Autowired
@@ -69,6 +72,10 @@ public class RoleAssignmentTranslator
         TranslationResults relations = new TranslationResults();
         
         relations.put(IRoleAssignmentBaseTranslator.class, baseTranslator.translate(context, inputs, null));
+        if (fetchOptions.hasRegistrator())
+        {
+            relations.put(IRoleAssignmentRegistratorTranslator.class, registratorTranslator.translate(context, inputs, fetchOptions.withRegistrator()));
+        }
         if (fetchOptions.hasUser())
         {
             relations.put(IRoleAssignmentPersonTranslator.class, userTranslator.translate(context, inputs, fetchOptions.withUser()));
@@ -98,7 +105,13 @@ public class RoleAssignmentTranslator
         output.setId(new RoleAssignmentTechId(baseRecord.id));
         output.setRole(Role.valueOf(baseRecord.role_code));
         output.setRoleLevel(extractRoleLevel(baseRecord));
+        output.setRegistrationDate(baseRecord.registrationDate);
         
+        if (fetchOptions.hasRegistrator())
+        {
+            output.setRegistrator(relations.get(IRoleAssignmentRegistratorTranslator.class, input));
+            output.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
+        }
         if (fetchOptions.hasUser())
         {
             output.setUser(relations.get(IRoleAssignmentPersonTranslator.class, input));

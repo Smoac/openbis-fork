@@ -7,11 +7,26 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
 	stjs.extend(RoleAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions';
 		constructor.serialVersionUID = 1;
+	    prototype.registrator = null;
 		prototype.user = null;
 		prototype.authorizationGroup = null;
 		prototype.space = null;
 		prototype.sort = null;
 		prototype.project = null;
+		
+		prototype.withRegistrator = function() {
+			if (this.registrator == null) {
+				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
+				this.registrator = new PersonFetchOptions();
+			}
+			return this.registrator;
+		};
+		prototype.withRegistratorUsing = function(fetchOptions) {
+			return this.registrator = fetchOptions;
+		};
+		prototype.hasRegistrator = function() {
+			return this.registrator != null;
+		};
 		prototype.withUser = function() {
 			if (this.user == null) {
 				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
@@ -75,6 +90,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
 			return this.sort;
 		};
 	}, {
+		registrator : "PersonFetchOptions",
 		user : "PersonFetchOptions",
 		authorizationGroup : "AuthorizationGroupFetchOptions",
 		space : "SpaceFetchOptions",

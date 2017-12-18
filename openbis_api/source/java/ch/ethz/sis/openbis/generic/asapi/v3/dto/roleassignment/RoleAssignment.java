@@ -17,11 +17,14 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
@@ -37,7 +40,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.roleassignment.RoleAssignment")
-public class RoleAssignment implements Serializable, ISpaceHolder
+public class RoleAssignment implements Serializable, ISpaceHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -65,6 +68,12 @@ public class RoleAssignment implements Serializable, ISpaceHolder
     @JsonProperty
     private Project project;
     
+    @JsonProperty
+    private Date registrationDate;
+
+    @JsonProperty
+    private Person registrator;
+
     @JsonIgnore
     public RoleAssignmentFetchOptions getFetchOptions()
     {
@@ -175,4 +184,35 @@ public class RoleAssignment implements Serializable, ISpaceHolder
     {
         this.project = project;
     }
+    @JsonIgnore
+    @Override
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    @JsonIgnore
+    @Override
+    public Person getRegistrator()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
+        {
+            return registrator;
+        }
+        else
+        {
+            throw new NotFetchedException("Registrator has not been fetched.");
+        }
+    }
+
+    public void setRegistrator(Person registrator)
+    {
+        this.registrator = registrator;
+    }
+
 }

@@ -6,7 +6,7 @@ define([ "stjs" ], function(stjs) {
 		constructor.serialVersionUID = 1;
 		prototype.code = null;
 		prototype.description = null;
-		prototype.users = null;
+		prototype.userIds = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -20,11 +20,11 @@ define([ "stjs" ], function(stjs) {
 		prototype.setDescription = function(description) {
 			this.description = description;
 		};
-		prototype.getUsers = function() {
-			return this.users;
+		prototype.getUserIds = function() {
+			return this.userIds;
 		};
-		prototype.setUsers = function(users) {
-			this.users = users;
+		prototype.setUserIds = function(userIds) {
+			this.userIds = userIds;
 		};
 	}, {
 		users : {

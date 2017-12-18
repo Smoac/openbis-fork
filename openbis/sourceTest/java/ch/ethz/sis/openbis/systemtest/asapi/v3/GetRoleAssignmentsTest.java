@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -55,16 +56,19 @@ public class GetRoleAssignmentsTest extends AbstractTest
         assertEquals(map.get(id1).getRoleLevel(), RoleLevel.INSTANCE);
         assertEquals(map.get(id2).getRole(), Role.ADMIN);
         assertEquals(map.get(id2).getRoleLevel(), RoleLevel.SPACE);
+        assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(map.get(id2).getRegistrationDate()), 
+                "2008-11-05 09:18:11");
     }
     
     @Test
-    public void testWithUserAndGroup()
+    public void testWithRegistratorAndUserAndGroup()
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         RoleAssignmentTechId id1 = new RoleAssignmentTechId(29L);
         RoleAssignmentTechId id2 = new RoleAssignmentTechId(6L);
         RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withRegistrator();
         fetchOptions.withUser();
         fetchOptions.withAuthorizationGroup().withUsers();
         
@@ -76,6 +80,8 @@ public class GetRoleAssignmentsTest extends AbstractTest
         assertEquals(map.get(id1).getRoleLevel(), RoleLevel.PROJECT);
         assertEquals(map.get(id1).getUser(), null);
         assertEquals(map.get(id1).getAuthorizationGroup().getCode(), "AGROUP");
+        assertEquals(map.get(id1).getFetchOptions().hasRegistrator(), true);
+        assertEquals(map.get(id1).getRegistrator().getUserId(), "test");
         assertEquals(map.get(id1).getFetchOptions().hasUser(), true);
         assertEquals(map.get(id1).getFetchOptions().hasAuthorizationGroup(), true);
         assertEquals(map.get(id1).getFetchOptions().hasProject(), false);
@@ -84,6 +90,8 @@ public class GetRoleAssignmentsTest extends AbstractTest
         assertEquals(map.get(id2).getRoleLevel(), RoleLevel.SPACE);
         assertEquals(map.get(id2).getUser().getUserId(), "observer");
         assertEquals(map.get(id2).getAuthorizationGroup(), null);
+        assertEquals(map.get(id2).getFetchOptions().hasRegistrator(), true);
+        assertEquals(map.get(id2).getRegistrator().getUserId(), "test");
         assertEquals(map.get(id2).getFetchOptions().hasUser(), true);
         assertEquals(map.get(id2).getFetchOptions().hasAuthorizationGroup(), true);
         assertEquals(map.get(id2).getFetchOptions().hasProject(), false);

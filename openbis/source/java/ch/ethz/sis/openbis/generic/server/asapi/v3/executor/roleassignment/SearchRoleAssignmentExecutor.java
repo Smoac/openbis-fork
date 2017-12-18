@@ -27,8 +27,10 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -36,6 +38,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.I
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.ISearchSpaceExecutor;
@@ -86,7 +89,10 @@ public class SearchRoleAssignmentExecutor
     @Override
     protected Matcher<RoleAssignmentPE> getMatcher(ISearchCriteria criteria)
     {
-        if (criteria instanceof PersonSearchCriteria)
+        if (criteria instanceof IdSearchCriteria)
+        {
+            return new IdMatcher();
+        } else if (criteria instanceof PersonSearchCriteria)
         {
             return new UserMatcher();
         } else if (criteria instanceof AuthorizationGroupSearchCriteria)
@@ -103,6 +109,28 @@ public class SearchRoleAssignmentExecutor
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
     }
+    private class IdMatcher extends SimpleFieldMatcher<RoleAssignmentPE>
+    {
+
+        @Override
+        protected boolean isMatching(IOperationContext context, RoleAssignmentPE object, ISearchCriteria criteria)
+        {
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
+
+            if (id == null)
+            {
+                return true;
+            } else if (id instanceof RoleAssignmentTechId)
+            {
+                return object.getId().equals(((RoleAssignmentTechId) id).getTechId());
+            } else
+            {
+                throw new IllegalArgumentException("Unknown id: " + criteria.getClass());
+            }
+        }
+
+    }
+
 
     private class UserMatcher extends EntityMatcher<PersonSearchCriteria, RoleAssignmentPE, PersonPE>
     {

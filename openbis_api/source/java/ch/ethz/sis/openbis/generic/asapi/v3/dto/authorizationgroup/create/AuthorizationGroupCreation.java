@@ -37,7 +37,7 @@ public class AuthorizationGroupCreation implements ICreation, IObjectCreation
 
     private String description;
 
-    private List<? extends IPersonId> users;
+    private List<? extends IPersonId> userIds;
 
     public String getCode()
     {
@@ -59,14 +59,14 @@ public class AuthorizationGroupCreation implements ICreation, IObjectCreation
         this.description = description;
     }
 
-    public List<? extends IPersonId> getUsers()
+    public List<? extends IPersonId> getUserIds()
     {
-        return users;
+        return userIds;
     }
 
-    public void setUsers(List<? extends IPersonId> users)
+    public void setUserIds(List<? extends IPersonId> users)
     {
-        this.users = users;
+        this.userIds = users;
     }
 
 }

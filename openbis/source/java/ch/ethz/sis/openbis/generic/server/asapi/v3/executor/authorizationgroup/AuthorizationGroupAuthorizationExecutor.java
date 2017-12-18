@@ -40,7 +40,7 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("GET_AUTHORIZATION_GROUP")
     public void canGet(IOperationContext context)
     {
@@ -48,7 +48,7 @@ public class AuthorizationGroupAuthorizationExecutor implements IAuthorizationGr
 
     
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("SEARCH_AUTHORIZATION_GROUP")
     public void canSearch(IOperationContext context)
     {

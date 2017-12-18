@@ -40,6 +40,9 @@ public class RoleAssignmentFetchOptions extends FetchOptions<RoleAssignment> imp
     private static final long serialVersionUID = 1L;
     
     @JsonProperty
+    private PersonFetchOptions registrator;
+
+    @JsonProperty
     private PersonFetchOptions user;
     
     @JsonProperty
@@ -73,6 +76,25 @@ public class RoleAssignmentFetchOptions extends FetchOptions<RoleAssignment> imp
         return user != null;
     }
     
+    public PersonFetchOptions withRegistrator()
+    {
+        if (registrator == null)
+        {
+            registrator = new PersonFetchOptions();
+        }
+        return registrator;
+    }
+
+    public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
+    {
+        return registrator = fetchOptions;
+    }
+
+    public boolean hasRegistrator()
+    {
+        return registrator != null;
+    }
+
     public AuthorizationGroupFetchOptions withAuthorizationGroup()
     {
         if (authorizationGroup == null)

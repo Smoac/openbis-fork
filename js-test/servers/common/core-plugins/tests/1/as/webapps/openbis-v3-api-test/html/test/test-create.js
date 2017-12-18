@@ -540,6 +540,82 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findTag, fCheck);
 		});
 
+		QUnit.test("createAuthorizationGroups()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("AUTHORIZATION_GROUP");
+			var description = "Description of " + code;
+			
+			var fCreate = function(facade) {
+				var creation = new c.AuthorizationGroupCreation();
+				creation.setCode(code);
+				creation.setDescription(description);
+				creation.setUserIds([new c.PersonPermId("power_user")]);
+				return facade.createAuthorizationGroups([ creation ]);
+			}
+			
+			var fCheck = function(group) {
+				c.assertEqual(group.getCode(), code, "Code");
+				c.assertEqual(group.getDescription(), description, "Description");
+				var users = $.map(group.getUsers(), function(user) {
+					return user.getUserId();
+				});
+				users.sort();
+				c.assertEqual(users.toString(), "power_user", "Users");
+			}
+			
+			testCreate(c, fCreate, c.findAuthorizationGroup, fCheck);
+		});
+		
+		QUnit.test("createRoleAssignments() for space user", function(assert) {
+			var c = new common(assert, openbis);
+			
+			var fCreate = function(facade) {
+				return c.createSpace(facade).then(function(spaceId) {
+					var creation = new c.RoleAssignmentCreation();
+					creation.setRole(c.Role.POWER_USER);
+					creation.setUserId(new c.PersonPermId("power_user"));
+					creation.setSpaceId(spaceId);
+					return facade.createRoleAssignments([creation]);
+				});
+			}
+			
+			var fCheck = function(roleAssignment) {
+				c.assertEqual(roleAssignment.getUser().getUserId(), "power_user", "User");
+				c.assertEqual(roleAssignment.getRole(), c.Role.POWER_USER, "Role");
+				c.assertEqual(roleAssignment.getRoleLevel(), c.RoleLevel.SPACE, "Role level");
+				c.assertEqual(roleAssignment.getRegistrator().getUserId(), "openbis_test_js", "Registrator");
+			}
+			
+			testCreate(c, fCreate, c.findRoleAssignment, fCheck);
+		});
+		
+		QUnit.test("createRoleAssignments() for project authorization group", function(assert) {
+			var c = new common(assert, openbis);
+			var authorizationGroupId;
+			
+			var fCreate = function(facade) {
+				return c.createProject(facade).then(function(projectId) {
+					return c.createAuthorizationGroup(facade).then(function(groupId){
+						authorizationGroupId = groupId;
+						var creation = new c.RoleAssignmentCreation();
+						creation.setRole(c.Role.ADMIN);
+						creation.setAuthorizationGroupId(groupId);
+						creation.setProjectId(projectId);
+						return facade.createRoleAssignments([creation]);
+					});
+				});
+			}
+			
+			var fCheck = function(roleAssignment) {
+				c.assertEqual(roleAssignment.getAuthorizationGroup().getPermId().toString(), authorizationGroupId, "Authorization group");
+				c.assertEqual(roleAssignment.getRole(), c.Role.ADMIN, "Role");
+				c.assertEqual(roleAssignment.getRoleLevel(), c.RoleLevel.PROJECT, "Role level");
+				c.assertEqual(roleAssignment.getRegistrator().getUserId(), "openbis_test_js", "Registrator");
+			}
+			
+			testCreate(c, fCreate, c.findRoleAssignment, fCheck);
+		});
+		
 		QUnit.test("createPersons()", function(assert) {
 			var c = new common(assert, openbis);
 			var userId = c.generateId("user");

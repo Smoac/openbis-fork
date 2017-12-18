@@ -60,7 +60,7 @@ public class CreateAuthorizationGroupTest extends AbstractTest
         AuthorizationGroupCreation newGroup = new AuthorizationGroupCreation();
         newGroup.setCode("NEW_GROUP");
         newGroup.setDescription("Testing");
-        newGroup.setUsers(Arrays.asList(new PersonPermId(TEST_OBSERVER_CISD), new Me()));
+        newGroup.setUserIds(Arrays.asList(new PersonPermId(TEST_OBSERVER_CISD), new Me()));
         
         // When
         List<AuthorizationGroupPermId> groups = v3api.createAuthorizationGroups(sessionToken, Arrays.asList(newGroup));

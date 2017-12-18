@@ -27,9 +27,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssign
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -76,25 +75,7 @@ public class DeleteRoleAssignmentExecutor
             }
         }
         final PersonPE personPE = context.getSession().tryGetPerson();
-        if (roleAssignment.getPerson() != null && roleAssignment.getPerson().equals(personPE)
-                && roleAssignment.getRole().equals(RoleCode.ADMIN))
-        {
-            boolean isInstanceAdmin = false;
-            for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
-            {
-                if (roleAssigment.getSpace() == null
-                        && roleAssigment.getRole().equals(RoleCode.ADMIN))
-                {
-                    isInstanceAdmin = true;
-                }
-            }
-            if (isInstanceAdmin == false)
-            {
-                throw new UserFailureException(
-                        "For safety reason you cannot give away your own space admin power. "
-                                + "Ask instance admin to do that for you.");
-            }
-        }
+        RoleAssignmentUtils.checkForSelfreducingAdminAuthorization(roleAssignment, personPE);
     }
 
     @Override

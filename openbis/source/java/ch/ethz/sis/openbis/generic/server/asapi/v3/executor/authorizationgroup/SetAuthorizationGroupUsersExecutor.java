@@ -58,7 +58,7 @@ public class SetAuthorizationGroupUsersExecutor
     @Override
     protected Collection<? extends IPersonId> getRelatedIds(IOperationContext context, AuthorizationGroupCreation creation)
     {
-        return creation.getUsers();
+        return creation.getUserIds();
     }
 
     @Override
