@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -2292,8 +2293,16 @@ public class CommonServerTest extends SystemTestCase
 
         if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
+            int count = 0;
+            for (ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind : ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
+                    .values())
+            {
+                IEntityPropertyTypeDAO entityPropertyTypeDAO = daoFactory.getEntityPropertyTypeDAO(entityKind);
+                count += entityPropertyTypeDAO.listEntityPropertyTypes().size();
+            }
+
             List<EntityTypePropertyType<?>> types = commonServer.listEntityTypePropertyTypes(session.getSessionToken());
-            assertEquals(types.size(), 62);
+            assertEquals(types.size(), count);
         } else
         {
             try
@@ -2872,8 +2881,8 @@ public class CommonServerTest extends SystemTestCase
 
         MetaprojectPE metaproject = createMetaproject(user.getUserId(), "PA_TEST");
         createMetaprojectAssignment(metaproject, "200811050951882-1028", null, null); // /CISD/NEMO/EXP1
-        createMetaprojectAssignment(metaproject, "201206190940555-1032", null, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
         createMetaprojectAssignment(metaproject, "200902091255058-1037", null, null); // /TEST-SPACE/NOE/EXP-TEST-2
+        createMetaprojectAssignment(metaproject, "201206190940555-1032", null, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
 
         if (user.isDisabledProjectUser())
         {
@@ -2891,6 +2900,15 @@ public class CommonServerTest extends SystemTestCase
                     commonServer.getMetaprojectAssignments(session.getSessionToken(), new MetaprojectIdentifierId(metaproject.getIdentifier()));
             List<Experiment> experiments = assignments.getExperiments();
 
+            Collections.sort(experiments, new Comparator<Experiment>()
+                {
+                    @Override
+                    public int compare(Experiment o1, Experiment o2)
+                    {
+                        return o1.getPermId().compareTo(o2.getPermId());
+                    }
+                });
+
             if (user.isInstanceUser())
             {
                 assertEntities("[/CISD/NEMO/EXP1, /TEST-SPACE/NOE/EXP-TEST-2, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]", experiments);
@@ -2900,31 +2918,31 @@ public class CommonServerTest extends SystemTestCase
                 assertEquals(experiments.get(0).getPermId(), "200811050951882-1028");
 
                 assertEquals(experiments.get(1).isStub(), false);
-                assertEquals(experiments.get(1).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+                assertEquals(experiments.get(1).getIdentifier(), "/TEST-SPACE/NOE/EXP-TEST-2");
 
                 assertEquals(experiments.get(2).isStub(), false);
-                assertEquals(experiments.get(2).getIdentifier(), "/TEST-SPACE/NOE/EXP-TEST-2");
+                assertEquals(experiments.get(2).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
             } else if (user.isTestProjectUser())
             {
                 assertEquals(experiments.get(0).isStub(), true);
                 assertEquals(experiments.get(0).getPermId(), "200811050951882-1028");
 
-                assertEquals(experiments.get(1).isStub(), false);
-                assertEquals(experiments.get(1).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+                assertEquals(experiments.get(1).isStub(), true);
+                assertEquals(experiments.get(1).getPermId(), "200902091255058-1037");
 
-                assertEquals(experiments.get(2).isStub(), true);
-                assertEquals(experiments.get(2).getPermId(), "200902091255058-1037");
+                assertEquals(experiments.get(2).isStub(), false);
+                assertEquals(experiments.get(2).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
             } else
             {
                 assertEquals(experiments.get(0).isStub(), true);
                 assertEquals(experiments.get(0).getPermId(), "200811050951882-1028");
 
                 assertEquals(experiments.get(1).isStub(), true);
-                assertEquals(experiments.get(1).getPermId(), "201206190940555-1032");
+                assertEquals(experiments.get(1).getPermId(), "200902091255058-1037");
 
                 assertEquals(experiments.get(2).isStub(), true);
-                assertEquals(experiments.get(2).getPermId(), "200902091255058-1037");
+                assertEquals(experiments.get(2).getPermId(), "201206190940555-1032");
             }
         }
     }
@@ -3024,6 +3042,31 @@ public class CommonServerTest extends SystemTestCase
             } else
             {
                 assertEquals(results.size(), 0);
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetEntityInformationHolderWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        EntityKind entityKind = EntityKind.EXPERIMENT;
+        String permId = "201206190940555-1032"; // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            IEntityInformationHolderWithPermId entity = commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+            assertEquals(entity.getCode(), "EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
             }
         }
     }

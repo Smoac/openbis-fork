@@ -144,6 +144,7 @@ public class DataStoreServiceRegistrationTest extends SystemTestCase
         List<DatastoreServiceDescription> services =
                 commonServer
                         .listDataStoreServices(systemSessionToken, DataStoreServiceKind.QUERIES);
+        Collections.sort(services);
         assertEquals("R1", services.get(0).getKey());
         assertEquals("r1", services.get(0).getLabel());
         assertEquals(DOWNLOAD_URL, services.get(0).getDownloadURL());
@@ -154,6 +155,7 @@ public class DataStoreServiceRegistrationTest extends SystemTestCase
         services =
                 commonServer.listDataStoreServices(systemSessionToken,
                         DataStoreServiceKind.PROCESSING);
+        Collections.sort(services);
         assertEquals("P1", services.get(0).getKey());
         assertEquals("p1", services.get(0).getLabel());
         assertEquals(DOWNLOAD_URL, services.get(0).getDownloadURL());
@@ -161,7 +163,7 @@ public class DataStoreServiceRegistrationTest extends SystemTestCase
         assertEquals(DATASTORE_CODE, services.get(0).getDatastoreCode());
         assertEquals(expectedProcessingDataSetTypes, getDataSetTypeCodes(services.get(0))
                 .toString());
-        assertEquals(1, services.size());
+        assertEquals(2, services.size());
     }
 
     private List<String> getDataSetTypeCodes(DatastoreServiceDescription description)
