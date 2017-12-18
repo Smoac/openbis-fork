@@ -23,6 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
@@ -228,6 +229,14 @@ public class AuthorizationServiceUtils
         }
     }
 
+    private void checkEntityNotNull(Object entity, EntityKind entityKind, TechId entityId)
+    {
+        if (entity == null)
+        {
+            throw UserFailureException.fromTemplate("There is no %s with id '%s'.", entityKind.getDescription(), entityId);
+        }
+    }
+
     public void checkAccessEntity(EntityKind entityKind, TechId entityId)
     {
         boolean canAccess;
@@ -235,14 +244,17 @@ public class AuthorizationServiceUtils
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
             ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(entityId);
+            checkEntityNotNull(experiment, entityKind, entityId);
             canAccess = canAccessExperiment(experiment);
         } else if (EntityKind.SAMPLE.equals(entityKind))
         {
             SamplePE sample = daoFactory.getSampleDAO().getByTechId(entityId);
+            checkEntityNotNull(sample, entityKind, entityId);
             canAccess = canAccessSample(sample);
         } else if (EntityKind.DATA_SET.equals(entityKind))
         {
             DataPE dataSet = daoFactory.getDataDAO().getByTechId(entityId);
+            checkEntityNotNull(dataSet, entityKind, entityId);
             canAccess = canAccessDataSet(dataSet);
         } else if (EntityKind.MATERIAL.equals(entityKind))
         {
@@ -257,6 +269,49 @@ public class AuthorizationServiceUtils
             throw new AuthorizationFailureException("User: "
                     + (user != null ? user.getUserId() : null)
                     + " doesn't have access to entity: " + entityKind + " with id: " + entityId);
+        }
+    }
+
+    private void checkEntityNotNull(Object entity, EntityKind entityKind, String entityPermId)
+    {
+        if (entity == null)
+        {
+            throw UserFailureException.fromTemplate("There is no %s with permId '%s'.", entityKind.getDescription(), entityPermId);
+        }
+    }
+
+    public void checkAccessEntity(EntityKind entityKind, String entityPermId)
+    {
+        boolean canAccess;
+
+        if (EntityKind.EXPERIMENT.equals(entityKind))
+        {
+            ExperimentPE experiment = daoFactory.getExperimentDAO().tryGetByPermID(entityPermId);
+            checkEntityNotNull(experiment, entityKind, entityPermId);
+            canAccess = canAccessExperiment(experiment);
+        } else if (EntityKind.SAMPLE.equals(entityKind))
+        {
+            SamplePE sample = daoFactory.getSampleDAO().tryToFindByPermID(entityPermId);
+            checkEntityNotNull(sample, entityKind, entityPermId);
+            canAccess = canAccessSample(sample);
+        } else if (EntityKind.DATA_SET.equals(entityKind))
+        {
+            DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(entityPermId);
+            checkEntityNotNull(dataSet, entityKind, entityPermId);
+            canAccess = canAccessDataSet(dataSet);
+        } else if (EntityKind.MATERIAL.equals(entityKind))
+        {
+            canAccess = true;
+        } else
+        {
+            throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
+        }
+
+        if (false == canAccess)
+        {
+            throw new AuthorizationFailureException("User: "
+                    + (user != null ? user.getUserId() : null)
+                    + " doesn't have access to entity: " + entityKind + " with permId: " + entityPermId);
         }
     }
 
