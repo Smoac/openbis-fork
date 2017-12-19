@@ -43,8 +43,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCr
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DeleteEntityTypeTest extends AbstractTest
@@ -69,45 +67,68 @@ public class DeleteEntityTypeTest extends AbstractTest
         entityTypeIds.addAll(v3api.createSampleTypes(sessionToken, Arrays.asList(sampleTypeCreation)));
         EntityTypeDeletionOptions deletionOptions = new EntityTypeDeletionOptions();
         deletionOptions.setReason("test");
-        
+
         // When
         v3api.deleteEntityTypes(sessionToken, entityTypeIds, deletionOptions);
-        
+
         // Then
         DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
         dataSetTypeSearchCriteria.withCode().thatEquals(dataSetTypeCreation.getCode());
         assertEquals(v3api.searchDataSetTypes(sessionToken, dataSetTypeSearchCriteria, new DataSetTypeFetchOptions()).getObjects().toString(), "[]");
         ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
         experimentTypeSearchCriteria.withCode().thatEquals(experimentTypeCreation.getCode());
-        assertEquals(v3api.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, new ExperimentTypeFetchOptions()).getObjects().toString(), "[]");
+        assertEquals(
+                v3api.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, new ExperimentTypeFetchOptions()).getObjects().toString(),
+                "[]");
         MaterialTypeSearchCriteria materialTypeSearchCriteria = new MaterialTypeSearchCriteria();
         materialTypeSearchCriteria.withCode().thatEquals(materialTypeCreation.getCode());
-        assertEquals(v3api.searchMaterialTypes(sessionToken, materialTypeSearchCriteria, new MaterialTypeFetchOptions()).getObjects().toString(), "[]");
+        assertEquals(v3api.searchMaterialTypes(sessionToken, materialTypeSearchCriteria, new MaterialTypeFetchOptions()).getObjects().toString(),
+                "[]");
         SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
         sampleTypeSearchCriteria.withCode().thatEquals(sampleTypeCreation.getCode());
         assertEquals(v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, new SampleTypeFetchOptions()).getObjects().toString(), "[]");
     }
-    
+
+    @Test
+    public void testDeleteWithUnspecifiedEntityKind()
+    {
+        EntityTypePermId typeId = new EntityTypePermId("DELETION_TEST");
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    // Given
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                    EntityTypeDeletionOptions deletionOptions = new EntityTypeDeletionOptions();
+                    deletionOptions.setReason("test");
+
+                    // When
+                    v3api.deleteEntityTypes(sessionToken, Arrays.asList(typeId), deletionOptions);
+                }
+            }, "Entity type id with unspecified entity kind");
+    }
+
     @Test(dataProvider = "usersNotAllowedToDelete")
     public void testDeleteWithUserCausingAuthorizationFailure(EntityKind entityKind, final String user)
     {
         EntityTypePermId typeId = new EntityTypePermId("DELETION_TEST", entityKind);
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                // Given
-                String sessionToken = v3api.login(user, PASSWORD);
-                EntityTypeDeletionOptions deletionOptions = new EntityTypeDeletionOptions();
-                deletionOptions.setReason("test");
-                
-                // When
-                v3api.deleteEntityTypes(sessionToken, Arrays.asList(typeId), deletionOptions);
-            }
-        }, typeId);
+                @Override
+                public void execute()
+                {
+                    // Given
+                    String sessionToken = v3api.login(user, PASSWORD);
+                    EntityTypeDeletionOptions deletionOptions = new EntityTypeDeletionOptions();
+                    deletionOptions.setReason("test");
+
+                    // When
+                    v3api.deleteEntityTypes(sessionToken, Arrays.asList(typeId), deletionOptions);
+                }
+            }, typeId);
     }
-    
+
     @DataProvider
     Object[][] usersNotAllowedToDelete()
     {
@@ -119,8 +140,8 @@ public class DeleteEntityTypeTest extends AbstractTest
         {
             for (int j = 0; j < users.size(); j++)
             {
-                
-                objects[users.size() * i + j] = new Object[] {entityKinds[i], users.get(j)};
+
+                objects[users.size() * i + j] = new Object[] { entityKinds[i], users.get(j) };
             }
         }
         return objects;

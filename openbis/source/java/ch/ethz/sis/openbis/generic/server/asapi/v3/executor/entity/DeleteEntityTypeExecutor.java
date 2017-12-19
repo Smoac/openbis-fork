@@ -35,7 +35,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IExperime
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMaterialTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISampleTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
