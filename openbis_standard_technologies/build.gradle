@@ -396,7 +396,7 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, proteomicsApiZip, screeningApiZip]) {
   baseName 'openBIS-clients-and-APIs'
-  downloadFile('https://sissource.ethz.ch/sispub/pybis/repository/RELEASE/archive.zip', 'pybis.zip')
+  downloadFile('https://sissource.ethz.ch/sispub/pybis/repository/release/1.4.1/archive.zip', 'pybis-1.4.1.zip')
   from 'targets/downloads/pybis.zip'
   from dssClientZip.archivePath
   from queryApiZip.archivePath
@@ -404,10 +404,6 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from proteomicsApiZip.archivePath
   from screeningApiZip.archivePath
   from ('../openbis_all/dist/readme.txt')
-// Todo: wait until URL is stable
-//  def contentOfSetUpFile = zipTree('targets/downloads/pybis.zip').getFiles().findAll {it.path.endsWith('PyBis/setup.py') }.iterator().next().text
-//  def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*'(.*)'/)[0][1]
-//  rename 'pybis.zip', "pybis-${pybisVersion}.zip"
 }
 
 task generateJavadoc(type: Javadoc) {
