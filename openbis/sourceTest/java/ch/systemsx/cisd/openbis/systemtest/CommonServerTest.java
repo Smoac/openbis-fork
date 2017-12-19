@@ -3048,7 +3048,7 @@ public class CommonServerTest extends SystemTestCase
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
-    public void testGetEntityInformationHolderByPermIdWithProjectAuthorization(ProjectAuthorizationUser user)
+    public void testGetEntityInformationHolderByExperimentPermIdWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
@@ -3059,6 +3059,81 @@ public class CommonServerTest extends SystemTestCase
         {
             IEntityInformationHolderWithPermId entity = commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
             assertEquals(entity.getCode(), "EXP-SPACE-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetEntityInformationHolderBySamplePermIdWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        EntityKind entityKind = EntityKind.SAMPLE;
+        String permId = "201206191219327-1054"; // /TEST-SPACE/FV-TEST
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            IEntityInformationHolderWithPermId entity = commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+            assertEquals(entity.getCode(), "FV-TEST");
+        } else
+        {
+            try
+            {
+                commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetEntityInformationHolderByDataSetPermIdWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        EntityKind entityKind = EntityKind.DATA_SET;
+        String permId = "20120628092259000-41";
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            IEntityInformationHolderWithPermId entity = commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+            assertEquals(entity.getCode(), "20120628092259000-41");
+        } else
+        {
+            try
+            {
+                commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testGetEntityInformationHolderByMaterialPermIdWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        EntityKind entityKind = EntityKind.MATERIAL;
+        String permId = new MaterialIdentifier("BACTERIUM1", "BACTERIUM").toString();
+
+        if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
+        {
+            IEntityInformationHolderWithPermId entity = commonServer.getEntityInformationHolder(session.getSessionToken(), entityKind, permId);
+            assertEquals(entity.getCode(), "BACTERIUM1");
         } else
         {
             try

@@ -41,7 +41,7 @@ public class OperationExecutionAuthorizationExecutor implements IOperationExecut
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_OPERATION_EXECUTION")
     public void canGet(IOperationContext context)
     {
@@ -64,7 +64,7 @@ public class OperationExecutionAuthorizationExecutor implements IOperationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_OPERATION_EXECUTION")
     @DatabaseUpdateModification(value = ObjectKind.OPERATION_EXECUTION)
     public void canUpdate(IOperationContext context, IOperationExecutionId id, OperationExecutionPE execution)
@@ -76,7 +76,7 @@ public class OperationExecutionAuthorizationExecutor implements IOperationExecut
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_OPERATION_EXECUTION")
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.OPERATION_EXECUTION, ObjectKind.DELETION })
     public void canDelete(IOperationContext context, IOperationExecutionId id, OperationExecutionPE execution)

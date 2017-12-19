@@ -41,7 +41,7 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CONFIRM_DELETION")
     public void canConfirm(IOperationContext context, @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> ids)
     {
@@ -50,7 +50,7 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
     @Override
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REVERT_DELETION")
     public void canRevert(IOperationContext context,
             @AuthorizationGuard(guardClass = V3RevertDeletionPredicate.class) List<? extends IDeletionId> ids)
@@ -58,7 +58,7 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_DELETION")
     public void canGet(IOperationContext context)
     {
@@ -66,7 +66,7 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_DELETION")
     public void canSearch(IOperationContext context)
     {

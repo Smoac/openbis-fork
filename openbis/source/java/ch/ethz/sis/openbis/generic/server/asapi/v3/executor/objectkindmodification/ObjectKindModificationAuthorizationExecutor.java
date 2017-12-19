@@ -31,7 +31,7 @@ public class ObjectKindModificationAuthorizationExecutor implements IObjectKindM
 {
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_OBJECT_KIND_MODIFICATION")
     public void canSearch(IOperationContext context)
     {

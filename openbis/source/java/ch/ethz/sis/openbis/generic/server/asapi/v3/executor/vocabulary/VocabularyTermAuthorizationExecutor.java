@@ -48,14 +48,14 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_OFFICIAL_VOCABULARY_TERM")
     public void canCreateOfficial(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_UNOFFICIAL_VOCABULARY_TERM")
     public void canCreateUnofficial(IOperationContext context)
     {
@@ -70,14 +70,14 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_OFFICIAL_VOCABULARY_TERM")
     public void canUpdateOfficial(IOperationContext context)
     {
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_UNOFFICIAL_VOCABULARY_TERM")
     public void canUpdateUnofficial(IOperationContext context)
     {
@@ -102,7 +102,7 @@ public class VocabularyTermAuthorizationExecutor implements IVocabularyTermAutho
 
     @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.VOCABULARY_TERM, ObjectKind.DELETION })
-    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_VOCABULARY_TERM")
     public void canDelete(IOperationContext context, IVocabularyTermId id, VocabularyTermPE term)
     {
