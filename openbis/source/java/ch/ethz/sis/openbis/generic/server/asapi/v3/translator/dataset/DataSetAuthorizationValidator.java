@@ -16,92 +16,39 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.AbstractAuthorizationValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractDataSetByExperimentOrSampleIdentifierValidator;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class DataSetAuthorizationValidator implements IDataSetAuthorizationValidator
+public class DataSetAuthorizationValidator extends AbstractAuthorizationValidator implements IDataSetAuthorizationValidator
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Override
     public Set<Long> validate(PersonPE person, Collection<Long> dataSetIds)
     {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        List<DataSetAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(dataSetIds));
-        AbstractValidator<DataSetAuthorizationRecord> validator =
-                new AbstractDataSetByExperimentOrSampleIdentifierValidator<DataSetAuthorizationRecord>()
-                    {
-
-                        @Override
-                        protected boolean isStorageConfirmed(DataSetAuthorizationRecord record)
-                        {
-                            if (record.isStorageConfirmed != null)
-                            {
-                                return record.isStorageConfirmed;
-                            } else
-                            {
-                                return true;
-                            }
-                        }
-
-                        @Override
-                        protected String getExperimentIdentifier(DataSetAuthorizationRecord record)
-                        {
-                            if (record.experimentCode != null)
-                            {
-                                return new ExperimentIdentifier(record.experimentSpaceCode, record.experimentProjectCode, record.experimentCode)
-                                        .getIdentifier();
-                            } else
-                            {
-                                return null;
-                            }
-                        }
-
-                        @Override
-                        protected String getSampleIdentifier(DataSetAuthorizationRecord record)
-                        {
-                            if (record.sampleCode != null)
-                            {
-                                return new SampleIdentifier(record.sampleSpaceCode, record.sampleContainerCode, record.sampleCode).getIdentifier();
-                            } else
-                            {
-                                return null;
-                            }
-                        }
-
-                    };
-
-        validator.init(new AuthorizationDataProvider(daoFactory));
-
+        AuthorizationDataProvider provider = new AuthorizationDataProvider(daoFactory);
+        Set<DataSetAccessPE> accessDatas =
+                provider.getDatasetCollectionAccessDataByTechIds(TechId.createList(new ArrayList<Long>(dataSetIds)), false);
         Set<Long> result = new HashSet<Long>();
 
-        for (DataSetAuthorizationRecord record : records)
+        for (DataSetAccessPE accessData : accessDatas)
         {
-            if (validator.doValidation(person, record))
+            if (isValid(person, accessData.getSpaceIdentifier(), accessData.getProjectIdentifier()))
             {
-                result.add(record.id);
+                result.add(accessData.getDataSetId());
             }
         }
 

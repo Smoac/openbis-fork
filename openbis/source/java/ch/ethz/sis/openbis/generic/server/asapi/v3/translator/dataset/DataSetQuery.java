@@ -35,18 +35,6 @@ import net.lemnik.eodsql.Select;
 public interface DataSetQuery extends ObjectQuery
 {
 
-    @Select(sql = "select d.id, ed.storage_confirmation as isStorageConfirmed, s.code as sampleCode, sc.code as sampleContainerCode, ss.code as sampleSpaceCode, "
-            + "e.code as experimentCode, ep.code as experimentProjectCode, es.code as experimentSpaceCode from data d "
-            + "left join external_data ed on d.id = ed.data_id "
-            + "left join samples s on d.samp_id = s.id "
-            + "left join samples sc on s.samp_id_part_of = sc.id "
-            + "left join spaces ss on s.space_id = ss.id "
-            + "left join experiments e on d.expe_id = e.id "
-            + "left join projects ep on e.proj_id = ep.id "
-            + "left join spaces es on ep.space_id = es.id "
-            + "where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<DataSetAuthorizationRecord> getAuthorizations(LongSet dataSetIds);
-
     @Select(sql = "select d.id, d.code, d.is_derived as isDerived, d.data_producer_code as dataProducer, d.production_timestamp as dataProductionDate, d.access_timestamp as accessDate, d.modification_timestamp as modificationDate, d.registration_timestamp as registrationDate, d.data_set_kind as dataSetKind "
             + "from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetBaseRecord> getDataSets(LongSet dataSetIds);

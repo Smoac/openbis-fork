@@ -16,57 +16,38 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.AbstractAuthorizationValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.lemnik.eodsql.QueryTool;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleAuthorizationValidator implements ISampleAuthorizationValidator
+public class SampleAuthorizationValidator extends AbstractAuthorizationValidator implements ISampleAuthorizationValidator
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Override
     public Set<Long> validate(PersonPE person, Collection<Long> sampleIds)
     {
-        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        List<SampleAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(sampleIds));
-        SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
-        validator.init(new AuthorizationDataProvider(daoFactory));
+        AuthorizationDataProvider provider = new AuthorizationDataProvider(daoFactory);
+        Set<SampleAccessPE> accessDatas = provider.getSampleCollectionAccessDataByTechIds(TechId.createList(new ArrayList<Long>(sampleIds)), false);
         Set<Long> result = new HashSet<Long>();
 
-        for (SampleAuthorizationRecord record : records)
+        for (SampleAccessPE accessData : accessDatas)
         {
-            final SampleAuthorizationRecord theRecord = record;
-
-            if (validator.doValidation(person, new IIdentifierHolder()
-                {
-                    @Override
-                    public String getIdentifier()
-                    {
-                        return new SampleIdentifier(theRecord.spaceCode, theRecord.containerCode, theRecord.code).getIdentifier();
-                    }
-                }))
+            if (isValid(person, accessData.getSpaceIdentifier(), accessData.getProjectIdentifier()))
             {
-                result.add(record.id);
+                result.add(accessData.getSampleId());
             }
         }
 

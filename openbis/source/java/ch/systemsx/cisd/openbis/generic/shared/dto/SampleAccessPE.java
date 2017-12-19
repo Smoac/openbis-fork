@@ -29,6 +29,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A PE for retrieving only the information necessary to determine if a user/person can access a sample.
@@ -104,6 +105,18 @@ public class SampleAccessPE
     public void setSpaceCode(String spaceCode)
     {
         this.spaceCode = spaceCode;
+    }
+
+    @Transient
+    public SpaceIdentifier getSpaceIdentifier()
+    {
+        if (getSpaceCode() != null)
+        {
+            return new SpaceIdentifier(getSpaceCode());
+        } else
+        {
+            return null;
+        }
     }
 
     @Transient
