@@ -31,4 +31,6 @@ public interface ISampleTypeAuthorizationExecutor extends IObjectAuthorizationEx
 
     void canUpdate(IOperationContext context);
 
+    void canDelete(IOperationContext context);
+
 }

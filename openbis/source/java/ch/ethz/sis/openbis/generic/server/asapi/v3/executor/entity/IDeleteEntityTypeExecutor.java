@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.delete.EntityTypeDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-public interface IDataSetTypeAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface IDeleteEntityTypeExecutor extends IDeleteEntityExecutor<Void, IEntityTypeId, EntityTypeDeletionOptions>
 {
-
-    void canCreate(IOperationContext context);
-
-    void canSearch(IOperationContext context);
-
-    void canUpdate(IOperationContext context);
-
-    void canDelete(IOperationContext context);
 
 }

@@ -261,6 +261,9 @@ var sources = [
 	'as/dto/deletion/search/SearchDeletionsOperationResult',
 	
 	'as/dto/entitytype/id/EntityTypePermId',
+	'as/dto/entitytype/delete/EntityTypeDeletionOptions',
+	'as/dto/entitytype/delete/DeleteEntityTypesOperation',
+	'as/dto/entitytype/delete/DeleteEntityTypesOperationResult',
 	'as/dto/entitytype/fetchoptions/EntityTypeFetchOptions',
 	'as/dto/entitytype/fetchoptions/EntityTypeSortOptions',
 	'as/dto/entitytype/search/EntityKindSearchCriteria',

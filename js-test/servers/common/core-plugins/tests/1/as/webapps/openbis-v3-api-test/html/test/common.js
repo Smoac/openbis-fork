@@ -69,6 +69,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
 		this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
 		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
+		this.EntityTypeDeletionOptions = dtos.EntityTypeDeletionOptions;
 		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
 		this.TagDeletionOptions = dtos.TagDeletionOptions;
 		this.AuthorizationGroupDeletionOptions = dtos.AuthorizationGroupDeletionOptions;
@@ -256,6 +257,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
 		this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
 		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
+		this.DeleteEntityTypesOperation = dtos.DeleteEntityTypesOperation;
 		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
 		this.DeleteAuthorizationGroupsOperation = dtos.DeleteAuthorizationGroupsOperation;
 		this.DeleteRoleAssignmentsOperation = dtos.DeleteRoleAssignmentsOperation;
@@ -410,6 +412,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.createSampleType = function(facade) {
+			var c = this;
+			var creation = new dtos.SampleTypeCreation();
+			creation.setCode(c.generateId("SAMPLE_TYPE"));
+			return facade.createSampleTypes([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+		
 		this.createExternalDms = function(facade) {
 			var c = this;
 			var creation = new dtos.ExternalDmsCreation();
@@ -686,13 +697,20 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return facade.deleteExternalDataManagementSystems([ id ], options);
 		}.bind(this);
 
+		this.deleteEntityType = function(facade, id) {
+			var c = this;
+			var options = new dtos.EntityTypeDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteEntityTypes([ id ], options);
+		}.bind(this);
+
 		this.deleteVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
-
+		
 		this.replaceVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();

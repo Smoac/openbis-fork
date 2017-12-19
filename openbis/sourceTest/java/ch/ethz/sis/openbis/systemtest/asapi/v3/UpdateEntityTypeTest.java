@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
@@ -307,6 +308,34 @@ public abstract class UpdateEntityTypeTest<UPDATE extends IEntityTypeUpdate, TYP
         {
             assertEquals(propertiesHolder.getProperty("SIZE"), "42");
         }
+    }
+
+    @Test(dataProvider = "usersNotAllowedToUpdate")
+    public void testUpdateWithUserCausingAuthorizationFailure(final String user)
+    {
+        EntityTypePermId typeId = getTypeId();
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    // Given
+                    String sessionToken = v3api.login(user, PASSWORD);
+                    UPDATE update = newTypeUpdate();
+                    update.setTypeId(typeId);
+                    update.setDescription("new description " + System.currentTimeMillis());
+                    
+                    // When
+                    updateTypes(sessionToken, Arrays.asList(update));
+                }
+            }, typeId, patternContains("checking access"));
+    }
+
+    @DataProvider
+    Object[][] usersNotAllowedToUpdate()
+    {
+        return createTestUsersProvider(TEST_GROUP_ADMIN, TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER,
+                TEST_INSTANCE_OBSERVER, TEST_OBSERVER_CISD, TEST_POWER_USER_CISD, TEST_SPACE_USER);
     }
 
     protected <T> T getNewValue(FieldUpdateValue<T> fieldUpdateValue, T currentValue)

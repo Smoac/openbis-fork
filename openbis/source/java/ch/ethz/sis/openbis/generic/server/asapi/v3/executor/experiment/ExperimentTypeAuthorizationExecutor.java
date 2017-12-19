@@ -42,7 +42,7 @@ public class ExperimentTypeAuthorizationExecutor implements IExperimentTypeAutho
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_EXPERIMENT_TYPE")
     public void canSearch(IOperationContext context)
     {
@@ -53,6 +53,14 @@ public class ExperimentTypeAuthorizationExecutor implements IExperimentTypeAutho
     @Capability("UPDATE_EXPERIMENT_TYPE")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void canUpdate(IOperationContext context)
+    {
+    }
+    
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("DELETE_EXPERIMENT_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
+    public void canDelete(IOperationContext context)
     {
     }
 

@@ -55,5 +55,13 @@ public class DataSetTypeAuthorizationExecutor implements IDataSetTypeAuthorizati
     public void canUpdate(IOperationContext context)
     {
     }
+    
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN})
+    @Capability("DELETE_DATASET_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
+    public void canDelete(IOperationContext context)
+    {
+    }
 
 }

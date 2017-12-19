@@ -31,4 +31,6 @@ public interface IExperimentTypeAuthorizationExecutor extends IObjectAuthorizati
 
     void canUpdate(IOperationContext context);
 
+    void canDelete(IOperationContext context);
+
 }

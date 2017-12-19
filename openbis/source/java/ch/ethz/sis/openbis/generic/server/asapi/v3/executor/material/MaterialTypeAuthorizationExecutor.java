@@ -56,4 +56,12 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
     {
     }
 
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("DELETE_MATERIAL_TYPE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
+    public void canDelete(IOperationContext context)
+    {
+    }
+    
 }

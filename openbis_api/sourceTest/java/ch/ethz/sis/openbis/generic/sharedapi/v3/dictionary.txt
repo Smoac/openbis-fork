@@ -1835,3 +1835,8 @@ Update Material Types Operation Result
 update Sample Types
 Update Sample Types Operation
 Update Sample Types Operation Result
+
+delete Entity Types
+Delete Entity Types Operation
+Delete Entity Types Operation Result
+Entity Type Deletion Options

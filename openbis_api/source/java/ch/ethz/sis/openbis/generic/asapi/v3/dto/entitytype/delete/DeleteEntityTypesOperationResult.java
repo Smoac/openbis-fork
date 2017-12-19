@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.delete;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete.DeleteObjectsWithoutTrashOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-public interface IMaterialTypeAuthorizationExecutor extends IObjectAuthorizationExecutor
+@JsonObject("as.dto.entitytype.delete.DeleteEntityTypesOperationResult")
+public class DeleteEntityTypesOperationResult extends DeleteObjectsWithoutTrashOperationResult
 {
 
-    void canCreate(IOperationContext context);
+    private static final long serialVersionUID = 1L;
 
-    void canSearch(IOperationContext context);
-
-    void canUpdate(IOperationContext context);
-
-    void canDelete(IOperationContext context);
+    public DeleteEntityTypesOperationResult()
+    {
+    }
 
 }

@@ -89,7 +89,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.revert.RevertDeletionsO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.SearchDeletionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.SearchDeletionsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.delete.DeleteEntityTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.delete.EntityTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentTypesOperation;
@@ -984,6 +987,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteVocabularyTermsOperation(termIds, deletionOptions));
+    }
+
+    @Override
+    public void deleteEntityTypes(String sessionToken, List<? extends IEntityTypeId> entityTypeIds, EntityTypeDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeleteEntityTypesOperation(entityTypeIds, deletionOptions));
     }
 
     @Override
