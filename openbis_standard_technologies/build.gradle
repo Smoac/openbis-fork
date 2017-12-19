@@ -404,10 +404,10 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from proteomicsApiZip.archivePath
   from screeningApiZip.archivePath
   from ('../openbis_all/dist/readme.txt')
-  def contentOfSetUpFile = zipTree('targets/downloads/pybis.zip').getFiles().findAll {it.path.endsWith('PyBis/setup.py') }.iterator().next().text
-  def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*'(.*)'/)[0][1]
-  println pybisVersion
-  rename 'pybis.zip', "pybis-${pybisVersion}.zip"
+// Todo: wait until URL is stable
+//  def contentOfSetUpFile = zipTree('targets/downloads/pybis.zip').getFiles().findAll {it.path.endsWith('PyBis/setup.py') }.iterator().next().text
+//  def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*'(.*)'/)[0][1]
+//  rename 'pybis.zip', "pybis-${pybisVersion}.zip"
 }
 
 task generateJavadoc(type: Javadoc) {
