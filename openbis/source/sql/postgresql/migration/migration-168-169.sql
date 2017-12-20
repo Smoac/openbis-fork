@@ -4,7 +4,7 @@
 --  Purpose:  allow longer codes 
 ------------------------------------------------------------------------------------
 
--- drop rules depending on CODE
+-- drop rules for tbale and views which depend on CODE
 drop rule material_properties_update on material_properties;
 drop rule material_properties_delete on material_properties;
 drop rule sample_properties_update on sample_properties;
@@ -51,6 +51,21 @@ drop rule sample_project_insert on samples_all;
 drop rule sample_space_update on samples_all;
 drop rule sample_space_remove_update on samples_all;
 drop rule sample_space_insert on samples_all;
+drop rule sample_insert on samples;
+drop rule sample_update on samples;
+drop rule sample_delete on samples;
+drop rule sample_deleted_update on samples_deleted;
+drop rule sample_deleted_delete on samples_deleted;
+drop rule experiment_insert on experiments;
+drop rule experiment_update on experiments;
+drop rule experiment_delete on experiments;
+drop rule experiments_deleted_update on experiments_deleted; 
+drop rule experiments_deleted_delete on experiments_deleted;
+drop rule data_insert on data;
+drop rule data_update on data;
+drop rule data_all on data;
+drop rule data_deleted_update on data_deleted;
+drop rule data_deleted_delete on data_deleted;
 
 -- drop views depending on CODE
 drop view data;
@@ -148,7 +163,6 @@ CREATE VIEW samples_deleted AS
       WHERE del_id IS NOT NULL;
 
 -- Recreate rules
-
 CREATE OR REPLACE RULE material_properties_update AS
     ON UPDATE TO material_properties 
     WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
@@ -176,7 +190,7 @@ CREATE OR REPLACE RULE material_properties_update AS
          OLD.MODIFICATION_TIMESTAMP,
          NEW.MODIFICATION_TIMESTAMP
        );
-       
+
 CREATE OR REPLACE RULE material_properties_delete AS
     ON DELETE TO material_properties 
     WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd')
@@ -204,8 +218,6 @@ CREATE OR REPLACE RULE material_properties_delete AS
          OLD.MODIFICATION_TIMESTAMP,
          current_timestamp
        );
-       
--- Experiment Properties --
 
 CREATE OR REPLACE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties 
@@ -262,8 +274,6 @@ CREATE OR REPLACE RULE experiment_properties_delete AS
          OLD.MODIFICATION_TIMESTAMP,
          current_timestamp
        );
-       
--- Sample Properties --
 
 CREATE OR REPLACE RULE sample_properties_update AS
     ON UPDATE TO sample_properties
@@ -321,8 +331,6 @@ CREATE OR REPLACE RULE sample_properties_delete AS
          OLD.MODIFICATION_TIMESTAMP,
          current_timestamp
        );
-       
--- Data Set Properties --
 
 CREATE OR REPLACE RULE data_set_properties_update AS
     ON UPDATE TO data_set_properties 
@@ -381,8 +389,6 @@ CREATE OR REPLACE RULE data_set_properties_delete AS
          current_timestamp
        );
        
--- sample -> experiment
-
 CREATE OR REPLACE RULE sample_experiment_update AS
     ON UPDATE TO samples_all 
     WHERE (OLD.EXPE_ID != NEW.EXPE_ID OR OLD.EXPE_ID IS NULL) AND NEW.EXPE_ID IS NOT NULL
@@ -484,8 +490,6 @@ CREATE OR REPLACE RULE sample_experiment_delete AS
        UPDATE EXPERIMENT_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = current_timestamp 
          WHERE MAIN_EXPE_ID = OLD.EXPE_ID AND SAMP_ID = OLD.ID AND VALID_UNTIL_TIMESTAMP IS NULL;
      
--- container samples
-       
 CREATE OR REPLACE RULE sample_container_update AS
     ON UPDATE TO samples_all 
     WHERE (OLD.SAMP_ID_PART_OF != NEW.SAMP_ID_PART_OF OR OLD.SAMP_ID_PART_OF IS NULL) AND NEW.SAMP_ID_PART_OF IS NOT NULL
@@ -584,8 +588,6 @@ CREATE OR REPLACE RULE sample_container_delete AS
        DO ALSO 
        UPDATE SAMPLE_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = current_timestamp 
          WHERE MAIN_SAMP_ID = OLD.SAMP_ID_PART_OF AND SAMP_ID = OLD.ID AND VALID_UNTIL_TIMESTAMP IS NULL AND RELATION_TYPE = 'CONTAINER';
-
--- dataset -> eperiment
 
 CREATE OR REPLACE RULE dataset_experiment_update AS
     ON UPDATE TO data_all 
@@ -688,8 +690,6 @@ CREATE OR REPLACE RULE dataset_experiment_delete AS
        UPDATE EXPERIMENT_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = current_timestamp 
          WHERE MAIN_EXPE_ID = OLD.EXPE_ID AND DATA_ID = OLD.ID AND VALID_UNTIL_TIMESTAMP IS NULL;
 
--- dataset -> sample
-
 CREATE OR REPLACE RULE dataset_sample_update AS
     ON UPDATE TO data_all 
     WHERE (OLD.SAMP_ID != NEW.SAMP_ID OR OLD.SAMP_ID IS NULL) AND NEW.SAMP_ID IS NOT NULL
@@ -790,8 +790,6 @@ CREATE OR REPLACE RULE dataset_sample_delete AS
        DO ALSO 
        UPDATE SAMPLE_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = current_timestamp 
          WHERE MAIN_SAMP_ID = OLD.SAMP_ID AND DATA_ID = OLD.ID AND VALID_UNTIL_TIMESTAMP IS NULL;
-
--- data set relationship
 
 CREATE OR REPLACE RULE data_relationship_insert AS
     ON INSERT TO data_set_relationships_all
@@ -1062,8 +1060,6 @@ CREATE OR REPLACE RULE sample_parent_child_revert_update AS
          );
        );
 
--- experiment -> project
-
 CREATE OR REPLACE RULE experiment_project_update AS
     ON UPDATE TO experiments_all 
     WHERE (OLD.PROJ_ID != NEW.PROJ_ID OR OLD.PROJ_ID IS NULL) AND NEW.PROJ_ID IS NOT NULL
@@ -1165,8 +1161,6 @@ CREATE OR REPLACE RULE experiment_project_delete AS
        UPDATE PROJECT_RELATIONSHIPS_HISTORY SET VALID_UNTIL_TIMESTAMP = current_timestamp 
          WHERE MAIN_PROJ_ID = OLD.PROJ_ID AND EXPE_ID = OLD.ID AND VALID_UNTIL_TIMESTAMP IS NULL;
 
--- project -> space
-
 CREATE OR REPLACE RULE project_space_update AS
     ON UPDATE TO projects 
     WHERE (OLD.SPACE_ID != NEW.SPACE_ID OR OLD.SPACE_ID IS NULL) AND NEW.SPACE_ID IS NOT NULL
@@ -1222,8 +1216,6 @@ CREATE OR REPLACE RULE project_space_insert AS
          NEW.MODIFICATION_TIMESTAMP
        );
    );
-
--- sample -> project
 
 CREATE OR REPLACE RULE sample_project_update AS
     ON UPDATE TO samples_all 
@@ -1281,8 +1273,6 @@ CREATE OR REPLACE RULE sample_project_insert AS
        );
    );
 
--- sample -> project
-
 CREATE OR REPLACE RULE sample_space_update AS
     ON UPDATE TO samples_all 
     WHERE (OLD.SPACE_ID != NEW.SPACE_ID OR OLD.SPACE_ID IS NULL OR OLD.EXPE_ID IS NOT NULL OR OLD.PROJ_ID IS NOT NULL) AND NEW.SPACE_ID IS NOT NULL AND NEW.EXPE_ID IS NULL AND NEW.PROJ_ID IS NULL
@@ -1338,4 +1328,232 @@ CREATE OR REPLACE RULE sample_space_insert AS
          NEW.MODIFICATION_TIMESTAMP
        );
    );
+
+CREATE OR REPLACE RULE sample_insert AS
+    ON INSERT TO samples DO INSTEAD 
+       INSERT INTO samples_all (
+         id, 
+         code, 
+         del_id,
+         orig_del,
+         expe_id,
+         proj_id,
+         modification_timestamp,
+         perm_id,
+         pers_id_registerer, 
+         pers_id_modifier, 
+         registration_timestamp, 
+         samp_id_part_of,
+         saty_id, 
+         space_id,
+         version
+       ) VALUES (
+         NEW.id, 
+         NEW.code, 
+         NEW.del_id,
+         NEW.orig_del,
+         NEW.expe_id,
+         NEW.proj_id,
+         NEW.modification_timestamp,
+         NEW.perm_id,
+         NEW.pers_id_registerer, 
+         NEW.pers_id_modifier, 
+         NEW.registration_timestamp, 
+         NEW.samp_id_part_of,
+         NEW.saty_id, 
+         NEW.space_id,
+         NEW.version
+       );
+     
+CREATE OR REPLACE RULE sample_update AS
+    ON UPDATE TO samples DO INSTEAD 
+       UPDATE samples_all
+          SET code = NEW.code,
+              del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              expe_id = NEW.expe_id,
+              proj_id = NEW.proj_id,
+              modification_timestamp = NEW.modification_timestamp,
+              perm_id = NEW.perm_id,
+              pers_id_registerer = NEW.pers_id_registerer,
+              pers_id_modifier = NEW.pers_id_modifier,
+              registration_timestamp = NEW.registration_timestamp,
+              samp_id_part_of = NEW.samp_id_part_of,
+              saty_id = NEW.saty_id,
+              space_id = NEW.space_id,
+              version = NEW.version
+          WHERE id = NEW.id;
+     
+CREATE OR REPLACE RULE sample_delete AS
+    ON DELETE TO samples DO INSTEAD
+       DELETE FROM samples_all
+              WHERE id = OLD.id;
+              
+CREATE OR REPLACE RULE sample_deleted_update AS
+    ON UPDATE TO samples_deleted DO INSTEAD
+       UPDATE samples_all
+          SET del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
+          WHERE id = NEW.id;
+     
+CREATE OR REPLACE RULE sample_deleted_delete AS
+    ON DELETE TO samples_deleted DO INSTEAD
+       DELETE FROM samples_all
+              WHERE id = OLD.id;
+
+CREATE OR REPLACE RULE experiment_insert AS
+  ON INSERT TO experiments DO INSTEAD 
+     INSERT INTO experiments_all (
+       id, 
+       code, 
+       del_id,
+       orig_del,
+       exty_id, 
+       is_public,
+       modification_timestamp,
+       perm_id,
+       pers_id_registerer, 
+       pers_id_modifier, 
+       proj_id,
+       registration_timestamp,
+       version
+     ) VALUES (
+       NEW.id, 
+       NEW.code, 
+       NEW.del_id,
+       NEW.orig_del,
+       NEW.exty_id, 
+       NEW.is_public,
+       NEW.modification_timestamp,
+       NEW.perm_id,
+       NEW.pers_id_registerer, 
+       NEW.pers_id_modifier, 
+       NEW.proj_id,
+       NEW.registration_timestamp,
+       NEW.version
+     );
+     
+CREATE OR REPLACE RULE experiment_update AS
+    ON UPDATE TO experiments DO INSTEAD 
+       UPDATE experiments_all
+          SET code = NEW.code,
+              del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              exty_id = NEW.exty_id,
+              is_public = NEW.is_public,
+              modification_timestamp = NEW.modification_timestamp,
+              perm_id = NEW.perm_id,
+              pers_id_registerer = NEW.pers_id_registerer,
+              pers_id_modifier = NEW.pers_id_modifier,
+              proj_id = NEW.proj_id,
+              registration_timestamp = NEW.registration_timestamp,
+              version = NEW.version
+          WHERE id = NEW.id;
+     
+CREATE OR REPLACE RULE experiment_delete AS
+    ON DELETE TO experiments DO INSTEAD
+       DELETE FROM experiments_all
+              WHERE id = OLD.id;
+      
+CREATE OR REPLACE RULE experiments_deleted_update AS
+    ON UPDATE TO experiments_deleted DO INSTEAD 
+       UPDATE experiments_all
+          SET del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
+          WHERE id = NEW.id;
+     
+CREATE OR REPLACE RULE experiments_deleted_delete AS
+    ON DELETE TO experiments_deleted DO INSTEAD
+       DELETE FROM experiments_all
+              WHERE id = OLD.id;
+      
+CREATE OR REPLACE RULE data_insert AS
+  ON INSERT TO data DO INSTEAD 
+     INSERT INTO data_all (
+       id, 
+       code, 
+       del_id,
+       orig_del,
+       expe_id,
+       dast_id,
+       data_producer_code,
+       dsty_id,
+       is_derived,
+       is_valid,
+       modification_timestamp,
+       access_timestamp,
+       pers_id_registerer,
+       pers_id_modifier,
+       production_timestamp,
+       registration_timestamp,
+       samp_id,
+       version,
+       data_set_kind
+     ) VALUES (
+       NEW.id, 
+       NEW.code, 
+       NEW.del_id, 
+       NEW.orig_del,
+       NEW.expe_id,
+       NEW.dast_id,
+       NEW.data_producer_code,
+       NEW.dsty_id,
+       NEW.is_derived, 
+       NEW.is_valid,
+       NEW.modification_timestamp,
+       NEW.access_timestamp,
+       NEW.pers_id_registerer,
+       NEW.pers_id_modifier,
+       NEW.production_timestamp,
+       NEW.registration_timestamp,
+       NEW.samp_id,
+       NEW.version,
+       NEW.data_set_kind
+     );
+     
+CREATE OR REPLACE RULE data_update AS
+    ON UPDATE TO data DO INSTEAD 
+       UPDATE data_all
+          SET code = NEW.code,
+              del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              expe_id = NEW.expe_id,
+              dast_id = NEW.dast_id,
+              data_producer_code = NEW.data_producer_code,
+              dsty_id = NEW.dsty_id,
+              is_derived = NEW.is_derived,
+              is_valid = NEW.is_valid,
+              modification_timestamp = NEW.modification_timestamp,
+              access_timestamp = NEW.access_timestamp,
+              pers_id_registerer = NEW.pers_id_registerer,
+              pers_id_modifier = NEW.pers_id_modifier,
+              production_timestamp = NEW.production_timestamp,
+              registration_timestamp = NEW.registration_timestamp,
+              samp_id = NEW.samp_id,
+              version = NEW.version,
+              data_set_kind = NEW.data_set_kind
+       WHERE id = NEW.id;
+              
+CREATE OR REPLACE RULE data_all AS
+    ON DELETE TO data DO INSTEAD
+       DELETE FROM data_all
+              WHERE id = OLD.id;
+              
+CREATE OR REPLACE RULE data_deleted_update AS
+    ON UPDATE TO data_deleted DO INSTEAD 
+       UPDATE data_all
+          SET del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
+          WHERE id = NEW.id;
+     
+CREATE OR REPLACE RULE data_deleted_delete AS
+    ON DELETE TO data_deleted DO INSTEAD
+       DELETE FROM data_all
+              WHERE id = OLD.id;
 
