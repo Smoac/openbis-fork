@@ -16,10 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.history.DataSetRelationType;
@@ -29,9 +33,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuthorizationValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -44,6 +51,15 @@ import net.lemnik.eodsql.QueryTool;
 public class DataSetHistoryTranslator extends HistoryTranslator implements IDataSetHistoryTranslator
 {
 
+    @Autowired
+    private IExperimentAuthorizationValidator experimentValidator;
+
+    @Autowired
+    private ISampleAuthorizationValidator sampleValidator;
+
+    @Autowired
+    private IDataSetAuthorizationValidator dataSetValidator;
+
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
     {
@@ -52,10 +68,66 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
     }
 
     @Override
-    protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds)
+    protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
+
+        List<DataSetRelationshipRecord> records = query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
+        List<DataSetRelationshipRecord> validRecords = new ArrayList<DataSetRelationshipRecord>();
+
+        Set<Long> experimentIds = new HashSet<Long>();
+        Set<Long> sampleIds = new HashSet<Long>();
+        Set<Long> dataSetIds = new HashSet<Long>();
+
+        for (DataSetRelationshipRecord record : records)
+        {
+            if (record.experimentId != null)
+            {
+                experimentIds.add(record.experimentId);
+            } else if (record.sampleId != null)
+            {
+                sampleIds.add(record.sampleId);
+            } else if (record.dataSetId != null)
+            {
+                dataSetIds.add(record.dataSetId);
+            }
+        }
+
+        if (false == experimentIds.isEmpty())
+        {
+            experimentIds = experimentValidator.validate(context.getSession().tryGetPerson(), experimentIds);
+        }
+        if (false == sampleIds.isEmpty())
+        {
+            sampleIds = sampleValidator.validate(context.getSession().tryGetPerson(), sampleIds);
+        }
+        if (false == dataSetIds.isEmpty())
+        {
+            dataSetIds = dataSetValidator.validate(context.getSession().tryGetPerson(), dataSetIds);
+        }
+
+        for (DataSetRelationshipRecord record : records)
+        {
+            boolean isValid = false;
+
+            if (record.experimentId != null)
+            {
+                isValid = experimentIds.contains(record.experimentId);
+            } else if (record.sampleId != null)
+            {
+                isValid = sampleIds.contains(record.sampleId);
+            } else if (record.dataSetId != null)
+            {
+                isValid = dataSetIds.contains(record.dataSetId);
+            }
+
+            if (isValid)
+            {
+                validRecords.add(record);
+            }
+        }
+
+        return validRecords;
     }
 
     @Override

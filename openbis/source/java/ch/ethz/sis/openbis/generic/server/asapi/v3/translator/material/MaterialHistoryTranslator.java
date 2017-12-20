@@ -25,6 +25,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
@@ -44,7 +45,7 @@ public class MaterialHistoryTranslator extends HistoryTranslator implements IMat
     }
 
     @Override
-    protected List<HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds)
+    protected List<HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
     {
         return null;
     }

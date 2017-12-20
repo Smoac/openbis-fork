@@ -49,7 +49,7 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
 
     protected abstract List<? extends HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds);
 
-    protected abstract List<? extends HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds);
+    protected abstract List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds);
 
     @Override
     protected ObjectHolder<List<HistoryEntry>> createObject(TranslationContext context, Long entityId, HistoryEntryFetchOptions fetchOptions)
@@ -61,7 +61,7 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
     protected Object getObjectsRelations(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
     {
         List<? extends HistoryPropertyRecord> properties = loadPropertyHistory(entityIds);
-        List<? extends HistoryRelationshipRecord> relationships = loadRelationshipHistory(entityIds);
+        List<? extends HistoryRelationshipRecord> relationships = loadRelationshipHistory(context, entityIds);
 
         Map<Long, Person> authorMap = new HashMap<>();
 

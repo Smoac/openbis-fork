@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.project;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import net.lemnik.eodsql.QueryTool;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -32,9 +32,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.history.ProjectRelationType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.ISpaceAuthorizationValidator;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -43,6 +49,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTra
 public class ProjectHistoryTranslator extends HistoryTranslator implements IProjectHistoryTranslator
 {
 
+    @Autowired
+    private ISpaceAuthorizationValidator spaceValidator;
+
+    @Autowired
+    private IExperimentAuthorizationValidator experimentValidator;
+
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
     {
@@ -50,10 +62,55 @@ public class ProjectHistoryTranslator extends HistoryTranslator implements IProj
     }
 
     @Override
-    protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds)
+    protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
     {
         ProjectQuery query = QueryTool.getManagedQuery(ProjectQuery.class);
-        return query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
+
+        List<ProjectRelationshipRecord> records = query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
+        List<ProjectRelationshipRecord> validRecords = new ArrayList<ProjectRelationshipRecord>();
+
+        Set<Long> spaceIds = new HashSet<Long>();
+        Set<Long> experimentIds = new HashSet<Long>();
+
+        for (ProjectRelationshipRecord record : records)
+        {
+            if (record.spaceId != null)
+            {
+                spaceIds.add(record.spaceId);
+            } else if (record.experimentId != null)
+            {
+                experimentIds.add(record.experimentId);
+            }
+        }
+
+        if (false == spaceIds.isEmpty())
+        {
+            spaceIds = spaceValidator.validate(context.getSession().tryGetPerson(), spaceIds);
+        }
+        if (false == experimentIds.isEmpty())
+        {
+            experimentIds = experimentValidator.validate(context.getSession().tryGetPerson(), experimentIds);
+        }
+
+        for (ProjectRelationshipRecord record : records)
+        {
+            boolean isValid = false;
+
+            if (record.spaceId != null)
+            {
+                isValid = spaceIds.contains(record.spaceId);
+            } else if (record.experimentId != null)
+            {
+                isValid = experimentIds.contains(record.experimentId);
+            }
+
+            if (isValid)
+            {
+                validRecords.add(record);
+            }
+        }
+
+        return validRecords;
     }
 
     @Override
