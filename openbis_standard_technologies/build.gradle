@@ -395,9 +395,10 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 }
 
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, proteomicsApiZip, screeningApiZip]) {
+  def pybisVersion = '1.4.1'
   baseName 'openBIS-clients-and-APIs'
-  downloadFile('https://sissource.ethz.ch/sispub/pybis/repository/release/1.4.1/archive.zip', 'pybis-1.4.1.zip')
-  from 'targets/downloads/pybis.zip'
+  downloadFile("https://sissource.ethz.ch/sispub/pybis/repository/release/${pybisVersion}/archive.zip", "pybis-${pybisVersion}.zip")
+  from "targets/downloads/pybis-${pybisVersion}.zip"
   from dssClientZip.archivePath
   from queryApiZip.archivePath
   from apiV3Zip.archivePath
