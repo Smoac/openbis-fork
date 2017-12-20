@@ -19,9 +19,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.globalsearch;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -77,11 +79,12 @@ public class GlobalSearchObjectTranslator extends AbstractCachingTranslator<Matc
     private IMaterialTranslator materialTranslator;
 
     @Override
-    protected boolean shouldTranslate(TranslationContext context, MatchingEntity input, GlobalSearchObjectFetchOptions fetchOptions)
+    protected Set<MatchingEntity> shouldTranslate(TranslationContext context, Collection<MatchingEntity> inputs,
+            GlobalSearchObjectFetchOptions fetchOptions)
     {
         MatchingEntityValidator validator = new MatchingEntityValidator();
         validator.init(new AuthorizationDataProvider(daoFactory));
-        return validator.isValid(context.getSession().tryGetPerson(), input);
+        return new HashSet<MatchingEntity>(validator.getValid(context.getSession().tryGetPerson(), inputs));
     }
 
     @Override

@@ -16,58 +16,39 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.AbstractAuthorizationValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ExperimentAuthorizationValidator implements IExperimentAuthorizationValidator
+public class ExperimentAuthorizationValidator extends AbstractAuthorizationValidator implements IExperimentAuthorizationValidator
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Override
     public Set<Long> validate(PersonPE person, Collection<Long> experimentIds)
     {
-        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        List<ExperimentAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(experimentIds));
+        AuthorizationDataProvider provider = new AuthorizationDataProvider(daoFactory);
+        Set<ExperimentAccessPE> accessDatas =
+                provider.getExperimentCollectionAccessData(TechId.createList(new ArrayList<Long>(experimentIds)), false);
         Set<Long> result = new HashSet<Long>();
 
-        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
-        validator.init(new AuthorizationDataProvider(daoFactory));
-
-        for (ExperimentAuthorizationRecord record : records)
+        for (ExperimentAccessPE accessData : accessDatas)
         {
-            final ExperimentAuthorizationRecord theRecord = record;
-
-            if (validator.doValidation(person, new IIdentifierHolder()
-                {
-                    @Override
-                    public String getIdentifier()
-                    {
-                        return new ExperimentIdentifier(theRecord.spaceCode, theRecord.projectCode, theRecord.code).getIdentifier();
-                    }
-                }))
+            if (isValid(person, accessData.getSpaceIdentifier(), accessData.getProjectIdentifier()))
             {
-                result.add(record.id);
+                result.add(accessData.getExperimentId());
             }
         }
 

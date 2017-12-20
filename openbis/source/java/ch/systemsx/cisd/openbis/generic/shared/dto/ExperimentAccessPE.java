@@ -28,6 +28,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Pawel Glyzewski
@@ -91,6 +92,18 @@ public class ExperimentAccessPE
     public String getSpaceCode()
     {
         return spaceCode;
+    }
+
+    @Transient
+    public SpaceIdentifier getSpaceIdentifier()
+    {
+        if (getSpaceCode() != null)
+        {
+            return new SpaceIdentifier(getSpaceCode());
+        } else
+        {
+            return null;
+        }
     }
 
     public void setProjectCode(String projectCode)

@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -561,7 +562,7 @@ public class GlobalSearchTest extends AbstractTest
     @Test
     public void testSearchDataSetWithKindLink()
     {
-    	// given
+        // given
         GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
         fo.withDataSet();
 
@@ -673,6 +674,43 @@ public class GlobalSearchTest extends AbstractTest
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
         assertMaterialNotFetched(object);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly("/CISD/DEFAULT/EXP-REUSE");
+        criteria.withText().thatContainsExactly("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        search(user.getUserId(), criteria, fetchOptions);
+                    }
+                });
+        } else
+        {
+            SearchResult<GlobalSearchObject> result = search(user.getUserId(), criteria, fetchOptions);
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(result.getObjects().size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(result.getObjects().size(), 1);
+                assertEquals(result.getObjects().get(0).getObjectIdentifier().toString(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+            } else
+            {
+                assertEquals(result.getObjects().size(), 0);
+            }
+        }
     }
 
     private SearchResult<GlobalSearchObject> search(String user, GlobalSearchCriteria criteria, GlobalSearchObjectFetchOptions fetchOptions)
