@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 public final class DatabaseVersionHolder
 {
     /** Current version of the database. */
-    private static final String DATABASE_VERSION = "168"; // S266
+    private static final String DATABASE_VERSION = "169"; // S268
 
     private DatabaseVersionHolder()
     {

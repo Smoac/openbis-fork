@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 public class MetaprojectNameConstants
 {
 
-    public static final int MAX_LENGTH = 60;
+    public static final int MAX_LENGTH = 100;
 
     public static final String MAX_LENGTH_ERROR_MESSAGE = "Tag name cannot be longer than "
             + MAX_LENGTH + " characters.";

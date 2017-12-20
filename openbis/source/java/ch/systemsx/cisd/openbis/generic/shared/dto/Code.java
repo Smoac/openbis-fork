@@ -41,7 +41,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    public static final int CODE_LENGTH_MAX = 60;
+    public static final int CODE_LENGTH_MAX = 100;
 
     private String code;
 
