@@ -1557,3 +1557,223 @@ CREATE OR REPLACE RULE data_deleted_delete AS
        DELETE FROM data_all
               WHERE id = OLD.id;
 
+-- recreating functions using local variables of type CODE. Otherwise one might get a "cache lookup failed for type" error 
+
+CREATE OR REPLACE FUNCTION CONTROLLED_VOCABULARY_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_code  CODE;
+BEGIN
+
+   select code into v_code from data_types where id = NEW.daty_id;
+
+   -- Check if the data is of type "CONTROLLEDVOCABULARY"
+   if v_code = 'CONTROLLEDVOCABULARY' then
+      if NEW.covo_id IS NULL then
+         RAISE EXCEPTION 'Insert/Update of Property Type (Code: %) failed, as its Data Type is CONTROLLEDVOCABULARY, but it is not linked to a Controlled Vocabulary.', NEW.code;
+      end if;
+   end if;
+
+   RETURN NEW;
+
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION EXTERNAL_DATA_STORAGE_FORMAT_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_covo_code  CODE;
+   data_code CODE;
+BEGIN
+
+   select code into v_covo_code from controlled_vocabularies
+      where is_internal_namespace = true and 
+         id = (select covo_id from controlled_vocabulary_terms where id = NEW.cvte_id_stor_fmt);
+   -- Check if the data storage format is a term of the controlled vocabulary "STORAGE_FORMAT"
+   if v_covo_code != 'STORAGE_FORMAT' then
+      select code into data_code from data_all where id = NEW.data_id; 
+      RAISE EXCEPTION 'Insert/Update of Data (Code: %) failed, as its Storage Format is %, but is required to be STORAGE_FORMAT.', data_code, v_covo_code;
+   end if;
+
+   RETURN NEW;
+
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION data_exp_or_sample_link_check() RETURNS trigger AS $$
+DECLARE
+  space_id CODE;
+  sample_code CODE;
+BEGIN
+  if NEW.expe_id IS NOT NULL then
+    RETURN NEW;
+  end if;
+  if NEW.samp_id IS NULL then
+    RAISE EXCEPTION 'Neither experiment nor sample is specified for data set %', NEW.code;
+  end if;
+  select s.id, s.code into space_id, sample_code from samples_all s where s.id = NEW.samp_id;
+  if space_id is NULL then
+    RAISE EXCEPTION 'Sample % is a shared sample.', sample_code;
+  end if;
+  RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+      -- find material type id of the property type 
+      select pt.maty_prop_id into v_type_id_prop 
+        from material_type_property_types etpt, property_types pt 
+       where NEW.mtpt_id = etpt.id AND etpt.prty_id = pt.id;
+    
+      if v_type_id_prop IS NOT NULL then
+        -- find material type id of the material which consists the entity's property value
+        select entity.maty_id into v_type_id 
+          from materials entity
+         where NEW.mate_prop_id = entity.id;
+        if v_type_id != v_type_id_prop then
+          RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+               NEW.mate_prop_id, v_type_id, v_type_id_prop;
+        end if;
+      end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+      -- find material type id of the property type 
+      select pt.maty_prop_id into v_type_id_prop 
+        from sample_type_property_types etpt, property_types pt 
+       where NEW.stpt_id = etpt.id AND etpt.prty_id = pt.id;
+    
+      if v_type_id_prop IS NOT NULL then
+        -- find material type id of the material which consists the entity's property value
+        select entity.maty_id into v_type_id 
+          from materials entity
+         where NEW.mate_prop_id = entity.id;
+        if v_type_id != v_type_id_prop then
+          RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+                         NEW.mate_prop_id, v_type_id, v_type_id_prop;
+        end if;
+      end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+      -- find material type id of the property type 
+      select pt.maty_prop_id into v_type_id_prop 
+        from experiment_type_property_types etpt, property_types pt 
+       where NEW.etpt_id = etpt.id AND etpt.prty_id = pt.id;
+    
+      if v_type_id_prop IS NOT NULL then
+        -- find material type id of the material which consists the entity's property value
+        select entity.maty_id into v_type_id 
+          from materials entity
+         where NEW.mate_prop_id = entity.id;
+        if v_type_id != v_type_id_prop then
+          RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+                         NEW.mate_prop_id, v_type_id, v_type_id_prop;
+        end if;
+      end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION DATA_SET_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+      -- find material type id of the property type 
+      select pt.maty_prop_id into v_type_id_prop 
+        from data_set_type_property_types dstpt, property_types pt 
+       where NEW.dstpt_id = dstpt.id AND dstpt.prty_id = pt.id;
+    
+      if v_type_id_prop IS NOT NULL then
+        -- find material type id of the material which consists the entity's property value
+        select entity.maty_id into v_type_id 
+          from materials entity
+         where NEW.mate_prop_id = entity.id;
+        if v_type_id != v_type_id_prop then
+          RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+                         NEW.mate_prop_id, v_type_id, v_type_id_prop;
+        end if;
+      end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION check_created_or_modified_data_set_owner_is_alive() RETURNS trigger AS $$
+DECLARE
+  owner_code  CODE;
+  owner_del_id  TECH_ID;
+BEGIN
+  IF (NEW.del_id IS NOT NULL) THEN
+    RETURN NEW;
+  END IF;
+
+  -- check sample
+  IF (NEW.samp_id IS NOT NULL) THEN
+    SELECT del_id, code INTO owner_del_id, owner_code
+      FROM samples 
+      WHERE id = NEW.samp_id;
+    IF (owner_del_id IS NOT NULL) THEN 
+      RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to a Sample (Code: %) %.', 
+                      NEW.code, owner_code, deletion_description(owner_del_id);
+    END IF;
+  END IF;
+  -- check experiment
+  IF (NEW.expe_id IS NOT NULL) THEN
+    SELECT del_id, code INTO owner_del_id, owner_code
+      FROM experiments 
+      WHERE id = NEW.expe_id;
+    IF (owner_del_id IS NOT NULL) THEN 
+      RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to an Experiment (Code: %) %.', 
+                      NEW.code, owner_code, deletion_description(owner_del_id);
+    END IF; 
+  END IF; 
+  RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+  
+CREATE OR REPLACE FUNCTION check_created_or_modified_sample_owner_is_alive() RETURNS trigger AS $$
+DECLARE
+  owner_code  CODE;
+  owner_del_id  TECH_ID;
+BEGIN
+  IF (NEW.del_id IS NOT NULL) THEN
+    RETURN NEW;
+  END IF;
+
+  -- check experiment (can't be deleted)
+  IF (NEW.expe_id IS NOT NULL) THEN
+    SELECT del_id, code INTO owner_del_id, owner_code
+      FROM experiments 
+      WHERE id = NEW.expe_id;
+    IF (owner_del_id IS NOT NULL) THEN 
+      RAISE EXCEPTION 'Sample (Code: %) cannot be connected to an Experiment (Code: %) %.', 
+                      NEW.code, owner_code, deletion_description(owner_del_id);
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+  
