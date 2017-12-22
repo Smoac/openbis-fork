@@ -92,8 +92,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectId
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodeReadWritePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
@@ -1082,7 +1082,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void registerDataSet(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier, final NewExternalData externalData)
             throws UserFailureException
     {
@@ -1339,6 +1339,24 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void checkSpaceAccess(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceId)
+    {
+        checkSession(sessionToken);
+        // do nothing, the access rights specified in method annotations are checked by a proxy
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
+    public void checkExperimentAccess(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) String experimentIdentifier)
+    {
+        checkSession(sessionToken);
+        // do nothing, the access rights specified in method annotations are checked by a proxy
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
+    public void checkSampleAccess(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleAugmentedCodeReadWritePredicate.class) String sampleIdentifier)
     {
         checkSession(sessionToken);
         // do nothing, the access rights specified in method annotations are checked by a proxy

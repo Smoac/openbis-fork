@@ -50,9 +50,9 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
     private final SampleUpdatesCollectionPredicate sampleUpdatesPredicate;
 
-    private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
+    private final SampleIdentifierPredicate sampleIdentifierPredicate;
 
-    private final ExistingSpaceIdentifierPredicate experimentOwnerIdentifierPredicate;
+    private final ExperimentAugmentedCodePredicate experimentIdentifierPredicate;
 
     private final DataSetUpdatesCollectionPredicate dataSetUpdatesCollectionPredicate;
 
@@ -66,8 +66,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         experimentUpdatesPredicate = new ExperimentUpdatesPredicate();
         newSamplePredicate = new NewSamplePredicate();
         sampleUpdatesPredicate = new SampleUpdatesCollectionPredicate();
-        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
-        experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
+        sampleIdentifierPredicate = new SampleIdentifierPredicate(true, true);
+        experimentIdentifierPredicate = new ExperimentAugmentedCodePredicate(true);
         dataSetUpdatesCollectionPredicate = new DataSetUpdatesCollectionPredicate();
         newProjectPredicate = new NewProjectPredicate();
         projectUpdatePredicate = new ProjectUpdatesPredicate();
@@ -80,8 +80,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         experimentUpdatesPredicate.init(provider);
         newSamplePredicate.init(provider);
         sampleUpdatesPredicate.init(provider);
-        sampleOwnerIdentifierPredicate.init(provider);
-        experimentOwnerIdentifierPredicate.init(provider);
+        sampleIdentifierPredicate.init(provider);
+        experimentIdentifierPredicate.init(provider);
         dataSetUpdatesCollectionPredicate.init(provider);
         newProjectPredicate.init(provider);
         projectUpdatePredicate.init(provider);
@@ -375,13 +375,13 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             if (null != sampleIdentifier)
             {
                 status =
-                        predicate.sampleOwnerIdentifierPredicate.doEvaluation(person, allowedRoles,
+                        predicate.sampleIdentifierPredicate.doEvaluation(person, allowedRoles,
                                 sampleIdentifier);
             } else
             {
                 status =
-                        predicate.experimentOwnerIdentifierPredicate.doEvaluation(person,
-                                allowedRoles, experimentIdentifier);
+                        predicate.experimentIdentifierPredicate.doEvaluation(person,
+                                allowedRoles, experimentIdentifier != null ? experimentIdentifier.toString() : null);
             }
             return status;
         }

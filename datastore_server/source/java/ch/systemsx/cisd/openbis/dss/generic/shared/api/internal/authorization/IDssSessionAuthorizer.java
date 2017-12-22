@@ -52,6 +52,20 @@ public interface IDssSessionAuthorizer
     public Status checkSpaceWriteable(String sessionToken, SpaceIdentifier spaceId);
 
     /**
+     * Checks whether the session identified by <var>sessionToken</var> is authorized to write to the given <var>experimentIdentifier</var>.
+     * 
+     * @return {@link Status#OK} if the access is granted, an error status otherwise.
+     */
+    public Status checkExperimentWriteable(String sessionToken, String experimentIdentifier);
+
+    /**
+     * Checks whether the session identified by <var>sessionToken</var> is authorized to write to the given <var>sampleIdentifier</var>.
+     * 
+     * @return {@link Status#OK} if the access is granted, an error status otherwise.
+     */
+    public Status checkSampleWriteable(String sessionToken, String sampleIdentifier);
+
+    /**
      * Checks whether the session identified by <var>sessionToken</var> has openBIS instance admin privileges.
      * 
      * @return {@link Status#OK} if the access is granted, an error status otherwise.

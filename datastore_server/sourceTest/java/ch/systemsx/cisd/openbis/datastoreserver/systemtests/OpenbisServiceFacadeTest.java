@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -87,7 +88,69 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
-        checkDataSet(dataSet);
+        checkDataSet(dataSet, "my-data");
+    }
+
+    @Test
+    public void testPutDataSetWithDynamicPropertyTest() throws Exception
+    {
+        File exampleDataSet = new File(workingDirectory, "my-data-with-dyna-test");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
+        checkDataSet(dataSet, "my-data-with-dyna-test");
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testPutDataSetWithExperimentWithProjectAuthorization(ProjectAuthorizationUser user) throws IOException
+    {
+        IOpenbisServiceFacade userServiceFacade = createServiceFacade(user.getUserId());
+
+        File exampleDataSet = new File(workingDirectory, "my-data-pa");
+        DataSetOwner dataSetOwner = new DataSetOwner(DataSetOwnerType.EXPERIMENT, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet, dataSetOwner);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            DataSet dataSet = userServiceFacade.putDataSet(newDataset, exampleDataSet);
+            assertNotNull(dataSet);
+        } else
+        {
+            try
+            {
+                userServiceFacade.putDataSet(newDataset, exampleDataSet);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testPutDataSetWithSampleWithProjectAuthorization(ProjectAuthorizationUser user) throws IOException
+    {
+        IOpenbisServiceFacade userServiceFacade = createServiceFacade(user.getUserId());
+
+        File exampleDataSet = new File(workingDirectory, "my-data-pa");
+
+        DataSetOwner dataSetOwner = new DataSetOwner(DataSetOwnerType.SAMPLE, "/TEST-SPACE/EV-TEST");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet, dataSetOwner);
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            DataSet dataSet = userServiceFacade.putDataSet(newDataset, exampleDataSet);
+            assertNotNull(dataSet);
+        } else
+        {
+            try
+            {
+                userServiceFacade.putDataSet(newDataset, exampleDataSet);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        }
     }
 
     @Test
@@ -99,7 +162,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         newDataset.setParentDataSetCodes(Arrays.asList(code));
         DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
-        checkDataSet(dataSet);
+        checkDataSet(dataSet, "my-data");
 
         // We need to take a different route to get the data set we just registered to check if it
         // has a parent.
@@ -331,6 +394,11 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, "/CISD/CP-TEST-1");
+        return createNewDataSetDTO(exampleDataSet, dataSetOwner);
+    }
+
+    private NewDataSetDTO createNewDataSetDTO(File exampleDataSet, DataSetOwner dataSetOwner) throws IOException
+    {
         exampleDataSet.mkdirs();
         FileUtilities.writeToFile(new File(exampleDataSet, "data.log"), "hello world");
         FileUtilities.writeToFile(new File(exampleDataSet, "data-set.properties"),
@@ -384,11 +452,11 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         return dataSets.get(0);
     }
 
-    private void checkDataSet(DataSet dataSet) throws IOException
+    private void checkDataSet(DataSet dataSet, String folderName) throws IOException
     {
-        assertEquals("hello world", getContent(dataSet, "data.log"));
-        assertEquals("1 2 3", getContent(dataSet, "data/1.data"));
-        assertEquals("4 5 6 7", getContent(dataSet, "data/2.data"));
+        assertEquals("hello world", getContent(dataSet, folderName + "/data.log"));
+        assertEquals("1 2 3", getContent(dataSet, folderName + "/data/1.data"));
+        assertEquals("4 5 6 7", getContent(dataSet, folderName + "/data/2.data"));
     }
 
     private String getContent(DataSet dataSet, String path) throws IOException
@@ -397,7 +465,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         InputStream inputStream = null;
         try
         {
-            inputStream = dataSet.getFile("/original/my-data/" + path);
+            inputStream = dataSet.getFile("/original/" + path);
             IOUtils.copy(inputStream, output);
         } finally
         {

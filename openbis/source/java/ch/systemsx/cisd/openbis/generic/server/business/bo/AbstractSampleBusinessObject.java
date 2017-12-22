@@ -250,7 +250,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         return experimentPE;
     }
-    
+
     private ProjectPE tryFindProject(Map<String, ProjectPE> projectCache, ProjectIdentifier projectIdentifier)
     {
         if (projectIdentifier == null)
@@ -259,8 +259,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         return tryFindProject(projectCache, projectIdentifier.toString(), null);
     }
-    
-    private ProjectPE tryFindProject(Map<String, ProjectPE> projectCache, String projectIdentifier, 
+
+    private ProjectPE tryFindProject(Map<String, ProjectPE> projectCache, String projectIdentifier,
             String defaultSpace)
     {
         if (projectIdentifier == null)
@@ -608,7 +608,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
         assignSampleAndRelatedDataSetsToExperiment(sample, newExperiment);
     }
-    
+
     protected void updateProject(SamplePE sample, ProjectIdentifier projectIdentifierOrNull,
             Map<String, ProjectPE> projectCache)
     {
@@ -633,7 +633,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     sample.getIdentifier());
         }
     }
-    
+
     private void ensureSampleAttachableToExperiment(SamplePE sample, ExperimentPE newExperiment)
     {
         if (sample.getSpace() == null && newExperiment != null)
@@ -883,7 +883,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     protected void assertInstanceSampleUpdateAllowed(List<? extends SamplePE> samples)
     {
-        List<SampleOwnerIdentifier> instanceSamples = new ArrayList<SampleOwnerIdentifier>();
+        List<SampleIdentifier> instanceSamples = new ArrayList<SampleIdentifier>();
 
         for (SamplePE sample : samples)
         {
@@ -891,7 +891,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
             if (sampleIdentifier.isDatabaseInstanceLevel())
             {
-                instanceSamples.add(sampleIdentifier.createSampleOwnerIdentifier());
+                instanceSamples.add(sampleIdentifier);
             }
         }
 

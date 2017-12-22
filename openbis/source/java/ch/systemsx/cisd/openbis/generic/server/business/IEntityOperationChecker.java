@@ -21,11 +21,11 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author pkupczyk
@@ -41,6 +41,6 @@ public interface IEntityOperationChecker
     @RolesAllowed(
     { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) List<? extends SampleOwnerIdentifier> instanceSamples);
+            @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class) List<? extends SampleIdentifier> instanceSamples);
 
 }

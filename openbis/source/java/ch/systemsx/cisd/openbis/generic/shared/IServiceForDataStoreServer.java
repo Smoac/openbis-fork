@@ -587,6 +587,24 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public void checkSpaceAccess(String sessionToken, SpaceIdentifier spaceId);
 
     /**
+     * Check if the user has USER access on the experiment
+     * 
+     * @param sessionToken The user's session token.
+     * @param experimentIdentifier The identifier for the experiment the user wants to access
+     */
+    @Transactional(readOnly = true)
+    public void checkExperimentAccess(String sessionToken, String experimentIdentifier);
+
+    /**
+     * Check if the user has USER access on the sample
+     * 
+     * @param sessionToken The user's session token.
+     * @param sampleIdentifier The identifier for the sample the user wants to access
+     */
+    @Transactional(readOnly = true)
+    public void checkSampleAccess(String sessionToken, String sampleIdentifier);
+
+    /**
      * Returns a list of unique codes for the specified entity kind.
      */
     @Transactional

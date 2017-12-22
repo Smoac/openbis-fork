@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author pkupczyk
@@ -36,7 +36,7 @@ public class EntityOperationChecker implements IEntityOperationChecker
 
     @Override
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
-            List<? extends SampleOwnerIdentifier> instanceSamples)
+            List<? extends SampleIdentifier> instanceSamples)
     {
     }
 

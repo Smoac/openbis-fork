@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.ro
 import ch.systemsx.cisd.openbis.generic.server.authorization.project.provider.user.UserProviderFromPersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
@@ -60,18 +60,19 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
     public static interface ISampleToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct sp.code from samples sa inner join spaces sp on sa.space_id = sp.id where sa.id = any(?{1}) "
-                + "union select distinct sp.code from samples sa inner join spaces sp on sa.space_id = sp.id where sa.perm_id = any(?{2})", parameterBindings = { LongArrayMapper.class,
+                + "union select distinct sp.code from samples sa inner join spaces sp on sa.space_id = sp.id where sa.perm_id = any(?{2})", parameterBindings = {
+                        LongArrayMapper.class,
                         StringArrayMapper.class })
         public List<String> getSampleSpaceCodes(long[] sampleIds, String[] samplePermIds);
     }
 
-    private final SampleOwnerIdentifierPredicate idOwnerPredicate;
+    private final SampleIdentifierPredicate sampleIdentifierPredicate;
 
     private final ISampleToSpaceQuery sampleToSpaceQuery;
 
     public SampleListPredicate()
     {
-        idOwnerPredicate = new SampleOwnerIdentifierPredicate();
+        sampleIdentifierPredicate = new SampleIdentifierPredicate();
         sampleToSpaceQuery = QueryTool.getManagedQuery(ISampleToSpaceQuery.class);
     }
 
@@ -83,7 +84,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
     public final void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        idOwnerPredicate.init(provider);
+        sampleIdentifierPredicate.init(provider);
     }
 
     @Override
@@ -141,9 +142,9 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
                 }
             }
 
-            final SampleOwnerIdentifier idOwner =
+            final SampleIdentifier sampleIdentifier =
                     SampleIdentifierFactory.parse(sample.getIdentifier());
-            final Status status = idOwnerPredicate.evaluate(person, allowedRoles, idOwner);
+            final Status status = sampleIdentifierPredicate.evaluate(person, allowedRoles, sampleIdentifier);
             if (Status.OK.equals(status) == false)
             {
                 return status;

@@ -648,6 +648,18 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public void checkExperimentAccess(String sToken, String experimentIdentifier)
+    {
+        service.checkExperimentAccess(sToken, experimentIdentifier);
+    }
+
+    @Override
+    public void checkSampleAccess(String sToken, String sampleIdentifier)
+    {
+        service.checkSampleAccess(sToken, sampleIdentifier);
+    }
+
+    @Override
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException
     {
         List<DataSetShareId> shareIds =

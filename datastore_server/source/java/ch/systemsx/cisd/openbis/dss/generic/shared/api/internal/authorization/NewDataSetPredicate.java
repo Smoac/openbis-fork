@@ -25,11 +25,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Predicate for checking that the new data set can be registered (i.e., user has access to the space for the new data set).
@@ -54,25 +49,15 @@ public class NewDataSetPredicate implements
     {
         DataSetOwner owner = newDataSet.getDataSetOwner();
         String ownerIdentifier = owner.getIdentifier();
-        SpaceIdentifier spaceId;
+
         switch (owner.getType())
         {
             case EXPERIMENT:
-                ExperimentIdentifier experimentId =
-                        new ExperimentIdentifierFactory(ownerIdentifier).createIdentifier();
-                spaceId =
-                        new SpaceIdentifier(experimentId.getSpaceCode());
-                return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(
-                        sessionToken, spaceId);
+                return DssSessionAuthorizationHolder.getAuthorizer().checkExperimentWriteable(sessionToken, ownerIdentifier);
             case SAMPLE:
-                SampleIdentifier sampleId =
-                        new SampleIdentifierFactory(ownerIdentifier).createIdentifier();
-                spaceId = sampleId.getSpaceLevel();
-                return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(
-                        sessionToken, spaceId);
+                return DssSessionAuthorizationHolder.getAuthorizer().checkSampleWriteable(sessionToken, ownerIdentifier);
             case DATA_SET:
-                return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(
-                        sessionToken, ownerIdentifier);
+                return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, ownerIdentifier);
         }
 
         return null; // impossible!

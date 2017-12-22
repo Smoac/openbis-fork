@@ -408,6 +408,14 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     @ManagedAuthentication
     public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId);
 
+    /** See {@link IServiceForDataStoreServer#checkExperimentAccess(String, String)} */
+    @ManagedAuthentication
+    public void checkExperimentAccess(String sToken, String experimentIdentifier);
+
+    /** See {@link IServiceForDataStoreServer#checkSampleAccess(String, String)} */
+    @ManagedAuthentication
+    public void checkSampleAccess(String sToken, String sampleIdentifier);
+
     /**
      * See {@link IServiceForDataStoreServer#tryAuthenticate(String, String)}
      * 

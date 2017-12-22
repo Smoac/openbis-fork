@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 /**
- * A {@link SampleOwnerIdentifierPredicate} which evaluates to OK if the space does not exist.
+ * @author pkupczyk
  */
-public final class ExistingSampleOwnerIdentifierPredicate extends SampleOwnerIdentifierPredicate
+public class SampleAugmentedCodeReadWritePredicate extends SampleAugmentedCodePredicate
 {
 
-    public ExistingSampleOwnerIdentifierPredicate()
+    public SampleAugmentedCodeReadWritePredicate()
     {
-        super(true, true);
+        super(false);
     }
 
 }

@@ -344,6 +344,18 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public void checkExperimentAccess(String sessionToken, String experimentIdentifier)
+    {
+        logAccess(sessionToken, "checkExperimentAccess", "EXPERIMENT(%s)", experimentIdentifier);
+    }
+
+    @Override
+    public void checkSampleAccess(String sessionToken, String sampleIdentifier)
+    {
+        logAccess(sessionToken, "checkSampleAccess", "SAMPLE(%s)", sampleIdentifier);
+    }
+
+    @Override
     public IDatasetLocationNode tryGetDataSetLocation(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
@@ -422,10 +434,11 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
             DataSetArchivingStatus archivingStatus, Boolean presentInArchive) throws UserFailureException
     {
-        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s) STATUS(%s) PRESENT(%s)", dataStoreCode, archivingStatus, presentInArchive);
+        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s) STATUS(%s) PRESENT(%s)", dataStoreCode, archivingStatus,
+                presentInArchive);
         return null;
     }
-    
+
     @Override
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize,
             String dataSetCodeLowerLimit)
@@ -476,7 +489,8 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     {
         logAccess(Level.DEBUG, sessionToken, "listDeletedDataSets", "LAST_SEEN_EVENT(%s)",
                 (lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
-                        + lastSeenDeletionEventIdOrNull), (maxDeletionDateOrNull == null ? "all"
+                        + lastSeenDeletionEventIdOrNull),
+                (maxDeletionDateOrNull == null ? "all"
                         : "maxDeletionDate > " + maxDeletionDateOrNull));
         return null;
     }

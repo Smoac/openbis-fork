@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A helper class for carrying out the put command for creating data sets.
@@ -132,8 +131,8 @@ class PutDataSetTopLevelDataSetHandler
                     + dataSet.getName());
         }
 
-    }   
-    
+    }
+
     PutDataSetTopLevelDataSetHandler(PutDataSetService service,
             ITopLevelDataSetRegistrator registrator, String sessionToken, NewDataSetDTO newDataSet,
             InputStream inputStream)
@@ -178,14 +177,6 @@ class PutDataSetTopLevelDataSetHandler
      */
     public List<DataSetInformation> execute() throws UserFailureException, IOException
     {
-        // Check that the session owner has at least user access to the space the new data
-        // set should belongs to
-        SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
-        if (spaceId != null)
-        {
-            getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
-        }
-
         writeDataSetToTempDirectory();
 
         // Register the data set
@@ -203,18 +194,9 @@ class PutDataSetTopLevelDataSetHandler
 
     /**
      * Run the put command; this method assumes the data set is already in the rpc-icoming folder in the share.
-     * 
      */
     public List<DataSetInformation> executeWithoutWriting() throws UserFailureException
     {
-        // Check that the session owner has at least user access to the space the new data
-        // set should belongs to
-        SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
-        if (spaceId != null)
-        {
-            getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
-        }
-
         // Register the data set
         try
         {
@@ -360,51 +342,6 @@ class PutDataSetTopLevelDataSetHandler
             getOperationLog().error("Could not delete data set directory " + dirToDelete, ex);
             ex.printStackTrace();
         }
-    }
-
-    private SpaceIdentifier getSpaceIdentifierForNewDataSet()
-    {
-        SpaceIdentifier spaceId = null;
-        DataSetOwner owner = getDataSetOwner();
-        if (owner != null)
-        {
-            switch (owner.getType())
-            {
-                case EXPERIMENT:
-                    ExperimentIdentifier experimentId = tryExperimentIdentifier();
-                    spaceId =
-                            new SpaceIdentifier(experimentId.getSpaceCode());
-                    break;
-                case SAMPLE:
-                    SampleIdentifier sampleId = trySampleIdentifier();
-                    spaceId = sampleId.getSpaceLevel();
-                    break;
-                case DATA_SET:
-                    String dataSetCode = tryGetDataSetCode();
-
-                    AbstractExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
-                    if (parentDataSet != null)
-                    {
-                        if (parentDataSet.getExperiment() != null)
-                        {
-                            experimentId =
-                                    ExperimentIdentifierFactory.parse(parentDataSet.getExperiment()
-                                            .getIdentifier());
-                            spaceId =
-                                    new SpaceIdentifier(experimentId.getSpaceCode());
-                        }
-                        if (parentDataSet.getSample() != null)
-                        {
-                            sampleId =
-                                    SampleIdentifierFactory.parse(parentDataSet.getSample()
-                                            .getIdentifier());
-                            spaceId = sampleId.getSpaceLevel();
-                        }
-                    }
-                    break;
-            }
-        }
-        return spaceId;
     }
 
     private ExperimentIdentifier tryExperimentIdentifier()

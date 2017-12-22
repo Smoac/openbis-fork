@@ -154,6 +154,11 @@ public class SampleIdentifierPredicate extends AbstractPredicate<SampleIdentifie
         String spaceCode = SpaceCodeHelper.getSpaceCode(person, value.getSpaceLevel());
         String sampleCode = value.getSampleCode();
 
+        if (sampleCode == null)
+        {
+            return Status.createError();
+        }
+
         IProjectAuthorization<SpaceCodeAndSampleCode> pa = new ProjectAuthorizationBuilder<SpaceCodeAndSampleCode>()
                 .withData(dataProvider)
                 .withUser(new UserProviderFromPersonPE(person))

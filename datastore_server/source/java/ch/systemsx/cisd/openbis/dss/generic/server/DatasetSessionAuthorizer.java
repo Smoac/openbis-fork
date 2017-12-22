@@ -144,7 +144,8 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         {
             operationLog.info(String.format(
                     "Checking whether space '%s' is writable to session '%s' on "
-                            + "openBIS application server.", spaceId, sessionToken));
+                            + "openBIS application server.",
+                    spaceId, sessionToken));
         }
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
 
@@ -159,13 +160,58 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
     }
 
     @Override
+    public Status checkExperimentWriteable(String sessionToken, String experimentIdentifier)
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "Checking whether experiment '%s' is writable to session '%s' on "
+                            + "openBIS application server.",
+                    experimentIdentifier, sessionToken));
+        }
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+
+        try
+        {
+            openBISService.checkExperimentAccess(sessionToken, experimentIdentifier);
+            return Status.OK;
+        } catch (UserFailureException ex)
+        {
+            return Status.createError(ex.getMessage());
+        }
+    }
+
+    @Override
+    public Status checkSampleWriteable(String sessionToken, String sampleIdentifier)
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "Checking whether sample '%s' is writable to session '%s' on "
+                            + "openBIS application server.",
+                    sampleIdentifier, sessionToken));
+        }
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+
+        try
+        {
+            openBISService.checkSampleAccess(sessionToken, sampleIdentifier);
+            return Status.OK;
+        } catch (UserFailureException ex)
+        {
+            return Status.createError(ex.getMessage());
+        }
+    }
+
+    @Override
     public Status checkInstanceAdminAuthorization(String sessionToken)
     {
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(
                     "Checking if session '%s' has instance admin privileges on "
-                            + "openBIS application server.", sessionToken));
+                            + "openBIS application server.",
+                    sessionToken));
         }
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
 
@@ -186,7 +232,8 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         {
             operationLog.info(String.format(
                     "Checking if session '%s' has space power user privileges on "
-                            + "openBIS application server.", sessionToken));
+                            + "openBIS application server.",
+                    sessionToken));
         }
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
 

@@ -21,9 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AtomicOperationsPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.BasicEntityDescriptionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 
 /**
@@ -37,6 +39,13 @@ public class EntityPredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testBasicEntityDescriptionPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = BasicEntityDescriptionPredicate.class) BasicEntityDescription description)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testAtomicOperationsPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class) AtomicEntityOperationDetails operation)
     {
     }
 

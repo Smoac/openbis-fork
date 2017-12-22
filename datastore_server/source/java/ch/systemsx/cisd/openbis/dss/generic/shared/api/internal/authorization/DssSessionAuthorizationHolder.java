@@ -53,6 +53,18 @@ public class DssSessionAuthorizationHolder
             }
 
             @Override
+            public Status checkExperimentWriteable(String sessionToken, String experimentIdentifier)
+            {
+                return Status.createError("Data set authorizer not set.");
+            }
+
+            @Override
+            public Status checkSampleWriteable(String sessionToken, String sampleIdentifier)
+            {
+                return Status.createError("Data set authorizer not set.");
+            }
+
+            @Override
             public Status checkInstanceAdminAuthorization(String sessionToken)
             {
                 return Status.createError("Data set authorizer not set.");
