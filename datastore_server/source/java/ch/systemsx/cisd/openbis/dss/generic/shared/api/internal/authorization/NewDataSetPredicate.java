@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationGuardPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -47,6 +48,8 @@ public class NewDataSetPredicate implements
     public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
             NewDataSetDTO newDataSet) throws UserFailureException
     {
+        checkNewDataSet(newDataSet);
+
         DataSetOwner owner = newDataSet.getDataSetOwner();
         String ownerIdentifier = owner.getIdentifier();
 
@@ -60,6 +63,50 @@ public class NewDataSetPredicate implements
                 return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, ownerIdentifier);
         }
 
-        return null; // impossible!
+        return null;
     }
+
+    public static void evaluate(String sessionToken, IEncapsulatedOpenBISService service, NewDataSetDTO newDataSet)
+    {
+        checkNewDataSet(newDataSet);
+
+        DataSetOwner owner = newDataSet.getDataSetOwner();
+        String ownerIdentifier = owner.getIdentifier();
+
+        switch (owner.getType())
+        {
+            case EXPERIMENT:
+                service.checkExperimentAccess(sessionToken, ownerIdentifier);
+                break;
+            case SAMPLE:
+                service.checkSampleAccess(sessionToken, ownerIdentifier);
+                break;
+            case DATA_SET:
+                service.checkDataSetAccess(sessionToken, ownerIdentifier);
+                break;
+        }
+    }
+
+    private static void checkNewDataSet(NewDataSetDTO newDataSet)
+    {
+        if (newDataSet == null)
+        {
+            throw new UserFailureException("New data set cannot be null");
+        }
+
+        DataSetOwner owner = newDataSet.getDataSetOwner();
+
+        if (owner == null)
+        {
+            throw new UserFailureException("Owner of a new data set cannot be null");
+        }
+
+        String ownerIdentifier = owner.getIdentifier();
+
+        if (ownerIdentifier == null)
+        {
+            throw new UserFailureException("Owner identifier of a new data set cannot be null");
+        }
+    }
+
 }

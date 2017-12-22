@@ -161,9 +161,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                     one(service).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
-                    one(service).checkSpaceAccess(
-                            SESSION_TOKEN,
-                            new SpaceIdentifier(experimentIdentifier.getSpaceCode()));
+                    one(service).checkExperimentAccess(SESSION_TOKEN, experimentIdentifier.toString());
                 }
             });
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
@@ -210,7 +208,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                     one(service).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
-                    one(service).checkSpaceAccess(SESSION_TOKEN, sampleIdentifier.getSpaceLevel());
+                    one(service).checkSampleAccess(SESSION_TOKEN, sampleIdentifier.toString());
                 }
             });
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =

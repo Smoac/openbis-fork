@@ -307,8 +307,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    atLeast(1).of(openBisService).checkSpaceAccess(with(SESSION_TOKEN),
-                            with(spaceIdentifier));
+                    atLeast(1).of(openBisService).checkSampleAccess(SESSION_TOKEN, NEW_DATA_SET_OWNER_ID);
+
                     one(dataSetRegistrator).handle(with(fileMatcher), with(SESSION_TOKEN),
                             with(dataSetInfoMatcher), with(delegateMatcher));
                     will(new CustomAction("Notify the delegate")

@@ -37,6 +37,7 @@ import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.NewDataSetPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
@@ -177,6 +178,8 @@ class PutDataSetTopLevelDataSetHandler
      */
     public List<DataSetInformation> execute() throws UserFailureException, IOException
     {
+        NewDataSetPredicate.evaluate(sessionToken, getOpenBisService(), newDataSet);
+
         writeDataSetToTempDirectory();
 
         // Register the data set
@@ -189,7 +192,6 @@ class PutDataSetTopLevelDataSetHandler
         {
             deleteDataSetDir();
         }
-
     }
 
     /**
@@ -197,6 +199,8 @@ class PutDataSetTopLevelDataSetHandler
      */
     public List<DataSetInformation> executeWithoutWriting() throws UserFailureException
     {
+        NewDataSetPredicate.evaluate(sessionToken, getOpenBisService(), newDataSet);
+
         // Register the data set
         try
         {
