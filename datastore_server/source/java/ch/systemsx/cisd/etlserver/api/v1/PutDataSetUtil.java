@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2017 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
+package ch.systemsx.cisd.etlserver.api.v1;
 
-import java.util.Arrays;
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationGuardPredicate;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 
 /**
- * Predicate for checking that the new data set can be registered (i.e., user has access to the space for the new data set).
- * <p>
- * <i>This is an internal class. Do not use it as a user of the API.</i>
- * 
- * @author Chandrasekhar Ramakrishnan
+ * @author pkupczyk
  */
-public class NewDataSetPredicate implements
-        IAuthorizationGuardPredicate<IDssServiceRpcGeneric, NewDataSetDTO>
+public class PutDataSetUtil
 {
 
-    @Override
-    public List<String> getDataSetCodes(NewDataSetDTO argument)
-    {
-        return Arrays.asList();
-    }
-
-    @Override
-    public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
-            NewDataSetDTO newDataSet) throws UserFailureException
+    public static void checkAccess(String sessionToken, IEncapsulatedOpenBISService service, NewDataSetDTO newDataSet)
     {
         if (newDataSet == null)
         {
@@ -69,14 +51,15 @@ public class NewDataSetPredicate implements
         switch (owner.getType())
         {
             case EXPERIMENT:
-                return DssSessionAuthorizationHolder.getAuthorizer().checkExperimentWriteable(sessionToken, ownerIdentifier);
+                service.checkExperimentAccess(sessionToken, ownerIdentifier);
+                break;
             case SAMPLE:
-                return DssSessionAuthorizationHolder.getAuthorizer().checkSampleWriteable(sessionToken, ownerIdentifier);
+                service.checkSampleAccess(sessionToken, ownerIdentifier);
+                break;
             case DATA_SET:
-                return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, ownerIdentifier);
+                service.checkDataSetAccess(sessionToken, ownerIdentifier);
+                break;
         }
-
-        return null;
     }
 
 }
