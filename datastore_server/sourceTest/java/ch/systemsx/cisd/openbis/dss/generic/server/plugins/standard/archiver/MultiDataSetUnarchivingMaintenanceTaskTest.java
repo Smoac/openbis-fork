@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
@@ -208,7 +209,7 @@ public class MultiDataSetUnarchivingMaintenanceTaskTest extends AssertJUnit
 
         maintenanceTask.execute();
 
-        assertEquals(LOG_PREFIX + "Start unarchiving [DS-42, DS-43, DS-44]\n"
+        AssertionUtil.assertContainsLines(LOG_PREFIX + "Start unarchiving [DS-42, DS-43, DS-44]\n"
                 + LOG_PREFIX + "Unarchiving finished for [DS-42, DS-43, DS-44]\n"
                 + LOG_PREFIX + "Start unarchiving [DS-45]\n"
                 + LOG_PREFIX + "Unarchiving finished for [DS-45]", logRecorder.getLogContent());
