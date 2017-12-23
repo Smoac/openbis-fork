@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.IMailClientProvider;
 import ch.systemsx.cisd.common.string.Template;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -151,7 +152,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
 
-        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n" +
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n" +
                 "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + file + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n" +
                 "INFO  OPERATION.FileDeleter - Successfully deleted: " + file.getAbsolutePath(),
@@ -188,7 +189,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
 
-        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder + "\n" +
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder + "\n" +
                 "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + subFolder + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n" +
                 "INFO  OPERATION.FileDeleter - Successfully deleted: " + subFolder.getAbsolutePath(),
@@ -242,7 +243,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
             }
         }
 
-        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder1 + "\n"
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder1 + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + subFolder1 + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n"
                 + "INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder2 + "\n"
@@ -297,7 +298,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
             }
         }
 
-        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder + "\n"
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + subFolder + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n"
                 + expectedLogBuilder.toString().trim(), logRecorder.getLogContent());
@@ -322,7 +323,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
 
-        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n" +
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n" +
                 "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + file + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n" +
                 "INFO  OPERATION.FileDeleter - Successfully deleted: " + file.getAbsolutePath(),
