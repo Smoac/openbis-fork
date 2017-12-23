@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -71,7 +72,7 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         logFile.registerFailure();
         assertTrue(logFile.getFile().exists());
         assertEquals("failed", logFile.getFile().getParentFile().getName());
-        assertEquals("Data set registration failed. See log for details : "
+        AssertionUtil.assertContainsLines("Data set registration failed. See log for details : "
                 + logFile.getFile().getAbsolutePath(), logAppender.getLogContent());
 
         // Check that duplicating a registerFailure does not cause problems

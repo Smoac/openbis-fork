@@ -29,6 +29,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
@@ -40,8 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBu
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses =
-{ AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
+@Friend(toClasses = { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
 public class RsyncArchiverTest extends AbstractArchiverTestCase
 {
     private static final String LOCATION = "location";
@@ -93,7 +93,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
 
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverTaskContext, true);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -137,7 +137,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
 
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverTaskContext, false);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -180,13 +180,8 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
 
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1), archiverTaskContext);
 
-        assertTrue(
-                logRecorder.getLogContent(),
-                logRecorder
-                        .getLogContent()
-                        .startsWith(
-                                "INFO  OPERATION.AbstractDatastorePlugin - "
-                                        + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']"));
+        AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
+                + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']", logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("{class=" + ShareFinder.class.getName() + "\np1=property 1}",
                 ShareFinder.properties.toString());
