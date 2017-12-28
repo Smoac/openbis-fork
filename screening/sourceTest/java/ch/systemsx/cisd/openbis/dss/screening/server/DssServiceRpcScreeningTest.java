@@ -712,7 +712,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
+                    one(service).checkProjectPowerUserAuthorization(SESSION_TOKEN);
                     will(throwException(new UserFailureException("You are not a space power user.")));
                 }
             });
@@ -742,7 +742,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
+                    one(service).checkProjectPowerUserAuthorization(SESSION_TOKEN);
 
                     long datasetId = 123;
                     ImgImageDatasetDTO dataset = createImageDataset(datasetId);
@@ -798,7 +798,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
+                    one(service).checkProjectPowerUserAuthorization(SESSION_TOKEN);
 
                     Long containerId = 312L;
 

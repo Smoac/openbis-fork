@@ -328,10 +328,10 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException;
 
     /**
-     * Checks that the user of specified session has SPACE_POWER_USER access rights.
+     * Checks that the user of specified session has PROJECT_POWER_USER access rights.
      */
     @Transactional(readOnly = true)
-    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException;
+    public void checkProjectPowerUserAuthorization(String sessionToken) throws UserFailureException;
 
     /**
      * Does nothing besides checking that the current user has rights to access the content of the dataset.

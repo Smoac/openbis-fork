@@ -130,7 +130,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
@@ -138,14 +138,14 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<MsInjectionSample> listAllRawDataSamples(String sessionToken)
     {
         return loadAllRawDataSamples(getSession(sessionToken), false);
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -180,7 +180,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void processDataSets(String sessionToken, String dataSetProcessingKey,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
     {
@@ -189,7 +189,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode)
     {
@@ -211,7 +211,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID)
     {
@@ -229,7 +229,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
             String experimentType, long[] searchExperimentIDs)
     {

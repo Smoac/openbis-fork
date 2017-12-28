@@ -623,9 +623,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException
+    public void checkProjectPowerUserAuthorization(String sessionToken) throws UserFailureException
     {
-        service.checkSpacePowerUserAuthorization(sessionToken);
+        service.checkProjectPowerUserAuthorization(sessionToken);
     }
 
     @Override

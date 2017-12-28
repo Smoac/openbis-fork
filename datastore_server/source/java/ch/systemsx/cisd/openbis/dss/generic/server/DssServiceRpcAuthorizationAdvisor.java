@@ -284,8 +284,8 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 case INSTANCE_ADMIN:
                     status = authorizer.checkInstanceAdminAuthorization(sessionToken);
                     break;
-                case SPACE_POWER_USER:
-                    status = authorizer.checkSpacePowerUserAuthorization(sessionToken);
+                case PROJECT_POWER_USER:
+                    status = authorizer.checkProjectPowerUserAuthorization(sessionToken);
                     break;
                 default:
                     status = Status.OK;

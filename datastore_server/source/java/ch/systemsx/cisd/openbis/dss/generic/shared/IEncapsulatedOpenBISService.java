@@ -102,10 +102,10 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException;
 
     /**
-     * Checks if the current user has SPACE_POWER_USER access rights.
+     * Checks if the current user has PROJECT_POWER_USER access rights.
      */
     @ManagedAuthentication
-    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException;
+    public void checkProjectPowerUserAuthorization(String sessionToken) throws UserFailureException;
 
     /**
      * Checks if the current user has access rights to a dataset with the specified data set code.

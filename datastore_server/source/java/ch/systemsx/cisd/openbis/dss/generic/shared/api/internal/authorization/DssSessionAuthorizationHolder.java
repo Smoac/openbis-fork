@@ -71,7 +71,7 @@ public class DssSessionAuthorizationHolder
             }
 
             @Override
-            public Status checkSpacePowerUserAuthorization(String sessionToken)
+            public Status checkProjectPowerUserAuthorization(String sessionToken)
             {
                 return Status.createError("Data set authorizer not set.");
             }

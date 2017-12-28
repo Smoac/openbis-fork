@@ -1310,8 +1310,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException
+    @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
+    public void checkProjectPowerUserAuthorization(String sessionToken) throws UserFailureException
     {
         checkSession(sessionToken);
         // do nothing, the access rights specified in method annotations are checked by a proxy

@@ -257,7 +257,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     //
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId) throws UserFailureException
@@ -276,7 +276,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId)
     {
@@ -286,7 +286,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetReferencePredicate.class) DatasetReference dataset, CodeAndLabel featureName)
     {
@@ -296,7 +296,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public PlateImages getPlateContentForDataset(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
@@ -306,7 +306,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = WellContentValidator.class)
     public List<WellContent> listPlateWells(String sessionToken,
             @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria)
@@ -317,7 +317,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
@@ -327,7 +327,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Material> listMaterials(String sessionToken,
             @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria)
     {
@@ -337,7 +337,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode, WellLocation wellLocation)
     {
@@ -347,7 +347,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public LogicalImageInfo getImageDatasetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
     {
@@ -357,7 +357,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode)
     {
@@ -367,7 +367,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode)
     {
@@ -378,7 +378,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, WellLocation wellLocationOrNull)
     {
@@ -388,7 +388,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AbstractExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
@@ -396,14 +396,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
         return commonServer.getMaterialInfo(sessionToken, materialId);
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
     {
         checkSession(sessionToken);
@@ -413,7 +413,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
     public void registerLibraries(String sessionToken, List<NewLibrary> newLibraries)
     {
@@ -425,7 +425,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
     public void registerLibrariesAsync(final String sessionToken, final List<NewLibrary> newLibraries, final String userEmail)
     {
@@ -450,7 +450,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Material> listExperimentMaterials(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, MaterialType materialType)
     {
@@ -468,7 +468,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             AnalysisProcedureCriteria analysisProcedureCriteria)
@@ -484,7 +484,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = MaterialExperimentFeatureVectorSummaryValidator.class)
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
             String sessionToken, MaterialFeaturesManyExpCriteria criteria)
@@ -532,7 +532,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
             @AuthorizationGuard(guardClass = MaterialFeaturesOneExpPredicate.class) MaterialFeaturesOneExpCriteria criteria)
     {
@@ -546,7 +546,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     // --------- IScreeningOpenbisServer - method signature should be changed with care
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException
@@ -555,7 +555,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException
@@ -564,7 +564,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Map<String, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo> getImageInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
@@ -593,7 +593,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Map<String, List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>> getImageResolutions(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
@@ -634,7 +634,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException
@@ -643,7 +643,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException
@@ -652,7 +652,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
@@ -663,7 +663,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = PlateWellReferenceWithDatasetsValidator.class)
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
@@ -673,7 +673,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<WellIdentifier> listPlateWells(String sessionToken,
             @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier)
     {
@@ -681,7 +681,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Sample getWellSample(String sessionToken,
             @AuthorizationGuard(guardClass = WellIdentifierPredicate.class) WellIdentifier wellIdentifier)
     {
@@ -689,7 +689,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Sample getPlateSample(String sessionToken,
             @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier)
     {
@@ -697,7 +697,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ScreeningPlateValidator.class)
     public List<Plate> listPlates(String sessionToken) throws IllegalArgumentException
     {
@@ -705,7 +705,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Plate> listPlates(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experiment) throws IllegalArgumentException
     {
@@ -713,7 +713,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ScreeningExperimentValidator.class)
     public List<ExperimentIdentifier> listExperiments(String sessionToken)
     {
@@ -728,7 +728,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
@@ -736,7 +736,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria)
     {
@@ -760,7 +760,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
@@ -813,7 +813,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plateIdentifiers)
             throws IllegalArgumentException
@@ -822,7 +822,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer)
     {
@@ -831,7 +831,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> listAvailableFeatureCodes(final String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -853,7 +853,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<FeatureInformation> listAvailableFeatures(final String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -876,7 +876,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset> loadFeatures(
             final String sessionToken, List<FeatureVectorDatasetReference> featureDatasets,
             final List<String> featureCodes)
@@ -900,7 +900,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             final String sessionToken,
             List<FeatureVectorDatasetWellReference> datasetWellReferences,
@@ -925,7 +925,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final boolean convertToPng)
     {
@@ -947,7 +947,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadThumbnailImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -969,7 +969,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final ImageSize size)
     {
@@ -991,7 +991,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -1013,7 +1013,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final LoadImageConfiguration configuration)
     {
@@ -1033,7 +1033,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
     {
@@ -1053,7 +1053,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences,
             final IImageRepresentationFormatSelectionCriterion... criteria)
@@ -1074,7 +1074,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ImageDatasetMetadata> listImageMetadata(final String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
@@ -1095,7 +1095,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             final String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
     {
@@ -1116,7 +1116,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<String> loadPhysicalThumbnailsBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
     {

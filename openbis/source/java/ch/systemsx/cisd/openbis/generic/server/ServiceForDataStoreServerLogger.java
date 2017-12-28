@@ -317,9 +317,9 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
-    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException
+    public void checkProjectPowerUserAuthorization(String sessionToken) throws UserFailureException
     {
-        logAccess(sessionToken, "checkSpacePowerUserAuthorization");
+        logAccess(sessionToken, "checkProjectPowerUserAuthorization");
     }
 
     @Override

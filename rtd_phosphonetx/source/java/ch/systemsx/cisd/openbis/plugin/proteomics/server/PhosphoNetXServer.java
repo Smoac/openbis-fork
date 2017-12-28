@@ -107,7 +107,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException
     {
         IVocabularyDAO vocabularyDAO = getDAOFactory().getVocabularyDAO();
@@ -116,7 +116,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID, String treatmentTypeOrNull)
             throws UserFailureException
@@ -151,7 +151,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ProteinInfo> listProteinsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, double falseDiscoveryRate,
             AggregateFunction function,
@@ -169,7 +169,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId) throws UserFailureException
     {
@@ -180,7 +180,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public ProteinByExperiment getProteinByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID, TechId proteinReferenceID)
             throws UserFailureException
@@ -208,9 +208,10 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
-            TechId experimentID, TechId proteinReferenceID) throws UserFailureException
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID, TechId proteinReferenceID)
+            throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
@@ -219,7 +220,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, TechId proteinReferenceID)
             throws UserFailureException
@@ -235,9 +236,10 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(String sessionToken,
-            TechId experimentID, TechId proteinReferenceID) throws UserFailureException
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID, TechId proteinReferenceID)
+            throws UserFailureException
     {
         final Session session = getSession(sessionToken);
 

@@ -493,7 +493,7 @@ public interface IDssServiceRpcScreening extends IRpcService
      * @since 1.4
      */
     @MinimalMinorVersion(4)
-    @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.SPACE_POWER_USER)
+    @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.PROJECT_POWER_USER)
     public void saveImageTransformerFactory(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory);

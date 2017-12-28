@@ -73,9 +73,9 @@ public interface IDssSessionAuthorizer
     public Status checkInstanceAdminAuthorization(String sessionToken);
 
     /**
-     * Checks whether the session identified by <var>sessionToken</var> has openBIS space power user privileges.
+     * Checks whether the session identified by <var>sessionToken</var> has openBIS project power user privileges.
      * 
      * @return {@link Status#OK} if the access is granted, an error status otherwise.
      */
-    public Status checkSpacePowerUserAuthorization(String sessionToken);
+    public Status checkProjectPowerUserAuthorization(String sessionToken);
 }

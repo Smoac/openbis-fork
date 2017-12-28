@@ -226,12 +226,12 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
     }
 
     @Override
-    public Status checkSpacePowerUserAuthorization(String sessionToken)
+    public Status checkProjectPowerUserAuthorization(String sessionToken)
     {
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(
-                    "Checking if session '%s' has space power user privileges on "
+                    "Checking if session '%s' has project power user privileges on "
                             + "openBIS application server.",
                     sessionToken));
         }
@@ -239,7 +239,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
 
         try
         {
-            openBISService.checkSpacePowerUserAuthorization(sessionToken);
+            openBISService.checkProjectPowerUserAuthorization(sessionToken);
             return Status.OK;
         } catch (UserFailureException ex)
         {

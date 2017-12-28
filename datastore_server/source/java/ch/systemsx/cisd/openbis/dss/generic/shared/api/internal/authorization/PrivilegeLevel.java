@@ -23,5 +23,5 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
  */
 public enum PrivilegeLevel
 {
-    INSTANCE_ADMIN, SPACE_POWER_USER, DEFAULT;
+    INSTANCE_ADMIN, PROJECT_POWER_USER, DEFAULT;
 }
