@@ -101,7 +101,7 @@ public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase
         } catch (AuthorizationFailureException ex)
         {
             assertEquals("Authorization failure: ERROR: \"None of method roles "
-                    + "'[SPACE_USER, SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN]' "
+                    + "'[PROJECT_USER, PROJECT_POWER_USER, PROJECT_ADMIN, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_POWER_USER, SPACE_USER]' "
                     + "could be found in roles of user 'USER_A'.\".", ex.getMessage());
         }
     }

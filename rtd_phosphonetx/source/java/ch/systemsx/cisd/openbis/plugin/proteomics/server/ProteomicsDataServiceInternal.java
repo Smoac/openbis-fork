@@ -130,7 +130,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
@@ -138,7 +138,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public List<MsInjectionSample> listAllRawDataSamples(String sessionToken)
     {
         return loadAllRawDataSamples(getSession(sessionToken), false);
@@ -189,7 +189,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode)
     {
@@ -211,7 +211,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID)
     {
