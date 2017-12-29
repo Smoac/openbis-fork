@@ -33,6 +33,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -250,6 +252,46 @@ public class GetSpaceTest extends AbstractTest
 
         assertProjectsNotFetched(space);
         assertSamplesNotFetched(space);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testGetWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SpacePermId permId1 = new SpacePermId("/CISD");
+        SpacePermId permId2 = new SpacePermId("/TEST-SPACE");
+
+        List<? extends ISpaceId> ids = Arrays.asList(permId1, permId2);
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.getSpaces(sessionToken, ids, new SpaceFetchOptions());
+                    }
+                });
+        } else
+        {
+            Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, ids, new SpaceFetchOptions());
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(map.size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(map.size(), 1);
+                assertEquals(map.get(permId2).getPermId(), permId2);
+            } else
+            {
+                assertEquals(map.size(), 0);
+            }
+        }
+
+        v3api.logout(sessionToken);
     }
 
 }

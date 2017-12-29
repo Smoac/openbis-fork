@@ -175,11 +175,7 @@ public class CreateProjectTest extends AbstractTest
 
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        if (user.isInstanceUser() || user.isTestSpaceUser())
-        {
-            List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
-            assertEquals(permIds.size(), 1);
-        } else if (user.isProjectUser())
+        if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
                 {
@@ -189,11 +185,14 @@ public class CreateProjectTest extends AbstractTest
                         v3api.createProjects(sessionToken, Collections.singletonList(project));
                     }
                 });
+        } else if (user.isInstanceUser() || user.isTestSpaceUser())
+        {
+            List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(project));
+            assertEquals(permIds.size(), 1);
         } else
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
                 {
-
                     @Override
                     public void execute()
                     {

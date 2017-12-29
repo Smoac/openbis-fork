@@ -80,7 +80,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCo
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSampleIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSpaceIdentifierOrProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
@@ -1701,9 +1701,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Space tryGetSpace(String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierOrProjectPredicate.class) SpaceIdentifier spaceIdentifier)
     {
 
         Session session = getSession(sessionToken);

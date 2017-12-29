@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -25,6 +27,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
  * @author pkupczyk
@@ -167,6 +171,49 @@ public class SearchSpaceTest extends AbstractTest
         fo.sortBy().code().desc();
         List<Space> spaces2 = v3api.searchSpaces(sessionToken, criteria, fo).getObjects();
         assertSpaceCodes(spaces2, "TESTGROUP", "TEST-SPACE", "CISD");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SpacePermId permId1 = new SpacePermId("/CISD");
+        SpacePermId permId2 = new SpacePermId("/TEST-SPACE");
+
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(permId1);
+        criteria.withId().thatEquals(permId2);
+
+        String sessionToken = v3api.login(user.getUserId(), PASSWORD);
+
+        if (user.isDisabledProjectUser())
+        {
+            assertAuthorizationFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        v3api.searchSpaces(sessionToken, criteria, new SpaceFetchOptions());
+                    }
+                });
+        } else
+        {
+            SearchResult<Space> result = v3api.searchSpaces(sessionToken, criteria, new SpaceFetchOptions());
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(result.getObjects().size(), 2);
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(result.getObjects().size(), 1);
+                assertEquals(result.getObjects().get(0).getPermId(), permId2);
+            } else
+            {
+                assertEquals(result.getObjects().size(), 0);
+            }
+        }
 
         v3api.logout(sessionToken);
     }

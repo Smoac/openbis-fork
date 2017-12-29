@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceOrProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -38,6 +39,14 @@ public class SpaceValidatorTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     @ReturnValueFilter(validatorClass = SimpleSpaceValidator.class)
     public Space testSimpleSpaceValidator(IAuthSessionProvider sessionProvider, Space space)
+    {
+        return space;
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    @ReturnValueFilter(validatorClass = SimpleSpaceOrProjectValidator.class)
+    public Space testSimpleSpaceOrProjectValidator(IAuthSessionProvider sessionProvider, Space space)
     {
         return space;
     }

@@ -14,42 +14,45 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.entity;
+package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.space;
 
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.CommonAuthorizationSystemTest;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTestSpaceAssertions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.systemtest.authorization.validator.space.SpaceValidatorTestService;
 
 /**
  * @author pkupczyk
  */
-public class EntityHistoryValidatorWithSpaceSystemTest extends EntityHistoryValidatorSystemTest
+public class SimpleSpaceOrProjectValidatorSystemTest extends CommonValidatorSystemTest<Space>
 {
 
     @Override
-    protected EntityHistory createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
+    protected Space createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
         Space space = new Space();
         space.setCode(spacePE.getCode());
-
-        EntityHistory history = new EntityHistory();
-        history.setRelatedSpace(space);
-
-        return history;
+        return space;
     }
 
     @Override
-    protected CommonValidatorSystemTestAssertions<EntityHistory> getAssertions()
+    protected Space validateObject(ProjectAuthorizationUser user, Space object, Object param)
     {
-        return new CommonValidatorSystemTestSpaceAssertions<EntityHistory>(super.getAssertions())
+        return getBean(SpaceValidatorTestService.class).testSimpleSpaceOrProjectValidator(user.getSessionProvider(), object);
+    }
+
+    @Override
+    protected CommonValidatorSystemTestAssertions<Space> getAssertions()
+    {
+        return new CommonValidatorSystemTestSpaceAssertions<Space>(super.getAssertions())
             {
                 @Override
-                public void assertWithProject11Object(ProjectAuthorizationUser user, EntityHistory result, Throwable t, Object param)
+                public void assertWithProject11Object(ProjectAuthorizationUser user, Space result, Throwable t, Object param)
                 {
                     if (user.isProject11User() && false == user.isDisabledProjectUser())
                     {
@@ -62,7 +65,7 @@ public class EntityHistoryValidatorWithSpaceSystemTest extends EntityHistoryVali
                 }
 
                 @Override
-                public void assertWithProject21Object(ProjectAuthorizationUser user, EntityHistory result, Throwable t, Object param)
+                public void assertWithProject21Object(ProjectAuthorizationUser user, Space result, Throwable t, Object param)
                 {
                     if (user.isProject21User() && false == user.isDisabledProjectUser())
                     {

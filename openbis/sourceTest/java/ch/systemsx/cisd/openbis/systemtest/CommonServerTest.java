@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -105,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
@@ -395,6 +397,43 @@ public class CommonServerTest extends SystemTestCase
         } else
         {
             assertEntities("[]", samples);
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
+    public void testListSpacesWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        if (user.isDisabledProjectUser())
+        {
+            try
+            {
+                commonServer.listSpaces(session.getSessionToken());
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
+            }
+        } else
+        {
+            List<Space> spaces = commonServer.listSpaces(session.getSessionToken());
+
+            spaces.sort(Code.CODE_PROVIDER_COMPARATOR);
+
+            if (user.isInstanceUser())
+            {
+                assertEquals(spaces.toString(), "[/CISD, /TEST-SPACE, /TESTGROUP]");
+            } else if (user.isTestSpaceUser() || user.isTestProjectUser())
+            {
+                assertEquals(spaces.toString(), "[/TEST-SPACE]");
+            } else if (user.isTestGroupUser())
+            {
+                assertEquals(spaces.toString(), "[/TESTGROUP]");
+            } else
+            {
+                assertEquals(spaces.toString(), "[]");
+            }
         }
     }
 

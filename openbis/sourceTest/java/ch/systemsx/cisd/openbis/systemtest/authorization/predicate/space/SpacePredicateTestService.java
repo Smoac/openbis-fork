@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSpaceIdentifierOrProjectPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExistingSpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
@@ -37,6 +39,20 @@ public class SpacePredicateTestService
     @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
     public void testSpaceIdentifierPredicate(IAuthSessionProvider sessionProvider,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExistingSpaceIdentifierPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)
+    {
+    }
+
+    @Transactional
+    @RolesAllowed(value = { RoleWithHierarchy.PROJECT_OBSERVER })
+    public void testExistingSpaceIdentifierOrProjectPredicate(IAuthSessionProvider sessionProvider,
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierOrProjectPredicate.class) SpaceIdentifier spaceIdentifier)
     {
     }
 

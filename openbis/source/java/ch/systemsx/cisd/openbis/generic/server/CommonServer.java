@@ -89,7 +89,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingE
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SearchDomainSearchResultValidator;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceOrProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
@@ -349,8 +349,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     //
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = SpaceValidator.class)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
+    @ReturnValueFilter(validatorClass = SimpleSpaceOrProjectValidator.class)
     public List<Space> listSpaces(String sessionToken)
     {
         final Session session = getSession(sessionToken);

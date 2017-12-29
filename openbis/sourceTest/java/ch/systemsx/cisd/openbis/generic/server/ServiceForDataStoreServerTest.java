@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -204,6 +205,30 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
             } else
             {
                 assertEntities("[]", projects);
+            }
+        }
+    }
+
+    @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
+    public void testTryGetSpaceWithProjectAuthorization(ProjectAuthorizationUser user)
+    {
+        SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
+
+        SpaceIdentifier spaceIdentifier = new SpaceIdentifier("TEST-SPACE");
+
+        if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
+        {
+            Space space = etlService.tryGetSpace(session.getSessionToken(), spaceIdentifier);
+            assertEquals(space.getIdentifier(), "/TEST-SPACE");
+        } else
+        {
+            try
+            {
+                etlService.tryGetSpace(session.getSessionToken(), spaceIdentifier);
+                fail();
+            } catch (AuthorizationFailureException e)
+            {
+                // expected
             }
         }
     }

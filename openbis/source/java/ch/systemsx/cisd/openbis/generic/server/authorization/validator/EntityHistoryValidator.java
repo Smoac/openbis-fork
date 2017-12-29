@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public final class EntityHistoryValidator extends AbstractValidator<EntityHistory>
 {
 
-    private final IValidator<Space> spaceValidator;
+    private final IValidator<ICodeHolder> spaceValidator;
 
     private final IValidator<Project> projectValidator;
 
@@ -44,7 +44,7 @@ public final class EntityHistoryValidator extends AbstractValidator<EntityHistor
 
     public EntityHistoryValidator()
     {
-        spaceValidator = new SpaceValidator();
+        spaceValidator = new SimpleSpaceOrProjectValidator();
         projectValidator = new ProjectValidator();
         experimentValidator = new ExperimentValidator();
         sampleValidator = new SampleValidator();
