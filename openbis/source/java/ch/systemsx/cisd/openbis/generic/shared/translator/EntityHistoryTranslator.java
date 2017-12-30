@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
@@ -238,7 +239,10 @@ public class EntityHistoryTranslator
 
             if (relatedPE != null)
             {
-                history.setRelatedEntity(DataSetTranslator.translateBasicProperties(relatedPE));
+                AbstractExternalData data = DataSetTranslator.translateBasicProperties(relatedPE);
+                data.setExperiment(ExperimentTranslator.translate(relatedPE.getExperiment(), baseIndexURL, null, managedPropertyEvaluatorFactory));
+                data.setSample(SampleTranslator.translate(relatedPE.tryGetSample(), baseIndexURL, null, managedPropertyEvaluatorFactory));
+                history.setRelatedEntity(data);
             }
 
             if (historyPE.getRelationType() != null)

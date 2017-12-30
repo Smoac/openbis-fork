@@ -22,7 +22,9 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -66,13 +68,38 @@ public class ProjectUpdatesPredicate extends AbstractProjectPredicate<ProjectUpd
         {
             return status;
         }
-        String newSpaceCode = updates.getSpaceCode();
-        if (newSpaceCode != null)
+
+        ProjectPE project = tryGetProject(updates);
+
+        if (project != null)
         {
-            SpaceIdentifier newSpaceIdentifier =
-                    new SpaceIdentifier(newSpaceCode);
-            status = spacePredicate.doEvaluation(person, allowedRoles, newSpaceIdentifier);
+            String oldSpaceCode = project.getSpace().getCode();
+            String newSpaceCode = updates.getSpaceCode();
+
+            if (newSpaceCode != null && false == newSpaceCode.equals(oldSpaceCode))
+            {
+                status = spacePredicate.doEvaluation(person, allowedRoles, new SpaceIdentifier(newSpaceCode));
+            }
         }
+
         return status;
     }
+
+    private ProjectPE tryGetProject(ProjectUpdatesDTO updates)
+    {
+        if (updates.getTechId() != null)
+        {
+            return provider.tryGetProjectByTechId(updates.getTechId());
+        } else if (updates.getPermId() != null)
+        {
+            return provider.tryGetProjectByPermId(new PermId(updates.getPermId()));
+        } else if (updates.getIdentifier() != null)
+        {
+            return provider.tryGetProjectByIdentifier(ProjectIdentifierFactory.parse(updates.getIdentifier()));
+        } else
+        {
+            return null;
+        }
+    }
+
 }

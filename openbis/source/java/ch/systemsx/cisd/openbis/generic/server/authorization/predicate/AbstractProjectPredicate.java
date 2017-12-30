@@ -26,6 +26,9 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractT
  */
 abstract class AbstractProjectPredicate<T> extends AbstractPredicate<T>
 {
+
+    protected IAuthorizationDataProvider provider;
+
     protected final SpaceIdentifierPredicate spacePredicate;
 
     protected final ProjectTechIdPredicate projectTechIdPredicate;
@@ -45,6 +48,7 @@ abstract class AbstractProjectPredicate<T> extends AbstractPredicate<T>
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
+        this.provider = provider;
         spacePredicate.init(provider);
         projectTechIdPredicate.init(provider);
         projectPermIdPredicate.init(provider);
