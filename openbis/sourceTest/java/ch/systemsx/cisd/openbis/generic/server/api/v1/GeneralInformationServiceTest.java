@@ -54,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -98,8 +97,6 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
     private ICommonBusinessObjectFactory boFactory;
 
-    private IAuthorizationConfig authorizationConfig;
-
     @Override
     @BeforeMethod
     public final void setUp()
@@ -108,11 +105,10 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         commonServer = context.mock(ICommonServer.class);
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         sampleLister2 = context.mock(ISampleLister.class, "sampleListerForAPI");
-        authorizationConfig = context.mock(IAuthorizationConfig.class);
 
         service =
                 new GeneralInformationService(sessionManager, daoFactory, boFactory,
-                        propertiesBatchManager, commonServer, authorizationConfig)
+                        propertiesBatchManager, commonServer)
                     {
                         @Override
                         protected ISampleLister createSampleLister(PersonPE person)
@@ -127,14 +123,6 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testListNamedRoleSets()
     {
         prepareGetSession();
-
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(authorizationConfig).isProjectLevelEnabled();
-                    will(returnValue(false));
-                }
-            });
 
         Map<String, Set<Role>> namedRoleSets = service.listNamedRoleSets(SESSION_TOKEN);
 

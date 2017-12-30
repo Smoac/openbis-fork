@@ -153,7 +153,10 @@ public class AuthorizationService implements IAuthorizationService
         List<RoleAssignment> roleAssignmentDtos = openBisService.listRoleAssignments();
         for (RoleAssignment roleAssignment : roleAssignmentDtos)
         {
-            roleAssignments.add(new RoleAssignmentImmutable(roleAssignment));
+            if (roleAssignment.getProject() == null)
+            {
+                roleAssignments.add(new RoleAssignmentImmutable(roleAssignment));
+            }
         }
         return roleAssignments;
     }

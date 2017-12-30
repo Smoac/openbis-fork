@@ -33,7 +33,6 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.hibernate.SQLQuery;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -109,8 +108,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperim
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
@@ -164,9 +161,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
-    @Autowired
-    private IAuthorizationConfig authorizationConfig;
-
     // Default constructor needed by Spring
     public GeneralInformationService()
     {
@@ -174,12 +168,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     GeneralInformationService(IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IPropertiesBatchManager propertiesBatchManager,
-            ICommonServer commonServer, IAuthorizationConfig authorizationConfig)
+            ICommonServer commonServer)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
         this.boFactory = boFactory;
         this.commonServer = commonServer;
-        this.authorizationConfig = authorizationConfig;
     }
 
     @Override
@@ -211,20 +204,18 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         checkSession(sessionToken);
 
-        AuthorizationConfigFacade configFacade = new AuthorizationConfigFacade(authorizationConfig);
-
         Map<String, Set<Role>> namedRoleSets = new LinkedHashMap<String, Set<Role>>();
         RoleWithHierarchy[] values = RoleWithHierarchy.values();
 
         for (RoleWithHierarchy roleSet : values)
         {
-            if (configFacade.isRoleEnabled(roleSet))
+            if (false == roleSet.isProjectLevel())
             {
                 Set<RoleWithHierarchy> roles = roleSet.getRoles();
                 Set<Role> translatedRoles = new HashSet<Role>();
                 for (RoleWithHierarchy role : roles)
                 {
-                    if (configFacade.isRoleEnabled(role))
+                    if (false == roleSet.isProjectLevel())
                     {
                         translatedRoles.add(Translator.translate(role));
                     }
@@ -285,15 +276,18 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 new HashMap<String, List<RoleAssignmentPE>>();
         for (RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            SpacePE space = roleAssignment.getSpace();
-            String spaceCode = space == null ? null : space.getCode();
-            List<RoleAssignmentPE> list = roleAssignmentsPerSpace.get(spaceCode);
-            if (list == null)
+            if (false == roleAssignment.getRoleWithHierarchy().isProjectLevel())
             {
-                list = new ArrayList<RoleAssignmentPE>();
-                roleAssignmentsPerSpace.put(spaceCode, list);
+                SpacePE space = roleAssignment.getSpace();
+                String spaceCode = space == null ? null : space.getCode();
+                List<RoleAssignmentPE> list = roleAssignmentsPerSpace.get(spaceCode);
+                if (list == null)
+                {
+                    list = new ArrayList<RoleAssignmentPE>();
+                    roleAssignmentsPerSpace.put(spaceCode, list);
+                }
+                list.add(roleAssignment);
             }
-            list.add(roleAssignment);
         }
         return roleAssignmentsPerSpace;
     }

@@ -43,6 +43,8 @@ public final class RoleAssignment extends Code<RoleAssignment>
 
     private Space space;
 
+    private Project project;
+
     private DatabaseInstance instance;
 
     public RoleAssignment()
@@ -68,6 +70,16 @@ public final class RoleAssignment extends Code<RoleAssignment>
     public void setSpace(final Space space)
     {
         this.space = space;
+    }
+
+    public Project getProject()
+    {
+        return project;
+    }
+
+    public void setProject(final Project project)
+    {
+        this.project = project;
     }
 
     public Person getPerson()
