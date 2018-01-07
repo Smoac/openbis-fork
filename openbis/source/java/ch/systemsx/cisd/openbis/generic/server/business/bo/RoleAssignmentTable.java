@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,9 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -107,6 +110,13 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         }
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
 
+        if (newRoleAssignment.getSpaceIdentifier() != null && newRoleAssignment.getProjectIdentifier() != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Role assignment can have either space or project specified but not both. Space was '%s'. Project was '%s'.",
+                    newRoleAssignment.getSpaceIdentifier(), newRoleAssignment.getProjectIdentifier());
+        }
+
         final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
         if (groupIdentifier != null)
         {
@@ -119,6 +129,19 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
                         groupIdentifier);
             }
             roleAssignment.setSpace(group);
+        }
+
+        final ProjectIdentifier projectIdentifier = newRoleAssignment.getProjectIdentifier();
+        if (projectIdentifier != null)
+        {
+            final List<ProjectPE> projects = getProjectDAO().tryFindProjects(Arrays.asList(projectIdentifier));
+
+            if (projects == null || projects.isEmpty())
+            {
+                throw UserFailureException.fromTemplate("Specified project '%s' could not be found",
+                        projectIdentifier);
+            }
+            roleAssignment.setProject(projects.get(0));
         }
 
         roleAssignment.setRegistrator(findPerson());

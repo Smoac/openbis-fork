@@ -64,10 +64,16 @@ public interface IServer extends ISessionProvider
     public boolean isProjectSamplesEnabled(final String sessionToken);
 
     /**
-     * @return 'true' if project authorization is enabled.
+     * @return 'true' if project level authorization is enabled.
      */
     @Transactional(readOnly = true)
-    public boolean isProjectAuthorizationEnabled(final String sessionToken);
+    public boolean isProjectLevelAuthorizationEnabled(final String sessionToken);
+    
+    /**
+     * @return 'true' if user represented by the session token is configured to use the project level authorization.
+     */
+    @Transactional(readOnly = true)
+    public boolean isProjectLevelAuthorizationUser(final String sessionToken);
 
     /**
      * Tries to authenticate the specified user with given password.

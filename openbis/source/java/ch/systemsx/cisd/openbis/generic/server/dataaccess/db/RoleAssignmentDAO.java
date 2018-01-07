@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * <i>Data Access Object</i> implementation for {@link RoleAssignmentPE}.
@@ -154,12 +155,36 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     }
 
     @Override
+    public final RoleAssignmentPE tryFindProjectRoleAssignment(final RoleCode role,
+            final ProjectIdentifier projectIdentifier, final Grantee grantee)
+    {
+        assert role != null : "Unspecified role.";
+        assert grantee != null : "Unspecified grantee.";
+
+        final List<RoleAssignmentPE> roles =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s r where r."
+                                + getGranteeHqlParameter(grantee.getType())
+                                + " = ? and project.code = ? and project.space.code = ? and r.role = ?", TABLE_NAME),
+                        toArray(grantee.getCode(), projectIdentifier.getProjectCode(), projectIdentifier.getSpaceCode(), role)));
+        final RoleAssignmentPE roleAssignment =
+                tryFindEntity(roles, "role_assignments", role, projectIdentifier, grantee);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("FIND: project role assignment '%s'.", roleAssignment));
+        }
+        return roleAssignment;
+    }
+    
+    @Override
     public final RoleAssignmentPE tryFindSpaceRoleAssignment(final RoleCode role,
             final String space, final Grantee grantee)
     {
         assert role != null : "Unspecified role.";
         assert grantee != null : "Unspecified grantee.";
 
+        
+        
         final List<RoleAssignmentPE> roles =
                 cast(getHibernateTemplate().find(
                         String.format("from %s r where r."
@@ -187,7 +212,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
                 cast(getHibernateTemplate().find(
                         String.format("from %s r where r."
                                 + getGranteeHqlParameter(grantee.getType()) + " = ? "
-                                + "and r.role = ?", TABLE_NAME),
+                                + "and r.role = ? and space is null and project is null", TABLE_NAME),
                         toArray(grantee.getCode(), role)));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, grantee);

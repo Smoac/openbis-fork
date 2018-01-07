@@ -30,6 +30,8 @@ public class RoleAssignmentGridColumnIDs
     public static final String AUTHORIZATION_GROUP = "AUTHORIZATION_GROUP";
 
     public static final String SPACE = "SPACE";
+    
+    public static final String PROJECT = "PROJECT";
 
     public static final String ROLE = "ROLE";
 

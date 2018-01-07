@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * <i>Data Access Object</i> for {@link RoleAssignmentPE}.
@@ -58,6 +59,11 @@ public interface IRoleAssignmentDAO extends IGenericDAO<RoleAssignmentPE>
      * Lists all role assignments found in the database for given <var>personId</var>.
      */
     public List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person);
+
+    /**
+     * Returns a {@link RoleAssignmentPE} described by given role, project identifier and grantee.
+     */
+    public RoleAssignmentPE tryFindProjectRoleAssignment(RoleCode role, ProjectIdentifier projectIdentifier, Grantee grantee);
 
     /**
      * Returns a {@link RoleAssignmentPE} described by given role, space code and grantee.

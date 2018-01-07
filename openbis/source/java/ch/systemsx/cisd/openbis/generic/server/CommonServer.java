@@ -435,6 +435,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
+    public void registerProjectRole(String sessionToken, RoleCode roleCode,
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) ProjectIdentifier projectIdentifier, Grantee grantee)
+    {
+        final Session session = getSession(sessionToken);
+
+        final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        newRoleAssignment.setProjectIdentifier(projectIdentifier);
+
+        registerRole(roleCode, grantee, session, newRoleAssignment);
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public void registerSpaceRole(String sessionToken, RoleCode roleCode,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier, Grantee grantee)
@@ -470,6 +483,52 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
+    public void deleteProjectRole(String sessionToken, RoleCode roleCode,
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class) ProjectIdentifier projectIdentifier, Grantee grantee)
+    {
+        final Session session = getSession(sessionToken);
+
+        final RoleAssignmentPE roleAssignment =
+                getDAOFactory().getRoleAssignmentDAO().tryFindProjectRoleAssignment(roleCode,
+                        projectIdentifier, grantee);
+        if (roleAssignment == null)
+        {
+            throw new UserFailureException("Given project role does not exist.");
+        }
+
+        final PersonPE personPE = session.tryGetPerson();
+
+        if (roleAssignment.getPerson() != null && roleAssignment.getPerson().equals(personPE)
+                && roleAssignment.getRole().equals(RoleCode.ADMIN))
+        {
+            boolean isInstanceAdmin = false;
+            boolean isSpaceAdmin = false;
+
+            for (final RoleAssignmentPE userAssignment : personPE.getRoleAssignments())
+            {
+                if (userAssignment.getRoleWithHierarchy().isInstanceLevel() && userAssignment.getRole().equals(RoleCode.ADMIN))
+                {
+                    isInstanceAdmin = true;
+                } else if (userAssignment.getRoleWithHierarchy().isSpaceLevel()
+                        && userAssignment.getSpace().getCode().equals(roleAssignment.getProject().getSpace().getCode())
+                        && userAssignment.getRole().equals(RoleCode.ADMIN))
+                {
+                    isSpaceAdmin = true;
+                }
+            }
+
+            if (isInstanceAdmin == false && isSpaceAdmin == false)
+            {
+                throw new UserFailureException(
+                        "For safety reason you cannot give away your own project admin power. "
+                                + "Ask space or instance admin to do that for you.");
+            }
+        }
+        getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public void deleteSpaceRole(String sessionToken, RoleCode roleCode,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier, Grantee grantee)
@@ -483,18 +542,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             throw new UserFailureException("Given space role does not exist.");
         }
+
         final PersonPE personPE = session.tryGetPerson();
+
         if (roleAssignment.getPerson() != null && roleAssignment.getPerson().equals(personPE)
                 && roleAssignment.getRole().equals(RoleCode.ADMIN))
         {
             boolean isInstanceAdmin = false;
-            for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
+
+            for (final RoleAssignmentPE userAssignment : personPE.getRoleAssignments())
             {
-                if (roleAssignment.getRoleWithHierarchy().isInstanceLevel() && roleAssigment.getRole().equals(RoleCode.ADMIN))
+                if (userAssignment.getRoleWithHierarchy().isInstanceLevel() && userAssignment.getRole().equals(RoleCode.ADMIN))
                 {
                     isInstanceAdmin = true;
                 }
             }
+
             if (isInstanceAdmin == false)
             {
                 throw new UserFailureException(
@@ -540,7 +603,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public List<Person> listActivePersons(String sessionToken)
     {
         checkSession(sessionToken);

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -40,6 +41,8 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
     public static final NewRoleAssignment[] EMPTY_ARRAY = new NewRoleAssignment[0];
 
     private SpaceIdentifier spaceIdentifier;
+
+    private ProjectIdentifier projectIdentifier;
 
     private Grantee grantee;
 
@@ -71,6 +74,17 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
         this.spaceIdentifier = spaceIdentifier;
     }
 
+    public final ProjectIdentifier getProjectIdentifier()
+    {
+        return projectIdentifier;
+    }
+
+    @BeanProperty(label = "project")
+    public final void setProjectIdentifier(final ProjectIdentifier projectIdentifier)
+    {
+        this.projectIdentifier = projectIdentifier;
+    }
+
     public final Grantee getGrantee()
     {
         return grantee;
@@ -94,6 +108,10 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
         if (getSpaceIdentifier() != null)
         {
             builder.append(getSpaceIdentifier());
+        }
+        if (getProjectIdentifier() != null)
+        {
+            builder.append(getProjectIdentifier());
         }
         return builder.toString();
     }

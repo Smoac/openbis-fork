@@ -49,6 +49,8 @@ public final class ApplicationInfo implements IsSerializable
 
     private boolean projectLevelAuthorizationEnabled;
 
+    private boolean projectLevelAuthorizationUser;
+
     private WebClientConfiguration webClientConfiguration;
 
     private Set<String> enabledTechnologies;
@@ -181,14 +183,24 @@ public final class ApplicationInfo implements IsSerializable
         this.projectSamplesEnabled = projectSamplesEnabled;
     }
 
-    public boolean isProjectAuthorizationEnabled()
+    public boolean isProjectLevelAuthorizationEnabled()
     {
         return projectLevelAuthorizationEnabled;
     }
 
-    public void setProjectLevelAuthorizationEnabled(boolean projectAuthorizationEnabled)
+    public void setProjectLevelAuthorizationEnabled(boolean projectLevelAuthorizationEnabled)
     {
-        this.projectLevelAuthorizationEnabled = projectAuthorizationEnabled;
+        this.projectLevelAuthorizationEnabled = projectLevelAuthorizationEnabled;
+    }
+
+    public boolean isProjectLevelAuthorizationUser()
+    {
+        return projectLevelAuthorizationUser;
+    }
+
+    public void setProjectLevelAuthorizationUser(boolean projectLevelAuthorizationUser)
+    {
+        this.projectLevelAuthorizationUser = projectLevelAuthorizationUser;
     }
 
 }

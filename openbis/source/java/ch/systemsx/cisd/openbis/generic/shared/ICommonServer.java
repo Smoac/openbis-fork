@@ -238,6 +238,14 @@ public interface ICommonServer extends IServer
     public List<RoleAssignment> listRoleAssignments(String sessionToken);
 
     /**
+     * Registers a new project role.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
+    public void registerProjectRole(String sessionToken, RoleCode roleCode,
+            ProjectIdentifier identifier, Grantee grantee);
+
+    /**
      * Registers a new space role.
      */
     @Transactional
@@ -251,6 +259,14 @@ public interface ICommonServer extends IServer
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
+
+    /**
+     * Deletes role described by given role code, project identifier and grantee.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
+    public void deleteProjectRole(String sessionToken, RoleCode roleCode, ProjectIdentifier identifier,
+            Grantee grantee);
 
     /**
      * Deletes role described by given role code, space identifier and grantee.
@@ -827,8 +843,7 @@ public interface ICommonServer extends IServer
      * {@link #deleteDataSetsForced(String, List, String, DeletionType, boolean)}).
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.DATA_SET, ObjectKind.DELETION })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean isTrashEnabled);
 
@@ -837,8 +852,7 @@ public interface ICommonServer extends IServer
      * {@link #deleteDataSets(String, List, String, DeletionType, boolean)}).
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.DATA_SET, ObjectKind.DELETION })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean isTrashEnabled);
 
@@ -846,8 +860,7 @@ public interface ICommonServer extends IServer
      * Deletes/Trashes specified samples.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.SAMPLE, ObjectKind.DELETION })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DELETION })
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
             DeletionType type);
 
@@ -855,8 +868,7 @@ public interface ICommonServer extends IServer
      * Deletes/Trashes specified experiments.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason,
             DeletionType deletionType);
 
@@ -971,8 +983,7 @@ public interface ICommonServer extends IServer
      * Saves changed experiment.
      */
     @Transactional
-    @DatabaseUpdateModification(value =
-    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
+    @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates);
 
     /**
@@ -1010,40 +1021,35 @@ public interface ICommonServer extends IServer
      * Deletes specified data set types.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.DATASET_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATASET_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
      * Deletes specified sample types.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.SAMPLE_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
      * Deletes specified experiment types.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.EXPERIMENT_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
      * Deletes specified file format types.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.FILE_FORMAT_TYPE })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.FILE_FORMAT_TYPE })
     public void deleteFileFormatTypes(String sessionToken, List<String> codes);
 
     /**
      * Deletes specified material types.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -1429,8 +1435,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
-    @DatabaseUpdateModification(value =
-    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void revertDeletions(final String sessionToken, final List<TechId> deletionIds);
 
     /**
@@ -1438,8 +1443,7 @@ public interface ICommonServer extends IServer
      * in their type (compare with {@link #deletePermanentlyForced(String, List)})
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void deletePermanently(final String sessionToken, final List<TechId> deletionIds);
 
     /**
@@ -1447,8 +1451,7 @@ public interface ICommonServer extends IServer
      * type (compare with {@link #deletePermanently(String, List)}).
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void deletePermanentlyForced(final String sessionToken, final List<TechId> deletionIds);
 
     /**

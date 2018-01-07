@@ -30,14 +30,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
@@ -56,6 +59,8 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
     static final String AUTH_GROUP_RADIO = PREFIX + "auth-group-rd";
 
     private final SpaceSelectionWidget group;
+
+    private final ProjectSelectionWidget project;
 
     private final PersonSelectionWidget person;
 
@@ -77,12 +82,16 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         group = new SpaceSelectionWidget(viewContext, PREFIX, false, false);
         group.setWidth(100);
 
-        roleBox = new AdapterField(new RoleListBox(viewContext, group));
+        project = new ProjectSelectionWidget(viewContext, PREFIX);
+        project.setWidth(100);
+
+        roleBox = new AdapterField(new RoleListBox(viewContext, group, project));
         roleBox.setFieldLabel("Role");
         roleBox.setWidth(100);
         roleBox.setId(ROLE_FIELD_ID);
         addField(roleBox);
         addField(group);
+        addField(project);
 
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Grantee Type");
@@ -131,15 +140,21 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                         : Grantee.createAuthorizationGroup(authGroup
                                 .tryGetSelectedAuthorizationGroupCode());
 
-        if (((RoleListBox) roleBox.getWidget()).getValue().isSpaceLevel() == false)
+        RoleListBox roleWidget = (RoleListBox) roleBox.getWidget();
+        RoleWithHierarchy role = roleWidget.getValue();
+
+        if (role.isInstanceLevel())
         {
-            viewContext.getService().registerInstanceRole(
-                    ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);
-        } else
+            viewContext.getService().registerInstanceRole(roleWidget.getValue(), grantee, registrationCallback);
+        } else if (role.isSpaceLevel())
         {
-            Space spaceOrNull = group.tryGetSelectedSpace();
-            viewContext.getService().registerSpaceRole(
-                    ((RoleListBox) roleBox.getWidget()).getValue(), spaceOrNull.getCode(), grantee,
+            Space selectedSpace = group.tryGetSelectedSpace();
+            viewContext.getService().registerSpaceRole(roleWidget.getValue(), selectedSpace.getCode(), grantee,
+                    registrationCallback);
+        } else if (role.isProjectLevel())
+        {
+            Project selectedProject = project.tryGetSelectedProject();
+            viewContext.getService().registerProjectRole(roleWidget.getValue(), selectedProject.getIdentifier(), grantee,
                     registrationCallback);
         }
     }

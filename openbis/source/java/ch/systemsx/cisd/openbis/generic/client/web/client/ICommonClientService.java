@@ -286,6 +286,18 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Registers a new role from given role set code, project identifier and grantee.
+     */
+    public void registerProjectRole(RoleWithHierarchy role, String projectIdentifier, Grantee grantee)
+            throws UserFailureException;
+
+    /**
+     * Deletes the role described by given role set code, project identifier and grantee.
+     */
+    public void deleteProjectRole(RoleWithHierarchy role, String projectIdentifier, Grantee grantee)
+            throws UserFailureException;
+
+    /**
      * Registers a new role from given role set code, space code and grantee.
      */
     public void registerSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee)

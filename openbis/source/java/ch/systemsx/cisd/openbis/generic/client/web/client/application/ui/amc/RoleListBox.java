@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
@@ -41,7 +42,8 @@ public class RoleListBox extends ListBox
 
     private List<RoleWithHierarchy> roles;
 
-    public RoleListBox(IViewContext<ICommonClientServiceAsync> viewContext, final SpaceSelectionWidget groupWidget)
+    public RoleListBox(IViewContext<ICommonClientServiceAsync> viewContext, final SpaceSelectionWidget groupWidget,
+            final ProjectSelectionWidget projectWidget)
     {
         this.viewContext = viewContext;
 
@@ -50,7 +52,7 @@ public class RoleListBox extends ListBox
             addItem(visibleRoleCode.toString());
         }
         setVisibleItemCount(1);
-        updateWidgetsVisibility(groupWidget);
+        updateWidgetsVisibility(groupWidget, projectWidget);
 
         addChangeHandler(new ChangeHandler()
             {
@@ -58,10 +60,9 @@ public class RoleListBox extends ListBox
                 @Override
                 public final void onChange(final ChangeEvent sender)
                 {
-                    updateWidgetsVisibility(groupWidget);
+                    updateWidgetsVisibility(groupWidget, projectWidget);
                 }
             });
-
     }
 
     public final RoleWithHierarchy getValue()
@@ -69,21 +70,31 @@ public class RoleListBox extends ListBox
         return getRoles().get(getSelectedIndex());
     }
 
-    private void updateWidgetsVisibility(final SpaceSelectionWidget group)
+    private void updateWidgetsVisibility(final SpaceSelectionWidget group, final ProjectSelectionWidget project)
     {
         int index = getSelectedIndex();
+
         if (index < 0 || index >= getRoles().size())
+        {
             return;
-        boolean groupLevel = getRoles().get(index).isSpaceLevel();
-        FieldUtil.setMandatoryFlag(group, groupLevel);
-        group.setVisible(groupLevel);
+        }
+
+        RoleWithHierarchy role = getRoles().get(index);
+        boolean spaceLevel = role.isSpaceLevel();
+        boolean projectLevel = role.isProjectLevel();
+
+        FieldUtil.setMandatoryFlag(group, spaceLevel);
+        group.setVisible(spaceLevel);
+
+        FieldUtil.setMandatoryFlag(project, projectLevel);
+        project.setVisible(projectLevel);
     }
 
     private List<RoleWithHierarchy> getRoles()
     {
         if (roles == null)
         {
-            boolean projectLevelAuthorizationEnabled = viewContext.getModel().getApplicationInfo().isProjectAuthorizationEnabled();
+            boolean projectLevelAuthorizationEnabled = viewContext.getModel().getApplicationInfo().isProjectLevelAuthorizationEnabled();
 
             roles = new ArrayList<RoleWithHierarchy>();
             for (RoleWithHierarchy role : RoleWithHierarchy.values())

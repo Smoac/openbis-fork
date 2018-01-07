@@ -234,6 +234,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             TableExportCriteria<TableModelRowWithObject<RoleAssignment>> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#registerProjectRole(RoleWithHierarchy, String, Grantee) */
+    public void registerProjectRole(RoleWithHierarchy role, String projectIdentifier, Grantee grantee,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteProjectRole(RoleWithHierarchy, String, Grantee) */
+    public void deleteProjectRole(RoleWithHierarchy role, String projectIdentifier, Grantee grantee,
+            AsyncCallback<Void> asyncCallback);
+    
     /** @see ICommonClientService#registerSpaceRole(RoleWithHierarchy, String, Grantee) */
     public void registerSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
@@ -1005,7 +1013,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listPersons(AsyncCallback<List<Person>> callback);
 
     /**
-     * @see ICommonClientService#listPersons()
+     * @see ICommonClientService#listActivePersons()
      */
     public void listActivePersons(AsyncCallback<List<Person>> callback);
 

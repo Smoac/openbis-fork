@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfigFacade;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -775,10 +774,17 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
-    public boolean isProjectAuthorizationEnabled(String sessionToken)
+    public boolean isProjectLevelAuthorizationEnabled(String sessionToken)
+    {
+        checkSession(sessionToken);
+        return authorizationConfig.isProjectLevelEnabled();
+    }
+
+    @Override
+    public boolean isProjectLevelAuthorizationUser(String sessionToken)
     {
         Session session = getSession(sessionToken);
-        return new AuthorizationConfigFacade(authorizationConfig).isProjectLevelEnabled(session.getUserName());
+        return authorizationConfig.isProjectLevelUser(session.getUserName());
     }
 
     @SuppressWarnings("deprecation")

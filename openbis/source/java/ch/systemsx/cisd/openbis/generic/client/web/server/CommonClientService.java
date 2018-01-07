@@ -127,6 +127,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -249,6 +250,9 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Autowired
     private IApplicationServerApi applicationServerApi;
+
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
 
     public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
@@ -394,6 +398,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public final void registerProjectRole(final RoleWithHierarchy role, final String projectIdentifier,
+            final Grantee grantee)
+    {
+        final String sessionToken = getSessionToken();
+        final ProjectIdentifier projectIdentifierObject = ProjectIdentifierFactory.parse(projectIdentifier);
+        commonServer.registerProjectRole(sessionToken, role.getRoleCode(), projectIdentifierObject, grantee);
+    }
+
+    @Override
     public final void registerSpaceRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
@@ -408,6 +421,15 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         commonServer.registerInstanceRole(sessionToken, role.getRoleCode(), grantee);
+    }
+
+    @Override
+    public final void deleteProjectRole(final RoleWithHierarchy role, final String projectIdentifier,
+            final Grantee grantee)
+    {
+        final String sessionToken = getSessionToken();
+        final ProjectIdentifier projectIdentifierObject = ProjectIdentifierFactory.parse(projectIdentifier);
+        commonServer.deleteProjectRole(sessionToken, role.getRoleCode(), projectIdentifierObject, grantee);
     }
 
     @Override
@@ -862,7 +884,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(new RoleAssignmentProvider(commonServer, getSessionToken()), criteria);
+        return listEntities(new RoleAssignmentProvider(commonServer, authorizationConfig, getSessionToken()), criteria);
     }
 
     public final List<RoleAssignment> listRoleAssignments()

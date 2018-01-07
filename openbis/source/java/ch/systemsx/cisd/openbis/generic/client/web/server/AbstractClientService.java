@@ -476,6 +476,7 @@ public abstract class AbstractClientService implements IClientService,
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setProjectSamplesEnabled(isProjectSamplesEnabled());
         applicationInfo.setProjectLevelAuthorizationEnabled(isProjectLevelAuthorizationEnabled());
+        applicationInfo.setProjectLevelAuthorizationUser(isProjectLevelAuthorizationUser());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
     }
@@ -570,7 +571,19 @@ public abstract class AbstractClientService implements IClientService,
     {
         try
         {
-            return getServer().isProjectAuthorizationEnabled(getSessionToken());
+            return getServer().isProjectLevelAuthorizationEnabled(getSessionToken());
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        }
+        return false;
+    }
+
+    private boolean isProjectLevelAuthorizationUser()
+    {
+        try
+        {
+            return getServer().isProjectLevelAuthorizationUser(getSessionToken());
         } catch (InvalidSessionException e)
         {
             // ignored

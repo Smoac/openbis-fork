@@ -223,6 +223,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public void registerProjectRole(final String sessionToken, final RoleCode roleCode,
+            final ProjectIdentifier projectIdentifier, final Grantee grantee)
+    {
+        logTracking(sessionToken, "register_role", "ROLE(%s) PROJECT(%s) GRANTEE(%s)", roleCode,
+                projectIdentifier, grantee);
+    }
+
+    @Override
     public void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
             final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
@@ -237,6 +245,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_role", "ROLE(%s)  GRANTEE(%s)", roleCode, grantee);
 
+    }
+
+    @Override
+    public void deleteProjectRole(final String sessionToken, final RoleCode roleCode,
+            final ProjectIdentifier projectIdentifier, final Grantee grantee)
+    {
+        logTracking(sessionToken, "delete_role", "ROLE(%s) PROJECT(%s) GRANTEE(%s)", roleCode,
+                projectIdentifier, grantee);
     }
 
     @Override
@@ -795,7 +811,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)",
                 criteria.tryGetMaterialType(), criteria.tryGetMaterialIds() == null ? "-"
-                        : abbreviate(criteria.tryGetMaterialIds()), withProperties);
+                        : abbreviate(criteria.tryGetMaterialIds()),
+                withProperties);
         return null;
     }
 
@@ -1029,7 +1046,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "edit_sample",
                 "SAMPLE(%s) CHANGE_TO_PROJECT(%s) CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)",
-                updates.getSampleIdOrNull(), updates.getProjectIdentifier(), 
+                updates.getSampleIdOrNull(), updates.getProjectIdentifier(),
                 updates.getExperimentIdentifierOrNull(), updates.getAttachments().size());
         return null;
     }
@@ -1166,7 +1183,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "get_template_columns",
                 "ENTITY_KIND(%s) ENTITY_TYPE(%s) AUTO_GENERATE(%s) WITH_EXP(%s) "
-                        + "WITH_SPACE(%s) OPERATION(%s)", entityKind, type, autoGenerate,
+                        + "WITH_SPACE(%s) OPERATION(%s)",
+                entityKind, type, autoGenerate,
                 withExperiments, withSpace, operationKind.getDescription());
         return null;
     }

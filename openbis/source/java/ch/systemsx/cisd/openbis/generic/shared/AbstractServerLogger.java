@@ -365,7 +365,14 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
-    public boolean isProjectAuthorizationEnabled(String sessionToken)
+    public boolean isProjectLevelAuthorizationEnabled(String sessionToken)
+    {
+        // Do not log that
+        return false;
+    }
+
+    @Override
+    public boolean isProjectLevelAuthorizationUser(String sessionToken)
     {
         // Do not log that
         return false;

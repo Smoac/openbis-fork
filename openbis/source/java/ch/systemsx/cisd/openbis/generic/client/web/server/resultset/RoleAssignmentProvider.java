@@ -18,14 +18,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs.AUTHORIZATION_GROUP;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs.PERSON;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs.PROJECT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs.ROLE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs.SPACE;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -39,9 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 public class RoleAssignmentProvider extends AbstractCommonTableModelProvider<RoleAssignment>
 {
 
-    public RoleAssignmentProvider(ICommonServer commonServer, String sessionToken)
+    private IAuthorizationConfig authorizationConfig;
+
+    public RoleAssignmentProvider(ICommonServer commonServer, IAuthorizationConfig authorizationConfig, String sessionToken)
     {
         super(commonServer, sessionToken);
+        this.authorizationConfig = authorizationConfig;
     }
 
     @Override
@@ -52,18 +58,37 @@ public class RoleAssignmentProvider extends AbstractCommonTableModelProvider<Rol
         builder.addColumn(PERSON);
         builder.addColumn(AUTHORIZATION_GROUP);
         builder.addColumn(SPACE);
+
+        if (authorizationConfig.isProjectLevelEnabled())
+        {
+            builder.addColumn(PROJECT);
+        }
+
         builder.addColumn(ROLE);
         for (RoleAssignment roleAssignment : roles)
         {
+            if (roleAssignment.getProject() != null && false == authorizationConfig.isProjectLevelEnabled())
+            {
+                continue;
+            }
+
             builder.addRow(roleAssignment);
             Person person = roleAssignment.getPerson();
             AuthorizationGroup group = roleAssignment.getAuthorizationGroup();
             Space space = roleAssignment.getSpace();
+            Project project = roleAssignment.getProject();
             builder.column(PERSON).addString(person == null ? "" : person.getUserId());
             builder.column(AUTHORIZATION_GROUP).addString(group == null ? "" : group.getCode());
             builder.column(SPACE).addString(space == null ? "" : space.getCode());
+
+            if (authorizationConfig.isProjectLevelEnabled())
+            {
+                builder.column(PROJECT).addString(project == null ? "" : project.getIdentifier());
+            }
+
             builder.column(ROLE).addString(roleAssignment.getCode());
         }
+
         return builder.getModel();
     }
 

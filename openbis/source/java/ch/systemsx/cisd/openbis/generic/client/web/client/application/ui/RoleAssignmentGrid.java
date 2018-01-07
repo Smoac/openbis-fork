@@ -142,16 +142,21 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
             Grantee grantee =
                     (person != null && StringUtils.isBlank(person.getUserId()) == false) ? Grantee
                             .createPerson(person.getUserId()) : Grantee
-                            .createAuthorizationGroup(selectedRoleAssignment
-                                    .getAuthorizationGroup().getCode());
-            if (selectedRoleAssignment.getSpace() == null)
+                                    .createAuthorizationGroup(selectedRoleAssignment
+                                            .getAuthorizationGroup().getCode());
+            if (selectedRoleAssignment.getRoleSetCode().isInstanceLevel())
             {
                 viewContext.getService().deleteInstanceRole(
                         selectedRoleAssignment.getRoleSetCode(), grantee, roleListRefreshCallback);
-            } else
+            } else if (selectedRoleAssignment.getRoleSetCode().isSpaceLevel())
             {
                 viewContext.getService().deleteSpaceRole(selectedRoleAssignment.getRoleSetCode(),
                         selectedRoleAssignment.getSpace().getCode(), grantee,
+                        roleListRefreshCallback);
+            } else if (selectedRoleAssignment.getRoleSetCode().isProjectLevel())
+            {
+                viewContext.getService().deleteProjectRole(selectedRoleAssignment.getRoleSetCode(),
+                        selectedRoleAssignment.getProject().getIdentifier(), grantee,
                         roleListRefreshCallback);
             }
         }
@@ -190,14 +195,13 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
     {
         return Arrays.asList(RoleAssignmentGridColumnIDs.AUTHORIZATION_GROUP,
                 RoleAssignmentGridColumnIDs.DATABASE_INSTANCE, RoleAssignmentGridColumnIDs.PERSON,
-                RoleAssignmentGridColumnIDs.ROLE, RoleAssignmentGridColumnIDs.SPACE);
+                RoleAssignmentGridColumnIDs.ROLE, RoleAssignmentGridColumnIDs.SPACE, RoleAssignmentGridColumnIDs.PROJECT);
     }
 
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-        { DatabaseModificationKind.createOrDelete(ObjectKind.ROLE_ASSIGNMENT),
+        return new DatabaseModificationKind[] { DatabaseModificationKind.createOrDelete(ObjectKind.ROLE_ASSIGNMENT),
                 DatabaseModificationKind.edit(ObjectKind.ROLE_ASSIGNMENT) };
     }
 }
