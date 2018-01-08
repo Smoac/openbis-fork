@@ -897,11 +897,13 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withParents();
 					}
 					if(fetchOptions.withChildren) {
-						fetchOptions.withChildren();
+						var childrenFetchOptions = fetchOptions.withChildren();
+						if(advancedFetchOptions.withChildrenInfo) {
+							childrenFetchOptions.withType();
+							childrenFetchOptions.withProperties();
+						}
 					}
 				}
-				
-				
 				
 				if(advancedFetchOptions && advancedFetchOptions.cache) {
 					fetchOptions.cacheMode(advancedFetchOptions.cache);

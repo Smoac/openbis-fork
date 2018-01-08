@@ -96,6 +96,40 @@ var SampleDataGridUtil = new function() {
 			isExportable: false,
 			sortable : false
 		});
+		
+		columnsFirst.push({
+			label : 'Storage',
+			property : 'storage',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				var storage = $("<span>");
+				if(data["$object"].children) {
+					var isFirst = true;
+					for (var cIdx = 0; cIdx < data['$object'].children.length; cIdx++) {
+						if(data['$object'].children[cIdx].sampleTypeCode == "STORAGE_POSITION") {
+							storageData = data['$object'].children[cIdx].properties;
+							var storagePropertyGroup = profile.getStoragePropertyGroup();
+							var boxProperty = storageData[storagePropertyGroup.boxProperty];
+							if(!boxProperty) {
+								boxProperty = "NoBox";
+							}
+							var positionProperty = storageData[storagePropertyGroup.positionProperty];
+							if(!positionProperty) {
+								positionProperty = "NoPos";
+							}
+							var displayName = boxProperty + " : " + positionProperty;
+							if(!isFirst) {
+								storage.append("<br>");
+							}
+							storage.append(FormUtil.getFormLink(displayName, "Sample", data['$object'].children[cIdx].permId));
+							isFirst = false;
+						}
+					}
+				}
+				return storage;
+			}
+		});
 
 		if(withExperiment) {
 			columnsFirst.push({
@@ -342,11 +376,17 @@ var SampleDataGridUtil = new function() {
 					
 					var children = "";
 					if(sample.children) {
+						var isFirst = true;
 						for (var caIdx = 0; caIdx < sample.children.length; caIdx++) {
-							if(caIdx !== 0) {
+							if(sample.children[caIdx].sampleTypeCode === "STORAGE_POSITION") {
+								continue;
+							}
+							
+							if(!isFirst) {
 								children += ", ";
 							}
 							children += sample.children[caIdx].identifier;
+							isFirst = false;
 						}
 					}
 					
@@ -363,7 +403,8 @@ var SampleDataGridUtil = new function() {
 			
 			var fetchOptions = {
 					minTableInfo : true,
-					withExperiment : withExperiment
+					withExperiment : withExperiment,
+					withChildrenInfo : true
 			};
 			
 			if(options) {
