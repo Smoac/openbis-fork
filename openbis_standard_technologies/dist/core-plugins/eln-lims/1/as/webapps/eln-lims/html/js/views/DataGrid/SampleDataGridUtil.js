@@ -120,7 +120,7 @@ var SampleDataGridUtil = new function() {
 							}
 							var displayName = boxProperty + " : " + positionProperty;
 							if(!isFirst) {
-								storage.append("<br>");
+								storage.append(",<br>");
 							}
 							storage.append(FormUtil.getFormLink(displayName, "Sample", data['$object'].children[cIdx].permId));
 							isFirst = false;
