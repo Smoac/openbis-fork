@@ -1,4 +1,8 @@
 This short text explain how to do development, build and deployment of openBIS KNIME nodes.
+Here some important remarks because this is not a project like the other ones:
+* Build has to be done manually as described below.
+* The gradle build script creates only openbis-knime-server.jar which has helper classes for DSS aggregation plugins.
+* The 3th party libraries for the actual plugin are in the lib folder. 
 
 Prerequisites for developing
 ============================
