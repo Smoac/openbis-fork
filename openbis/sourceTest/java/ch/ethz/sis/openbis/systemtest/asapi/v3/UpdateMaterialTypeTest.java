@@ -23,8 +23,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
@@ -59,6 +58,11 @@ public class UpdateMaterialTypeTest extends UpdateEntityTypeTest<MaterialTypeUpd
     protected EntityTypePermId getTypeId()
     {
         return new EntityTypePermId("gene", ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.MATERIAL);
+    }
+
+    @Override
+    protected void createEntity(String sessionToken, IEntityTypeId entityType, String propertyType, String propertyValue)
+    {
     }
 
     @Override

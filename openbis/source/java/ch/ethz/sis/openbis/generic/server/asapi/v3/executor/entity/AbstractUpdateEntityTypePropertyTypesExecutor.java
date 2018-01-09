@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -40,9 +39,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropertyAssignmentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
@@ -73,14 +76,22 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
     @Override
     public void update(IOperationContext context, MapBatch<UPDATE, TYPE_PE> batch)
     {
-        Set<Entry<UPDATE, TYPE_PE>> entrySet = batch.getObjects().entrySet();
-        for (Entry<UPDATE, TYPE_PE> entry : entrySet)
-        {
-            UPDATE update = entry.getKey();
-            TYPE_PE typePE = entry.getValue();
-            PropertyAssignmentListUpdateValue propertyAssignments = update.getPropertyAssignments();
-            update(context, typePE, propertyAssignments);
-        }
+        new MapBatchProcessor<UPDATE, TYPE_PE>(context, batch)
+            {
+
+                @Override
+                public void process(UPDATE update, TYPE_PE typePE)
+                {
+                    PropertyAssignmentListUpdateValue propertyAssignments = update.getPropertyAssignments();
+                    update(context, typePE, propertyAssignments);
+                }
+
+                @Override
+                public IProgress createProgress(UPDATE key, TYPE_PE value, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(key, value, "entity-type-property-type", objectIndex, totalObjectCount);
+                }
+            };
     }
     
     private void update(IOperationContext context, TYPE_PE typePE, PropertyAssignmentListUpdateValue updates)
@@ -116,7 +127,8 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         if (removed.isEmpty() == false)
         {
             Map<IPropertyAssignmentId, EntityTypePropertyTypePE> map = mapPropertyAssignmentByIdExecutor.map(context, removed);
-            removeAssignments(map.values());
+            boolean forceRemovingAssignments = updates.isForceRemovingAssignments();
+            removeAssignments(map.values(), forceRemovingAssignments);
         }
     }
 
@@ -154,7 +166,9 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
             Collection<? extends PropertyAssignmentCreation> creations = lastSet.getItems();
             List<PropertyAssignmentCreation> replacements = new ArrayList<>();
             List<PropertyAssignmentCreation> newCreations = new ArrayList<>();
-            findReplacementsNewCreationsAndDeleteAssignments(typePE, creations, replacements, newCreations);
+            boolean forceRemovingAssignments = updates.isForceRemovingAssignments();
+            findReplacementsNewCreationsAndDeleteAssignments(typePE, creations, replacements, newCreations, 
+                    forceRemovingAssignments);
             if (newCreations.isEmpty() == false)
             {
                 createPropertyAssignmentsExecutor.createPropertyAssignments(context, typePE.getCode(), newCreations, getEntityKind());
@@ -177,8 +191,10 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         }
     }
 
-    private void findReplacementsNewCreationsAndDeleteAssignments(TYPE_PE typePE, Collection<? extends PropertyAssignmentCreation> creations,
-            List<PropertyAssignmentCreation> replacements, List<PropertyAssignmentCreation> newCreations)
+    private void findReplacementsNewCreationsAndDeleteAssignments(TYPE_PE typePE, 
+            Collection<? extends PropertyAssignmentCreation> creations,
+            List<PropertyAssignmentCreation> replacements, List<PropertyAssignmentCreation> newCreations, 
+            boolean forceRemovingAssignments)
     {
         Map<String, EntityTypePropertyTypePE> currentAssignments = getCurrentAssignments(typePE);
         for (PropertyAssignmentCreation propertyAssignmentCreation : creations)
@@ -194,9 +210,15 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                 {
                     newCreations.add(propertyAssignmentCreation);
                 }
+            } else if (propertyTypeId == null)
+            {
+                throw new UserFailureException("PropertyTypeId cannot be null.");
+            } else 
+            {
+                throw new UserFailureException("Unknown type of property type id: " + propertyTypeId.getClass().getName());
             }
         }
-        removeAssignments(currentAssignments.values());
+        removeAssignments(currentAssignments.values(), forceRemovingAssignments);
     }
 
     private Map<String, EntityTypePropertyTypePE> getCurrentAssignments(TYPE_PE typePE)
@@ -211,11 +233,22 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         return etptByPropertyTypeCode;
     }
     
-    private void removeAssignments(Collection<EntityTypePropertyTypePE> etpts)
+    private void removeAssignments(Collection<EntityTypePropertyTypePE> etpts, boolean forceRemovingAssignments)
     {
         for (EntityTypePropertyTypePE entityTypePropertyType : etpts)
         {
-            entityTypePropertyType.getEntityType().getEntityTypePropertyTypes().remove(entityTypePropertyType);
+            if (forceRemovingAssignments || entityTypePropertyType.getPropertyValues().isEmpty())
+            {
+                entityTypePropertyType.getEntityType().getEntityTypePropertyTypes().remove(entityTypePropertyType);
+            } else
+            {
+                throw new UserFailureException("Can not remove property type "
+                        + entityTypePropertyType.getPropertyType().getCode() + " from type "
+                        + entityTypePropertyType.getEntityType().getCode() + " because "
+                        + entityTypePropertyType.getPropertyValues().size() + " entites using this property. "
+                        + "To force removal call getPropertyAssignments().setForceRemovingAssignments(true) "
+                        + "on the entity update object.");
+            }
         }
     }
 

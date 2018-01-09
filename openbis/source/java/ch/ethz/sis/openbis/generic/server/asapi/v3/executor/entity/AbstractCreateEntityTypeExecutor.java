@@ -166,8 +166,14 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
                 {
                     return pluginIdHolder.getValidationPluginId();
                 }
+
+                @Override
+                public boolean isModified(CREATION pluginIdHolder)
+                {
+                    return true;
+                }
             };
-        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider, getDAOEntityKind());
+        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider, getPEEntityKind());
     }
 
     @Override

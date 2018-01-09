@@ -26,4 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 public interface IPluginIdProvider<T>
 {
     public IPluginId getPluginId(T pluginIdHolder);
+    
+    public boolean isModified(T pluginIdHolder);
 }

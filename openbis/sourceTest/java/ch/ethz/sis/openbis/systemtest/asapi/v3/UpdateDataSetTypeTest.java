@@ -18,19 +18,26 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -65,6 +72,19 @@ public class UpdateDataSetTypeTest extends UpdateEntityTypeTest<DataSetTypeUpdat
     protected void updateTypes(String sessionToken, List<DataSetTypeUpdate> updates)
     {
         v3api.updateDataSetTypes(sessionToken, updates);
+    }
+
+    @Override
+    protected void createEntity(String sessionToken, IEntityTypeId entityType, String propertyType, String propertyValue)
+    {
+        DataSetCreation creation = new DataSetCreation();
+        creation.setTypeId(entityType);
+        creation.setCode(UUID.randomUUID().toString());
+        creation.setDataSetKind(DataSetKind.CONTAINER);
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setProperty(propertyType, propertyValue);
+        v3api.createDataSets(sessionToken, Arrays.asList(creation));
     }
 
     @Override

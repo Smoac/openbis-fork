@@ -106,7 +106,7 @@ public class DeleteEntityTypeTest extends AbstractTest
                     // When
                     v3api.deleteEntityTypes(sessionToken, Arrays.asList(typeId), deletionOptions);
                 }
-            }, "Entity type id with unspecified entity kind");
+            }, "Entity type entity kind cannot be null");
     }
 
     @Test(dataProvider = "usersNotAllowedToDelete")

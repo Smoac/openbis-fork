@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -58,7 +59,12 @@ public class UpdateSampleTypeTest extends UpdateEntityTypeTest<SampleTypeUpdate,
     @Override
     protected EntityTypePermId getTypeId()
     {
-        return new EntityTypePermId("MASTER_PLATE", ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE);
+        return new EntityTypePermId("CONTROL_LAYOUT", ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE);
+    }
+    
+    @Override
+    protected void createEntity(String sessionToken, IEntityTypeId entityType, String propertyType, String propertyValue)
+    {
     }
 
     @Override

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
  * @author Franz-Josef Elmer
@@ -78,14 +79,22 @@ public abstract class AbstractUpdateEntityTypeExecutor<UPDATE extends IEntityTyp
     @Override
     protected void checkData(IOperationContext context, UPDATE update)
     {
-        IEntityTypeId id = update.getObjectId();
+        IEntityTypeId id = update.getTypeId();
         if (id == null)
         {
             throw new UserFailureException("Missing type id.");
         }
-        if (id instanceof EntityTypePermId && ((EntityTypePermId) id).getEntityKind() == null)
+        if (id instanceof EntityTypePermId)
         {
-            throw new UserFailureException("Unspecified entity kind in type id: " + id);
+            EntityTypePermId entityTypePermId = (EntityTypePermId) id;
+            ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind entityKind = EntityKindConverter.convert(getDAOEntityKind());
+            if (entityTypePermId.getEntityKind() == null)
+            {
+                update.setTypeId(new EntityTypePermId(entityTypePermId.getPermId(), entityKind));
+            } else if (entityTypePermId.getEntityKind().equals(entityKind) == false)
+            {
+                throw new UserFailureException("Entity kind " + entityKind + " expected: " + id);
+            }
         }
         checkTypeSpecificFields(update);
         
@@ -120,8 +129,15 @@ public abstract class AbstractUpdateEntityTypeExecutor<UPDATE extends IEntityTyp
                 {
                     return pluginIdHolder.getValidationPluginId().getValue();
                 }
+
+                @Override
+                public boolean isModified(UPDATE pluginIdHolder)
+                {
+                    return pluginIdHolder.getValidationPluginId().isModified();
+                }
             };
-        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider, getDAOEntityKind());
+        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider, 
+                DtoConverters.convertEntityKind(getDAOEntityKind()));
         for (Map.Entry<UPDATE, TYPE_PE> entry : batch.getObjects().entrySet())
         {
             UPDATE update = entry.getKey();

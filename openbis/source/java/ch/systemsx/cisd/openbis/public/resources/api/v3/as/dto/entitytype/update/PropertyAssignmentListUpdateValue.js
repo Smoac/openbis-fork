@@ -5,6 +5,13 @@ define([ "stjs", "as/dto/common/update/ListUpdateValue" ], function(stjs, ListUp
 	stjs.extend(PropertyAssignmentListUpdateValue, ListUpdateValue, [ ListUpdateValue ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.entitytype.update.PropertyAssignmentListUpdateValue';
 		constructor.serialVersionUID = 1;
+		prototype.forceRemovingAssignments = false;
+		prototype.isForceRemovingAssignments = function() {
+			return this.forceRemovingAssignments;
+		};
+		prototype.setForceRemovingAssignments = function(forceRemovingAssignments) {
+			this.forceRemovingAssignments = forceRemovingAssignments;
+		}
 	}, {
 		actions : {
 			name : "List",

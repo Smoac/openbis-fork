@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 /**
  * @author pkupczyk
  */
-public abstract class EntityProgress extends Progress
+public class EntityProgress extends Progress
 {
 
     private static final long serialVersionUID = 1L;

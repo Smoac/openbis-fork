@@ -16,28 +16,22 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.delete.EntityTypeDeletionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IDataSetTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IExperimentTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMaterialTypeAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISampleTypeAuthorizationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -65,41 +59,7 @@ public class DeleteEntityTypeExecutor
     @Override
     protected Map<IEntityTypeId, EntityTypePE> map(IOperationContext context, List<? extends IEntityTypeId> entityTypeIds)
     {
-        Map<IEntityTypeId, EntityTypePE> result = new HashMap<>();
-        Map<EntityKind, List<IEntityTypeId>> typeIdsByKind = splitByEntityKind(entityTypeIds);
-        for (Entry<EntityKind, List<IEntityTypeId>> entry : typeIdsByKind.entrySet())
-        {
-            result.putAll(mapEntityTypeByIdExecutor.map(context, entry.getKey(), entry.getValue()));
-        }
-        return result;
-    }
-
-    private Map<EntityKind, List<IEntityTypeId>> splitByEntityKind(List<? extends IEntityTypeId> entityTypeIds)
-    {
-        Map<EntityKind, List<IEntityTypeId>> typeIdsByKind = new HashMap<>();
-        for (IEntityTypeId entityTypeId : entityTypeIds)
-        {
-            if (entityTypeId instanceof EntityTypePermId)
-            {
-                EntityTypePermId permId = (EntityTypePermId) entityTypeId;
-                EntityKind entityKind = EntityKindConverter.convert(permId.getEntityKind());
-                if (entityKind == null)
-                {
-                    throw new UserFailureException("Entity type id with unspecified entity kind: " + entityTypeId);
-                }
-                List<IEntityTypeId> ids = typeIdsByKind.get(entityKind);
-                if (ids == null)
-                {
-                    ids = new ArrayList<>();
-                    typeIdsByKind.put(entityKind, ids);
-                }
-                ids.add(entityTypeId);
-            } else
-            {
-                throw new UserFailureException("Unknown entity type id type: " + entityTypeId.getClass().getName());
-            }
-        }
-        return typeIdsByKind;
+        return mapEntityTypeByIdExecutor.map(context, null, entityTypeIds);
     }
 
     @Override
@@ -132,7 +92,9 @@ public class DeleteEntityTypeExecutor
     {
         for (EntityTypePE entityType : entities)
         {
-            daoFactory.getEntityTypeDAO(entityType.getEntityKind()).delete(entityType);
+            IEntityTypeBO bo = businessObjectFactory.createEntityTypeBO(context.getSession());
+            bo.load(entityType.getEntityKind(), entityType.getCode());
+            bo.delete();
         }
         return null;
     }
