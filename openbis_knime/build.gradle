@@ -10,17 +10,17 @@ dependencies {
             
     
     testCompile 'testng:testng:+',
-        'hamcrest:hamcrest-integration:+',
-        'hamcrest:hamcrest-library:+'
+            'hamcrest:hamcrest-integration:+',
+            'hamcrest:hamcrest-library:+'
 
     testCompile ('jmock:jmock:+') {
-        exclude group: 'hamcrest', module: 'hamcrest-core'
-      }
+            exclude group: 'hamcrest', module: 'hamcrest-core'
+        }
 }
 
 jar {
     baseName = 'openbis-knime-server'
-    from('targets/dist') {
+    from ('targets/dist') {
         include 'BUILD*INFO'
     }
     exclude 'ch/systemsx/cisd/openbis/knime/query'
