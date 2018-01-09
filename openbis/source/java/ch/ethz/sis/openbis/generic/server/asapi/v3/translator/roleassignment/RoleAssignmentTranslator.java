@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.roleassignment;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,9 +28,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleLevel;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IRoleAssignmentAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 
 /**
  * 
@@ -40,6 +45,9 @@ public class RoleAssignmentTranslator
         extends AbstractCachingTranslator<Long, RoleAssignment, RoleAssignmentFetchOptions> 
         implements IRoleAssignmentTranslator
 {
+    @Autowired
+    private IRoleAssignmentAuthorizationExecutor authorizationExecutor;
+    
     @Autowired
     private IRoleAssignmentBaseTranslator baseTranslator;
     
@@ -57,6 +65,19 @@ public class RoleAssignmentTranslator
     
     @Autowired
     private IRoleAssignmentProjectTranslator projectTranslator;
+
+    @Override
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> inputs, RoleAssignmentFetchOptions fetchOptions)
+    {
+        try
+        {
+            authorizationExecutor.canGet(new OperationContext(context.getSession()));
+            return new HashSet<>(inputs);
+        } catch (AuthorizationFailureException ex)
+        {
+            return new HashSet<>();
+        }
+    }
 
     @Override
     protected RoleAssignment createObject(TranslationContext context, Long input, RoleAssignmentFetchOptions fetchOptions)

@@ -17,7 +17,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.authorizationgroup;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,10 +29,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IAuthorizationGroupAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IAuthorizationGroupTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 
 /**
  * 
@@ -40,6 +45,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults
 @Component
 public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long, AuthorizationGroup, AuthorizationGroupFetchOptions>  implements IAuthorizationGroupTranslator
 {
+    @Autowired
+    private IAuthorizationGroupAuthorizationExecutor authorizationExecutor;
+    
     @Autowired
     private IAuthorizationGroupBaseTranslator baseTranslator;
     
@@ -51,6 +59,19 @@ public class AuthorizationGroupTranslator extends AbstractCachingTranslator<Long
 
     @Autowired
     private IAuthorizationGroupRoleAssignmentTranslator roleAssignmentTranslator;
+
+    @Override
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> inputs, AuthorizationGroupFetchOptions fetchOptions)
+    {
+        try
+        {
+            authorizationExecutor.canGet(new OperationContext(context.getSession()));
+            return new HashSet<>(inputs);
+        } catch (AuthorizationFailureException ex)
+        {
+            return new HashSet<>();
+        }
+    }
 
     @Override
     protected AuthorizationGroup createObject(TranslationContext context, Long input, AuthorizationGroupFetchOptions fetchOptions)
