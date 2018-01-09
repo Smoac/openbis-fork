@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
@@ -31,4 +34,21 @@ public class PropertyAssignmentListUpdateValue
         extends ListUpdateValue<PropertyAssignmentCreation, IPropertyAssignmentId, PropertyAssignmentCreation, Object>
 {
     private static final long serialVersionUID = 1L;
+    
+    @JsonProperty
+    private boolean forceRemovingAssignments;
+
+    @JsonIgnore
+    public boolean isForceRemovingAssignments()
+    {
+        return forceRemovingAssignments;
+    }
+
+    @JsonIgnore
+    public void setForceRemovingAssignments(boolean forceRemovingAssignments)
+    {
+        this.forceRemovingAssignments = forceRemovingAssignments;
+    }
+    
+    
 }

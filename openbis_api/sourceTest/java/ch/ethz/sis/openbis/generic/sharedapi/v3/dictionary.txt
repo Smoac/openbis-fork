@@ -1835,6 +1835,8 @@ Update Material Types Operation Result
 update Sample Types
 Update Sample Types Operation
 Update Sample Types Operation Result
+is Force Removing Assignments
+set Force Removing Assignments
 
 delete Entity Types
 Delete Entity Types Operation
