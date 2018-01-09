@@ -1,0 +1,29 @@
+apply from: '../gradle/javaproject.gradle'
+
+dependencies {
+    compile 'cisd:cisd-base:+',
+            'apache:log4j:+',
+            'knime:knime:+',
+            'openbis:dss:+',
+            'openbis:query:+',
+            'rinn:restrictions:+'
+            
+    
+    testCompile 'testng:testng:+',
+        'hamcrest:hamcrest-integration:+',
+        'hamcrest:hamcrest-library:+'
+
+    testCompile ('jmock:jmock:+') {
+        exclude group: 'hamcrest', module: 'hamcrest-core'
+      }
+}
+
+jar {
+    baseName = 'openbis-knime-server'
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }
+    exclude 'ch/systemsx/cisd/openbis/knime/query'
+    exclude 'ch/systemsx/cisd/openbis/knime/common'
+    exclude 'ch/systemsx/cisd/openbis/knime/file'
+}
