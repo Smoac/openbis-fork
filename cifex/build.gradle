@@ -202,7 +202,7 @@ task signCliJars(type: Copy, dependsOn: [copyJarsForSigning]) {
                 ant.jar(destfile: file, update: true) {
                     delegate.manifest {
                         attribute(name: 'Main-Class', value: 'ch.systemsx.cisd.cifex.rpc.client.cli.CIFEXClient')
-                        attribute(name: 'Class-Path', value: 'authentication.jar dbmigration.jar common.jar sis-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar httpclient.jar httpcore.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcpg.jar log4j.jar bcprov.jar')                        
+                        attribute(name: 'Class-Path', value: 'authentication.jar dbmigration.jar common.jar commonbase.jar sis-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar httpclient.jar httpcore.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcpg.jar log4j.jar bcprov.jar')                        
                     }
                 }
             }
