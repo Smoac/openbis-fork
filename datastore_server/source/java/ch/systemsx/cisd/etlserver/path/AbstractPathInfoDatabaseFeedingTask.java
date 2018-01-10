@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.etlserver.plugins.AbstractMaintenanceTaskWithStateFile;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.Hdf5AwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 /**
  * @author Franz-Josef Elmer
  */
-abstract class AbstractPathInfoDatabaseFeedingTask
+abstract class AbstractPathInfoDatabaseFeedingTask extends AbstractMaintenanceTaskWithStateFile
 {
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
 

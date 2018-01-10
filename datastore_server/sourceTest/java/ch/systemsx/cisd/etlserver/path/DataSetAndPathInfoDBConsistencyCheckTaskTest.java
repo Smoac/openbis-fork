@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.path;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,6 @@ import java.util.Properties;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -38,10 +38,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockContent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -51,7 +53,7 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 /**
  * @author Franz-Josef Elmer
  */
-public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
+public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AbstractFileSystemTestCase
 {
     private static final String SESSION_TOKEN = "session-123";
     
@@ -67,6 +69,10 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
     private DataSetAndPathInfoDBConsistencyCheckTask task;
 
+    private IDataSetDirectoryProvider directoryProvidor;
+
+    private File storeRoot;
+
     @BeforeMethod
     public void setUpMocks()
     {
@@ -75,18 +81,23 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
         service = context.mock(IApplicationServerApi.class);
         fileProvider = context.mock(IHierarchicalContentProvider.class, "fileProvider");
         pathInfoProvider = context.mock(IHierarchicalContentProvider.class, "pathInfoProvider");
+        directoryProvidor = context.mock(IDataSetDirectoryProvider.class);
         task =
-                new DataSetAndPathInfoDBConsistencyCheckTask(fileProvider, pathInfoProvider,
+                new DataSetAndPathInfoDBConsistencyCheckTask(fileProvider, pathInfoProvider, directoryProvidor,
                         service, new MockTimeProvider(2010, 1000)){
                             @Override
                             String login()
                             {
                                 return SESSION_TOKEN;
                             }};
+        storeRoot = new File(workingDirectory, "store");
         context.checking(new Expectations()
             {
                 {
                     allowing(service).logout(SESSION_TOKEN);
+                    
+                    allowing(directoryProvidor).getStoreRoot();
+                    will(returnValue(storeRoot));
                 }
             });
         Properties properties = new Properties();

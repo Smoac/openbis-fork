@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -31,11 +32,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
+import ch.systemsx.cisd.common.utilities.ICredentials;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationInterceptor;
+import ch.systemsx.cisd.etlserver.plugins.AbstractMaintenanceTaskWithStateFile;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBConsistencyChecker;
@@ -44,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 /**
  * @author Franz-Josef Elmer
  */
-public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTask
+public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanceTaskWithStateFile
 {
     static final String CHECKING_TIME_INTERVAL_KEY = "checking-time-interval";
 
@@ -67,16 +69,21 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
 
     private ITimeProvider timeProvider;
 
+    private IDataSetDirectoryProvider directoryProvider;
+
+    private File stateFile;
+
     public DataSetAndPathInfoDBConsistencyCheckTask()
     {
     }
 
     DataSetAndPathInfoDBConsistencyCheckTask(IHierarchicalContentProvider fileProvider,
-            IHierarchicalContentProvider pathInfoProvider, IApplicationServerApi service,
-            ITimeProvider timeProvider)
+            IHierarchicalContentProvider pathInfoProvider, IDataSetDirectoryProvider directoryProvider,
+            IApplicationServerApi service, ITimeProvider timeProvider)
     {
         this.fileProvider = fileProvider;
         this.pathInfoProvider = pathInfoProvider;
+        this.directoryProvider = directoryProvider;
         this.service = service;
         this.timeProvider = timeProvider;
     }
@@ -84,6 +91,13 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     @Override
     public void setUp(String pluginName, Properties properties)
     {
+        if (service == null)
+        {
+            service = ServiceProvider.getV3ApplicationService();
+            timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+            directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
+        }
+        stateFile = getStateFile(properties, directoryProvider.getStoreRoot());
         timeInterval =
                 DateTimeUtils.getDurationInMillis(properties, CHECKING_TIME_INTERVAL_KEY,
                         DateUtils.MILLIS_PER_DAY);
@@ -92,14 +106,14 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     @Override
     public void execute()
     {
-        Date youngerThanDate = new Date(getTimeProvider().getTimeInMilliseconds() - timeInterval);
+        Date youngerThanDate = new Date(timeProvider.getTimeInMilliseconds() - timeInterval);
         String sessionToken = login();
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withRegistrationDate().thatIsLaterThanOrEqualTo(youngerThanDate);
-        searchCriteria.withPhysicalData();
+        searchCriteria.withPhysicalData().withStorageConfirmation().thatEquals(true);
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withPhysicalData();
-        List<DataSet> dataSets = getV3Api().searchDataSets(sessionToken, searchCriteria, fetchOptions).getObjects();
+        List<DataSet> dataSets = service.searchDataSets(sessionToken, searchCriteria, fetchOptions).getObjects();
+        System.err.println(dataSets);
         List<String> dataSetCodes = dataSets.stream()
                 .map(dataSet -> dataSet.getCode()).collect(Collectors.toList());
         operationLog.info("Check " + dataSets.size() + " data sets registered since "
@@ -115,35 +129,15 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
             builder.append(checker.createReport());
             notificationLog.error(builder.toString());
         }
-        getV3Api().logout(sessionToken);
+        service.logout(sessionToken);
     }
     
     String login()
     {
-        OpenBISAuthenticationInterceptor authenticationInterceptor 
-                = ServiceProvider.getApplicationContext().getBean(OpenBISAuthenticationInterceptor.class);
-        String username = authenticationInterceptor.getUsername();
-        String password = authenticationInterceptor.getPassword();
-        String sessionToken = getV3Api().login(username, password);
+        ICredentials credentials 
+                = (ICredentials) ServiceProvider.getApplicationContext().getBean("reauthenticateInterceptor");
+        String sessionToken = service.login(credentials.getUserId(), credentials.getPassword());
         return sessionToken;
     }
     
-    private IApplicationServerApi getV3Api()
-    {
-        if (service == null)
-        {
-            service = ServiceProvider.getV3ApplicationService();
-        }
-        return service;
-    }
-
-    private ITimeProvider getTimeProvider()
-    {
-        if (timeProvider == null)
-        {
-            timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
-        }
-        return timeProvider;
-    }
-
 }

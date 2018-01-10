@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -53,7 +52,7 @@ import net.lemnik.eodsql.QueryTool;
  * 
  * @author Franz-Josef Elmer
  */
-public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegistrationTask
+public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeedingTask implements IPostRegistrationTask
 {
     private static interface IStopCondition
     {

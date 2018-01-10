@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
+import ch.systemsx.cisd.common.utilities.ICredentials;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
@@ -55,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * 
  * @author Kaloyan Enimanev
  */
-public class OpenBISAuthenticationInterceptor implements MethodInterceptor
+public class OpenBISAuthenticationInterceptor implements MethodInterceptor, ICredentials
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -193,11 +194,13 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         this.username = username;
     }
 
-    public String getUsername()
+    @Override
+    public String getUserId()
     {
         return username;
     }
 
+    @Override
     public String getPassword()
     {
         return password;

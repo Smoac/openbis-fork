@@ -32,9 +32,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -49,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchO
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -56,13 +55,11 @@ import net.lemnik.eodsql.QueryTool;
  * 
  * @author Franz-Josef Elmer
  */
-public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeedingTask implements IMaintenanceTask
+public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeedingTask
 {
     static final String DATA_SET_TYPE_KEY = "data-set-type";
 
     static final String TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY = "time-stamp-of-youngest-data-set";
-
-    static final String STATE_FILE_KEY = "state-file";
 
     static final String CHUNK_SIZE_KEY = "chunk-size";
 
@@ -119,9 +116,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
             dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
             directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
-        File defaultStateFile = new File(directoryProvider.getStoreRoot(),
-                getClass().getSimpleName() + "-state.txt");
-        stateFile = getStateFile(properties, defaultStateFile);
+        stateFile = getStateFile(properties, directoryProvider.getStoreRoot());
         if (stateFile.isDirectory())
         {
             throw new ConfigurationFailureException("State file (specified by the property '"
@@ -156,22 +151,6 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
                     + TIME_STAMP_OF_YOUNGEST_DATA_SET_KEY + "': " + ts, ex);
         }
 
-    }
-
-    private File getStateFile(Properties properties, File defaultFile)
-    {
-        String path = properties.getProperty(STATE_FILE_KEY);
-        if (path == null)
-        {
-            return defaultFile;
-        }
-        File file = new File(path);
-        if (file.isDirectory())
-        {
-            throw new ConfigurationFailureException("File '" + file.getAbsolutePath()
-                    + "' (specified by property '" + STATE_FILE_KEY + "') is a directory.");
-        }
-        return file;
     }
 
     @Override
