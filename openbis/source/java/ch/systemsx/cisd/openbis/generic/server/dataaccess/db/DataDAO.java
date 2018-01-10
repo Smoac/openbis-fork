@@ -730,6 +730,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                 });
         }
+        List<DataPE> dataSets = tryToFindFullDataSetsByCodes(dataSetCodes, false, false);
+        scheduleDynamicPropertiesEvaluation(dataSets);
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
