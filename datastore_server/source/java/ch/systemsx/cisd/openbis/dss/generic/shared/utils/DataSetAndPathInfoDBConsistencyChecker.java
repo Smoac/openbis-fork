@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -55,14 +57,14 @@ public class DataSetAndPathInfoDBConsistencyChecker
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetAndPathInfoDBConsistencyChecker.class);
 
-    private static final Comparator<Map.Entry<IDatasetLocation, List<Difference>>> DATA_SET_COMPARATOR =
-            new Comparator<Map.Entry<IDatasetLocation, List<Difference>>>()
+    private static final Comparator<Map.Entry<String, List<Difference>>> DATA_SET_COMPARATOR =
+            new Comparator<Map.Entry<String, List<Difference>>>()
                 {
                     @Override
-                    public int compare(Entry<IDatasetLocation, List<Difference>> e1,
-                            Entry<IDatasetLocation, List<Difference>> e2)
+                    public int compare(Entry<String, List<Difference>> e1,
+                            Entry<String, List<Difference>> e2)
                     {
-                        return e1.getKey().getDataSetCode().compareTo(e2.getKey().getDataSetCode());
+                        return e1.getKey().compareTo(e2.getKey());
                     }
                 };
 
@@ -72,11 +74,11 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     private IDssServiceRpcGenericFactory serviceFactory;
 
-    private Map<IDatasetLocation, List<Difference>> differences;
+    private Map<String, List<Difference>> differences;
 
     private ProcessingStatus status;
 
-    private List<? extends IDatasetLocation> dataSets;
+    private List<String> dataSets;
 
     public DataSetAndPathInfoDBConsistencyChecker(
             IHierarchicalContentProvider fileProvider, IHierarchicalContentProvider pathInfoProvider)
@@ -87,19 +89,26 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     public void check(List<? extends IDatasetLocation> datasets)
     {
-        dataSets = datasets;
-        differences = new HashMap<IDatasetLocation, List<Difference>>();
+        List<String> dataSetCodes = datasets.stream()
+                .map(dataSet -> dataSet.getDataSetCode()).collect(Collectors.toList());
+        checkDataSets(dataSetCodes);
+    }
+    
+    public void checkDataSets(List<String> dataSetCodes)
+    {
+        dataSets = dataSetCodes;
+        differences = new HashMap<String, List<Difference>>();
         status = new ProcessingStatus();
 
-        for (IDatasetLocation dataset : datasets)
+        for (String dataSetCode : dataSetCodes)
         {
             IHierarchicalContent fileContent = null;
             IHierarchicalContent pathInfoContent = null;
 
             try
             {
-                fileContent = tryGetContent(getFileProvider(), dataset.getDataSetCode());
-                pathInfoContent = tryGetContent(getPathInfoProvider(), dataset.getDataSetCode());
+                fileContent = tryGetContent(getFileProvider(), dataSetCode);
+                pathInfoContent = tryGetContent(getPathInfoProvider(), dataSetCode);
 
                 List<Difference> datasetDifferences = new ArrayList<Difference>();
 
@@ -107,19 +116,19 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
                 if (datasetDifferences.isEmpty() == false)
                 {
-                    differences.put(dataset, datasetDifferences);
+                    differences.put(dataSetCode, datasetDifferences);
                 }
-                status.addDatasetStatus(dataset.getDataSetCode(), Status.OK);
+                status.addDatasetStatus(dataSetCode, Status.OK);
 
             } catch (Exception e)
             {
                 operationLog.error(
                         "Couldn't check consistency of the file system and the path info database for a data set: "
-                                + dataset.getDataSetCode(), e);
+                                + dataSetCode, e);
                 status.addDatasetStatus(
-                        dataset.getDataSetCode(),
+                        dataSetCode,
                         Status.createError("Couldn't check consistency of the file system and the path info database for a data set: "
-                                + dataset.getDataSetCode()
+                                + dataSetCode
                                 + " because of the following exception: " + e.getMessage()));
             } finally
             {
@@ -158,17 +167,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
         StringBuilder builder = new StringBuilder();
         builder.append("Data sets checked:\n\n");
-
-        Iterator<? extends IDatasetLocation> datasetsIterator = dataSets.iterator();
-        while (datasetsIterator.hasNext())
-        {
-            builder.append(datasetsIterator.next().getDataSetCode());
-            if (datasetsIterator.hasNext())
-            {
-                builder.append(", ");
-            }
-        }
-
+        builder.append(String.join(", ", dataSets));
         builder.append("\n\n");
         builder.append("Differences found:\n\n");
 
@@ -177,18 +176,18 @@ public class DataSetAndPathInfoDBConsistencyChecker
             builder.append("None");
         } else
         {
-            List<Map.Entry<IDatasetLocation, List<Difference>>> entries =
-                    new ArrayList<Map.Entry<IDatasetLocation, List<Difference>>>(
+            List<Map.Entry<String, List<Difference>>> entries =
+                    new ArrayList<Map.Entry<String, List<Difference>>>(
                             differences.entrySet());
             Collections.sort(entries, DATA_SET_COMPARATOR);
-            for (Map.Entry<IDatasetLocation, List<Difference>> differencesEntry : entries)
+            for (Map.Entry<String, List<Difference>> differencesEntry : entries)
             {
-                IDatasetLocation dataset = differencesEntry.getKey();
+                String dataSetCode = differencesEntry.getKey();
                 List<Difference> datasetDifferences = differencesEntry.getValue();
 
                 Collections.sort(datasetDifferences);
 
-                builder.append("Data set " + dataset.getDataSetCode() + ":\n");
+                builder.append("Data set " + dataSetCode + ":\n");
                 for (Difference datasetDifference : datasetDifferences)
                 {
                     builder.append("- " + datasetDifference.getDescription() + "\n");
