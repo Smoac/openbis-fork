@@ -193,6 +193,16 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         this.username = username;
     }
 
+    public String getUsername()
+    {
+        return username;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
     public final void setPassword(String password)
     {
         this.password = password;

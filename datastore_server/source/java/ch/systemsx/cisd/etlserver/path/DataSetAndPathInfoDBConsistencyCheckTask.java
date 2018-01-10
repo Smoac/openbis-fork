@@ -20,22 +20,26 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBConsistencyChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * @author Franz-Josef Elmer
@@ -53,7 +57,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DataSetAndPathInfoDBConsistencyCheckTask.class);
 
-    private IEncapsulatedOpenBISService service;
+    private IApplicationServerApi service;
 
     private IHierarchicalContentProvider fileProvider;
 
@@ -68,7 +72,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     }
 
     DataSetAndPathInfoDBConsistencyCheckTask(IHierarchicalContentProvider fileProvider,
-            IHierarchicalContentProvider pathInfoProvider, IEncapsulatedOpenBISService service,
+            IHierarchicalContentProvider pathInfoProvider, IApplicationServerApi service,
             ITimeProvider timeProvider)
     {
         this.fileProvider = fileProvider;
@@ -89,13 +93,20 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     public void execute()
     {
         Date youngerThanDate = new Date(getTimeProvider().getTimeInMilliseconds() - timeInterval);
-        List<SimpleDataSetInformationDTO> dataSets =
-                getService().listOldestPhysicalDataSets(youngerThanDate, Integer.MAX_VALUE);
+        String sessionToken = login();
+        DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
+        searchCriteria.withRegistrationDate().thatIsLaterThanOrEqualTo(youngerThanDate);
+        searchCriteria.withPhysicalData();
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withPhysicalData();
+        List<DataSet> dataSets = getV3Api().searchDataSets(sessionToken, searchCriteria, fetchOptions).getObjects();
+        List<String> dataSetCodes = dataSets.stream()
+                .map(dataSet -> dataSet.getCode()).collect(Collectors.toList());
         operationLog.info("Check " + dataSets.size() + " data sets registered since "
                 + DATE_FORMAT.format(youngerThanDate));
         DataSetAndPathInfoDBConsistencyChecker checker =
                 new DataSetAndPathInfoDBConsistencyChecker(fileProvider, pathInfoProvider);
-        checker.check(dataSets);
+        checker.checkDataSets(dataSetCodes);
         if (checker.noErrorAndInconsitencyFound() == false)
         {
             StringBuilder builder = new StringBuilder();
@@ -104,13 +115,24 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
             builder.append(checker.createReport());
             notificationLog.error(builder.toString());
         }
+        getV3Api().logout(sessionToken);
     }
-
-    private IEncapsulatedOpenBISService getService()
+    
+    String login()
+    {
+        OpenBISAuthenticationInterceptor authenticationInterceptor 
+                = ServiceProvider.getApplicationContext().getBean(OpenBISAuthenticationInterceptor.class);
+        String username = authenticationInterceptor.getUsername();
+        String password = authenticationInterceptor.getPassword();
+        String sessionToken = getV3Api().login(username, password);
+        return sessionToken;
+    }
+    
+    private IApplicationServerApi getV3Api()
     {
         if (service == null)
         {
-            service = ServiceProvider.getOpenBISService();
+            service = ServiceProvider.getV3ApplicationService();
         }
         return service;
     }

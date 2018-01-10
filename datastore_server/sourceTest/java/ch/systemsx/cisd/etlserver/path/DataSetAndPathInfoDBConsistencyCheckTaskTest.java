@@ -32,17 +32,20 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockContent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
@@ -50,11 +53,13 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  */
 public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 {
+    private static final String SESSION_TOKEN = "session-123";
+    
     private BufferedAppender logRecorder;
 
     private Mockery context;
 
-    private IEncapsulatedOpenBISService service;
+    private IApplicationServerApi service;
 
     private IHierarchicalContentProvider fileProvider;
 
@@ -67,12 +72,23 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
     {
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
-        service = context.mock(IEncapsulatedOpenBISService.class);
+        service = context.mock(IApplicationServerApi.class);
         fileProvider = context.mock(IHierarchicalContentProvider.class, "fileProvider");
         pathInfoProvider = context.mock(IHierarchicalContentProvider.class, "pathInfoProvider");
         task =
                 new DataSetAndPathInfoDBConsistencyCheckTask(fileProvider, pathInfoProvider,
-                        service, new MockTimeProvider(2010, 1000));
+                        service, new MockTimeProvider(2010, 1000)){
+                            @Override
+                            String login()
+                            {
+                                return SESSION_TOKEN;
+                            }};
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(service).logout(SESSION_TOKEN);
+                }
+            });
         Properties properties = new Properties();
         properties.setProperty(DataSetAndPathInfoDBConsistencyCheckTask.CHECKING_TIME_INTERVAL_KEY,
                 "1500 msec");
@@ -233,20 +249,32 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
     private void prepareListDataSets(final Date youngerThanDate, final PhysicalDataSet... dataSets)
     {
-        final List<SimpleDataSetInformationDTO> translatedDataSets =
-                new ArrayList<SimpleDataSetInformationDTO>();
+        List<DataSet> translatedDataSets = new ArrayList<DataSet>();
         for (PhysicalDataSet physicalDataSet : dataSets)
         {
-            translatedDataSets.add(SimpleDataSetHelper.translate(DataSetTranslator
-                    .translateToDescription(physicalDataSet)));
+            translatedDataSets.add(translate(physicalDataSet));
         }
         context.checking(new Expectations()
             {
                 {
-                    one(service).listOldestPhysicalDataSets(youngerThanDate, Integer.MAX_VALUE);
-                    will(returnValue(translatedDataSets));
+                    one(service).searchDataSets(with(SESSION_TOKEN), with(new RecordingMatcher<DataSetSearchCriteria>()), 
+                            with(new RecordingMatcher<DataSetFetchOptions>()));
+                    will(returnValue(new SearchResult<>(translatedDataSets, translatedDataSets.size())));
                 }
             });
+    }
+    
+    private DataSet translate(PhysicalDataSet dataSet)
+    {
+        DataSet translatedDataSet = new DataSet();
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withPhysicalData();
+        translatedDataSet.setFetchOptions(fetchOptions);
+        translatedDataSet.setCode(dataSet.getCode());
+        PhysicalData physicalData = new PhysicalData();
+        physicalData.setLocation(dataSet.getLocation());
+        translatedDataSet.setPhysicalData(physicalData);
+        return translatedDataSet;
     }
 
     private DataSetBuilder createDataSetBuilder()
