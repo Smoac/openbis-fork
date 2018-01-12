@@ -629,8 +629,8 @@ var FormUtil = new function() {
 		if(text) {
 			text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
 		}
+		$component.html(html.sanitize(text));
 		
-		$component.html(text);
 		if(id) {
 			$component.attr('id', id);
 		}

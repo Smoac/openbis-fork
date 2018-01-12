@@ -60,7 +60,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode, null, null, sampleCode, sampleIdentifier, datasetCodeAndPermId);
 		
 		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode];
-		if(!nameLabel) {
+		if(nameLabel) {
+			nameLabel = html.sanitize(nameLabel);
+		} else {
 			nameLabel = this._dataSetFormModel.dataSet.code;
 		}
 		

@@ -41,10 +41,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		//
 		var $formTitle = $("<div>");
 		var nameLabel = this._experimentFormModel.experiment.properties[profile.propertyReplacingCode];
-		if(!nameLabel) {
+		if(nameLabel) {
+			nameLabel = html.sanitize(nameLabel);
+		} else {
 			nameLabel = this._experimentFormModel.experiment.code;
 		}
-		
 		
 		var spaceCode = this._experimentFormModel.experiment.identifier.split("/")[1];
 		var projectCode = this._experimentFormModel.experiment.identifier.split("/")[2];

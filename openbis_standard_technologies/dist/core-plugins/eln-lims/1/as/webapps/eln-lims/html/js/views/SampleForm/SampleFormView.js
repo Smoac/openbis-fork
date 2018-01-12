@@ -74,7 +74,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $formTitle = $("<div>");
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
-		if(!nameLabel) {
+		if(nameLabel) {
+			nameLabel = html.sanitize(nameLabel);
+		} else {
 			nameLabel = this._sampleFormModel.sample.code;
 		}
 		
@@ -558,7 +560,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} else {
 			$legend.remove();
 		}
-			
+		
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
