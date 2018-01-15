@@ -563,14 +563,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 	
 	this._getGridForResults = function(criteria, isGlobalSearch) {
-		
-			var getLinkOnClick = function(code, data) {
+			var _this = this;
+			
+			var getLinkOnClick = function(code, data, paginationInfo) {
+				if(data.entityKind !== "Sample") {
+					paginationInfo = null;  // TODO - Only supported for samples for now
+				}
 				switch(data.entityKind) {
 					case "Experiment":
-						return FormUtil.getFormLink(code, data.entityKind, data.identifier);
+						return FormUtil.getFormLink(code, data.entityKind, data.identifier, paginationInfo);
 						break;
 					default:
-						return FormUtil.getFormLink(code, data.entityKind, data.permId);
+						return FormUtil.getFormLink(code, data.entityKind, data.permId, paginationInfo);
 						break;
 				}
 			}
@@ -611,16 +615,54 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				property : 'code',
 				isExportable: true,
 				sortable : !isGlobalSearch,
-				render : function(data) {
-					return getLinkOnClick(data.code, data);
+				render : function(data, grid) {
+					var paginationInfo = null;
+					if(!isGlobalSearch) {
+						var indexFound = null;
+						for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+							if(grid.lastReceivedData.objects[idx].permId === data.permId) {
+								indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+								break;
+							}
+						}
+						
+						if(indexFound !== null) {
+							paginationInfo = {
+									pagFunction : _this._advancedSearchController.searchWithPagination(_this._advancedSearchModel.criteria, false),
+									pagOptions : grid.lastUsedOptions,
+									currentIndex : indexFound,
+									totalCount : grid.lastReceivedData.totalCount
+							}
+						}
+					}
+					return getLinkOnClick(data.code, data, paginationInfo);
 				}
 			}, {
 				label : 'Identifier',
 				property : 'identifier',
 				isExportable: true,
 				sortable : !isGlobalSearch,
-				render : function(data) {
-					return getLinkOnClick(data.identifier, data);
+				render : function(data, grid) {
+					var paginationInfo = null;
+					if(!isGlobalSearch) {
+						var indexFound = null;
+						for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+							if(grid.lastReceivedData.objects[idx].permId === data.permId) {
+								indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+								break;
+							}
+						}
+						
+						if(indexFound !== null) {
+							paginationInfo = {
+									pagFunction : _this._advancedSearchController.searchWithPagination(_this._advancedSearchModel.criteria, false),
+									pagOptions : grid.lastUsedOptions,
+									currentIndex : indexFound,
+									totalCount : grid.lastReceivedData.totalCount
+							}
+						}
+					}
+					return getLinkOnClick(data.identifier, data, paginationInfo);
 				}
 			}, {
 				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
