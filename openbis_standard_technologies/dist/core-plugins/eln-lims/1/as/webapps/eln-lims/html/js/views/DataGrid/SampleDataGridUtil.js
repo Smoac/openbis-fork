@@ -110,6 +110,19 @@ var SampleDataGridUtil = new function() {
 						if(data['$object'].children[cIdx].sampleTypeCode == "STORAGE_POSITION") {
 							storageData = data['$object'].children[cIdx].properties;
 							var storagePropertyGroup = profile.getStoragePropertyGroup();
+							
+							var codeProperty = storageData[storagePropertyGroup.nameProperty];
+							if(!codeProperty) {
+								codeProperty = "NoCode";
+							}
+							var rowProperty = storageData[storagePropertyGroup.rowProperty];
+							if(!rowProperty) {
+								rowProperty = "NoRow";
+							}
+							var colProperty = storageData[storagePropertyGroup.columnProperty];
+							if(!colProperty) {
+								colProperty = "NoCol";
+							}
 							var boxProperty = storageData[storagePropertyGroup.boxProperty];
 							if(!boxProperty) {
 								boxProperty = "NoBox";
@@ -118,7 +131,7 @@ var SampleDataGridUtil = new function() {
 							if(!positionProperty) {
 								positionProperty = "NoPos";
 							}
-							var displayName = boxProperty + " : " + positionProperty;
+							var displayName = codeProperty + " [ " + rowProperty + " , " + colProperty + " ] " + boxProperty + " : " + positionProperty;
 							if(!isFirst) {
 								storage.append(",<br>");
 							}
