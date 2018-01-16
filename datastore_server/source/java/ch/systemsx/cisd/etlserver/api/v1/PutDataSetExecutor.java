@@ -162,11 +162,12 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     /**
      * Run the put command; does *not* close the input stream &mdash; clients of the executor are expected to close the input stream when appropriate.
      * 
+     * @param noOwnerAllowed <code>true</code> if missing data set owner is allowed. This is the case for custom import.
      * @throws IOException
      */
-    public List<DataSetInformation> execute() throws UserFailureException, IOException
+    public List<DataSetInformation> execute(boolean noOwnerAllowed) throws UserFailureException, IOException
     {
-        PutDataSetUtil.checkAccess(sessionToken, getOpenBisService(), newDataSet);
+        PutDataSetUtil.checkAccess(sessionToken, getOpenBisService(), newDataSet, noOwnerAllowed);
 
         writeDataSetToTempDirectory();
         overrideOrNull = null;
@@ -186,7 +187,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
      */
     public List<DataSetInformation> executeWithoutWriting() throws UserFailureException
     {
-        PutDataSetUtil.checkAccess(sessionToken, getOpenBisService(), newDataSet);
+        PutDataSetUtil.checkAccess(sessionToken, getOpenBisService(), newDataSet, false);
 
         overrideOrNull = null;
 

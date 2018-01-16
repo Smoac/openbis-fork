@@ -182,7 +182,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 new PutDataSetTopLevelDataSetHandler(putDataSetService, registrator, SESSION_TOKEN,
                         newDataSet, inputStream);
 
-        handler.execute();
+        handler.execute(false);
 
         assertEquals("MY-TYPE", dataSetInfoMatcher.recordedObject().getDataSetType().getCode());
         List<NewProperty> dataSetProperties =
@@ -230,7 +230,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 new PutDataSetTopLevelDataSetHandler(putDataSetService, registrator, SESSION_TOKEN,
                         newDataSet, inputStream);
 
-        handler.execute();
+        handler.execute(false);
 
         assertEquals(null, dataSetInfoMatcher.recordedObject().getDataSetType());
         assertEquals(0, dataSetInfoMatcher.recordedObject().getDataSetProperties().size());

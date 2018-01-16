@@ -156,13 +156,13 @@ public class PutDataSetService
                         new PutDataSetExecutor(this,
                                 ((PutDataSetServerPluginHolder) registrator).getPlugin(),
                                 sessionToken, createNewDataSetDTO(customImportFile),
-                                getAsInputStream(customImportFile)).execute();
+                                getAsInputStream(customImportFile)).execute(true);
             } else
             {
                 infos =
                         new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken,
                                 createNewDataSetDTO(customImportFile),
-                                getAsInputStream(customImportFile)).execute();
+                                getAsInputStream(customImportFile)).execute(true);
             }
             StringBuilder sb = new StringBuilder();
             for (DataSetInformation info : infos)
@@ -220,12 +220,12 @@ public class PutDataSetService
                 infos =
                         new PutDataSetExecutor(this,
                                 ((PutDataSetServerPluginHolder) registrator).getPlugin(),
-                                sessionToken, newDataSet, inputStream).execute();
+                                sessionToken, newDataSet, inputStream).execute(false);
             } else
             {
                 infos =
                         new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken,
-                                newDataSet, inputStream).execute();
+                                newDataSet, inputStream).execute(false);
             }
             StringBuilder sb = new StringBuilder();
             for (DataSetInformation info : infos)

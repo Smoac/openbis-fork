@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 public class PutDataSetUtil
 {
 
-    public static void checkAccess(String sessionToken, IEncapsulatedOpenBISService service, NewDataSetDTO newDataSet)
+    public static void checkAccess(String sessionToken, IEncapsulatedOpenBISService service, NewDataSetDTO newDataSet, boolean noOwnerAllowed)
     {
         if (newDataSet == null)
         {
@@ -38,6 +38,10 @@ public class PutDataSetUtil
 
         if (owner == null)
         {
+            if (noOwnerAllowed)
+            {
+                return;
+            }
             throw new UserFailureException("Owner of a new data set cannot be null");
         }
 
