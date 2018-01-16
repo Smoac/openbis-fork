@@ -420,14 +420,16 @@ var SampleDataGridUtil = new function() {
 					withChildrenInfo : true
 			};
 			
+			var optionsSearch = null;
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
+				optionsSearch = options.search;
 			}
 			
-			if(!criteria.cached || (criteria.cachedSearch !== options.search)) {
+			if(!criteria.cached || (criteria.cachedSearch !== optionsSearch)) {
 				fetchOptions.cache = "RELOAD_AND_CACHE";
-				criteria.cachedSearch = options.search;
+				criteria.cachedSearch = optionsSearch;
 				criteria.cached = true;
 			} else {
 				fetchOptions.cache = "CACHE";
