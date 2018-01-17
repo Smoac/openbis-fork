@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -72,11 +71,11 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     private IDssServiceRpcGenericFactory serviceFactory;
 
-    private Map<String, List<Difference>> differences;
+    private Map<String, List<Difference>> differences = new HashMap<String, List<Difference>>();
 
-    private ProcessingStatus status;
+    private ProcessingStatus status = new ProcessingStatus();
 
-    private List<String> dataSets;
+    private List<String> dataSets = new ArrayList<>();
 
     public DataSetAndPathInfoDBConsistencyChecker(
             IHierarchicalContentProvider fileProvider, IHierarchicalContentProvider pathInfoProvider)
@@ -87,57 +86,52 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     public void check(List<? extends IDatasetLocation> datasets)
     {
-        List<String> dataSetCodes = datasets.stream()
-                .map(dataSet -> dataSet.getDataSetCode()).collect(Collectors.toList());
-        checkDataSets(dataSetCodes);
+        for (IDatasetLocation location : datasets)
+        {
+            checkDataSet(location.getDataSetCode());
+        }
     }
     
-    public void checkDataSets(List<String> dataSetCodes)
+    public void checkDataSet(String dataSetCode)
     {
-        dataSets = dataSetCodes;
-        differences = new HashMap<String, List<Difference>>();
-        status = new ProcessingStatus();
+        dataSets.add(dataSetCode);
+        IHierarchicalContent fileContent = null;
+        IHierarchicalContent pathInfoContent = null;
 
-        for (String dataSetCode : dataSetCodes)
+        try
         {
-            IHierarchicalContent fileContent = null;
-            IHierarchicalContent pathInfoContent = null;
+            fileContent = tryGetContent(getFileProvider(), dataSetCode);
+            pathInfoContent = tryGetContent(getPathInfoProvider(), dataSetCode);
 
-            try
+            List<Difference> datasetDifferences = new ArrayList<Difference>();
+
+            compare(fileContent, pathInfoContent, datasetDifferences);
+
+            if (datasetDifferences.isEmpty() == false)
             {
-                fileContent = tryGetContent(getFileProvider(), dataSetCode);
-                pathInfoContent = tryGetContent(getPathInfoProvider(), dataSetCode);
+                differences.put(dataSetCode, datasetDifferences);
+            }
+            status.addDatasetStatus(dataSetCode, Status.OK);
 
-                List<Difference> datasetDifferences = new ArrayList<Difference>();
-
-                compare(fileContent, pathInfoContent, datasetDifferences);
-
-                if (datasetDifferences.isEmpty() == false)
-                {
-                    differences.put(dataSetCode, datasetDifferences);
-                }
-                status.addDatasetStatus(dataSetCode, Status.OK);
-
-            } catch (Exception e)
+        } catch (Exception e)
+        {
+            operationLog.error(
+                    "Couldn't check consistency of the file system and the path info database for a data set: "
+                            + dataSetCode, e);
+            status.addDatasetStatus(
+                    dataSetCode,
+                    Status.createError("Couldn't check consistency of the file system and the path info database for a data set: "
+                            + dataSetCode
+                            + " because of the following exception: " + e.getMessage()));
+        } finally
+        {
+            if (null != fileContent)
             {
-                operationLog.error(
-                        "Couldn't check consistency of the file system and the path info database for a data set: "
-                                + dataSetCode, e);
-                status.addDatasetStatus(
-                        dataSetCode,
-                        Status.createError("Couldn't check consistency of the file system and the path info database for a data set: "
-                                + dataSetCode
-                                + " because of the following exception: " + e.getMessage()));
-            } finally
+                fileContent.close();
+            }
+            if (null != pathInfoContent)
             {
-                if (null != fileContent)
-                {
-                    fileContent.close();
-                }
-                if (null != pathInfoContent)
-                {
-                    pathInfoContent.close();
-                }
+                pathInfoContent.close();
             }
         }
     }
@@ -151,7 +145,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
         return status;
     }
 
-    public boolean noErrorAndInconsitencyFound()
+    public boolean noErrorAndInconsistencyFound()
     {
         return status.getErrorStatuses().isEmpty() && differences.isEmpty();
     }

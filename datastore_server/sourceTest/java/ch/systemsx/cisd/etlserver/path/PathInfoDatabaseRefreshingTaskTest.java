@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.plugins.AbstractMaintenanceTaskWithStateFile;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -389,7 +390,7 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
     {
         try
         {
-            return new SimpleDateFormat(PathInfoDatabaseRefreshingTask.TIME_STAMP_FORMAT).parse(dateString);
+            return new SimpleDateFormat(AbstractMaintenanceTaskWithStateFile.TIME_STAMP_FORMAT).parse(dateString);
         } catch (ParseException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

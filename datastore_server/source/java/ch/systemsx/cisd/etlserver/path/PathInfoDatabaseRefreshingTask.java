@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import java.io.File;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -63,8 +60,6 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
 
     static final String CHUNK_SIZE_KEY = "chunk-size";
 
-    static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     private static final int DEFAULT_CHUNK_SIZE = 100;
 
     private static final Comparator<AbstractExternalData> REVERSE_REGISTRATION_DATE_COMPARATOR = new Comparator<AbstractExternalData>()
@@ -86,8 +81,6 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
             PathInfoDatabaseRefreshingTask.class);
 
     private IEncapsulatedOpenBISService service;
-
-    private File stateFile;
 
     private String timeStampAndCodeOfYoungestDataSet;
 
@@ -116,12 +109,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
             dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
             directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
-        stateFile = getStateFile(properties, directoryProvider.getStoreRoot());
-        if (stateFile.isDirectory())
-        {
-            throw new ConfigurationFailureException("State file (specified by the property '"
-                    + STATE_FILE_KEY + "') is a directory.");
-        }
+        defineStateFile(properties, directoryProvider.getStoreRoot());
         timeStampAndCodeOfYoungestDataSet = tryGetTimeStampAndCodeOfYoungestDataSet(properties);
         if (stateFile.exists() == false && timeStampAndCodeOfYoungestDataSet == null)
         {
@@ -168,7 +156,7 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
             String dataSetCode = dataSet.getCode();
             dao.deleteDataSet(dataSetCode);
             feedPathInfoDatabase(dataSet, dataSet.isH5Folders(), dataSet.isH5arFolders());
-            updateTimeStampFile(dataSet);
+            updateTimeStampFile(renderTimeStampAndCode(dataSet));
         }
         operationLog.info("Path info for " + dataSets.size() + " physical data sets refreshed in "
                 + (System.currentTimeMillis() - t0) / 1000 + " secs.");
@@ -231,32 +219,8 @@ public class PathInfoDatabaseRefreshingTask extends AbstractPathInfoDatabaseFeed
         return FileUtilities.loadToString(stateFile).trim();
     }
 
-    private void updateTimeStampFile(PhysicalDataSet dataSet)
-    {
-        File newFile = new File(stateFile.getParentFile(), stateFile.getName() + "_new");
-        FileUtilities.writeToFile(newFile, renderTimeStampAndCode(dataSet));
-        newFile.renameTo(stateFile);
-    }
-
     private String renderTimeStampAndCode(PhysicalDataSet dataSet)
     {
-        String code = dataSet.getDataSetCode();
-        String renderedTimeStamp = renderTimeStamp(dataSet.getRegistrationDate());
-        return code == null ? renderedTimeStamp : renderedTimeStamp + " [" + code + "]";
-    }
-
-    private String extractTimeStamp(String timeStampAndCode)
-    {
-        return timeStampAndCode.split("\\[")[0].trim();
-    }
-
-    private String renderTimeStamp(Date timeStamp)
-    {
-        return new SimpleDateFormat(TIME_STAMP_FORMAT).format(timeStamp);
-    }
-
-    private Date parseTimeStamp(String timeStampString) throws ParseException
-    {
-        return new SimpleDateFormat(TIME_STAMP_FORMAT).parse(timeStampString);
+        return renderTimeStampAndCode(dataSet.getRegistrationDate(), dataSet.getDataSetCode());
     }
 }

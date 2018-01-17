@@ -17,9 +17,13 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 
 /**
@@ -31,20 +35,52 @@ public abstract class AbstractMaintenanceTaskWithStateFile implements IMaintenan
 {
     public static final String STATE_FILE_KEY = "state-file";
 
-    protected File getStateFile(Properties properties, File storeRoot)
+    public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    protected File stateFile;
+    
+    protected void defineStateFile(Properties properties, File storeRoot)
     {
         String path = properties.getProperty(STATE_FILE_KEY);
         if (path == null)
         {
-            return new File(storeRoot, getClass().getSimpleName() + "-state.txt");
-        }
-        File file = new File(path);
-        if (file.isDirectory())
+            stateFile = new File(storeRoot, getClass().getSimpleName() + "-state.txt");
+        } else
         {
-            throw new ConfigurationFailureException("File '" + file.getAbsolutePath()
-                    + "' (specified by property '" + STATE_FILE_KEY + "') is a directory.");
+            stateFile = new File(path);
+            if (stateFile.isDirectory())
+            {
+                throw new ConfigurationFailureException("File '" + stateFile.getAbsolutePath()
+                + "' (specified by property '" + STATE_FILE_KEY + "') is a directory.");
+            }
         }
-        return file;
     }
 
+    protected String renderTimeStampAndCode(Date registrationDate, String code)
+    {
+        String renderedTimeStamp = renderTimeStamp(registrationDate);
+        return code == null ? renderedTimeStamp : renderedTimeStamp + " [" + code + "]";
+    }
+
+    protected String renderTimeStamp(Date timeStamp)
+    {
+        return new SimpleDateFormat(TIME_STAMP_FORMAT).format(timeStamp);
+    }
+    
+    protected Date parseTimeStamp(String timeStampString) throws ParseException
+    {
+        return new SimpleDateFormat(TIME_STAMP_FORMAT).parse(timeStampString);
+    }
+
+    protected void updateTimeStampFile(String timeStampAndCode)
+    {
+        File newFile = new File(stateFile.getParentFile(), stateFile.getName() + "_new");
+        FileUtilities.writeToFile(newFile, timeStampAndCode);
+        newFile.renameTo(stateFile);
+    }
+
+    protected String extractTimeStamp(String timeStampAndCode)
+    {
+        return timeStampAndCode.split("\\[")[0].trim();
+    }
 }
