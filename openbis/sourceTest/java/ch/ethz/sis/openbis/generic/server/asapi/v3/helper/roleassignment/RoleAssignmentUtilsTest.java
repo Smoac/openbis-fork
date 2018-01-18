@@ -112,7 +112,7 @@ public class RoleAssignmentUtilsTest
     private void assertFailurwBecauseOfSelfReducingProjectAdminPower(RoleAssignmentPE role, PersonPE user)
     {
         assertUserFailure(role, user, "For safety reason you cannot give away your own project admin power. "
-                + "Ask instance admin to do that for you.");
+                + "Ask space or instance admin to do that for you.");
     }
     
     private void assertFailurwBecauseOfSelfReducingSpaceAdminPower(RoleAssignmentPE role, PersonPE user)

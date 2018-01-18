@@ -50,7 +50,8 @@ public class RoleAssignmentUtils
                 }
                 throw new UserFailureException(
                         "For safety reason you cannot give away your own " + adminType + " admin power. "
-                                + "Ask instance admin to do that for you.");
+                                + "Ask " + (adminType.equals("project") ? "space or " : "") 
+                                + "instance admin to do that for you.");
             } else if (roleAssignment.getSpace() == null && roleAssignment.getProject() == null)
             {
                 throw new UserFailureException(
