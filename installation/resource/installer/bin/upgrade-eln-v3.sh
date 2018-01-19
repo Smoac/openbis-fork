@@ -18,11 +18,13 @@
 #-- Restore etc folder from backup (skip if backup don't exist)
 
 echo "1 - Starting ELN-LIMS Upgrade"
-
+# set -x
 # Define a timestamp function
 timestamp() {
   date +"%y%m%d-%H%M"
 }
+
+VERSION=3
 
 # Directories used
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -30,32 +32,32 @@ BASE=$DIR"/.."
 BACKUP_BASE=$BASE"/backup"
 BACKUP=$BACKUP_BASE"/$(timestamp)"
 CORE_PLUGINS=$BASE"/servers/core-plugins/"
+
+ELN_BACKUP=$BACKUP"/eln-lims" 
 ELN_INSTALLATION=$BASE"/servers/core-plugins/eln-lims"
-ELN_INSTALLATION_MINIMUM_MD_SCRIPT=$ELN_INSTALLATION"/3/as/initializemasterdataminimum.py"
-ELN_INSTALLATION_STANDARD_MD_SCRIPT=$ELN_INSTALLATION"/3/as/initialize-master-data.py"
-ELN_ETC_CONFIG_FOLDER=$ELN_INSTALLATION"/3/as/webapps/eln-lims/html/etc/"
+
+ELN_INSTALLATION_MINIMUM_MD_SCRIPT=$ELN_INSTALLATION"/"$VERSION"/as/initializemasterdataminimum.py"
+ELN_INSTALLATION_STANDARD_MD_SCRIPT=$ELN_INSTALLATION"/"$VERSION"/as/initialize-master-data.py"
+
 ELN_TARBALL_LOCATION=$BASE"/servers/eln-lims-*.tar.gz";
 ELN_TARBALL="$( ls $ELN_TARBALL_LOCATION )" #The script fails and exits automatically if the tarball is not found
+
 echo "2 - The ELN-LIMS tarball found to be used is: "$ELN_TARBALL
 
 if [ -d $ELN_INSTALLATION ]; then
 	#Check if is a minimum master data installation
 	if [ -f $ELN_INSTALLATION_MINIMUM_MD_SCRIPT ]; then
-	    IS_MINIMUM_MASTER_DATA=false
+		IS_MINIMUM_MASTER_DATA=false
 	else
 		IS_MINIMUM_MASTER_DATA=true
 	fi
 	echo "3 - Is minimum master data installation: "$IS_MINIMUM_MASTER_DATA
 	
-	#Backup ELN-LIMS etc folder
-	if [ -d $ELN_ETC_CONFIG_FOLDER ]; then
-		echo "4 - Backing up ELN-LIMS etc folder at: "$BACKUP
-		#Creating backup folder and its parents if doesn't exist
-		mkdir -p $BACKUP"/eln-lims/3/as/webapps/eln-lims/html/etc/"
-		cp $ELN_ETC_CONFIG_FOLDER* $BACKUP"/eln-lims/3/as/webapps/eln-lims/html/etc/"
-	else
-		echo "4 - ELN-LIMS etc folder was not found, is this installation quite old?"
-	fi
+	#Backup ELN-LIMS folder
+	echo "4 - Backing up ELN-LIMS folder at: "$BACKUP
+	mkdir -p $ELN_BACKUP
+	cp -rf $ELN_INSTALLATION* $BACKUP
+	rm -rf $ELN_BACKUP"/bin/" #Delete blast if found
 	
 	#Remove ELN-LIMS folder
 	echo "5 - Remove current ELN-LIMS installation"
@@ -66,17 +68,27 @@ if [ -d $ELN_INSTALLATION ]; then
 	tar xfz $ELN_TARBALL -C $CORE_PLUGINS
 	
 	#if is minimum master data, remove the extra types script
-	if [ IS_MINIMUM_MASTER_DATA ]; then
+	if [ -f $ELN_INSTALLATION_MINIMUM_MD_SCRIPT ]; then
+		echo "7 - Not modifying master data scripts since a standard master data installation was found"
+	else
 		echo "7 - Replacing master data script since minimum master data installation was found"
 		mv $ELN_INSTALLATION_MINIMUM_MD_SCRIPT $ELN_INSTALLATION_STANDARD_MD_SCRIPT
-	else
-		echo "7 - Not modifying master data scripts since a standard master data installation was found"
 	fi
-	#Restore etc folder contents if they where backup
-	if [ -d $BACKUP"/eln-lims/3/as/webapps/eln-lims/html/etc/" ]; then
+
+	#Restore config folder contents if they where backup
+	if [ -d $ELN_BACKUP"/"$VERSION"/as/webapps/eln-lims/html/etc/" ]; then
 		echo "8 - Restoring ELN-LIMS etc folder"
-		cp $BACKUP"/eln-lims/3/as/webapps/eln-lims/html/etc/"* $ELN_ETC_CONFIG_FOLDER
+		cp $ELN_BACKUP"/"$VERSION"/as/webapps/eln-lims/html/etc/"* $ELN_INSTALLATION"/"$VERSION"/as/webapps/eln-lims/html/etc/"
 	fi
+	#Restore config files if they where backup
+	declare -a CONFIG_FILES=("/"$VERSION"/as/miscellaneous/file-service/plugin.properties" "/"$VERSION"/dss/drop-boxes/eln-lims-dropbox/plugin.properties" "/"$VERSION"/dss/maintenance-tasks/blastdb/plugin.properties" "/"$VERSION"/dss/reporting-plugins/exports-api/plugin.properties")
+	for CONFIG_FILE in "${CONFIG_FILES[@]}"; do
+		echo "8b - Checking backup config file: "$ELN_BACKUP$CONFIG_FILE
+		if [ -f $ELN_BACKUP$CONFIG_FILE ]; then
+			echo "8b - Restoring found config file: "$ELN_BACKUP$CONFIG_FILE
+			cp $ELN_BACKUP$CONFIG_FILE $ELN_INSTALLATION$CONFIG_FILE
+		fi
+	done
 else
 	echo "3 - No ELN-LIMS installation found, at folder \""$ELN_INSTALLATION"\". Do first a normal installation, this script is only for upgrades."
 fi
