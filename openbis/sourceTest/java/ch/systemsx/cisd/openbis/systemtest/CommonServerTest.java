@@ -1735,6 +1735,7 @@ public class CommonServerTest extends SystemTestCase
 
         SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }), null, null,
                 new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/EV-TEST
+        updates.setUpdateExperimentLink(false);
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {

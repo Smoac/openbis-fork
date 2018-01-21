@@ -740,6 +740,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
                 new SampleUpdatesDTO(new TechId(sampleId), null, null, null, Collections.emptyList(), 0,
                         SampleIdentifierFactory.parse(sampleIdentifier), null, null);
         updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
+        updates.setUpdateExperimentLink(false);
         return updates;
     }
 

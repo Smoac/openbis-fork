@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.hamcrest.core.IsEqual;
+import org.hibernate.SessionFactory;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
@@ -160,6 +161,10 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
+    private SessionFactory hibernateSessionFactory;
+
+    private org.hibernate.Session hibernateSession;
+
     private final CommonServer createServer()
     {
         CommonServer server =
@@ -208,6 +213,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         entityValidatorFactory = context.mock(IEntityValidatorFactory.class);
         entityValidatorHotDeployPlugin = context.mock(IEntityValidatorHotDeployPlugin.class);
         hotDeploymentController = context.mock(IHotDeploymentController.class);
+        hibernateSessionFactory = context.mock(SessionFactory.class);
+        hibernateSession = context.mock(org.hibernate.Session.class);
     }
 
     @Test
@@ -243,7 +250,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         assertEquals(
                 "# Besides the full identifier of format '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE', two short formats 'EXPERIMENT_CODE' and 'PROJECT_CODE/EXPERIMENT_CODE' are accepted given that the default project (former short format) or default space (latter short format) are configured. If the proper default value is not configured when using a short format, experiment import will fail.\nidentifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
-                        + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
+                        + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B",
+                template);
         context.assertIsSatisfied();
     }
 
@@ -1194,7 +1202,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         List<Script> scripts =
                 createServer(entityValidatorFactory, dynamicPropertyCalculatorFactory,
                         managedPropertyEvaluatorFactory).listScripts(SESSION_TOKEN,
-                        ScriptType.ENTITY_VALIDATION, EntityKind.SAMPLE);
+                                ScriptType.ENTITY_VALIDATION, EntityKind.SAMPLE);
 
         assertEquals("s2", scripts.get(0).getName());
         assertEquals(ScriptType.ENTITY_VALIDATION, scripts.get(0).getScriptType());
@@ -1247,7 +1255,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         createServer(entityValidatorFactory, dynamicPropertyCalculatorFactory,
                 managedPropertyEvaluatorFactory).deleteScripts(SESSION_TOKEN,
-                Arrays.asList(id1, id2));
+                        Arrays.asList(id1, id2));
 
         context.assertIsSatisfied();
     }
@@ -1895,6 +1903,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testSaveDisplaySettings()
     {
         final PersonPE person = new PersonPE();
+        person.setId(123L);
         EntityVisit v0 = visit(EntityKind.MATERIAL, 0);
         EntityVisit v1 = visit(EntityKind.SAMPLE, 2);
         DisplaySettings currentDisplaySettings = displaySettingsWithVisits(v0, v1);
@@ -1902,6 +1911,15 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(daoFactory).getSessionFactory();
+                    will(returnValue(hibernateSessionFactory));
+
+                    one(hibernateSessionFactory).getCurrentSession();
+                    will(returnValue(hibernateSession));
+
+                    one(hibernateSession).get(PersonPE.class, person.getId());
+                    will(returnValue(person));
+
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     Session mySession = createSession(CommonTestUtils.USER_ID);
                     mySession.setPerson(person);

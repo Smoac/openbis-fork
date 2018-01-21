@@ -1386,6 +1386,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         SampleUpdatesDTO updates =
                 new SampleUpdatesDTO(new TechId(sampleId), null, null, null, null, 0, SampleIdentifierFactory.parse(sampleIdentifier), null, null);
         updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
+        updates.setUpdateExperimentLink(false);
         return updates;
     }
 
