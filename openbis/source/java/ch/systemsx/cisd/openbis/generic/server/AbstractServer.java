@@ -800,8 +800,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 final PersonPE person = session.tryGetPerson();
                 if (person != null)
                 {
-                    getDAOFactory().getPersonDAO().lock(person);
-                    displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
+                    org.hibernate.Session hibernateSession = getDAOFactory().getSessionFactory().getCurrentSession();
+                    PersonPE attachedPerson = (PersonPE) hibernateSession.get(PersonPE.class, person.getId());
+
+                    getDAOFactory().getPersonDAO().lock(attachedPerson);
+                    displaySettingsProvider.executeActionWithPersonLock(attachedPerson, new IDelegatedActionWithResult<Void>()
                         {
                             @Override
                             public Void execute(boolean didOperationSucceed)
@@ -815,8 +818,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                                         visits.remove(i);
                                     }
                                 }
-                                displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
-                                getDAOFactory().getPersonDAO().updatePerson(person);
+                                displaySettingsProvider.replaceRegularDisplaySettings(attachedPerson, displaySettings);
+                                getDAOFactory().getPersonDAO().updatePerson(attachedPerson);
                                 return null;
                             }
                         });
@@ -845,19 +848,22 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 final PersonPE person = session.tryGetPerson();
                 if (person != null)
                 {
-                    getDAOFactory().getPersonDAO().lock(person);
-                    displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
+                    org.hibernate.Session hibernateSession = getDAOFactory().getSessionFactory().getCurrentSession();
+                    PersonPE attachedPerson = (PersonPE) hibernateSession.get(PersonPE.class, person.getId());
+
+                    getDAOFactory().getPersonDAO().lock(attachedPerson);
+                    displaySettingsProvider.executeActionWithPersonLock(attachedPerson, new IDelegatedActionWithResult<Void>()
                         {
                             @Override
                             public Void execute(boolean didOperationSucceed)
                             {
                                 DisplaySettings currentDisplaySettings =
-                                        displaySettingsProvider.getCurrentDisplaySettings(person);
+                                        displaySettingsProvider.getCurrentDisplaySettings(attachedPerson);
                                 DisplaySettings newDisplaySettings =
                                         displaySettingsUpdate.update(currentDisplaySettings);
-                                displaySettingsProvider.replaceCurrentDisplaySettings(person,
+                                displaySettingsProvider.replaceCurrentDisplaySettings(attachedPerson,
                                         newDisplaySettings);
-                                getDAOFactory().getPersonDAO().updatePerson(person);
+                                getDAOFactory().getPersonDAO().updatePerson(attachedPerson);
                                 return null;
                             }
                         });

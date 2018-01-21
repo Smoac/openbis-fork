@@ -95,11 +95,6 @@ public class SampleUpdatesPredicate extends AbstractSamplePredicate<SampleUpdate
             }
         }
 
-        if (updates.getSampleIdentifier() != null)
-        {
-            status = sampleIdentifierPredicate.doEvaluation(person, allowedRoles, updates.getSampleIdentifier());
-        }
-
         return status;
     }
 

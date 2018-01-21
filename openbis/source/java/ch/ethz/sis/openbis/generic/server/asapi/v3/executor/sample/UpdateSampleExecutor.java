@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +37,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -81,6 +83,9 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     @Autowired
     private IUpdateSampleAttachmentExecutor updateSampleAttachmentExecutor;
 
+    @Autowired
+    protected IRelationshipService relationshipService;
+
     @Override
     protected ISampleId getId(SampleUpdate update)
     {
@@ -111,12 +116,30 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     @Override
     protected void updateBatch(IOperationContext context, MapBatch<SampleUpdate, SamplePE> batch)
     {
+        Collection<SamplePE> experimentOrProjectSamples = new ArrayList<SamplePE>();
+
+        for (SamplePE entity : batch.getObjects().values())
+        {
+            if (entity.getExperiment() != null || entity.getProject() != null)
+            {
+                experimentOrProjectSamples.add(entity);
+            }
+        }
+
         updateSampleSpaceExecutor.update(context, batch);
         updateSampleProjectExecutor.update(context, batch);
         updateSampleExperimentExecutor.update(context, batch);
         updateSamplePropertyExecutor.update(context, batch);
         updateTags(context, batch);
         updateAttachments(context, batch);
+
+        for (SamplePE entity : experimentOrProjectSamples)
+        {
+            if (entity.getExperiment() == null && entity.getProject() == null)
+            {
+                relationshipService.assignSampleToSpace(context.getSession(), entity, entity.getSpace());
+            }
+        }
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();

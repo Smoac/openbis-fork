@@ -87,6 +87,8 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
             }
         }
 
+        filterTranslated(context, translated);
+
         return translated;
     }
 
@@ -262,6 +264,16 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
     protected boolean shouldTranslate(TranslationContext context, I input, F fetchOptions)
     {
         return true;
+    }
+
+    /**
+     * Override this method if you want to filter out some translated objects (e.g. because they should not be visible to a user the translation is
+     * performed for). Because of performance overhead related with unnecessary translation do use this method only when the number of objects is
+     * small. In other cases do use shouldTranslate instead.
+     */
+    protected void filterTranslated(TranslationContext context, Map<I, O> translated)
+    {
+
     }
 
     /**

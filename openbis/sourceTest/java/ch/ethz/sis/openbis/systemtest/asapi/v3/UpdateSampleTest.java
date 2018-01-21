@@ -519,6 +519,33 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithExperimentSampleTurnedIntoSpaceSampleAsProjectUser()
+    {
+        String sessionToken = v3api.login(ProjectAuthorizationUser.TEST_PROJECT_PA_ON, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setExperimentId(null);
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            });
+    }
+
+    @Test
     public void testUpdateWithExperimentNullForSampleWithDataSets()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

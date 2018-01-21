@@ -271,6 +271,10 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                     "No sample could be found with given identifier '%s'.",
                     updates.getOldSampleIdentifierOrNull());
         }
+
+        ExperimentPE oldExperiment = sample.getExperiment();
+        ProjectPE oldProject = sample.getProject();
+
         SampleBatchUpdateDetails details = updates.getDetails();
         batchUpdateProperties(sample, updates.getProperties(), details.getPropertiesToUpdate());
         checkPropertiesBusinessRules(sample, propertiesCache);
@@ -307,6 +311,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             checkContainerBusinessRules(sample);
         }
+
+        if ((oldExperiment != null || oldProject != null) && (sample.getExperiment() == null && sample.getProject() == null))
+        {
+            relationshipService.assignSampleToSpace(session, sample, sample.getSpace());
+        }
     }
 
     /**
@@ -325,6 +334,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                     updates.getSampleIdentifier());
         }
 
+        ExperimentPE oldExperiment = sample.getExperiment();
+        ProjectPE oldProject = sample.getProject();
+
         updateProperties(sample, updates.getProperties());
         checkPropertiesBusinessRules(sample, propertiesCache);
 
@@ -335,7 +347,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             updateExperiment(sample, experimentIdentifier, experimentCache);
             checkExperimentBusinessRules(sample);
         }
-        
+
         if (experimentIdentifier == null)
         {
             updateProject(sample, updates.getProjectIdentifier(), projectCache);
@@ -357,6 +369,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             checkContainerBusinessRules(sample);
         }
+
+        if ((oldExperiment != null || oldProject != null) && (sample.getExperiment() == null && sample.getProject() == null))
+        {
+            relationshipService.assignSampleToSpace(session, sample, sample.getSpace());
+        }
+
         RelationshipUtils.updateModificationDateAndModifier(sample, session, getTransactionTimeStamp());
     }
 

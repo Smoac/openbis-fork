@@ -16,26 +16,30 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpacePEPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
 public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAuthorizationExecutor
 {
+
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
 
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
@@ -54,7 +58,7 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("CREATE_SPACE_ROLE")
-    public void canCreateSpaceRole(IOperationContext context, 
+    public void canCreateSpaceRole(IOperationContext context,
             @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE space)
     {
     }
@@ -62,9 +66,13 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("CREATE_PROJECT_ROLE")
-    public void canCreateProjectRole(IOperationContext context, 
+    public void canCreateProjectRole(IOperationContext context,
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
+        if (false == authorizationConfig.isProjectLevelEnabled())
+        {
+            throw new UserFailureException("Project authorization is disabled. Project level roles cannot be manipulated.");
+        }
     }
 
     @Override
@@ -84,7 +92,7 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("DELETE_SPACE_ROLE")
-    public void canDeleteSpaceRole(IOperationContext context, 
+    public void canDeleteSpaceRole(IOperationContext context,
             @AuthorizationGuard(guardClass = SpacePEPredicate.class) SpacePE space)
     {
     }
@@ -92,9 +100,13 @@ public class RoleAssignmentAuthorizationExecutor implements IRoleAssignmentAutho
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("DELETE_PROJECT_ROLE")
-    public void canDeleteProjectRole(IOperationContext context, 
+    public void canDeleteProjectRole(IOperationContext context,
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
+        if (false == authorizationConfig.isProjectLevelEnabled())
+        {
+            throw new UserFailureException("Project authorization is disabled. Project level roles cannot be manipulated.");
+        }
     }
 
 }

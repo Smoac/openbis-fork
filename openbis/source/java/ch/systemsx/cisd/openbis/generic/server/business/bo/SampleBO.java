@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleTechIdI
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -297,6 +298,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             throwModifiedEntityException("Sample");
         }
+
+        ExperimentPE oldExperiment = sample.getExperiment();
+        ProjectPE oldProject = sample.getProject();
+
         updateProperties(sample.getSampleType(), updates.getProperties(), extractPropertiesCodes(updates.getProperties()), sample, sample);
         spaceUpdated = updateSpace(sample, updates.getSampleIdentifier(), null);
         if (updates.isUpdateExperimentLink())
@@ -309,6 +314,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         addAttachments(sample, updates.getAttachments(), attachments);
         updateParents(updates);
         setMetaprojects(sample, updates.getMetaprojectsOrNull());
+
+        if ((oldExperiment != null || oldProject != null) && (sample.getExperiment() == null && sample.getProject() == null))
+        {
+            relationshipService.assignSampleToSpace(session, sample, sample.getSpace());
+        }
 
         dataChanged = true;
     }

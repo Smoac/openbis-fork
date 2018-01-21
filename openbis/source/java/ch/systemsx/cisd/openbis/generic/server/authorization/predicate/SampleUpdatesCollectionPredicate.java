@@ -81,7 +81,6 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
         IServiceConversationProgressListener progressListener =
                 ServiceConversationsThreadContext.getProgressListener();
         List<TechId> techIds = new ArrayList<TechId>(value.size());
-        List<SampleIdentifier> sampleIdentifiers = new ArrayList<SampleIdentifier>(value.size());
         List<SampleIdentifier> containerIdentifiers = new ArrayList<SampleIdentifier>();
 
         int index = 0;
@@ -101,11 +100,6 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
             if (result.isOK() == false)
             {
                 return result;
-            }
-            SampleIdentifier sampleIdentifier = sampleUpdates.getSampleIdentifier();
-            if (sampleIdentifier != null)
-            {
-                sampleIdentifiers.add(sampleIdentifier);
             }
 
             if (sampleUpdates.getContainerIdentifierOrNull() != null)
@@ -132,7 +126,7 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
             }
         }
 
-        return sampleIdentifierCollectionPredicate.doEvaluation(person, allowedRoles, sampleIdentifiers);
+        return result;
     }
 
 }

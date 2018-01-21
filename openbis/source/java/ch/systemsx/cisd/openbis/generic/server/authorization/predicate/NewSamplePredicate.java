@@ -69,13 +69,16 @@ public final class NewSamplePredicate extends AbstractPredicate<NewSample>
 
         Status status = Status.OK;
 
-        if (value.getIdentifier() != null)
+        if (value.getProjectIdentifier() == null && value.getExperimentIdentifier() == null)
         {
-            status = newSampleIdentifierPredicate.doEvaluation(person, allowedRoles, value);
-
-            if (false == status.equals(Status.OK))
+            if (value.getIdentifier() != null)
             {
-                return status;
+                status = newSampleIdentifierPredicate.doEvaluation(person, allowedRoles, value);
+
+                if (false == status.equals(Status.OK))
+                {
+                    return status;
+                }
             }
         }
 

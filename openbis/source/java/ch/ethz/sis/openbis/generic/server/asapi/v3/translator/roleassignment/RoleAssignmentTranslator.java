@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.roleassignment;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,37 +35,39 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTra
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class RoleAssignmentTranslator 
-        extends AbstractCachingTranslator<Long, RoleAssignment, RoleAssignmentFetchOptions> 
+public class RoleAssignmentTranslator
+        extends AbstractCachingTranslator<Long, RoleAssignment, RoleAssignmentFetchOptions>
         implements IRoleAssignmentTranslator
 {
     @Autowired
     private IRoleAssignmentAuthorizationExecutor authorizationExecutor;
-    
+
     @Autowired
     private IRoleAssignmentBaseTranslator baseTranslator;
-    
+
     @Autowired
     private IRoleAssignmentRegistratorTranslator registratorTranslator;
-    
+
     @Autowired
     private IRoleAssignmentPersonTranslator userTranslator;
-    
+
     @Autowired
     private IRoleAssignmentAuthorizationGroupTranslator authorizationGroupTranslator;
-    
+
     @Autowired
     private IRoleAssignmentSpaceTranslator spaceTranslator;
-    
+
     @Autowired
     private IRoleAssignmentProjectTranslator projectTranslator;
+
+    @Autowired
+    private IAuthorizationConfig authorizationConfig;
 
     @Override
     protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> inputs, RoleAssignmentFetchOptions fetchOptions)
@@ -80,6 +83,30 @@ public class RoleAssignmentTranslator
     }
 
     @Override
+    protected void filterTranslated(TranslationContext context, Map<Long, RoleAssignment> translated)
+    {
+        if (authorizationConfig.isProjectLevelEnabled())
+        {
+            return;
+        }
+
+        Collection<Long> projectRoleIds = new HashSet<Long>();
+
+        for (Map.Entry<Long, RoleAssignment> entry : translated.entrySet())
+        {
+            if (RoleLevel.PROJECT.equals(entry.getValue().getRoleLevel()))
+            {
+                projectRoleIds.add(entry.getKey());
+            }
+        }
+
+        for (Long projectRoleId : projectRoleIds)
+        {
+            translated.remove(projectRoleId);
+        }
+    }
+
+    @Override
     protected RoleAssignment createObject(TranslationContext context, Long input, RoleAssignmentFetchOptions fetchOptions)
     {
         RoleAssignment roleAssignment = new RoleAssignment();
@@ -91,11 +118,12 @@ public class RoleAssignmentTranslator
     protected Object getObjectsRelations(TranslationContext context, Collection<Long> inputs, RoleAssignmentFetchOptions fetchOptions)
     {
         TranslationResults relations = new TranslationResults();
-        
+
         relations.put(IRoleAssignmentBaseTranslator.class, baseTranslator.translate(context, inputs, null));
         if (fetchOptions.hasRegistrator())
         {
-            relations.put(IRoleAssignmentRegistratorTranslator.class, registratorTranslator.translate(context, inputs, fetchOptions.withRegistrator()));
+            relations.put(IRoleAssignmentRegistratorTranslator.class,
+                    registratorTranslator.translate(context, inputs, fetchOptions.withRegistrator()));
         }
         if (fetchOptions.hasUser())
         {
@@ -103,7 +131,8 @@ public class RoleAssignmentTranslator
         }
         if (fetchOptions.hasAuthorizationGroup())
         {
-            relations.put(IRoleAssignmentAuthorizationGroupTranslator.class, authorizationGroupTranslator.translate(context, inputs, fetchOptions.withAuthorizationGroup()));
+            relations.put(IRoleAssignmentAuthorizationGroupTranslator.class,
+                    authorizationGroupTranslator.translate(context, inputs, fetchOptions.withAuthorizationGroup()));
         }
         if (fetchOptions.hasSpace())
         {
@@ -113,7 +142,7 @@ public class RoleAssignmentTranslator
         {
             relations.put(IRoleAssignmentProjectTranslator.class, projectTranslator.translate(context, inputs, fetchOptions.withProject()));
         }
-        
+
         return relations;
     }
 
@@ -127,7 +156,7 @@ public class RoleAssignmentTranslator
         output.setRole(Role.valueOf(baseRecord.role_code));
         output.setRoleLevel(extractRoleLevel(baseRecord));
         output.setRegistrationDate(baseRecord.registrationDate);
-        
+
         if (fetchOptions.hasRegistrator())
         {
             output.setRegistrator(relations.get(IRoleAssignmentRegistratorTranslator.class, input));

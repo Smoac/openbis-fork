@@ -28,6 +28,22 @@ import org.testng.annotations.DataProvider;
 public class ProjectAuthorizationUser
 {
 
+    public static final String INSTANCE_ADMIN = "instance_admin";
+
+    public static final String TEST_SPACE_PA_ON = "test_space_pa_on";
+
+    public static final String TEST_SPACE_PA_OFF = "test_space_pa_off";
+
+    public static final String TEST_PROJECT_PA_ON = "test_project_pa_on";
+
+    public static final String TEST_PROJECT_PA_OFF = "test_project_pa_off";
+
+    public static final String ETL_SERVER = "etlserver";
+
+    public static final String TEST_SPACE_ETL_SERVER = "test_space_etl_server";
+
+    public static final String TEST_GROUP_ETL_SERVER = "test_group_etl_server";
+
     public static final String PROVIDER = "project-authorization-users-provider";
 
     public static final String PROVIDER_WITH_ETL = "project-authorization-users-provider-with-etl";
@@ -149,20 +165,20 @@ public class ProjectAuthorizationUser
     @DataProvider(name = PROVIDER)
     public static Object[][] providerUsers()
     {
-        ProjectAuthorizationUser instanceAdmin = new ProjectAuthorizationUser("instance_admin");
+        ProjectAuthorizationUser instanceAdmin = new ProjectAuthorizationUser(INSTANCE_ADMIN);
         instanceAdmin.setInstanceUser(true);
 
-        ProjectAuthorizationUser testSpacePAOff = new ProjectAuthorizationUser("test_space_pa_off");
+        ProjectAuthorizationUser testSpacePAOff = new ProjectAuthorizationUser(TEST_SPACE_PA_OFF);
         testSpacePAOff.setTestSpaceUser(true);
 
-        ProjectAuthorizationUser testSpacePAOn = new ProjectAuthorizationUser("test_space_pa_on");
+        ProjectAuthorizationUser testSpacePAOn = new ProjectAuthorizationUser(TEST_SPACE_PA_ON);
         testSpacePAOn.setTestSpaceUser(true);
         testSpacePAOn.setPAEnabled(true);
 
-        ProjectAuthorizationUser testProjectPAOff = new ProjectAuthorizationUser("test_project_pa_off");
+        ProjectAuthorizationUser testProjectPAOff = new ProjectAuthorizationUser(TEST_PROJECT_PA_OFF);
         testProjectPAOff.setTestProjectUser(true);
 
-        ProjectAuthorizationUser testProjectPAOn = new ProjectAuthorizationUser("test_project_pa_on");
+        ProjectAuthorizationUser testProjectPAOn = new ProjectAuthorizationUser(TEST_PROJECT_PA_ON);
         testProjectPAOn.setTestProjectUser(true);
         testProjectPAOn.setPAEnabled(true);
 
@@ -182,15 +198,15 @@ public class ProjectAuthorizationUser
     @DataProvider(name = PROVIDER_WITH_ETL)
     public static Object[][] provideUsersWithETL()
     {
-        ProjectAuthorizationUser instanceETLServer = new ProjectAuthorizationUser("etlserver");
+        ProjectAuthorizationUser instanceETLServer = new ProjectAuthorizationUser(ETL_SERVER);
         instanceETLServer.setInstanceUser(true);
         instanceETLServer.setETLServerUser(true);
 
-        ProjectAuthorizationUser testSpaceETLServer = new ProjectAuthorizationUser("test_space_etl_server");
+        ProjectAuthorizationUser testSpaceETLServer = new ProjectAuthorizationUser(TEST_SPACE_ETL_SERVER);
         testSpaceETLServer.setTestSpaceUser(true);
         testSpaceETLServer.setETLServerUser(true);
 
-        ProjectAuthorizationUser testGroupETLServer = new ProjectAuthorizationUser("test_group_etl_server");
+        ProjectAuthorizationUser testGroupETLServer = new ProjectAuthorizationUser(TEST_GROUP_ETL_SERVER);
         testGroupETLServer.setTestGroupUser(true);
         testGroupETLServer.setETLServerUser(true);
 
