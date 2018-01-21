@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.entity;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.ProjectAuthorizationUser;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleIdentifierUtil;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.common.SampleTechIdUtil;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestAssertions;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTestSampleAssertions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author pkupczyk
@@ -42,8 +41,8 @@ public class AtomicOperationsPredicateWithSampleUpdateSystemTest extends AtomicO
     @Override
     protected AtomicEntityOperationDetails createNonexistentObject(Object param)
     {
-        SampleIdentifier identifier = SampleIdentifierUtil.createNonexistentObject(param);
-        SampleUpdatesDTO update = new SampleUpdatesDTO(null, null, null, null, null, 0, identifier, null, null);
+        TechId id = SampleTechIdUtil.createNonexistentObject(param);
+        SampleUpdatesDTO update = new SampleUpdatesDTO(id, null, null, null, null, 0, null, null, null);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.sampleUpdate(update);
@@ -54,8 +53,8 @@ public class AtomicOperationsPredicateWithSampleUpdateSystemTest extends AtomicO
     @Override
     protected AtomicEntityOperationDetails createObject(SpacePE spacePE, ProjectPE projectPE, Object param)
     {
-        SampleIdentifier identifier = SampleIdentifierUtil.createObject(this, spacePE, projectPE, param);
-        SampleUpdatesDTO update = new SampleUpdatesDTO(null, null, null, null, null, 0, identifier, null, null);
+        TechId id = SampleTechIdUtil.createObject(this, spacePE, projectPE, param);
+        SampleUpdatesDTO update = new SampleUpdatesDTO(id, null, null, null, null, 0, null, null, null);
 
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.sampleUpdate(update);
@@ -66,23 +65,7 @@ public class AtomicOperationsPredicateWithSampleUpdateSystemTest extends AtomicO
     @Override
     protected CommonPredicateSystemTestAssertions<AtomicEntityOperationDetails> getAssertions()
     {
-        return new CommonPredicateSystemTestSampleAssertions<AtomicEntityOperationDetails>(super.getAssertions())
-            {
-                @Override
-                public void assertWithNonexistentObject(ProjectAuthorizationUser user, Throwable t, Object param)
-                {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else if (user.isInstanceUser())
-                    {
-                        assertNoException(t);
-                    } else
-                    {
-                        assertAuthorizationFailureExceptionThatNotEnoughPrivileges(t);
-                    }
-                }
-            };
+        return new CommonPredicateSystemTestSampleAssertions<AtomicEntityOperationDetails>(super.getAssertions());
     }
 
 }
