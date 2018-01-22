@@ -1466,6 +1466,11 @@ public class UpdateSampleTest extends AbstractSampleTest
         update.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         update.setProperty("COMMENT", "test comment");
 
+        AttachmentCreation attachment = new AttachmentCreation();
+        attachment.setFileName("test_file_name");
+        attachment.setContent("test_content".getBytes());
+        update.getAttachments().add(attachment);
+
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
