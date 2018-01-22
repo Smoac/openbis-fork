@@ -241,7 +241,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                             .contains(TestCaseParameters.FailurePoint.FILE_LENGTH))
                     {
                         body =
-                                "Data sets checked:\n\nds-1\n\n"
+                                "Data sets checked:\n\n[ds-1]\n\n"
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
                                         + "- 'data.txt' size in the file system = 1024 bytes but in the path info database = 2100 bytes.\n\n";
@@ -249,7 +249,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                             .contains(TestCaseParameters.FailurePoint.ROOT_NODE_EXISTS))
                     {
                         body =
-                                "Data sets checked:\n\nds-1\n\n"
+                                "Data sets checked:\n\n[ds-1]\n\n"
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
                                         + "- 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest' "
@@ -259,7 +259,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                             .contains(TestCaseParameters.FailurePoint.ROOT_NODE_PATH))
                     {
                         body =
-                                "Data sets checked:\n\nds-1\n\n"
+                                "Data sets checked:\n\n[ds-1]\n\n"
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
                                         + "- 'different' is referenced in the path info database but does not exist on the file system\n"
@@ -268,13 +268,13 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                             .contains(TestCaseParameters.FailurePoint.CHECKSUM))
                     {
                         body =
-                                "Data sets checked:\n\nds-1\n\n"
+                                "Data sets checked:\n\n[ds-1]\n\n"
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
                                         + "- 'data.txt' CRC32 checksum in the file system = 002cc5cb but in the path info database = 000f58fc\n\n";
                     } else
                     {
-                        body = "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone";
+                        body = "Data sets checked:\n\n[ds-1]\n\nDifferences found:\n\nNone";
 
                     }
                     oneOf(mailClient).sendEmailMessage(subject, body, null, null,
