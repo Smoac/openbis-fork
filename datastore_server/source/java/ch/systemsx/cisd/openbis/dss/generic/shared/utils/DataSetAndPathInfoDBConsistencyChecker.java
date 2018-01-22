@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -159,7 +160,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
         StringBuilder builder = new StringBuilder();
         builder.append("Data sets checked:\n\n");
-        builder.append(String.join(", ", dataSets));
+        builder.append(CollectionUtils.abbreviate(dataSets, 1000));
         builder.append("\n\n");
         builder.append("Differences found:\n\n");
 

@@ -233,7 +233,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AbstractFileSy
                 logRecorder.getLogLines(),
                 hasItem("ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - File system and path info DB consistency check report for all data sets since 1977-06-15 23:53:08"));
         assertThat(logRecorder.getLogLines(), hasItem("Data sets checked:"));
-        assertThat(logRecorder.getLogLines(), hasItem("ds1, ds2, ds3, ds4, ds5"));
+        assertThat(logRecorder.getLogLines(), hasItem("[ds1, ds2, ds3, ds4, ds5]"));
         assertThat(logRecorder.getLogLines(), hasItem("Differences found:"));
         assertThat(logRecorder.getLogLines(), hasItem("Data set ds1:"));
         assertThat(logRecorder.getLogLines(),
@@ -289,6 +289,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AbstractFileSy
         RecordingMatcher<DataSetSearchCriteria> searchCriteriaRecorder1 = prepareListDataSets(ds1, ds2);
         RecordingMatcher<DataSetSearchCriteria> searchCriteriaRecorder2 = prepareListDataSets(ds5, ds4, ds3);
         RecordingMatcher<DataSetSearchCriteria> searchCriteriaRecorder3 = prepareListDataSets(ds5, ds4, ds3);
+        RecordingMatcher<DataSetSearchCriteria> searchCriteriaRecorder4 = prepareListDataSets();
         MockContent fc1 = prepareContentProvider(fileProvider, "ds1", ":0:0", "a:34:9");
         MockContent pic1 = prepareContentProvider(pathInfoProvider, "ds1", ":0:0", "a:34:9");
         MockContent fc2 = prepareContentProvider(fileProvider, "ds2", ":0:0", "b:35:10");
@@ -322,18 +323,24 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AbstractFileSy
                 + "        with attribute 'storageConfirmation' true\n"
                 + "        with attribute 'status' AVAILABLE\n", searchCriteriaRecorder2.recordedObject().toString());
         assertThat(logRecorder.getLogLines(), hasItem("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
-                + "Check 0 data sets registered since 1977-06-15 23:53:05"));
+                + "Check 0 data sets registered since 1977-06-15 23:52:55"));
         assertEquals("DATASET\n"
                 + "    with operator 'AND'\n"
                 + "    with attribute 'registration_date' later than or equal to 'Wed Jun 15 23:53:05 CET 1977'\n"
                 + "    with physical_data:\n"
                 + "        with attribute 'storageConfirmation' true\n"
                 + "        with attribute 'status' AVAILABLE\n", searchCriteriaRecorder3.recordedObject().toString());
+        assertEquals("DATASET\n"
+                + "    with operator 'AND'\n"
+                + "    with attribute 'registration_date' later than or equal to 'Wed Jun 15 23:52:55 CET 1977'\n"
+                + "    with physical_data:\n"
+                + "        with attribute 'storageConfirmation' true\n"
+                + "        with attribute 'status' AVAILABLE\n", searchCriteriaRecorder4.recordedObject().toString());
         assertThat(logRecorder.getLogLines(), hasItem("ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
                 + "File system and path info DB consistency check report for all data sets "
                 + "between 1977-06-15 23:52:55 and 1977-06-15 23:53:05"));
         assertThat(logRecorder.getLogLines(), hasItem("Data sets checked:"));
-        assertThat(logRecorder.getLogLines(), hasItem("ds1, ds2, ds3, ds4, ds5"));
+        assertThat(logRecorder.getLogLines(), hasItem("[ds1, ds2, ds3, ds4, ds5]"));
         assertThat(logRecorder.getLogLines(), hasItem("Differences found:"));
         assertThat(logRecorder.getLogLines(), hasItem("Data set ds4:"));
         assertThat(logRecorder.getLogLines(), hasItem("- 'd' CRC32 checksum in the file system = 00000123 but in the path info database = 00000012"));

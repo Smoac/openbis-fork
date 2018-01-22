@@ -151,8 +151,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
             executeInterruptingMode();
         } else
         {
-            Date youngerThanDate = new Date(timeProvider.getTimeInMilliseconds() - timeInterval);
-            List<DataSet> dataSets = getNextDataSets(youngerThanDate, null);
+            Date youngerThanDate = getOriginalStartingTime();
+            List<DataSet> dataSets = getNextDataSets(youngerThanDate, null, readTimestampAndCodeFromStateFile());
             operationLog.info("Check " + dataSets.size() + " data sets registered since "
                     + DATE_FORMAT.format(youngerThanDate));
             DataSetAndPathInfoDBConsistencyChecker checker =
@@ -197,9 +197,10 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
         }
         DataSetAndPathInfoDBConsistencyChecker checker =
                 new DataSetAndPathInfoDBConsistencyChecker(fileProvider, pathInfoProvider);
-        Date lastRegistrationDate = getLastRegistrationDate();
+        Date originalStartingTime = getOriginalStartingTime();
+        Date lastRegistrationDate = getLastRegistrationDate(originalStartingTime);
         Date registrationDate = lastRegistrationDate;
-        DataSetIterable dataSetIterable = new DataSetIterable(registrationDate);
+        DataSetIterable dataSetIterable = new DataSetIterable(registrationDate, originalStartingTime);
         for (DataSet dataSet : dataSetIterable)
         {
             checker.checkDataSet(dataSet.getCode());
@@ -216,10 +217,12 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
     private class DataSetIterable implements Iterable<DataSet>
     {
         private Date lastRegistrationDate;
+        private Date originalStartingTime;
 
-        DataSetIterable(Date lastRegistrationDate)
+        DataSetIterable(Date lastRegistrationDate, Date originalStartingTime)
         {
             this.lastRegistrationDate = lastRegistrationDate;
+            this.originalStartingTime = originalStartingTime;
         }
 
         @Override
@@ -235,7 +238,13 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
                     {
                         if (currentChunk == null || index == currentChunk.size())
                         {
-                            currentChunk = getNextDataSets(lastRegistrationDate, chunkSize);
+                            String timestampAndCode = readTimestampAndCodeFromStateFile();
+                            currentChunk = getNextDataSets(lastRegistrationDate, chunkSize, timestampAndCode);
+                            if (currentChunk.isEmpty())
+                            {
+                                lastRegistrationDate = originalStartingTime;
+                                currentChunk = getNextDataSets(lastRegistrationDate, chunkSize, null);
+                            }
                             operationLog.info("Check " + currentChunk.size() + " data sets registered since "
                                     + DATE_FORMAT.format(lastRegistrationDate));
                             index = 0;
@@ -260,10 +269,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
         return interval.isInTimeInterval(new Date(timeProvider.getTimeInMilliseconds()));
     }
     
-    private List<DataSet> getNextDataSets(Date registrationDate, Integer count)
+    private List<DataSet> getNextDataSets(Date registrationDate, Integer count, String timestampAndCodeOrNull)
     {
         String sessionToken = login();
-        String timestampAndCodeOrNull = readTimestampAndCodeFromStateFile();
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withRegistrationDate().thatIsLaterThanOrEqualTo(registrationDate);
         PhysicalDataSearchCriteria physicalDataSearchCriteria = searchCriteria.withPhysicalData();
@@ -301,7 +309,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
         return timeStampAndCodeOfDataSet.compareTo(timestampAndCodeOrNull) > 0;
     }
     
-    private Date getLastRegistrationDate()
+    private Date getLastRegistrationDate(Date originalStartingTime)
     {
         if (stateFile.exists())
         {
@@ -316,6 +324,11 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
                         + stateFile.getAbsolutePath() + ", timestamp: " + timestamp);
             }
         }
+        return originalStartingTime;
+    }
+
+    private Date getOriginalStartingTime()
+    {
         return new Date(timeProvider.getTimeInMilliseconds() - timeInterval);
     }
     
