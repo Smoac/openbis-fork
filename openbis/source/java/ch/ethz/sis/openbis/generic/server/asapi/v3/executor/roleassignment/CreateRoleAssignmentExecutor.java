@@ -41,7 +41,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.Create
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -77,9 +76,6 @@ public class CreateRoleAssignmentExecutor
     @Autowired
     private ISetRoleAssignmentProjectExecutor setRoleAssignmentProjectExecutor;
     
-    @Autowired
-    private IAuthorizationConfig authorizationConfig;
-
     @Override
     protected IObjectId getId(RoleAssignmentPE entity)
     {
@@ -143,10 +139,6 @@ public class CreateRoleAssignmentExecutor
         if (creation.getSpaceId() != null && creation.getProjectId() != null)
         {
             throw new UserFailureException("A space and a project have been specified.");
-        }
-        if (creation.getProjectId() != null && authorizationConfig.isProjectLevelEnabled() == false)
-        {
-            throw new UserFailureException("Project authorization isn't enabled.");
         }
     }
 
