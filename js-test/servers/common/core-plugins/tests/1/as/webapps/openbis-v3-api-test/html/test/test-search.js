@@ -1360,7 +1360,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					}
 				}
 				c.assertEqual(numberOfTestSpaceAssignments, 1, "Number of TEST space assignments");
-				c.assertEqual(numberOfProjectAssignments, 1, "Number of project assignments");
+				c.assertEqual(numberOfProjectAssignments, 0, "Number of project assignments");
 			}
 			
 			testSearch(c, fSearch, fCheck);

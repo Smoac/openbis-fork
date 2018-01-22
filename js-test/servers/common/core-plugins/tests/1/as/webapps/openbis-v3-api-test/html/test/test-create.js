@@ -589,33 +589,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findRoleAssignment, fCheck);
 		});
 		
-		QUnit.test("createRoleAssignments() for project authorization group", function(assert) {
-			var c = new common(assert, openbis);
-			var authorizationGroupId;
-			
-			var fCreate = function(facade) {
-				return c.createProject(facade).then(function(projectId) {
-					return c.createAuthorizationGroup(facade).then(function(groupId){
-						authorizationGroupId = groupId;
-						var creation = new c.RoleAssignmentCreation();
-						creation.setRole(c.Role.ADMIN);
-						creation.setAuthorizationGroupId(groupId);
-						creation.setProjectId(projectId);
-						return facade.createRoleAssignments([creation]);
-					});
-				});
-			}
-			
-			var fCheck = function(roleAssignment) {
-				c.assertEqual(roleAssignment.getAuthorizationGroup().getPermId().toString(), authorizationGroupId, "Authorization group");
-				c.assertEqual(roleAssignment.getRole(), c.Role.ADMIN, "Role");
-				c.assertEqual(roleAssignment.getRoleLevel(), c.RoleLevel.PROJECT, "Role level");
-				c.assertEqual(roleAssignment.getRegistrator().getUserId(), "openbis_test_js", "Registrator");
-			}
-			
-			testCreate(c, fCreate, c.findRoleAssignment, fCheck);
-		});
-		
 		QUnit.test("createPersons()", function(assert) {
 			var c = new common(assert, openbis);
 			var userId = c.generateId("user");
