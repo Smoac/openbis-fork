@@ -106,7 +106,7 @@ task apiV3Jar(type: Jar) {
           include "ch/systemsx/cisd/common/exceptions/**/*.class"
           include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
           include "ch/systemsx/cisd/common/spring/IRemoteSpringBeanProvider.class"
-          include "ch/systemsx/cisd/common/spring/JettyRemoteSpringBeanProvider.class"
+          include "ch/systemsx/cisd/common/spring/Jetty*.class"
           include "ch/systemsx/cisd/common/http/*.class"
           include "ch/systemsx/cisd/common/api/**/*.class"
           exclude "ch/systemsx/cisd/common/api/server/**/*.class"
