@@ -74,14 +74,14 @@ def fetchBinaries(version):
     os.system("scp sprint:/links/groups/cisd/sprint_builds/openBIS/*-{0}*/{1}-{0}*.* {2}".format(version, file_pattern, DOWNLOAD_FOLDER))
 
   print "trying to delete existing eln-lims artifacts"
-  os.system("rm -r eln-lims")
-  print "Checking out ELN from svn"
-  svnresult = os.system("svn export svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/sprint/S{0}.x/S{0}.{1}/openbis_standard_technologies/dist/core-plugins/eln-lims".format(major, minor))
-  if svnresult != 0:
-    raise Exception("Fetching ELN from svn failed. Aborting")
-  
+  os.system("rm -rf eln-lims")
+  print "Checking out ELN from git"
+  gitresult = os.system("git clone --depth 1 -b S{0}.{1} git@sissource.ethz.ch:sis/openbis.git eln-lims".format(major, minor))
+  if gitresult != 0:
+    raise Exception("Fetching ELN from git failed. Aborting")
+
   print "Creating a tar archive"
-  os.system("tar -cvzf {1}/eln-lims-{0}.tar.gz eln-lims".format(version, DOWNLOAD_FOLDER))
+  os.system("tar -cvzf {1}/eln-lims-{0}.tar.gz -C eln-lims/openbis_standard_technologies/dist/core-plugins eln-lims".format(version, DOWNLOAD_FOLDER))
 
 def printVersion(version, headerLevel):
   today = date.today().strftime("%d %B %Y")
