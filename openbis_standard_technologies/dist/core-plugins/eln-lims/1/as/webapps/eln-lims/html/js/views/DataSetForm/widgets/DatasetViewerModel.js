@@ -42,7 +42,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		
 		if(this.isLinkDataset(datasetCode)) {
 			var cc = this.getDownloadableContentCopy(datasetCode);
-			downloadUrl = profile.EDMSs[cc.externalDms.code] 	+ "?sessionToken=" + encodeURIComponent(mainController.serverFacade.getSession())
+			downloadUrl = profile.EDMSs[cc.externalDms.code] + "?sessionToken=" + encodeURIComponent(mainController.serverFacade.getSession())
 													+ "&datasetPermId=" + encodeURIComponent(datasetCode)
 													+ "&externalDMSCode=" + encodeURIComponent(cc.externalDms.code)
 													+ "&contentCopyPath=" + encodeURIComponent(cc.path)
