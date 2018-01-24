@@ -29,6 +29,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	}
 	
 	this.datasets = datasets;
+	this.v3Datasets = [];
 	
 	this.enableUpload = enableUpload;
 	this.enableDeepUnfolding = enableDeepUnfolding;
@@ -36,7 +37,19 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	this.datastoreDownloadURL = datastoreDownloadURL;
 	
 	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
-		var downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
+		
+		var downloadUrl = null;
+		
+		if(this.isLinkDataset(datasetCode)) {
+			var cc = this.getDownloadableContentCopy(datasetCode);
+			downloadUrl = profile.EDMSs[cc.externalDms.code] 	+ "?sessionToken=" + encodeURIComponent(mainController.serverFacade.getSession())
+													+ "&datasetPermId=" + encodeURIComponent(datasetCode)
+													+ "&externalDMSCode=" + encodeURIComponent(cc.externalDms.code)
+													+ "&contentCopyPath=" + encodeURIComponent(cc.path)
+													+ "&datasetPathToFile=" + encodeURIComponent(datasetFile.pathInDataSet);
+		} else {
+			downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
+		}
 		
 		var size = null;
 		if(parseInt(datasetFile.fileSize) / 1024 > 1024) {
@@ -87,6 +100,22 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 			}
 		}
 		return false;
+	}
+	
+	this.getDownloadableContentCopy = function(datasetCode) {
+		for(var idx = 0; idx < this.datasets.length; idx++) {
+			var dataset = this.v3Datasets[idx];
+			if(dataset.code === datasetCode && dataset.linkedData) {
+				var contentCopies = dataset.linkedData.contentCopies;
+				for(var ccIdx = 0; ccIdx < contentCopies.length; ccIdx++) {
+					var contentCopy = contentCopies[ccIdx];
+					if(profile.EDMSs[contentCopy.externalDms.code]) {
+						return contentCopy;
+					}
+				}
+			}
+		}
+		return null;
 	}
 	
 	this.getDirectDirectoryLink = function(datasetCode, pathInDataSet) {

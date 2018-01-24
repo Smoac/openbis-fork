@@ -37,7 +37,6 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 		if(this._datasetViewerModel.datasets) {
 			if(this._datasetViewerModel.datasets.length > 0) {
 				this.updateDatasets(this._datasetViewerModel.datasets);
-				this._datasetViewerView.repaintDatasets();
 			}
 		} else {
 			var _this = this;
@@ -59,16 +58,13 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 						
 						if(results.length > 0) {
 							_this.updateDatasets(results);
-							_this._datasetViewerView.repaintDatasets();
 						}
-						
 					});
 				});
 			} else {
 				serverFacade.listDataSetsForSample(this._datasetViewerModel.entity, true, function(datasets) {
 					if(datasets.result.length > 0) {
 						_this.updateDatasets(datasets.result);
-						_this._datasetViewerView.repaintDatasets();
 					}
 				});
 			}
@@ -76,10 +72,33 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 	}
 	
 	this.updateDatasets = function(datasets) {
+		var _this = this;
+		var datasetPermIds = [];
+		
 		for(var i = 0; i < datasets.length; i++) { //DataSets for entity
 			var dataset = datasets[i];
 			this._datasetViewerModel.entityDataSets[dataset.code] = dataset;
+			datasetPermIds.push(dataset.code);
 		}
+		
+		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
+				function(DataSetPermId, DataSetFetchOptions) {
+					var ids = [];
+					for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
+						var id = new DataSetPermId(datasetPermIds[dIdx]);
+						ids.push(id);
+					}
+		            var fetchOptions = new DataSetFetchOptions();
+		            fetchOptions.withLinkedData().withExternalDms();
+		            mainController.openbisV3.getDataSets(ids, fetchOptions).done(function(map) {
+		            	for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
+							_this._datasetViewerModel.v3Datasets.push(map[datasetPermIds[dIdx]]);
+						}
+		            	_this._datasetViewerView.repaintDatasets();
+		            });
+		});
+		
+		
 	}
 	
 }

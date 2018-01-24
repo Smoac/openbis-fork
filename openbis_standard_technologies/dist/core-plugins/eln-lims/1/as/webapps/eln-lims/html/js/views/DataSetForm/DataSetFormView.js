@@ -224,11 +224,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				
 				if(cc) {
 					var $cc = FormUtil.getFieldForLabelWithText("Content Copy " + (cIdx+1) , 
-							"- <u>External DMS</u>: " + externalDmsCode + "</br>" + 
-							"- <u>Host</u>: " + host + "</br>" +
-							"- <u>Directory</u>: " + cc.path + "</br>" +
-							"- <u>Commit Hash</u>: " + cc.gitCommitHash + "</br>" + 
-							"- <u>Repository Id</u>: " + cc.gitRepositoryId + "</br>" +
+							"- <u>External DMS</u>: " + externalDmsCode + "<br>" + 
+							"- <u>Host</u>: " + host + "<br>" +
+							"- <u>Directory</u>: " + cc.path + "<br>" +
+							"- <u>Commit Hash</u>: " + cc.gitCommitHash + "<br>" + 
+							"- <u>Repository Id</u>: " + cc.gitRepositoryId + "<br>" +
 							"- <u>Connect cmd</u>: " +  "ssh -t " + host + " \"cd " + cc.path + "; bash\""
 							);
 					$dataSetTypeFieldSet.append($cc);
